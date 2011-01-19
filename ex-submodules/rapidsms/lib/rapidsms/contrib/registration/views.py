@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404
-from rapidsms.forms import ContactForm
+from rapidsms.forms import ContactForm, ConnectionForm
 from rapidsms.models import Contact
 from rapidsms.models import Connection
 from rapidsms.models import Backend
@@ -18,10 +18,12 @@ from .forms import BulkRegistrationForm
 @transaction.commit_on_success
 def registration(req, pk=None):
     contact = None
+    connection = None
 
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
+        connection = get_object_or_404(Connection,contact__name=contact.name)
 
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
@@ -54,9 +56,13 @@ def registration(req, pk=None):
             contact_form = ContactForm(
                 instance=contact,
                 data=req.POST)
-
-            if contact_form.is_valid():
+            connection_form = ConnectionForm(req.POST, instance=connection)
+ 
+            if contact_form.is_valid() and connection_form.is_valid():
                 contact = contact_form.save()
+                connection = connection_form.save(commit=False)
+                connection.contact = contact
+                connection.save()
                 return HttpResponseRedirect(
                     reverse(registration))
 
@@ -64,11 +70,13 @@ def registration(req, pk=None):
         contact_form = ContactForm(
             instance=contact)
         bulk_form = BulkRegistrationForm()
+        connection_form = ConnectionForm(instance=connection)
 
     return render_to_response(
         "registration/dashboard.html", {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
+            "connection_form": connection_form,
             "bulk_form": bulk_form,
             "contact": contact
         }, context_instance=RequestContext(req)

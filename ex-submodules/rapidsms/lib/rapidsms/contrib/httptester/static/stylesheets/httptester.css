@@ -46,7 +46,7 @@
 	/* display whitespace, since it'll be displayed on devices. */
 	#log td.text {
 		font-family: monospace;
-		white-space: pre;
+		white-space: normal;
 
 		/* rejig the spacing and padding, to space out multiple lines
 		 * without leaving single lines with superflous whitespace. */
