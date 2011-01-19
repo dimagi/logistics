@@ -21,6 +21,7 @@ def registration(req, pk=None):
     connection = None
     bulk_form = None
 
+
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
