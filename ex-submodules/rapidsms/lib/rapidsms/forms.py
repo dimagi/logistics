@@ -9,4 +9,8 @@ from .models import *
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
-        exclude = ("connections",)
+#        exclude = ("connections",)
+class ConnectionForm(forms.ModelForm):
+    class Meta:
+        model = Connection
+        exclude = ("contact",)
