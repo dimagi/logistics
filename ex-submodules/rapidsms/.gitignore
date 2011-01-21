@@ -11,3 +11,4 @@ core.*
 dist
 build
 .settings/
+*.idea
