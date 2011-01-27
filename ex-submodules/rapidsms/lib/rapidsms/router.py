@@ -51,6 +51,7 @@ class Router(object, LoggerMixin):
         the list of apps to be notified of incoming messages. Return the
         app instance.
         """
+        cls = None
         try:
             cls = AppBase.find(module_name)
         except AttributeError:
