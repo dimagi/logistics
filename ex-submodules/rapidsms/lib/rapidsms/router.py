@@ -51,6 +51,8 @@ class Router(object, LoggerMixin):
         the list of apps to be notified of incoming messages. Return the
         app instance.
         """
+        #Terrible hack that's necessary to use gunicorn.
+        if 'gunicorn' in module_name: return None
 
         cls = AppBase.find(module_name)
         if cls is None: return None
