@@ -190,3 +190,14 @@ class Connection(ConnectionBase):
     """
 
     __metaclass__ = ExtensibleModelBase
+
+
+class DeliveryReport(models.Model):
+    '''
+    This model is used for delivery reports from sending SMS messages
+    using a gateway.
+    '''
+    action = models.CharField(max_length=255)
+    report_id = models.CharField(max_length=255, help_text='Gateway assigned ID')
+    number = models.CharField(max_length=255, help_text='Destination telephone number')
+    report = models.CharField(max_length=255, help_text='Actual report text')

@@ -5,21 +5,21 @@
 To use the http backend, one needs to append 'http' to the list of 
 available backends, like so:
 
-    "my_http_backend" : {"ENGINE":  "rapidsms.backends.http", 
-                "port": 8888,
-                "gateway_url": "http://www.smsgateway.com",
-                "params_outgoing": "user=my_username&password=my_password&id=%(phone_number)s&text=%(message)s",
-                "params_incoming": "id=%(phone_number)s&text=%(message)s"
-        }
-
+    "txtnation" : {"ENGINE":  "rapidsms.backends.http",
+            "port": 8888,
+            "gateway_url": "http://client.txtnation.com/mbill.php",
+            "params_outgoing": "reply=%(reply)s&id=%(id)s&network=%(network)s&number=%(phone_number)s&message=%(message)s&ekey=<SEKRIT_KEY>&cc=dimagi&currency=THB&value=0&title=trialcnct",
+            "params_incoming": "action=action&id=%(id)s&number=%(phone_number)s&network=%(network)s&message=%(message)s&shortcode=%(sc)s&country=%(country_code)&billing=%(bill_code)s"
+    },
 """
 
 import urllib2
+import urllib
 import select
 from datetime import datetime
 
 from django import http
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.core.handlers.wsgi import WSGIHandler, STATUS_CODE_TEXT
 from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler
 
@@ -44,7 +44,7 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
         try:
             status_text = STATUS_CODE_TEXT[response.status_code]
         except KeyError:
-            status_text = 'UNKNOWN STATUS CODE'
+            status_text = 'UNKNOWN STATUS CODE: %s' % str(response.status_code)
         status = '%s %s' % (response.status_code, status_text)
         response_headers = [(str(k), str(v)) for k, v in response.items()]
         start_response(status, response_headers)
@@ -76,9 +76,34 @@ class RapidHttpBacked(BackendBase):
         self.handler.backend = self
         self.gateway_url = gateway_url
         self.http_params_outgoing = params_outgoing
-        
+        self.outgoing_network_param = None
+        self.outgoing_ekey_param = None
+        self.outgoing_cc_param = None
+        self.outgoing_currency_param = None
+        self.outgoing_value_param = None
+        self.outgoing_title_param = None
+        key_value = params_incoming.split('&')
+        for kv in key_value:
+            key,val = kv.split('=')
+            if key == 'network':
+                self.outgoing_network_param = val
+            if key == 'ekey':
+                self.outgoing_ekey_param = val
+            if key == 'cc':
+                self.outgoing_cc_param = val
+            if key == 'value':
+                self.outgoing_value_param = val
+            if key == 'title':
+                self.outgoing_title_param = val
+
+        self.incoming_action_param = None
+        self.incoming_network_param = None
+        self.incoming_id_param = None
         self.incoming_phone_number_param = None
         self.incoming_message_param = None
+        self.incoming_shortcode_param = None
+        self.incoming_country_param = None
+        self.incoming_billing_param = None
         key_value = params_incoming.split('&')
         for kv in key_value:
             key,val = kv.split('=')
@@ -86,6 +111,18 @@ class RapidHttpBacked(BackendBase):
                 self.incoming_phone_number_param = key
             elif val == "%(message)s":
                 self.incoming_message_param = key
+            elif val == "%(action)s":
+                self.incoming_action_param = key
+            elif val == "%(network)s":
+                self.incoming_network_param = key
+            elif val == "%(id)s":
+                self.incoming_id_param = key
+            elif val == "%(sc)s":
+                self.incoming_shortcode_param = key
+            elif val == "%(country_code)s":
+                self.incoming_country_param = key
+            elif val == "%(bill_code)s":
+                self.incoming_billing_param = key
 
     def run(self):
         server_address = (self.host, int(self.port))
@@ -96,14 +133,20 @@ class RapidHttpBacked(BackendBase):
             self.server.handle_request()
 
     def handle_request(self, request):
-        self.debug('Received request: %s' % request.GET)
-        sms = request.GET.get(self.incoming_message_param, '')
-        sender = request.GET.get(self.incoming_phone_number_param, '')
+        if request.method != 'POST':
+            self.info('Received request but wasn\'t POST. Doing nothing: %s' % request.GET)
+            return HttpResponseNotAllowed()
+
+        if request.POST.report:
+            self.delivery_report(request)
+        self.info('Received request: %s' % request.POST)
+        sms = request.POST.get(self.incoming_message_param, '')
+        sender = request.POST.get(self.incoming_phone_number_param, '')
         if not sms or not sender:
             error_msg = 'ERROR: Missing %(msg)s or %(phone_number)s. parameters received are: %(params)s' % \
                          { 'msg' : self.incoming_message_param, 
                            'phone_number': self.incoming_phone_number_param,
-                           'params': unicode(request.GET)
+                           'params': unicode(request.POST)
                          }
             self.error(error_msg)
             return HttpResponseBadRequest(error_msg)
@@ -121,13 +164,36 @@ class RapidHttpBacked(BackendBase):
         # if you wanted to add timestamp or any other outbound variable, 
         # you could add it to this context dictionary
         context = {'message':message.text,
-                   'phone_number':message.connection.identity}
-        url = "%s?%s" % (self.gateway_url, self.http_params_outgoing % context)
+                   'phone_number':message.connection.identity,
+                   'id': message.id,
+                    'reply':str(0), #rapidsms makes no attempt to track if a message is a reply or not so we don't either
+                    'network':self.outgoing_network_param,
+                    'ekey':self.outgoing_ekey_param,
+                    'cc':self.outgoing_cc_param,
+                    'cuurency':self.outgoing_currency_param,
+                    'value':self.outgoing_value_param,
+                    'title':self.outgoing_title_param,
+                    }
+        url = self.gateway_url
+        data = urllib.urlencode(data)
         try:
-            self.debug('Sending: %s' % url)
-            response = urllib2.urlopen(url)
+            req = urllib2.Request(url, data)
+            self.debug('Sending:: URL: %s, %s' % (url, str(context)))
+            response = urllib2.urlopen(req)
         except Exception, e:
             self.exception(e)
             return
         self.info('SENT')
         self.debug(response)
+
+    def delivery_report(self, request):
+        '''
+        Deals with delivery reports from TxTNation
+        '''
+        self.info("Delivery Report recieved.  Saving: %s" % str(request.POST))
+        from rapidsms.models import DeliveryReport
+        d = DeliveryReport(action=request.POST('action'),report_id=request.POST('id'),number=request.POST('number'),report=request.POST('report'))
+        d.save()
+
+#"params_outgoing": "reply=%(reply)s&id=%(id)s&network=%(network)s&number=%(phone_number)s&message=%(message)s&ekey=<SEKRIT_KEY>&cc=dimagi&currency=THB&value=0&title=trialcnct",
+#"params_outgoing": "reply=%(reply)s&id=%(id)s&network=%(network)s&number=%(phone_number)s&message=%(message)s&ekey=<SEKRIT_KEY>&cc=dimagi&currency=THB&value=0&title=trialcnct",

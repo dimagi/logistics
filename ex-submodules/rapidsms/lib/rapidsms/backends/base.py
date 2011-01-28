@@ -26,7 +26,7 @@ class BackendBase(object, LoggerMixin):
         self.router = router
         self.name = name
 
-        self._config = kwargs
+        self.b_config = kwargs
         if hasattr(self, "configure"):
             self.configure(**kwargs)
 
