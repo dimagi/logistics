@@ -137,7 +137,7 @@ class RapidHttpBacked(BackendBase):
             self.info('Received request but wasn\'t POST. Doing nothing: %s' % request.GET)
             return HttpResponseNotAllowed()
 
-        if request.POST.report:
+        if 'report' in request.POST:
             self.delivery_report(request)
         self.info('Received request: %s' % request.POST)
         sms = request.POST.get(self.incoming_message_param, '')
