@@ -9,8 +9,8 @@ class ConnectionInline(admin.TabularInline):
     model = Connection
     extra = 1
 
-class ContactAdmin(admin.ModelAdmin):
-    model = Contact
+class LogisticsContactAdmin(admin.ModelAdmin):
+    model = LogisticsContact
     list_display = ('name', 'role', 'service_delivery_point')
     inlines = [
         ConnectionInline,
@@ -36,7 +36,7 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.unregister(RapidSMSContact)
-admin.site.register(Contact, ContactAdmin)
+admin.site.register(LogisticsContact, LogisticsContactAdmin)
 admin.site.register(ServiceDeliveryPoint, ServiceDeliveryPointAdmin)
 admin.site.register(ServiceDeliveryPointType, ServiceDeliveryPointTypeAdmin)
 
