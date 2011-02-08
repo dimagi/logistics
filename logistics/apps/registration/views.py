@@ -10,7 +10,7 @@ from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404
 from rapidsms.models import Connection
 from rapidsms.models import Backend
-from logistics.apps.logistics.models import Contact
+from logistics.apps.logistics.models import LogisticsContact
 from logistics.apps.logistics.forms import ContactForm
 from .tables import ContactTable
 from .forms import BulkRegistrationForm
@@ -23,7 +23,7 @@ def registration(req, pk=None):
 
     if pk is not None:
         contact = get_object_or_404(
-            Contact, pk=pk)
+            LogisticsContact, pk=pk)
         connection = get_object_or_404(Connection,contact__name=contact.name)
 
     if req.method == "POST":
@@ -42,7 +42,7 @@ def registration(req, pk=None):
                 backend_name = line_list[1].strip()
                 identity = line_list[2].strip()
 
-                contact = Contact(name=name)
+                contact = LogisticsContact(name=name)
                 contact.save()
                 # TODO deal with errors!
                 backend = Backend.objects.get(name=backend_name)
@@ -69,7 +69,7 @@ def registration(req, pk=None):
         bulk_form = BulkRegistrationForm()
     return render_to_response(
         "registration/dashboard.html", {
-            "contacts_table": ContactTable(Contact.objects.all(), request=req),
+            "contacts_table": ContactTable(LogisticsContact.objects.all(), request=req),
             "contact_form": contact_form,
             "bulk_form": bulk_form,
             "contact": contact

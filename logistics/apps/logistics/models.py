@@ -13,7 +13,8 @@ from django.utils.translation import ugettext as _
 
 from rapidsms.models import ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
-from rapidsms.models import Contact, Connection
+from rapidsms.models import Contact as RapidSMSContact
+from rapidsms.models import Connection
 from rapidsms.contrib.messagelog.models import Message
 
 class ServiceDeliveryPointType(models.Model):
@@ -75,7 +76,7 @@ class ContactRole(models.Model):
     def __unicode__(self):
         return _(self.name)
     
-class Contact(Contact):
+class LogisticsContact(RapidSMSContact):
     role = models.ForeignKey(ContactRole, null=True, blank=True)
     service_delivery_point = models.ForeignKey(ServiceDeliveryPoint,null=True,blank=True)
 
