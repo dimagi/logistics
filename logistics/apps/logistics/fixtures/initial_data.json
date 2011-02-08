@@ -1,0 +1,294 @@
+[
+    {
+        "pk": 1, 
+        "model": "rapidsms.backend", 
+        "fields": {
+            "name": "message_tester"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django_nose"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "djtables"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.handlers"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.ajax"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django.contrib.sites"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django.contrib.auth"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django.contrib.admin"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django.contrib.sessions"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "django.contrib.contenttypes"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "south"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.default"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.export"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.httptester"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.locations"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.messagelog"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.messaging"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.scheduler"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "rapidsms.contrib.echo"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "logistics.apps.registration"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "rapidsms.app", 
+        "fields": {
+            "active": false, 
+            "module": "logistics.apps.logistics"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "rapidsms.contact", 
+        "fields": {
+            "name": "Test User", 
+            "language": "en-us"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "rapidsms.connection", 
+        "fields": {
+            "contact": 2, 
+            "identity": "16176023315", 
+            "backend": 1
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "sites.site", 
+        "fields": {
+            "domain": "ilsgateway.com",
+            "name": "ilsgateway.com"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "locations.location", 
+        "fields": {
+            "parent_type": null, 
+            "type": null, 
+            "parent_id": null, 
+            "point": null
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "logistics.servicedeliverypointtype", 
+        "fields": {
+            "name": "facility"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.servicedeliverypointtype", 
+        "fields": {
+            "name": "district"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "logistics.servicedeliverypointtype", 
+        "fields": {
+            "name": "region"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "logistics.servicedeliverypoint", 
+        "fields": {
+            "active": true, 
+            "service_delivery_point_type": 1, 
+            "created_at": "2011-02-07 20:26:37", 
+            "msd_code": "dedh", 
+            "name": "Dangme East District Hospital"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "logistics.contactrole", 
+        "fields": {
+            "slug": "pharmacist", 
+            "name": "pharmacist"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.contactrole", 
+        "fields": {
+            "slug": "nurse", 
+            "name": "family planning nurse"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "logistics.contactrole", 
+        "fields": {
+            "slug": "admin", 
+            "name": "administrator"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.contact", 
+        "fields": {
+            "service_delivery_point": 1, 
+            "role": 1
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "admin", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": true, 
+            "is_staff": true, 
+            "last_login": "2011-02-07 20:25:39", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "sha1$f5b6b$105dc0b67b7c4015ae3023b3689beecb01741ee0", 
+            "email": "t@t.com", 
+            "date_joined": "2011-02-07 20:24:27"
+        }
+    }
+]
