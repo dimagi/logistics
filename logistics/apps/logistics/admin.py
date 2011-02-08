@@ -3,13 +3,14 @@
 
 from django.contrib import admin
 from logistics.apps.logistics.models import *
+from rapidsms.models import Contact as RapidSMSContact
 
 class ConnectionInline(admin.TabularInline):
     model = Connection
     extra = 1
 
-class ContactDetailAdmin(admin.ModelAdmin):
-    model = ContactDetail
+class ContactAdmin(admin.ModelAdmin):
+    model = Contact
     list_display = ('name', 'role', 'service_delivery_point')
     inlines = [
         ConnectionInline,
@@ -22,22 +23,16 @@ class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description','product_code')
 
-class RegionAdmin(admin.ModelAdmin):
-    model = Region
+class ServiceDeliveryPointAdmin(admin.ModelAdmin):
+    model = ServiceDeliveryPoint
 
-class DistrictAdmin(admin.ModelAdmin):
-    list_display = ('name', 'service_delivery_point_type')
-    ordering = ['name']
-
-class FacilityAdmin(admin.ModelAdmin):
-    model = Facility
-    list_display = ('name', 'parent')
+class ServiceDeliveryPointTypeAdmin(admin.ModelAdmin):
+    model = ServiceDeliveryPointType
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
-admin.site.unregister(Contact)
-admin.site.register(ContactDetail, ContactDetailAdmin)
-admin.site.register(Region, RegionAdmin)
-admin.site.register(District, DistrictAdmin)
-admin.site.register(Facility, FacilityAdmin)
+admin.site.unregister(RapidSMSContact)
+admin.site.register(Contact, ContactAdmin)
+admin.site.register(ServiceDeliveryPoint, ServiceDeliveryPointAdmin)
+admin.site.register(ServiceDeliveryPointType, ServiceDeliveryPointTypeAdmin)
 

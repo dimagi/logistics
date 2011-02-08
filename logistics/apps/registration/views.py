@@ -8,9 +8,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404
-from rapidsms.models import Contact
 from rapidsms.models import Connection
 from rapidsms.models import Backend
+from logistics.apps.logistics.models import Contact
 from logistics.apps.logistics.forms import ContactForm
 from .tables import ContactTable
 from .forms import BulkRegistrationForm
@@ -59,11 +59,8 @@ def registration(req, pk=None):
                 instance=contact,
                 data=req.POST)
 
-            if contact_form.is_valid() and connection_form.is_valid():
+            if contact_form.is_valid():
                 contact = contact_form.save()
-                connection = connection_form.save(commit=False)
-                connection.contact = contact
-                connection.save()
                 return HttpResponseRedirect(
                     reverse(registration))
 
