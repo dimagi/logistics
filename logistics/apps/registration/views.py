@@ -21,7 +21,6 @@ def registration(req, pk=None):
     connection = None
     bulk_form = None
 
-
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
@@ -68,7 +67,6 @@ def registration(req, pk=None):
         contact_form = ContactForm(
             instance=contact)
         bulk_form = BulkRegistrationForm()
-    contact_form = ContactForm()
     return render_to_response(
         "registration/dashboard.html", {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
