@@ -22,34 +22,20 @@ class ServiceDeliveryPointType(models.Model):
     def __unicode__(self):
         return self.name
 
-class ServiceDeliveryPointManager(models.Manager):
-    def get_by_natural_key(self, name):
-        return self.get(name=name)
-
 class ServiceDeliveryPoint(Location):
     """
-    ServiceDeliveryPoint - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.  This could/should be broken out into subclasses.
+    ServiceDeliveryPoint - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
+    This could/should be broken out into subclasses.
     """
     @property
     def label(self):
         return unicode(self)
 
-    objects = ServiceDeliveryPointManager()
     name = models.CharField(max_length=100, blank=True)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     msd_code = models.CharField(max_length=100, blank=True, null=True)
     service_delivery_point_type = models.ForeignKey(ServiceDeliveryPointType)
-
-class Region(ServiceDeliveryPoint):
-    pass
-
-class District(ServiceDeliveryPoint):
-    pass
-
-class Facility(ServiceDeliveryPoint):
-    class Meta:
-        verbose_name_plural = "Facilities"
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -76,18 +62,21 @@ class ContactRole(models.Model):
     def __unicode__(self):
         return _(self.name)
 
-class ContactDetail(Contact):
+class Contact(Contact):
     role = models.ForeignKey(ContactRole, null=True, blank=True)
     service_delivery_point = models.ForeignKey(ServiceDeliveryPoint,null=True,blank=True)
 
     class Meta:
         verbose_name = "Contact Detail"
-    
+
     def __unicode__(self):
         return self.name
 
+    @property
     def phone(self):
         if self.default_connection:
             return self.default_connection.identity
         else:
             return " "
+
+

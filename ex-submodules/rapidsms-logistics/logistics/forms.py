@@ -7,15 +7,14 @@ from rapidsms.models import Backend, Connection
 from django.utils.translation import ugettext as _
 from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from logistics.apps.logistics.models import ContactDetail, ServiceDeliveryPoint, ContactRole, \
-    Facility, Product, District, Region
+from logistics.apps.logistics.models import Contact, ServiceDeliveryPoint, ContactRole, Product
 
 class ContactForm(forms.ModelForm):
     name = forms.CharField()
     phone = forms.CharField()
 
     class Meta:
-        model = ContactDetail
+        model = Contact
         exclude = ("user",)
 
     def __init__(self, **kwargs):
