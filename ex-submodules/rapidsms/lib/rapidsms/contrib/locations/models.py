@@ -40,6 +40,10 @@ class LocationType(models.Model):
     def __unicode__(self):
         return self.name
 
+class LocationManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
 class Location(models.Model):
     """
     This model represents a named point on the globe. It is deliberately
@@ -49,13 +53,13 @@ class Location(models.Model):
 
     __metaclass__ = ExtensibleModelBase
 
+    objects = LocationManager()
     point = models.ForeignKey(Point, null=True, blank=True)
 
     type = models.ForeignKey(LocationType, related_name="locations", blank=True, null=True)
     parent_type = models.ForeignKey(ContentType, null=True, blank=True)
     parent_id   = models.PositiveIntegerField(null=True, blank=True)
     parent      = generic.GenericForeignKey("parent_type", "parent_id")
-
 
     # choices for the Location.direction method.
     # (values stolen from label-overlay.js)
@@ -169,31 +173,3 @@ class Location(models.Model):
 
         return self.Direction.ABOVE
 
-
-#class Country(Location):
-#    name = models.CharField(max_length=100)
-#    iso_code = models.CharField("ISO Code", max_length=2)
-
-#    class Meta:
-#        verbose_name_plural = "countries"
-
-#    @property
-#    def label(self):
-#        return self.iso_code.upper()
-
-
-#class State(Location):
-#    name = models.CharField(max_length=100)
-#    usps_code = models.CharField("USPS Code", max_length=2,
-#        help_text="The two-letter state abbreviation")
-
-#    @property
-#    def label(self):
-#        return self.usps_code.upper()
-
-
-#class City(Location):
-#    name = models.CharField(max_length=100)
-
-#    class Meta:
-#        verbose_name_plural = "cities"
