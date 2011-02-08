@@ -243,8 +243,19 @@
     }, 
     {
         "pk": 1, 
+        "model": "logistics.responsibility", 
+        "fields": {
+            "slug": "reporter", 
+            "name": "report stock on hand"
+        }
+    }, 
+    {
+        "pk": 1, 
         "model": "logistics.contactrole", 
         "fields": {
+            "responsibilities": [
+                1
+            ], 
             "slug": "pharmacist", 
             "name": "pharmacist"
         }

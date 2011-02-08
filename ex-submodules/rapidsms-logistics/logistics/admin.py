@@ -19,6 +19,9 @@ class ContactAdmin(admin.ModelAdmin):
 class ContactRoleAdmin(admin.ModelAdmin):
     model = ContactRole
 
+class ResponsibilityAdmin(admin.ModelAdmin):
+    model = Responsibility
+
 class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description','product_code')
@@ -31,6 +34,7 @@ class ServiceDeliveryPointTypeAdmin(admin.ModelAdmin):
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
+admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.unregister(RapidSMSContact)
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(ServiceDeliveryPoint, ServiceDeliveryPointAdmin)
