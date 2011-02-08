@@ -79,6 +79,7 @@ class ContactRole(models.Model):
 class LogisticsContact(RapidSMSContact):
     role = models.ForeignKey(ContactRole, null=True, blank=True)
     service_delivery_point = models.ForeignKey(ServiceDeliveryPoint,null=True,blank=True)
+    needs_reminders = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Contact Detail"
