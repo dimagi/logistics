@@ -53,15 +53,28 @@ class ProductInStock(models.Model):
     service_delivery_point = models.ForeignKey('ServiceDeliveryPoint')
     product = models.ForeignKey('Product')
 
-class ContactRole(models.Model):
+class Responsibility(models.Model):
+    slug = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
+
+    class Meta:
+        verbose_name = "Responsibility"
+        verbose_name_plural = "Responsibilities"
+
+    def __unicode__(self):
+        return _(self.name)
+
+class ContactRole(models.Model):
+    slug = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=100, blank=True)
+    responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
 
     class Meta:
         verbose_name = "Role"
 
     def __unicode__(self):
         return _(self.name)
-
+    
 class Contact(Contact):
     role = models.ForeignKey(ContactRole, null=True, blank=True)
     service_delivery_point = models.ForeignKey(ServiceDeliveryPoint,null=True,blank=True)
