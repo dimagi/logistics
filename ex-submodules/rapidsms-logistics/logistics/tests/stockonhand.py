@@ -37,7 +37,7 @@ class TestDeliveryGroup (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
            16176023315 > soh jd 0 mc 0
-           16176023315 < Thank you, you reported you have jd 0, mc 0. If incorrect, please resend.
+           16176023315 < The following items are stocked out: jd mc. Please place an order now.
            """
         self.runScript(a)
 
