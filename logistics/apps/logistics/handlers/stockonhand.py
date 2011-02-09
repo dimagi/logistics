@@ -43,8 +43,11 @@ class StockOnHandHandler(KeywordHandler):
                       'facility_name': sdp.name,
                       'product_list': ', '.join(missing_product_list)}
             self.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
-        else:
-            self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
+            return
+        if stock_report.has_stockout:
+            self.respond(_('The following items are stocked out: %(stocks)s. Please place an order now.'), stocks=stock_report.stockouts())
+            return
+        self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
 
         # notify the supervisor
         sdp.supervisor_report(stock_report)
@@ -56,6 +59,8 @@ class ProductStockReport(object):
         self.product_received = {}
         self.facility = sdp
         self.message = message
+        self.has_stockout = False
+        self.has_low_supply = False
 
     def parse(self, string):
         my_list = string.split()
@@ -86,9 +91,12 @@ class ProductStockReport(object):
             stock = int(stock)
         if not isinstance(stock,int):
             raise TypeError("stock must be reported in integers")
-        self.product_stock[product] = int(stock)
+        stock = int(stock)
+        self.product_stock[product] = stock
+        if stock == 0:
+            self.has_stockout = True
         if save:
-            self._record_product_stock(product, int(stock))
+            self._record_product_stock(product, stock)
 
     def _record_product_stock(self, product_code, quantity):
         report_type = ProductReportType.objects.get(slug='soh')
