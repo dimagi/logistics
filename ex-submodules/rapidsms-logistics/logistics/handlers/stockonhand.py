@@ -27,9 +27,10 @@ class StockOnHandHandler(KeywordHandler):
              self.respond(_("Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>...'"))
              return
         else:
+            # TODO come back and refactor this
             reported_products = []
             sdp = self.msg.logistics_contact.service_delivery_point
-            reply_list = []
+            stock_report = ProductStockReport()
             while len(product_list) >= 2:
                 product_code = product_list.pop(0)
                 quantity = product_list.pop(0)
@@ -40,7 +41,7 @@ class StockOnHandHandler(KeywordHandler):
                     self.respond(_("Sorry, invalid product code %(code)s"), code=product_code.upper())
                     return
                 reported_products.append(product.sms_code)
-                reply_list.append('%s %s' % (product.sms_code, quantity) )
+                stock_report.add_product_stock(product.sms_code, quantity)
                 sdp.report(product=product,report_type=report_type,quantity=quantity, message=self.msg.logger_msg)
             all_products = []
             date_check = datetime.now() + relativedelta(days=-7)
@@ -55,4 +56,36 @@ class StockOnHandHandler(KeywordHandler):
                           'product_list': ', '.join(missing_product_list)}
                 self.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
             else:
-                self.respond(_('Thank you, you reported you have %(reply_list)s. If incorrect, please resend.'), reply_list=','.join(reply_list))
+                self.respond(_('Thank you, you reported you have %s. If incorrect, please resend.'), stock_report.all())
+            sdp.supervisor_report(stock_report)
+
+class ProductStockReport(object):
+    """ The following is a helper class to make it easy to generate reports based on stock on hand """
+    product_stock = {}
+
+    def add_product_stock(self, product, stock):
+        if isinstance(stock, basestring) and stock.isdigit():
+            stock = int(stock)
+        if not isinstance(stock,int):
+            raise TypeError("stock must be reported in integers")
+        self.product_stock[product] = int(stock)
+
+    def all(self):
+        reply_list = []
+        for i in self.product_stock:
+            reply_list.append('%s %s' % (i, self.product_stock[i]))
+        return ', '.join(reply_list)
+
+    def stockouts(self):
+        stocked_out = ""
+        for i in self.product_stock:
+            if self.product_stock[i] == 0:
+                stocked_out = "%s %s" % (stocked_out, i)
+        stocked_out = stocked_out.strip()
+        return stocked_out
+
+    def low_supply(self):
+        return NotImplementedError
+
+    def over_supply(self):
+        return NotImplementedError

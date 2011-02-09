@@ -17,6 +17,9 @@ from rapidsms.models import Contact as RapidSMSContact
 from rapidsms.models import Connection
 from rapidsms.contrib.messagelog.models import Message
 
+STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
+REPORTEE_RESPONSIBILITY = 'reportee'
+
 class ServiceDeliveryPointType(models.Model):
     name = models.CharField(max_length=100)
 
@@ -42,6 +45,30 @@ class ServiceDeliveryPoint(Location):
         npr = ProductReport(service_delivery_point = self,  **kwargs)
         npr.save()
 
+    def reporters(self):
+        reporters = LogisticsContact.objects.filter(service_delivery_point=self)
+        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        return reporters
+
+    def reportees(self):
+        reporters = LogisticsContact.objects.filter(service_delivery_point=self)
+        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
+        return reporters
+
+    def supervisor_report(self, stock_report):
+        reportees = self.parent.reportees()
+        stockouts = stock_report.stockouts()
+        if stockouts:
+            for reportee in reportees:
+                reportee.message(_('You have stockouts: %(stockouts)s'), {'stockouts':stockouts})
+        low_supply = stock_report.low_supply()
+        if low_supply:
+            for reportee in reportees:
+                reportee.message(_('You have low_supply: %(low_supply)s'), {'low_supply':low_supply})
+        over_supply = stock_report.over_supply()
+        if over_supply:
+            for reportee in reportees:
+                reportee.message(_('You have over_supply: %(over_supply)s'), {'over_supply':over_supply})
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -58,6 +85,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     service_delivery_point = models.ForeignKey('ServiceDeliveryPoint')
     product = models.ForeignKey('Product')
+    days_stocked_out = models.IntegerField(default=0)
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
