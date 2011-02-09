@@ -87,6 +87,7 @@ class ProductStock(models.Model):
     service_delivery_point = models.ForeignKey('ServiceDeliveryPoint')
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
+    daily_consumption_rate = models.IntegerField(default=0)
 
     def __unicode__(self):
         return "%s-%s" % (self.service_delivery_point.name, self.product.name)
