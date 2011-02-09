@@ -221,7 +221,8 @@
             "service_delivery_point": 1,
             "product": 1,
             "is_active": true,
-            "quantity": 30
+            "quantity": 30,
+            "daily_consumption_rate": 10
         }
     },
     {
@@ -232,7 +233,8 @@
             "service_delivery_point": 1,
             "product": 2,
             "is_active": true,
-            "quantity": 101
+            "quantity": 100,
+            "daily_consumption_rate": 10
         }
     },
     {
