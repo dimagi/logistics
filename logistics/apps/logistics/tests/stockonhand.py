@@ -50,3 +50,12 @@ class TestStockOnHand (TestScript):
            """
         self.runScript(a)
 
+    def testSohAndReceipts(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
+           16176023315 > soh jd 10 20 mc 20
+           16176023315 < Thank you, you reported you have jd 10, mc 20. You received jd 20. If incorrect, please resend.
+           """
+        self.runScript(a)
+

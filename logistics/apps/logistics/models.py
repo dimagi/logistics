@@ -217,23 +217,35 @@ class ProductStockReport(object):
         self.facility.report(product=product, report_type=report_type,
                                            quantity=quantity, message=self.message)
 
+    def add_product_receipt(self, product, quantity):
+        if isinstance(quantity, basestring) and quantity.isdigit():
+            quantity = int(quantity)
+        if not isinstance(quantity,int):
+            raise TypeError("stock must be reported in integers")
+        self.product_received[product] = quantity
+
     def reported_products(self):
         reported_products = []
         for i in self.product_stock:
             reported_products.append(i)
         return set(reported_products)
 
-    def add_product_receipt(self, product, receipt):
-        if isinstance(stock, basestring) and stock.isdigit():
-            stock = int(stock)
-        if not isinstance(stock,int):
-            raise TypeError("stock must be reported in integers")
-        self.product_received[product] = int(stock)
+    def received_products(self):
+        received_products = []
+        for i in self.product_received:
+            received_products.append(i)
+        return set(received_products)
 
     def all(self):
         reply_list = []
         for i in self.product_stock:
             reply_list.append('%s %s' % (i, self.product_stock[i]))
+        return ', '.join(reply_list)
+
+    def received(self):
+        reply_list = []
+        for i in self.product_received:
+            reply_list.append('%s %s' % (i, self.product_received[i]))
         return ', '.join(reply_list)
 
     def stockouts(self):
