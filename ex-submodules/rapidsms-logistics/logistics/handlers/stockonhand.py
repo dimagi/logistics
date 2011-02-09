@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
-from logistics.apps.logistics.models import ServiceDeliveryPoint, Product, ProductReportType
+from logistics.apps.logistics.models import ServiceDeliveryPoint, Product, ProductStock, ProductReportType
 
 class StockOnHandHandler(KeywordHandler):
     """
@@ -47,6 +47,10 @@ class StockOnHandHandler(KeywordHandler):
         if stock_report.has_stockout:
             self.respond(_('The following items are stocked out: %(stocks)s. Please place an order now.'), stocks=stock_report.stockouts())
             return
+        low_supply = stock_report.low_supply()
+        if low_supply:
+            self.respond(_('The following items are in low supply: %(stocks)s. Please place an order now.'), stocks=low_supply)
+            return
         self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
 
         # notify the supervisor
@@ -60,7 +64,6 @@ class ProductStockReport(object):
         self.facility = sdp
         self.message = message
         self.has_stockout = False
-        self.has_low_supply = False
 
     def parse(self, string):
         my_list = string.split()
@@ -135,7 +138,14 @@ class ProductStockReport(object):
         return stocked_out
 
     def low_supply(self):
-        return NotImplementedError
+        self.facility
+        low_supply = ""
+        for i in self.product_stock:
+            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__contains=i)
+            if self.product_stock[i] < productstock.monthly_consumption:
+                low_supply = "%s %s" % (low_supply, i)
+        low_supply = low_supply.strip()
+        return low_supply
 
     def over_supply(self):
         return NotImplementedError
