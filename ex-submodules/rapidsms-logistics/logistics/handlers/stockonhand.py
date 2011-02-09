@@ -52,6 +52,11 @@ class StockOnHandHandler(KeywordHandler):
         if low_supply:
             self.respond(_('The following items are in low supply: %(stocks)s. Please place an order now.'), stocks=low_supply)
             return
+        received = stock_report.received_products()
+        if received:
+            self.respond(_('Thank you, you reported you have %(stocks)s. You received %(received)s. If incorrect, please resend.'),
+                         stocks=stock_report.all(), received=stock_report.received())
+            return
         self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
 
         # notify the supervisor
