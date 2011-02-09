@@ -26,6 +26,9 @@ class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description','product_code')
 
+class ProductStockAdmin(admin.ModelAdmin):
+    model = ProductStock
+
 class ProductReportAdmin(admin.ModelAdmin):
     model = ProductReport
 
@@ -39,6 +42,7 @@ class ServiceDeliveryPointTypeAdmin(admin.ModelAdmin):
     model = ServiceDeliveryPointType
 
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductStock, ProductStockAdmin)
 admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)

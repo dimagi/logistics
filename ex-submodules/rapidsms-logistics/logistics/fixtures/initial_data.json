@@ -214,6 +214,28 @@
         }
     }, 
     {
+        "pk": 1,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 1,
+            "is_active": true,
+            "quantity": 30
+        }
+    },
+    {
+        "pk": 2,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 2,
+            "is_active": true,
+            "quantity": 101
+        }
+    },
+    {
         "pk": 1, 
         "model": "logistics.productreporttype", 
         "fields": {
@@ -541,7 +563,7 @@
             "active": true, 
             "service_delivery_point_type": 3, 
             "created_at": "2011-02-08 15:53:05", 
-            "msd_code": "d34002", 
+            "msd_code": "dedh",
             "name": "Dangme East District Hospital"
         }
     }, 
