@@ -1,31 +1,17 @@
-
 import unittest
 from rapidsms.tests.scripted import TestScript
 
 class TestRegister(TestScript):
 
     def testRegister(self):
-        self.assertInteraction("""
-          8005551212 > register as someuser
-          8005551212 < Thank you for registering, as someuser!
-        """)
-
-    def testLang(self):
-        self.assertInteraction("""
-          8005551212 > lang english
-          8005551212 < You must JOIN or IDENTIFY yourself before you can set your language preference.
-          8005551212 > register as someuser
-          8005551212 < Thank you for registering, as someuser!
-          8005551212 > lang english
-          8005551212 < I will speak to you in English.
-          8005551212 > lang klingon
-          8005551212 < Sorry, I don't speak "klingon".
-        """)
-
-    def testHelp(self):
-        self.assertInteraction("""
-          8005551212 > lang
-          8005551212 < To set your language, send LANGUAGE <CODE>
-          8005551212 > register
-          8005551212 < To register, send JOIN <NAME>
-        """)
+        a = """
+              8005551212 > register
+              8005551212 < To register, send register <name> <msd code>. Example: register john dedh
+              8005551212 > register stella
+              8005551212 < Sorry, I didn't understand. To register, send register <name> <msd code>. Example: register john dedh'
+              8005551212 > register stella doesntexist
+              8005551212 < Sorry, can't find the location with MSD CODE doesntexist
+              8005551212 > register stella dedh
+              8005551212 < Thank you for registering at Dangme East District Hospital, dedh, stella
+            """
+        self.runScript(a)
