@@ -41,3 +41,12 @@ class TestDeliveryGroup (TestScript):
            """
         self.runScript(a)
 
+    def testLowSupply(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
+           16176023315 > soh jd 9 mc 9
+           16176023315 < The following items are in low supply: jd mc. Please place an order now.
+           """
+        self.runScript(a)
+

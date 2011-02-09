@@ -222,7 +222,7 @@
             "product": 1,
             "is_active": true,
             "quantity": 30,
-            "daily_consumption_rate": 10
+            "monthly_consumption": 10
         }
     },
     {
@@ -234,7 +234,7 @@
             "product": 2,
             "is_active": true,
             "quantity": 100,
-            "daily_consumption_rate": 10
+            "monthly_consumption": 10
         }
     },
     {
