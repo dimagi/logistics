@@ -3,7 +3,7 @@ from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.handlers.stockonhand import ProductStockReport, ServiceDeliveryPoint
 
-class TestDeliveryGroup (TestScript):
+class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
 
     def setUp(self):
