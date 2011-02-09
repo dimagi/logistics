@@ -23,52 +23,96 @@ class StockOnHandHandler(KeywordHandler):
 
     def handle(self, text):
         product_list = text.split()
-        if len(product_list) > 0 and len(product_list) % 2 != 0:
-             self.respond(_("Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>...'"))
-             return
+        if not hasattr(self.msg,'logistics_contact'):
+            self.respond(_("You must REGISTER before you can submit a stock report." +
+                           "Please text 'register <NAME> <MSD_CODE>'."))
+            return
+        sdp = self.msg.logistics_contact.service_delivery_point
+        stock_report = ProductStockReport(sdp, self.msg.logger_msg)
+        stock_report.parse(text)
+        all_products = []
+        date_check = datetime.now() + relativedelta(days=-7)
+
+        # check for products missing
+        missing_products = Product.objects.filter(Q(productstock__service_delivery_point=sdp, productstock__is_active=True),
+                                                  ~Q(productreport__report_date__gt=date_check) )
+        for dict in missing_products.values('sms_code'):
+            all_products.append(dict['sms_code'])
+        missing_product_list = list(set(all_products)-stock_report.reported_products())
+        if missing_product_list:
+            kwargs = {'contact_name': self.msg.contact.name,
+                      'facility_name': sdp.name,
+                      'product_list': ', '.join(missing_product_list)}
+            self.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
         else:
-            # TODO come back and refactor this
-            reported_products = []
-            sdp = self.msg.logistics_contact.service_delivery_point
-            stock_report = ProductStockReport()
-            while len(product_list) >= 2:
-                product_code = product_list.pop(0)
-                quantity = product_list.pop(0)
-                report_type = ProductReportType.objects.get(slug='soh')
-                try:
-                    product = Product.objects.get(sms_code__contains=product_code)
-                except Product.DoesNotExist:
-                    self.respond(_("Sorry, invalid product code %(code)s"), code=product_code.upper())
-                    return
-                reported_products.append(product.sms_code)
-                stock_report.add_product_stock(product.sms_code, quantity)
-                sdp.report(product=product,report_type=report_type,quantity=quantity, message=self.msg.logger_msg)
-            all_products = []
-            date_check = datetime.now() + relativedelta(days=-7)
-            missing_products = Product.objects.filter(Q(productstock__service_delivery_point=sdp, productstock__is_active=True),
-                                                      ~Q(productreport__report_date__gt=date_check) )
-            for dict in missing_products.values('sms_code'):
-                all_products.append(dict['sms_code'])
-            missing_product_list = list(set(all_products)-set(reported_products))
-            if missing_product_list:
-                kwargs = {'contact_name': self.msg.contact.name,
-                          'facility_name': sdp.name,
-                          'product_list': ', '.join(missing_product_list)}
-                self.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
-            else:
-                self.respond(_('Thank you, you reported you have %s. If incorrect, please resend.'), stock_report.all())
-            sdp.supervisor_report(stock_report)
+            self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
+
+        # notify the supervisor
+        sdp.supervisor_report(stock_report)
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
     product_stock = {}
+    product_received = {}
 
-    def add_product_stock(self, product, stock):
+    def __init__(self, sdp, message):
+        self.facility = sdp
+        self.message = message
+
+    def parse(self, string):
+        my_list = string.split()
+
+        def getTokens(seq):
+            for item in seq:
+                yield item
+        an_iter = getTokens(my_list)
+        a = None
+        try:
+            while True:
+                if a is None:
+                    a = an_iter.next()
+                b = an_iter.next()
+                self.add_product_stock(a,b)
+                c = an_iter.next()
+                if c.isdigit():
+                    self.add_product_receipt(a,c)
+                    a = None
+                else:
+                    a = c
+        except StopIteration:
+            pass
+        return
+
+    def add_product_stock(self, product, stock, save=True):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
         if not isinstance(stock,int):
             raise TypeError("stock must be reported in integers")
         self.product_stock[product] = int(stock)
+        if save:
+            self._record_product_stock(product, int(stock))
+
+    def _record_product_stock(self, product_code, quantity):
+        report_type = ProductReportType.objects.get(slug='soh')
+        try:
+            product = Product.objects.get(sms_code__contains=product_code)
+        except Product.DoesNotExist:
+            raise ValueError(_("Sorry, invalid product code %(code)s"), code=product_code.upper())
+        self.facility.report(product=product, report_type=report_type,
+                                           quantity=quantity, message=self.message)
+
+    def reported_products(self):
+        reported_products = []
+        for i in self.product_stock:
+            reported_products.append(i)
+        return set(reported_products)
+
+    def add_product_receipt(self, product, receipt):
+        if isinstance(stock, basestring) and stock.isdigit():
+            stock = int(stock)
+        if not isinstance(stock,int):
+            raise TypeError("stock must be reported in integers")
+        self.product_received[product] = int(stock)
 
     def all(self):
         reply_list = []
