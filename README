@@ -1,0 +1,17 @@
+SETUP
+
+To set up the logistics project, you'll need to get the submodules by running:
+
+git submodule init
+git submodule update
+
+Then copy over the localsettings:
+
+cp localsettings.py.example localsettings.py
+
+Finally sync your database, and launch runserver and runrouter.
+
+./manage.py syncdb 
+./manage.py runserver &
+./manage.py runrouter &
+
