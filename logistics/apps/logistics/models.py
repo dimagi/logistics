@@ -38,6 +38,11 @@ class ServiceDeliveryPoint(Location):
     msd_code = models.CharField(max_length=100, blank=True, null=True)
     service_delivery_point_type = models.ForeignKey(ServiceDeliveryPointType)
 
+    def report(self, **kwargs):
+        npr = ProductReport(service_delivery_point = self,  **kwargs)
+        npr.save()
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     units = models.CharField(max_length=100)
@@ -48,7 +53,7 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
     
-class ProductInStock(models.Model):
+class ProductStock(models.Model):
     is_active = models.BooleanField(default=True)
     quantity = models.IntegerField(blank=True, null=True)
     service_delivery_point = models.ForeignKey('ServiceDeliveryPoint')
@@ -94,4 +99,29 @@ class LogisticsContact(RapidSMSContact):
         else:
             return " "
 
+class ProductReportType(models.Model):
+    """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
+    name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=10)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Product Report Type"
+
+class ProductReport(models.Model):
+    product = models.ForeignKey(Product)
+    service_delivery_point = models.ForeignKey(ServiceDeliveryPoint)
+    report_type = models.ForeignKey(ProductReportType)
+    quantity = models.IntegerField()
+    report_date = models.DateTimeField(default=datetime.now)
+    message = models.ForeignKey(Message)
+
+    class Meta:
+        verbose_name = "Product Report"
+        ordering = ('-report_date',)
+
+    def __unicode__(self):
+        return "%s-%s-%s" % (self.service_delivery_point.name, self.product.name, self.report_type.name)
 

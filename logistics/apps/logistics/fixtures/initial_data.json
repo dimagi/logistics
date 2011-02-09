@@ -193,10 +193,40 @@
     }, 
     {
         "pk": 1, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "boxes", 
+            "sms_code": "jd", 
+            "product_code": "", 
+            "name": "Jadelle", 
+            "description": "Jadelle"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "unit", 
+            "sms_code": "mc", 
+            "product_code": "", 
+            "name": "Male Condom", 
+            "description": "Male Condom"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "logistics.productreporttype", 
+        "fields": {
+            "name": "Stock on Hand", 
+            "slug": "soh"
+        }
+    },
+    {
+        "pk": 1, 
         "model": "sites.site", 
         "fields": {
-            "domain": "example.com", 
-            "name": "example.com"
+            "domain": "ilsgateway.com", 
+            "name": "ilsgateway.com"
         }
     }, 
     {
@@ -375,15 +405,6 @@
         "fields": {
             "model": "product", 
             "name": "product", 
-            "app_label": "logistics"
-        }
-    }, 
-    {
-        "pk": 26, 
-        "model": "contenttypes.contenttype", 
-        "fields": {
-            "model": "productinstock", 
-            "name": "product in stock", 
             "app_label": "logistics"
         }
     }, 
@@ -1036,33 +1057,6 @@
             "codename": "delete_product", 
             "name": "Can delete product", 
             "content_type": 25
-        }
-    }, 
-    {
-        "pk": 76, 
-        "model": "auth.permission", 
-        "fields": {
-            "codename": "add_productinstock", 
-            "name": "Can add product in stock", 
-            "content_type": 26
-        }
-    }, 
-    {
-        "pk": 77, 
-        "model": "auth.permission", 
-        "fields": {
-            "codename": "change_productinstock", 
-            "name": "Can change product in stock", 
-            "content_type": 26
-        }
-    }, 
-    {
-        "pk": 78, 
-        "model": "auth.permission", 
-        "fields": {
-            "codename": "delete_productinstock", 
-            "name": "Can delete product in stock", 
-            "content_type": 26
         }
     }, 
     {
