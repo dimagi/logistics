@@ -33,7 +33,7 @@ class App(AppBase):
             logistics_contact = LogisticsContact.objects.get(connection=message.connection)
         except LogisticsContact.DoesNotExist:
             # user is not registered. that's fine, just pass.
-            pass
+            return
         message.logistics_contact = logistics_contact
 
     def handle (self, message):

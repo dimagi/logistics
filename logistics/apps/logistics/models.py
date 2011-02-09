@@ -87,6 +87,9 @@ class ProductStock(models.Model):
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
 
+    def __unicode__(self):
+        return "%s-%s" % (self.service_delivery_point.name, self.product.name)
+
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
