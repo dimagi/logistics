@@ -22,7 +22,6 @@ class StockOnHandHandler(KeywordHandler):
         self.respond(_("Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"))
 
     def handle(self, text):
-        product_list = text.split()
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(_("You must REGISTER before you can submit a stock report." +
                            "Please text 'register <NAME> <MSD_CODE>'."))
@@ -52,10 +51,9 @@ class StockOnHandHandler(KeywordHandler):
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
-    product_stock = {}
-    product_received = {}
-
     def __init__(self, sdp, message):
+        self.product_stock = {}
+        self.product_received = {}
         self.facility = sdp
         self.message = message
 

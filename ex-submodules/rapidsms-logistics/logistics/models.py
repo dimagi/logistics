@@ -56,7 +56,8 @@ class ServiceDeliveryPoint(Location):
         return reporters
 
     def supervisor_report(self, stock_report):
-        reportees = self.parent.reportees()
+        sdp = ServiceDeliveryPoint(self.parent)
+        reportees = sdp.reportees()
         stockouts = stock_report.stockouts()
         if stockouts:
             for reportee in reportees:
