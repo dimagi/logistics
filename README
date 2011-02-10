@@ -2,11 +2,14 @@ SETUP
 
 To set up the logistics project, you'll need to get the submodules by running:
 
+git clone git://github.com/dimagi/logistics.git
+cd logistics
 git submodule init
 git submodule update
 
 Then copy over the localsettings:
 
+cd logistics
 cp localsettings.py.example localsettings.py
 
 Finally sync your database, and launch runserver and runrouter.
