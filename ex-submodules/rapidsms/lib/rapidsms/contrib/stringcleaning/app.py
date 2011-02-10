@@ -1,7 +1,7 @@
-import rapidsms
 import re
+from rapidsms.apps.base import AppBase
 
-class App (rapidsms.App):
+class App (AppBase):
 
     def parse (self, message):
         ''' Cleans up messages by removing punctuation, and replacing intended
@@ -81,9 +81,10 @@ class App (rapidsms.App):
                 marker += 1
                 continue
             else:
-                # save the slice up to and the slice beyond this . and move on
-                # (leave out the .)
-                txt = txt[:marker] + txt[marker + 1:]
+		# if '.' not between 2 digits, replace with a space
+                txt_list = list(txt)
+                txt_list[marker] = ' '
+                txt = ''.join(txt_list)
                 marker += 1
         return txt
 
