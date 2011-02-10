@@ -29,7 +29,11 @@ class StockOnHandHandler(KeywordHandler):
             return
         sdp = self.msg.logistics_contact.service_delivery_point
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, STOCK_ON_HAND_REPORT_TYPE)
-        stock_report.parse(text)
+        try:
+            stock_report.parse(text)
+        except ValueError, e:
+            self.respond(_('ERROR: %(error)s.'), error=e.message)
+            return
         all_products = []
         date_check = datetime.now() + relativedelta(days=-7)
 
