@@ -67,15 +67,19 @@ class ServiceDeliveryPoint(Location):
         stockouts = stock_report.stockouts()
         if stockouts:
             for reportee in reportees:
-                reportee.message(_('You have stockouts: %(stockouts)s'), {'stockouts':stockouts})
+                reportee.message(_('You have stockouts: %(stockouts)s') % {'stockouts':stockouts})
+            # only report low supply if there are no stockouts
+            return
         low_supply = stock_report.low_supply()
         if low_supply:
             for reportee in reportees:
-                reportee.message(_('You have low_supply: %(low_supply)s'), {'low_supply':low_supply})
+                reportee.message(_('You have low_supply: %(low_supply)s') % {'low_supply':low_supply})
+            # only report over supply if there are no low supplies
+            return
         over_supply = stock_report.over_supply()
         if over_supply:
             for reportee in reportees:
-                reportee.message(_('You have over_supply: %(over_supply)s'), {'over_supply':over_supply})
+                reportee.message(_('You have over_supply: %(over_supply)s') % {'over_supply':over_supply})
 
 class Product(models.Model):
     name = models.CharField(max_length=100)

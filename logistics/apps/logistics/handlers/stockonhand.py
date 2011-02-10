@@ -43,25 +43,22 @@ class StockOnHandHandler(KeywordHandler):
         for dict in missing_products.values('sms_code'):
             all_products.append(dict['sms_code'])
         missing_product_list = list(set(all_products)-stock_report.reported_products())
+        low_supply = stock_report.low_supply()
+        received = stock_report.received_products()
         if missing_product_list:
             kwargs = {'contact_name': self.msg.contact.name,
                       'facility_name': sdp.name,
                       'product_list': ', '.join(missing_product_list)}
             self.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
-            return
-        if stock_report.has_stockout:
+        elif stock_report.has_stockout:
             self.respond(_('The following items are stocked out: %(stocks)s. Please place an order now.'), stocks=stock_report.stockouts())
-            return
-        low_supply = stock_report.low_supply()
-        if low_supply:
+        elif low_supply:
             self.respond(_('The following items are in low supply: %(stocks)s. Please place an order now.'), stocks=low_supply)
-            return
-        received = stock_report.received_products()
-        if received:
+        elif received:
             self.respond(_('Thank you, you reported you have %(stocks)s. You received %(received)s. If incorrect, please resend.'),
                          stocks=stock_report.all(), received=stock_report.received())
-            return
-        self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
+        else:
+            self.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
 
         # notify the supervisor
         sdp.supervisor_report(stock_report)

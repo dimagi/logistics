@@ -183,11 +183,28 @@
         }
     }, 
     {
+        "pk": 2, 
+        "model": "rapidsms.contact", 
+        "fields": {
+            "name": "Administrator", 
+            "language": "en-us"
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "rapidsms.connection", 
         "fields": {
             "contact": 1, 
             "identity": "16176023315", 
+            "backend": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "rapidsms.connection", 
+        "fields": {
+            "contact": 2, 
+            "identity": "12345", 
             "backend": 1
         }
     }, 
@@ -211,6 +228,17 @@
             "product_code": "", 
             "name": "Male Condom", 
             "description": "Male Condom"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "tablet", 
+            "sms_code": "lf",
+            "product_code": "", 
+            "name": "Lofem", 
+            "description": "Lofem"
         }
     }, 
     {
@@ -367,11 +395,31 @@
         }
     }, 
     {
+        "pk": 4, 
+        "model": "logistics.contactrole", 
+        "fields": {
+            "responsibilities": [
+                2
+            ], 
+            "slug": "incharge", 
+            "name": "in charge"
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "logistics.logisticscontact", 
         "fields": {
             "service_delivery_point": 1, 
             "role": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.logisticscontact", 
+        "fields": {
+            "service_delivery_point": 1, 
+            "needs_reminders": true, 
+            "role": 3
         }
     }, 
     {
