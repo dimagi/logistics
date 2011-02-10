@@ -19,6 +19,7 @@ from rapidsms.contrib.messagelog.models import Message
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
+SUPERVISOR_RESPONSIBILITY = 'supervisor'
 
 class ServiceDeliveryPointType(models.Model):
     name = models.CharField(max_length=100)
@@ -55,8 +56,11 @@ class ServiceDeliveryPoint(Location):
         reporters = LogisticsContact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
+    def parentsdp(self):
+        return ServiceDeliveryPoint(self.parent)
+
     def supervisor_report(self, stock_report):
-        sdp = ServiceDeliveryPoint(self.parent)
+        sdp = self.parentsdp()
         reportees = sdp.reportees()
         stockouts = stock_report.stockouts()
         if stockouts:
@@ -88,6 +92,7 @@ class ProductStock(models.Model):
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
     monthly_consumption = models.IntegerField(default=0)
+    last-modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return "%s-%s" % (self.service_delivery_point.name, self.product.name)
@@ -132,6 +137,19 @@ class LogisticsContact(RapidSMSContact):
         else:
             return " "
 
+    def supervisor(self):
+        """
+        If this contact is not a supervisor, message all staff with a supervisor responsibility at this facility
+        If this contact is a supervisor, message the super at the next facility up
+        Question: this looks like business/controller logic. Should it really be in 'model' code?
+        """
+
+        if SUPERVISOR not in self.role.responsibilities.objects.all():
+            return LogisticsContact.objects.filter(service_delivery_point=self.service_delivery_point,
+                                                   role=SUPERVISOR)
+        return LogisticsContact.objects.filter(service_delivery_point=self.service_delivery_point.parentsdp(),
+                                               role=SUPERVISOR)
+
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
@@ -157,11 +175,6 @@ class ProductReport(models.Model):
 
     def __unicode__(self):
         return "%s-%s-%s" % (self.service_delivery_point.name, self.product.name, self.report_type.name)
-
-
-
-
-
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
