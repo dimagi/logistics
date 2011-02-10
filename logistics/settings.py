@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.messaging",
     "rapidsms.contrib.scheduler",
     "rapidsms.contrib.echo",
+    "rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
     "logistics.apps.registration",
     "logistics.apps.logistics",
