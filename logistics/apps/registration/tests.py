@@ -15,3 +15,12 @@ class TestRegister(TestScript):
               8005551212 < Thank you for registering at Dangme East District Hospital, dedh, stella
             """
         self.runScript(a)
+
+    def testRegisterTwice(self):
+        a = """
+              8005551212 > register stella dedh
+              8005551212 < Thank you for registering at Dangme East District Hospital, dedh, stella
+              8005551212 > register cynthia dedh
+              8005551212 < Thank you for registering at Dangme East District Hospital, dedh, cynthia 
+            """
+        self.runScript(a)

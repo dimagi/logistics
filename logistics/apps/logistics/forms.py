@@ -29,6 +29,12 @@ class ContactForm(forms.ModelForm):
                 instance = kwargs['instance']
                 self.initial['phone'] = instance.phone
 
+    def clean_phone(self):
+        dupes = Connection.objects.filter(identity=self.cleaned_data['phone']).count()
+        if dupes > 0:
+            raise forms.ValidationError("Phone number already registered!")
+        return self.cleaned_data
+
     def save(self, commit=True):
         model = super(ContactForm, self).save(commit=False)
         if commit:
