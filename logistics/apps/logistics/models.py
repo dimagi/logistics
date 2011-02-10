@@ -92,7 +92,7 @@ class ProductStock(models.Model):
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
     monthly_consumption = models.IntegerField(default=0)
-    last-modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return "%s-%s" % (self.service_delivery_point.name, self.product.name)
@@ -221,25 +221,34 @@ class ProductStockReport(object):
         if save:
             self._record_product_stock(product, stock)
 
-    def _record_product_stock(self, product_code, quantity):
-        report_type = ProductReportType.objects.get(slug='soh')
+    def _record_product_report(self, product_code, quantity, report_type):
         try:
             product = Product.objects.get(sms_code__contains=product_code)
         except Product.DoesNotExist:
             raise ValueError(_("Sorry, invalid product code %(code)s"), code=product_code.upper())
         self.facility.report(product=product, report_type=report_type,
-                                           quantity=quantity, message=self.message)
+                             quantity=quantity, message=self.message)
 
-    def add_product_receipt(self, product, quantity):
+
+    def _record_product_stock(self, product_code, quantity):
+        report_type = ProductReportType.objects.get(slug='soh')
+        self._record_product_report(product_code, quantity, report_type)
+
+    def _record_product_receipt(self, product_code, quantity):
+        report_type = ProductReportType.objects.get(slug='rec')
+        self._record_product_report(product_code, quantity, report_type)
+
+    def add_product_receipt(self, product, quantity, save=True):
         if isinstance(quantity, basestring) and quantity.isdigit():
             quantity = int(quantity)
         if not isinstance(quantity,int):
             raise TypeError("stock must be reported in integers")
         self.product_received[product] = quantity
+        self._record_product_receipt(product, quantity)
 
     def reported_products(self):
         reported_products = []
-        for i in self.product_stock:
+        for i in self.product_stock:    
             reported_products.append(i)
         return set(reported_products)
 

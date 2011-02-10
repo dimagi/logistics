@@ -222,7 +222,8 @@
             "product": 1,
             "is_active": true,
             "quantity": 30,
-            "monthly_consumption": 10
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
         }
     },
     {
@@ -234,7 +235,8 @@
             "product": 2,
             "is_active": true,
             "quantity": 100,
-            "monthly_consumption": 10
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
         }
     },
     {
@@ -243,6 +245,14 @@
         "fields": {
             "name": "Stock on Hand", 
             "slug": "soh"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "logistics.productreporttype", 
+        "fields": {
+            "name": "Stock Received", 
+            "slug": "rec"
         }
     },
     {
