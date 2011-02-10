@@ -229,7 +229,7 @@ class ProductStockReport(object):
         try:
             product = Product.objects.get(sms_code__contains=product_code)
         except Product.DoesNotExist:
-            raise ValueError(_("Sorry, invalid product code %(code)s"), code=product_code.upper())
+            raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
         self.facility.report(product=product, report_type=report_type,
                              quantity=quantity, message=self.message)
 
