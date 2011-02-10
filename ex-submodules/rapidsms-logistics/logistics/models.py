@@ -20,6 +20,8 @@ from rapidsms.contrib.messagelog.models import Message
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
 SUPERVISOR_RESPONSIBILITY = 'supervisor'
+STOCK_ON_HAND_REPORT_TYPE = 'soh'
+RECEIPT_REPORT_TYPE = 'rec'
 
 class ServiceDeliveryPointType(models.Model):
     name = models.CharField(max_length=100)
@@ -178,12 +180,13 @@ class ProductReport(models.Model):
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
-    def __init__(self, sdp, message):
+    def __init__(self, sdp, message, report_type):
         self.product_stock = {}
         self.product_received = {}
         self.facility = sdp
         self.message = message
         self.has_stockout = False
+        self.report_type = report_type
 
     def parse(self, string):
         my_list = string.split()
@@ -219,9 +222,10 @@ class ProductStockReport(object):
         if stock == 0:
             self.has_stockout = True
         if save:
-            self._record_product_stock(product, stock)
+            self._record_product_report(product, stock, self.report_type)
 
     def _record_product_report(self, product_code, quantity, report_type):
+        report_type = ProductReportType.objects.get(slug=report_type)
         try:
             product = Product.objects.get(sms_code__contains=product_code)
         except Product.DoesNotExist:
@@ -230,13 +234,12 @@ class ProductStockReport(object):
                              quantity=quantity, message=self.message)
 
 
+
     def _record_product_stock(self, product_code, quantity):
-        report_type = ProductReportType.objects.get(slug='soh')
-        self._record_product_report(product_code, quantity, report_type)
+        self._record_product_report(product_code, quantity, STOCK_ON_HAND_REPORT_TYPE)
 
     def _record_product_receipt(self, product_code, quantity):
-        report_type = ProductReportType.objects.get(slug='rec')
-        self._record_product_report(product_code, quantity, report_type)
+        self._record_product_report(product_code, quantity, RECEIPT_REPORT_TYPE)
 
     def add_product_receipt(self, product, quantity, save=True):
         if isinstance(quantity, basestring) and quantity.isdigit():

@@ -1,7 +1,7 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
-from logistics.apps.logistics.handlers.stockonhand import ProductStockReport, ServiceDeliveryPoint
+from logistics.apps.logistics.models import ProductStockReport, ServiceDeliveryPoint, STOCK_ON_HAND_REPORT_TYPE
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
@@ -13,7 +13,7 @@ class TestStockOnHand (TestScript):
     def testProductStockReport(self):
         sdp = ServiceDeliveryPoint()
         m = Message()
-        p = ProductStockReport(sdp, m)
+        p = ProductStockReport(sdp, m, STOCK_ON_HAND_REPORT_TYPE)
         p.add_product_stock('jd',10, save=False)
         p.add_product_stock('mc',30, save=False)
         p.add_product_stock('aq',0, save=False)
