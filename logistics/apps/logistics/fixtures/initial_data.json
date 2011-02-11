@@ -455,6 +455,240 @@
         }
     },
     {
+        "pk": 3,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 3,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 4,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 5,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 6,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 7,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 8,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 9,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 9,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 10,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 10,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 11,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 11,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 12,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 12,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 13,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 13,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 14,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 14,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 15,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 15,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 16,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 16,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 17,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 17,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 18,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 18,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 19,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 19,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
+        "pk": 20,
+        "model": "logistics.productstock",
+        "fields": {
+            "days_stocked_out": 0,
+            "service_delivery_point": 1,
+            "product": 20,
+            "is_active": false,
+            "quantity": 100,
+            "monthly_consumption": 10,
+            "last_modified": "2011-02-08 15:53:05"
+        }
+    },
+    {
         "pk": 1, 
         "model": "logistics.productreporttype", 
         "fields": {
