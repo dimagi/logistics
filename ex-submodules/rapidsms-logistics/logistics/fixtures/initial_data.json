@@ -186,7 +186,7 @@
         "pk": 2, 
         "model": "rapidsms.contact", 
         "fields": {
-            "name": "Administrator", 
+            "name": "In Charge", 
             "language": "en-us"
         }
     }, 
@@ -204,7 +204,7 @@
         "model": "rapidsms.connection", 
         "fields": {
             "contact": 2, 
-            "identity": "12345", 
+            "identity": "1234567890", 
             "backend": 1
         }
     }, 
@@ -334,7 +334,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "ct",
+            "sms_code": "co",
             "product_code": "", 
             "name": "Combivir Tabs", 
             "description": "Combivir Tabs (AZT/3TC)"
@@ -400,7 +400,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "oq",
+            "sms_code": "qu",
             "product_code": "", 
             "name": "Oral Quinine", 
             "description": "Oral Quinine"
@@ -810,7 +810,9 @@
         "pk": 3, 
         "model": "logistics.contactrole", 
         "fields": {
-            "responsibilities": [], 
+            "responsibilities": [
+                2
+            ], 
             "slug": "administrator", 
             "name": "administrator"
         }
@@ -840,7 +842,7 @@
         "fields": {
             "service_delivery_point": 1, 
             "needs_reminders": true, 
-            "role": 3
+            "role": 4
         }
     }, 
     {

@@ -193,9 +193,9 @@ class ProductStockReport(object):
         self.report_type = report_type
 
     def parse(self, string):
-        my_list = string.split()
-        if len(my_list)%2 !=0:
+        if ' ' not in string:
             raise ValueError('Poorly formatted stock list.')
+        my_list = string.split()
 
         def getTokens(seq):
             for item in seq:
