@@ -67,19 +67,26 @@ class ServiceDeliveryPoint(Location):
         stockouts = stock_report.stockouts()
         if stockouts:
             for reportee in reportees:
-                reportee.message(_('You have stockouts: %(stockouts)s') % {'stockouts':stockouts})
+                reportee.message(_('%(facility)s is stocked out of %(stockouts)s') %
+                                  {'facility': reportee.service_delivery_point.name,
+                                   'stockouts':stockouts
+                                  })
             # only report low supply if there are no stockouts
             return
         low_supply = stock_report.low_supply()
         if low_supply:
             for reportee in reportees:
-                reportee.message(_('You have low_supply: %(low_supply)s') % {'low_supply':low_supply})
+                reportee.message(_('%(facility)s is below reorder levels for %(low_supply)s') %
+                                 {'facility':reportee.service_delivery_point.name,
+                                  'low_supply':low_supply})
             # only report over supply if there are no low supplies
             return
         over_supply = stock_report.over_supply()
         if over_supply:
             for reportee in reportees:
-                reportee.message(_('You have over_supply: %(over_supply)s') % {'over_supply':over_supply})
+                reportee.message(_('%(facility)s is over maximum stock levels for %(over_supply)s') %
+                                 {'facility':reportee.service_delivery_point.name,
+                                  'over_supply':over_supply})
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -288,7 +295,6 @@ class ProductStockReport(object):
         return stocked_out
 
     def low_supply(self):
-        self.facility
         low_supply = ""
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__contains=i)
@@ -298,4 +304,10 @@ class ProductStockReport(object):
         return low_supply
 
     def over_supply(self):
-        return NotImplementedError
+        over_supply = ""
+        for i in self.product_stock:
+            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__contains=i)
+            if self.product_stock[i] > productstock.monthly_consumption*3:
+                over_supply = "%s %s" % (over_supply, i)
+        over_supply = over_supply.strip()
+        return over_supply
