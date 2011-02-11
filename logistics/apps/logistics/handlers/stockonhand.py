@@ -12,6 +12,8 @@ from rapidsms.messages import OutgoingMessage
 from logistics.apps.logistics.models import ServiceDeliveryPoint, Product, \
     ProductStock, ProductReportType, ProductStockReport, STOCK_ON_HAND_REPORT_TYPE
 
+ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
+
 class StockOnHandHandler(KeywordHandler):
     """
     Allows SMS reporters to send in "soh jd 10 mc 30" to report 10 jadelle, 30 male condoms
@@ -20,19 +22,23 @@ class StockOnHandHandler(KeywordHandler):
     keyword = "soh"
     
     def help(self):
-        self.respond(_("Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"))
+        if not hasattr(self.msg,'logistics_contact'):
+            self.respond(_("You must REGISTER before you can submit a stock report." +
+                           "Please text 'register <NAME> <FACILITY_CODE>'."))
+            return
+        self.respond(ERR_MSG)
 
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(_("You must REGISTER before you can submit a stock report." +
-                           "Please text 'register <NAME> <MSD_CODE>'."))
+                           "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
         sdp = self.msg.logistics_contact.service_delivery_point
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, STOCK_ON_HAND_REPORT_TYPE)
         try:
             stock_report.parse(text)
         except ValueError, e:
-            self.respond(_('ERROR: %(error)s.'), error=e.message)
+            self.respond(ERR_MSG)
             return
         all_products = []
         date_check = datetime.now() + relativedelta(days=-7)

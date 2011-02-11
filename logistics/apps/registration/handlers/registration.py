@@ -17,18 +17,18 @@ class LanguageHandler(KeywordHandler):
     keyword = "reg|register"
 
     def help(self):
-        self.respond(_("To register, send register <name> <msd code>. Example: register john dedh"))
+        self.respond(_("To register, send register <name> <facility code>. Example: register john dedh"))
     
     def handle(self, text):
         words = text.split()
         if len(words) != 2:
-            self.respond(_("Sorry, I didn't understand. To register, send register <name> <msd code>. Example: register john dedh'"))
+            self.respond(_("Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dedh'"))
             return
         name, msd_code = words
         try:
             sdp = ServiceDeliveryPoint.objects.get(msd_code__contains=msd_code)
         except ServiceDeliveryPoint.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with MSD CODE %(msd_code)s"), msd_code=msd_code )
+            self.respond(_("Sorry, can't find the location with FACILITY CODE %(msd_code)s"), msd_code=msd_code )
             return
         contact = LogisticsContact.objects.create(name=name, service_delivery_point=sdp)
         self.msg.connection.contact = contact

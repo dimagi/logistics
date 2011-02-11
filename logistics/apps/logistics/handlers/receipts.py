@@ -25,7 +25,7 @@ class ReceiptHandler(KeywordHandler):
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(_("You must REGISTER before you can submit a stock report." +
-                           "Please text 'register <NAME> <MSD_CODE>'."))
+                           "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
         sdp = self.msg.logistics_contact.service_delivery_point
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, report_type=RECEIPT_REPORT_TYPE)
