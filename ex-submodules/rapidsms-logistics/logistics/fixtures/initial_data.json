@@ -212,11 +212,11 @@
         "pk": 1, 
         "model": "logistics.product", 
         "fields": {
-            "units": "boxes", 
-            "sms_code": "jd", 
+            "units": "tablet", 
+            "sms_code": "lf",
             "product_code": "", 
-            "name": "Jadelle", 
-            "description": "Jadelle"
+            "name": "Lofem", 
+            "description": "Lofem"
         }
     }, 
     {
@@ -234,11 +234,198 @@
         "pk": 3, 
         "model": "logistics.product", 
         "fields": {
-            "units": "tablet", 
-            "sms_code": "lf",
+            "units": "don't know", 
+            "sms_code": "mg",
             "product_code": "", 
-            "name": "Lofem", 
-            "description": "Lofem"
+            "name": "Micro-G", 
+            "description": "Micro-G"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ng",
+            "product_code": "", 
+            "name": "Norigynon", 
+            "description": "Norigynon"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "dp",
+            "product_code": "", 
+            "name": "Depo Provera", 
+            "description": "Depo Provera"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "boxes", 
+            "sms_code": "jd", 
+            "product_code": "", 
+            "name": "Jadelle", 
+            "description": "Jadelle"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ct",
+            "product_code": "", 
+            "name": "Copper-T", 
+            "description": "Copper-T"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ns",
+            "product_code": "", 
+            "name": "Nevirapine Suspension", 
+            "description": "Nevirapine Suspension"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "nt",
+            "product_code": "", 
+            "name": "Nevirapine Tabs", 
+            "description": "Nevirapine Tabs"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "fr",
+            "product_code": "", 
+            "name": "First Response", 
+            "description": "First Response"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "oq",
+            "product_code": "", 
+            "name": "Oraquick", 
+            "description": "Oraquick"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ct",
+            "product_code": "", 
+            "name": "Combivir Tabs", 
+            "description": "Combivir Tabs (AZT/3TC)"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ls",
+            "product_code": "", 
+            "name": "Lamivudine Suspension", 
+            "description": "Lamivudine Suspension"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "zs",
+            "product_code": "", 
+            "name": "Zidovudine Suspension", 
+            "description": "Zidovudine Suspension"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "aq",
+            "product_code": "", 
+            "name": "AS-AQ", 
+            "description": "AS-AQ (3X3)"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "ad",
+            "product_code": "", 
+            "name": "A-L Dispersible", 
+            "description": "A-L Dispersible (1X6)"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "as",
+            "product_code": "", 
+            "name": "A-L Suspension", 
+            "description": "A-L Suspension"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "oq",
+            "product_code": "", 
+            "name": "Oral Quinine", 
+            "description": "Oral Quinine"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "sp",
+            "product_code": "", 
+            "name": "SP", 
+            "description": "SP"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "don't know", 
+            "sms_code": "rd",
+            "product_code": "", 
+            "name": "RDTs", 
+            "description": "RDTs"
         }
     }, 
     {
