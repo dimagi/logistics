@@ -172,4 +172,4 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             "%s.rapidsms.test.sqlite3" % db_name)
 
 DEFAULT_BACKEND = 'message_tester'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please report stock on hand as 'soh <product_code> <quantity>'"
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
