@@ -240,7 +240,7 @@ class ProductStockReport(object):
     def _record_product_report(self, product_code, quantity, report_type):
         report_type = ProductReportType.objects.get(slug=report_type)
         try:
-            product = Product.objects.get(sms_code__contains=product_code)
+            product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist:
             raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
         self.facility.report(product=product, report_type=report_type,
@@ -297,7 +297,7 @@ class ProductStockReport(object):
     def low_supply(self):
         low_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__contains=i)
+            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__icontains=i)
             if self.product_stock[i] < productstock.monthly_consumption:
                 low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
@@ -306,7 +306,7 @@ class ProductStockReport(object):
     def over_supply(self):
         over_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__contains=i)
+            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__icontains=i)
             if self.product_stock[i] > productstock.monthly_consumption*3:
                 over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
