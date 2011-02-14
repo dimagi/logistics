@@ -30,7 +30,7 @@ class TestStockOnHand (TestScript):
            16176023315 > soh lf 10 mc 20
            16176023315 < Thank you, you reported you have lf 10, mc 20. If incorrect, please resend.
            16176023315 > SOH LF 10 MC 20
-           16176023315 < Thank you, you reported you have lf 10, mc 20. If incorrect, please resend.
+           16176023315 < Thank you, you reported you have LF 10, MC 20. If incorrect, please resend.
            """
         self.runScript(a)
 
@@ -67,6 +67,15 @@ class TestStockOnHand (TestScript):
            16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
            16176023315 > soh lf 10-20.mc 20
            16176023315 < Thank you, you reported you have lf 10, mc 20. You received lf 20. If incorrect, please resend.
+           """
+        self.runScript(a)
+
+    def testBadCode(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
+           16176023315 > soh lf 0 bad_code 10
+           16176023315 < You reported: lf, but there were errors: Sorry, invalid product code BAD_CODE
            """
         self.runScript(a)
 

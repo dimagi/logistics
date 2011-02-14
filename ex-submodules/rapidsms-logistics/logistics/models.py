@@ -198,6 +198,7 @@ class ProductStockReport(object):
         self.message = message
         self.has_stockout = False
         self.report_type = report_type
+        self.errors = []
 
     def parse(self, string):
         my_list = string.split()
@@ -207,20 +208,23 @@ class ProductStockReport(object):
                 yield item
         an_iter = getTokens(my_list)
         a = None
-        try:
-            while True:
-                if a is None:
-                    a = an_iter.next()
-                b = an_iter.next()
-                self.add_product_stock(a,b)
-                c = an_iter.next()
-                if c.isdigit():
-                    self.add_product_receipt(a,c)
-                    a = None
-                else:
-                    a = c
-        except StopIteration:
-            pass
+        while True:
+            try:
+                    if a is None:
+                        a = an_iter.next()
+                    b = an_iter.next()
+                    self.add_product_stock(a,b)
+                    c = an_iter.next()
+                    if c.isdigit():
+                        self.add_product_receipt(a,c)
+                        a = None
+                    else:
+                        a = c
+            except ValueError, e:
+                self.errors.append(e)
+                continue
+            except StopIteration:
+                break
         return
 
     def add_product_stock(self, product, stock, save=True):
@@ -229,11 +233,11 @@ class ProductStockReport(object):
         if not isinstance(stock,int):
             raise TypeError("stock must be reported in integers")
         stock = int(stock)
+        if save:
+            self._record_product_report(product, stock, self.report_type)
         self.product_stock[product] = stock
         if stock == 0:
             self.has_stockout = True
-        if save:
-            self._record_product_report(product, stock, self.report_type)
 
     def _record_product_report(self, product_code, quantity, report_type):
         report_type = ProductReportType.objects.get(slug=report_type)
@@ -243,8 +247,6 @@ class ProductStockReport(object):
             raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
         self.facility.report(product=product, report_type=report_type,
                              quantity=quantity, message=self.message)
-
-
 
     def _record_product_stock(self, product_code, quantity):
         self._record_product_report(product_code, quantity, STOCK_ON_HAND_REPORT_TYPE)
