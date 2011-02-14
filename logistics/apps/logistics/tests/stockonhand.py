@@ -29,6 +29,8 @@ class TestStockOnHand (TestScript):
            16176023315 < Thank you stella for reporting your stock on hand for Dangme East District Hospital.  Still missing mc.
            16176023315 > soh lf 10 mc 20
            16176023315 < Thank you, you reported you have lf 10, mc 20. If incorrect, please resend.
+           16176023315 > SOH LF 10 MC 20
+           16176023315 < Thank you, you reported you have lf 10, mc 20. If incorrect, please resend.
            """
         self.runScript(a)
 
