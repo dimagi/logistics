@@ -76,6 +76,8 @@ class TestStockOnHand (TestScript):
            16176023315 < Thank you for registering at Dangme East District Hospital, dedh, cynthia
            16176023315 > soh lf 0 bad_code 10
            16176023315 < You reported: lf, but there were errors: Sorry, invalid product code BAD_CODE
+           16176023315 > soh bad_code 10
+           16176023315 < Sorry, invalid product code BAD_CODE
            """
         self.runScript(a)
 

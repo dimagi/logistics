@@ -37,14 +37,16 @@ class StockOnHandHandler(KeywordHandler):
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, STOCK_ON_HAND_REPORT_TYPE)
         stock_report.parse(text)
         if stock_report.errors:
-            self.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),
-                         stocks=", ". join(stock_report.product_stock),
-                         err = ", ".join(unicode(e) for e in stock_report.errors))
+            if stock_report.product_stock:
+                self.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),
+                             stocks=", ". join(stock_report.product_stock),
+                             err = ", ".join(unicode(e) for e in stock_report.errors))
+            else:
+                self.respond(_('%(err)s'),
+                             err = ", ".join(unicode(e) for e in stock_report.errors))
             return
         all_products = []
-        
         date_check = datetime.now() + relativedelta(days=-7)
-
         # check for products missing
         missing_products = Product.objects.filter(Q(productstock__service_delivery_point=sdp, productstock__is_active=True),
                                                   ~Q(productreport__report_date__gt=date_check) )
