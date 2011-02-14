@@ -222,6 +222,7 @@ class ProductStockReport(object):
                         a = c
             except ValueError, e:
                 self.errors.append(e)
+                a = None
                 continue
             except StopIteration:
                 break
