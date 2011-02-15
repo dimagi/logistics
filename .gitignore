@@ -1,6 +1,10 @@
 .project
 .pydevproject
+.idea
+.settings
 *.pyc
 *.db
+*.swp
 *~
 logistics/localsettings.py
+logistics/logistics.log
