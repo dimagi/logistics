@@ -11,7 +11,7 @@ class ConnectionInline(admin.TabularInline):
 
 class LogisticsContactAdmin(admin.ModelAdmin):
     model = LogisticsContact
-    list_display = ('name', 'role', 'service_delivery_point')
+    list_display = ('name', 'role', 'location')
     inlines = [
         ConnectionInline,
     ]
@@ -35,12 +35,6 @@ class ProductReportAdmin(admin.ModelAdmin):
 class ProductReportTypeAdmin(admin.ModelAdmin):
     model = ProductReportType
 
-class ServiceDeliveryPointAdmin(admin.ModelAdmin):
-    model = ServiceDeliveryPoint
-
-class ServiceDeliveryPointTypeAdmin(admin.ModelAdmin):
-    model = ServiceDeliveryPointType
-
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductStock, ProductStockAdmin)
 admin.site.register(ProductReport, ProductReportAdmin)
@@ -49,6 +43,4 @@ admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.unregister(RapidSMSContact)
 admin.site.register(LogisticsContact, LogisticsContactAdmin)
-admin.site.register(ServiceDeliveryPoint, ServiceDeliveryPointAdmin)
-admin.site.register(ServiceDeliveryPointType, ServiceDeliveryPointTypeAdmin)
 

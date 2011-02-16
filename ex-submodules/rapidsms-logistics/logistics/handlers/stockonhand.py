@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
-from logistics.apps.logistics.models import ServiceDeliveryPoint, Product, \
+from logistics.apps.logistics.models import Product, \
     ProductStock, ProductReportType, ProductStockReport, STOCK_ON_HAND_REPORT_TYPE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
@@ -33,7 +33,7 @@ class StockOnHandHandler(KeywordHandler):
             self.respond(_("You must REGISTER before you can submit a stock report." +
                            "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
-        sdp = self.msg.logistics_contact.service_delivery_point
+        sdp = self.msg.logistics_contact.location
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, STOCK_ON_HAND_REPORT_TYPE)
         stock_report.parse(text)
         if stock_report.errors:
@@ -48,7 +48,7 @@ class StockOnHandHandler(KeywordHandler):
         all_products = []
         date_check = datetime.now() + relativedelta(days=-7)
         # check for products missing
-        missing_products = Product.objects.filter(Q(productstock__service_delivery_point=sdp, productstock__is_active=True),
+        missing_products = Product.objects.filter(Q(productstock__location=sdp, productstock__is_active=True),
                                                   ~Q(productreport__report_date__gt=date_check) )
         for dict in missing_products.values('sms_code'):
             all_products.append(dict['sms_code'])

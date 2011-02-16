@@ -7,7 +7,7 @@ from rapidsms.models import Backend, Connection
 from django.utils.translation import ugettext as _
 from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from logistics.apps.logistics.models import ServiceDeliveryPoint, ContactRole, Product
+from logistics.apps.logistics.models import ContactRole, Product
 from logistics.apps.logistics.models import LogisticsContact as Contact
 
 class ContactForm(forms.ModelForm):

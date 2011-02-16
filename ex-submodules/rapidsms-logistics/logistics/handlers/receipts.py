@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
-from logistics.apps.logistics.models import ServiceDeliveryPoint, Product, \
+from logistics.apps.logistics.models import Product, \
     ProductStock, ProductReportType, ProductStockReport, RECEIPT_REPORT_TYPE
 
 class ReceiptHandler(KeywordHandler):
@@ -27,7 +27,7 @@ class ReceiptHandler(KeywordHandler):
             self.respond(_("You must REGISTER before you can submit a stock report." +
                            "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
-        sdp = self.msg.logistics_contact.service_delivery_point
+        sdp = self.msg.logistics_contact.location
         stock_report = ProductStockReport(sdp, self.msg.logger_msg, report_type=RECEIPT_REPORT_TYPE)
         stock_report.parse(text)
         self.respond(_('Thank you, you reported receipts for %(stocks)s. If incorrect, please resend.'), stocks=" ".join(stock_report.reported_products()).strip())
