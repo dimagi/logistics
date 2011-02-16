@@ -5,17 +5,6 @@ from django.contrib import admin
 from logistics.apps.logistics.models import *
 from rapidsms.models import Contact as RapidSMSContact
 
-class ConnectionInline(admin.TabularInline):
-    model = Connection
-    extra = 1
-
-class LogisticsContactAdmin(admin.ModelAdmin):
-    model = LogisticsContact
-    list_display = ('name', 'role', 'location')
-    inlines = [
-        ConnectionInline,
-    ]
-
 class ContactRoleAdmin(admin.ModelAdmin):
     model = ContactRole
 
@@ -41,6 +30,4 @@ admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
-admin.site.unregister(RapidSMSContact)
-admin.site.register(LogisticsContact, LogisticsContactAdmin)
 

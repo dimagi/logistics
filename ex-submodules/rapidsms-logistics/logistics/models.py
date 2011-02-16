@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from rapidsms.models import ExtensibleModelBase
-from rapidsms.models import Contact as RapidSMSContact
+from rapidsms.models import Contact
 from rapidsms.models import Connection
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.locations.models import Location, LocationType
@@ -64,37 +64,6 @@ class ContactRole(models.Model):
     def __unicode__(self):
         return _(self.name)
     
-class LogisticsContact(RapidSMSContact):
-    role = models.ForeignKey(ContactRole, null=True, blank=True)
-    location = models.ForeignKey(Location,null=True,blank=True)
-    needs_reminders = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name = "Contact Detail"
-
-    def __unicode__(self):
-        return self.name
-
-    @property
-    def phone(self):
-        if self.default_connection:
-            return self.default_connection.identity
-        else:
-            return " "
-
-    def supervisor(self):
-        """
-        If this contact is not a supervisor, message all staff with a supervisor responsibility at this facility
-        If this contact is a supervisor, message the super at the next facility up
-        Question: this looks like business/controller logic. Should it really be in 'model' code?
-        """
-
-        if SUPERVISOR not in self.role.responsibilities.objects.all():
-            return LogisticsContact.objects.filter(location=self.location,
-                                                   role=SUPERVISOR)
-        return LogisticsContact.objects.filter(location=self.location.parentsdp(),
-                                               role=SUPERVISOR)
-
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
