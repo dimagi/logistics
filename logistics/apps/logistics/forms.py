@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from logistics.apps.logistics.models import ContactRole, Product
-from logistics.apps.logistics.models import LogisticsContact as Contact
+from logistics.apps.logistics.models import Contact 
 
 class ContactForm(forms.ModelForm):
     name = forms.CharField()

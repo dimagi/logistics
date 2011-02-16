@@ -6,7 +6,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from rapidsms.conf import settings
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import LogisticsContact, Location
+from logistics.apps.logistics.models import Contact, Location
 
 class LanguageHandler(KeywordHandler):
     """
@@ -30,7 +30,7 @@ class LanguageHandler(KeywordHandler):
         except Location.DoesNotExist:
             self.respond(_("Sorry, can't find the location with FACILITY CODE %(msd_code)s"), msd_code=msd_code )
             return
-        contact = LogisticsContact.objects.create(name=name, location=sdp)
+        contact = Contact.objects.create(name=name, location=sdp)
         self.msg.connection.contact = contact
         self.msg.connection.save()
         kwargs = {'sdp_name': sdp.name,

@@ -28,15 +28,15 @@ class Location(models.Model):
         npr.save()
 
     def reporters(self):
-        from logistics.apps.logistics.models import LogisticsContact
-        reporters = LogisticsContact.objects.filter(location=self)
-        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        from logistics.apps.logistics.models import Contact
+        reporters = Contact.objects.filter(location=self)
+        reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
         return reporters
 
     def reportees(self):
-        from logistics.apps.logistics.models import LogisticsContact
-        reporters = LogisticsContact.objects.filter(location=self)
-        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
+        from logistics.apps.logistics.models import Contact
+        reporters = Contact.objects.filter(location=self)
+        reporters = Contact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
     def supervisor_report(self, stock_report):

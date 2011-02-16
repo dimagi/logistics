@@ -3,7 +3,7 @@
 
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
-from logistics.apps.logistics.models import LogisticsContact
+from logistics.apps.logistics.models import Contact
 
 class App(AppBase):
     bootstrapped = False
@@ -30,8 +30,8 @@ class App(AppBase):
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
         try:
-            logistics_contact = LogisticsContact.objects.get(connection=message.connection)
-        except LogisticsContact.DoesNotExist:
+            logistics_contact = Contact.objects.get(connection=message.connection)
+        except Contact.DoesNotExist:
             # user is not registered. that's fine, just pass.
             return
         message.logistics_contact = logistics_contact

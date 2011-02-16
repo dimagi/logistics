@@ -179,7 +179,10 @@
         "model": "rapidsms.contact", 
         "fields": {
             "name": "Test User", 
-            "language": "en-us"
+            "language": "en-us",
+            "location": 1, 
+            "needs_reminders": true, 
+            "role": 4
         }
     }, 
     {
@@ -187,7 +190,8 @@
         "model": "rapidsms.contact", 
         "fields": {
             "name": "In Charge", 
-            "language": "en-us"
+            "language": "en-us",
+            "location": 1
         }
     }, 
     {
@@ -819,23 +823,6 @@
             ], 
             "slug": "incharge", 
             "name": "in charge"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "logistics.logisticscontact", 
-        "fields": {
-            "location": 1, 
-            "role": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "logistics.logisticscontact", 
-        "fields": {
-            "location": 1, 
-            "needs_reminders": true, 
-            "role": 4
         }
     }, 
     {

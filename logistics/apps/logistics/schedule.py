@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.models import LogisticsContact, STOCK_ON_HAND_RESPONSIBILITY
+from logistics.apps.logistics.models import Contact, STOCK_ON_HAND_RESPONSIBILITY
 from django.utils.translation import ugettext as _
 
 ######################
@@ -16,7 +16,7 @@ FOURTH_STOCK_ON_HAND_REMINDER = _('%(facility)s has not reported its stock this 
 
 def first_soh_reminder (router):
     """ thusday reminders """
-    reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         if reporter.needs_reminders:
             send_message(reporter.connection, STOCK_ON_HAND_REMINDER % {'name':reporter.name})
@@ -24,7 +24,7 @@ def first_soh_reminder (router):
 
 def second_soh_reminder (router):
     """monday follow-up"""
-    reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
         # TODO get this to vary alongside scheduled time
@@ -35,7 +35,7 @@ def second_soh_reminder (router):
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
-    reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
         five_days_ago = datetime.now() + relativedelta(days=-7)
@@ -44,7 +44,7 @@ def third_soh_to_super (router):
 
 def fourth_soh_to_super_super (router):
     """ three weeks later: message the district """
-    reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
         five_days_ago = datetime.now() + relativedelta(days=-21)
