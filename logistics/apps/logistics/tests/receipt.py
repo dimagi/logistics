@@ -1,7 +1,6 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
-from logistics.apps.logistics.handlers.stockonhand import ProductStockReport, ServiceDeliveryPoint
 
 class TestReceipts (TestScript):
     apps = ([logistics_app.App])

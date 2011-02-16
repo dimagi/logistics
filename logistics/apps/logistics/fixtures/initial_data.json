@@ -10,7 +10,7 @@
         "pk": 1, 
         "model": "rapidsms.app", 
         "fields": {
-            "active": false, 
+            "active": false,
             "module": "django_nose"
         }
     }, 
@@ -433,7 +433,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 1,
             "is_active": true,
             "quantity": 30,
@@ -446,7 +446,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 2,
             "is_active": true,
             "quantity": 100,
@@ -459,7 +459,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 3,
             "is_active": false,
             "quantity": 100,
@@ -472,7 +472,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 4,
             "is_active": false,
             "quantity": 100,
@@ -485,7 +485,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 5,
             "is_active": false,
             "quantity": 100,
@@ -498,7 +498,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 6,
             "is_active": false,
             "quantity": 100,
@@ -511,7 +511,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 7,
             "is_active": false,
             "quantity": 100,
@@ -524,7 +524,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 8,
             "is_active": false,
             "quantity": 100,
@@ -537,7 +537,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 9,
             "is_active": false,
             "quantity": 100,
@@ -550,7 +550,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 10,
             "is_active": false,
             "quantity": 100,
@@ -563,7 +563,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 11,
             "is_active": false,
             "quantity": 100,
@@ -576,7 +576,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 12,
             "is_active": false,
             "quantity": 100,
@@ -589,7 +589,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 13,
             "is_active": false,
             "quantity": 100,
@@ -602,7 +602,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 14,
             "is_active": false,
             "quantity": 100,
@@ -615,7 +615,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 15,
             "is_active": false,
             "quantity": 100,
@@ -628,7 +628,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 16,
             "is_active": false,
             "quantity": 100,
@@ -641,7 +641,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 17,
             "is_active": false,
             "quantity": 100,
@@ -654,7 +654,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 18,
             "is_active": false,
             "quantity": 100,
@@ -667,7 +667,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 19,
             "is_active": false,
             "quantity": 100,
@@ -680,7 +680,7 @@
         "model": "logistics.productstock",
         "fields": {
             "days_stocked_out": 0,
-            "service_delivery_point": 1,
+            "location": 1,
             "product": 20,
             "is_active": false,
             "quantity": 100,
@@ -698,7 +698,7 @@
     },
     {
         "pk": 2, 
-        "model": "logistics.productreporttype", 
+        "model": "logistics.productreporttype",     
         "fields": {
             "name": "Stock Received", 
             "slug": "rec"
@@ -713,61 +713,54 @@
         }
     }, 
     {
-        "pk": 1, 
-        "model": "locations.location", 
+        "pk": "hc",
+        "model": "locations.locationtype",
         "fields": {
-            "parent_type": null, 
-            "type": null, 
-            "parent_id": null, 
-            "point": null
+            "name": "Health Center"
         }
-    }, 
+    },
     {
-        "pk": 1, 
-        "model": "logistics.servicedeliverypointtype", 
+        "pk": "dh",
+        "model": "locations.locationtype",
         "fields": {
-            "name": "chps"
+            "name": "District Hospital"
         }
-    }, 
+    },
     {
-        "pk": 2, 
-        "model": "logistics.servicedeliverypointtype", 
+        "pk": "chps",
+        "model": "locations.locationtype",
         "fields": {
-            "name": "health center"
+            "name": "CHPS Facility"
         }
-    }, 
+    },
     {
-        "pk": 3, 
-        "model": "logistics.servicedeliverypointtype", 
+        "pk": "da",
+        "model": "locations.locationtype",
         "fields": {
-            "name": "district hospital"
+            "name": "District Administration"
         }
-    }, 
+    },
     {
-        "pk": 4, 
-        "model": "logistics.servicedeliverypointtype", 
+        "pk": "RMS",
+        "model": "locations.locationtype",
         "fields": {
-            "name": "district"
+            "name": "Regional Medical Store"
         }
-    }, 
+    },
     {
-        "pk": 5, 
-        "model": "logistics.servicedeliverypointtype", 
+        "pk": 1,
+        "model": "locations.location",
         "fields": {
-            "name": "region"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "logistics.servicedeliverypoint", 
-        "fields": {
-            "active": true, 
-            "service_delivery_point_type": 3, 
-            "created_at": "2011-02-08 15:53:05", 
+            "name": "Dangme East District Hospital",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "parent_type": null,
+            "parent_id": null,
             "msd_code": "dedh",
-            "name": "Dangme East District Hospital"
+            "active": true,
+            "type": "dh"
         }
-    }, 
+    },
     {
         "pk": 1, 
         "model": "logistics.responsibility", 
@@ -832,7 +825,7 @@
         "pk": 1, 
         "model": "logistics.logisticscontact", 
         "fields": {
-            "service_delivery_point": 1, 
+            "location": 1, 
             "role": 1
         }
     }, 
@@ -840,7 +833,7 @@
         "pk": 2, 
         "model": "logistics.logisticscontact", 
         "fields": {
-            "service_delivery_point": 1, 
+            "location": 1, 
             "needs_reminders": true, 
             "role": 4
         }

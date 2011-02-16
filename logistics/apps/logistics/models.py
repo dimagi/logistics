@@ -12,81 +12,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
 from rapidsms.models import ExtensibleModelBase
-from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact as RapidSMSContact
 from rapidsms.models import Connection
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.contrib.locations.models import Location, LocationType
 
-STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
-REPORTEE_RESPONSIBILITY = 'reportee'
-SUPERVISOR_RESPONSIBILITY = 'supervisor'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
-
-class ServiceDeliveryPointType(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.name
-
-class ServiceDeliveryPoint(Location):
-    """
-    ServiceDeliveryPoint - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
-    This could/should be broken out into subclasses.
-    """
-    @property
-    def label(self):
-        return unicode(self)
-
-    name = models.CharField(max_length=100, blank=True)
-    active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    msd_code = models.CharField(max_length=100, blank=True, null=True)
-    service_delivery_point_type = models.ForeignKey(ServiceDeliveryPointType)
-
-    def report(self, **kwargs):
-        npr = ProductReport(service_delivery_point = self,  **kwargs)
-        npr.save()
-
-    def reporters(self):
-        reporters = LogisticsContact.objects.filter(service_delivery_point=self)
-        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
-        return reporters
-
-    def reportees(self):
-        reporters = LogisticsContact.objects.filter(service_delivery_point=self)
-        reporters = LogisticsContact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
-        return reporters
-
-    def parentsdp(self):
-        return ServiceDeliveryPoint(self.parent)
-
-    def supervisor_report(self, stock_report):
-        sdp = self.parentsdp()
-        reportees = sdp.reportees()
-        stockouts = stock_report.stockouts()
-        if stockouts:
-            for reportee in reportees:
-                reportee.message(_('%(facility)s is stocked out of %(stockouts)s') %
-                                  {'facility': reportee.service_delivery_point.name,
-                                   'stockouts':stockouts
-                                  })
-            # only report low supply if there are no stockouts
-            return
-        low_supply = stock_report.low_supply()
-        if low_supply:
-            for reportee in reportees:
-                reportee.message(_('%(facility)s is below reorder levels for %(low_supply)s') %
-                                 {'facility':reportee.service_delivery_point.name,
-                                  'low_supply':low_supply})
-            # only report over supply if there are no low supplies
-            return
-        over_supply = stock_report.over_supply()
-        if over_supply:
-            for reportee in reportees:
-                reportee.message(_('%(facility)s is over maximum stock levels for %(over_supply)s') %
-                                 {'facility':reportee.service_delivery_point.name,
-                                  'over_supply':over_supply})
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -101,14 +33,14 @@ class Product(models.Model):
 class ProductStock(models.Model):
     is_active = models.BooleanField(default=True)
     quantity = models.IntegerField(blank=True, null=True)
-    service_delivery_point = models.ForeignKey('ServiceDeliveryPoint')
+    location = models.ForeignKey(Location)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
     monthly_consumption = models.IntegerField(default=0)
     last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return "%s-%s" % (self.service_delivery_point.name, self.product.name)
+        return "%s-%s" % (self.location.name, self.product.name)
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
@@ -134,7 +66,7 @@ class ContactRole(models.Model):
     
 class LogisticsContact(RapidSMSContact):
     role = models.ForeignKey(ContactRole, null=True, blank=True)
-    service_delivery_point = models.ForeignKey(ServiceDeliveryPoint,null=True,blank=True)
+    location = models.ForeignKey(Location,null=True,blank=True)
     needs_reminders = models.BooleanField(default=True)
 
     class Meta:
@@ -158,9 +90,9 @@ class LogisticsContact(RapidSMSContact):
         """
 
         if SUPERVISOR not in self.role.responsibilities.objects.all():
-            return LogisticsContact.objects.filter(service_delivery_point=self.service_delivery_point,
+            return LogisticsContact.objects.filter(location=self.location,
                                                    role=SUPERVISOR)
-        return LogisticsContact.objects.filter(service_delivery_point=self.service_delivery_point.parentsdp(),
+        return LogisticsContact.objects.filter(location=self.location.parentsdp(),
                                                role=SUPERVISOR)
 
 class ProductReportType(models.Model):
@@ -176,7 +108,7 @@ class ProductReportType(models.Model):
 
 class ProductReport(models.Model):
     product = models.ForeignKey(Product)
-    service_delivery_point = models.ForeignKey(ServiceDeliveryPoint)
+    location = models.ForeignKey(Location)
     report_type = models.ForeignKey(ProductReportType)
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.now)
@@ -187,7 +119,7 @@ class ProductReport(models.Model):
         ordering = ('-report_date',)
 
     def __unicode__(self):
-        return "%s-%s-%s" % (self.service_delivery_point.name, self.product.name, self.report_type.name)
+        return "%s-%s-%s" % (self.location.name, self.product.name, self.report_type.name)
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
@@ -298,7 +230,7 @@ class ProductStockReport(object):
     def low_supply(self):
         low_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__icontains=i)
+            productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
             if self.product_stock[i] < productstock.monthly_consumption:
                 low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
@@ -307,7 +239,7 @@ class ProductStockReport(object):
     def over_supply(self):
         over_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(service_delivery_point=self.facility).get(product__sms_code__icontains=i)
+            productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
             if self.product_stock[i] > productstock.monthly_consumption*3:
                 over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
