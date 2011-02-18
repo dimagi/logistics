@@ -11,7 +11,6 @@ class ConnectionInline(admin.TabularInline):
 
 class ContactAdmin(admin.ModelAdmin):
     model = Contact
-    list_display = ('name', 'role', 'location')
     inlines = [
         ConnectionInline,
     ]
