@@ -81,7 +81,8 @@ class ProductReport(models.Model):
     report_type = models.ForeignKey(ProductReportType)
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.now)
-    message = models.ForeignKey(Message)
+    # message should only be null if the stock report was provided over the web
+    message = models.ForeignKey(Message, blank=True, null=True)
 
     class Meta:
         verbose_name = "Product Report"
@@ -92,11 +93,11 @@ class ProductReport(models.Model):
 
 class ProductStockReport(object):
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
-    def __init__(self, sdp, message, report_type):
+    def __init__(self, sdp, report_type, message=None):
         self.product_stock = {}
         self.product_received = {}
         self.facility = sdp
-        self.message = message
+        self.message = message 
         self.has_stockout = False
         self.report_type = report_type
         self.errors = []
@@ -127,42 +128,62 @@ class ProductStockReport(object):
                 continue
             except StopIteration:
                 break
+        self.save()
         return
 
-    def add_product_stock(self, product, stock, save=True):
+    def save(self):
+        for stock_code in self.product_stock:
+            try:
+                product = Product.objects.get(sms_code__icontains=stock_code)
+            except Product.DoesNotExist:
+                raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':stock_code.upper()})
+            self._record_product_report(product, self.product_stock[stock_code], self.report_type)
+        for stock_code in self.product_received:
+            try:
+                    product = Product.objects.get(sms_code__icontains=stock_code)
+            except Product.DoesNotExist:
+                raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':stock_code.upper()})
+            self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
+
+    def add_product_stock(self, product_code, stock, save=False):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
         if not isinstance(stock,int):
             raise TypeError("stock must be reported in integers")
         stock = int(stock)
-        if save:
-            self._record_product_report(product, stock, self.report_type)
-        self.product_stock[product] = stock
-        if stock == 0:
-            self.has_stockout = True
-
-    def _record_product_report(self, product_code, quantity, report_type):
-        report_type = ProductReportType.objects.get(slug=report_type)
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist:
             raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
+        if save:
+            self._record_product_report(product, stock, self.report_type)
+        self.product_stock[product_code] = stock
+        if stock == 0:
+            self.has_stockout = True
+
+    def _record_product_report(self, product, quantity, report_type):
+        report_type = ProductReportType.objects.get(slug=report_type)
         self.facility.report(product=product, report_type=report_type,
                              quantity=quantity, message=self.message)
 
     def _record_product_stock(self, product_code, quantity):
         self._record_product_report(product_code, quantity, STOCK_ON_HAND_REPORT_TYPE)
 
-    def _record_product_receipt(self, product_code, quantity):
-        self._record_product_report(product_code, quantity, RECEIPT_REPORT_TYPE)
+    def _record_product_receipt(self, product, quantity):
+        self._record_product_report(product, quantity, RECEIPT_REPORT_TYPE)
 
-    def add_product_receipt(self, product, quantity, save=True):
+    def add_product_receipt(self, product_code, quantity, save=True):
         if isinstance(quantity, basestring) and quantity.isdigit():
             quantity = int(quantity)
         if not isinstance(quantity,int):
             raise TypeError("stock must be reported in integers")
-        self.product_received[product] = quantity
-        self._record_product_receipt(product, quantity)
+        try:
+            product = Product.objects.get(sms_code__icontains=product_code)
+        except Product.DoesNotExist:
+            raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
+        self.product_received[product_code] = quantity
+        if save:
+            self._record_product_receipt(product, quantity)
 
     def reported_products(self):
         reported_products = []

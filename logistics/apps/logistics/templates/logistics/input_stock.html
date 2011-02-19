@@ -3,13 +3,13 @@
 {% block content %}
     <div class="module">
         <h2>Input Stock for {{ date|date:"D, M d" }}</h2>
-
         <form action="" method="post">
             <div>
+                {% csrf_token %}
                 {% for commodity in commodities %}
                 <div class="field {{ commodity }} required">
                     <label for="id_{{ commodity }}">{{ commodity }}</label>
-                    <input type="text" name="{{ commodity }}" id="id_{{ commodity }}"/>
+                    <input type="text" name="{{ commodity.sms_code }}" id="id_{{ commodity }}"/>
                 </div>
                 {% endfor %}
             </div>
