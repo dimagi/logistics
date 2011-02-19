@@ -46,6 +46,7 @@ def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
     location = get_object_or_404(Location, code=facility_code)
     stockonhands = ProductStock.objects.filter(location=location, is_active=True).order_by('product')
     context['stockonhands'] = stockonhands
+    context['location'] = location
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )

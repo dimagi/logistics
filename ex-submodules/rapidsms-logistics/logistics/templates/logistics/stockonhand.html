@@ -1,8 +1,8 @@
-{% extends "layout.html" %}
+{% extends "logistics/base.html" %}
 
 {% block content %}
     <div class="module">
-        <h2>Stock for {{ location }}</h2>
+        <h2>Stock for {{ location.name }}</h2>
         <table class="stock">
         <thead><tr>
             {% for stockonhand in stockonhands %}
