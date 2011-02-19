@@ -30,10 +30,16 @@ class ContactForm(forms.ModelForm):
                 self.initial['phone'] = instance.phone
 
     def clean_phone(self):
-        dupes = Connection.objects.filter(identity=self.cleaned_data['phone']).count()
-        if dupes > 0:
+        model = super(ContactForm, self).save(commit=False)
+        dupes = Connection.objects.filter(identity=self.cleaned_data['phone'])
+        dupe_count = dupes.count()
+        if dupe_count > 1:
             raise forms.ValidationError("Phone number already registered!")
-        return self.cleaned_data
+        if dupe_count == 1:
+            # could be that we are editing an existing model
+            if dupes[0].contact.name != self.cleaned_data['name']:
+                raise forms.ValidationError("Phone number already registered!")
+        return self.cleaned_data['phone']
 
     def save(self, commit=True):
         model = super(ContactForm, self).save(commit=False)
@@ -46,7 +52,7 @@ class ContactForm(forms.ModelForm):
                 else:
                     backend = Backend.objects.all()[0]
                 conn = Connection(backend=backend,
-                                  contact=model.contact_ptr)
+                                  contact=model)
             conn.identity = self.cleaned_data['phone']
             conn.save()
         return model
