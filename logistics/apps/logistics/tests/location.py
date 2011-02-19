@@ -4,7 +4,7 @@ import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.models import ProductStockReport, ProductReportType, \
     ProductStock, Product, Location, STOCK_ON_HAND_REPORT_TYPE
 
-class TestStockOnHand (TestScript):
+class TestLocation (TestScript):
     apps = ([logistics_app.App])
 
     def setUp(self):

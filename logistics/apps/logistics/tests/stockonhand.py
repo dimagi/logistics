@@ -17,9 +17,9 @@ class TestStockOnHand (TestScript):
         p.add_product_stock('lf',10, save=False)
         p.add_product_stock('mc',30, save=False)
         p.add_product_stock('aq',0, save=False)
-        p.add_product_stock('al',0, save=False)
-        self.assertEquals(p.all(), "lf 10, aq 0, al 0, mc 30")
-        self.assertEquals(p.stockouts(), "aq al")
+        p.add_product_stock('oq',0, save=False)
+        self.assertEquals(p.all(), "lf 10, aq 0, oq 0, mc 30")
+        self.assertEquals(p.stockouts(), "aq oq")
 
     def testStockOnHand(self):
         a = """
