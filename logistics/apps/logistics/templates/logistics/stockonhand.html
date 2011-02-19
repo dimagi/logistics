@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="module">
+        <h2>Stock for {{ location }}</h2>
+        <table class="stock">
+        <thead><tr>
+            {% for stockonhand in stockonhands %}
+                <th scope="col">{{ stockonhand.product }}</th>
+            {% endfor %}
+        </thead></tr><tbody><tr>
+            {% for stockonhand in stockonhands %}
+                <td>{{ stockonhand.quantity }}</td>
+            {% endfor %}
+        </tr></tbody></table>
+    </div>
+{% endblock %}

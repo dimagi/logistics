@@ -5,5 +5,6 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    url(r'^$', 'logistics.apps.logistics.views.input_stock', name="input_stock"),
+    url(r'^input_stock$', 'logistics.apps.logistics.views.input_stock', name="input_stock"),
+    url(r'^(?P<facility_code>\w+)/stockonhand/?$', 'logistics.apps.logistics.views.stockonhand', name="stockonhand"),
 )

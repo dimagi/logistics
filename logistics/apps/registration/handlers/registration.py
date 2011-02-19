@@ -24,16 +24,16 @@ class LanguageHandler(KeywordHandler):
         if len(words) != 2:
             self.respond(_("Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dedh'"))
             return
-        name, msd_code = words
+        name, code = words
         try:
-            sdp = Location.objects.get(msd_code__contains=msd_code)
+            sdp = Location.objects.get(code__contains=code)
         except Location.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with FACILITY CODE %(msd_code)s"), msd_code=msd_code )
+            self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
             return
         contact = Contact.objects.create(name=name, location=sdp)
         self.msg.connection.contact = contact
         self.msg.connection.save()
         kwargs = {'sdp_name': sdp.name,
-                  'msd_code': msd_code,
+                  'code': code,
                   'contact_name': contact.name}
-        self.respond(_("Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"), **kwargs)
+        self.respond(_("Thank you for registering at %(sdp_name)s, %(code)s, %(contact_name)s"), **kwargs)

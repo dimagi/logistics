@@ -13,7 +13,7 @@ class Location(models.Model):
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    msd_code = models.CharField(max_length=100, blank=True, null=True)
+    code = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         abstract = True
