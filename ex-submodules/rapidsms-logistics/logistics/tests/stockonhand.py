@@ -13,7 +13,7 @@ class TestStockOnHand (TestScript):
     def testProductStockReport(self):
         sdp = Location()
         m = Message()
-        p = ProductStockReport(sdp, m, STOCK_ON_HAND_REPORT_TYPE)
+        p = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, m)
         p.add_product_stock('lf',10, save=False)
         p.add_product_stock('mc',30, save=False)
         p.add_product_stock('aq',0, save=False)

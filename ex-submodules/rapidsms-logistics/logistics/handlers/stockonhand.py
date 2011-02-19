@@ -34,8 +34,9 @@ class StockOnHandHandler(KeywordHandler):
                            "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
         sdp = self.msg.logistics_contact.location
-        stock_report = ProductStockReport(sdp, self.msg.logger_msg, STOCK_ON_HAND_REPORT_TYPE)
+        stock_report = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
+        stock_report.save()
         if stock_report.errors:
             if stock_report.product_stock:
                 self.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),

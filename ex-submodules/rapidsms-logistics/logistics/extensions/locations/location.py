@@ -22,10 +22,14 @@ class Location(models.Model):
     def label(self):
         return unicode(self)
 
-    def report(self, **kwargs):
-        from logistics.apps.logistics.models import ProductReport
-        npr = ProductReport(location = self,  **kwargs)
+    def report(self, product, report_type, quantity, message=None):
+        from logistics.apps.logistics.models import ProductReport, ProductStock
+        npr = ProductReport( product=product, report_type=report_type, quantity=quantity, message=message, location=self)
         npr.save()
+        productstock = ProductStock.objects.get(location=self, product=product)
+        productstock.quantity = quantity
+        productstock.save()
+        return npr
 
     def reporters(self):
         from logistics.apps.logistics.models import Contact

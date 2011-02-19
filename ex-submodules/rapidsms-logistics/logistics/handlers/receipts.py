@@ -28,7 +28,7 @@ class ReceiptHandler(KeywordHandler):
                            "Please text 'register <NAME> <FACILITY_CODE>'."))
             return
         sdp = self.msg.logistics_contact.location
-        stock_report = ProductStockReport(sdp, self.msg.logger_msg, report_type=RECEIPT_REPORT_TYPE)
+        stock_report = ProductStockReport(sdp, report_type=RECEIPT_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
-        self.respond(_('Thank you, you reported receipts for %(stocks)s. If incorrect, please resend.'), stocks=" ".join(stock_report.reported_products()).strip())
-
+        stock_report.save()
+        self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())
