@@ -13,9 +13,9 @@ class TestReceipts (TestScript):
            16176023315 > register stella dedh
            16176023315 < Thank you for registering at Dangme East District Hospital, dedh, stella
            16176023315 > rec jd 10
-           16176023315 < Thank you, you reported receipts for jd. If incorrect, please resend.
+           16176023315 < Thank you, you reported receipts for jd.
            16176023315 > rec jd 10 mc 20
-           16176023315 < Thank you, you reported receipts for jd mc. If incorrect, please resend.
+           16176023315 < Thank you, you reported receipts for jd mc.
            """
         self.runScript(a)
 
