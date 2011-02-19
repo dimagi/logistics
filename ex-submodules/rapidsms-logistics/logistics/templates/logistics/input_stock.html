@@ -1,7 +1,25 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="module">
-	<h2>Input Stock</h2>
-</div>
+    <div class="module">
+        <h2>Input Stock for {{ date|date:"D, M d" }}</h2>
+
+        <form action="" method="post">
+            <div>
+                {% for commodity in commodities %}
+                <div class="field {{ commodity }} required">
+                    <label for="id_{{ commodity }}">{{ commodity }}</label>
+                    <input type="text" name="{{ commodity }}" id="id_{{ commodity }}"/>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="submit">
+                <input type="submit" name="submit" value="Save Stock Report"/>
+            </div>
+
+        </form>
+
+
+    </div>
 {% endblock %}
