@@ -34,8 +34,10 @@
 				<div id="branding">
 					<h1>
 						<a title="{% trans "Return to the Dashboard" %}" href="{% url rapidsms-dashboard %}">
+                            <img src="{{ logo_left_url }}" alt="" id="logo_left">
 							<span>RapidSMS</span>
 						</a>
+                        <img src="{{ logo_right_url }}" alt="" id="logo_right">           
 					</h1>
 				</div>
 
@@ -59,6 +61,14 @@
 			</div>
 			{% endblock %}
 
+			{% if messages %}
+              <ul class="messages">
+                  {% for message in messages %}
+                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                  {% endfor %}
+              </ul>
+            {% endif %}
+            
 			{% block breadcrumbs %}{% if breadcrumbs %}
 			<div id="breadcrumbs">{% for caption, url in breadcrumbs %}
 				<a href="{{ url }}">{{ caption }}</a>{% if not forloop.last %}
