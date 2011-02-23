@@ -42,12 +42,3 @@ def third_soh_to_super (router):
         if latest_report.report_date < five_days_ago:
             reporter.supervisor().send_message(THIRD_STOCK_ON_HAND_REMINDER % {'name':reporter.name})
 
-def fourth_soh_to_super_super (router):
-    """ three weeks later: message the district """
-    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
-    for reporter in reporters:
-        latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
-        five_days_ago = datetime.now() + relativedelta(days=-21)
-        if latest_report.report_date < five_days_ago:
-            reporter.supervisor().supervisor().send_message(FOURTH_STOCK_ON_HAND_REMINDER % {'facility':reporter.name})
-
