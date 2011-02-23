@@ -1,0 +1,32 @@
+{% extends "logistics/reports_base.html" %}
+
+{% block content %}
+    <div class="module">
+        <h2>
+            Reporting Rates {% if location %}for {{ location.name }}{% endif %}
+        </h2>
+        <table>
+            <thead><tr>
+                <th>NON-REPORTING FACILITIES</th>
+                <th>Last Message Received</th>
+            </thead></tr><tbody>
+                {% for facility in late_facilities %}
+                    <tr><td>{{ facility.name }}</td>
+                    <td>{{ facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <table>
+            <thead><tr>
+                <th>On-Time Facilities</th>
+                <th>Last Message Received</th>
+            </thead></tr><tbody>
+                {% for facility in on_time_facilities %}
+                    <tr><td>{{ facility.name }}</td>
+                    <td>{{ facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

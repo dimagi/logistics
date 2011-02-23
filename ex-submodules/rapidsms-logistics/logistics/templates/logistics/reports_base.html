@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+
+{% block stylesheets %}
+{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/base.css" />
+{% endblock %}
+
+{% block title %}Logistics - {{ block.super }}{% endblock %}

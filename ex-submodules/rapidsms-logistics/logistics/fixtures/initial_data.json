@@ -797,6 +797,7 @@
             "name": "Dangme East District Hospital",
             "point": null,
             "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
             "parent_type": null,
             "parent_id": null,
             "code": "dedh",
