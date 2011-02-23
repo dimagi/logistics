@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from datetime import datetime, timedelta
 from django.db import models
+from django.utils.translation import ugettext as _
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
@@ -59,8 +60,7 @@ class Location(models.Model):
         return reporters
 
     def supervisor_report(self, stock_report):
-        sdp = self.parentsdp()
-        reportees = sdp.reportees()
+        reportees = self.reportees()
         stockouts = stock_report.stockouts()
         if stockouts:
             for reportee in reportees:

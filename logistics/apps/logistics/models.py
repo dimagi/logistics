@@ -92,39 +92,83 @@ class ProductReport(models.Model):
         return "%s-%s-%s" % (self.location.name, self.product.name, self.report_type.name)
 
 class ProductStockReport(object):
+    REC_SEPARATOR = '-'
+
     """ The following is a helper class to make it easy to generate reports based on stock on hand """
     def __init__(self, sdp, report_type, message=None):
         self.product_stock = {}
         self.product_received = {}
         self.facility = sdp
-        self.message = message 
+        self.message = message
         self.has_stockout = False
         self.report_type = report_type
         self.errors = []
 
-    def parse(self, string):
-        my_list = string.split()
+    def _clean_string(self, string):
+        mylist = list(string)
+        newstring = string[0]
+        i = 1
+        while i<len(mylist)-1:
+            if mylist[i] == ' ' and mylist[i-1].isdigit() and mylist[i+1].isdigit():
+                newstring = newstring + REC_SEPARATOR
+            else:
+                newstring = newstring + mylist[i]
+            i = i + 1
+        newstring = newstring + string[-1]
+        string = newstring
 
-        def getTokens(seq):
-            for item in seq:
-                yield item
-        an_iter = getTokens(my_list)
-        a = None
+        string = string.replace(' ','')
+        separators = [',', '/', ';', '*', '+', '-']
+        for mark in separators:
+                string = string.replace(mark, self.REC_SEPARATOR)
+        junk = ['\'', '\"', '`', '(', ')']
+        for mark in junk:
+            string = string.replace(mark, '')
+        return string.lower()
+
+    def _getTokens(self, string):
+        mylist = list(string)
+        token = ''
+        i = 0
+        while i<len(mylist):
+            token = token + mylist[i]
+            if i+1 == len(mylist):
+                # you've reached the end
+                yield token
+            elif mylist[i].isdigit() and not mylist[i+1].isdigit() or \
+                mylist[i].isalpha() and not mylist[i+1].isalpha() or \
+                not mylist[i].isalnum() and mylist[i+1].isalnum():
+                    yield token
+                    token = ''
+            i = i+1
+
+    def parse(self, string):
+        string = self._clean_string(string)
+        an_iter = self._getTokens(string)
+        commodity = None
         while True:
             try:
-                    if a is None:
-                        a = an_iter.next()
-                    b = an_iter.next()
-                    self.add_product_stock(a,b)
-                    c = an_iter.next()
-                    if c.isdigit():
-                        self.add_product_receipt(a,c)
-                        a = None
+                    if commodity is None:
+                        commodity = an_iter.next()
+                    count = an_iter.next()
+                    self.add_product_stock(commodity, count)
+                    token_a = an_iter.next()
+                    if not token_a.isalnum():
+                        token_b = an_iter.next()
+                        while not token_b.isalnum():
+                            token_b = an_iter.next()
+                        if token_b.isdigit():
+                            # if digit, then the user is reporting receipts
+                            self.add_product_receipt(commodity, token_b)
+                            commodity = None
+                        else:
+                            # if alpha, user is reporting soh, so loop
+                            commodity = token_b
                     else:
-                        a = c
+                        commodity = token_a
             except ValueError, e:
                 self.errors.append(e)
-                a = None
+                commodity = None
                 continue
             except StopIteration:
                 break
@@ -149,7 +193,7 @@ class ProductStockReport(object):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
         if not isinstance(stock,int):
-            raise TypeError("stock must be reported in integers")
+            raise TypeError("Stock must be reported in integers")
         stock = int(stock)
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
@@ -187,7 +231,7 @@ class ProductStockReport(object):
 
     def reported_products(self):
         reported_products = []
-        for i in self.product_stock:    
+        for i in self.product_stock:
             reported_products.append(i)
         return set(reported_products)
 
