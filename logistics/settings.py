@@ -79,6 +79,7 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("registration",      				    "Registration"),
     ("input_stock",      				    "Input Stock"),
+    ("reporting",      				            "Reports"),
     ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     ("rapidsms.contrib.locations.views.locations",          "Map"),
     ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
