@@ -283,7 +283,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "ct",
+            "sms_code": "cu",
             "product_code": "", 
             "name": "Copper-T", 
             "description": "Copper-T"
@@ -319,7 +319,7 @@
             "sms_code": "fr",
             "product_code": "", 
             "name": "First Response", 
-            "description": "First Response"
+            "description": "First Response Test Kits"
         }
     }, 
     {
@@ -338,7 +338,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "co",
+            "sms_code": "cb",
             "product_code": "", 
             "name": "Combivir Tabs", 
             "description": "Combivir Tabs (AZT/3TC)"
@@ -349,7 +349,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "ls",
+            "sms_code": "lm",
             "product_code": "", 
             "name": "Lamivudine Suspension", 
             "description": "Lamivudine Suspension"
@@ -360,7 +360,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "zs",
+            "sms_code": "zd",
             "product_code": "", 
             "name": "Zidovudine Suspension", 
             "description": "Zidovudine Suspension"
@@ -371,7 +371,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "aq",
+            "sms_code": "as",
             "product_code": "", 
             "name": "AS-AQ", 
             "description": "AS-AQ (3X3)"
@@ -393,7 +393,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "as",
+            "sms_code": "al",
             "product_code": "", 
             "name": "A-L Suspension", 
             "description": "A-L Suspension"
