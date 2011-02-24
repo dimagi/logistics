@@ -85,17 +85,17 @@ class App(AppBase):
             low_supply = stock_report.low_supply()
             over_supply = stock_report.over_supply()
             received = stock_report.received_products()
-            if missing_product_list:
-                kwargs = {'contact_name': message.contact.name,
-                          'facility_name': sdp.name,
-                          'product_list': ', '.join(missing_product_list)}
-                message.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
-            elif stock_report.has_stockout:
+            if stock_report.has_stockout:
                 message.respond(_('Dear %(name)s, the following items are stocked out: %(stockouts)s. Please place an order now.'),
                                 stockouts=stock_report.stockouts(), name=message.contact.name)
             elif low_supply:
                 message.respond(_('Dear %(name)s, the following items are in low supply: %(low_supply)s. Please place an order now.'),
                                 low_supply=low_supply, name=message.contact.name)
+            elif missing_product_list:
+                kwargs = {'contact_name': message.contact.name,
+                          'facility_name': sdp.name,
+                          'product_list': ', '.join(missing_product_list)}
+                message.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
             elif received:
                 message.respond('Thank you %(name)s, you reported you have %(stocks)s. You received %(received)s.',
                                 stocks=stock_report.all(), received=stock_report.received(), name=message.contact.name)
