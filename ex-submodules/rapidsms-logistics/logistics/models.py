@@ -19,6 +19,8 @@ from rapidsms.contrib.locations.models import Location, LocationType
 
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
+REGISTER_MESSAGE = "You must registered on the Early Warning System before you can submit a stock report. Please contact your district administrator."
+INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. Please contact FRHP for assistance."
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -110,7 +112,7 @@ class ProductStockReport(object):
         i = 1
         while i<len(mylist)-1:
             if mylist[i] == ' ' and mylist[i-1].isdigit() and mylist[i+1].isdigit():
-                newstring = newstring + REC_SEPARATOR
+                newstring = newstring + self.REC_SEPARATOR
             else:
                 newstring = newstring + mylist[i]
             i = i + 1
@@ -180,13 +182,13 @@ class ProductStockReport(object):
             try:
                 product = Product.objects.get(sms_code__icontains=stock_code)
             except Product.DoesNotExist:
-                raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':stock_code.upper()})
+                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
             self._record_product_report(product, self.product_stock[stock_code], self.report_type)
         for stock_code in self.product_received:
             try:
                     product = Product.objects.get(sms_code__icontains=stock_code)
             except Product.DoesNotExist:
-                raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':stock_code.upper()})
+                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper()})
             self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
 
     def add_product_stock(self, product_code, stock, save=False):
@@ -198,7 +200,7 @@ class ProductStockReport(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist:
-            raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
+            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
         if save:
             self._record_product_report(product, stock, self.report_type)
         self.product_stock[product_code] = stock
@@ -224,7 +226,7 @@ class ProductStockReport(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist:
-            raise ValueError(_("Sorry, invalid product code %(code)s") % {'code':product_code.upper()})
+            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
         self.product_received[product_code] = quantity
         if save:
             self._record_product_receipt(product, quantity)
