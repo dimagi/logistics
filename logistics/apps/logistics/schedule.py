@@ -9,10 +9,9 @@ from django.utils.translation import ugettext as _
 # Callback Functions #
 ######################
 
-STOCK_ON_HAND_REMINDER = _('Hi %(name)s! Please submit your soh by Friday at 2:00 pm.')
-SECOND_STOCK_ON_HAND_REMINDER = _('Hi %(name)s! Please submit your soh by Friday at 2:00 pm.')
-THIRD_STOCK_ON_HAND_REMINDER = _('Your facility has not reported its stock this week. Please report your stock on hand.')
-FOURTH_STOCK_ON_HAND_REMINDER = _('%(facility)s has not reported its stock this week. Please ensure they submit their SMS stock report.')
+STOCK_ON_HAND_REMINDER = _('Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.')
+SECOND_STOCK_ON_HAND_REMINDER = _('Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.')
+THIRD_STOCK_ON_HAND_REMINDER = _('Dear %(name)s, your facility has not reported its stock this week. Please ensure they submit their SMS stock report.')
 
 def first_soh_reminder (router):
     """ thusday reminders """

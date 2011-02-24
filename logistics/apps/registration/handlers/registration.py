@@ -6,7 +6,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from rapidsms.conf import settings
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import Contact, Location
+from logistics.apps.logistics.models import Contact, Location, REGISTER_MESSAGE
 
 class LanguageHandler(KeywordHandler):
     """
@@ -17,7 +17,7 @@ class LanguageHandler(KeywordHandler):
     keyword = "reg|register"
 
     def help(self):
-        self.respond(_("To register, send register <name> <facility code>. Example: register john dedh"))
+        self.respond(REGISTER_MESSAGE)
     
     def handle(self, text):
         words = text.split()
@@ -36,4 +36,4 @@ class LanguageHandler(KeywordHandler):
         kwargs = {'sdp_name': sdp.name,
                   'code': code,
                   'contact_name': contact.name}
-        self.respond(_("Thank you for registering at %(sdp_name)s, %(code)s, %(contact_name)s"), **kwargs)
+        self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Early Warning System. Your facility is %(sdp_name)s"), **kwargs)

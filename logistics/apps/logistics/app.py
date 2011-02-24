@@ -9,6 +9,7 @@ from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
 from logistics.apps.logistics.models import Product, ProductStockReport, \
     STOCK_ON_HAND_REPORT_TYPE
+from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
@@ -54,8 +55,7 @@ class App(AppBase):
 
         try:
             if not hasattr(message,'logistics_contact'):
-                message.respond(_("You must REGISTER before you can submit a stock report." +
-                               "Please text 'register <NAME> <FACILITY_CODE>'."))
+                message.respond(REGISTER_MESSAGE)
                 return
             message.text = message.text.lower()
             if message.text.startswith(SOH_KEYWORD):
@@ -83,6 +83,7 @@ class App(AppBase):
                 all_products.append(dict['sms_code'])
             missing_product_list = list(set(all_products)-stock_report.reported_products())
             low_supply = stock_report.low_supply()
+            over_supply = stock_report.over_supply()
             received = stock_report.received_products()
             if missing_product_list:
                 kwargs = {'contact_name': message.contact.name,
@@ -90,14 +91,20 @@ class App(AppBase):
                           'product_list': ', '.join(missing_product_list)}
                 message.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
             elif stock_report.has_stockout:
-                message.respond(_('The following items are stocked out: %(stocks)s. Please place an order now.'), stocks=stock_report.stockouts())
+                message.respond(_('Dear %(name)s, the following items are stocked out: %(stockouts)s. Please place an order now.'),
+                                stockouts=stock_report.stockouts(), name=message.contact.name)
             elif low_supply:
-                message.respond(_('The following items are in low supply: %(stocks)s. Please place an order now.'), stocks=low_supply)
+                message.respond(_('Dear %(name)s, the following items are in low supply: %(low_supply)s. Please place an order now.'),
+                                low_supply=low_supply, name=message.contact.name)
             elif received:
-                message.respond(_('Thank you, you reported you have %(stocks)s. You received %(received)s. If incorrect, please resend.'),
-                             stocks=stock_report.all(), received=stock_report.received())
+                message.respond('Thank you %(name)s, you reported you have %(stocks)s. You received %(received)s.',
+                                stocks=stock_report.all(), received=stock_report.received(), name=message.contact.name)
+            elif over_supply:
+                message.respond('Dear %(name)s,The following items are overstocked: %(overstocked)s. The district admin has been informed.',
+                                overstocked=stock_report.over_supply, name=message.contact.name)
             else:
-                message.respond(_('Thank you, you reported you have %(stocks)s. If incorrect, please resend.'), stocks=stock_report.all())
+                message.respond(_('Thank you %(name)s, for reporting the commodities you received.'),
+                                stocks=stock_report.all(), name=message.contact.name)
 
             # notify the supervisor
             sdp.supervisor_report(stock_report)

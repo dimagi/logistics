@@ -11,7 +11,7 @@ class TestReceipts (TestScript):
     def testReceipt(self):
         a = """
            16176023315 > register stella dedh
-           16176023315 < Thank you for registering at Dangme East District Hospital, dedh, stella
+           16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > rec jd 10
            16176023315 < Thank you, you reported receipts for jd.
            16176023315 > rec jd 10 mc 20

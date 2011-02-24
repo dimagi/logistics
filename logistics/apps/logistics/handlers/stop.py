@@ -3,7 +3,8 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
-        
+from logistics.apps.logistics.models import REGISTER_MESSAGE
+
 class Stop(KeywordHandler):
     """
     Stop handler for when a user wants to stop receiving reminders
@@ -13,7 +14,7 @@ class Stop(KeywordHandler):
     
     def help(self):
         if self.msg.contact is None:
-            self.respond(_("To register, send register <name> <msd code>. Example: register 'john patel d34002'"))
+            self.respond(REGISTER_MESSAGE)
             return
         self.respond(_("You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."))
         self.msg.logistics_contact.needs_reminders = False

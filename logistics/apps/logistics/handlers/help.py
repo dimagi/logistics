@@ -5,4 +5,4 @@ class Help(KeywordHandler):
     keyword = "help"
 
     def help(self):
-        self.respond(_('Welcome to EWS. Available commands are help, stop, soh, rec'))
+        self.respond(_('Welcome to Early Warning System. Available commands are soh, rec, help, stop. You can send "help <command>" to get help on a specific command. Eg. "Help soh'))

@@ -64,23 +64,28 @@ class Location(models.Model):
         stockouts = stock_report.stockouts()
         if stockouts:
             for reportee in reportees:
-                reportee.message(_('%(facility)s is stocked out of %(stockouts)s') %
-                                  {'facility': reportee.location.name,
+                reportee.message(_('Dear %(name), %(facility)s has reported stockouts of %(stockouts)s') %
+                                  {'name': reportee.name,
+                                   'facility': reportee.location.name,
                                    'stockouts':stockouts
                                   })
             # only report low supply if there are no stockouts
             return
         low_supply = stock_report.low_supply()
+        print unicode(low_supply)
+        print "low supply %s" % low_supply
         if low_supply:
             for reportee in reportees:
-                reportee.message(_('%(facility)s is below reorder levels for %(low_supply)s') %
-                                 {'facility':reportee.location.name,
+                reportee.message(_('Dear %(name), %(facility)s has reached reorder levels for %(low_supply)s') %
+                                 {'name': reportee.name,
+                                  'facility':reportee.location.name,
                                   'low_supply':low_supply})
             # only report over supply if there are no low supplies
             return
         over_supply = stock_report.over_supply()
         if over_supply:
             for reportee in reportees:
-                reportee.message(_('%(facility)s is over maximum stock levels for %(over_supply)s') %
-                                 {'facility':reportee.location.name,
+                reportee.message(_('Dear %(name), %(facility)s has reported an overstock for %(over_supply)s') %
+                                 {'name': reportee.name,
+                                   'facility':reportee.location.name,
                                   'over_supply':over_supply})

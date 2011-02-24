@@ -11,6 +11,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
 from logistics.apps.logistics.models import Product, \
     ProductStock, ProductReportType, ProductStockReport, RECEIPT_REPORT_TYPE
+from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 class ReceiptHandler(KeywordHandler):
     """
@@ -24,8 +25,7 @@ class ReceiptHandler(KeywordHandler):
 
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
-            self.respond(_("You must REGISTER before you can submit a stock report." +
-                           "Please text 'register <NAME> <FACILITY_CODE>'."))
+            self.respond(REGISTER_MESSAGE)
             return
         sdp = self.msg.logistics_contact.location
         stock_report = ProductStockReport(sdp, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
