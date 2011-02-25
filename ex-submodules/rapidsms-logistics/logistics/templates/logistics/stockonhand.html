@@ -1,7 +1,132 @@
 {% extends "logistics/base.html" %}
 
+{% block javascripts %}
+{{ block.super }}
+
+<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/expand.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.nestedAccordion.js"></script>
+<script type="text/javascript">
+<!--//--><![CDATA[//><!--
+$("html").addClass("js");
+$(function() {
+  $("#side").accordion({initShow : "#current"});
+  $("#main").accordion({
+      objID: "#acc1",
+      el: ".h",
+      head: "h4, h5",
+      next: "div",
+      initShow : "div.shown",
+      standardExpansible : true
+  });
+  $("#main").accordion({
+      objID: "#acc2",
+      obj: "div",
+      wrapper: "div",
+      el: ".h",
+      head: "h4, h5",
+      next: "div",
+      initShow : "div.shown",
+      standardExpansible : true
+    });
+  //* ---
+  $("#main .accordion").expandAll({
+      trigger: ".h",
+      ref: "h4.h",
+      cllpsEl : "div.outer",
+      speed: 200,
+      oneSwitch : false,
+      instantHide: true
+  });
+  //--- */
+  /* -----------------------
+  $("#side ul.accordion").expandAll({
+      trigger: "li",
+      ref: "",
+      cllpsEl : "ul",
+      state : '',
+      oneSwitch : false
+  });
+  ------------------------ */
+  $("html").removeClass("js");
+});
+//--><!]]>
+</script>
+    
+
+{% endblock %}
+
 {% block content %}
     <div class="module">
+
+    <div id="side">
+        <ul class="accordion">
+             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#item1">Item 1</a>
+                 <ul>
+
+                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub11">Sub 1.1</a>
+                         <ul>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">Sub 1.1.1</a>
+                                 <ul>
+                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link1">Link 1</a></li>
+                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link2">Link 2</a></li>
+                                 </ul>  
+                             </li>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub112">Sub 1.1.2</a>
+                                 <ul>
+                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link3">Link 3</a></li>
+                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link4">Link 4</a></li>
+                                 </ul>
+                             </li>
+
+                         </ul>
+                     </li>
+                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub12">Sub 1.2</a>
+                         <ul>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link5">Link 5</a></li>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link6">Link 6</a></li>
+                         </ul>
+
+                     </li>
+                 </ul>
+             </li>
+             <li>Item 2
+                 <ul>
+                     <li>Sub 2.1
+                         <ul>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link11">Link 11</a></li>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link12">Link 12</a></li>
+
+                         </ul>
+                     </li>
+                     <li>Sub 2.2
+                         <ul>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link13">Link 13</a></li>
+                         </ul>
+
+                     </li>
+                     <li>Sub 2.3
+                         <ul>
+
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link14">Link 14</a></li>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link15">Link 15</a></li>
+                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link16">Link 16</a></li>
+                         </ul>
+                     </li>
+                 </ul>
+             </li>
+
+             <li>Item 3
+                 <ul>
+                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link17">Link 17</a></li>
+                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link18">Link 18</a></li>
+                 </ul>
+             </li>
+         </ul> <!-- end Example 3 -->
+
+    </div>
+
+
+
         <h2>Stock for {{ location.name }}</h2>
         <table class="stock">
         <thead><tr>
@@ -13,5 +138,7 @@
                 <td>{{ stockonhand.quantity }}</td>
             {% endfor %}
         </tr></tbody></table>
+
+
     </div>
 {% endblock %}
