@@ -94,15 +94,21 @@ div.clear-hack {
         * html #branding h1 {
             width: 940px; }
 
-        #branding h1 a {
+        #branding h1 a, #logo_left{
             height: 65px;
-            width: 245px;
+            /*width: 245px; */
             display: block;
-            background: url("../images/rapidsms-logo.png") no-repeat 0 50%;
+            border: 0px;
+            /*background: url("../images/rapidsms-logo.png") no-repeat 0 50%;*/
 
             /* float the RapidSMS logo, in case any app would like to
              * append anything to the light blue (empty) stripe */
             float: left;
+        }
+
+        #logo_right{
+            float:right;
+            height:65px;
         }
 
             #branding h1 a span {
