@@ -18,6 +18,28 @@
 #    }
 #}
 
+# the rapidsms backend configuration is designed to resemble django's
+# database configuration, as a nested dict of (name, configuration).
+#
+# the ENGINE option specifies the module of the backend; the most common
+# backend types (for a GSM modem or an SMPP server) are bundled with
+# rapidsms, but you may choose to write your own.
+#
+# all other options are passed to the Backend when it is instantiated,
+# to configure it. see the documentation in those modules for a list of
+# the valid options for each.
+INSTALLED_BACKENDS = {
+    "MTN": {
+        "ENGINE": "rapidsms.backends.gsm",
+        "PORT": "/dev/ttyUSB0",
+        "baudrate":115200,
+        "rtscts": 1
+    },
+    "message_tester": {
+        "ENGINE": "rapidsms.backends.bucket",
+    },
+}
+
 # for postgresql:
 DATABASES = {
     "default": {
