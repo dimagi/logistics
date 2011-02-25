@@ -163,6 +163,8 @@ class TestStockOnHand (TestScript):
            16176023315 < You reported: lf, but there were errors: BADCODE is/are not part of our commodity codes. Please contact FRHP for assistance.
            16176023315 > soh badcode 10
            16176023315 < BADCODE is/are not part of our commodity codes. Please contact FRHP for assistance.
+           16176023315 > soh lf 10 m20
+           16176023315 < You reported: lf, but there were errors: M is/are not part of our commodity codes. Please contact FRHP for assistance.
            """
         self.runScript(a)
 
