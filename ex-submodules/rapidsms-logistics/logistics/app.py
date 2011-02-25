@@ -82,32 +82,49 @@ class App(AppBase):
             for dict in missing_products.values('sms_code'):
                 all_products.append(dict['sms_code'])
             missing_product_list = list(set(all_products)-stock_report.reported_products())
+            received = stock_report.received_products()
             low_supply = stock_report.low_supply()
             over_supply = stock_report.over_supply()
-            received = stock_report.received_products()
+            count = 0
+            response = ''
+            super_response = ''
             if stock_report.has_stockout:
-                message.respond(_('Dear %(name)s, the following items are stocked out: %(stockouts)s. Please place an order now.'),
-                                stockouts=stock_report.stockouts(), name=message.contact.name)
-            elif low_supply:
-                message.respond(_('Dear %(name)s, the following items are in low supply: %(low_supply)s. Please place an order now.'),
-                                low_supply=low_supply, name=message.contact.name)
-            elif missing_product_list:
-                kwargs = {'contact_name': message.contact.name,
-                          'facility_name': sdp.name,
-                          'product_list': ', '.join(missing_product_list)}
-                message.respond(_('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'), **kwargs)
-            elif received:
-                message.respond('Thank you %(name)s, you reported you have %(stocks)s. You received %(received)s.',
-                                stocks=stock_report.all(), received=stock_report.received(), name=message.contact.name)
-            elif over_supply:
-                message.respond('Dear %(name)s,The following items are overstocked: %(overstocked)s. The district admin has been informed.',
-                                overstocked=stock_report.over_supply, name=message.contact.name)
-            else:
-                message.respond(_('Thank you %(name)s, for reporting the commodities you received.'),
-                                stocks=stock_report.all(), name=message.contact.name)
-
+                response = response + 'the following items are stocked out: %(stockouts)s. '
+                super_response = "stockouts %(stockouts)s; "
+            if low_supply:
+                response = response + 'the following items are in low supply: %(low_supply)s. '
+                super_response = super_response + "low supply %(low_supply)s; "
+            if stock_report.has_stockout or low_supply:
+                response = response + 'Please place an order now. '
+            if missing_product_list:
+                if not response:
+                    response = response + 'thank you for reporting your stock on hand. '
+                response = response + 'Still missing %(missing_stock)s. '
+            if over_supply:
+                super_response = super_response + "overstocked %(overstocked)s; "
+                if not response:
+                    response = 'the following items are overstocked: %(overstocked)s. The district admin has been informed.'
+            if not response:
+                if received:
+                    response = 'thank you for reporting the commodities you have. You received %(received)s.'
+                else:
+                    response = 'thank you for reporting the commodities you have in stock.'
+            response = 'Dear %(name)s, ' + response.strip()
+            if super_response:
+                super_response = 'Dear %(admin_name)s, %(facility)s is experiencing the following problems: ' + super_response.strip().strip(';')
+            kwargs = {  'low_supply':low_supply,
+                        'stockouts':stock_report.stockouts(),
+                        'missing_stock':', '.join(missing_product_list),
+                        'stocks':stock_report.all(),
+                        'received':stock_report.received(),
+                        'overstocked':over_supply,
+                        'name':message.contact.name,
+                        'facility':sdp.name }
+            message.respond(response, **kwargs)
             # notify the supervisor
-            sdp.supervisor_report(stock_report)
+            if super_response:
+                sdp.report_to_supervisor(super_response, kwargs)
+
         except Exception, e:
             message.respond(unicode(e))
             raise

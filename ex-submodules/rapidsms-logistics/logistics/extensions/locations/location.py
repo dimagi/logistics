@@ -40,7 +40,10 @@ class Location(models.Model):
         from logistics.apps.logistics.models import ProductReport, ProductStock
         npr = ProductReport( product=product, report_type=report_type, quantity=quantity, message=message, location=self)
         npr.save()
-        productstock = ProductStock.objects.get(location=self, product=product)
+        try:
+            productstock = ProductStock.objects.get(location=self, product=product)
+        except ProductStock.DoesNotExist:
+            productstock = ProductStock(is_active=False, location=self, product=product)
         productstock.quantity = quantity
         productstock.save()
         self.last_reported = datetime.now()
@@ -56,36 +59,11 @@ class Location(models.Model):
     def reportees(self):
         from logistics.apps.logistics.models import Contact
         reporters = Contact.objects.filter(location=self)
-        reporters = Contact.objects.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
-    def supervisor_report(self, stock_report):
+    def report_to_supervisor(self, report, kwargs):
         reportees = self.reportees()
-        stockouts = stock_report.stockouts()
-        if stockouts:
-            for reportee in reportees:
-                reportee.message(_('Dear %(name), %(facility)s has reported stockouts of %(stockouts)s') %
-                                  {'name': reportee.name,
-                                   'facility': reportee.location.name,
-                                   'stockouts':stockouts
-                                  })
-            # only report low supply if there are no stockouts
-            return
-        low_supply = stock_report.low_supply()
-        print unicode(low_supply)
-        print "low supply %s" % low_supply
-        if low_supply:
-            for reportee in reportees:
-                reportee.message(_('Dear %(name), %(facility)s has reached reorder levels for %(low_supply)s') %
-                                 {'name': reportee.name,
-                                  'facility':reportee.location.name,
-                                  'low_supply':low_supply})
-            # only report over supply if there are no low supplies
-            return
-        over_supply = stock_report.over_supply()
-        if over_supply:
-            for reportee in reportees:
-                reportee.message(_('Dear %(name), %(facility)s has reported an overstock for %(over_supply)s') %
-                                 {'name': reportee.name,
-                                   'facility':reportee.location.name,
-                                  'over_supply':over_supply})
+        for reportee in reportees:
+            kwargs['admin_name'] = reportee.name
+            reportee.message(report % kwargs)

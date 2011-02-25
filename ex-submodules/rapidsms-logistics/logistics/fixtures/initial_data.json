@@ -182,7 +182,7 @@
             "language": "en-us",
             "location": 1, 
             "needs_reminders": true, 
-            "role": 4
+            "role": 1
         }
     }, 
     {
@@ -191,7 +191,8 @@
         "fields": {
             "name": "In Charge", 
             "language": "en-us",
-            "location": 1
+            "location": 1,
+            "role": 4
         }
     }, 
     {
@@ -817,6 +818,21 @@
             "code": "CRMS", 
             "active": true, 
             "type": "RMS"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "locations.location",
+        "fields": {
+            "name": "Test Facility",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": null,
+            "parent_id": null,
+            "code": "tf",
+            "active": true,
+            "type": "dh"
         }
     },
     {
