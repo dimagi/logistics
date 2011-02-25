@@ -186,7 +186,7 @@ class ProductStockReport(object):
             self._record_product_report(product, self.product_stock[stock_code], self.report_type)
         for stock_code in self.product_received:
             try:
-                    product = Product.objects.get(sms_code__icontains=stock_code)
+                product = Product.objects.get(sms_code__icontains=stock_code)
             except Product.DoesNotExist:
                 raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper()})
             self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
@@ -267,7 +267,9 @@ class ProductStockReport(object):
         low_supply = ""
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
-            if self.product_stock[i] < productstock.monthly_consumption:
+            #if productstock.monthly_consumption == 0:
+            #    raise ValueError("I'm sorry. I cannot calculate low supply for %(code)s until I know your monthly consumption. Please contact FRHP for assistance." % {'code':i})
+            if self.product_stock[i] < productstock.monthly_consumption and self.product_stock[i] != 0 and productstock.monthly_consumption>0:
                 low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
         return low_supply
@@ -276,7 +278,9 @@ class ProductStockReport(object):
         over_supply = ""
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
-            if self.product_stock[i] > productstock.monthly_consumption*3:
+            #if productstock.monthly_consumption == 0:
+            #    raise ValueError("I'm sorry. I cannot calculate oversupply for %(code)s until I know your monthly consumption. Please contact FRHP for assistance." % {'code':i})
+            if self.product_stock[i] > productstock.monthly_consumption*3 and productstock.monthly_consumption>0:
                 over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply

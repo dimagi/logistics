@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from rapidsms.conf import settings
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import Contact, Location, REGISTER_MESSAGE
+from logistics.apps.logistics.models import Contact, ContactRole, Location, REGISTER_MESSAGE
 
 class LanguageHandler(KeywordHandler):
     """
@@ -21,16 +20,26 @@ class LanguageHandler(KeywordHandler):
     
     def handle(self, text):
         words = text.split()
-        if len(words) != 2:
+        if len(words) < 2 or len(words) > 3:
             self.respond(_("Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dedh'"))
             return
-        name, code = words
+        name = words[0]
+        code = words[1]
         try:
             sdp = Location.objects.get(code__contains=code)
         except Location.DoesNotExist:
             self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
             return
-        contact = Contact.objects.create(name=name, location=sdp)
+        if len(words) == 3:
+            role_code = words[2]
+            try:
+                role = ContactRole.objects.get(slug=role_code)
+            except ContactRole.DoesNotExist:
+                self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
+                return
+            contact = Contact.objects.create(name=name, location=sdp, role=role)
+        else:
+            contact = Contact.objects.create(name=name, location=sdp)
         self.msg.connection.contact = contact
         self.msg.connection.save()
         kwargs = {'sdp_name': sdp.name,
