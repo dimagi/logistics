@@ -181,13 +181,13 @@ class ProductStockReport(object):
         for stock_code in self.product_stock:
             try:
                 product = Product.objects.get(sms_code__icontains=stock_code)
-            except Product.DoesNotExist:
+            except Product.DoesNotExist, Product.MultipleObjectsReturned:
                 raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
             self._record_product_report(product, self.product_stock[stock_code], self.report_type)
         for stock_code in self.product_received:
             try:
                 product = Product.objects.get(sms_code__icontains=stock_code)
-            except Product.DoesNotExist:
+            except Product.DoesNotExist, Product.MultipleObjectsReturned:
                 raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper()})
             self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
 
@@ -199,7 +199,7 @@ class ProductStockReport(object):
         stock = int(stock)
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
-        except Product.DoesNotExist:
+        except (Product.DoesNotExist, Product.MultipleObjectsReturned):
             raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
         if save:
             self._record_product_report(product, stock, self.report_type)
@@ -225,7 +225,7 @@ class ProductStockReport(object):
             raise TypeError("stock must be reported in integers")
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
-        except Product.DoesNotExist:
+        except Product.DoesNotExist, Product.MultipleObjectsReturned:
             raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
         self.product_received[product_code] = quantity
         if save:
