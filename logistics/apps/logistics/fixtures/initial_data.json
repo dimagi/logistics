@@ -810,12 +810,12 @@
         "pk": 2, 
         "model": "locations.location", 
         "fields": {
-            "name": "Central Regional Medical Store", 
+            "name": "Greater Accra Regional Medical Store", 
             "point": null, 
             "created_at": "2011-02-18 21:55:49", 
             "parent_type": null, 
             "parent_id": null, 
-            "code": "CRMS", 
+            "code": "ARMS", 
             "active": true, 
             "type": "RMS"
         }
@@ -833,6 +833,81 @@
             "code": "tf",
             "active": true,
             "type": "dh"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "locations.location",
+        "fields": {
+            "name": "Central Regional Medical Store",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": null,
+            "parent_id": null,
+            "code": "CRMS",
+            "active": true,
+            "type": "RMS"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "locations.location",
+        "fields": {
+            "name": "Agona East District Health Directorate",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": 17,
+            "parent_id": 4,
+            "code": "aedhd",
+            "active": true,
+            "type": "da"
+        }
+    },
+    {
+        "pk": 6,
+        "model": "locations.location",
+        "fields": {
+            "name": "Agona East District Hospital",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": 17,
+            "parent_id": 5,
+            "code": "aedh",
+            "active": true,
+            "type": "dh"
+        }
+    },
+    {
+        "pk": 7,
+        "model": "locations.location",
+        "fields": {
+            "name": "Nsaba Health Center",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": 17,
+            "parent_id": 5,
+            "code": "nhc",
+            "active": true,
+            "type": "hc"
+        }
+    },
+    {
+        "pk": 8,
+        "model": "locations.location",
+        "fields": {
+            "name": "Kwanyako Health Center",
+            "point": null,
+            "created_at": "2011-02-08 15:53:05",
+            "last_reported": "2011-02-23 01:09:42",
+            "parent_type": 17,
+            "parent_id": 5,
+            "code": "khc",
+            "active": true,
+            "type": "hc"
         }
     },
     {
