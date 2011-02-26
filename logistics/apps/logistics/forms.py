@@ -3,12 +3,11 @@
 
 from django import forms
 from django.conf import settings
-from rapidsms.models import Backend, Connection
-from django.utils.translation import ugettext as _
-from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.db.models import Q
+from django.utils.translation import ugettext as _
+from rapidsms.models import Backend, Connection, Contact
 from logistics.apps.logistics.models import ContactRole, Product
-from logistics.apps.logistics.models import Contact 
 
 class ContactForm(forms.ModelForm):
     name = forms.CharField()
