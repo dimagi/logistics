@@ -1,26 +1,32 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import logging
-from re import match
 from datetime import datetime, timedelta
 
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q, Max
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
-from rapidsms.models import ExtensibleModelBase
-from rapidsms.models import Contact
-from rapidsms.models import Connection
+from rapidsms.conf import settings
 from rapidsms.contrib.messagelog.models import Message
-from rapidsms.contrib.locations.models import Location, LocationType
+from rapidsms.contrib.locations.models import Location
 
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
-REGISTER_MESSAGE = "You must registered on the Early Warning System before you can submit a stock report. Please contact your district administrator."
-INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. Please contact FRHP for assistance."
+REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
+                   "before you can submit a stock report. " + \
+                   "Please contact your district administrator."
+INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. " + \
+                       "Please contact FRHP for assistance."
+
+try:
+    from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
+    from settings import LOGISTICS_REORDER_LEVEL_IN_MONTHS
+    from settings import LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS
+except ImportError:
+    raise ImportError("Please define LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " +
+                      "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
+                      "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
+
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
@@ -28,10 +34,10 @@ class Product(models.Model):
     sms_code = models.CharField(max_length=10)
     description = models.CharField(max_length=255)
     product_code = models.CharField(max_length=100, null=True, blank=True)
-    
+
     def __unicode__(self):
         return self.name
-    
+
 class ProductStock(models.Model):
     is_active = models.BooleanField(default=True)
     quantity = models.IntegerField(blank=True, null=True)
@@ -43,6 +49,19 @@ class ProductStock(models.Model):
 
     def __unicode__(self):
         return "%s-%s" % (self.location.name, self.product.name)
+
+    @property
+    def emergency_reorder_level(self):
+        return self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
+
+    @property
+    def reorder_level(self):
+        return self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS
+
+    @property
+    def maximum_level(self):
+        return self.monthly_consumption*\
+               3
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
@@ -65,7 +84,7 @@ class ContactRole(models.Model):
 
     def __unicode__(self):
         return _(self.name)
-    
+
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
@@ -94,9 +113,12 @@ class ProductReport(models.Model):
         return "%s-%s-%s" % (self.location.name, self.product.name, self.report_type.name)
 
 class ProductStockReport(object):
+    """ The following is a helper class to make it
+    easy to generate reports based on stock on hand
+
+    """
     REC_SEPARATOR = '-'
 
-    """ The following is a helper class to make it easy to generate reports based on stock on hand """
     def __init__(self, sdp, report_type, message=None):
         self.product_stock = {}
         self.product_received = {}
@@ -110,7 +132,7 @@ class ProductStockReport(object):
         mylist = list(string)
         newstring = string[0]
         i = 1
-        while i<len(mylist)-1:
+        while i < len(mylist)-1:
             if mylist[i] == ' ' and mylist[i-1].isdigit() and mylist[i+1].isdigit():
                 newstring = newstring + self.REC_SEPARATOR
             else:
@@ -122,7 +144,7 @@ class ProductStockReport(object):
         string = string.replace(' ','')
         separators = [',', '/', ';', '*', '+', '-']
         for mark in separators:
-                string = string.replace(mark, self.REC_SEPARATOR)
+            string = string.replace(mark, self.REC_SEPARATOR)
         junk = ['\'', '\"', '`', '(', ')']
         for mark in junk:
             string = string.replace(mark, '')
@@ -150,24 +172,24 @@ class ProductStockReport(object):
         commodity = None
         while True:
             try:
-                    if commodity is None:
-                        commodity = an_iter.next()
-                    count = an_iter.next()
-                    self.add_product_stock(commodity, count)
-                    token_a = an_iter.next()
-                    if not token_a.isalnum():
+                if commodity is None:
+                    commodity = an_iter.next()
+                count = an_iter.next()
+                self.add_product_stock(commodity, count)
+                token_a = an_iter.next()
+                if not token_a.isalnum():
+                    token_b = an_iter.next()
+                    while not token_b.isalnum():
                         token_b = an_iter.next()
-                        while not token_b.isalnum():
-                            token_b = an_iter.next()
-                        if token_b.isdigit():
-                            # if digit, then the user is reporting receipts
-                            self.add_product_receipt(commodity, token_b)
-                            commodity = None
-                        else:
-                            # if alpha, user is reporting soh, so loop
-                            commodity = token_b
+                    if token_b.isdigit():
+                        # if digit, then the user is reporting receipts
+                        self.add_product_receipt(commodity, token_b)
+                        commodity = None
                     else:
-                        commodity = token_a
+                        # if alpha, user is reporting soh, so loop
+                        commodity = token_b
+                else:
+                    commodity = token_a
             except ValueError, e:
                 self.errors.append(e)
                 commodity = None
@@ -194,7 +216,7 @@ class ProductStockReport(object):
     def add_product_stock(self, product_code, stock, save=False):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
-        if not isinstance(stock,int):
+        if not isinstance(stock, int):
             raise TypeError("Stock must be reported in integers")
         stock = int(stock)
         try:
@@ -221,7 +243,7 @@ class ProductStockReport(object):
     def add_product_receipt(self, product_code, quantity, save=True):
         if isinstance(quantity, basestring) and quantity.isdigit():
             quantity = int(quantity)
-        if not isinstance(quantity,int):
+        if not isinstance(quantity, int):
             raise TypeError("stock must be reported in integers")
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
@@ -268,8 +290,11 @@ class ProductStockReport(object):
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
-            #    raise ValueError("I'm sorry. I cannot calculate low supply for %(code)s until I know your monthly consumption. Please contact FRHP for assistance." % {'code':i})
-            if self.product_stock[i] < productstock.monthly_consumption and self.product_stock[i] != 0 and productstock.monthly_consumption>0:
+            #    raise ValueError("I'm sorry. I cannot calculate low
+            #    supply for %(code)s until I know your monthly consumption.
+            #    Please contact FRHP for assistance." % {'code':i})
+            if self.product_stock[i] < productstock.monthly_consumption and \
+               self.product_stock[i] != 0 and productstock.monthly_consumption>0:
                 low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
         return low_supply
@@ -279,8 +304,11 @@ class ProductStockReport(object):
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
-            #    raise ValueError("I'm sorry. I cannot calculate oversupply for %(code)s until I know your monthly consumption. Please contact FRHP for assistance." % {'code':i})
-            if self.product_stock[i] > productstock.monthly_consumption*3 and productstock.monthly_consumption>0:
+            #    raise ValueError("I'm sorry. I cannot calculate oversupply
+            #    for %(code)s until I know your monthly consumption.
+            #    Please contact FRHP for assistance." % {'code':i})
+            if self.product_stock[i] > productstock.monthly_consumption*3 and \
+               productstock.monthly_consumption>0:
                 over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
@@ -288,9 +316,13 @@ class ProductStockReport(object):
 
 
 def get_geography():
-    # to get a sense of the complete geography in the system
-    # we return the top-level entities (example regions)
-    # which we can easily iterate through, using children()
-    # in order to assess the whole geography that we're handling
-    return Location.objects.filter(parent_id=None)
-    
+    """
+    to get a sense of the complete geography in the system
+    we return the top-level entities (example regions)
+    which we can easily iterate through, using children()
+    in order to assess the whole geography that we're handling
+    """
+    try:
+        return Location.objects.get(parent_id=None)
+    except Location.MultipleObjectsReturned:
+        raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")

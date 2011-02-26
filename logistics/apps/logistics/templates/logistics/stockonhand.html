@@ -1,42 +1,22 @@
-{% extends "logistics/base.html" %}
-
-{% block javascripts %}{{ block.super }}
-<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/expand.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.nestedAccordion.js"></script>
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $("html").addClass("js");
-    $(function() {
-      $("#side").accordion({initShow : "#current"});
-      $("html").removeClass("js");
-    });
-    //--><!]]>
-</script>
-{% endblock %}
-
-{% block stylesheets %}{{ block.super }}
-<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
-<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
-{% endblock %}
-
+{% extends "logistics/reports_base.html" %}
 
 {% block content %}
     <div class="module">
 
-    {% include "logistics/partials/accordion_nav.html" %}
-    <div id="main">
-            <h2>Stock for {{ location.name }}</h2>
-            <table class="stock">
-            <thead><tr>
-                {% for stockonhand in stockonhands %}
-                    <th scope="col">{{ stockonhand.product }}</th>
-                {% endfor %}
-            </thead></tr><tbody><tr>
-                {% for stockonhand in stockonhands %}
-                    <td>{{ stockonhand.quantity }}</td>
-                {% endfor %}
-            </tr></tbody></table>
+        {% include "logistics/partials/accordion_nav.html" %}
+        <div id="main">
+                <h2>Stock for {{ location.name }}</h2>
+                <table class="stock">
+                <thead><tr>
+                    {% for stockonhand in stockonhands %}
+                        <th scope="col">{{ stockonhand.product }}</th>
+                    {% endfor %}
+                </thead></tr><tbody><tr>
+                    {% for stockonhand in stockonhands %}
+                        <td>{{ stockonhand.quantity }}</td>
+                    {% endfor %}
+                </tr></tbody></table>
 
-    </div>
+        </div>
     </div>
 {% endblock %}

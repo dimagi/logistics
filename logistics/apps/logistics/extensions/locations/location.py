@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from datetime import datetime, timedelta
 from django.db import models
 from django.utils.translation import ugettext as _
+from rapidsms.conf import settings
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
@@ -35,6 +36,43 @@ class Location(models.Model):
     #        last_report = ProductReport.objects.filter(location=self).order_by("-report_date")[0]
     #        return last_report.report_date
     #    return None
+
+    def stockout_count(self):
+        from logistics.apps.logistics.models import ProductStock
+        return ProductStock.objects.filter(location=self).filter(quantity=0).count()
+
+    def emergency_stock_count(self):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        from logistics.apps.logistics.models import ProductStock
+        emergency_stock = 0
+        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity < stock.emergency_reorder_level:
+                emergency_stock = emergency_stock + 1
+        return emergency_stock
+
+    def low_stock_count(self):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        from logistics.apps.logistics.models import ProductStock
+        low_stock_count = 0
+        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity < stock.reorder_level:
+                low_stock_count = low_stock_count + 1
+        return low_stock_count
+
+    def overstocked_count(self):
+        from logistics.apps.logistics.models import ProductStock
+        overstock_count = 0
+        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity > stock.maximum_level:
+                overstock_count = overstock_count + 1
+        return overstock_count
 
     def report(self, product, report_type, quantity, message=None):
         from logistics.apps.logistics.models import ProductReport, ProductStock

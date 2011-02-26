@@ -79,7 +79,7 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("registration",      				    "Registration"),
     ("input_stock",      				    "Input Stock"),
-    ("reporting",      				            "Reports"),
+    ("aggregate_top",  				            "Reports"),
     ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     ("rapidsms.contrib.locations.views.locations",          "Map"),
     ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
@@ -175,3 +175,4 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
 
 DEFAULT_BACKEND = 'message_tester'
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
+

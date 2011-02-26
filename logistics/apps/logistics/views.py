@@ -63,3 +63,19 @@ def reporting(request, template="logistics/reporting.html"):
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
+
+def aggregate(request, location_code, template="logistics/aggregate.html"):
+    """
+     TODO: this view currently only shows the current stock on hand
+     It would be great to show historical stock on hand
+    """
+    context = {}
+    location = get_object_or_404(Location, code=location_code)
+    stockonhands = ProductStock.objects.filter(location=location, is_active=True).order_by('product')
+    context['stockonhands'] = stockonhands
+    context['location'] = location
+    context['geography'] = get_geography()
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+
