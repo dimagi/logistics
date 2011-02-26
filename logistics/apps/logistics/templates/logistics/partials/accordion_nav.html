@@ -1,0 +1,26 @@
+<div id="side">
+    <ul class="accordion">
+    <!-- One kind of wants to automate this recursion.... but at the same time,
+    does it really make sense to automate a nav ui? Really? -->
+        {% for region in geography %}
+            <li>{{ region.name }}
+            <ul>
+                {% for district in region.children %}
+                    <li>{{ district.name }}</li>
+                    <ul>
+                        {% for facility in district.children %}
+                            <li>{{ facility.name }}</li>
+                            <ul>
+                                {% for chps in facility.children %}
+                                    <li>{{ chps.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </ul>
+            </li>
+        {% endfor %}
+     </ul> <!-- end Example 3 -->
+
+</div>

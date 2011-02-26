@@ -11,7 +11,8 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import Location, ProductStock, ProductStockReport, STOCK_ON_HAND_REPORT_TYPE
+from logistics.apps.logistics.models import Location, ProductStock, \
+    ProductStockReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
 
 def input_stock(request, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
@@ -49,6 +50,7 @@ def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
     stockonhands = ProductStock.objects.filter(location=location, is_active=True).order_by('product')
     context['stockonhands'] = stockonhands
     context['location'] = location
+    context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )

@@ -15,137 +15,15 @@
 {% endblock %}
 
 {% block stylesheets %}{{ block.super }}
-    <style type='text/css'>
-        #side{
-          float:left;
-          display:inline;
-          width:30%;
-          padding-bottom:1.3em;
-          position:relative;
-          overflow:hidden;
-        }
-        #main{
-          float:right;
-          display:inline;
-          width:70%;
-          padding-bottom:1.3em;
-          position:relative;
-          overflow:hidden
-        }
-
-
-
-/* --- Accordion --- */
-
-.accordion {
-    margin:0 10px 5px 0px;
-    padding:0 50px 5px 0px;
-    background-color: #F0F0F0;
-}
-
-.accordion li {
-    list-style-type:none;
-    margin: 0;
-    padding: 0.5em;
-
-}
-
-.accordion li a {
-    color: #1c3482;
-}
-
-    #side ul.accordion ul {
-    margin 0px;
-    padding:0 0 0 5px;
-}
-
-</style>
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
 
 
 {% block content %}
     <div class="module">
 
-    <div id="side">
-        <ul class="accordion">
-             <li>Greater Accra Region
-                 <ul>
-
-                     <li>Dangme East District Hospital
-                         <ul>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 1</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub111">CHPS 2</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub112">Sub 1.1.2</a>
-                                 <ul>
-                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link3">Link 3</a></li>
-                                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link4">Link 4</a></li>
-                                 </ul>
-                             </li>
-
-                         </ul>
-                     </li>
-                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#Sub12">Sub 1.2</a>
-                         <ul>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link5">Link 5</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link6">Link 6</a></li>
-                         </ul>
-
-                     </li>
-                 </ul>
-             </li>
-             <li>Item 2
-                 <ul>
-                     <li>Sub 2.1
-                         <ul>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link11">Link 11</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link12">Link 12</a></li>
-
-                         </ul>
-                     </li>
-                     <li>Sub 2.2
-                         <ul>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link13">Link 13</a></li>
-                         </ul>
-
-                     </li>
-                     <li>Sub 2.3
-                         <ul>
-
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link14">Link 14</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link15">Link 15</a></li>
-                             <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link16">Link 16</a></li>
-                         </ul>
-                     </li>
-                 </ul>
-             </li>
-
-             <li>Item 3
-                 <ul>
-                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link17">Link 17</a></li>
-                     <li><a href="http://www.adipalaz.com/experiments/jquery/nested_accordion_demo3.html#link18">Link 18</a></li>
-                 </ul>
-             </li>
-         </ul> <!-- end Example 3 -->
-
-    </div>
-
+    {% include "logistics/partials/accordion_nav.html" %}
     <div id="main">
             <h2>Stock for {{ location.name }}</h2>
             <table class="stock">

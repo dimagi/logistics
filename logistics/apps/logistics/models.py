@@ -284,3 +284,13 @@ class ProductStockReport(object):
                 over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
+
+
+
+def get_geography():
+    # to get a sense of the complete geography in the system
+    # we return the top-level entities (example regions)
+    # which we can easily iterate through, using children()
+    # in order to assess the whole geography that we're handling
+    return Location.objects.filter(parent_id=None)
+    
