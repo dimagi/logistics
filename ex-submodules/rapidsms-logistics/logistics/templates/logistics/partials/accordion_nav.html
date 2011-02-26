@@ -1,8 +1,22 @@
+{% block javascripts %}{{ block.super }}
+<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/expand.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.nestedAccordion.js"></script>
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $("html").addClass("js");
+    $(function() {
+      $("#side").accordion({initShow : "#current"});
+      $("html").removeClass("js");
+    });
+    //--><!]]>
+</script>
+{% endblock %}
+
 <div id="side">
     <ul class="accordion">
     <!-- One kind of wants to automate this recursion.... but at the same time,
     does it really make sense to automate a nav ui? Really? -->
-        {% for region in geography %}
+        {% for region in geography.children %}
             <li>{{ region.name }}
             <ul>
                 {% for district in region.children %}

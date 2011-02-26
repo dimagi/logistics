@@ -1,0 +1,34 @@
+{% extends "logistics/reports_base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div class="module">
+
+        {% include "logistics/partials/accordion_nav.html" %}
+        <div id="main">
+            <h2>{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
+            <table class="stock">
+            <thead><tr>
+                <th scope="col">Facility</th>
+                <th scope="col">Stockouts</th>
+                <th scope="col">Emergency</th>
+                <th scope="col">Low</th>
+                <th scope="col">Overstocks</th>
+                <th scope="col">Last Report</th>
+            </tr></thead>
+            <tbody>
+                {% for child in location.children %}
+                    <tr>
+                    <td>{{ child.name }}</td>
+                    <td>{{ child.stockout_count }}</td>
+                    <td>{{ child.emergency_stock_count }}</td>
+                    <td>{{ child.low_stock_count }}</td>
+                    <td>{{ child.overstocked_count }}</td>
+                    <td>{{ child.last_reported|default_if_none:"Never" }}</td>
+                    </tr>
+                {% endfor %}
+            </tr></tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
