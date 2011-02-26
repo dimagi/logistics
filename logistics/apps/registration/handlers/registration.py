@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+from django.utils.translation import ugettext as _
+from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from rapidsms.conf import settings
-from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import Contact, ContactRole, Location, REGISTER_MESSAGE
+from logistics.apps.logistics.models import ContactRole, Location, REGISTER_MESSAGE
 
 class LanguageHandler(KeywordHandler):
     """

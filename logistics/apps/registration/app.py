@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from rapidsms.apps.base import AppBase
-from logistics.apps.logistics.models import Contact
+from rapidsms.models import Contact
 
 class App(AppBase):
     def start (self):
