@@ -799,8 +799,8 @@
             "point": null,
             "created_at": "2011-02-08 15:53:05",
             "last_reported": "2011-02-23 01:09:42",
-            "parent_type": null,
-            "parent_id": null,
+            "parent_type": 17,
+            "parent_id": 2,
             "code": "dedh",
             "active": true,
             "type": "dh"
@@ -828,8 +828,8 @@
             "point": null,
             "created_at": "2011-02-08 15:53:05",
             "last_reported": "2011-02-23 01:09:42",
-            "parent_type": null,
-            "parent_id": null,
+            "parent_type": 17,
+            "parent_id": 2,
             "code": "tf",
             "active": true,
             "type": "dh"

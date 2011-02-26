@@ -62,8 +62,13 @@ class Location(models.Model):
         reporters = reporters.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
+    def children(self):
+        from rapidsms.contrib.locations.models import Location
+        return Location.objects.filter(parent_id=self.id)
+
     def report_to_supervisor(self, report, kwargs):
         reportees = self.reportees()
         for reportee in reportees:
             kwargs['admin_name'] = reportee.name
             reportee.message(report % kwargs)
+
