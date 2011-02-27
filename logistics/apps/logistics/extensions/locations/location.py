@@ -1,12 +1,5 @@
 from __future__ import absolute_import
-from datetime import datetime, timedelta
 from django.db import models
-from django.utils.translation import ugettext as _
-from rapidsms.conf import settings
-
-STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
-REPORTEE_RESPONSIBILITY = 'reportee'
-SUPERVISOR_RESPONSIBILITY = 'supervisor'
 
 class Location(models.Model):
     """
@@ -14,32 +7,23 @@ class Location(models.Model):
     This could/should be broken out into subclasses.
     """
     name = models.CharField(max_length=100)
-    active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=100, blank=True, null=True)
-    last_reported = models.DateTimeField(default=None, blank=True, null=True)
 
     class Meta:
         abstract = True
 
-    @property
-    def label(self):
-        return unicode(self)
+    def children(self):
+        from rapidsms.contrib.locations.models import Location
+        return Location.objects.filter(parent_id=self.id)
 
-    # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
-    # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
-    #@property
-    #def last_reported(self):
-    #    from logistics.apps.logistics.models import ProductReport, ProductStock
-    #    report_count = ProductReport.objects.filter(location=self).count()
-    #    if report_count > 0:
-    #        last_report = ProductReport.objects.filter(location=self).order_by("-report_date")[0]
-    #        return last_report.report_date
-    #    return None
+    def facilities(self):
+        from logistics.apps.logistics.models import Facility
+        return Facility.objects.filter(location=self)
 
+    """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self):
         from logistics.apps.logistics.models import ProductStock
-        return ProductStock.objects.filter(location=self).filter(quantity=0).count()
+        return ProductStock.objects.filter(facility__in=self.facilities).filter(quantity=0).count()
 
     def emergency_stock_count(self):
         """ This indicates all stock below reorder levels,
@@ -47,7 +31,7 @@ class Location(models.Model):
         """
         from logistics.apps.logistics.models import ProductStock
         emergency_stock = 0
-        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
             if stock.quantity < stock.emergency_reorder_level:
                 emergency_stock = emergency_stock + 1
@@ -59,7 +43,7 @@ class Location(models.Model):
         """
         from logistics.apps.logistics.models import ProductStock
         low_stock_count = 0
-        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
             if stock.quantity < stock.reorder_level:
                 low_stock_count = low_stock_count + 1
@@ -68,45 +52,8 @@ class Location(models.Model):
     def overstocked_count(self):
         from logistics.apps.logistics.models import ProductStock
         overstock_count = 0
-        stocks = ProductStock.objects.filter(location=self).filter(quantity__gt=0)
+        stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
             if stock.quantity > stock.maximum_level:
                 overstock_count = overstock_count + 1
         return overstock_count
-
-    def report(self, product, report_type, quantity, message=None):
-        from logistics.apps.logistics.models import ProductReport, ProductStock
-        npr = ProductReport( product=product, report_type=report_type, quantity=quantity, message=message, location=self)
-        npr.save()
-        try:
-            productstock = ProductStock.objects.get(location=self, product=product)
-        except ProductStock.DoesNotExist:
-            productstock = ProductStock(is_active=False, location=self, product=product)
-        productstock.quantity = quantity
-        productstock.save()
-        self.last_reported = datetime.now()
-        self.save()
-        return npr
-
-    def reporters(self):
-        from logistics.apps.logistics.models import Contact
-        reporters = Contact.objects.filter(location=self)
-        reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
-        return reporters
-
-    def reportees(self):
-        from logistics.apps.logistics.models import Contact
-        reporters = Contact.objects.filter(location=self)
-        reporters = reporters.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
-        return reporters
-
-    def children(self):
-        from rapidsms.contrib.locations.models import Location
-        return Location.objects.filter(parent_id=self.id)
-
-    def report_to_supervisor(self, report, kwargs):
-        reportees = self.reportees()
-        for reportee in reportees:
-            kwargs['admin_name'] = reportee.name
-            reportee.message(report % kwargs)
-

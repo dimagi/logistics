@@ -342,7 +342,7 @@ class Facility(models.Model):
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
     location = models.ForeignKey(Location)
     # i know in practice facilities are supplied by a variety of sources
-    # but in practice, this relationship will only be used to enforce the idealized ordering/
+    # but this relationship will only be used to enforce the idealized ordering/
     # supply relationsihp, so having a single ForeignKey mapping is sufficient
     supplied_by = models.ForeignKey('Facility', blank=True, null=True)
 
@@ -421,8 +421,11 @@ class Facility(models.Model):
         return reporters
 
     def children(self):
-        # TODO
-        raise NotImplementedError
+        """
+        For all intents and purses, at this time, the 'children' of a facility wrt site navigation
+        are the same as the 'children' with respect to stock supply
+        """
+        raise Facility.objects.filter(supplied_by=self)
 
     def report_to_supervisor(self, report, kwargs):
         reportees = self.reportees()
