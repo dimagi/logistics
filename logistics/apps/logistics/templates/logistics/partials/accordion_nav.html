@@ -29,7 +29,7 @@
                     <ul>
                         {% for facility in district.facilities %}
                             <!-- e.g. Dangme East District Hospital-->
-                            <li>{{ facility.name }}
+                            <li><a href="{% url stockonhand facility.code %}">{{ facility.name }}</a>
                             <ul>
                                 {% for chps in facility.children %}
                                     <li>{{ chps.name }}</li>
