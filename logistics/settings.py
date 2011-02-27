@@ -26,6 +26,13 @@ INSTALLED_BACKENDS = {
     #    "ENGINE": "rapidsms.backends.gsm,
     #    "PORT": "/dev/ttyUSB1"
     #},
+    "end2end": {
+        "ENGINE": "rapidsms.backends.http",
+        "PORT": 8002,
+        "gateway_url" : "http://gw1.promessaging.com/sms.php",
+        "params_outgoing": "user=my_username&password=my_password&id=%(phone_number)s&text=%(message)s",
+        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
+    },
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
