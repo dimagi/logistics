@@ -50,6 +50,19 @@ class Location(models.Model):
                 low_stock_count = low_stock_count + 1
         return low_stock_count
 
+    def good_supply_count(self):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        from logistics.apps.logistics.models import ProductStock
+        good_supply_count = 0
+        stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity <= stock.maximum_level and \
+               stock.quantity >= stock.reorder_level:
+                good_supply_count = good_supply_count + 1
+        return good_supply_count
+
     def overstocked_count(self):
         from logistics.apps.logistics.models import ProductStock
         overstock_count = 0
