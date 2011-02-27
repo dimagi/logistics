@@ -18,6 +18,7 @@ from logistics.apps.logistics.models import Facility, ProductStock, \
 def input_stock(request, facility_code, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
     # QUESTION: is it possible to make a dynamic form?
+    errors = ''
     rms = get_object_or_404(Facility, code=facility_code)
     productstocks = [p for p in ProductStock.objects.filter(facility=rms, is_active=True).order_by('product')]
     if request.method == "POST":
@@ -26,22 +27,26 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
             if stock.product.sms_code in request.POST:
                 quantity = request.POST[stock.product.sms_code]
                 if not quantity.isdigit():
-                    raise ValueError("Please enter all stock on hand as integer. For example, '1000'.")
-                if "%s_consumption" % stock.product.sms_code in request.POST:
+                    errors = errors + "Please enter all stock on hand as integer. For example, '1000'. "
+                elif "%s_consumption" % stock.product.sms_code in request.POST:
                     consumption = request.POST["%s_consumption" % stock.product.sms_code]
                     if not consumption.isdigit():
-                        raise ValueError("Please enter all consumption rates as integers. For example, '100'.")
-                    stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code], consumption=consumption)
+                        errors = errors + "Please enter all consumption rates as integers. For example, '100'. "
+                    else:
+                        stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code], consumption=consumption)
                 else:
                     stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code])
-        stock_report.save()
-        if stock_report.errors:
-            raise ValueError(_('You reported: %(stocks)s, but there were errors: %(err)s'),
-                             stocks=", ". join(stock_report.product_stock),
-                             err = ", ".join(unicode(e) for e in stock_report.errors))
-        return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
+        if not errors:
+            stock_report.save()
+            if stock_report.errors:
+                errors = errors + _('You reported: %(stocks)s, but there were errors: %(err)s') % \
+                                 {'stocks': ", ". join(stock_report.product_stock),
+                                 'err': ", ".join(unicode(e) for e in stock_report.errors)}
+            else:
+                return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
     return render_to_response(
         template, {
+                'errors': errors,
                 'rms': rms,
                 'productstocks': productstocks,
                 'date': datetime.now()
