@@ -60,7 +60,7 @@ class App(AppBase):
             message.text = message.text.lower()
             if message.text.startswith(SOH_KEYWORD):
                 message.text = message.text.strip(SOH_KEYWORD)
-            sdp = message.logistics_contact.location
+            sdp = message.logistics_contact.facility
             stock_report = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
@@ -76,7 +76,7 @@ class App(AppBase):
             all_products = []
             date_check = datetime.now() + relativedelta(days=-7)
             # check for products missing
-            missing_products = Product.objects.filter(Q(productstock__location=sdp,
+            missing_products = Product.objects.filter(Q(productstock__facility=sdp,
                                                         productstock__is_active=True),
                                                       ~Q(productreport__report_date__gt=date_check) )
             for dict in missing_products.values('sms_code'):

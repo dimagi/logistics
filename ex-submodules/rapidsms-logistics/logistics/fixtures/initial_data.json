@@ -176,45 +176,6 @@
     }, 
     {
         "pk": 1, 
-        "model": "rapidsms.contact", 
-        "fields": {
-            "name": "Test User", 
-            "language": "en-us",
-            "location": 3, 
-            "needs_reminders": true, 
-            "role": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "rapidsms.contact", 
-        "fields": {
-            "name": "In Charge", 
-            "language": "en-us",
-            "location": 3,
-            "role": 4
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "rapidsms.connection", 
-        "fields": {
-            "contact": 1, 
-            "identity": "16176023315", 
-            "backend": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "rapidsms.connection", 
-        "fields": {
-            "contact": 2, 
-            "identity": "1234567890", 
-            "backend": 1
-        }
-    }, 
-    {
-        "pk": 1, 
         "model": "logistics.product", 
         "fields": {
             "units": "tablet", 
@@ -434,303 +395,6 @@
         }
     }, 
     {
-        "pk": 1,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 1,
-            "is_active": true,
-            "quantity": 30,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 2,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 2,
-            "is_active": true,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 3,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 3,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 4,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 4,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 5,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 5,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 6,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 6,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 7,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 7,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 8,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 8,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 9,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 9,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 10,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 10,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 11,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 11,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 12,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 12,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 13,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 13,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 14,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 14,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 15,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 15,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 16,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 16,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 17,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 17,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 18,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 18,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 19,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 19,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 20,
-        "model": "logistics.productstock",
-        "fields": {
-            "days_stocked_out": 0,
-            "location": 1,
-            "product": 20,
-            "is_active": false,
-            "quantity": 100,
-            "monthly_consumption": 10,
-            "last_modified": "2011-02-08 15:53:05"
-        }
-    },
-    {
-        "pk": 21, 
-        "model": "logistics.productstock", 
-        "fields": {
-            "product": 1, 
-            "monthly_consumption": 0, 
-            "is_active": true, 
-            "last_modified": "2011-02-18 22:06:13", 
-            "location": 2, 
-            "days_stocked_out": 0
-        }
-    }, 
-    {
-        "pk": 22, 
-        "model": "logistics.productstock", 
-        "fields": {
-            "product": 2, 
-            "monthly_consumption": 0, 
-            "is_active": true, 
-            "last_modified": "2011-02-18 22:06:22", 
-            "location": 2, 
-            "days_stocked_out": 0
-        }
-    }, 
-    {
-        "pk": 23, 
-        "model": "logistics.productstock", 
-        "fields": {
-            "product": 3, 
-            "monthly_consumption": 0, 
-            "is_active": true, 
-            "last_modified": "2011-02-18 22:06:28", 
-            "location": 2, 
-            "days_stocked_out": 0,
-            "quantity": null
-        }
-    }, 
-    {
         "pk": 1, 
         "model": "logistics.productreporttype", 
         "fields": {
@@ -787,140 +451,6 @@
         "model": "locations.locationtype",
         "fields": {
             "name": "Regional Medical Store"
-        }
-    },
-    {
-        "pk": 1,
-        "model": "locations.location",
-        "fields": {
-            "name": "Ghana",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": null,
-            "parent_id": null,
-            "code": "ghana",
-            "active": true,
-            "type": ""
-        }
-    },
-    {
-        "pk": 2, 
-        "model": "locations.location", 
-        "fields": {
-            "name": "Greater Accra Regional Medical Store", 
-            "point": null, 
-            "created_at": "2011-02-18 21:55:49", 
-            "parent_type": 17, 
-            "parent_id": 1, 
-            "code": "ARMS", 
-            "active": true, 
-            "type": "RMS"
-        }
-    },
-    {
-        "pk": 3,
-        "model": "locations.location",
-        "fields": {
-            "name": "Dangme East District Hospital",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 2,
-            "code": "dedh",
-            "active": true,
-            "type": "dh"
-        }
-    },
-    {
-        "pk": 4,
-        "model": "locations.location",
-        "fields": {
-            "name": "Test Facility",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 2,
-            "code": "tf",
-            "active": true,
-            "type": "dh"
-        }
-    },
-    {
-        "pk": 5,
-        "model": "locations.location",
-        "fields": {
-            "name": "Central Regional Medical Store",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 1,
-            "code": "CRMS",
-            "active": true,
-            "type": "RMS"
-        }
-    },
-    {
-        "pk": 6,
-        "model": "locations.location",
-        "fields": {
-            "name": "Agona East District Health Directorate",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 5,
-            "code": "aedhd",
-            "active": true,
-            "type": "da"
-        }
-    },
-    {
-        "pk": 7,
-        "model": "locations.location",
-        "fields": {
-            "name": "Agona East District Hospital",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 6,
-            "code": "aedh",
-            "active": true,
-            "type": "dh"
-        }
-    },
-    {
-        "pk": 8,
-        "model": "locations.location",
-        "fields": {
-            "name": "Nsaba Health Center",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 6,
-            "code": "nhc",
-            "active": true,
-            "type": "hc"
-        }
-    },
-    {
-        "pk": 9,
-        "model": "locations.location",
-        "fields": {
-            "name": "Kwanyako Health Center",
-            "point": null,
-            "created_at": "2011-02-08 15:53:05",
-            "last_reported": "2011-02-23 01:09:42",
-            "parent_type": 17,
-            "parent_id": 6,
-            "code": "khc",
-            "active": true,
-            "type": "hc"
         }
     },
     {
@@ -1000,5 +530,259 @@
             "email": "rluk@dimagi.com", 
             "date_joined": "2011-02-08 15:50:56"
         }
+    },
+    {
+        "pk": 1,
+        "model": "locations.location",
+        "fields": {
+            "code": "ghana",
+            "name": "Ghana",
+            "point": null,
+            "parent_type": null,
+            "parent_id": null,
+            "type": null
+        }
+    },
+    {
+        "pk": 2,
+        "model": "locations.location",
+        "fields": {
+            "code": "gar",
+            "name": "Greater Accra Region",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 1,
+            "type": null
+        }
+    },
+    {
+        "pk": 3,
+        "model": "locations.location",
+        "fields": {
+            "code": "central",
+            "name": "Central Region",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 1,
+            "type": null
+        }
+    },
+    {
+        "pk": 4,
+        "model": "locations.location",
+        "fields": {
+            "code": "western",
+            "name": "Western Region",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 1,
+            "type": null
+        }
+    },
+    {
+        "pk": 5,
+        "model": "locations.location",
+        "fields": {
+            "code": "dw",
+            "name": "Dangme West",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 2,
+            "type": null
+        }
+    },
+    {
+        "pk": 6,
+        "model": "locations.location",
+        "fields": {
+            "code": "ae",
+            "name": "Agona East",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 3,
+            "type": null
+        }
+    },
+    {
+        "pk": 7,
+        "model": "locations.location",
+        "fields": {
+            "code": "delse",
+            "name": "Dangme Elsewhere",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 2,
+            "type": null
+        }
+    },
+    {
+        "pk": 8,
+        "model": "locations.location",
+        "fields": {
+            "code": "aelse",
+            "name": "Agona Elsewhere",
+            "point": null,
+            "parent_type": 17,
+            "parent_id": 3,
+            "type": null
+        }
+    },
+    {
+        "pk": 1,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "garms",
+            "name": "Greater Accra Regional Medical Store",
+            "created_at": "2011-02-26 16:19:20",
+            "last_reported": null,
+            "location": 2,
+            "active": true,
+            "supplied_by": null
+        }
+    },
+    {
+        "pk": 2,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "crms",
+            "name": "Central Regional Medical Store",
+            "created_at": "2011-02-26 16:19:58",
+            "last_reported": null,
+            "location": 3,
+            "active": true,
+            "supplied_by": null
+        }
+    },
+    {
+        "pk": 3,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "dwdh",
+            "name": "Dangme West District Hospital",
+            "created_at": "2011-02-26 16:23:53",
+            "last_reported": null,
+            "location": 5,
+            "active": true,
+            "supplied_by": 1
+        }
+    },
+    {
+        "pk": 4,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "",
+            "name": "Agona East District Hospital",
+            "created_at": "2011-02-26 16:24:05",
+            "last_reported": null,
+            "location": 6,
+            "active": true,
+            "supplied_by": 2
+        }
+    },
+    {
+        "pk": 5,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "nhc",
+            "name": "Nsaba Health Center",
+            "created_at": "2011-02-26 16:24:58",
+            "last_reported": null,
+            "location": 8,
+            "active": true,
+            "supplied_by": 2
+        }
+    },
+    {
+        "pk": 6,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "khc",
+            "name": "Kwanyako Health Center",
+            "created_at": "2011-02-26 16:25:22",
+            "last_reported": null,
+            "location": 8,
+            "active": true,
+            "supplied_by": 2
+        }
+    },
+    {
+        "pk": 7,
+        "model": "logistics.facility",
+        "fields": {
+            "code": "tf",
+            "name": "Test Facility",
+            "created_at": "2011-02-26 16:29:04",
+            "last_reported": null,
+            "location": 5,
+            "active": true,
+            "supplied_by": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "rapidsms.contact",
+        "fields": {
+            "needs_reminders": true,
+            "role": 4,
+            "name": "In Charge",
+            "language": "en-us",
+            "facility": 4
+        }
+    },
+    {
+        "pk": 2,
+        "model": "rapidsms.contact",
+        "fields": {
+            "needs_reminders": true,
+            "role": 1,
+            "name": "Test User",
+            "language": "en-us",
+            "facility": 4
+        }
+    },
+    {
+        "pk": 1,
+        "model": "rapidsms.connection",
+        "fields": {
+            "contact": 1,
+            "identity": "1234567890",
+            "backend": 1
+        }
+    },
+    {
+        "pk": 2,
+        "model": "rapidsms.connection",
+        "fields": {
+            "contact": 2,
+            "identity": "16176023315",
+            "backend": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "logistics.productstock",
+        "fields": {
+            "product": 1,
+            "facility": 3,
+            "monthly_consumption": 10,
+            "is_active": true,
+            "last_modified": "2011-02-26 17:40:25",
+            "days_stocked_out": 0,
+            "quantity": 10
+        }
+    },
+    {
+        "pk": 2,
+        "model": "logistics.productstock",
+        "fields": {
+            "product": 2,
+            "facility": 3,
+            "monthly_consumption": 10,
+            "is_active": true,
+            "last_modified": "2011-02-26 17:40:33",
+            "days_stocked_out": 0,
+            "quantity": 15
+        }
     }
 ]
+

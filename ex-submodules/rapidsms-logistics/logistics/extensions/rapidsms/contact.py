@@ -3,7 +3,7 @@ from django.db import models
 
 class Contact(models.Model):
     role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
-    location = models.ForeignKey("locations.Location",null=True,blank=True)
+    facility = models.ForeignKey("logistics.Facility",null=True,blank=True)
     needs_reminders = models.BooleanField(default=True)
 
     class Meta:
@@ -28,8 +28,8 @@ class Contact(models.Model):
         """
 
         if SUPERVISOR not in self.role.responsibilities.objects.all():
-            return Contact.objects.filter(location=self.location,
+            return Contact.objects.filter(facility=self.facility,
                                                    role=SUPERVISOR)
-        return Contact.objects.filter(location=self.location.parentsdp(),
+        return Contact.objects.filter(facility=self.facility.parentsdp(),
                                                role=SUPERVISOR)
 
