@@ -6,14 +6,14 @@
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
             <h2>{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
-            <table class="stock">
+            <table class="stock" width=100%>
             <thead><tr>
                 <th scope="col">Facility</th>
-                <th scope="col">Stockouts</th>
-                <th scope="col">Emergency</th>
-                <th scope="col">Low</th>
-                <th scope="col">In Stock</th>
-                <th scope="col">Overstocks</th>
+                <th scope="col" class="stock_col">Stockouts</th>
+                <th scope="col" class="stock_col">Emergency</th>
+                <th scope="col" class="stock_col">Low</th>
+                <th scope="col" class="stock_col">In Stock</th>
+                <th scope="col" class="stock_col">Overstocks</th>
             </tr></thead>
             <tbody>
             {% if location.children %}
@@ -41,6 +41,11 @@
             {% endif %}
             </tr></tbody>
             </table>
+
+            <p class="smallnote">
+                Note: these numbers represent the total number of stockouts
+                across all commodities in the region indicated.
+            </p>
         </div>
     </div>
 {% endblock %}

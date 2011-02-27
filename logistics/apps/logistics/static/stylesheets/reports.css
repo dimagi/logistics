@@ -18,6 +18,9 @@
     background-color: #ffa07a;
 }
 
+.stock_col{
+    width:12%;
+}
 
 #side{
   float:left;
