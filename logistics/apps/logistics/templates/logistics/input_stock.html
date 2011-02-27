@@ -1,8 +1,10 @@
 {% extends "logistics/base.html" %}
+{% load i18n %}
 
 {% block content %}
     <div class="module">
         <h2>Input Stock for {{ date|date:"D, M d" }}</h2>
+        {% if rms %}
         <form action="" method="post">
             <div>
                 {% csrf_token %}
@@ -19,7 +21,8 @@
             </div>
 
         </form>
-
-
+        {% else %}<p></p>
+            {% trans "No regional medical stores defined!" %}
+        {% endif %}
     </div>
 {% endblock %}

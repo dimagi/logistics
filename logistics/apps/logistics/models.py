@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
-from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.models import Message
 
+STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
+REPORTEE_RESPONSIBILITY = 'reportee'
+SUPERVISOR_RESPONSIBILITY = 'supervisor'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
@@ -41,14 +45,14 @@ class Product(models.Model):
 class ProductStock(models.Model):
     is_active = models.BooleanField(default=True)
     quantity = models.IntegerField(blank=True, null=True)
-    location = models.ForeignKey(Location)
+    facility = models.ForeignKey('Facility')
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
     monthly_consumption = models.IntegerField(default=0)
     last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return "%s-%s" % (self.location.name, self.product.name)
+        return "%s-%s" % (self.facility.name, self.product.name)
 
     @property
     def emergency_reorder_level(self):
@@ -98,7 +102,7 @@ class ProductReportType(models.Model):
 
 class ProductReport(models.Model):
     product = models.ForeignKey(Product)
-    location = models.ForeignKey(Location)
+    facility = models.ForeignKey('Facility')
     report_type = models.ForeignKey(ProductReportType)
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.now)
@@ -110,7 +114,7 @@ class ProductReport(models.Model):
         ordering = ('-report_date',)
 
     def __unicode__(self):
-        return "%s-%s-%s" % (self.location.name, self.product.name, self.report_type.name)
+        return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
 
 class ProductStockReport(object):
     """ The following is a helper class to make it
@@ -288,7 +292,7 @@ class ProductStockReport(object):
     def low_supply(self):
         low_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
+            productstock = ProductStock.objects.filter(facility=self.facility).get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
@@ -302,7 +306,7 @@ class ProductStockReport(object):
     def over_supply(self):
         over_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(location=self.facility).get(product__sms_code__icontains=i)
+            productstock = ProductStock.objects.filter(facility=self.facility).get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly consumption.
@@ -326,3 +330,103 @@ def get_geography():
         return Location.objects.get(parent_id=None)
     except Location.MultipleObjectsReturned:
         raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
+
+class Facility(models.Model):
+    """
+    e.g. medical stories, district hospitals, clinics, community health centers
+    """
+    name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    code = models.CharField(max_length=100, blank=True, null=True)
+    last_reported = models.DateTimeField(default=None, blank=True, null=True)
+    location = models.ForeignKey(Location)
+    # i know in practice facilities are supplied by a variety of sources
+    # but in practice, this relationship will only be used to enforce the idealized ordering/
+    # supply relationsihp, so having a single ForeignKey mapping is sufficient
+    supplied_by = models.ForeignKey('Facility', blank=True, null=True)
+
+    def __unicode__(self):
+        return self.name
+
+    @property
+    def label(self):
+        return unicode(self)
+
+    # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
+    # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
+    #@property
+    #def last_reported(self):
+    #    from logistics.apps.logistics.models import ProductReport, ProductStock
+    #    report_count = ProductReport.objects.filter(facility=self).count()
+    #    if report_count > 0:
+    #        last_report = ProductReport.objects.filter(facility=self).order_by("-report_date")[0]
+    #        return last_report.report_date
+    #    return None
+
+    def stockout_count(self):
+        return ProductStock.objects.filter(facility=self).filter(quantity=0).count()
+
+    def emergency_stock_count(self):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        emergency_stock = 0
+        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity < stock.emergency_reorder_level:
+                emergency_stock = emergency_stock + 1
+        return emergency_stock
+
+    def low_stock_count(self):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        low_stock_count = 0
+        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity < stock.reorder_level:
+                low_stock_count = low_stock_count + 1
+        return low_stock_count
+
+    def overstocked_count(self):
+        overstock_count = 0
+        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
+        for stock in stocks:
+            if stock.quantity > stock.maximum_level:
+                overstock_count = overstock_count + 1
+        return overstock_count
+
+    def report(self, product, report_type, quantity, message=None):
+        npr = ProductReport( product=product, report_type=report_type, quantity=quantity, message=message, facility=self)
+        npr.save()
+        try:
+            productstock = ProductStock.objects.get(facility=self, product=product)
+        except ProductStock.DoesNotExist:
+            productstock = ProductStock(is_active=False, facility=self, product=product)
+        productstock.quantity = quantity
+        productstock.save()
+        self.last_reported = datetime.now()
+        self.save()
+        return npr
+
+    def reporters(self):
+        reporters = Contact.objects.filter(facility=self)
+        reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        return reporters
+
+    def reportees(self):
+        reporters = Contact.objects.filter(facility=self)
+        reporters = reporters.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
+        return reporters
+
+    def children(self):
+        # TODO
+        raise NotImplementedError
+
+    def report_to_supervisor(self, report, kwargs):
+        reportees = self.reportees()
+        for reportee in reportees:
+            kwargs['admin_name'] = reportee.name
+            reportee.message(report % kwargs)
+

@@ -78,7 +78,7 @@ INSTALLED_APPS = [
 RAPIDSMS_TABS = [
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("registration",      				    "Registration"),
-    ("input_stock",      				    "Input Stock"),
+    #("input_stock",      				    "Input Stock"),
     ("aggregate_top",  				            "Reports"),
     ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     ("rapidsms.contrib.locations.views.locations",          "Map"),

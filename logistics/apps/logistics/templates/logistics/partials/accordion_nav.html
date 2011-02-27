@@ -19,18 +19,26 @@
         {% for region in geography.children %}
             <li>{{ region.name }}
             <ul>
+                <!-- e.g. RMS -->
+                {% for facility in region.facilities %}
+                    <li><a href="{% url input_stock facility.code %}">{{ facility.name }}</a></li>
+                {% endfor %}
+                <!-- e.g. Dangme East -->
                 {% for district in region.children %}
-                    <li>{{ district.name }}</li>
+                    <li>{{ district.name }}
                     <ul>
-                        {% for facility in district.children %}
-                            <li>{{ facility.name }}</li>
+                        {% for facility in district.facilities %}
+                            <!-- e.g. Dangme East District Hospital-->
+                            <li>{{ facility.name }}
                             <ul>
                                 {% for chps in facility.children %}
                                     <li>{{ chps.name }}</li>
                                 {% endfor %}
                             </ul>
+                            </li>
                         {% endfor %}
                     </ul>
+                    </li>
                 {% endfor %}
             </ul>
             </li>

@@ -19,7 +19,7 @@ class ReceiptHandler(KeywordHandler):
     """
 
     keyword = "rec|receipts|received"
-    
+
     def help(self):
         self.respond(_("Please send in information about your receipts in the format 'rec <product> <amount> <product> <amount>...'"))
 
@@ -27,8 +27,8 @@ class ReceiptHandler(KeywordHandler):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(REGISTER_MESSAGE)
             return
-        sdp = self.msg.logistics_contact.location
-        stock_report = ProductStockReport(sdp, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
+        facility = self.msg.logistics_contact.facility
+        stock_report = ProductStockReport(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
         stock_report.save()
         self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())

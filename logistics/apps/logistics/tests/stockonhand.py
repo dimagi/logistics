@@ -2,30 +2,30 @@ from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductStockReport, Location, STOCK_ON_HAND_REPORT_TYPE
+    ProductStockReport, Facility, STOCK_ON_HAND_REPORT_TYPE
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
 
     def setUp(self):
         TestScript.setUp(self)
-        loc = Location.objects.get(code='tf')
+        loc = Facility.objects.get(code='tf')
         mc = Product.objects.get(sms_code='mc')
         lf = Product.objects.get(sms_code='lf')
         mg = Product.objects.get(sms_code='mg')
-        self.mc_stock = ProductStock(is_active=True, location=loc,
+        self.mc_stock = ProductStock(is_active=True, facility=loc,
                                     product=mc, monthly_consumption=10)
         self.mc_stock.save()
-        self.lf_stock = ProductStock(is_active=True, location=loc,
+        self.lf_stock = ProductStock(is_active=True, facility=loc,
                                     product=lf, monthly_consumption=10)
         self.lf_stock.save()
-        self.mg_stock = ProductStock(is_active=False, location=loc,
+        self.mg_stock = ProductStock(is_active=False, facility=loc,
                                      product=mg, monthly_consumption=10)
         self.mg_stock.save()
 
 
     def testProductStockReport(self):
-        sdp = Location()
+        sdp = Facility()
         m = Message()
         p = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, m)
         p.add_product_stock('lf',10, save=False)
@@ -42,8 +42,8 @@ class TestStockOnHand (TestScript):
 
     def testStockOnHand(self):
         a = """
-           16176023315 > register stella dedh
-           16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register stella dwdh
+           16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 10
            16176023315 < Dear stella, thank you for reporting your stock on hand. Still missing mc.
            16176023315 > soh lf 10 mc 20
@@ -55,8 +55,8 @@ class TestStockOnHand (TestScript):
 
     def testStockout(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 0 mc 0
            16176023315 < Dear cynthia, the following items are stocked out: lf mc. Please place an order now.
            """
@@ -64,8 +64,8 @@ class TestStockOnHand (TestScript):
 
     def testLowSupply(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 9 mc 9
            16176023315 < Dear cynthia, the following items are in low supply: lf mc. Please place an order now.
            """
@@ -73,8 +73,8 @@ class TestStockOnHand (TestScript):
 
     def testSohAndReceipts(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 10 20 mc 20
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 20.
            """
@@ -148,8 +148,8 @@ class TestStockOnHand (TestScript):
 
     def testStringCleaner(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 10-20 mc 20
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 20.
            """
@@ -157,8 +157,8 @@ class TestStockOnHand (TestScript):
 
     def testBadCode(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 0 badcode 10
            16176023315 < You reported: lf, but there were errors: BADCODE is/are not part of our commodity codes. Please contact FRHP for assistance.
            16176023315 > soh badcode 10
@@ -170,8 +170,8 @@ class TestStockOnHand (TestScript):
 
     def FAILSbadcode(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 > soh lf 0 bad_code 10
            16176023315 < You reported: lf, but there were errors: BAD_CODE is/are not part of our commodity codes. Please contact FRHP for assistance.
            16176023315 > soh bad_code 10
@@ -181,8 +181,8 @@ class TestStockOnHand (TestScript):
 
     def testPunctuation(self):
         a = """
-           16176023315 > register cynthia dedh
-           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > register cynthia dwdh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
            16176023315 >   soh lf 10 mc 20
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
            16176023315 > sohlf10mc20
