@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
-    ProductStockReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
+    ProductStockReport, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
 
 def input_stock(request, facility_code, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
@@ -60,7 +60,10 @@ def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
     """
     context = {}
     facility = get_object_or_404(Facility, code=facility_code)
-    stockonhands = ProductStock.objects.filter(facility=facility, is_active=True).order_by('product')
+    stockonhands = ProductStock.objects.filter(facility=facility).order_by('product')
+    last_reports = ProductReport.objects.filter(facility=facility).order_by('-report_date')
+    if last_reports:
+        context['last_reported'] = last_reports[0].report_date
     context['stockonhands'] = stockonhands
     context['facility'] = facility
     context['geography'] = get_geography()

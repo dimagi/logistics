@@ -69,7 +69,10 @@ class ProductStock(models.Model):
 
     @property
     def months_remaining(self):
-        return int(self.quantity / self.monthly_consumption)
+        if self.monthly_consumption > 0 and self.quantity is not None:
+            return int(self.quantity / self.monthly_consumption)
+        else:
+            return None
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
@@ -123,7 +126,7 @@ class ProductReport(models.Model):
 class ProductStockReport(object):
     """ The following is a helper class to make it
     easy to generate reports based on stock on hand
-
+    TODO: rename this to ProductReportHelper
     """
     REC_SEPARATOR = '-'
 
