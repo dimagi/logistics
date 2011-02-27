@@ -56,16 +56,19 @@ class ProductStock(models.Model):
 
     @property
     def emergency_reorder_level(self):
-        return self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
+        return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
 
     @property
     def reorder_level(self):
-        return self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS
+        return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
 
     @property
     def maximum_level(self):
-        return self.monthly_consumption*\
-               3
+        return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+
+    @property
+    def months_remaining(self):
+        return int(self.quantity / self.monthly_consumption)
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
