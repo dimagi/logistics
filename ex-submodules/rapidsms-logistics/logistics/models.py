@@ -331,12 +331,23 @@ def get_geography():
     except Location.MultipleObjectsReturned:
         raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
 
+class FacilityType(models.Model):
+    """
+    e.g. medical stories, district hospitals, clinics, community health centers
+    """
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True, primary_key=True)
+
+    def __unicode__(self):
+        return self.name
+
 class Facility(models.Model):
     """
     e.g. medical stories, district hospitals, clinics, community health centers
     """
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
+    type = models.ForeignKey(FacilityType)
     created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=100, blank=True, null=True)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)

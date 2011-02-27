@@ -27,11 +27,15 @@ class ProductReportTypeAdmin(admin.ModelAdmin):
 class FacilityAdmin(admin.ModelAdmin):
     model = Facility
 
+class FacilityTypeAdmin(admin.ModelAdmin):
+    model = FacilityType
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductStock, ProductStockAdmin)
 admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
+admin.site.register(FacilityType, FacilityTypeAdmin)
 admin.site.register(Facility, FacilityAdmin)
 
