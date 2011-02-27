@@ -7,15 +7,11 @@
         <div id="main">
                 <h2>Stock for {{ facility.name }}</h2>
                 <table class="stock">
-                <thead><tr>
                     {% for stockonhand in stockonhands %}
-                        <th scope="col">{{ stockonhand.product }}</th>
+                        <tr><td>{{ stockonhand.product.name }}</td>
+                        <td>{{ stockonhand.quantity }}</td></tr>
                     {% endfor %}
-                </thead></tr><tbody><tr>
-                    {% for stockonhand in stockonhands %}
-                        <td>{{ stockonhand.quantity }}</td>
-                    {% endfor %}
-                </tr></tbody></table>
+                </table>
 
         </div>
     </div>

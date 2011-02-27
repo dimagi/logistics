@@ -8,10 +8,10 @@
         <form action="" method="post">
             <div>
                 {% csrf_token %}
-                {% for commodity in commodities %}
-                <div class="field {{ commodity }} required">
-                    <label for="id_{{ commodity }}">{{ commodity }}</label>
-                    <input type="text" name="{{ commodity.sms_code }}" id="id_{{ commodity }}"/>
+                {% for stock in productstocks %}
+                <div class="field {{ stock.product }} required">
+                    <label for="id_{{ stock.product }}">{{ stock.product }}</label>
+                    <input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity }}"/>
                 </div>
                 {% endfor %}
             </div>
