@@ -15,6 +15,7 @@ cp localsettings.py.example localsettings.py
 Finally sync your database, and launch runserver and runrouter.
 
 ./manage.py syncdb 
+python setup.py
 ./manage.py runserver &
 ./manage.py runrouter &
 
