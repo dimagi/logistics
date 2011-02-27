@@ -29,7 +29,7 @@
                     {% endfor %}
                     </tbody>
                 </table><br/>
-            <a href="{% url stockonhand facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+            <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
         </div>
     </div>
 {% endblock %}

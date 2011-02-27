@@ -16,6 +16,17 @@
                 <th scope="col">Overstocks</th>
             </tr></thead>
             <tbody>
+            {% if location.children %}
+                {% for child in location.children %}
+                    <tr>
+                    <td>{{ child.name }}</td>
+                    <td>{{ child.stockout_count }}</td>
+                    <td>{{ child.emergency_stock_count }}</td>
+                    <td>{{ child.low_stock_count }}</td>
+                    <td>{{ child.overstocked_count }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
                 {% for child in location.facilities %}
                     <tr>
                     <td>{{ child.name }}</td>
@@ -25,6 +36,7 @@
                     <td>{{ child.overstocked_count }}</td>
                     </tr>
                 {% endfor %}
+            {% endif %}
             </tr></tbody>
             </table>
         </div>

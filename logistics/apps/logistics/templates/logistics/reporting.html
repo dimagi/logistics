@@ -1,32 +1,47 @@
 {% extends "logistics/reports_base.html" %}
+{% load i18n %}
 
 {% block content %}
     <div class="module">
+    <!--{% include "logistics/partials/accordion_nav.html" %}-->
+
+    <div>
         <h2>
             Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
         </h2>
-        <table>
+        <table width=60%>
             <thead><tr>
-                <th>NON-REPORTING FACILITIES</th>
+                <th width=70%>NON-REPORTING FACILITIES</th>
                 <th>Last Message Received</th>
             </thead></tr><tbody>
+                {% if late_facilities %}
                 {% for late_facility in late_facilities %}
-                    <tr><td>{{ late_facility.name }}</td>
+                    <tr>
+                    <td>{{ late_facility.name }}</td>
                     <td>{{ late_facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
                 {% endfor %}
+                {% else %}
+                    <tr><td colspan="2">{%  trans "No facilities reported late" %}</td></tr>
+                {% endif %}
             </tbody>
         </table>
         
-        <table>
+        <table width=60%>
             <thead><tr>
-                <th>On-Time Facilities</th>
+                <th width=70%>On-Time Facilities</th>
                 <th>Last Message Received</th>
             </thead></tr><tbody>
+                {% if on_time_facilities %}
                 {% for on_time_facility in on_time_facilities %}
-                    <tr><td>{{ on_time_facility.name }}</td>
+                    <tr>
+                    <td>{{ on_time_facility.name }}</td>
                     <td>{{ on_time_facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
                 {% endfor %}
+                {% else %}
+                    <tr><td colspan="2">{%  trans "No facilities reported on time" %}</td></tr>
+                {% endif %}
             </tbody>
         </table>
+    </div>
     </div>
 {% endblock %}

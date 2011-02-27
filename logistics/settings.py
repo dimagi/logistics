@@ -76,13 +76,14 @@ INSTALLED_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    ("registration",      				    "Registration"),
+    ("aggregate_top",  				            "Stock Levels"),
+    ("reporting",  				            "Reporting Rates"),
     #("input_stock",      				    "Input Stock"),
-    ("aggregate_top",  				            "Reports"),
-    ("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-    ("rapidsms.contrib.locations.views.locations",          "Map"),
-    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    ("registration",      				    "Registration"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
+    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+    #("rapidsms.contrib.locations.views.locations",          "Map"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
