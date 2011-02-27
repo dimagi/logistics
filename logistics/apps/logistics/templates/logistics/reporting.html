@@ -35,7 +35,7 @@
                 {% for on_time_facility in on_time_facilities %}
                     <tr>
                     <td>{{ on_time_facility.name }}</td>
-                    <td>{{ on_time_facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
+                    <td>{{ on_time_facility.last_reported|date:"M d, h:i A"|default:"never" }}</td></tr>
                 {% endfor %}
                 {% else %}
                     <tr><td colspan="2">{%  trans "No facilities reported on time" %}</td></tr>
