@@ -21,7 +21,27 @@
                     {% for stockonhand in stockonhands %}
                         <tr>
                         <td>{{ stockonhand.product.name }}</td>
-                        <td>{{ stockonhand.months_remaining }}</td>
+                        <td
+                        
+                        {% ifequal stockonhand.months_remaining 0 %}
+                                class="stockout"
+                        {% else %}
+                            {% if stockonhand.months_remaining < stockonhand.emergency_reorder_level %}
+                                class="emergency"
+                            {% else %}
+                                {% if stockonhand.months_remaining < stockonhand.reorder_level %}
+                                    class="low_supply"
+                                {% else %}
+                                    {% if stockonhand.months_remaining < stockonhand.maximum_level %}
+                                        class="good_supply"
+                                    {% else %}
+                                        class="overstock"
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endifequal %}
+
+                        >{{ stockonhand.months_remaining }}</td>
                         <td>{{ stockonhand.quantity }}</td>
                         <td>{{ stockonhand.emergency_reorder_level }}</td>
                         <td>{{ stockonhand.reorder_level }}</td>

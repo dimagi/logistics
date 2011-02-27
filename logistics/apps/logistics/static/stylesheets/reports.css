@@ -1,3 +1,24 @@
+.stockout {
+    background-color: red;
+}
+
+.emergency {
+    background-color: orange;
+}
+
+.low_supply {
+    background-color: yellow;
+}
+
+.good_supply {
+    background-color: lightgreen;
+}
+
+.overstock {
+    background-color: #ffa07a;
+}
+
+
 #side{
   float:left;
   display:inline;

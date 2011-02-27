@@ -3,7 +3,6 @@
 
 {% block content %}
     <div class="module">
-
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
             <h2>{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
@@ -13,6 +12,7 @@
                 <th scope="col">Stockouts</th>
                 <th scope="col">Emergency</th>
                 <th scope="col">Low</th>
+                <th scope="col">In Stock</th>
                 <th scope="col">Overstocks</th>
             </tr></thead>
             <tbody>
@@ -20,20 +20,22 @@
                 {% for child in location.children %}
                     <tr>
                     <td>{{ child.name }}</td>
-                    <td>{{ child.stockout_count }}</td>
-                    <td>{{ child.emergency_stock_count }}</td>
-                    <td>{{ child.low_stock_count }}</td>
-                    <td>{{ child.overstocked_count }}</td>
+                    <td {% ifnotequal child.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ child.stockout_count }}</td>
+                    <td {% ifnotequal child.emergency_stock_count 0 %}class="emergency"{% endifnotequal %}>{{ child.emergency_stock_count }}</td>
+                    <td {% ifnotequal child.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ child.low_stock_count }}</td>
+                    <td {% ifnotequal child.good_supply_count 0 %}class="good_supply"{% endifnotequal %}>{{ child.good_supply_count }}</td>
+                    <td {% ifnotequal child.overstocked_count 0 %}class="overstock"{% endifnotequal %}>{{ child.overstocked_count }}</td>
                     </tr>
                 {% endfor %}
             {% else %}
                 {% for child in location.facilities %}
                     <tr>
                     <td>{{ child.name }}</td>
-                    <td>{{ child.stockout_count }}</td>
-                    <td>{{ child.emergency_stock_count }}</td>
-                    <td>{{ child.low_stock_count }}</td>
-                    <td>{{ child.overstocked_count }}</td>
+                    <td {% ifnotequal child.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ child.stockout_count }}</td>
+                    <td {% ifnotequal child.emergency_stock_count 0 %}class="emergency"{% endifnotequal %}>{{ child.emergency_stock_count }}</td>
+                    <td {% ifnotequal child.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ child.low_stock_count }}</td>
+                    <td {% ifnotequal child.good_supply_count 0 %}class="good_supply"{% endifnotequal %}>{{ child.good_supply_count }}</td>
+                    <td {% ifnotequal child.overstocked_count 0 %}class="overstock"{% endifnotequal %}>{{ child.overstocked_count }}</td>
                     </tr>
                 {% endfor %}
             {% endif %}
