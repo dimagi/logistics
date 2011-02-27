@@ -349,7 +349,7 @@ class Facility(models.Model):
     active = models.BooleanField(default=True)
     type = models.ForeignKey(FacilityType)
     created_at = models.DateTimeField(auto_now_add=True)
-    code = models.CharField(max_length=100, blank=True, null=True)
+    code = models.CharField(max_length=100)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
     location = models.ForeignKey(Location)
     # i know in practice facilities are supplied by a variety of sources

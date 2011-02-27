@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductStockReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
 
@@ -66,18 +67,27 @@ def reporting(request, template="logistics/reporting.html"):
     )
 
 def aggregate_top(request, template="logistics/aggregate.html"):
+    """
+    The aggregate view for a country's regions
+    """
     context = {}
+    context['location'] = get_geography()
     context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
 def aggregate(request, location_code, template="logistics/aggregate.html"):
+    """
+    The aggregate view for all facilities within a certain location
+    """
     context = {}
-    facility = get_object_or_404(Facility, code=location_code)
-    stockonhands = ProductStock.objects.filter(facility=facility, is_active=True).order_by('product')
+    location = get_object_or_404(Location, code=location_code)
+    facilities = Facility.objects.filter(location=location)
+    stockonhands = ProductStock.objects.filter(facility__in=facilities,
+                                               is_active=True).order_by('product')
     context['stockonhands'] = stockonhands
-    context['facility'] = facility
+    context['location'] = location
     context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)

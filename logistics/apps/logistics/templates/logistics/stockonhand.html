@@ -11,8 +11,8 @@
                         <tr><td>{{ stockonhand.product.name }}</td>
                         <td>{{ stockonhand.quantity }}</td></tr>
                     {% endfor %}
-                </table>
-
+                </table><br/>
+            <a href="{% url stockonhand facility.code %}">INPUT STOCK for {{ facility.name }}</a>
         </div>
     </div>
 {% endblock %}
