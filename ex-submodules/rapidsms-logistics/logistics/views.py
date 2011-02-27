@@ -62,6 +62,7 @@ def reporting(request, template="logistics/reporting.html"):
     seven_days_ago = datetime.now() + relativedelta(days=-7)
     context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported')
     context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported')
+    context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
