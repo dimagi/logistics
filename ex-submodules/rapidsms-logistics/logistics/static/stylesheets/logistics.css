@@ -2,3 +2,8 @@
     color: red;
     padding: 1em;
 }
+
+.smallnote {
+    font-size: 0.9em;
+    font-style:italic;
+}

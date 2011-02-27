@@ -11,11 +11,12 @@
                 <table class="stock">
                     <thead><tr>
                         <th>{% trans "Commodity" %}</th>
-                        <th>{% trans "Months of Stock Remaining" %}</th>
-                        <th>{% trans "Current Stock" %}</th>
-                        <th>{% trans "Emergency Level" %}</th>
-                        <th>{% trans "Reorder Level" %}</th>
-                        <th>{% trans "Maximum Level" %}</th>
+                        <th class="stock_col">{% trans "Months Available" %}</th>
+                        <th class="stock_col">{% trans "Current Stock" %}</th>
+                        <th class="stock_col">{% trans "Monthly Consumption" %}</th>
+                        <th class="stock_col">{% trans "Emergency Level" %}</th>
+                        <th class="stock_col">{% trans "Reorder Level" %}</th>
+                        <th class="stock_col">{% trans "Maximum Level" %}</th>
                     </tr></thead>
                     <tbody>
                     {% for stockonhand in stockonhands %}
@@ -43,6 +44,7 @@
 
                         >{{ stockonhand.months_remaining }}</td>
                         <td>{{ stockonhand.quantity }}</td>
+                        <td>{{ stockonhand.monthly_consumption }}</td>
                         <td>{{ stockonhand.emergency_reorder_level }}</td>
                         <td>{{ stockonhand.reorder_level }}</td>
                         <td>{{ stockonhand.maximum_level }}</td>
