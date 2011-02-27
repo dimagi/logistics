@@ -49,7 +49,7 @@ class ProductStock(models.Model):
     facility = models.ForeignKey('Facility')
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    monthly_consumption = models.IntegerField(default=0)
+    monthly_consumption = models.IntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
@@ -57,22 +57,61 @@ class ProductStock(models.Model):
 
     @property
     def emergency_reorder_level(self):
-        return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+        return None
 
     @property
     def reorder_level(self):
-        return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+        return None
 
     @property
     def maximum_level(self):
-        return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+        return None
 
     @property
     def months_remaining(self):
         if self.monthly_consumption > 0 and self.quantity is not None:
             return int(self.quantity / self.monthly_consumption)
-        else:
-            return None
+        return None
+
+    def is_stocked_out(self):
+        if self.quantity is not None:
+            if self.quantity==0:
+                return True
+        return False
+
+    def is_below_emergency_level(self):
+        """
+        Returns False if a) below emergency levels, or
+        b) emergency levels not yet defined
+        """
+        if self.emergency_reorder_level is not None:
+            if self.quantity < self.emergency_reorder_level:
+                return True
+        return False
+
+    def is_below_low_supply_but_above_emergency_level(self):
+        if self.reorder_level is not None and self.emergency_reorder_level is not None:
+            if self.quantity < self.reorder_level and self.quantity>= self.emergency_reorder_level:
+                return True
+        return False
+
+    def is_in_good_supply(self):
+        if self.maximum_level is not None and self.reorder_level is not None:
+            if self.quantity >= self.reorder_level and self.quantity <= self.maximum_level:
+                return True
+        return False
+
+    def is_overstocked(self):
+        if self.maximum_level is not None:
+            if self.quantity > self.maximum_level:
+                return True
+        return False
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
@@ -313,9 +352,10 @@ class ProductStockReport(object):
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
             #    Please contact FRHP for assistance." % {'code':i})
-            if self.product_stock[i] < productstock.monthly_consumption and \
-               self.product_stock[i] != 0 and productstock.monthly_consumption>0:
-                low_supply = "%s %s" % (low_supply, i)
+            if productstock.monthly_consumption is not None:
+                if self.product_stock[i] < productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
+                   self.product_stock[i] != 0:
+                    low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
         return low_supply
 
@@ -325,11 +365,12 @@ class ProductStockReport(object):
             productstock = ProductStock.objects.filter(facility=self.facility).get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
-            #    for %(code)s until I know your monthly consumption.
+            #    for %(code)s until I know your monthly con/sumption.
             #    Please contact FRHP for assistance." % {'code':i})
-            if self.product_stock[i] > productstock.monthly_consumption*3 and \
-               productstock.monthly_consumption>0:
-                over_supply = "%s %s" % (over_supply, i)
+            if productstock.monthly_consumption is not None:
+                if self.product_stock[i] > productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
+                   productstock.monthly_consumption>0:
+                    over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
 
@@ -406,7 +447,7 @@ class Facility(models.Model):
         emergency_stock = 0
         stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity < stock.emergency_reorder_level:
+            if stock.is_below_emergency_level():
                 emergency_stock = emergency_stock + 1
         return emergency_stock
 
@@ -417,7 +458,7 @@ class Facility(models.Model):
         low_stock_count = 0
         stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity < stock.reorder_level:
+            if stock.is_below_low_supply_but_above_emergency_level():
                 low_stock_count = low_stock_count + 1
         return low_stock_count
 
@@ -428,7 +469,7 @@ class Facility(models.Model):
         good_supply_count = 0
         stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity >= stock.reorder_level and stock.quantity <= stock.maximum_level:
+            if stock.is_in_good_supply():
                 good_supply_count = good_supply_count + 1
         return good_supply_count
 
@@ -436,7 +477,7 @@ class Facility(models.Model):
         overstock_count = 0
         stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity > stock.maximum_level:
+            if stock.is_overstocked():
                 overstock_count = overstock_count + 1
         return overstock_count
 

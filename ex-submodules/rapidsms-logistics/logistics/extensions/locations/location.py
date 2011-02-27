@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from django.db import models
+from django.db.models import Q
 
 class Location(models.Model):
     """
@@ -18,7 +19,9 @@ class Location(models.Model):
 
     def facilities(self):
         from logistics.apps.logistics.models import Facility
-        return Facility.objects.filter(location=self)
+        # temp hack to get this working for tomorrow's showcase
+        # TODO make this properly recursive
+        return Facility.objects.filter(Q(location=self)|Q(location__parent_id=self.id))
 
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self):
@@ -33,7 +36,7 @@ class Location(models.Model):
         emergency_stock = 0
         stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity < stock.emergency_reorder_level:
+            if stock.is_below_emergency_level():
                 emergency_stock = emergency_stock + 1
         return emergency_stock
 
@@ -45,8 +48,7 @@ class Location(models.Model):
         low_stock_count = 0
         stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity >= stock.emergency_reorder_level and \
-               stock.quantity < stock.reorder_level:
+            if stock.is_below_low_supply_but_above_emergency_level():
                 low_stock_count = low_stock_count + 1
         return low_stock_count
 
@@ -58,8 +60,7 @@ class Location(models.Model):
         good_supply_count = 0
         stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity <= stock.maximum_level and \
-               stock.quantity >= stock.reorder_level:
+            if stock.is_in_good_supply():
                 good_supply_count = good_supply_count + 1
         return good_supply_count
 
@@ -68,6 +69,6 @@ class Location(models.Model):
         overstock_count = 0
         stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity > stock.maximum_level:
+            if stock.is_overstocked():
                 overstock_count = overstock_count + 1
         return overstock_count
