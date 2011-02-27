@@ -16,7 +16,7 @@
                 <th scope="col">Overstocks</th>
             </tr></thead>
             <tbody>
-                {% for child in geography.children %}
+                {% for child in location.facilities %}
                     <tr>
                     <td>{{ child.name }}</td>
                     <td>{{ child.stockout_count }}</td>
