@@ -45,7 +45,8 @@ class Location(models.Model):
         low_stock_count = 0
         stocks = ProductStock.objects.filter(facility__in=self.facilities).filter(quantity__gt=0)
         for stock in stocks:
-            if stock.quantity < stock.reorder_level:
+            if stock.quantity >= stock.emergency_reorder_level and \
+               stock.quantity < stock.reorder_level:
                 low_stock_count = low_stock_count + 1
         return low_stock_count
 

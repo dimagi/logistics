@@ -10,7 +10,8 @@ def LoadProductsIntoRMS():
     for rms in RMSs:
         products = Product.objects.all()
         for product in products:
-            ProductStock(quantity=0, facility=rms, product=product).save()
+            ProductStock(quantity=0, facility=rms, 
+                         product=product, monthly_consumption=100).save()
     print "Loaded products into RMSs"
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
