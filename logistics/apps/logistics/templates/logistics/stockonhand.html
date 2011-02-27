@@ -24,30 +24,36 @@
                         <td>{{ stockonhand.product.name }}</td>
                         <td
                         
-                        {% ifequal stockonhand.months_remaining 0 %}
+                        {% if stockonhand.is_stocked_out %}
                                 class="stockout"
                         {% else %}
-                            {% if stockonhand.months_remaining < stockonhand.emergency_reorder_level %}
+                            {% if stockonhand.is_below_emergency_level %}
                                 class="emergency"
                             {% else %}
-                                {% if stockonhand.months_remaining < stockonhand.reorder_level %}
+                                {% if stockonhand.is_below_low_supply_but_above_emergency_level %}
                                     class="low_supply"
                                 {% else %}
-                                    {% if stockonhand.months_remaining < stockonhand.maximum_level %}
+                                    {% if stockonhand.is_in_good_supply %}
                                         class="good_supply"
                                     {% else %}
-                                        class="overstock"
+                                        {% if stockonhand.is_overstocked %}
+                                           class="overstock"
+                                       {% endif %}
                                     {% endif %}
                                 {% endif %}
                             {% endif %}
-                        {% endifequal %}
+                        {% endif %}
 
                         >{{ stockonhand.months_remaining|default_if_none:"n/a" }}</td>
                         <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
-                        <td>{{ stockonhand.monthly_consumption }}</td>
-                        <td>{{ stockonhand.emergency_reorder_level }}</td>
-                        <td>{{ stockonhand.reorder_level }}</td>
-                        <td>{{ stockonhand.maximum_level }}</td>
+                        <td {% ifequal stockonhand.monthly_consumption None %}
+                                class="big_error"
+                            {% endifequal %}>
+                            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+                        </td>
+                        <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

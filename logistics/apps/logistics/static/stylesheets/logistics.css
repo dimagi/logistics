@@ -3,6 +3,12 @@
     padding: 1em;
 }
 
+.big_error {
+    color: red;
+    padding: 1em;
+    font-weight: bold;
+}
+
 .smallnote {
     font-size: 0.9em;
     font-style:italic;
