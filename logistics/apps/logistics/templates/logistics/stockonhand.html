@@ -42,8 +42,8 @@
                             {% endif %}
                         {% endifequal %}
 
-                        >{{ stockonhand.months_remaining }}</td>
-                        <td>{{ stockonhand.quantity }}</td>
+                        >{{ stockonhand.months_remaining|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
                         <td>{{ stockonhand.monthly_consumption }}</td>
                         <td>{{ stockonhand.emergency_reorder_level }}</td>
                         <td>{{ stockonhand.reorder_level }}</td>
@@ -53,6 +53,9 @@
                     </tbody>
                 </table><br/>
             <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+            {% if last_reported %}
+                <p>The last report received was on {{ last_reported|date:"M d, h:m A" }}.</p>
+            {%  endif %}
             {% else %}<p></p>
                 <div class="error">
                     {{ facility.name }} has not been configured with the appropriate stock yet. Please contact Focus Region Health Project for assistance.
