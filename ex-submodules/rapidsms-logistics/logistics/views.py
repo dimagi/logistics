@@ -20,7 +20,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
     rms = get_object_or_404(Facility, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(facility=rms, is_active=True).order_by('product')]
+    productstocks = [p for p in ProductStock.objects.filter(facility=rms).order_by('product')]
     if request.method == "POST":
         stock_report = ProductStockReport(rms, STOCK_ON_HAND_REPORT_TYPE)
         for stock in productstocks:
