@@ -420,35 +420,35 @@
     }, 
     {
         "pk": "hc",
-        "model": "locations.locationtype",
+        "model": "logistics.facilitytype",
         "fields": {
             "name": "Health Center"
         }
     },
     {
         "pk": "dh",
-        "model": "locations.locationtype",
+        "model": "logistics.facilitytype",
         "fields": {
             "name": "District Hospital"
         }
     },
     {
         "pk": "chps",
-        "model": "locations.locationtype",
+        "model": "logistics.facilitytype",
         "fields": {
             "name": "CHPS Facility"
         }
     },
     {
         "pk": "da",
-        "model": "locations.locationtype",
+        "model": "logistics.facilitytype",
         "fields": {
             "name": "District Administration"
         }
     },
     {
         "pk": "RMS",
-        "model": "locations.locationtype",
+        "model": "logistics.facilitytype",
         "fields": {
             "name": "Regional Medical Store"
         }
@@ -637,7 +637,8 @@
             "last_reported": null,
             "location": 2,
             "active": true,
-            "supplied_by": null
+            "supplied_by": null,
+            "type": "RMS"
         }
     },
     {
@@ -650,7 +651,8 @@
             "last_reported": null,
             "location": 3,
             "active": true,
-            "supplied_by": null
+            "supplied_by": null,
+            "type": "RMS"
         }
     },
     {
@@ -663,7 +665,8 @@
             "last_reported": null,
             "location": 5,
             "active": true,
-            "supplied_by": 1
+            "supplied_by": 1,
+            "type": "dh"
         }
     },
     {
@@ -676,7 +679,8 @@
             "last_reported": null,
             "location": 6,
             "active": true,
-            "supplied_by": 2
+            "supplied_by": 2,
+            "type": "dh"
         }
     },
     {
@@ -689,7 +693,8 @@
             "last_reported": null,
             "location": 8,
             "active": true,
-            "supplied_by": 2
+            "supplied_by": 2,
+            "type": "hc"
         }
     },
     {
@@ -702,7 +707,8 @@
             "last_reported": null,
             "location": 8,
             "active": true,
-            "supplied_by": 2
+            "supplied_by": 2,
+            "type": "hc"
         }
     },
     {
@@ -715,7 +721,8 @@
             "last_reported": null,
             "location": 5,
             "active": true,
-            "supplied_by": 1
+            "supplied_by": 1,
+            "type": "hc"
         }
     },
     {
