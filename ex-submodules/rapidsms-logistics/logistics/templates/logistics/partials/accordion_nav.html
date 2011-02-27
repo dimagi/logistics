@@ -26,7 +26,12 @@
                 {% endfor %}
                 <!-- e.g. Dangme East -->
                 {% for district in region.children %}
-                    <li>{{ district.name }} <span class="aggregate"><a href="{% url aggregate district.code %}">(&Sigma;)</a></span>
+                    <li>{{ district.name }}
+                        <span style="display:inline ; white-space:nowrap;">
+                            <a href="{% url aggregate district.code %}">
+                                <img border=0 src="{{ MEDIA_URL }}logistics/images/sum.png">
+                            </a>
+                        </span>
                     <ul>
                         {% for facility in district.facilities %}
                             <!-- e.g. Dangme East District Hospital-->
