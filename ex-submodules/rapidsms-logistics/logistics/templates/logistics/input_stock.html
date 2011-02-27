@@ -6,14 +6,29 @@
         <h2>Input Stock for {{ date|date:"D, M d" }}</h2>
         {% if rms %}
         <form action="" method="post">
+            <div class="submit">
+                <input type="submit" name="submit" value="Save Stock Report"/>
+            </div>
             <div>
                 {% csrf_token %}
+            <table>
+            <thead>
+            <tr>
+                <th>{% trans "Commodity" %}</th>
+                <th>{% trans "Current Stock Level" %}</th>
+                <th>{% trans "Consumption Rate" %}</th>
+            </tr>
+            </thead>
+            <tbody>
                 {% for stock in productstocks %}
-                <div class="field {{ stock.product }} required">
-                    <label for="id_{{ stock.product }}">{{ stock.product }}</label>
-                    <input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity }}"/>
-                </div>
+                    <tr>
+                        <td>{{ stock.product }}</td>
+                        <td><input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity }}"/></td>
+                         <td><input type="text" name="{{ stock.product.sms_code }}_consumption" id="id_{{ stock.product.sms_code }}_consumption" value="{{ stock.monthly_consumption }}"/></td>                   </tr>
+
                 {% endfor %}
+            </tbody>
+            </table>
             </div>
 
             <div class="submit">

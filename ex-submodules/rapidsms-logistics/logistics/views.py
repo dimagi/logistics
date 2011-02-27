@@ -27,7 +27,13 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
                 quantity = request.POST[stock.product.sms_code]
                 if not quantity.isdigit():
                     raise ValueError("Please enter all stock on hand as integer. For example, '1000'.")
-                stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code])
+                if "%s_consumption" % stock.product.sms_code in request.POST:
+                    consumption = request.POST["%s_consumption" % stock.product.sms_code]
+                    if not consumption.isdigit():
+                        raise ValueError("Please enter all consumption rates as integers. For example, '100'.")
+                    stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code], consumption=consumption)
+                else:
+                    stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code])
         stock_report.save()
         if stock_report.errors:
             raise ValueError(_('You reported: %(stocks)s, but there were errors: %(err)s'),

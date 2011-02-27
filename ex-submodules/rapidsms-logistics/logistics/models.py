@@ -10,6 +10,7 @@ from rapidsms.conf import settings
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.contrib.messaging.utils import send_message
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
@@ -128,6 +129,7 @@ class ProductStockReport(object):
 
     def __init__(self, sdp, report_type, message=None):
         self.product_stock = {}
+        self.consumption = {}
         self.product_received = {}
         self.facility = sdp
         self.message = message
@@ -213,6 +215,12 @@ class ProductStockReport(object):
             except Product.DoesNotExist, Product.MultipleObjectsReturned:
                 raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
             self._record_product_report(product, self.product_stock[stock_code], self.report_type)
+        for stock_code in self.consumption:
+            try:
+                product = Product.objects.get(sms_code__icontains=stock_code)
+            except Product.DoesNotExist, Product.MultipleObjectsReturned:
+                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
+            self.facility.record_consumption(product, self.consumption[stock_code])
         for stock_code in self.product_received:
             try:
                 product = Product.objects.get(sms_code__icontains=stock_code)
@@ -220,7 +228,7 @@ class ProductStockReport(object):
                 raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper()})
             self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
 
-    def add_product_stock(self, product_code, stock, save=False):
+    def add_product_stock(self, product_code, stock, save=False, consumption=None):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
         if not isinstance(stock, int):
@@ -233,6 +241,8 @@ class ProductStockReport(object):
         if save:
             self._record_product_report(product, stock, self.report_type)
         self.product_stock[product_code] = stock
+        if consumption is not None:
+            self.consumption[product_code] = consumption
         if stock == 0:
             self.has_stockout = True
 
@@ -367,6 +377,11 @@ class Facility(models.Model):
     def label(self):
         return unicode(self)
 
+    def record_consumption(self, product, rate):
+        ps = ProductStock.objects.get(product=product, facility=self)
+        ps.monthly_consumption = rate
+        ps.save()
+
     # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
     # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
     #@property
@@ -418,6 +433,20 @@ class Facility(models.Model):
             productstock = ProductStock.objects.get(facility=self, product=product)
         except ProductStock.DoesNotExist:
             productstock = ProductStock(is_active=False, facility=self, product=product)
+        if productstock.quantity==0 and quantity>0:
+            # a stockout has been resolved! let everyone know
+            # TODO: make this a more generic signal; we just want to get this done quickly
+            # for showcase tomorrow
+            # notify all facilities supplied by this one
+            to_notify = Facility.objects.filter(supplied_by=self)
+            for fac in to_notify:
+                reporters = fac.reporters()
+                for reporter in reporters:
+                    send_message(reporter.default_connection,
+                                "Dear %(name)s, the stockout of %(product)s at %(facility)s has been resolved." %
+                                 {'name':reporter.name,
+                                 'product':product.name,
+                                 'facility':self.name})
         productstock.quantity = quantity
         productstock.save()
         self.last_reported = datetime.now()

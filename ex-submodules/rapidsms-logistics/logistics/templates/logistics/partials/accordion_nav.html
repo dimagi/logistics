@@ -16,6 +16,7 @@
     <ul class="accordion">
     <!-- One kind of wants to automate this recursion.... but at the same time,
     does it really make sense to automate a nav ui? Really? -->
+        <li><a href="{% url aggregate geography.code %}">{{ geography.name }}</a></li>
         {% for region in geography.children %}
             <li>{{ region.name }} 
             <ul>
