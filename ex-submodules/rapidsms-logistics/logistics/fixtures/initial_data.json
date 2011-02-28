@@ -771,7 +771,7 @@
         "fields": {
             "product": 1,
             "facility": 3,
-            "monthly_consumption": 10,
+            "monthly_consumption": 5,
             "is_active": true,
             "last_modified": "2011-02-26 17:40:25",
             "days_stocked_out": 0,
@@ -784,7 +784,7 @@
         "fields": {
             "product": 2,
             "facility": 3,
-            "monthly_consumption": 10,
+            "monthly_consumption": 8,
             "is_active": true,
             "last_modified": "2011-02-26 17:40:33",
             "days_stocked_out": 0,

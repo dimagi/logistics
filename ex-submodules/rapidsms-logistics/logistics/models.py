@@ -180,6 +180,8 @@ class ProductStockReport(object):
         self.errors = []
 
     def _clean_string(self, string):
+        if not string:
+            return string
         mylist = list(string)
         newstring = string[0]
         i = 1
@@ -218,6 +220,8 @@ class ProductStockReport(object):
             i = i+1
 
     def parse(self, string):
+        if not string:
+            return
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
