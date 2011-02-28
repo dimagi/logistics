@@ -120,8 +120,9 @@ class RapidHttpBacked(BackendBase):
         self.info('Sending message: %s' % message)
         # if you wanted to add timestamp or any other outbound variable, 
         # you could add it to this context dictionary
-        context = {'message':message.text,
-                   'phone_number':message.connection.identity}
+        context = {'message':urllib2.quote(message.text),
+                   'phone_number':urllib2.quote(message.connection.identity)}
+        self.http_params_outgoing = self.http_params_outgoing.replace('%2B','%%2B')
         url = "%s?%s" % (self.gateway_url, self.http_params_outgoing % context)
         try:
             self.debug('Sending: %s' % url)
