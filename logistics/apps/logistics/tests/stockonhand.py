@@ -53,6 +53,17 @@ class TestStockOnHand (TestScript):
            """
         self.runScript(a)
 
+    def testNothing(self):
+        a = """
+           16176023315 > register stella dwdh
+           16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
+           16176023315 >
+           16176023315 < Sorry, I could not understand your message. Please contact Focus Region Health Project for help.
+           16176023315 > soh
+           16176023315 < Dear stella, thank you for reporting your stock on hand. Still missing lf, mc.
+           """
+        self.runScript(a)
+
     def testStockout(self):
         a = """
            16176023315 > register cynthia dwdh
@@ -66,7 +77,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dwdh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme West District Hospital
-           16176023315 > soh lf 9 mc 9
+           16176023315 > soh lf 7 mc 9
            16176023315 < Dear cynthia, the following items are in low supply: lf mc. Please place an order now.
            """
         self.runScript(a)
