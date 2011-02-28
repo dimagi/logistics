@@ -493,7 +493,7 @@ class Facility(models.Model):
             # TODO: make this a more generic signal; we just want to get this done quickly
             # for showcase tomorrow
             # notify all facilities supplied by this one
-            to_notify = Facility.objects.filter(supplied_by=self)
+            to_notify = Facility.objects.filter(supplied_by=self).distinct()
             for fac in to_notify:
                 reporters = fac.reporters()
                 for reporter in reporters:
@@ -510,7 +510,7 @@ class Facility(models.Model):
 
     def reporters(self):
         reporters = Contact.objects.filter(facility=self)
-        reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
         return reporters
 
     def reportees(self):
