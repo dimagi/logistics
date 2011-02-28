@@ -56,11 +56,15 @@ class App(AppBase):
         try:
             if not hasattr(message,'logistics_contact'):
                 message.respond(REGISTER_MESSAGE)
-                return
+                return True
             message.text = message.text.lower()
             if message.text.startswith(SOH_KEYWORD):
                 message.text = message.text.strip(SOH_KEYWORD)
             sdp = message.logistics_contact.facility
+            if sdp is None:
+                message.respond('You are not associated with a facility. ' +
+                                'Please contact your district administrator for assistance.')
+                return True
             stock_report = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
@@ -72,7 +76,7 @@ class App(AppBase):
                 else:
                     message.respond(_('%(err)s'),
                                  err = ", ".join(unicode(e) for e in stock_report.errors))
-                return
+                return True
             all_products = []
             date_check = datetime.now() + relativedelta(days=-7)
             # check for products missing
@@ -124,6 +128,7 @@ class App(AppBase):
             # notify the supervisor
             if super_response:
                 sdp.report_to_supervisor(super_response, kwargs)
+            return True
 
         except Exception, e:
             message.respond(unicode(e))
