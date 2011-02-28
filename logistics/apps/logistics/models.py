@@ -173,6 +173,8 @@ class ProductStockReport(object):
         self.product_stock = {}
         self.consumption = {}
         self.product_received = {}
+        if sdp is None:
+            raise ValueError("Unknown Facility.")
         self.facility = sdp
         self.message = message
         self.has_stockout = False
