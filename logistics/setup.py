@@ -4,15 +4,26 @@
 import sys, os
 from django.core.management import execute_manager
 
-def LoadProductsIntoRMS():
+def LoadProductsIntoFacilities():
     from logistics.apps.logistics.models import Facility, ProductStock, Product
-    RMSs = Facility.objects.filter(type='RMS')
-    for rms in RMSs:
+    facilities = Facility.objects.order_by('type')
+    for fac in facilities:
         products = Product.objects.all()
         for product in products:
-            ProductStock(quantity=0, facility=rms, 
-                         product=product, monthly_consumption=100).save()
-    print "Loaded products into RMSs"
+            if ProductStock.objects.filter(facility=fac, product=product).count() == 0:
+                if fac.type == 'RMS':
+                    # RMS get all products by default active, 100 stock
+                    ProductStock(quantity=0,
+                                 facility=fac,
+                                 product=product,
+                                 monthly_consumption=100).save()
+                else:
+                    # facilities get all products by default active, 10 stock
+                    ProductStock(quantity=0,
+                                 facility=fac,
+                                 product=product,
+                                 monthly_consumption=10).save()
+        print "Loaded products into %(fac)s" % {'fac':fac.name}
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 try:
@@ -29,4 +40,4 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms'))
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms','contrib'))
-    LoadProductsIntoRMS()
+    LoadProductsIntoFacilities()
