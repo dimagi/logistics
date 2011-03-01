@@ -22,28 +22,30 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
     rms = get_object_or_404(Facility, code=facility_code)
     productstocks = [p for p in ProductStock.objects.filter(facility=rms).order_by('product')]
     if request.method == "POST":
-        stock_report = ProductStockReport(rms, STOCK_ON_HAND_REPORT_TYPE)
         for stock in productstocks:
-            if stock.product.sms_code in request.POST:
-                quantity = request.POST[stock.product.sms_code]
-                if not quantity.isdigit():
-                    errors = errors + "Please enter all stock on hand as integer. For example, '1000'. "
-                elif "%s_consumption" % stock.product.sms_code in request.POST:
-                    consumption = request.POST["%s_consumption" % stock.product.sms_code]
-                    if not consumption.isdigit():
-                        errors = errors + "Please enter all consumption rates as integers. For example, '100'. "
+            try:
+                if stock.product.sms_code in request.POST:
+                    quantity = request.POST[stock.product.sms_code]
+                    if not quantity.isdigit():
+                        errors = ", ".join([errors, stock.product.name])
+                        continue
+                    rms.report_stock(stock.product, quantity)
+                    if "%s_consumption" % stock.product.sms_code in request.POST:
+                        consumption = request.POST["%s_consumption" % stock.product.sms_code]
+                        if not consumption.isdigit():
+                            errors = ", ".join([errors, stock.product.name])
+                            continue
+                        rms.record_consumption(stock.product, consumption)
+                    if "%s_is_active" % stock.product.sms_code in request.POST:
+                        rms.activate_product(stock.product)
                     else:
-                        stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code], consumption=consumption)
-                else:
-                    stock_report.add_product_stock(stock.product.sms_code, request.POST[stock.product.sms_code])
+                        rms.deactivate_product(stock.product)
+            except ValueError, e:
+                errors = errors + unicode(e)
         if not errors:
-            stock_report.save()
-            if stock_report.errors:
-                errors = errors + _('You reported: %(stocks)s, but there were errors: %(err)s') % \
-                                 {'stocks': ", ". join(stock_report.product_stock),
-                                 'err': ", ".join(unicode(e) for e in stock_report.errors)}
-            else:
-                return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
+            return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
+        errors = "Please enter all stock on hand and consumption as integers, for example:'100'. " + \
+                 "The following fields had problems: " + errors.strip(', ')
     return render_to_response(
         template, {
                 'errors': errors,
