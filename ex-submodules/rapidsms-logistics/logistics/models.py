@@ -504,6 +504,10 @@ class Facility(models.Model):
         npr.save()
         return npr
 
+    def report_stock(self, product, quantity, message=None):
+        report_type = ProductReportType.objects.get(slug=STOCK_ON_HAND_REPORT_TYPE)
+        return self.report(product, report_type, quantity)
+
     def reporters(self):
         reporters = Contact.objects.filter(facility=self)
         reporters = reporters.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
@@ -526,5 +530,17 @@ class Facility(models.Model):
         for reportee in reportees:
             kwargs['admin_name'] = reportee.name
             reportee.message(report % kwargs)
+
+    def activate_product(self, product):
+        ps = ProductStock.objects.get(facility=self, product=product)
+        if ps.is_active == False:
+            ps.is_active = True
+            ps.save()
+
+    def deactivate_product(self, product):
+        ps = ProductStock.objects.get(facility=self, product=product)
+        if ps.is_active == True:
+            ps.is_active = False
+            ps.save()
 
 post_save.connect(post_save_product_report, sender=ProductReport)
