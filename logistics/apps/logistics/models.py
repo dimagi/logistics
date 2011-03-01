@@ -4,13 +4,15 @@
 from datetime import datetime
 
 from django.db import models
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
-from rapidsms.contrib.messaging.utils import send_message
+from logistics.apps.logistics.signals import post_save_product_report
+
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
@@ -44,6 +46,13 @@ class Product(models.Model):
         return self.name
 
 class ProductStock(models.Model):
+    """
+    Indicates facility-specific information about a product
+    A ProductStock should exist for each product for each facility
+    """
+    # is_active indicates whether we are actively trying to prevent stockouts of this product
+    # in practice, this means: do we bug people to report on this commodity
+    # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
     is_active = models.BooleanField(default=True)
     quantity = models.IntegerField(blank=True, null=True)
     facility = models.ForeignKey('Facility')
@@ -51,6 +60,9 @@ class ProductStock(models.Model):
     days_stocked_out = models.IntegerField(default=0)
     monthly_consumption = models.IntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (('facility', 'product'),)
 
     def __unicode__(self):
         return "%s-%s" % (self.facility.name, self.product.name)
@@ -488,30 +500,8 @@ class Facility(models.Model):
         return overstock_count
 
     def report(self, product, report_type, quantity, message=None):
-        npr = ProductReport( product=product, report_type=report_type, quantity=quantity, message=message, facility=self)
+        npr = ProductReport(product=product, report_type=report_type, quantity=quantity, message=message, facility=self)
         npr.save()
-        try:
-            productstock = ProductStock.objects.get(facility=self, product=product)
-        except ProductStock.DoesNotExist:
-            productstock = ProductStock(is_active=False, facility=self, product=product)
-        if productstock.quantity==0 and quantity>0:
-            # a stockout has been resolved! let everyone know
-            # TODO: make this a more generic signal; we just want to get this done quickly
-            # for showcase tomorrow
-            # notify all facilities supplied by this one
-            to_notify = Facility.objects.filter(supplied_by=self).distinct()
-            for fac in to_notify:
-                reporters = fac.reporters()
-                for reporter in reporters:
-                    send_message(reporter.default_connection,
-                                "Dear %(name)s, the stockout of %(product)s at %(facility)s has been resolved." %
-                                 {'name':reporter.name,
-                                 'product':product.name,
-                                 'facility':self.name})
-        productstock.quantity = quantity
-        productstock.save()
-        self.last_reported = datetime.now()
-        self.save()
         return npr
 
     def reporters(self):
@@ -537,3 +527,4 @@ class Facility(models.Model):
             kwargs['admin_name'] = reportee.name
             reportee.message(report % kwargs)
 
+post_save.connect(post_save_product_report, sender=ProductReport)
