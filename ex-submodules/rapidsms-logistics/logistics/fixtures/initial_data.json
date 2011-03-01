@@ -267,7 +267,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "nt",
+            "sms_code": "nv",
             "product_code": "", 
             "name": "Nevirapine Tabs", 
             "description": "Nevirapine Tabs"
@@ -322,7 +322,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "zd",
+            "sms_code": "zs",
             "product_code": "", 
             "name": "Zidovudine Suspension", 
             "description": "Zidovudine Suspension"
@@ -333,7 +333,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "don't know", 
-            "sms_code": "as",
+            "sms_code": "aa",
             "product_code": "", 
             "name": "AS-AQ", 
             "description": "AS-AQ (3X3)"
