@@ -57,8 +57,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
 
 def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
     """
-     TODO: this view currently only shows the current stock on hand
-     It would be great to show historical stock on hand
+     this view currently only shows the current stock on hand
     """
     context = {}
     facility = get_object_or_404(Facility, code=facility_code)

@@ -2,8 +2,10 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
@@ -153,9 +155,8 @@ class ProductReport(models.Model):
         return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
 
 class ProductReportsHelper(object):
-    """ The following is a helper class to make it
-    easy to generate reports based on stock on hand
-    TODO: rename this to ProductReportHelper
+    """ The following is a helper class which takes in aggregate sets of reports
+    and handles things like aggregate validation, lazy UPDATE-ing, error reporting etc.
     """
     REC_SEPARATOR = '-'
 
@@ -369,6 +370,62 @@ class ProductReportsHelper(object):
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
+
+    def missing_products(self):
+        """
+        check for active products that haven't yet been added
+        to this stockreport helper
+        """
+        all_products = []
+        date_check = datetime.now() + relativedelta(days=-7)
+        missing_products = Product.objects.filter(Q(productstock__facility=self.facility,
+                                                    productstock__is_active=True),
+                                                  ~Q(productreport__report_date__gt=date_check) )
+        for dict in missing_products.values('sms_code'):
+            all_products.append(dict['sms_code'])
+        return list(set(all_products)-self.reported_products())
+
+    def get_responses(self):
+        response = ''
+        super_response = ''
+        stockouts = self.stockouts()
+        low_supply = self.low_supply()
+        over_supply = self.over_supply()
+        received = self.received_products()
+        missing_product_list = self.missing_products()
+        if self.has_stockout:
+            response = response + 'the following items are stocked out: %(stockouts)s. '
+            super_response = "stockouts %(stockouts)s; "
+        if low_supply:
+            response = response + 'the following items are in low supply: %(low_supply)s. '
+            super_response = super_response + "low supply %(low_supply)s; "
+        if self.has_stockout or low_supply:
+            response = response + 'Please place an order now. '
+        if missing_product_list:
+            if not response:
+                response = response + 'thank you for reporting your stock on hand. '
+            response = response + 'Still missing %(missing_stock)s. '
+        if over_supply:
+            super_response = super_response + "overstocked %(overstocked)s; "
+            if not response:
+                response = 'the following items are overstocked: %(overstocked)s. The district admin has been informed.'
+        if not response:
+            if received:
+                response = 'thank you for reporting the commodities you have. You received %(received)s.'
+            else:
+                response = 'thank you for reporting the commodities you have in stock.'
+        response = 'Dear %(name)s, ' + response.strip()
+        if super_response:
+            super_response = 'Dear %(admin_name)s, %(facility)s is experiencing the following problems: ' + super_response.strip().strip(';')
+        kwargs = {  'low_supply': low_supply,
+                    'stockouts': stockouts,
+                    'missing_stock': ', '.join(missing_product_list),
+                    'stocks': self.all(),
+                    'received': self.received(),
+                    'overstocked': over_supply,
+                    'name': self.message.contact.name,
+                    'facility': self.facility.name }
+        return (response, super_response, kwargs)
 
 class Responsibility(models.Model):
     slug = models.CharField(max_length=30, blank=True)
