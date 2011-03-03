@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
@@ -12,6 +9,7 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
+SOH_KEYWORD = 'soh'
 
 class App(AppBase):
     bootstrapped = False
@@ -41,30 +39,19 @@ class App(AppBase):
 
     def handle (self, message):
         """Add your main application logic in the handle phase."""
-        SOH_KEYWORD = 'soh'
-        # catch this message only if it begins with 'soh' or one of the product codes
-        keywords = [SOH_KEYWORD]
-        keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
-        is_a_match = False
-        text = message.text.lower()
-        for keyword in keywords:
-            if text.startswith(keyword):
-                is_a_match = True
-        if not is_a_match:
+        if not self._should_handle(message):
             return False
+        if not hasattr(message,'logistics_contact'):
+            message.respond(REGISTER_MESSAGE)
+            return True
+        sdp = message.logistics_contact.facility
+        if sdp is None:
+            message.respond('You are not associated with a facility. ' +
+                            'Please contact your district administrator for assistance.')
+            return True
 
         try:
-            if not hasattr(message,'logistics_contact'):
-                message.respond(REGISTER_MESSAGE)
-                return True
-            message.text = message.text.lower()
-            if message.text.startswith(SOH_KEYWORD):
-                message.text = message.text.strip(SOH_KEYWORD)
-            sdp = message.logistics_contact.facility
-            if sdp is None:
-                message.respond('You are not associated with a facility. ' +
-                                'Please contact your district administrator for assistance.')
-                return True
+            message.text = self._clean_message(message.text)
             stock_report = ProductReportsHelper(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
@@ -77,55 +64,8 @@ class App(AppBase):
                     message.respond(_('%(err)s'),
                                  err = ", ".join(unicode(e) for e in stock_report.errors))
                 return True
-            all_products = []
-            date_check = datetime.now() + relativedelta(days=-7)
-            # check for products missing
-            missing_products = Product.objects.filter(Q(productstock__facility=sdp,
-                                                        productstock__is_active=True),
-                                                      ~Q(productreport__report_date__gt=date_check) )
-            for dict in missing_products.values('sms_code'):
-                all_products.append(dict['sms_code'])
-            missing_product_list = list(set(all_products)-stock_report.reported_products())
-            received = stock_report.received_products()
-            low_supply = stock_report.low_supply()
-            over_supply = stock_report.over_supply()
-            count = 0
-            response = ''
-            super_response = ''
-            if stock_report.has_stockout:
-                response = response + 'the following items are stocked out: %(stockouts)s. '
-                super_response = "stockouts %(stockouts)s; "
-            if low_supply:
-                response = response + 'the following items are in low supply: %(low_supply)s. '
-                super_response = super_response + "low supply %(low_supply)s; "
-            if stock_report.has_stockout or low_supply:
-                response = response + 'Please place an order now. '
-            if missing_product_list:
-                if not response:
-                    response = response + 'thank you for reporting your stock on hand. '
-                response = response + 'Still missing %(missing_stock)s. '
-            if over_supply:
-                super_response = super_response + "overstocked %(overstocked)s; "
-                if not response:
-                    response = 'the following items are overstocked: %(overstocked)s. The district admin has been informed.'
-            if not response:
-                if received:
-                    response = 'thank you for reporting the commodities you have. You received %(received)s.'
-                else:
-                    response = 'thank you for reporting the commodities you have in stock.'
-            response = 'Dear %(name)s, ' + response.strip()
-            if super_response:
-                super_response = 'Dear %(admin_name)s, %(facility)s is experiencing the following problems: ' + super_response.strip().strip(';')
-            kwargs = {  'low_supply':low_supply,
-                        'stockouts':stock_report.stockouts(),
-                        'missing_stock':', '.join(missing_product_list),
-                        'stocks':stock_report.all(),
-                        'received':stock_report.received(),
-                        'overstocked':over_supply,
-                        'name':message.contact.name,
-                        'facility':sdp.name }
+            (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)
-            # notify the supervisor
             if super_response:
                 sdp.report_to_supervisor(super_response, kwargs)
             return True
@@ -146,3 +86,21 @@ class App(AppBase):
     def stop (self):
         """Perform global app cleanup when the application is stopped."""
         pass
+
+    def _should_handle(self, message):
+        """ Tests whether this message is one which should go through the handle phase
+        i.e. if it begins with soh or one of the product codes """
+        keywords = [SOH_KEYWORD]
+        keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
+        text = message.text.lower()
+        for keyword in keywords:
+            if text.startswith(keyword):
+                return True
+        return False
+
+    def _clean_message(self, text):
+        text = text.lower()
+        if text.startswith(SOH_KEYWORD):
+            return text.strip(SOH_KEYWORD)
+        return text
+
