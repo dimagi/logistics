@@ -125,28 +125,6 @@ class ProductStock(models.Model):
                 return True
         return False
 
-class Responsibility(models.Model):
-    slug = models.CharField(max_length=30, blank=True)
-    name = models.CharField(max_length=100, blank=True)
-
-    class Meta:
-        verbose_name = "Responsibility"
-        verbose_name_plural = "Responsibilities"
-
-    def __unicode__(self):
-        return _(self.name)
-
-class ContactRole(models.Model):
-    slug = models.CharField(max_length=30, blank=True)
-    name = models.CharField(max_length=100, blank=True)
-    responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Role"
-
-    def __unicode__(self):
-        return _(self.name)
-
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
@@ -174,7 +152,7 @@ class ProductReport(models.Model):
     def __unicode__(self):
         return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
 
-class ProductStockReport(object):
+class ProductReportsHelper(object):
     """ The following is a helper class to make it
     easy to generate reports based on stock on hand
     TODO: rename this to ProductReportHelper
@@ -392,19 +370,27 @@ class ProductStockReport(object):
         over_supply = over_supply.strip()
         return over_supply
 
+class Responsibility(models.Model):
+    slug = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=100, blank=True)
 
+    class Meta:
+        verbose_name = "Responsibility"
+        verbose_name_plural = "Responsibilities"
 
-def get_geography():
-    """
-    to get a sense of the complete geography in the system
-    we return the top-level entities (example regions)
-    which we can easily iterate through, using children()
-    in order to assess the whole geography that we're handling
-    """
-    try:
-        return Location.objects.get(parent_id=None)
-    except Location.MultipleObjectsReturned:
-        raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
+    def __unicode__(self):
+        return _(self.name)
+
+class ContactRole(models.Model):
+    slug = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=100, blank=True)
+    responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Role"
+
+    def __unicode__(self):
+        return _(self.name)
 
 class FacilityType(models.Model):
     """
@@ -542,5 +528,17 @@ class Facility(models.Model):
         if ps.is_active == True:
             ps.is_active = False
             ps.save()
+
+def get_geography():
+    """
+    to get a sense of the complete geography in the system
+    we return the top-level entities (example regions)
+    which we can easily iterate through, using children()
+    in order to assess the whole geography that we're handling
+    """
+    try:
+        return Location.objects.get(parent_id=None)
+    except Location.MultipleObjectsReturned:
+        raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)

@@ -9,8 +9,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
-from logistics.apps.logistics.models import Product, \
-    ProductStock, ProductReportType, ProductStockReport, RECEIPT_REPORT_TYPE
+from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 class ReceiptHandler(KeywordHandler):
@@ -28,7 +27,7 @@ class ReceiptHandler(KeywordHandler):
             self.respond(REGISTER_MESSAGE)
             return
         facility = self.msg.logistics_contact.facility
-        stock_report = ProductStockReport(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
+        stock_report = ProductReportsHelper(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
         stock_report.save()
         self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())

@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
-    ProductStockReport, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
 
 def input_stock(request, facility_code, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
