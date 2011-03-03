@@ -1,7 +1,7 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
-from logistics.apps.logistics.models import ProductStockReport, ProductReportType, \
+from logistics.apps.logistics.models import ProductReportType, \
     ProductStock, Product, Facility, STOCK_ON_HAND_REPORT_TYPE
 
 class TestLocation (TestScript):
@@ -10,7 +10,7 @@ class TestLocation (TestScript):
     def setUp(self):
         TestScript.setUp(self)
 
-    def testProductStockReport(self):
+    def testLocations(self):
         product = Product.objects.get(sms_code='lf')
         facility = Facility.objects.all()[0]
         soh = ProductReportType.objects.get(slug=STOCK_ON_HAND_REPORT_TYPE)

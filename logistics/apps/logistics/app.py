@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
-from logistics.apps.logistics.models import Product, ProductStockReport, \
+from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
@@ -65,7 +65,7 @@ class App(AppBase):
                 message.respond('You are not associated with a facility. ' +
                                 'Please contact your district administrator for assistance.')
                 return True
-            stock_report = ProductStockReport(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
+            stock_report = ProductReportsHelper(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
             if stock_report.errors:
