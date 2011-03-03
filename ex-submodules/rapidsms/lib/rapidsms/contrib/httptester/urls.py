@@ -8,4 +8,4 @@ from . import views
 
 urlpatterns = patterns('',
     url(r"^$", views.generate_identity),
-    url(r"^(?P<identity>\d+)/$", views.message_tester))
+    url(r"^(?P<identity>[+]?\d+)/$", views.message_tester))
