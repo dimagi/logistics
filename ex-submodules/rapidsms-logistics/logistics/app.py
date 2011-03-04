@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
-    STOCK_ON_HAND_REPORT_TYPE
+    STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
@@ -59,10 +59,10 @@ class App(AppBase):
                 if stock_report.product_stock:
                     message.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),
                                  stocks=", ". join(stock_report.product_stock),
-                                 err = ", ".join(unicode(e) for e in stock_report.errors))
+                                 err = "".join(unicode(e) for e in stock_report.errors))
                 else:
                     message.respond(_('%(err)s'),
-                                 err = ", ".join(unicode(e) for e in stock_report.errors))
+                                 err = "".join(unicode(e) for e in stock_report.errors))
                 return True
             (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)

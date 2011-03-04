@@ -24,8 +24,8 @@ RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
-INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. " + \
-                       "Please contact FRHP for assistance."
+INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
+GET_HELP_MESSAGE = "Please contact FRHP for assistance."
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -220,9 +220,11 @@ class ProductReportsHelper(object):
         commodity = None
         while True:
             try:
-                if commodity is None:
+                while commodity is None or not commodity.isalpha():
                     commodity = an_iter.next()
                 count = an_iter.next()
+                while not count.isdigit():
+                    count = an_iter.next()
                 self.add_product_stock(commodity, count)
                 token_a = an_iter.next()
                 if not token_a.isalnum():
@@ -244,7 +246,8 @@ class ProductReportsHelper(object):
                 continue
             except StopIteration:
                 break
-        self.save()
+        if self.errors:
+            self.errors.append(GET_HELP_MESSAGE)
         return
 
     def save(self):
