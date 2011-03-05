@@ -22,6 +22,10 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
     rms = get_object_or_404(Facility, code=facility_code)
     productstocks = [p for p in ProductStock.objects.filter(facility=rms).order_by('product')]
     if request.method == "POST":
+        # we need to use the helper/aggregator so that when we update
+        # the supervisor on resolved stockouts we can do it all in a
+        # single message
+        prh = ProductReportsHelper(rms, STOCK_ON_HAND_REPORT_TYPE)
         for stock in productstocks:
             try:
                 if stock.product.sms_code in request.POST:
@@ -29,13 +33,13 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
                     if not quantity.isdigit():
                         errors = ", ".join([errors, stock.product.name])
                         continue
-                    rms.report_stock(stock.product, quantity)
+                    prh.add_product_stock(stock.product.sms_code, quantity)
                     if "%s_consumption" % stock.product.sms_code in request.POST:
                         consumption = request.POST["%s_consumption" % stock.product.sms_code]
                         if not consumption.isdigit():
                             errors = ", ".join([errors, stock.product.name])
                             continue
-                        rms.record_consumption(stock.product, consumption)
+                        prh.add_product_consumption(stock.product, consumption)
                     if "%s_is_active" % stock.product.sms_code in request.POST:
                         rms.activate_product(stock.product)
                     else:
@@ -43,6 +47,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
             except ValueError, e:
                 errors = errors + unicode(e)
         if not errors:
+            prh.save()
             return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
         errors = "Please enter all stock on hand and consumption as integers, for example:'100'. " + \
                  "The following fields had problems: " + errors.strip(', ')
