@@ -62,7 +62,6 @@ div.module h3 {
     div.module h2 {
         background-color: #000;
         background-image: url("../images/h2-bg.png");
-        text-shadow: #000 2px 2px 1px;
         padding: 0.3125em;
         font-size: 160%;
     }
