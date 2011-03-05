@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+
 from __future__ import with_statement
 import os
 import sys
@@ -51,7 +54,7 @@ def bootstrap():
         run('git submodule update')
         with cd('logistics'):
             run('./manage.py syncdb --noinput')
-            run('./setup.py')
+            run('./bootstrap_db.py')
 
 def deploy():
     """ deploy code to some remote environment """

@@ -1,0 +1,25 @@
+Metadata-Version: 1.0
+Name: SMS Logistics
+Version: 0.0.1
+Summary: SMS Logistics built on RapidSMS
+Home-page: http://github.com/dimagi/logistics
+Author: Rowena Luk
+Author-email: rluk@dimagi.com
+License: BSD
+Description: .. include globals.rst
+        
+        Welcome to SMS Logistics's documentation!
+        ***************************************************
+        
+        Introduction
+        ========================================
+
+        etc. etc.
+                
+Keywords: SMS logistics python RapidSMS
+Platform: UNKNOWN
+Programming Language :: Python
+Classifier: Development Status :: 1 - Planning
+Classifier: License :: OSI Approved :: BSD License
+Operating System :: POSIX :: Linux
+
