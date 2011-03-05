@@ -178,7 +178,7 @@
         "pk": 1, 
         "model": "logistics.product", 
         "fields": {
-            "units": "tablet", 
+            "units": "Cycle", 
             "sms_code": "lf",
             "product_code": "", 
             "name": "Lofem", 
@@ -189,7 +189,7 @@
         "pk": 2, 
         "model": "logistics.product", 
         "fields": {
-            "units": "unit", 
+            "units": "Pcs", 
             "sms_code": "mc", 
             "product_code": "", 
             "name": "Male Condom", 
@@ -200,7 +200,7 @@
         "pk": 3, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Cycle", 
             "sms_code": "mg",
             "product_code": "", 
             "name": "Micro-G", 
@@ -211,7 +211,7 @@
         "pk": 4, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Amps", 
             "sms_code": "ng",
             "product_code": "", 
             "name": "Norigynon", 
@@ -222,7 +222,7 @@
         "pk": 5, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Vials", 
             "sms_code": "dp",
             "product_code": "", 
             "name": "Depo Provera", 
@@ -233,7 +233,7 @@
         "pk": 6, 
         "model": "logistics.product", 
         "fields": {
-            "units": "boxes", 
+            "units": "Pcs", 
             "sms_code": "jd", 
             "product_code": "", 
             "name": "Jadelle", 
@@ -244,7 +244,7 @@
         "pk": 7, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Pcs", 
             "sms_code": "cu",
             "product_code": "", 
             "name": "Copper-T", 
@@ -255,7 +255,7 @@
         "pk": 8, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Bottles", 
             "sms_code": "ns",
             "product_code": "", 
             "name": "Nevirapine Suspension", 
@@ -266,7 +266,7 @@
         "pk": 9, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "nv",
             "product_code": "", 
             "name": "Nevirapine Tabs", 
@@ -277,7 +277,7 @@
         "pk": 10, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Kits", 
             "sms_code": "fr",
             "product_code": "", 
             "name": "First Response", 
@@ -288,7 +288,7 @@
         "pk": 11, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Kits", 
             "sms_code": "oq",
             "product_code": "", 
             "name": "Oraquick", 
@@ -299,7 +299,7 @@
         "pk": 12, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "cb",
             "product_code": "", 
             "name": "Combivir Tabs", 
@@ -310,7 +310,7 @@
         "pk": 13, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Bottles", 
             "sms_code": "lm",
             "product_code": "", 
             "name": "Lamivudine Suspension", 
@@ -321,7 +321,7 @@
         "pk": 14, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Bottles", 
             "sms_code": "zs",
             "product_code": "", 
             "name": "Zidovudine Suspension", 
@@ -332,7 +332,7 @@
         "pk": 15, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "aa",
             "product_code": "", 
             "name": "AS-AQ", 
@@ -343,7 +343,7 @@
         "pk": 16, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "ad",
             "product_code": "", 
             "name": "A-L Dispersible", 
@@ -354,7 +354,7 @@
         "pk": 17, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Bottles", 
             "sms_code": "al",
             "product_code": "", 
             "name": "A-L Suspension", 
@@ -365,7 +365,7 @@
         "pk": 18, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "qu",
             "product_code": "", 
             "name": "Oral Quinine", 
@@ -376,7 +376,7 @@
         "pk": 19, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Tablets", 
             "sms_code": "sp",
             "product_code": "", 
             "name": "SP", 
@@ -387,7 +387,7 @@
         "pk": 20, 
         "model": "logistics.product", 
         "fields": {
-            "units": "don't know", 
+            "units": "Kits", 
             "sms_code": "rd",
             "product_code": "", 
             "name": "RDTs", 
