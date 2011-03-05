@@ -47,11 +47,11 @@ def update_requirements():
 def bootstrap():
     """ Run this after you've checked out the code """
     update_requirements()
-    run('git submodule init', capture=False)
-    run('git submodule update', capture=False)
+    run('git submodule init')
+    run('git submodule update')
     with cd('logistics'):
-        run('./manage.py syncdb', capture=False)
-        run('./setup.py', capture=False)
+        run('./manage.py syncdb')
+        run('./setup.py')
 
 def deploy():
     require('fab_user', provided_by=('test', 'staging', 'production'))
@@ -59,7 +59,7 @@ def deploy():
         if not console.confirm('Are you sure you want to deploy production?',
                                default=False):
             utils.abort('Production deployment aborted.')
-    run('git clone git://github.com/dimagi/logistics.git', capture=False)
+    run('git clone git://github.com/dimagi/logistics.git')
     with cd('logistics'):
         bootstrap()
 
