@@ -168,6 +168,28 @@ import os
 import tempfile
 import sys
 
+# for postgresql:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",#
+        "NAME": "logistics.sqlite3",
+    }
+}
+
+TESTING_DATABASES= {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",#
+        "NAME": "logistics.sqlite3",
+    }
+}
+
+DJANGO_LOG_FILE = "logistics.django.log"
+LOG_SIZE = 1000000
+LOG_LEVEL   = "DEBUG"
+LOG_FILE    = "logistics.log"
+LOG_FORMAT  = "[%(name)s]: %(message)s"
+LOG_BACKUPS = 256 # number of logs to keep
+
 # import local settings if we find them
 try:
     from localsettings import *
