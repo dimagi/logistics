@@ -171,11 +171,8 @@ import sys
 # for postgresql:
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "logistics",
-        "USER": "postgres",
-        "PASSWORD": "",
-        "HOST": "localhost",
+        "ENGINE": "django.db.backends.sqlite3",#
+        "NAME": "logistics.sqlite3",
     }
 }
 
