@@ -30,6 +30,27 @@
   position:relative;
   overflow:hidden;
 }
+
+#graph{
+  float:left;
+  display:inline;
+  margin: 30px;
+  width:300px;
+  padding-bottom:1.3em;
+  position:relative;
+  overflow:hidden;
+}
+
+.major_table{
+    float:right;
+    width:550px
+}
+
+#reporting_chart{
+    margin-bottom:10px;
+    margin-top:10px;
+}
+
 #main{
   float:right;
   display:inline;

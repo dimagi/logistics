@@ -5,11 +5,12 @@
     <div class="module">
     <!--{% include "logistics/partials/accordion_nav.html" %}-->
 
-    <div>
         <h2>
             Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
         </h2>
-        <table width=60%>
+        {% include "logistics/partials/pie_reporting.html" %}
+
+        <table class="major_table">
             <thead><tr>
                 <th width=70%>NON-REPORTING FACILITIES</th>
                 <th>Last Message Received</th>
@@ -25,8 +26,8 @@
                 {% endif %}
             </tbody>
         </table>
-        
-        <table width=60%>
+
+        <table class="major_table">
             <thead><tr>
                 <th width=70%>On-Time Facilities</th>
                 <th>Last Message Received</th>
@@ -42,6 +43,5 @@
                 {% endif %}
             </tbody>
         </table>
-    </div>
     </div>
 {% endblock %}
