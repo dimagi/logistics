@@ -19,7 +19,7 @@ def test():
     env.config = 'test'
     env.deploy_dir = os.path.dirname(__file__)
     env.code_dir = os.path.join(env.deploy_dir, 'logistics')
-    env.hosts = ['rowena@localhost']
+    env.hosts = ['localhost']
 
 def staging():
     env.config = 'staging'
