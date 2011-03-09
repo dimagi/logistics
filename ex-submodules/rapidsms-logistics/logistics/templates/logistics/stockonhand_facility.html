@@ -23,7 +23,7 @@
                     {% for stockonhand in stockonhands %}
                         <tr>
                         <td>{{ stockonhand.product.name }}</td>
-                        {% highlight stockonhand %}
+                        {% highlight_months stockonhand %}
                         <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
                         <td {% ifequal stockonhand.monthly_consumption None %}
                                 class="big_error"

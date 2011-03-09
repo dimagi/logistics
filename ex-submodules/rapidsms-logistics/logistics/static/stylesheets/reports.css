@@ -91,3 +91,11 @@ a.trigger {display:block; padding-left:20px; background: #efefef url(../images/p
 
 a.trigger.open {background-image: url(../images/minus.gif); background-color:#e7e7e7; border-style:solid}
 */
+
+#current {
+    font-weight: bold
+}
+
+.product_list{
+    margin:3px;
+}

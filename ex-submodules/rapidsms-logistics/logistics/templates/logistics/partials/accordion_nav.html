@@ -22,22 +22,20 @@
             <ul>
                 <!-- e.g. RMS -->
                 {% for facility_nav in region.facilities %}
-                    <li><a href="{% url stockonhand facility_nav.code %}">{{ facility_nav.name }}</a></li>
+                    <li
+                        {% ifequal facility_nav.name facility.name %}id="current"{% endifequal %}
+                    >
+                    <a href="{% url stockonhand_facility facility_nav.code %}">{{ facility_nav.name }}</a></li>
                 {% endfor %}
                 <!-- e.g. Dangme East -->
                 {% for district in region.children %}
-                    <li>{{ district.name }}
-                        <span style="display:inline ; white-space:nowrap;">
-                            <a href="{% url aggregate district.code %}">
-                                (+)
-                            </a>
-                        </span>
-                    <ul>
+                    <li>{{ district.name }}<ul>
                         {% for facility_nav in district.facilities %}
                             <!-- e.g. Dangme East District Hospital-->
                             <li
                                     {% ifequal facility_nav.name facility.name %}id="current"{% endifequal %}
-                            ><a href="{% url stockonhand facility_nav.code %}">{{ facility_nav.name }}</a>
+                            >
+                            <a href="{% url stockonhand_facility facility_nav.code %}">{{ facility_nav.name }}</a>
                             <ul>
                                 {% for chps in facility_nav.children %}
                                     <li>{{ chps.name }}</li>
