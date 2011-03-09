@@ -83,7 +83,7 @@ INSTALLED_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_top",  				            "Stock Levels"),
+    ("aggregate_ghana",                                     "Stock Levels"),
     ("reporting",  				            "Reporting Rates"),
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),

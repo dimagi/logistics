@@ -87,30 +87,15 @@ def reporting(request, template="logistics/reporting.html"):
         template, context, context_instance=RequestContext(request)
     )
 
-def aggregate_top(request, template="logistics/aggregate.html"):
-    """
-    The aggregate view for a country's regions
-    """
-    context = {}
-    context['location'] = get_geography()
-    context['geography'] = get_geography()
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
-
 def aggregate(request, location_code, template="logistics/aggregate.html"):
     """
-    The aggregate view for all facilities within a certain location
+    The aggregate view of all children within a geographical region
+    where 'children' can either be sub-regions
+    OR facilities, if no sub-region exists
     """
     context = {}
-    location = get_object_or_404(Location, code=location_code)
-    facilities = Facility.objects.filter(location=location)
-    stockonhands = ProductStock.objects.filter(facility__in=facilities,
-                                               is_active=True).order_by('product')
-    context['stockonhands'] = stockonhands
-    context['location'] = location
+    context['location'] = get_object_or_404(Location, code=location_code)
     context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
-
