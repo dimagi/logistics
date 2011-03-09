@@ -13,7 +13,7 @@
                 <input class="product_list" type="radio" name="commodity" value="{{ commodity.name }}">{{ commodity.name }}<br>
                 {% endfor %}
             </div>
-            <table width="50%">
+            <table class="stock">
                 <thead><tr>
                     <th>{{ selected.name }} </th>
                     <th class="stock_col">{% trans "Months Until Stockout" %}</th>

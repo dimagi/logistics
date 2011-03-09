@@ -22,15 +22,6 @@
     width:12%;
 }
 
-#side{
-  float:left;
-  display:inline;
-  width:30%;
-  padding-bottom:1.3em;
-  position:relative;
-  overflow:hidden;
-}
-
 #graph{
   float:left;
   display:inline;
@@ -60,38 +51,6 @@
   overflow:hidden
 }
 
-
-
-/* --- Accordion --- */
-
-.accordion {
-margin:0 10px 5px 0px;
-padding:0 50px 5px 0px;
-background-color: #F0F0F0;
-}
-
-.accordion li {
-list-style-type:none;
-margin: 0;
-padding: 0.5em;
-
-}
-
-.accordion li a {
-color: #1c3482;
-}
-
-#side ul.accordion ul {
-margin 0px;
-padding:0 0 0 5px;
-}
-
-/*
-a.trigger {display:block; padding-left:20px; background: #efefef url(../images/plus.gif) no-repeat 1px 50%;  font-weight:700}
-
-a.trigger.open {background-image: url(../images/minus.gif); background-color:#e7e7e7; border-style:solid}
-*/
-
 #current {
     font-weight: bold
 }
@@ -99,3 +58,78 @@ a.trigger.open {background-image: url(../images/minus.gif); background-color:#e7
 .product_list{
     margin:3px;
 }
+
+.stock{
+    width:50%
+}
+
+
+/* --- Accordion --- */
+a {
+    padding:5px;
+}
+
+#side{
+  float:left;
+  display:inline;
+  width:260px;
+  padding-bottom:1.3em;
+  position:relative;
+  overflow:hidden;
+}
+
+#side a.active{
+    font-weight:700;
+    color:#f72;
+    text-decoration:none}
+}
+
+#side a {
+    display:block;
+    border-width:0 0 1px;
+    border-color:#445;
+    color:#f0f0f0
+}
+
+#side a:hover, #side a:active, #side a:focus {
+    background-color: #cccccc
+}
+
+.accordion {
+    margin:0 10px 5px 0px;
+    padding:10px 15px 20px 10px;
+    background-color: #F0F0F0;
+}
+
+.accordion li {
+    display:block;
+    list-style-type:none;
+    padding: 0;
+    margin: 0;
+    overflow:hidden;
+}
+
+.accordion li a {
+    color: #1c3482;
+    border-bottom:0.1em solid #cccccc;
+}
+
+#side ul.accordion ul {
+    margin: 0 0 0 0px;
+    padding:0 0 0 2em;
+}
+
+a.trigger {
+    display:block;
+    padding-left:20px;
+    background-image: url(../images/plus.png);
+    background-repeat: no-repeat;
+    background-position: 1px 50%;
+}
+
+a.trigger.open {
+    display:block;
+    background-image: url(../images/minus.png);
+    background-color:#e7e7e7;
+}
+
