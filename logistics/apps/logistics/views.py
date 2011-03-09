@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
-    ProductReportsHelper, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, Product, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
 
 def input_stock(request, facility_code, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
@@ -48,7 +48,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
                 errors = errors + unicode(e)
         if not errors:
             prh.save()
-            return HttpResponseRedirect(reverse(stockonhand, args=(rms.code,)))
+            return HttpResponseRedirect(reverse(stockonhand_facility, args=(rms.code,)))
         errors = "Please enter all stock on hand and consumption as integers, for example:'100'. " + \
                  "The following fields had problems: " + errors.strip(', ')
     return render_to_response(
@@ -60,7 +60,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
             }, context_instance=RequestContext(request)
     )
 
-def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
+def stockonhand_facility(request, facility_code, template="logistics/stockonhand_facility.html"):
     """
      this view currently only shows the current stock on hand
     """
@@ -73,6 +73,25 @@ def stockonhand(request, facility_code, template="logistics/stockonhand.html"):
     context['stockonhands'] = stockonhands
     context['facility'] = facility
     context['geography'] = get_geography()
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+
+def stockonhand_district(request, location_code, template="logistics/stockonhand_district.html"):
+    """
+    this is like the facility view, only instead of showing all products, it shows one product
+    for all facilities. it only makes sense to do this at the node one level up from the leaf,
+    since in practice the idea of 'months until stockout' and 'monthly consumption' only make
+    sense at the facility level (i.e. 'months until stockout' of a district is meaningless)
+    """
+    context = {}
+    selected = Product.objects.all()[0]
+    location = get_object_or_404(Location, code=location_code)
+    context['selected'] = selected
+    context['stockonhands'] = ProductStock.objects.filter(facility__location=location).filter(product=selected)
+    context['location'] = location
+    context['geography'] = get_geography()
+    context['commodities'] = Product.objects.all().order_by('name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )

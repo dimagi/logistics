@@ -13,3 +13,13 @@
     font-size: 0.9em;
     font-style:italic;
 }
+
+.right {
+    float: right;
+    display: inline;
+    position: relative;
+    overflow: hidden;
+    right: 10px;
+    top: 10px;
+
+}

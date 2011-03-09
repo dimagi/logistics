@@ -1,0 +1,45 @@
+{% extends "logistics/reports_base.html" %}
+{% load i18n %}
+{% load logistics_extras %}
+
+{% block content %}
+    <div class="module">
+
+        {% include "logistics/partials/accordion_nav.html" %}
+        <div id="main">
+            <h2>{{ selected.name }} Stock in {{ location.name }}</h2>
+            <div class="right">
+                {% for commodity in commodities %}
+                <input class="product_list" type="radio" name="commodity" value="{{ commodity.name }}">{{ commodity.name }}<br>
+                {% endfor %}
+            </div>
+            <table width="50%">
+                <thead><tr>
+                    <th>{{ selected.name }} </th>
+                    <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+                    <th class="stock_col">{% trans "Current Stock" %}</th>
+                    <th class="stock_col">{% trans "Monthly Consumption" %}</th>
+                    <th class="stock_col">{% trans "Emergency Level" %}</th>
+                    <th class="stock_col">{% trans "Reorder Level" %}</th>
+                    <th class="stock_col">{% trans "Max Level" %}</th>
+                </tr></thead>
+                <tbody>
+                {% for stockonhand in stockonhands %}
+                    <tr>
+                    <td>{{ stockonhand.facility.name }}</td>
+                        {% highlight_months stockonhand %}
+                    <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
+                    <td {% ifequal stockonhand.monthly_consumption None %}
+                            class="big_error"
+                        {% endifequal %}>
+                        {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+                    </td>
+                    <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
+                    <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
+                    <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table><br/>
+    </div>
+{% endblock %}
