@@ -2,7 +2,7 @@ import unittest
 from django import forms
 from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.forms import IntlSMSContactForm
+from logistics.apps.registration.forms import IntlSMSContactForm
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 class TestRegister(TestScript):

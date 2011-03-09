@@ -11,9 +11,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
-from logistics.apps.logistics.forms import IntlSMSContactForm
+from logistics.apps.registration.forms import IntlSMSContactForm, BulkRegistrationForm
 from .tables import ContactTable
-from .forms import BulkRegistrationForm
 
 @transaction.commit_on_success
 def registration(req, pk=None):
