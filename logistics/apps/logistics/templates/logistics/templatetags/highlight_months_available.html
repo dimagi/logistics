@@ -1,0 +1,23 @@
+<td
+    {% if stockonhand.is_stocked_out %}
+        class="stockout"
+    {% else %}
+        {% if stockonhand.is_below_emergency_level %}
+            class="emergency"
+        {% else %}
+            {% if stockonhand.is_below_low_supply_but_above_emergency_level %}
+                class="low_supply"
+            {% else %}
+                {% if stockonhand.is_in_good_supply %}
+                    class="good_supply"
+                {% else %}
+                    {% if stockonhand.is_overstocked %}
+                       class="overstock"
+                   {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+>
+    {{ stockonhand.months_remaining|default_if_none:"n/a" }}
+</td>
