@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
-from logistics.apps.logistics.forms import ContactForm
+from logistics.apps.logistics.forms import IntlSMSContactForm
 from .tables import ContactTable
 from .forms import BulkRegistrationForm
 
@@ -54,7 +54,7 @@ def registration(req, pk=None):
             return HttpResponseRedirect(
                 reverse(registration))
         else:
-            contact_form = ContactForm(
+            contact_form = IntlSMSContactForm(
                 instance=contact,
                 data=req.POST)
 
@@ -64,7 +64,7 @@ def registration(req, pk=None):
                     reverse(registration))
 
     else:
-        contact_form = ContactForm(
+        contact_form = IntlSMSContactForm(
             instance=contact)
         bulk_form = BulkRegistrationForm()
     return render_to_response(
