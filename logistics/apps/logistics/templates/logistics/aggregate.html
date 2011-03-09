@@ -19,7 +19,7 @@
             {% if location.children %}
                 {% for child in location.children %}
                     <tr>
-                    <td>{{ child.name }}</td>
+                    <td><a href="{% url aggregate child.code %}">{{ child.name }}</a></td>
                     <td {% ifnotequal child.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ child.stockout_count }}</td>
                     <td {% ifnotequal child.emergency_stock_count 0 %}class="emergency"{% endifnotequal %}>{{ child.emergency_stock_count }}</td>
                     <td {% ifnotequal child.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ child.low_stock_count }}</td>
@@ -30,7 +30,7 @@
             {% else %}
                 {% for child in location.facilities %}
                     <tr>
-                    <td>{{ child.name }}</td>
+                    <td><a href="{% url stockonhand child.code %}">{{ child.name }}</a></td>
                     <td {% ifnotequal child.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ child.stockout_count }}</td>
                     <td {% ifnotequal child.emergency_stock_count 0 %}class="emergency"{% endifnotequal %}>{{ child.emergency_stock_count }}</td>
                     <td {% ifnotequal child.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ child.low_stock_count }}</td>
