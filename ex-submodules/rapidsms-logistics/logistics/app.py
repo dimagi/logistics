@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+"""
+The main purpose of this app is to parse reports of stock on hand and receipts
+Look at the unit tests for specific examples.
+"""
+
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event

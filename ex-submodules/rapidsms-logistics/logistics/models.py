@@ -39,6 +39,7 @@ except ImportError:
 
 
 class Product(models.Model):
+    """ e.g. oral quinine """
     name = models.CharField(max_length=100)
     units = models.CharField(max_length=100)
     sms_code = models.CharField(max_length=10)
@@ -50,7 +51,7 @@ class Product(models.Model):
 
 class ProductStock(models.Model):
     """
-    Indicates facility-specific information about a product
+    Indicates facility-specific information about a product (such as monthly consumption rates)
     A ProductStock should exist for each product for each facility
     """
     # is_active indicates whether we are actively trying to prevent stockouts of this product
@@ -140,6 +141,11 @@ class ProductReportType(models.Model):
         verbose_name = "Product Report Type"
 
 class ProductReport(models.Model):
+    """
+     each stock on hand report or receipt submitted by a pharmacist results 
+     in a unique report in the database. You can consider these as
+     observations or data points.
+    """
     product = models.ForeignKey(Product)
     facility = models.ForeignKey('Facility')
     report_type = models.ForeignKey(ProductReportType)
@@ -157,6 +163,7 @@ class ProductReport(models.Model):
 
 
 class Responsibility(models.Model):
+    """ e.g. 'reports stock on hand', 'orders new stock' """
     slug = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
 
@@ -168,6 +175,7 @@ class Responsibility(models.Model):
         return _(self.name)
 
 class ContactRole(models.Model):
+    """ e.g. pharmacist, family planning nurse """
     slug = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
     responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
@@ -190,7 +198,7 @@ class FacilityType(models.Model):
 
 class Facility(models.Model):
     """
-    e.g. medical stories, district hospitals, clinics, community health centers
+    e.g. dangme east district hospital
     """
     name = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
@@ -317,9 +325,9 @@ class Facility(models.Model):
 
 class ProductReportsHelper(object):
     """
-    The following is a helper class which takes in aggregate sets of reports
-    and handles things like string parsing, aggregate validation, lazy UPDATE-ing,
-    error reporting etc.
+    The following is a helper class (doesn't touch the db) which takes in aggregate
+    sets of reports and handles things like string parsing, aggregate validation,
+    lazy UPDATE-ing, error reporting etc.
     """
     REC_SEPARATOR = '-'
 
@@ -629,8 +637,12 @@ def get_geography():
     in order to assess the whole geography that we're handling
     """
     try:
-        return Location.objects.get(parent_id=None)
+        return Location.objects.get(code=settings.COUNTRY)
+    except ValueError:
+        raise ValueError("Invalid COUNTRY defined in settings.py. Please choose one that matches the code of a registered location.")
     except Location.MultipleObjectsReturned:
         raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
+    except Location.DoesNotExist:
+        raise Location.MultipleObjectsReturned("The COUNTRY specified in settings.py does not exist.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)

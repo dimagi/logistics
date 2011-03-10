@@ -62,7 +62,7 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
 
 def stockonhand_facility(request, facility_code, template="logistics/stockonhand_facility.html"):
     """
-     this view currently only shows the current stock on hand
+     this view currently only shows the current stock on hand for a given facility
     """
     context = {}
     facility = get_object_or_404(Facility, code=facility_code)
@@ -97,6 +97,7 @@ def stockonhand_district(request, location_code, template="logistics/stockonhand
     )
 
 def reporting(request, template="logistics/reporting.html"):
+    """ which facilities have reported on time and which haven't """
     context = {}
     seven_days_ago = datetime.now() + relativedelta(days=-7)
     context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported')
@@ -110,7 +111,7 @@ def aggregate(request, location_code, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
     where 'children' can either be sub-regions
-    OR facilities, if no sub-region exists
+    OR facilities if no sub-region exists
     """
     context = {}
     context['location'] = get_object_or_404(Location, code=location_code)
