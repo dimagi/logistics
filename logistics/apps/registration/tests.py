@@ -31,7 +31,7 @@ class TestRegister(TestScript):
 
     def testWebPhoneRegistration(self):
         form = IntlSMSContactForm()
-        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_CODE)
+        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_DIALLING_CODE)
         self.assertEquals(form._clean_phone_number('16176023333'),'16176023333')
         self.assertEquals(form._clean_phone_number('1 617 602 3333'),'16176023333')
         self.assertEquals(form._clean_phone_number('1(617)6023333'),'16176023333')

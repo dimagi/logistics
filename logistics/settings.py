@@ -209,5 +209,6 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
 DEFAULT_BACKEND = 'message_tester'
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
 INTL_DIALLING_CODE = "+"
-COUNTRY_CODE = 233
+COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
+COUNTRY = "ghana"

@@ -84,7 +84,7 @@ class IntlSMSContactForm(ContactForm):
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>" + \
                                            "Example: %(i)s%(c)s2121234567" % \
                                            {'i':settings.INTL_DIALLING_CODE,
-                                            'c':settings.COUNTRY_CODE})
+                                            'c':settings.COUNTRY_DIALLING_CODE})
 
     def _clean_phone_number(self, phone_number):
         """
@@ -98,7 +98,7 @@ class IntlSMSContactForm(ContactForm):
             cleaned = cleaned.replace(mark, '')
 
         # replace domestic with intl dialling code, if domestic code defined
-        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_CODE)
+        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_DIALLING_CODE)
         try:
             ddc = str(settings.DOMESTIC_DIALLING_CODE)
             if cleaned.startswith(ddc):
