@@ -438,7 +438,7 @@ class ProductReportsHelper(object):
                 # a stockout has been resolved!
                 stockouts_resolved.append(stock_code)
         # notify all facilities supplied by this one
-        # this feels like it could be decoupled more. with a signal?
+        # this needs to be decoupled more; could pull it out into a signal
         if stockouts_resolved:
             #self.facility.notify_suppliees()
             to_notify = Facility.objects.filter(supplied_by=self.facility).distinct()
