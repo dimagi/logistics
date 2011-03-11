@@ -59,8 +59,12 @@
     margin:3px;
 }
 
-.stock{
-    width:50%
+.stock {
+    width:50%;
+}
+
+.aggregate_stock tbody tr td{
+    width:80px;
 }
 
 

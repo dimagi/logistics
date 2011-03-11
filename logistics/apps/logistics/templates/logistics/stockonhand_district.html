@@ -2,44 +2,63 @@
 {% load i18n %}
 {% load logistics_extras %}
 
+{% block javascripts %}{{ block.super }}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commodity']").click(function() {
+              $("#commodity_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+{% endblock %}
+
 {% block content %}
     <div class="module">
-
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-            <h2>{{ selected.name }} Stock in {{ location.name }}</h2>
+            <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
             <div class="right">
+            <form id="commodity_form" method="POST">
+                {%  csrf_token %}
                 {% for commodity in commodities %}
-                <input class="product_list" type="radio" name="commodity" value="{{ commodity.name }}">{{ commodity.name }}<br>
+                <input class="product_list" type="radio" name="commodity" value="{{ commodity.sms_code }}"
+                    {% ifequal selected_commodity commodity %}checked="checked"{% endifequal %}
+                >{{ commodity.name }}<br>
                 {% endfor %}
+            </form>
             </div>
-            <table class="stock">
-                <thead><tr>
-                    <th>{{ selected.name }} </th>
-                    <th class="stock_col">{% trans "Months Until Stockout" %}</th>
-                    <th class="stock_col">{% trans "Current Stock" %}</th>
-                    <th class="stock_col">{% trans "Monthly Consumption" %}</th>
-                    <th class="stock_col">{% trans "Emergency Level" %}</th>
-                    <th class="stock_col">{% trans "Reorder Level" %}</th>
-                    <th class="stock_col">{% trans "Max Level" %}</th>
-                </tr></thead>
-                <tbody>
-                {% for stockonhand in stockonhands %}
-                    <tr>
-                    <td>{{ stockonhand.facility.name }}</td>
-                        {% highlight_months stockonhand %}
-                    <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
-                    <td {% ifequal stockonhand.monthly_consumption None %}
-                            class="big_error"
-                        {% endifequal %}>
-                        {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
-                    </td>
-                    <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
-                    <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
-                    <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table><br/>
+            <div>
+                <table class="stock">
+                    <thead><tr>
+                        <th>{{ selected_commodity.name }} </th>
+                        <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+                        <th class="stock_col">{% trans "Current Stock" %}</th>
+                        <th class="stock_col">{% trans "Monthly Consump." %}</th>
+                        <th class="stock_col">{% trans "Emerg. Level" %}</th>
+                        <th class="stock_col">{% trans "Reorder Level" %}</th>
+                        <th class="stock_col">{% trans "Max Level" %}</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for stockonhand in stockonhands %}
+                        <tr>
+                        <td>{{ stockonhand.facility.name }}</td>
+                            {% highlight_months stockonhand %}
+                        <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
+                        <td {% ifequal stockonhand.monthly_consumption None %}
+                                class="big_error"
+                            {% endifequal %}>
+                            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+                        </td>
+                        <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <br/>
     </div>
 {% endblock %}
