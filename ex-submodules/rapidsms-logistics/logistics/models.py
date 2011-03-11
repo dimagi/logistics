@@ -224,6 +224,13 @@ class Facility(models.Model):
         ps.monthly_consumption = rate
         ps.save()
 
+    def record_consumption_by_code(self, product_code, rate):
+        try:
+            product = Product.objects.get(sms_code__icontains=stock_code)
+        except Product.DoesNotExist, Product.MultipleObjectsReturned:
+            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
+        self.record_consumption(product, rate)
+
     # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
     # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
     #@property
@@ -322,6 +329,18 @@ class Facility(models.Model):
         if ps.is_active == True:
             ps.is_active = False
             ps.save()
+
+    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved):
+        """ stockouts_resolved is a dictionary of code to product """
+        to_notify = Facility.objects.filter(supplied_by=self).distinct()
+        for fac in to_notify:
+            reporters = fac.reporters()
+            for reporter in reporters:
+                send_message(reporter.default_connection,
+                            "Dear %(name)s, %(facility)s has resolved the following stockouts: %(products)s " %
+                             {'name':reporter.name,
+                             'products':", ".join(stockouts_resolved),
+                             'facility':self.name})
 
 class ProductReportsHelper(object):
     """
@@ -425,43 +444,21 @@ class ProductReportsHelper(object):
         stockouts_resolved = []
         for stock_code in self.product_stock:
             try:
-                product = Product.objects.get(sms_code__icontains=stock_code)
-            except Product.DoesNotExist, Product.MultipleObjectsReturned:
-                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
-            try:
-                original_quantity = ProductStock.objects.get(facility=self.facility, product=product).quantity
+                original_quantity = ProductStock.objects.get(facility=self.facility, product__sms_code=stock_code).quantity
             except ProductStock.DoesNotExist:
                 original_quantity = 0
             new_quantity = self.product_stock[stock_code]
-            self._record_product_report(product, new_quantity, self.report_type)
+            self._record_product_report_by_code(stock_code, new_quantity, self.report_type)
             if original_quantity == 0 and new_quantity > 0:
-                # a stockout has been resolved!
                 stockouts_resolved.append(stock_code)
-        # notify all facilities supplied by this one
-        # this needs to be decoupled more; could pull it out into a signal
         if stockouts_resolved:
-            #self.facility.notify_suppliees()
-            to_notify = Facility.objects.filter(supplied_by=self.facility).distinct()
-            for fac in to_notify:
-                reporters = fac.reporters()
-                for reporter in reporters:
-                    send_message(reporter.default_connection,
-                                "Dear %(name)s, %(facility)s has resolved the following stockouts: %(products)s " %
-                                 {'name':reporter.name,
-                                 'products':", ".join(stockouts_resolved),
-                                 'facility':self.facility.name})
+            # notify all facilities supplied by this one
+            # this needs to be decoupled more; could pull it out into a signal
+            self.facility.notify_suppliees_of_stockouts_resolved(stockouts_resolved)
         for stock_code in self.consumption:
-            try:
-                product = Product.objects.get(sms_code__icontains=stock_code)
-            except Product.DoesNotExist, Product.MultipleObjectsReturned:
-                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
             self.facility.record_consumption(product, self.consumption[stock_code])
         for stock_code in self.product_received:
-            try:
-                product = Product.objects.get(sms_code__icontains=stock_code)
-            except Product.DoesNotExist, Product.MultipleObjectsReturned:
-                raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper()})
-            self._record_product_report(product, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
+            self._record_product_report_by_code(stock_code, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
 
     def add_product_consumption(self, product, consumption):
         if isinstance(consumption, basestring) and consumption.isdigit():
@@ -486,6 +483,13 @@ class ProductReportsHelper(object):
             self.consumption[product_code] = consumption
         if stock == 0:
             self.has_stockout = True
+
+    def _record_product_report_by_code(self, product_code, quantity, report_type):
+        try:
+            product = Product.objects.get(sms_code__icontains=product_code)
+        except Product.DoesNotExist, Product.MultipleObjectsReturned:
+            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
+        self._record_product_report(product, quantity, report_type)
 
     def _record_product_report(self, product, quantity, report_type):
         report_type = ProductReportType.objects.get(slug=report_type)
