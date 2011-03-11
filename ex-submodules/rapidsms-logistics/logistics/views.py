@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -85,11 +86,16 @@ def stockonhand_district(request, location_code, template="logistics/stockonhand
     sense at the facility level (i.e. 'months until stockout' of a district is meaningless)
     """
     context = {}
-    selected = Product.objects.all()[0]
-    location = get_object_or_404(Location, code=location_code)
-    context['selected'] = selected
-    context['stockonhands'] = ProductStock.objects.filter(facility__location=location).filter(product=selected)
-    context['location'] = location
+    context['location'] = get_object_or_404(Location, code=location_code)
+    stockonhands = ProductStock.objects.filter(facility__location=context['location'])
+    if request.method == "POST":
+        if 'commodity' in request.POST:
+            selected_commodity = Product.objects.get(sms_code=request.POST['commodity'])
+    else:
+        product_count = Product.objects.count()
+        selected_commodity = Product.objects.all()[randint(0,product_count-1)]
+    context['selected_commodity'] = selected_commodity
+    context['stockonhands'] = stockonhands.filter(product=selected_commodity)
     context['geography'] = get_geography()
     context['commodities'] = Product.objects.all().order_by('name')
     return render_to_response(
