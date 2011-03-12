@@ -175,6 +175,38 @@
         }
     }, 
     {
+        "pk": 1,
+        "model": "logistics.producttype",
+        "fields": {
+            "name": "Family Planning",
+            "slug": "fp"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "logistics.producttype",
+        "fields": {
+            "name": "HIV/AIDS",
+            "slug": "hiv"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "logistics.producttype",
+        "fields": {
+            "name": "Malaria",
+            "slug": "malaria"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "logistics.producttype",
+        "fields": {
+            "name": "Uncategorized",
+            "slug": "None"
+        }
+    },
+    {
         "pk": 1, 
         "model": "logistics.product", 
         "fields": {
@@ -182,6 +214,7 @@
             "sms_code": "lf",
             "product_code": "", 
             "name": "Lofem", 
+            "type": 1,
             "description": "Lofem"
         }
     }, 
@@ -193,6 +226,7 @@
             "sms_code": "mc", 
             "product_code": "", 
             "name": "Male Condom", 
+            "type": 1,
             "description": "Male Condom"
         }
     }, 
@@ -204,6 +238,7 @@
             "sms_code": "mg",
             "product_code": "", 
             "name": "Micro-G", 
+            "type": 1,
             "description": "Micro-G"
         }
     }, 
@@ -215,6 +250,7 @@
             "sms_code": "ng",
             "product_code": "", 
             "name": "Norigynon", 
+            "type": 1,
             "description": "Norigynon"
         }
     }, 
@@ -226,6 +262,7 @@
             "sms_code": "dp",
             "product_code": "", 
             "name": "Depo Provera", 
+            "type": 1,
             "description": "Depo Provera"
         }
     }, 
@@ -237,6 +274,7 @@
             "sms_code": "jd", 
             "product_code": "", 
             "name": "Jadelle", 
+            "type": 1,
             "description": "Jadelle"
         }
     }, 
@@ -248,6 +286,7 @@
             "sms_code": "cu",
             "product_code": "", 
             "name": "Copper-T", 
+            "type": 1,
             "description": "Copper-T"
         }
     }, 
@@ -259,6 +298,7 @@
             "sms_code": "ns",
             "product_code": "", 
             "name": "Nevirapine Suspension", 
+            "type": 2,
             "description": "Nevirapine Suspension"
         }
     }, 
@@ -270,6 +310,7 @@
             "sms_code": "nv",
             "product_code": "", 
             "name": "Nevirapine Tabs", 
+            "type": 2,
             "description": "Nevirapine Tabs"
         }
     }, 
@@ -281,6 +322,7 @@
             "sms_code": "fr",
             "product_code": "", 
             "name": "First Response", 
+            "type": 2,
             "description": "First Response Test Kits"
         }
     }, 
@@ -292,6 +334,7 @@
             "sms_code": "oq",
             "product_code": "", 
             "name": "Oraquick", 
+            "type": 2,
             "description": "Oraquick"
         }
     }, 
@@ -303,6 +346,7 @@
             "sms_code": "cb",
             "product_code": "", 
             "name": "Combivir Tabs", 
+            "type": 2,
             "description": "Combivir Tabs (AZT/3TC)"
         }
     }, 
@@ -314,6 +358,7 @@
             "sms_code": "lm",
             "product_code": "", 
             "name": "Lamivudine Suspension", 
+            "type": 2,
             "description": "Lamivudine Suspension"
         }
     }, 
@@ -325,6 +370,7 @@
             "sms_code": "zs",
             "product_code": "", 
             "name": "Zidovudine Suspension", 
+            "type": 2,
             "description": "Zidovudine Suspension"
         }
     }, 
@@ -336,6 +382,7 @@
             "sms_code": "aa",
             "product_code": "", 
             "name": "AS-AQ", 
+            "type": 3,
             "description": "AS-AQ (3X3)"
         }
     }, 
@@ -347,6 +394,7 @@
             "sms_code": "ad",
             "product_code": "", 
             "name": "A-L Dispersible", 
+            "type": 3,
             "description": "A-L Dispersible (1X6)"
         }
     }, 
@@ -358,6 +406,7 @@
             "sms_code": "al",
             "product_code": "", 
             "name": "A-L Suspension", 
+            "type": 3,
             "description": "A-L Suspension"
         }
     }, 
@@ -369,6 +418,7 @@
             "sms_code": "qu",
             "product_code": "", 
             "name": "Oral Quinine", 
+            "type": 3,
             "description": "Oral Quinine"
         }
     }, 
@@ -380,6 +430,7 @@
             "sms_code": "sp",
             "product_code": "", 
             "name": "SP", 
+            "type": 3,
             "description": "SP"
         }
     }, 
@@ -391,6 +442,7 @@
             "sms_code": "rd",
             "product_code": "", 
             "name": "RDTs", 
+            "type": 3,
             "description": "RDTs"
         }
     }, 
@@ -730,7 +782,7 @@
         "model": "rapidsms.contact",
         "fields": {
             "needs_reminders": true,
-            "role": 4,
+            "role": 1,
             "name": "In Charge",
             "language": "en-us",
             "facility": 4
@@ -741,7 +793,7 @@
         "model": "rapidsms.contact",
         "fields": {
             "needs_reminders": true,
-            "role": 1,
+            "role": 2,
             "name": "Test User",
             "language": "en-us",
             "facility": 4

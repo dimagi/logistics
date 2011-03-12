@@ -15,6 +15,9 @@ class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description','product_code')
 
+class ProductTypeAdmin(admin.ModelAdmin):
+    model = ProductType
+
 class ProductStockAdmin(admin.ModelAdmin):
     model = ProductStock
 
@@ -31,6 +34,7 @@ class FacilityTypeAdmin(admin.ModelAdmin):
     model = FacilityType
 
 admin.site.register(Product, ProductAdmin)
+admin.site.register(ProductType, ProductTypeAdmin)
 admin.site.register(ProductStock, ProductStockAdmin)
 admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
