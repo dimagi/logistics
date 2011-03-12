@@ -44,10 +44,25 @@ class Product(models.Model):
     units = models.CharField(max_length=100)
     sms_code = models.CharField(max_length=10)
     description = models.CharField(max_length=255)
+    # product code is NOT currently used. The field is there so that it can
+    # be synced up with whatever internal warehousing system is used at the
+    # medical facilities later
     product_code = models.CharField(max_length=100, null=True, blank=True)
+    type = models.ForeignKey('ProductType')
 
     def __unicode__(self):
         return self.name
+
+class ProductType(models.Model):
+    """ e.g. malaria, hiv, family planning """
+    name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=10)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Product Type"
 
 class ProductStock(models.Model):
     """
