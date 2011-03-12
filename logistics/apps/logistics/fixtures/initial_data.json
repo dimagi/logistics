@@ -474,6 +474,17 @@
         "model": "logistics.contactrole", 
         "fields": {
             "responsibilities": [
+                2
+            ], 
+            "slug": "incharge", 
+            "name": "in charge"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.contactrole", 
+        "fields": {
+            "responsibilities": [
                 1
             ], 
             "slug": "pharmacist", 
@@ -481,7 +492,7 @@
         }
     }, 
     {
-        "pk": 2, 
+        "pk": 3, 
         "model": "logistics.contactrole", 
         "fields": {
             "responsibilities": [
@@ -496,21 +507,10 @@
         "model": "logistics.contactrole", 
         "fields": {
             "responsibilities": [
-                2
+                1
             ], 
-            "slug": "administrator", 
-            "name": "administrator"
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "logistics.contactrole", 
-        "fields": {
-            "responsibilities": [
-                2
-            ], 
-            "slug": "incharge", 
-            "name": "in charge"
+            "slug": "chps", 
+            "name": "CHPS Nurse"
         }
     }, 
     {
