@@ -43,7 +43,10 @@
                     <tbody>
                     {% for stockonhand in stockonhands %}
                         <tr>
-                        <td>{{ stockonhand.facility.name }}</td>
+                        <td><a href="{% url stockonhand_facility stockonhand.facility.code %}">
+                            {{ stockonhand.facility.name }}
+                            </a>
+                        </td>
                             {% highlight_months stockonhand %}
                         <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
                         <td {% ifequal stockonhand.monthly_consumption None %}
