@@ -14,9 +14,11 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
-    ProductReportsHelper, Product, ProductReport, get_geography, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, Product, ProductType, ProductReport, \
+    get_geography, STOCK_ON_HAND_REPORT_TYPE
+from logistics.apps.logistics.view_decorators import filter_context, geography_context
 
-def input_stock(request, facility_code, template="logistics/input_stock.html"):
+def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
@@ -61,11 +63,11 @@ def input_stock(request, facility_code, template="logistics/input_stock.html"):
             }, context_instance=RequestContext(request)
     )
 
-def stockonhand_facility(request, facility_code, template="logistics/stockonhand_facility.html"):
+@geography_context
+def stockonhand_facility(request, facility_code, context={}, template="logistics/stockonhand_facility.html"):
     """
      this view currently only shows the current stock on hand for a given facility
     """
-    context = {}
     facility = get_object_or_404(Facility, code=facility_code)
     stockonhands = ProductStock.objects.filter(facility=facility).order_by('product')
     last_reports = ProductReport.objects.filter(facility=facility).order_by('-report_date')
@@ -73,20 +75,19 @@ def stockonhand_facility(request, facility_code, template="logistics/stockonhand
         context['last_reported'] = last_reports[0].report_date
     context['stockonhands'] = stockonhands
     context['facility'] = facility
-    context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
-def stockonhand_district(request, location_code, template="logistics/stockonhand_district.html"):
+@geography_context
+@filter_context
+def stockonhand_district(request, location_code, context={}, template="logistics/stockonhand_district.html"):
     """
     this is like the facility view, only instead of showing all products, it shows one product
     for all facilities. it only makes sense to do this at the node one level up from the leaf,
     since in practice the idea of 'months until stockout' and 'monthly consumption' only make
     sense at the facility level (i.e. 'months until stockout' of a district is meaningless)
     """
-    context = {}
-    context['location'] = get_object_or_404(Location, code=location_code)
     stockonhands = ProductStock.objects.filter(facility__location=context['location'])
     if request.method == "POST":
         if 'commodity' in request.POST:
@@ -96,32 +97,60 @@ def stockonhand_district(request, location_code, template="logistics/stockonhand
         selected_commodity = Product.objects.all()[randint(0,product_count-1)]
     context['selected_commodity'] = selected_commodity
     context['stockonhands'] = stockonhands.filter(product=selected_commodity)
-    context['geography'] = get_geography()
-    context['commodities'] = Product.objects.all().order_by('name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
-def reporting(request, template="logistics/reporting.html"):
+@geography_context
+@filter_context
+def district(request, location_code, context={}, template="logistics/aggregate.html"):
+    """
+    The district view is unusual. When we do not receive a filter by individual product,
+    we show the aggregate report. When we do receive a filter by individual product, we show
+    the 'by product' report. Let's see how this goes. 
+    """
+    context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=context['location'])
+    if request.method == "POST" or request.method == "GET":
+        # We support GETs so that folks can share this report as a url
+        if 'commodity' in request.REQUEST:
+            template="logistics/stockonhand_district.html"
+            try:
+                selected_commodity = Product.objects.get(sms_code=request.REQUEST['commodity'])
+                context['selected_commodity'] = selected_commodity
+                context['stockonhands'] = stockonhands.filter(product=selected_commodity)
+            except Product.DoesNotExist:
+                # user selected 'all'
+                pass
+        elif 'commoditytype' in request.REQUEST:
+            try:
+                selected_commoditytype = ProductType.objects.get(code=request.REQUEST['commoditytype'])
+                context['selected_commoditytype'] = selected_commoditytype
+                context['stockonhands'] = stockonhands.filter(product__type=selected_commoditytype)
+            except ProductType.DoesNotExist:
+                # user selected 'all'
+                pass
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+
+@geography_context
+def reporting(request, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
-    context = {}
     seven_days_ago = datetime.now() + relativedelta(days=-7)
     context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported')
     context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported')
-    context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
-def aggregate(request, location_code, template="logistics/aggregate.html"):
+@geography_context
+@filter_context
+def aggregate(request, location_code, context={}, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
-    context = {}
-    context['location'] = get_object_or_404(Location, code=location_code)
-    context['geography'] = get_geography()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
