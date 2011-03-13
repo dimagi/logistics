@@ -33,7 +33,7 @@ class LanguageHandler(KeywordHandler):
         if len(words) == 3:
             role_code = words[2]
             try:
-                role = ContactRole.objects.get(slug=role_code)
+                role = ContactRole.objects.get(code=role_code)
             except ContactRole.DoesNotExist:
                 self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
                 return

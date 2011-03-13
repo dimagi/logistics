@@ -179,7 +179,7 @@
         "model": "logistics.producttype",
         "fields": {
             "name": "Family Planning",
-            "slug": "fp"
+            "code": "fp"
         }
     },
     {
@@ -187,7 +187,7 @@
         "model": "logistics.producttype",
         "fields": {
             "name": "HIV/AIDS",
-            "slug": "hiv"
+            "code": "hiv"
         }
     },
     {
@@ -195,15 +195,7 @@
         "model": "logistics.producttype",
         "fields": {
             "name": "Malaria",
-            "slug": "malaria"
-        }
-    },
-    {
-        "pk": 4,
-        "model": "logistics.producttype",
-        "fields": {
-            "name": "Uncategorized",
-            "slug": "None"
+            "code": "malaria"
         }
     },
     {
@@ -451,7 +443,7 @@
         "model": "logistics.productreporttype", 
         "fields": {
             "name": "Stock on Hand", 
-            "slug": "soh"
+            "code": "soh"
         }
     },
     {
@@ -459,7 +451,7 @@
         "model": "logistics.productreporttype",     
         "fields": {
             "name": "Stock Received", 
-            "slug": "rec"
+            "code": "rec"
         }
     },
     {
@@ -509,7 +501,7 @@
         "pk": 1, 
         "model": "logistics.responsibility", 
         "fields": {
-            "slug": "reporter", 
+            "code": "reporter", 
             "name": "report stock on hand"
         }
     }, 
@@ -517,7 +509,7 @@
         "pk": 2, 
         "model": "logistics.responsibility", 
         "fields": {
-            "slug": "reportee", 
+            "code": "reportee", 
             "name": "respond to reports"
         }
     }, 
@@ -528,7 +520,7 @@
             "responsibilities": [
                 2
             ], 
-            "slug": "incharge", 
+            "code": "incharge", 
             "name": "in charge"
         }
     }, 
@@ -539,7 +531,7 @@
             "responsibilities": [
                 1
             ], 
-            "slug": "pharmacist", 
+            "code": "pharmacist", 
             "name": "pharmacist"
         }
     }, 
@@ -550,7 +542,7 @@
             "responsibilities": [
                 1
             ], 
-            "slug": "nurse", 
+            "code": "nurse", 
             "name": "family planning nurse"
         }
     }, 
@@ -561,7 +553,7 @@
             "responsibilities": [
                 1
             ], 
-            "slug": "chps", 
+            "code": "chps", 
             "name": "CHPS Nurse"
         }
     }, 

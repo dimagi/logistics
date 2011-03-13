@@ -15,7 +15,7 @@ THIRD_STOCK_ON_HAND_REMINDER = _('Dear %(name)s, your facility has not reported 
 
 def first_soh_reminder (router):
     """ thusday reminders """
-    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         if reporter.needs_reminders:
             send_message(reporter.connection, STOCK_ON_HAND_REMINDER % {'name':reporter.name})
@@ -23,7 +23,7 @@ def first_soh_reminder (router):
 
 def second_soh_reminder (router):
     """monday follow-up"""
-    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
         # TODO get this to vary alongside scheduled time
@@ -34,7 +34,7 @@ def second_soh_reminder (router):
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
-    reporters = Contact.objects.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
         five_days_ago = datetime.now() + relativedelta(days=-7)

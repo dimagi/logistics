@@ -53,10 +53,14 @@ class Product(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def code(self):
+        return self.sms_code
+
 class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=10)
+    code = models.CharField(max_length=10)
 
     def __unicode__(self):
         return self.name
@@ -147,7 +151,7 @@ class ProductStock(models.Model):
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
-    slug = models.CharField(max_length=10)
+    code = models.CharField(max_length=10)
 
     def __unicode__(self):
         return self.name
@@ -179,7 +183,7 @@ class ProductReport(models.Model):
 
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
-    slug = models.CharField(max_length=30, blank=True)
+    code = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -191,7 +195,7 @@ class Responsibility(models.Model):
 
 class ContactRole(models.Model):
     """ e.g. pharmacist, family planning nurse """
-    slug = models.CharField(max_length=30, blank=True)
+    code = models.CharField(max_length=30, blank=True)
     name = models.CharField(max_length=100, blank=True)
     responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
 
@@ -206,7 +210,7 @@ class FacilityType(models.Model):
     e.g. medical stories, district hospitals, clinics, community health centers
     """
     name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, primary_key=True)
+    code = models.SlugField(unique=True, primary_key=True)
 
     def __unicode__(self):
         return self.name
@@ -258,48 +262,28 @@ class Facility(models.Model):
     #    return None
 
     def stockout_count(self):
-        return ProductStock.objects.filter(facility=self).filter(quantity=0).count()
+        return stockout_count(facilities=[self])
 
     def emergency_stock_count(self):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        emergency_stock = 0
-        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_below_emergency_level():
-                emergency_stock = emergency_stock + 1
-        return emergency_stock
+        return emergency_stock_count(facilities=[self])
 
     def low_stock_count(self):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        low_stock_count = 0
-        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_below_low_supply_but_above_emergency_level():
-                low_stock_count = low_stock_count + 1
-        return low_stock_count
+        return low_stock_count(facilities=[self])
 
     def good_supply_count(self):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        good_supply_count = 0
-        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_in_good_supply():
-                good_supply_count = good_supply_count + 1
-        return good_supply_count
+        return good_supply_count(facilities=[self])
 
     def overstocked_count(self):
-        overstock_count = 0
-        stocks = ProductStock.objects.filter(facility=self).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_overstocked():
-                overstock_count = overstock_count + 1
-        return overstock_count
+        return overstocked_count(facilities=[self])
 
     def report(self, product, report_type, quantity, message=None):
         npr = ProductReport(product=product, report_type=report_type, quantity=quantity, message=message, facility=self)
@@ -307,17 +291,17 @@ class Facility(models.Model):
         return npr
 
     def report_stock(self, product, quantity, message=None):
-        report_type = ProductReportType.objects.get(slug=STOCK_ON_HAND_REPORT_TYPE)
+        report_type = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
         return self.report(product, report_type, quantity)
 
     def reporters(self):
         reporters = Contact.objects.filter(facility=self)
-        reporters = reporters.filter(role__responsibilities__slug=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
         return reporters
 
     def reportees(self):
         reporters = Contact.objects.filter(facility=self)
-        reporters = reporters.filter(role__responsibilities__slug=REPORTEE_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
     def children(self):
@@ -507,7 +491,7 @@ class ProductReportsHelper(object):
         self._record_product_report(product, quantity, report_type)
 
     def _record_product_report(self, product, quantity, report_type):
-        report_type = ProductReportType.objects.get(slug=report_type)
+        report_type = ProductReportType.objects.get(code=report_type)
         self.facility.report(product=product, report_type=report_type,
                              quantity=quantity, message=self.message)
 
@@ -665,3 +649,58 @@ def get_geography():
         raise Location.MultipleObjectsReturned("The COUNTRY specified in settings.py does not exist.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)
+
+def _filtered_stock(product, producttype):
+    results = ProductStock.objects.all()
+    if product is not None:
+        results = results.filter(product=product)
+    elif producttype is not None:
+        results = results.filter(product__type=producttype)
+    return results
+
+def stockout_count(facilities=None, product=None, producttype=None):
+    results = _filtered_stock(product, producttype).filter(facility__in=facilities).filter(quantity=0)
+    return results.count()
+
+def emergency_stock_count(facilities=None, product=None, producttype=None):
+    """ This indicates all stock below reorder levels,
+        including all stock below emergency supply levels
+    """
+    emergency_stock = 0
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_below_emergency_level():
+            emergency_stock = emergency_stock + 1
+    return emergency_stock
+
+def low_stock_count(facilities=None, product=None, producttype=None):
+    """ This indicates all stock below reorder levels,
+        including all stock below emergency supply levels
+    """
+    low_stock_count = 0
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_below_low_supply_but_above_emergency_level():
+            low_stock_count = low_stock_count + 1
+    return low_stock_count
+
+def good_supply_count(facilities=None, product=None, producttype=None):
+    """ This indicates all stock below reorder levels,
+        including all stock below emergency supply levels
+    """
+    good_supply_count = 0
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_in_good_supply():
+            good_supply_count = good_supply_count + 1
+    return good_supply_count
+
+def overstocked_count(facilities=None, product=None, producttype=None):
+    overstock_count = 0
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_overstocked():
+            overstock_count = overstock_count + 1
+    return overstock_count
+
+
