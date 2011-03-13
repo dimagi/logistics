@@ -30,51 +30,31 @@ class Location(models.Model):
         return Facility.objects.filter(Q(location=self)|Q(location__parent_id=self.id))
 
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
-    def stockout_count(self):
-        from logistics.apps.logistics.models import ProductStock
-        return ProductStock.objects.filter(facility__in=self.all_facilities).filter(quantity=0).count()
+    def stockout_count(self, product=None, producttype=None):
+        from logistics.apps.logistics.models import stockout_count
+        return stockout_count(self.all_facilities)
 
-    def emergency_stock_count(self):
+    def emergency_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.apps.logistics.models import ProductStock
-        emergency_stock = 0
-        stocks = ProductStock.objects.filter(facility__in=self.all_facilities).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_below_emergency_level():
-                emergency_stock = emergency_stock + 1
-        return emergency_stock
+        from logistics.apps.logistics.models import emergency_stock_count
+        return emergency_stock_count(self.all_facilities)
 
-    def low_stock_count(self):
+    def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.apps.logistics.models import ProductStock
-        low_stock_count = 0
-        stocks = ProductStock.objects.filter(facility__in=self.all_facilities).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_below_low_supply_but_above_emergency_level():
-                low_stock_count = low_stock_count + 1
-        return low_stock_count
+        from logistics.apps.logistics.models import low_stock_count
+        return low_stock_count(self.all_facilities)
 
-    def good_supply_count(self):
+    def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.apps.logistics.models import ProductStock
-        good_supply_count = 0
-        stocks = ProductStock.objects.filter(facility__in=self.all_facilities).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_in_good_supply():
-                good_supply_count = good_supply_count + 1
-        return good_supply_count
+        from logistics.apps.logistics.models import good_supply_count
+        return good_supply_count(self.all_facilities)
 
-    def overstocked_count(self):
-        from logistics.apps.logistics.models import ProductStock
-        overstock_count = 0
-        stocks = ProductStock.objects.filter(facility__in=self.all_facilities).filter(quantity__gt=0)
-        for stock in stocks:
-            if stock.is_overstocked():
-                overstock_count = overstock_count + 1
-        return overstock_count
+    def overstocked_count(self, product=None, producttype=None):
+        from logistics.apps.logistics.models import overstocked_count
+        return overstocked_count(self.all_facilities)
