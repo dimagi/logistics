@@ -6,7 +6,12 @@
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
             <h2>{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
-            <table class="aggregate_stock" width=100%>
+            <div class="right">
+                {% include "logistics/partials/commoditytype_filter.html" %}
+                {% include "logistics/partials/commodity_filter.html" %}
+            </div>
+            <div>
+            <table class="stock" width=100%>
             <thead><tr>
                 <th scope="col">Facility</th>
                 <th scope="col" class="stock_col">Stockouts</th>
@@ -47,6 +52,7 @@
                 across all commodities in the region indicated. The above table also does
                 not reflect commodities for which the monthly consumption is unknown. 
             </p>
+            </div>
         </div>
     </div>
 {% endblock %}

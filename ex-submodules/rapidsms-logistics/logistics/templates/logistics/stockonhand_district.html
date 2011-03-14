@@ -2,32 +2,14 @@
 {% load i18n %}
 {% load logistics_extras %}
 
-{% block javascripts %}{{ block.super }}
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $(document).ready(function(){
-        $(":radio[name='commodity']").click(function() {
-              $("#commodity_form").submit();
-        });
-    });
-    //--><!]]>
-</script>
-{% endblock %}
-
 {% block content %}
     <div class="module">
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
             <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
             <div class="right">
-            <form id="commodity_form" method="POST">
-                {%  csrf_token %}
-                {% for commodity in commodities %}
-                <input class="product_list" type="radio" name="commodity" value="{{ commodity.sms_code }}"
-                    {% ifequal selected_commodity commodity %}checked="checked"{% endifequal %}
-                >{{ commodity.name }}<br>
-                {% endfor %}
-            </form>
+                {% include "logistics/partials/commoditytype_filter.html" %}
+                {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div>
                 <table class="stock">
