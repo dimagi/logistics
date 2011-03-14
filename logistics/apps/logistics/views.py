@@ -81,28 +81,6 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
 @geography_context
 @filter_context
-def stockonhand_district(request, location_code, context={}, template="logistics/stockonhand_district.html"):
-    """
-    this is like the facility view, only instead of showing all products, it shows one product
-    for all facilities. it only makes sense to do this at the node one level up from the leaf,
-    since in practice the idea of 'months until stockout' and 'monthly consumption' only make
-    sense at the facility level (i.e. 'months until stockout' of a district is meaningless)
-    """
-    stockonhands = ProductStock.objects.filter(facility__location=context['location'])
-    if request.method == "POST":
-        if 'commodity' in request.POST:
-            selected_commodity = Product.objects.get(sms_code=request.POST['commodity'])
-    else:
-        product_count = Product.objects.count()
-        selected_commodity = Product.objects.all()[randint(0,product_count-1)]
-    context['selected_commodity'] = selected_commodity
-    context['stockonhands'] = stockonhands.filter(product=selected_commodity)
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
-
-@geography_context
-@filter_context
 def district(request, location_code, context={}, template="logistics/aggregate.html"):
     """
     The district view is unusual. When we do not receive a filter by individual product,
@@ -112,23 +90,27 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=context['location'])
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
+        filtered_by_commodity = False
         if 'commodity' in request.REQUEST:
-            template="logistics/stockonhand_district.html"
             try:
                 selected_commodity = Product.objects.get(sms_code=request.REQUEST['commodity'])
-                context['selected_commodity'] = selected_commodity
-                context['stockonhands'] = stockonhands.filter(product=selected_commodity)
             except Product.DoesNotExist:
                 # user selected 'all'
                 pass
-        elif 'commoditytype' in request.REQUEST:
+            else:
+                template="logistics/stockonhand_district.html"
+                context['selected_commodity'] = selected_commodity
+                context['stockonhands'] = stockonhands.filter(product=selected_commodity)
+                filtered_by_commodity = True
+        if not filtered_by_commodity and 'commoditytype' in request.REQUEST:
             try:
                 selected_commoditytype = ProductType.objects.get(code=request.REQUEST['commoditytype'])
-                context['selected_commoditytype'] = selected_commoditytype
-                context['stockonhands'] = stockonhands.filter(product__type=selected_commoditytype)
             except ProductType.DoesNotExist:
                 # user selected 'all'
                 pass
+            else:
+                context['selected_commoditytype'] = selected_commoditytype
+                context['stockonhands'] = stockonhands.filter(product__type=selected_commoditytype)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -151,6 +133,11 @@ def aggregate(request, location_code, context={}, template="logistics/aggregate.
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
+    #if request.method == "POST" or request.method == "GET":
+    #    # We support GETs so that folks can share this report as a url
+    #    filtered_by_commodity = False
+    #    if 'commodity' in request.REQUEST:
+    #context['filter'] = "product=%s&producttype=%s" % (product, producttype)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )

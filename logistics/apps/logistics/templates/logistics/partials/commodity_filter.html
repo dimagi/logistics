@@ -1,0 +1,25 @@
+{% load i18n %}
+
+{% block javascripts %}{{ block.super }}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commodity']").click(function() {
+              $("#commodity_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+{% endblock %}
+
+<form id="commodity_form" method="GET">
+    {%  csrf_token %}
+    <input class="product_list" type="radio" name="commodity" value="all"
+        {% if not selected_commodity %}checked="checked"{% endif %}
+    >{% trans "All" %}<br>
+    {% for commodity in commodities %}
+    <input class="product_list" type="radio" name="commodity" value="{{ commodity.sms_code }}"
+        {% ifequal selected_commodity commodity %}checked="checked"{% endifequal %}
+    >{{ commodity.name }}<br>
+    {% endfor %}
+</form>
