@@ -74,7 +74,7 @@ class App(AppBase):
             (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)
             if super_response:
-                sdp.report_to_supervisor(super_response, kwargs)
+                sdp.report_to_supervisor(super_response, kwargs, exclude=[message.logistics_contact])
             return True
 
         except Exception, e:

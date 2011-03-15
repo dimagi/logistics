@@ -240,17 +240,10 @@ class Facility(models.Model):
     def label(self):
         return unicode(self)
 
-    def record_consumption(self, product, rate):
-        ps = ProductStock.objects.get(product=product, facility=self)
+    def record_consumption_by_code(self, product_code, rate):
+        ps = ProductStock.objects.get(product__code=product_code, facility=self)
         ps.monthly_consumption = rate
         ps.save()
-
-    def record_consumption_by_code(self, product_code, rate):
-        try:
-            product = Product.objects.get(sms_code__icontains=stock_code)
-        except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
-        self.record_consumption(product, rate)
 
     # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
     # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
@@ -313,8 +306,10 @@ class Facility(models.Model):
         """
         raise Facility.objects.filter(supplied_by=self).order_by('name')
 
-    def report_to_supervisor(self, report, kwargs):
+    def report_to_supervisor(self, report, kwargs, exclude=None):
         reportees = self.reportees()
+        if exclude:
+            reportees = reportees.exclude(pk__in=[e.pk for e in exclude])
         for reportee in reportees:
             kwargs['admin_name'] = reportee.name
             reportee.message(report % kwargs)
@@ -331,11 +326,13 @@ class Facility(models.Model):
             ps.is_active = False
             ps.save()
 
-    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved):
+    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
         """ stockouts_resolved is a dictionary of code to product """
         to_notify = Facility.objects.filter(supplied_by=self).distinct()
         for fac in to_notify:
             reporters = fac.reporters()
+            if exclude:
+                reporters = reporters.exclude(pk__in=[e.pk for e in exclude])
             for reporter in reporters:
                 send_message(reporter.default_connection,
                             "Dear %(name)s, %(facility)s has resolved the following stockouts: %(products)s " %
@@ -459,9 +456,13 @@ class ProductReportsHelper(object):
         if stockouts_resolved:
             # notify all facilities supplied by this one
             # this needs to be decoupled more; could pull it out into a signal
-            self.facility.notify_suppliees_of_stockouts_resolved(stockouts_resolved)
+            if self.message:
+                self.facility.notify_suppliees_of_stockouts_resolved(stockouts_resolved, 
+                                                                     exclude=[self.message.contact])
+            else:
+                self.facility.notify_suppliees_of_stockouts_resolved(stockouts_resolved)
         for stock_code in self.consumption:
-            self.facility.record_consumption(product, self.consumption[stock_code])
+            self.facility.record_consumption_by_code(stock_code, self.consumption[stock_code])
         for stock_code in self.product_received:
             self._record_product_report_by_code(stock_code, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
 
@@ -493,7 +494,7 @@ class ProductReportsHelper(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':stock_code.upper() })
+            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper() })
         self._record_product_report(product, quantity, report_type)
 
     def _record_product_report(self, product, quantity, report_type):
