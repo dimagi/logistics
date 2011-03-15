@@ -19,7 +19,7 @@ class Help(KeywordHandler):
     def handle(self, text):
         topic = text.strip().lower()
         if topic == 'stock':
-            self.respond(_("Please send your receipts in the format ' <Commodity code> <stock on hand > -  <quantity received>'"))
+            self.respond(_("Please send your receipts in the format ' <Commodity code> <stock on hand > . <quantity received>'"))
         elif topic == 'stop':
             self.respond(_("Text 'stop' to stop receiving text message reminders."))
         elif topic == 'start':
