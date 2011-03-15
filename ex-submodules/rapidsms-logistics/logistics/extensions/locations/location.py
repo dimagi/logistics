@@ -15,19 +15,19 @@ class Location(models.Model):
 
     def children(self):
         from rapidsms.contrib.locations.models import Location
-        return Location.objects.filter(parent_id=self.id)
+        return Location.objects.filter(parent_id=self.id).order_by('name')
 
     def facilities(self):
         from logistics.apps.logistics.models import Facility
         # temp hack to get this working for tomorrow's showcase
         # TODO make this properly recursive
-        return Facility.objects.filter(location=self)
+        return Facility.objects.filter(location=self).order_by('name')
 
     def all_facilities(self):
         from logistics.apps.logistics.models import Facility
         # temp hack to get this working for tomorrow's showcase
         # TODO make this properly recursive
-        return Facility.objects.filter(Q(location=self)|Q(location__parent_id=self.id))
+        return Facility.objects.filter(Q(location=self)|Q(location__parent_id=self.id)).order_by('name')
 
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None):

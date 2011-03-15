@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import math
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -42,7 +43,7 @@ class Product(models.Model):
     """ e.g. oral quinine """
     name = models.CharField(max_length=100)
     units = models.CharField(max_length=100)
-    sms_code = models.CharField(max_length=10)
+    sms_code = models.CharField(max_length=10, unique=True)
     description = models.CharField(max_length=255)
     # product code is NOT currently used. The field is there so that it can
     # be synced up with whatever internal warehousing system is used at the
@@ -60,7 +61,7 @@ class Product(models.Model):
 class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, unique=True)
 
     def __unicode__(self):
         return self.name
@@ -111,7 +112,7 @@ class ProductStock(models.Model):
     @property
     def months_remaining(self):
         if self.monthly_consumption > 0 and self.quantity is not None:
-            return int(self.quantity / self.monthly_consumption)
+            return int(math.ceil(float(self.quantity) / float(self.monthly_consumption)))
         return None
 
     def is_stocked_out(self):
@@ -126,25 +127,25 @@ class ProductStock(models.Model):
         b) emergency levels not yet defined
         """
         if self.emergency_reorder_level is not None:
-            if self.quantity < self.emergency_reorder_level:
+            if self.quantity <= self.emergency_reorder_level:
                 return True
         return False
 
     def is_below_low_supply_but_above_emergency_level(self):
         if self.reorder_level is not None and self.emergency_reorder_level is not None:
-            if self.quantity < self.reorder_level and self.quantity>= self.emergency_reorder_level:
+            if self.quantity <= self.reorder_level and self.quantity> self.emergency_reorder_level:
                 return True
         return False
 
     def is_in_good_supply(self):
         if self.maximum_level is not None and self.reorder_level is not None:
-            if self.quantity >= self.reorder_level and self.quantity <= self.maximum_level:
+            if self.quantity > self.reorder_level and self.quantity < self.maximum_level:
                 return True
         return False
 
     def is_overstocked(self):
         if self.maximum_level is not None:
-            if self.quantity > self.maximum_level:
+            if self.quantity >= self.maximum_level:
                 return True
         return False
 
@@ -183,7 +184,7 @@ class ProductReport(models.Model):
 
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
-    code = models.CharField(max_length=30, blank=True)
+    code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100, blank=True)
 
     class Meta:
@@ -195,7 +196,7 @@ class Responsibility(models.Model):
 
 class ContactRole(models.Model):
     """ e.g. pharmacist, family planning nurse """
-    code = models.CharField(max_length=30, blank=True)
+    code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100, blank=True)
     responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
 
@@ -223,7 +224,7 @@ class Facility(models.Model):
     active = models.BooleanField(default=True)
     type = models.ForeignKey(FacilityType)
     created_at = models.DateTimeField(auto_now_add=True)
-    code = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, unique=True)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
     location = models.ForeignKey(Location)
     # i know in practice facilities are supplied by a variety of sources
@@ -309,7 +310,7 @@ class Facility(models.Model):
         For all intents and purses, at this time, the 'children' of a facility wrt site navigation
         are the same as the 'children' with respect to stock supply
         """
-        raise Facility.objects.filter(supplied_by=self)
+        raise Facility.objects.filter(supplied_by=self).order_by('name')
 
     def report_to_supervisor(self, report, kwargs):
         reportees = self.reportees()
