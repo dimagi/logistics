@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     "south",
     
     # the rapidsms contrib apps.
-    "rapidsms.contrib.default",
+    #"rapidsms.contrib.default",
     "rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",

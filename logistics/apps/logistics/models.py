@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import re
 import math
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -405,6 +406,10 @@ class ProductReportsHelper(object):
     def parse(self, string):
         if not string:
             return
+        match = re.search("[0-9]",string)
+        if not match:
+            raise ValueError("Stock report should contain quantity of stock on hand. " + \
+                             "Please contact FRHP for assistance.")
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
