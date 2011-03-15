@@ -609,8 +609,8 @@ class ProductReportsHelper(object):
             response = response + 'the following items are stocked out: %(stockouts)s. '
             super_response = "stockouts %(stockouts)s; "
         if low_supply:
-            response = response + 'the following items are in low supply: %(low_supply)s. '
-            super_response = super_response + "low supply %(low_supply)s; "
+            response = response + 'the following items need to be reordered: %(low_supply)s. '
+            super_response = super_response + "below reorder level %(low_supply)s; "
         if self.has_stockout or low_supply:
             response = response + 'Please place an order now. '
         if missing_product_list:

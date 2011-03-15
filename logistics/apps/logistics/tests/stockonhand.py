@@ -94,7 +94,7 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 7 mc 9
-           16176023315 < Dear cynthia, the following items are in low supply: lf mc. Please place an order now.
+           16176023315 < Dear cynthia, the following items need to be reordered: lf mc. Please place an order now.
            """
         self.runScript(a)
 
@@ -114,8 +114,8 @@ class TestStockOnHand (TestScript):
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh lf 0 mc 1
-           super < Dear super, Test Facility is experiencing the following problems: stockouts lf; low supply mc
-           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items are in low supply: mc. Please place an order now.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc
+           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items need to be reordered: mc. Please place an order now.
            """
         self.runScript(a)
 
@@ -126,11 +126,11 @@ class TestStockOnHand (TestScript):
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > mc 0 mg 1
-           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; low supply mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items are in low supply: mg. Please place an order now. Still missing lf.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
+           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
            pharmacist > lf 0 mc 1 mg 100
-           super < Dear super, Test Facility is experiencing the following problems: stockouts lf; low supply mc; overstocked mg
-           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items are in low supply: mc. Please place an order now.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc; overstocked mg
+           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items need to be reordered: mc. Please place an order now.
            """
         self.runScript(a)
 
@@ -141,11 +141,11 @@ class TestStockOnHand (TestScript):
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng 300
-           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; low supply mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items are in low supply: mg. Please place an order now. Still missing lf.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
+           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
            pharmacist > soh mc 0-2 mg 1-1 ng 300-1
-           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; low supply mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items are in low supply: mg. Please place an order now. Still missing lf.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
+           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
            """
         self.runScript(a)
 
@@ -156,8 +156,8 @@ class TestStockOnHand (TestScript):
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng300-4
-           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; low supply mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items are in low supply: mg. Please place an order now. Still missing lf.
+           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
+           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
            """
         self.runScript(a)
 
