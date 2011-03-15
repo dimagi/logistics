@@ -28,4 +28,8 @@ class Help(KeywordHandler):
             codes = [c.sms_code for c in Product.objects.all().order_by('sms_code')]
             self.respond("Available commodity codes: %(codes)s", codes=", ".join(codes))
         else:
-            self.respond(HELP_TEXT)
+            try:
+                p = Product.objects.get(sms_code=topic)
+                self.respond("%s is the commodity code for %s" % (topic, p.name))
+            except Product.DoesNotExist:
+                self.respond(HELP_TEXT)
