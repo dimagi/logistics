@@ -23,7 +23,7 @@ SETUP
 * cd logistics
 * cp localsettings.py.example localsettings.py
 * ./manage.py syncdb
-* python bootstrap_db.py
+* python import_facilities.py Facilities.csv
 * ./manage.py runserver &
 * ./manage.py runrouter &
 
