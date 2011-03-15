@@ -35,6 +35,16 @@ def LoadFacilities(filename):
         name = row[3].strip()
         code = "".join([word[0] for word in name.split()])
         code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
+        postfix = ''
+        try:
+            count = 0
+            while True:
+                Facility.objects.get(code=(code + postfix))
+                count = count + 1
+                postfix = str(count)
+        except Facility.DoesNotExist:
+            pass
+        code = code + postfix
         type = row[4]
         try:
             facilitytype = FacilityType.objects.get(name__icontains=type)
@@ -69,7 +79,7 @@ def LoadProductsIntoFacilities():
                                  monthly_consumption=100).save()
                 else:
                     # facilities get all products by default active, 10 stock
-                    ProductStock(quantity=0,
+                    ProductStock(quantity=0, is_active=False,
                                  facility=fac,
                                  product=product,
                                  monthly_consumption=10).save()
