@@ -167,7 +167,7 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > mc 15 lf 15 mg300
+           pharmacist > mc 16 lf 16 mg300
            super < Dear super, Test Facility is experiencing the following problems: overstocked mg
            pharmacist < Dear cynthia, the following items are overstocked: mg. The district admin has been informed.
            """
