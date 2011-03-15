@@ -745,7 +745,7 @@
             "role": 1,
             "name": "In Charge",
             "language": "en-us",
-            "facility": 4
+            "facility": 1
         }
     },
     {
@@ -756,7 +756,7 @@
             "role": 2,
             "name": "Test User",
             "language": "en-us",
-            "facility": 4
+            "facility": 1
         }
     },
     {
