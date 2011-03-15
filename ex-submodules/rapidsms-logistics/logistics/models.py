@@ -562,7 +562,7 @@ class ProductReportsHelper(object):
             #    supply for %(code)s until I know your monthly consumption.
             #    Please contact FRHP for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
-                if self.product_stock[i] < productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
+                if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
                    self.product_stock[i] != 0:
                     low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
@@ -577,7 +577,7 @@ class ProductReportsHelper(object):
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact FRHP for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
-                if self.product_stock[i] > productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
+                if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
                    productstock.monthly_consumption>0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
