@@ -153,7 +153,7 @@ class ProductStock(models.Model):
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=10, unique=True)
 
     def __unicode__(self):
         return self.name
