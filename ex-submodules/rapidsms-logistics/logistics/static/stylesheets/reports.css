@@ -1,5 +1,8 @@
 .stockout {
     background-color: red;
+    font-weight: bold;
+    color: white;
+    text-shadow: #000 2px 2px 1px;
 }
 
 .emergency {
@@ -15,7 +18,7 @@
 }
 
 .overstock {
-    background-color: #ffa07a;
+    background-color: #ffa0aa;
 }
 
 .stock_col{
