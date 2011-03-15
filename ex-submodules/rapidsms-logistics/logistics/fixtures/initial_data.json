@@ -466,7 +466,14 @@
         "pk": "hc",
         "model": "logistics.facilitytype",
         "fields": {
-            "name": "Health Center"
+            "name": "Health Centre"
+        }
+    },
+    {
+        "pk": "c",
+        "model": "logistics.facilitytype",
+        "fields": {
+            "name": "Clinic"
         }
     },
     {
