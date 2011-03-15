@@ -19,5 +19,5 @@
         {% endif %}
     {% endif %}
 >
-    {{ stockonhand.months_remaining|default_if_none:"n/a" }}
+    {{ stockonhand.months_remaining|default_if_none:"n/a"|floatformat }}
 </td>
