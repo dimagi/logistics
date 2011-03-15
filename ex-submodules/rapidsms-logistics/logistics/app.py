@@ -6,6 +6,8 @@ The main purpose of this app is to parse reports of stock on hand and receipts
 Look at the unit tests for specific examples.
 """
 
+import re
+from rapidsms.conf import settings
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
@@ -78,6 +80,20 @@ class App(AppBase):
         except Exception, e:
             message.respond(unicode(e))
             raise
+    
+    def default(self, message):
+        """ There's probably a better way to do this, but for now,
+        this is what the folks in the field want 
+        """
+        match = re.search("[0-9]", message.text)
+        if match is not None:
+            index = message.text.find(match.group(0))
+            code = message.text[:index].strip()
+            message.error("%s is not a recognized commodity code. " % code + 
+                          "Please contact FRHP for assistance." )
+        elif settings.DEFAULT_RESPONSE is not None:
+            message.error(settings.DEFAULT_RESPONSE,
+                          project_name=settings.PROJECT_NAME)
 
     def cleanup (self, message):
         """Perform any clean up after all handlers have run in the

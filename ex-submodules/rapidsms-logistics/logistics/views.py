@@ -119,8 +119,8 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
 def reporting(request, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported')
-    context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported')
+    context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
+    context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
