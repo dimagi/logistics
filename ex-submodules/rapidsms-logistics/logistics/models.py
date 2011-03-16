@@ -241,7 +241,7 @@ class Facility(models.Model):
         return unicode(self)
 
     def record_consumption_by_code(self, product_code, rate):
-        ps = ProductStock.objects.get(product__code=product_code, facility=self)
+        ps = ProductStock.objects.get(product__sms_code=product_code, facility=self)
         ps.monthly_consumption = rate
         ps.save()
 
