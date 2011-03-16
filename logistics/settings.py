@@ -26,13 +26,20 @@ INSTALLED_BACKENDS = {
     #    "ENGINE": "rapidsms.backends.gsm,
     #    "PORT": "/dev/ttyUSB1"
     #},
-    "end2end": {
+    "smsgh": {
         "ENGINE": "rapidsms.backends.http",
         "PORT": 8002,
-        "gateway_url" : "http://gw1.promessaging.com/sms.php",
-        "params_outgoing": "user=my_username&password=my_password&id=%(phone_number)s&text=%(message)s",
+        "gateway_url" : "http://api.smsgh.com/v2/messages/send",
+        "params_outgoing": "username=EWSGhana&password=xxx&from=1945&to=%(phone_number)s&text=%(message)s",
         "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
     },
+    #"end2end": {
+    #    "ENGINE": "rapidsms.backends.http",
+    #    "PORT": 8002,
+    #    "gateway_url" : "http://gw1.promessaging.com/sms.php",
+    #    "params_outgoing": "user=my_username&password=my_password&id=%(phone_number)s&text=%(message)s",
+    #    "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
+    #},
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
@@ -207,7 +214,7 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
 
-DEFAULT_BACKEND = 'message_tester'
+DEFAULT_BACKEND = 'smsgh'
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
