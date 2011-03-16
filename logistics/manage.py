@@ -12,6 +12,7 @@ sys.path.append(os.path.join(filedir,'..','rapidsms'))
 sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
 sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms'))
 sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms','contrib'))
+sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
 
 if __name__ == "__main__":
     execute_manager(settings)

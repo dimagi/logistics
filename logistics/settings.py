@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.registration",
     "logistics.apps.registration",
     "logistics.apps.logistics",
+    "django_cpserver",
 ]
 
 
