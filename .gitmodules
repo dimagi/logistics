@@ -1,3 +1,6 @@
 [submodule "rapidsms"]
 	path = rapidsms
 	url = git://github.com/dimagi/rapidsms.git
+[submodule "submodules/django-cpserver"]
+	path = submodules/django-cpserver
+	url = https://github.com/lincolnloop/django-cpserver
