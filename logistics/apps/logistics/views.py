@@ -167,7 +167,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
         if is_facility:
             row['url'] = reverse('stockonhand_facility', args=[child.code])
         else:
-            if child.type.slug == DISTRICT_TYPE:
+            if child.type and child.type.slug == DISTRICT_TYPE:
                 row['url'] = reverse('district', args=[child.code])
             else:
                 row['url'] = reverse('aggregate', args=[child.code])
