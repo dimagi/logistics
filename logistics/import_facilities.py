@@ -71,7 +71,7 @@ def LoadProductsIntoFacilities():
         products = Product.objects.all()
         for product in products:
             if ProductStock.objects.filter(facility=fac, product=product).count() == 0:
-                if fac.type == 'RMS':
+                if fac.type.code == 'RMS':
                     # RMS get all products by default active, 100 stock
                     ProductStock(quantity=0,
                                  facility=fac,
