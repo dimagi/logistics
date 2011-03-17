@@ -9,7 +9,8 @@ class Contact(models.Model):
     needs_reminders = models.BooleanField(default=True)
     commodities = models.ManyToManyField("logistics.Product", 
                                          help_text="User manages these commodities.",
-                                         related_name="reported_by")
+                                         related_name="reported_by",
+                                         blank=True, null=True)
 
     class Meta:
         abstract = True
