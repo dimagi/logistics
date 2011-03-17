@@ -89,30 +89,26 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     """
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=context['location'])
+    context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=location)
+    commodity_filter = None
+    commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
         filtered_by_commodity = False
-        if 'commodity' in request.REQUEST:
-            try:
-                selected_commodity = Product.objects.get(sms_code=request.REQUEST['commodity'])
-            except Product.DoesNotExist:
-                # user selected 'all'
-                pass
-            else:
-                template="logistics/stockonhand_district.html"
-                context['selected_commodity'] = selected_commodity
-                context['stockonhands'] = stockonhands.filter(product=selected_commodity)
-                filtered_by_commodity = True
-        if not filtered_by_commodity and 'commoditytype' in request.REQUEST:
-            try:
-                selected_commoditytype = ProductType.objects.get(code=request.REQUEST['commoditytype'])
-            except ProductType.DoesNotExist:
-                # user selected 'all'
-                pass
-            else:
-                context['selected_commoditytype'] = selected_commoditytype
-                context['stockonhands'] = stockonhands.filter(product__type=selected_commoditytype)
+        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
+            commodity_filter = request.REQUEST['commodity']
+            context['commodity_filter'] = commodity_filter
+            commodity = Product.objects.get(sms_code=commodity_filter)
+            context['commoditytype_filter'] = commodity.type.code
+            template="logistics/stockonhand_district.html"
+            context['stockonhands'] = stockonhands.filter(product=commodity)
+        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
+            commoditytype_filter = request.REQUEST['commoditytype']
+            context['commoditytype_filter'] = commoditytype_filter
+            type = ProductType.objects.get(code=commoditytype_filter)
+            context['commodities'] = context['commodities'].filter(type=type)
+            context['stockonhands'] = stockonhands.filter(product__type=type)
+    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
