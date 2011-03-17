@@ -121,5 +121,15 @@ class CommoditiesContactForm(IntlSMSContactForm):
         model = super(CommoditiesContactForm, self).save(commit=False)
         if commit:
             model.save()
+            conn = model.default_connection
+            if not conn:
+                if settings.DEFAULT_BACKEND:
+                    backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
+                else:
+                    backend = Backend.objects.all()[0]
+                conn = Connection(backend=backend,
+                                  contact=model)
+            conn.identity = self.cleaned_data['phone']
+            conn.save()
             self.save_m2m()
         return model
