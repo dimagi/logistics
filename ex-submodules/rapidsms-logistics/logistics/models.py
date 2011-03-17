@@ -603,10 +603,9 @@ class ProductReportsHelper(object):
         all_products = []
         date_check = datetime.now() + relativedelta(days=-7)
         reporter = self.message.contact
-        
-        missing_products = Product.objects.filter(Q(productstock__facility=self.facility,
-                                                    productstock__product__reported_by=reporter),
-                                                  ~Q(productreport__report_date__gt=date_check) )
+        missing_products = Product.objects.filter(Q(reported_by=reporter),
+                                                  ~Q(productreport__report_date__gt=date_check,
+                                                     productreport__facility=self.facility) )
         for dict in missing_products.values('sms_code'):
             all_products.append(dict['sms_code'])
         return list(set(all_products)-self.reported_products())
