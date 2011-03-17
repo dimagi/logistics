@@ -583,6 +583,13 @@
         }
     },
     {
+        "pk": "district", 
+        "model": "locations.locationtype", 
+        "fields": {
+            "name": "district"
+        }
+    }, 
+    {
         "pk": 1,
         "model": "locations.location",
         "fields": {
@@ -639,7 +646,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 2,
-            "type": null
+            "type": "district"
         }
     },
     {
@@ -651,7 +658,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 3,
-            "type": null
+            "type": "district"
         }
     },
     {
@@ -663,7 +670,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 2,
-            "type": null
+            "type": "district"
         }
     },
     {
@@ -675,7 +682,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 3,
-            "type": null
+            "type": "district"
         }
     },
     {
@@ -687,7 +694,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 4,
-            "type": null
+            "type": "district"
         }
     },
     {
@@ -699,7 +706,7 @@
             "point": null,
             "parent_type": 17,
             "parent_id": 4,
-            "type": null
+            "type": "district"
         }
     },
     {
