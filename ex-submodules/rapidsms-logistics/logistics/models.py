@@ -29,6 +29,7 @@ REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
                    "Please contact your district administrator."
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = "Please contact FRHP for assistance."
+DISTRICT_TYPE = 'district'
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS

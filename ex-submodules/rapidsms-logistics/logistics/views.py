@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, STOCK_ON_HAND_REPORT_TYPE
+    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
@@ -167,7 +167,10 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
         if is_facility:
             row['url'] = reverse('stockonhand_facility', args=[child.code])
         else:
-            row['url'] = reverse('aggregate', args=[child.code])
+            if child.type.slug == DISTRICT_TYPE:
+                row['url'] = reverse('district', args=[child.code])
+            else:
+                row['url'] = reverse('aggregate', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 
