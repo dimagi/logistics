@@ -115,3 +115,11 @@ class IntlSMSContactForm(ContactForm):
                                     "Please enter the fully qualified number." + \
                                     "Example: %(intl)s2121234567" % \
                                     {'intl':idc})
+
+class CommoditiesContactForm(IntlSMSContactForm):
+    def save(self, commit=True):
+        model = super(CommoditiesContactForm, self).save(commit=False)
+        if commit:
+            model.save()
+            self.save_m2m()
+        return model

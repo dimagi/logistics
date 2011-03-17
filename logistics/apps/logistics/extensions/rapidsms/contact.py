@@ -2,9 +2,14 @@ from __future__ import absolute_import
 from django.db import models
 
 class Contact(models.Model):
+    # if one person wants to submit stocks for multiple facilities, then
+    # they'll have to create multiple contacts for themselves
     role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
     facility = models.ForeignKey("logistics.Facility",null=True,blank=True)
     needs_reminders = models.BooleanField(default=True)
+    commodities = models.ManyToManyField("logistics.Product", 
+                                         help_text="User manages these commodities.",
+                                         related_name="reported_by")
 
     class Meta:
         abstract = True
@@ -32,4 +37,4 @@ class Contact(models.Model):
                                                    role=SUPERVISOR)
         return Contact.objects.filter(facility=self.facility.parentsdp(),
                                                role=SUPERVISOR)
-
+        

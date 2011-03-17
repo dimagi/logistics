@@ -61,7 +61,7 @@ class TestStockOnHand (TestScript):
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 10
-           16176023315 < Dear stella, thank you for reporting your stock on hand. Still missing mc.
+           16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            16176023315 > soh lf 10 mc 20
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            16176023315 > SOH LF 10 MC 20
@@ -76,7 +76,7 @@ class TestStockOnHand (TestScript):
            16176023315 >
            16176023315 < Sorry, I could not understand your message. Please contact Focus Region Health Project for help.
            16176023315 > soh
-           16176023315 < Dear stella, thank you for reporting your stock on hand. Still missing lf, mc.
+           16176023315 < Dear stella, thank you for reporting the commodities you have in stock. 
            """
         self.runScript(a)
 
@@ -127,7 +127,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > mc 0 mg 1
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
+           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now.
            pharmacist > lf 0 mc 1 mg 100
            super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc; overstocked mg
            pharmacist < Dear cynthia, the following items are stocked out: lf. the following items need to be reordered: mc. Please place an order now.
@@ -142,10 +142,10 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng 300
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
+           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. 
            pharmacist > soh mc 0-2 mg 1-1 ng 300-1
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
+           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now.
            """
         self.runScript(a)
 
@@ -157,7 +157,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng300-4
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. Still missing lf.
+           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. 
            """
         self.runScript(a)
 
