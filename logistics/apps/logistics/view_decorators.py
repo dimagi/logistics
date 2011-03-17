@@ -23,8 +23,6 @@ def geography_context(func):
     def _new_func(*args, **kwargs):
         context = {}
         context['geography'] = get_geography()
-        if 'location_code' in kwargs:
-            context['location'] = get_object_or_404(Location, code=kwargs['location_code'])
         if 'context' in kwargs:
             kwargs['context'].update(context)
         else:
