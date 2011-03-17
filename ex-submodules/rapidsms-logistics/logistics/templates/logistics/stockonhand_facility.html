@@ -36,7 +36,11 @@
                         </tr>
                     {% endfor %}
                     </tbody>
-                </table><br/>
+                </table>
+                <div class="toolbar">
+					<a href="{% url input_stock facility.code %}" class="add">Input Stock</a>
+				</div>
+                <br/>
             <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
             {% if last_reported %}
                 <p>The last report received was on {{ last_reported|date:"M d, h:m A" }}.</p>
