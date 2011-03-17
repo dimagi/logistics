@@ -14,12 +14,12 @@
 
 <form id="commoditytype_form" method="GET">
     {%  csrf_token %}
-    <input class="product_list" type="radio" name="commoditytype" value="all"
-        {% if not selected_commoditytype %}checked="checked"{% endif %}
+    <input class="product_list" type="radio" name="commoditytype" value="all" 
+        {% if not commoditytype_filter %}checked{% endif %}
     >{% trans "All" %}<br>
     {% for commoditytype in commoditytypes %}
     <input class="product_list" type="radio" name="commoditytype" value="{{ commoditytype.code }}"
-        {% ifequal selected_commoditytype commoditytype %}checked="checked"{% endifequal %}
+        {% ifequal commoditytype_filter commoditytype.code %}checked{% endifequal %}
     >{{ commoditytype.name }}<br>
     {% endfor %}
 </form>

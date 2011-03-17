@@ -256,32 +256,43 @@ class Facility(models.Model):
     #        return last_report.report_date
     #    return None
 
-    def stockout_count(self):
-        return stockout_count(facilities=[self])
+    def stockout_count(self, product=None, producttype=None):
+        return stockout_count(facilities=[self], 
+                              product=product, 
+                              producttype=producttype)
 
-    def emergency_stock_count(self):
+    def emergency_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return emergency_stock_count(facilities=[self])
+        return emergency_stock_count(facilities=[self], 
+                                     product=product, 
+                                     producttype=producttype)
 
-    def low_stock_count(self):
+    def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return low_stock_count(facilities=[self])
+        return low_stock_count(facilities=[self], 
+                               product=product, 
+                               producttype=producttype)
 
-    def good_supply_count(self):
+    def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return good_supply_count(facilities=[self])
+        return good_supply_count(facilities=[self], 
+                                 product=product, 
+                                 producttype=producttype)
 
-    def overstocked_count(self):
-        return overstocked_count(facilities=[self])
+    def overstocked_count(self, product=None, producttype=None):
+        return overstocked_count(facilities=[self], 
+                                 product=product, 
+                                 producttype=producttype)
 
     def report(self, product, report_type, quantity, message=None):
-        npr = ProductReport(product=product, report_type=report_type, quantity=quantity, message=message, facility=self)
+        npr = ProductReport(product=product, report_type=report_type, 
+                            quantity=quantity, message=message, facility=self)
         npr.save()
         return npr
 
@@ -662,9 +673,9 @@ post_save.connect(post_save_product_report, sender=ProductReport)
 def _filtered_stock(product, producttype):
     results = ProductStock.objects.all()
     if product is not None:
-        results = results.filter(product=product)
+        results = results.filter(product__sms_code=product)
     elif producttype is not None:
-        results = results.filter(product__type=producttype)
+        results = results.filter(product__type__code=producttype)
     return results
 
 def stockout_count(facilities=None, product=None, producttype=None):
