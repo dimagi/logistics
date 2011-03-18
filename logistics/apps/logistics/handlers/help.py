@@ -24,7 +24,7 @@ class Help(KeywordHandler):
             self.respond(_("Text 'stop' to stop receiving text message reminders."))
         elif topic == 'start':
             self.respond(_("Text 'start' to get text message reminders every week to submit your stock reports."))
-        elif topic == 'codes':
+        elif 'code' in topic:
             codes = [c.sms_code for c in Product.objects.all().order_by('sms_code')]
             self.respond("Available commodity codes: %(codes)s", codes=", ".join(codes))
         else:

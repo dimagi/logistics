@@ -101,13 +101,13 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
             commodity = Product.objects.get(sms_code=commodity_filter)
             context['commoditytype_filter'] = commodity.type.code
             template="logistics/stockonhand_district.html"
-            context['stockonhands'] = stockonhands.filter(product=commodity)
+            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('facility__name')
         elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
             commoditytype_filter = request.REQUEST['commoditytype']
             context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
-            context['stockonhands'] = stockonhands.filter(product__type=type)
+            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('facility__name')
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
