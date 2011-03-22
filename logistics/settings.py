@@ -184,3 +184,4 @@ DOMESTIC_DIALLING_CODE = 0
 COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
+DEBUG=True
