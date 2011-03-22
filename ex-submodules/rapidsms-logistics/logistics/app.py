@@ -78,9 +78,11 @@ class App(AppBase):
             return True
 
         except Exception, e:
-            message.respond(unicode(e))
+            if settings.DEBUG:
+                # this error actually gets logged deep within rapidSMS
+                message.respond(unicode(e))
             raise
-    
+
     def default(self, message):
         """ There's probably a better way to do this, but for now,
         this is what the folks in the field want 
