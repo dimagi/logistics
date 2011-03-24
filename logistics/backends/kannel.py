@@ -1,5 +1,5 @@
 # vim: ai ts=4 sts=4 et sw=4
-from rapidsms.backends.http import RapidHttpBacked
+from rapidsms.backends.http import RapidHttpBackend
 
 import copy
 import urllib
@@ -8,7 +8,7 @@ from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseBadRequest
 
-class KannelBackend(RapidHttpBacked):
+class KannelBackend(RapidHttpBackend):
     """
     Backend for use with the Kannel SMS Gateway.
     
@@ -56,7 +56,7 @@ class KannelBackend(RapidHttpBacked):
         if charset and not isinstance(sms, unicode):
             sms = sms.decode(charset)
         try:
-            msg = super(RapidHttpBacked, self).message(sender, sms, now)
+            msg = super(RapidHttpBackend, self).message(sender, sms, now)
         except:
             self.exception('failed to create message in RapidSMS')
             raise
