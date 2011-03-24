@@ -49,6 +49,11 @@ class OutgoingMessage(MessageBase):
 
     def _render_part(self, template, **kwargs):
         t = translation(self.language)
+        if template == "":
+            # by convention, translating the empty string ""
+            # returns metadata about the translation file, which
+            # no one really ever wants to see
+            return template
         tmpl = t.gettext(template)
         return tmpl % kwargs
 

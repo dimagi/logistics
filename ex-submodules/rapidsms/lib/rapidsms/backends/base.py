@@ -110,3 +110,11 @@ class BackendBase(object, LoggerMixin):
 
         except Queue.Empty:
             return None
+
+    def receive(self, identity, text):
+        # should return the message
+        raise NotImplementedError
+
+    def send(self, msg):
+        # should return True if sending succeeded, False if it failed
+        raise NotImplementedError

@@ -61,7 +61,7 @@ class RapidHttpServer(WSGIServer):
             WSGIServer.handle_request(self)
 
 
-class RapidHttpBacked(BackendBase):
+class RapidHttpBackend(BackendBase):
     """ RapidSMS backend that creates and handles an HTTP server """
 
     _title = "HTTP"
@@ -109,7 +109,7 @@ class RapidHttpBacked(BackendBase):
             return HttpResponseBadRequest(error_msg)
         now = datetime.utcnow()
         try:
-            msg = super(RapidHttpBacked, self).message(sender, sms, now)
+            msg = super(RapidHttpBackend, self).message(sender, sms, now)
         except Exception, e:
             self.exception(e)
             raise        
@@ -123,19 +123,20 @@ class RapidHttpBacked(BackendBase):
             text = text.encode('utf-8')
         # we do this since http_params_outgoing is a user-defined settings
         # and we don't want things like "%(doesn'texist)s" to throw an error
-        self.http_params_outgoing = self.http_params_outgoing.replace('%(message)s',
+        http_params_outgoing = self.http_params_outgoing.replace('%(message)s',
                                                                       urllib2.quote(text))
-        self.http_params_outgoing = self.http_params_outgoing.replace('%(phone_number)s',
+        http_params_outgoing = http_params_outgoing.replace('%(phone_number)s',
                                                                       urllib2.quote(message.connection.identity))
-        url = "%s?%s" % (self.gateway_url, self.http_params_outgoing)
+        url = "%s?%s" % (self.gateway_url, http_params_outgoing)
         try:
             self.debug('Sending: %s' % url)
             response = urllib2.urlopen(url)
         except Exception, e:
             self.exception(e)
-            return
+            return False
         self.info('SENT')
         info = 'RESPONSE %s' % response.info()
         info = info.replace('\n',' ').replace('\r',',')
         
         self.debug(info)
+        return True
