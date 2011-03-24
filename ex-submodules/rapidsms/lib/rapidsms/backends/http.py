@@ -135,4 +135,7 @@ class RapidHttpBacked(BackendBase):
             self.exception(e)
             return
         self.info('SENT')
-        self.debug(response)
+        info = 'RESPONSE %s' % response.info()
+        info = info.replace('\n',' ').replace('\r',',')
+        
+        self.debug(info)
