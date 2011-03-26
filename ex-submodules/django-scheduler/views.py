@@ -36,4 +36,4 @@ def edit(request, pk, template="scheduler/edit.html"):
         form = ScheduleForm(instance=schedule)
     context['form'] = form
     context['schedule'] = schedule
-    return render_to_response(template, context, context_instance=RequestContext(req))
+    return render_to_response(template, context, context_instance=RequestContext(request))
