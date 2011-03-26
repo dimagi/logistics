@@ -20,9 +20,12 @@ SETUP
 * git clone git://github.com/dimagi/logistics.git
 * cd logistics
 * pip install -r pip-requires.txt
+* git submodule init
+* git submodule update
 * cd logistics
 * cp localsettings.py.example localsettings.py
 * ./manage.py syncdb
+* ./manage.py migrate
 * python import_facilities.py Facilities.csv
 * ./manage.py runserver &
 * ./manage.py runrouter &
