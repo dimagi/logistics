@@ -24,7 +24,7 @@ REPORTEE_RESPONSIBILITY = 'reportee'
 SUPERVISOR_RESPONSIBILITY = 'supervisor'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
-REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
+REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
