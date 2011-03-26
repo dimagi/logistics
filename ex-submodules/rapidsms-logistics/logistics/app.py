@@ -28,17 +28,24 @@ class App(AppBase):
             
             # set up first soh reminder
             try:
-                EventSchedule.objects.get(callback="logistics.schedule.first_soh_reminder")
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
             except EventSchedule.DoesNotExist:
                 # 2:15 pm on Thursdays
-                set_weekly_event("logistics.schedule.first_soh_reminder",3,14,15)
+                set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",4,18,57)
 
             # set up second soh reminder
             try:
-                EventSchedule.objects.get(callback="logistics.schedule.second_soh_reminder")
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
             except EventSchedule.DoesNotExist:
                 # 2:15 pm on Mondays
-                set_weekly_event("logistics.schedule.second_soh_reminder",0,14,15)
+                set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",4,18,58)
+
+            # set up third soh reminder
+            try:
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
+            except EventSchedule.DoesNotExist:
+                # 2:15 pm on Mondays
+                set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",4,19,01)
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
