@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "logistics.apps.registration",
     "logistics.apps.logistics",
     "logistics.apps.smsgh",
-    "django_cpserver",
+    #"django_cpserver",
 ]
 
 
