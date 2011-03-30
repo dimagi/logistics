@@ -15,6 +15,9 @@ INSTALLED_APPS = [
     "django_nose",
     "djtables",
     "rapidsms",
+    # for email reports
+    "djcelery", # pip install django-celery
+    "djkombu", # pip install django-kombu
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -44,8 +47,9 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.registration",
     "logistics.apps.registration",
     "logistics.apps.logistics",
+    "logistics.apps.reports",
     "logistics.apps.smsgh",
-    #"django_cpserver",
+    #"django_cpserver", # pip install django-cpserver
 ]
 
 
@@ -162,6 +166,9 @@ LOG_LEVEL   = "DEBUG"
 LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
+
+# celery
+CARROT_BACKEND = "django"
 
 if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
     DATABASES = TESTING_DATABASES
