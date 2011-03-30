@@ -43,6 +43,9 @@ INSTALLED_BACKENDS = {
         "charset": "ascii",
         "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
+    "message_tester": {
+        "ENGINE": "rapidsms.backends.bucket",
+    },
 }
 
 # for postgresql:
