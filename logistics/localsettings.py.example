@@ -28,23 +28,20 @@
 # all other options are passed to the Backend when it is instantiated,
 # to configure it. see the documentation in those modules for a list of
 # the valid options for each.
+# the valid options for each.
 INSTALLED_BACKENDS = {
-    "MTN": {
-        "ENGINE": "rapidsms.backends.gsm",
-        "PORT": "/dev/ttyUSB0",
-        "baudrate":115200,
-        "rtscts": 1
-    },
-    "end2end": {
-        "ENGINE": "rapidsms.backends.http",
-        "PORT": 8002,
-        "HOST": "localhost",
-        "gateway_url" : "http://gw1.promessaging.com/sms.php",
-        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
-        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
-    },
-    "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
+    "modem": {
+        "ENGINE": "logistics.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8002,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "zain-modem",
+                           "from": "+265999279085", # will be overridden; set for consistency
+                           "username": "rapidsms",
+                           "password": "CHANGEME"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
 }
 
