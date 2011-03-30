@@ -5,7 +5,11 @@ from django.utils.translation import ugettext as _
 from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, Facility, REGISTER_MESSAGE
+from logistics.apps.logistics.models import ContactRole, Facility
+
+REGISTER_MESSAGE = "To register, send REG <NAME>. Example: 'REG Mary Phiri'"
+ERROR_MESSAGE = "Sorry, did not understand. %(REG)s"  % {"REG": REGISTER_MESSAGE}
+ALREADY_REGISTERED = "Sorry, this phone has already been registered to %(contact_name)s."
 
 class LanguageHandler(KeywordHandler):
     """
@@ -19,30 +23,12 @@ class LanguageHandler(KeywordHandler):
         self.respond(REGISTER_MESSAGE)
     
     def handle(self, text):
-        words = text.split()
-        if len(words) < 2 or len(words) > 3:
-            self.respond(_("Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"))
-            return
-        name = words[0]
-        code = words[1]
-        try:
-            fac = Facility.objects.get(code__contains=code)
-        except Facility.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
-            return
-        if len(words) == 3:
-            role_code = words[2]
-            try:
-                role = ContactRole.objects.get(code=role_code)
-            except ContactRole.DoesNotExist:
-                self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
-                return
-            contact = Contact.objects.create(name=name, facility=fac, role=role)
+        if self.msg.contact is not None:
+            self.respond(ALREADY_REGISTERED, **{"contact_name": self.msg.contact.name})
         else:
-            contact = Contact.objects.create(name=name, facility=fac)
-        self.msg.connection.contact = contact
-        self.msg.connection.save()
-        kwargs = {'sdp_name': fac.name,
-                  'code': code,
-                  'contact_name': contact.name}
-        self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Early Warning System. Your facility is %(sdp_name)s"), **kwargs)
+            name = " ".join(w.capitalize() for w in text.split())
+            contact = Contact.objects.create(name=name)
+            self.msg.connection.contact = contact
+            self.msg.connection.save()
+            kwargs = {'contact_name': contact.name}
+            self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Stock Alert System."), **kwargs)

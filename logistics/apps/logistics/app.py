@@ -13,10 +13,12 @@ from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
-from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 SOH_KEYWORD = 'soh'
+REGISTRATION_REQUIRED_MSG = ("You must registered on the Early Warning System "
+                             "before you can submit a stock report. Please "
+                             "contact your district administrator.")
 
 class App(AppBase):
     bootstrapped = False
@@ -49,7 +51,7 @@ class App(AppBase):
         if not self._should_handle(message):
             return False
         if not hasattr(message,'logistics_contact'):
-            message.respond(REGISTER_MESSAGE)
+            message.respond(REGISTRATION_REQUIRED_MSG)
             return True
         sdp = message.logistics_contact.facility
         if sdp is None:

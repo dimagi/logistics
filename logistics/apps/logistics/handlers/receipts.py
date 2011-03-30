@@ -10,7 +10,8 @@ from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
 from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE
-from logistics.apps.logistics.models import REGISTER_MESSAGE
+from logistics.apps.logistics.app import REGISTRATION_REQUIRED_MSG
+
 
 class ReceiptHandler(KeywordHandler):
     """
@@ -24,7 +25,7 @@ class ReceiptHandler(KeywordHandler):
 
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
-            self.respond(REGISTER_MESSAGE)
+            self.respond(REGISTRATION_REQUIRED_MSG)
             return
         facility = self.msg.logistics_contact.facility
         stock_report = ProductReportsHelper(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
