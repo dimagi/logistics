@@ -91,9 +91,30 @@ def create_staging_db ():
     curs.close()
     conn.close()
 
+FAIL_MSG = """
+===========================================================================
+                            EXPORT FAILED!!!
+===========================================================================
+Review the log file at %s for more information.
+ 
+Press ENTER to continue""" % (config.LOG_PATH)
+
+SUCCESS_MSG = """
+===========================================================================
+                                SUCCESS
+===========================================================================
+
+Press ENTER to continue""" 
+
 if __name__ == "__main__":
-    print "starting"
-    init_logging()
-    hello_world()
-    print "complete!"
-    
+    try:
+        print "starting"
+        init_logging()
+        hello_world()
+        raise(Exception("fail"))
+        print SUCCESS_MSG
+        raw_input()
+    except Exception, e:
+        logging.exception(e)
+        print FAIL_MSG 
+        raw_input()
