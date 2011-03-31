@@ -1,16 +1,20 @@
+""" These models define user's subscriptions to reports specified in schedule/config.py """
+
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import json
 from django.contrib.auth.models import User
 from django.db import models
 from couchdbkit.ext.django.schema import *
 from dimagi.utils.django.email import send_HTML_email
 from dimagi.utils.mixins import UnicodeMixIn
-from logistics.apps.reports.schedule.config import SCHEDULABLE_REPORTS
 from logistics.apps.reports.schedule.html2text import html2text
+from logistics.apps.reports.schedule.config import SCHEDULABLE_REPORTS
 
-class ReportNotification(models.Model, UnicodeMixIn):
+class ReportSubscription(models.Model, UnicodeMixIn):
     report = models.CharField(max_length=100)
+    _view_args = models.CharField(max_length=512, null=True, blank=True)
     users = models.ManyToManyField(User)
     
     def __unicode__(self):
@@ -19,16 +23,35 @@ class ReportNotification(models.Model, UnicodeMixIn):
 
     def send(self):
         for user in self.users.all():
-            report = SCHEDULABLE_REPORTS[self.report]
-            body = report.get_response(user)
-            send_HTML_email(report.title, user.email, 
-                            html2text(body), body)
-
+            self.send_to_user(user)
     
-class DailyReportNotification(ReportNotification):
+    def send_to_user(self, user):
+        report = SCHEDULABLE_REPORTS[self.report]
+        body = report.get_response(user, self.view_args)
+        send_HTML_email(report.title, user.email, 
+                        html2text(body), body)
+
+    @property
+    def view_args(self):
+        if self._view_args:
+            return json.loads(self._view_args)
+        return self._view_args
+
+    @view_args.setter
+    def view_args(self, value):
+        self._view_args = json.dumps(value)
+
+    @view_args.deleter
+    def view_args(self):
+        self._view_args = None
+
+class DailyReportSubscription(ReportSubscription):
+    __name__ = "DailyReportNotification"    
     hours = models.IntegerField()
 
-class WeeklyReportNotification(ReportNotification):
+class WeeklyReportSubscription(ReportSubscription):
+    __name__ = "WeeklyReportNotification"
     hours = models.IntegerField()
     day_of_week = models.IntegerField()
+
 

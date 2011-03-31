@@ -114,7 +114,7 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     )
 
 @geography_context
-def reporting(request, context={}, template="logistics/reporting.html"):
+def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
     context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')

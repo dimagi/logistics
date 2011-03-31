@@ -4,12 +4,12 @@
 from django.contrib import admin
 from logistics.apps.reports.models import *
 
-class WeeklyReportNotificationAdmin(admin.ModelAdmin):
-    model = WeeklyReportNotification
+class WeeklyReportSubscriptionAdmin(admin.ModelAdmin):
+    model = WeeklyReportSubscription
 
-class DailyReportNotificationAdmin(admin.ModelAdmin):
-    model = DailyReportNotification
+class DailyReportSubscriptionAdmin(admin.ModelAdmin):
+    model = DailyReportSubscription
 
-admin.site.register(WeeklyReportNotification, WeeklyReportNotificationAdmin)
-admin.site.register(DailyReportNotification, DailyReportNotificationAdmin)
+admin.site.register(WeeklyReportSubscription, WeeklyReportSubscriptionAdmin)
+admin.site.register(DailyReportSubscription, DailyReportSubscriptionAdmin)
 

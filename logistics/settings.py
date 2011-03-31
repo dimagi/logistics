@@ -61,6 +61,7 @@ RAPIDSMS_TABS = [
     ("reporting",  				            "Reporting Rates"),
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),
+    ("email_reports",      			            "Email Reports"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),

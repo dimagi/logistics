@@ -1,3 +1,8 @@
+""" This parser allows you to take any html report with a <div 
+id='report-title'>title</div> and a <div id='report-content'>
+content</div> and spew out just the part of the report in
+report-title and report-content"""
+
 import HTMLParser
 
 # hat tips: 

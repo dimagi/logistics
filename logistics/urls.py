@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
     (r'^registration/', include('logistics.apps.registration.urls')),
     (r'^logistics/', include('logistics.apps.logistics.urls')),
+    (r'^reports/', include('logistics.apps.reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
 )
 
