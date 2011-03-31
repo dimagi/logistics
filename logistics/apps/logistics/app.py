@@ -14,6 +14,7 @@ from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.models import REGISTER_MESSAGE
+from logistics.apps.logistics.errors import UnknownCommodityCodeError
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 SOH_KEYWORD = 'soh'
@@ -70,13 +71,21 @@ class App(AppBase):
             stock_report.parse(message.text)
             stock_report.save()
             if stock_report.errors:
+                kwargs = {}
                 if stock_report.product_stock:
-                    message.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),
-                                 stocks=", ". join(stock_report.product_stock),
-                                 err = "".join(unicode(e) for e in stock_report.errors))
+                    kwargs['stocks'] = ", ". join(stock_report.product_stock)
+                    error_message = 'You reported: %(stocks)s, but there were errors: %(err)s'
                 else:
-                    message.respond(_('%(err)s'),
-                                 err = "".join(unicode(e) for e in stock_report.errors))
+                    error_message = '%(err)s'
+                missing = stock_report.missing_products()
+                if missing:
+                    kwargs['missing'] = ", ".join(missing)
+                    error_message = error_message + " Please report %(missing)s."
+                kwargs['err'] = ", ".join(unicode(e) for e in stock_report.errors if not isinstance(e, UnknownCommodityCodeError))
+                bad_codes = ", ".join(unicode(e) for e in stock_report.errors if isinstance(e, UnknownCommodityCodeError))
+                kwargs['err'] = kwargs['err'] + "Unrecognized commodity codes: %(bad_codes)s." % {'bad_codes':bad_codes}
+                error_message = (error_message + GET_HELP_MESSAGE).strip()
+                message.respond(error_message, **kwargs)
                 return True
             (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)
