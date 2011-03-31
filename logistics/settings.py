@@ -163,12 +163,6 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-# import local settings if we find them
-try:
-    from localsettings import *
-except ImportError:
-    pass
-
 if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
     DATABASES = TESTING_DATABASES
     for db_name in DATABASES:
@@ -184,3 +178,9 @@ DOMESTIC_DIALLING_CODE = 0
 COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
+# import local settings if we find them
+try:
+    from localsettings import *
+except ImportError:
+    pass
+
