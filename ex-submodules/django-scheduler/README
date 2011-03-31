@@ -1,5 +1,8 @@
 This scheduler can send outbound SMS at regular intervals, using a web-based cron-inspired interface.
 
+INSTALL
+* Apart from enabling this feature, be sure that your system clock is correct and that your settings.py properly specifies the TIME_ZONE as per Django convention (or you're going to be super confused about why everything's coming in in Chicago time)
+
 FEATURE REQUESTS
 * There is currently no good UI for creating schedules. Right now, the easiest way to do so is in Python, 
 by creating and saving an EventSchedule module.
