@@ -1,4 +1,4 @@
-{% extends base_template %}
+{% extends "layout.html" %}
 {% load i18n %}
 {% load scheduler_tags %}
 {% block title %}Edit Schedule {{ schedule.pk }}{% endblock %}
@@ -14,6 +14,8 @@
 	<i>Note that we currently do not support adding a schedule from the UI, 
 	nor modifying start-time, end_time, or the function to be called.</i>
 	<form action="" method="POST">
+	{% csrf_token %}
+	<table>
 	<tr><th><label>Name of Python callback function: </label></th>
 		<td><b>{{schedule.callback}}</b></td></tr> 
 	<tr><th><label for="id_description">Description:</label></th><td>
@@ -31,7 +33,8 @@
 	<tr><th><label for="id_count">Count:</label></th><td>
 		<input value="{{schedule.count|default:""}}" type="text" name="count" id="id_count" /><br />How many times do you want this to fire? Leave blank for 'continuously'</td></tr> 
 	<tr><th><label for="id_active">Active:</label></th><td>
-		<input {% if schedule.active %}checked="checked"{% endif %} type="checkbox" name="active" id="id_active" /></td></tr><p/> 
+		<input {% if schedule.active %}checked="checked"{% endif %} type="checkbox" name="active" id="id_active" /></td></tr>
+	</table><p/>
 	<input type="submit" value="{% trans 'Submit' %}" /> 
 	</form><p/>
 
