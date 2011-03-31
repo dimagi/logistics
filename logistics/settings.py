@@ -188,10 +188,15 @@ STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 DEBUG=True
 
+# email settings used for sending out email reports
+EMAIL_LOGIN="user@domain.com"
+EMAIL_PASSWORD="changeme"
+EMAIL_SMTP_HOST="smtp.gmail.com"
+EMAIL_SMTP_PORT=587
+
 # import local settings if we find them
 try:
     from localsettings import *
 except ImportError:
     pass
-
 
