@@ -4,11 +4,11 @@
 
 {% block content %}
     <div class="module">
-
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-                <h2>Stock for {{ facility.name }}</h2>
-        {% if stockonhands %}
+                <h2 id="report-title">Stock for {{ facility.name }}</h2>
+                <div id="report-content">
+                {% if stockonhands %}
                 <table class="stock">
                     <thead><tr>
                         <th>{% trans "Commodity" %}</th>
@@ -50,6 +50,7 @@
                     {{ facility.name }} has not been configured with the appropriate stock yet. Please contact Focus Region Health Project for assistance.
                 </div>
             {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}

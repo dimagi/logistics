@@ -825,85 +825,25 @@
         }
     },
     {
-        "pk": 2, 
-        "model": "reports.reportnotification", 
-        "fields": {
-            "report": "stockonhand", 
-            "users": [
-                2
-            ]
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "reports.reportnotification", 
-        "fields": {
-            "report": "district", 
-            "users": [
-                2
-            ]
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "reports.reportnotification", 
-        "fields": {
-            "report": "reporting", 
-            "users": [
-                2
-            ]
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "reports.reportnotification", 
+        "pk": 1, 
+        "model": "reports.reportsubscription", 
         "fields": {
             "report": "aggregate", 
+            "_view_args": "", 
+            "users": [
+                2
+            ],
+            "_view_args": "{\"location_code\": \"ghana\"}"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "reports.dailyreportsubscription", 
+        "fields": {
+            "hours": 11, 
             "users": [
                 2
             ]
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "reports.dailyreportnotification", 
-        "fields": {
-            "hours": 18, 
-            "users": [
-                2
-            ]
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "reports.dailyreportnotification", 
-        "fields": {
-            "hours": 18, 
-            "users": [
-                2
-            ]
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "reports.weeklyreportnotification", 
-        "fields": {
-            "hours": 18, 
-            "users": [
-                2
-            ], 
-            "day_of_week": 1
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "reports.weeklyreportnotification", 
-        "fields": {
-            "hours": 18, 
-            "users": [
-                2
-            ], 
-            "day_of_week": 1
         }
     }
 ]
