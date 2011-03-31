@@ -179,6 +179,7 @@ COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 DEBUG=True
+TIME_ZONE="Africa/Accra"
 
 # import local settings if we find them
 try:
