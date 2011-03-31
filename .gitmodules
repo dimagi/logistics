@@ -1,3 +1,6 @@
 [submodule "rapidsms"]
 	path = rapidsms
 	url = git://github.com/dimagi/rapidsms.git
+[submodule "submodules/django-tablib"]
+	path = submodules/django-tablib
+	url = git://github.com/joshourisman/django-tablib.git
