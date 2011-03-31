@@ -3,7 +3,7 @@
 
 
 from django.conf.urls.defaults import *
-from logistics.apps.logistics.models import get_geography
+from logistics.apps.logistics.models import get_geography, ProductStock
 
 urlpatterns = patterns('',
     url(r'^(?P<facility_code>\w+)/input_stock$',
@@ -27,4 +27,6 @@ urlpatterns = patterns('',
     url(r'^reporting$',
         'logistics.apps.logistics.views.reporting',
         name="reporting"),
+    url(r'^export/$', 'django_tablib.views.export', {
+        'model': ProductStock})
 )
