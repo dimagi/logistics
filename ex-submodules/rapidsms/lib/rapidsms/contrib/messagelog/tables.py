@@ -15,7 +15,7 @@ class MessageTable(Table):
     connection = Column()
     direction = Column()
     date = DateColumn(format="H:i d/m/Y")
-    text = Column()
+    text = Column(css_class="message")
 
     class Meta:
         #model = Message
