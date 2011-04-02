@@ -3,7 +3,7 @@ from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.models import Location, Facility, SupplyPointType
 
-class TestReceipts (TestScript):
+class TestDefaults (TestScript):
     apps = ([logistics_app.App])
 
     def setUp(self):
@@ -16,7 +16,7 @@ class TestReceipts (TestScript):
                        type=facilitytype, supplied_by=rms)
         facility.save()
 
-    def testReceipt(self):
+    def testDefault(self):
         a = """
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
@@ -24,8 +24,7 @@ class TestReceipts (TestScript):
            16176023315 < xx is not a recognized commodity code. Please contact FRHP for assistance.
            16176023315 > dasdfa
            16176023315 < Sorry, I could not understand your message. Please contact Focus Region Health Project for help.
-           16176023315 > adsf
-           16176023315 < Stock report should contain quantity of stock on hand. Please contact FRHP for assistance.
            """
         self.runScript(a)
+
 
