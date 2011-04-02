@@ -464,42 +464,42 @@
     }, 
     {
         "pk": "hc",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "Health Centre"
         }
     },
     {
         "pk": "c",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "Clinic"
         }
     },
     {
         "pk": "dh",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "District Hospital"
         }
     },
     {
         "pk": "chps",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "CHPS Facility"
         }
     },
     {
         "pk": "da",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "District Administration"
         }
     },
     {
         "pk": "RMS",
-        "model": "logistics.facilitytype",
+        "model": "logistics.suppypointtype",
         "fields": {
             "name": "Regional Medical Store"
         }

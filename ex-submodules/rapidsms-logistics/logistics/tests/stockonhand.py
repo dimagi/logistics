@@ -2,7 +2,7 @@ from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductReportsHelper, Facility, FacilityType, Location, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, Facility, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
@@ -10,7 +10,7 @@ class TestStockOnHand (TestScript):
     def setUp(self):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
-        facilitytype = FacilityType.objects.get(code='hc')
+        facilitytype = SupplyPointType.objects.get(code='hc')
         rms = Facility.objects.get(code='garms')
         facility, created = Facility.objects.get_or_create(code='dedh',
                                                            name='Dangme East District Hospital',

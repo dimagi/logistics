@@ -11,13 +11,13 @@ def post_save_product_report(sender, instance, created, **kwargs):
         STOCK_ON_HAND_REPORT_TYPE
     if instance.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
         try:
-            productstock = ProductStock.objects.get(facility=instance.facility,
+            productstock = ProductStock.objects.get(supply_point=instance.supply_point,
                                                     product=instance.product)
         except ProductStock.DoesNotExist:
-            productstock = ProductStock(is_active=False, facility=instance.facility,
+            productstock = ProductStock(is_active=False, supply_point=instance.supply_point,
                                         product=instance.product)
         productstock.quantity = instance.quantity
         productstock.save()
-    instance.facility.last_reported = datetime.now()
-    instance.facility.save()
+    instance.supply_point.last_reported = datetime.now()
+    instance.supply_point.save()
 
