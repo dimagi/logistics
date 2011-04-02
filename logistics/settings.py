@@ -54,9 +54,9 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
-    ("reporting",  				            "Reporting Rates"),
-    #("input_stock",      				    "Input Stock"),
-    ("registration",      				    "Registration"),
+    ("reporting",                              "Reporting Rates"),
+    #("input_stock",                          "Input Stock"),
+    ("registration",                          "Registration"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),
@@ -163,12 +163,6 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
-    DATABASES = TESTING_DATABASES
-    for db_name in DATABASES:
-        DATABASES[db_name]['TEST_NAME'] = os.path.join(
-            tempfile.gettempdir(),
-            "%s.rapidsms.test.sqlite3" % db_name)
 
 DEFAULT_BACKEND = 'smsgh'
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
@@ -178,9 +172,19 @@ DOMESTIC_DIALLING_CODE = 0
 COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
+DEBUG=True
+TIME_ZONE="Africa/Accra"
+
+# This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:
     from localsettings import *
 except ImportError:
     pass
+if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
+    DATABASES = TESTING_DATABASES
+    for db_name in DATABASES:
+        DATABASES[db_name]['TEST_NAME'] = os.path.join(
+            tempfile.gettempdir(),
+            "%s.rapidsms.test.sqlite3" % db_name)
 
