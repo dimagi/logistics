@@ -187,13 +187,13 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 0 badcode 10
-           16176023315 < You reported: lf, but there were errors: BADCODE is/are not part of our commodity codes. Please contact FRHP for assistance.
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact FRHP for assistance.
            16176023315 > soh badcode 10
-           16176023315 < BADCODE is/are not part of our commodity codes. Please contact FRHP for assistance.
+           16176023315 < Unrecognized commodity codes: badcode. Please contact FRHP for assistance.
            16176023315 > soh lf 10 m20
-           16176023315 < You reported: lf, but there were errors: M is/are not part of our commodity codes. Please contact FRHP for assistance.
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact FRHP for assistance.
            16176023315 > ad50 -0 as65-0 al25-0 qu0-0 sp0-0 rd0-0
-           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: AS is/are not part of our commodity codes. Please contact FRHP for assistance.
+           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: Unrecognized commodity codes: as. Please contact FRHP for assistance.
            """
         self.runScript(a)
 
