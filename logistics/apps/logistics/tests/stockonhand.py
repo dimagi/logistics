@@ -18,9 +18,9 @@ class TestStockOnHand (TestScript):
                                                            type=facilitytype, supplied_by=rms)
         mc = Product.objects.get(sms_code='mc')
         lf = Product.objects.get(sms_code='lf')
-        ProductStock(product=mc, facility=facility,
+        ProductStock(product=mc, supply_point=facility,
                      monthly_consumption=8).save()
-        ProductStock(product=lf, facility=facility,
+        ProductStock(product=lf, supply_point=facility,
                      monthly_consumption=5).save()
         facility = Facility(code='tf', name='Test Facility',
                        location=location, active=True,
@@ -29,13 +29,13 @@ class TestStockOnHand (TestScript):
         mc = Product.objects.get(sms_code='mc')
         lf = Product.objects.get(sms_code='lf')
         mg = Product.objects.get(sms_code='mg')
-        self.mc_stock = ProductStock(is_active=True, facility=facility,
+        self.mc_stock = ProductStock(is_active=True, supply_point=facility,
                                     product=mc, monthly_consumption=10)
         self.mc_stock.save()
-        self.lf_stock = ProductStock(is_active=True, facility=facility,
+        self.lf_stock = ProductStock(is_active=True, supply_point=facility,
                                     product=lf, monthly_consumption=10)
         self.lf_stock.save()
-        self.mg_stock = ProductStock(is_active=False, facility=facility,
+        self.mg_stock = ProductStock(is_active=False, supply_point=facility,
                                      product=mg, monthly_consumption=10)
         self.mg_stock.save()
 

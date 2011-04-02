@@ -16,5 +16,5 @@ class TestLocation (TestScript):
         soh = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
         npr = facility.report(product, soh, 3)
         self.assertEquals(npr.quantity, 3)
-        self.assertEquals(ProductStock.objects.get(facility=facility, product=product).quantity, 3)
+        self.assertEquals(ProductStock.objects.get(supply_point=facility, product=product).quantity, 3)
         
