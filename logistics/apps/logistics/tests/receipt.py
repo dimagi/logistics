@@ -1,7 +1,7 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
-from logistics.apps.logistics.models import Location, Facility, FacilityType
+from logistics.apps.logistics.models import Location, Facility, SupplyPointType
 
 class TestReceipts (TestScript):
     apps = ([logistics_app.App])
@@ -9,7 +9,7 @@ class TestReceipts (TestScript):
     def setUp(self):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
-        facilitytype = FacilityType.objects.get(code='hc')
+        facilitytype = SupplyPointType.objects.get(code='hc')
         rms = Facility.objects.get(code='garms')
         facility = Facility(code='dedh', name='Dangme East District Hospital',
                        location=location, active=True,

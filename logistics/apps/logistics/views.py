@@ -23,7 +23,7 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
     rms = get_object_or_404(Facility, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(facility=rms).order_by('product')]
+    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
@@ -69,8 +69,8 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
      this view currently only shows the current stock on hand for a given facility
     """
     facility = get_object_or_404(Facility, code=facility_code)
-    stockonhands = ProductStock.objects.filter(facility=facility).order_by('product')
-    last_reports = ProductReport.objects.filter(facility=facility).order_by('-report_date')
+    stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
+    last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
     if last_reports:
         context['last_reported'] = last_reports[0].report_date
     context['stockonhands'] = stockonhands
@@ -89,7 +89,7 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     """
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=location)
+    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location=location)
     commodity_filter = None
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
@@ -101,13 +101,13 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
             commodity = Product.objects.get(sms_code=commodity_filter)
             context['commoditytype_filter'] = commodity.type.code
             template="logistics/stockonhand_district.html"
-            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('facility__name')
+            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
         elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
             commoditytype_filter = request.REQUEST['commoditytype']
             context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
-            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('facility__name')
+            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('supply_point__name')
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
