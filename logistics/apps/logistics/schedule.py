@@ -2,7 +2,8 @@ import logging
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.models import Contact, STOCK_ON_HAND_RESPONSIBILITY
+from rapidsms.messages.outgoing import OutgoingMessage
+from logistics.apps.logistics.models import Contact, STOCK_ON_HAND_RESPONSIBILITY, ProductReport
 from django.utils.translation import ugettext as _
 
 ######################
@@ -15,29 +16,32 @@ THIRD_STOCK_ON_HAND_REMINDER = _('Dear %(name)s, your facility has not reported 
 
 def first_soh_reminder (router):
     """ thusday reminders """
+    logging.info("running first soh reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         if reporter.needs_reminders:
-            send_message(reporter.connection, STOCK_ON_HAND_REMINDER % {'name':reporter.name})
-            #check for success?
+            response = STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+            OutgoingMessage(reporter.default_connection, response).send()
 
 def second_soh_reminder (router):
     """monday follow-up"""
+    logging.info("running second soh reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
-        latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
+        latest_reports = ProductReport.objects.filter(facility=reporter.facility).order_by('-report_date')
         # TODO get this to vary alongside scheduled time
         five_days_ago = datetime.now() + relativedelta(days=-5)
-        if latest_report.report_date < five_days_ago:
-            send_message(reporter.connection, SECOND_STOCK_ON_HAND_REMINDER % {'name':reporter.name})
-            #check for success?
+        if not latest_reports or latest_reports[0].report_date < five_days_ago:
+            response = SECOND_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+            OutgoingMessage(reporter.default_connection, response).send()
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
-        latest_report = ProductReport.objects.filter(service_delivery_point=reporter.service_delivery_point).order_by('-report_date')[0]
+        latest_reports = ProductReport.objects.filter(facility=reporter.facility).order_by('-report_date')
         five_days_ago = datetime.now() + relativedelta(days=-7)
-        if latest_report.report_date < five_days_ago:
-            reporter.supervisor().send_message(THIRD_STOCK_ON_HAND_REMINDER % {'name':reporter.name})
+        if not latest_reports or latest_reports[0].report_date < five_days_ago:
+            response = THIRD_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+            OutgoingMessage(reporter.default_connection, response).send()
 

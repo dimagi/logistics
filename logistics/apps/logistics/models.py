@@ -17,6 +17,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.signals import post_save_product_report
+from logistics.apps.logistics.errors import *
 
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
@@ -26,6 +27,10 @@ STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = "Please contact FRHP for assistance."
+REGISTER_MESSAGE = "You must registered on EWS " + \
+                   "before you can submit a stock report. " + \
+                   "Please contact your district administrator."
+GET_HELP_MESSAGE = " Please contact FRHP for assistance."
 DISTRICT_TYPE = 'district'
 
 try:
@@ -313,7 +318,7 @@ class Facility(models.Model):
         For all intents and purses, at this time, the 'children' of a facility wrt site navigation
         are the same as the 'children' with respect to stock supply
         """
-        raise Facility.objects.filter(supplied_by=self).order_by('name')
+        return Facility.objects.filter(supplied_by=self).order_by('name')
 
     def report_to_supervisor(self, report, kwargs, exclude=None):
         reportees = self.reportees()
@@ -362,7 +367,7 @@ class ProductReportsHelper(object):
         self.consumption = {}
         self.product_received = {}
         if sdp is None:
-            raise ValueError("Unknown Facility.")
+            raise UnknownFacilityCodeError("Unknown Facility.")
         self.facility = sdp
         self.message = message
         self.has_stockout = False
@@ -447,8 +452,6 @@ class ProductReportsHelper(object):
                 continue
             except StopIteration:
                 break
-        if self.errors:
-            self.errors.append(GET_HELP_MESSAGE)
         return
 
     def save(self):
@@ -490,7 +493,7 @@ class ProductReportsHelper(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except (Product.DoesNotExist, Product.MultipleObjectsReturned):
-            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
+            raise UnknownCommodityCodeError(product_code)
         if save:
             self._record_product_report(product, stock, self.report_type)
         self.product_stock[product_code] = stock
@@ -503,7 +506,7 @@ class ProductReportsHelper(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper() })
+            raise UnknownCommodityCodeError(product_code)
         self._record_product_report(product, quantity, report_type)
 
     def _record_product_report(self, product, quantity, report_type):
@@ -525,7 +528,7 @@ class ProductReportsHelper(object):
         try:
             product = Product.objects.get(sms_code__icontains=product_code)
         except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise ValueError(_(INVALID_CODE_MESSAGE) % {'code':product_code.upper()})
+            raise UnknownCommodityCodeError(product_code)
         self.product_received[product_code] = quantity
         if save:
             self._record_product_receipt(product, quantity)
@@ -659,7 +662,7 @@ def get_geography():
     try:
         return Location.objects.get(code=settings.COUNTRY)
     except ValueError:
-        raise ValueError("Invalid COUNTRY defined in settings.py. Please choose one that matches the code of a registered location.")
+        raise UnknownLocationCodeError("Invalid COUNTRY defined in settings.py. Please choose one that matches the code of a registered location.")
     except Location.MultipleObjectsReturned:
         raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
     except Location.DoesNotExist:
@@ -719,5 +722,4 @@ def overstocked_count(facilities=None, product=None, producttype=None):
         if stock.is_overstocked():
             overstock_count = overstock_count + 1
     return overstock_count
-
 
