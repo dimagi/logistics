@@ -13,12 +13,11 @@ from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
+from logistics.apps.logistics.errors import UnknownCommodityCodeError
+from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 SOH_KEYWORD = 'soh'
-REGISTRATION_REQUIRED_MSG = ("You must registered on the Early Warning System "
-                             "before you can submit a stock report. Please "
-                             "contact your district administrator.")
 
 class App(AppBase):
     bootstrapped = False
@@ -30,17 +29,24 @@ class App(AppBase):
             
             # set up first soh reminder
             try:
-                EventSchedule.objects.get(callback="logistics.schedule.first_soh_reminder")
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
             except EventSchedule.DoesNotExist:
                 # 2:15 pm on Thursdays
-                set_weekly_event("logistics.schedule.first_soh_reminder",3,14,15)
+                set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
 
             # set up second soh reminder
             try:
-                EventSchedule.objects.get(callback="logistics.schedule.second_soh_reminder")
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
             except EventSchedule.DoesNotExist:
                 # 2:15 pm on Mondays
-                set_weekly_event("logistics.schedule.second_soh_reminder",0,14,15)
+                set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
+
+            # set up third soh reminder
+            try:
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
+            except EventSchedule.DoesNotExist:
+                # 2:15 pm on Mondays
+                set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",1,14,02)
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
@@ -51,7 +57,7 @@ class App(AppBase):
         if not self._should_handle(message):
             return False
         if not hasattr(message,'logistics_contact'):
-            message.respond(REGISTRATION_REQUIRED_MSG)
+            message.respond(REGISTER_MESSAGE)
             return True
         sdp = message.logistics_contact.facility
         if sdp is None:
@@ -65,13 +71,21 @@ class App(AppBase):
             stock_report.parse(message.text)
             stock_report.save()
             if stock_report.errors:
+                kwargs = {}
                 if stock_report.product_stock:
-                    message.respond(_('You reported: %(stocks)s, but there were errors: %(err)s'),
-                                 stocks=", ". join(stock_report.product_stock),
-                                 err = "".join(unicode(e) for e in stock_report.errors))
+                    kwargs['stocks'] = ", ". join(stock_report.product_stock)
+                    error_message = 'You reported: %(stocks)s, but there were errors: %(err)s'
                 else:
-                    message.respond(_('%(err)s'),
-                                 err = "".join(unicode(e) for e in stock_report.errors))
+                    error_message = '%(err)s'
+                missing = stock_report.missing_products()
+                if missing:
+                    kwargs['missing'] = ", ".join(missing)
+                    error_message = error_message + " Please report %(missing)s."
+                kwargs['err'] = ", ".join(unicode(e) for e in stock_report.errors if not isinstance(e, UnknownCommodityCodeError))
+                bad_codes = ", ".join(unicode(e) for e in stock_report.errors if isinstance(e, UnknownCommodityCodeError))
+                kwargs['err'] = kwargs['err'] + "Unrecognized commodity codes: %(bad_codes)s." % {'bad_codes':bad_codes}
+                error_message = (error_message + GET_HELP_MESSAGE).strip()
+                message.respond(error_message, **kwargs)
                 return True
             (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)
@@ -80,9 +94,11 @@ class App(AppBase):
             return True
 
         except Exception, e:
-            message.respond(unicode(e))
+            if settings.DEBUG:
+                # this error actually gets logged deep within rapidSMS
+                message.respond(unicode(e))
             raise
-    
+
     def default(self, message):
         """ There's probably a better way to do this, but for now,
         this is what the folks in the field want 
