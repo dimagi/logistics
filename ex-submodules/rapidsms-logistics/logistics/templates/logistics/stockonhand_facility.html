@@ -7,8 +7,11 @@
 
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-                <h2>Stock for {{ facility.name }}</h2>
+        <h2>Stock for {{ facility.name }}</h2>
         {% if stockonhands %}
+				<div class="toolbar">
+				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
+				</div>
                 <table class="stock">
                     <thead><tr>
                         <th>{% trans "Commodity" %}</th>
@@ -37,9 +40,6 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                <div class="toolbar">
-					<a href="{% url input_stock facility.code %}" class="add">Input Stock</a>
-				</div>
                 <br/>
             <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
             {% if last_reported %}
