@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.registration",
     "logistics.apps.registration",
     "logistics.apps.logistics",
+    "logistics.apps.ewsghana",
     "logistics.apps.smsgh",
     #"django_cpserver",
 ]
@@ -57,7 +58,7 @@ RAPIDSMS_TABS = [
     ("reporting",  				            "Reporting Rates"),
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
+    ("ewsghana_message_log",                                 "Message Log"),
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),
     ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),

@@ -106,5 +106,6 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms','contrib'))
     sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
     sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
+    sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
     LoadFacilities(sys.argv[1])
     LoadProductsIntoFacilities()

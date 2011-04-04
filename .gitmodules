@@ -4,3 +4,6 @@
 [submodule "submodules/dimagi-utils"]
 	path = submodules/dimagi-utils
 	url = git://github.com/dimagi/dimagi-utils.git
+[submodule "submodules/django-tablib"]
+	path = submodules/django-tablib
+	url = git://github.com/dimagi/django-tablib.git
