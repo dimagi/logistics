@@ -3,4 +3,4 @@
 	url = git://github.com/dimagi/rapidsms.git
 [submodule "submodules/django-tablib"]
 	path = submodules/django-tablib
-	url = git://github.com/joshourisman/django-tablib.git
+	url = git://github.com/dimagi/django-tablib.git

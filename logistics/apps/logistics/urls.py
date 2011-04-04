@@ -3,6 +3,7 @@
 
 
 from django.conf.urls.defaults import *
+from django.views.generic.simple import redirect_to
 from logistics.apps.logistics.models import get_geography, ProductStock, ProductReport
 
 urlpatterns = patterns('',
@@ -31,4 +32,7 @@ urlpatterns = patterns('',
     url(r'^reporting/export/xls$', 'django_tablib.views.export', {
         'queryset': ProductReport.objects.all().order_by('report_date')}, 
         name="export_reporting"),
+    url(r'^(?P<facility_code>\w+)/stockonhand/export/xls$', 
+        'logistics.apps.logistics.views.export_stockonhand',  
+        name="export_stock"),
 )
