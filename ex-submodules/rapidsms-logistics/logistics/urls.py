@@ -3,7 +3,7 @@
 
 
 from django.conf.urls.defaults import *
-from logistics.apps.logistics.models import get_geography, ProductStock
+from logistics.apps.logistics.models import get_geography, ProductStock, ProductReport
 
 urlpatterns = patterns('',
     url(r'^(?P<facility_code>\w+)/input_stock$',
@@ -27,6 +27,8 @@ urlpatterns = patterns('',
     url(r'^reporting$',
         'logistics.apps.logistics.views.reporting',
         name="reporting"),
-    url(r'^export/$', 'django_tablib.views.export', {
-        'model': ProductStock})
+
+    url(r'^reporting/export/xls$', 'django_tablib.views.export', {
+        'queryset': ProductReport.objects.all().order_by('report_date')}, 
+        name="export_reporting"),
 )
