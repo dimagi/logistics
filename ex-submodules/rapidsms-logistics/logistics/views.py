@@ -12,6 +12,8 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django_tablib import ModelDataset
+from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
@@ -183,3 +185,16 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
                                                      producttype=commoditytype_filter)
         rows.append(row)
     return rows
+
+def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
+    class ProductReportDataset(ModelDataset):
+        class Meta:
+            queryset = ProductReport.objects.filter(facility__code=facility_code).order_by('report_date')
+    dataset = getattr(ProductReportDataset(), format)
+    filename = '%s_%s.%s' % (filename, facility_code, format)
+    response = HttpResponse(
+        dataset,
+        mimetype=mimetype_map.get(format, 'application/octet-stream')
+        )
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response
