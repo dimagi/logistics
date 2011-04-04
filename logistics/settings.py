@@ -15,6 +15,9 @@ INSTALLED_APPS = [
     "django_nose",
     "djtables",
     "rapidsms",
+    # for email reports
+    "djcelery", # pip install django-celery
+    "djkombu", # pip install django-kombu
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -45,8 +48,9 @@ INSTALLED_APPS = [
     "logistics.apps.registration",
     "logistics.apps.logistics",
     "logistics.apps.ewsghana",
+    "logistics.apps.reports",
     "logistics.apps.smsgh",
-    #"django_cpserver",
+    #"django_cpserver", # pip install django-cpserver
 ]
 
 
@@ -59,6 +63,7 @@ RAPIDSMS_TABS = [
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),
     ("ewsghana_message_log",                                 "Message Log"),
+    ("email_reports",      			            "Email Reports"),
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),
     ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
@@ -164,6 +169,8 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
+# celery
+CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
@@ -175,6 +182,12 @@ STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 DEBUG=True
 TIME_ZONE="Africa/Accra"
+
+# email settings used for sending out email reports
+EMAIL_LOGIN="user@domain.com"
+EMAIL_PASSWORD="changeme"
+EMAIL_SMTP_HOST="smtp.gmail.com"
+EMAIL_SMTP_PORT=587
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them

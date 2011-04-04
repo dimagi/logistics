@@ -3,13 +3,14 @@
 
 {% block content %}
     <div class="module">
-        <h2>
+        <h2 id="report-title">
             Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
         </h2>
         {% include "logistics/partials/pie_reporting.html" %}
         <div class="toolbar">
 		    <a href="{% url export_reporting %}" class="add">{% trans "Export to Excel" %}</a>
 		</div>
+        <div id="report-content">
         <table class="major_table">
             <thead><tr>
                 <th width=70%>NON-REPORTING FACILITIES</th>
@@ -43,5 +44,6 @@
                 {% endif %}
             </tbody>
         </table>
+		</div>
     </div>
 {% endblock %}
