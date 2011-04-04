@@ -62,11 +62,12 @@ RAPIDSMS_TABS = [
     ("reporting",  				            "Reporting Rates"),
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),
-    ("ewsghana_message_log",                                 "Message Log"),
+    ("ewsghana_message_log",                                "Message Log"),
     ("email_reports",      			            "Email Reports"),
-    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",          "Map"),
-    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    ("help",      			                    "Help"),
+    #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
+    #("rapidsms.contrib.locations.views.locations",         "Map"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
