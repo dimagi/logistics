@@ -18,7 +18,7 @@ from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.signals import post_save_product_report
 from logistics.apps.logistics.errors import *
-import logistics.apps.logistics.log
+#import logistics.apps.logistics.log
 
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
