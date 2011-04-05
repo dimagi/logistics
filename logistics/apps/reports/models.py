@@ -6,7 +6,6 @@
 import json
 from django.contrib.auth.models import User
 from django.db import models
-from couchdbkit.ext.django.schema import *
 from dimagi.utils.django.email import send_HTML_email
 from dimagi.utils.mixins import UnicodeMixIn
 from logistics.apps.reports.schedule.html2text import html2text
