@@ -69,10 +69,9 @@ MIDDLEWARE_CLASSES = (
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
-    ("reporting",  				            "Reporting Rates"),
+    ("ewsghana_reporting",  				    "Usage"),
     #("input_stock",      				    "Input Stock"),
     ("registration",      				    "Registration"),
-    ("ewsghana_message_log",                                "Message Log"),
     ("email_reports",      			            "Email Reports"),
     ("help",      			                    "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),

@@ -5,12 +5,16 @@
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from rapidsms.contrib.messagelog.models import Message
-from rapidsms.contrib.messagelog.views import message_log
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
         'model': Message}, name="export_messagelog"),
-    url(r'^messagelog/?$', message_log, {
-        'template': 'ewsghana/messagelog.html'}, name="ewsghana_message_log"),
-    url(r'^help/?$', direct_to_template, {'template': 'ewsghana/help.html'}, name="help")
+    url(r'^help/?$', direct_to_template, {'template': 'ewsghana/help.html'}, name="help"),
+
+    url(r'^auditor/?$', 'logistics.apps.ewsghana.views.auditor', 
+        name="ewsghana_auditor"),
+    url(r'^messagelog/?$', 'logistics.apps.ewsghana.views.message_log', 
+        name="ewsghana_message_log"),
+    url(r'^reporting/?$', 'logistics.apps.ewsghana.views.reporting', 
+        name="ewsghana_reporting")
 )
