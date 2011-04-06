@@ -28,7 +28,10 @@
 {% csrf_token %}
 <input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
-</form>
+<p/>
+<div>Forgot your password? Reset it <a href="{% url auth_password_reset %}">here</a></div>
+<p/>
 
+</form>
 {% endif %}
 {% endblock %}
