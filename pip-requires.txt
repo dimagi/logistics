@@ -9,3 +9,4 @@ pytz==2010b
 virtualenv==1.4.5
 django-celery
 djkombu
+django-registration

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
     "auditcare",
+    "registration",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -193,10 +194,17 @@ STATIC_URL = "/static"
 TIME_ZONE="Africa/Accra"
 
 # email settings used for sending out email reports
-EMAIL_LOGIN="user@domain.com"
+EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"
 EMAIL_SMTP_HOST="smtp.gmail.com"
 EMAIL_SMTP_PORT=587
+ACCOUNT_ACTIVATION_DAYS=30
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_PASSWORD='changeme'
+EMAIL_HOST_USER='name@dimagi.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
