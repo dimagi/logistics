@@ -6,12 +6,11 @@
     <div class="module">
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-        <h2>Stock for {{ facility.name }}</h2>
+        <h2 id="report-title">Stock for {{ facility.name }}</h2>
         {% if stockonhands %}
 				<div class="toolbar">
 				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
 				</div>
-                <h2 id="report-title">Stock for {{ facility.name }}</h2>
                 <div id="report-content">
                 <table class="stock">
                     <thead><tr>
