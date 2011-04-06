@@ -10,7 +10,6 @@ from logistics.apps.logistics.view_decorators import geography_context
 from logistics.apps.logistics.views import reporting as logistics_reporting
 from rapidsms.contrib.messagelog.views import message_log as rapidsms_message_log
 from auditcare.views import auditAll
-from rapidsms.contrib.registration.views import registration as rapidsms_registration
 from logistics.apps.reports.views import email_reports as logistics_email_reports
 from registration.views import register
 
@@ -26,11 +25,10 @@ def auditor(request, template="ewsghana/auditor.html"):
     return auditAll(request, template)
 
 
-def sms_registration(request, pk=None, template="ewsghana/sms_registration.html"):
-    return rapidsms_registration(request, pk, template)
 
 def web_registration(request, template_name="registration/registration_form.html"):
     return register(request)
 
 def email_reports(request, context={}, template="ewsghana/email_reports.html"):
     return logistics_email_reports(request, context, template)
+
