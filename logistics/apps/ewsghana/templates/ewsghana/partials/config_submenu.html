@@ -1,0 +1,10 @@
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+{% endblock %}
+
+<div id="submenu"> 
+    <a href="{% url ewsghana_sms_registration %}">SMS REGISTRATION</a> * 
+    <a href="{% url ewsghana_web_registration %}">WEB REGISTRATION</a> * 
+    <a href="{% url ewsghana_scheduled_reports %}">EMAIL REPORTS</a>
+</div>
+

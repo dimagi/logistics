@@ -458,8 +458,8 @@
         "pk": 1, 
         "model": "sites.site", 
         "fields": {
-            "domain": "ilsgateway.com", 
-            "name": "ilsgateway.com"
+            "domain": "ewsghana.com", 
+            "name": "ewsghana.com"
         }
     }, 
     {

@@ -1,6 +1,7 @@
 import calendar
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from dimagi.utils.web import render_to_response
@@ -11,6 +12,7 @@ from logistics.apps.reports.models import ReportSubscription, \
 from logistics.apps.reports.schedule.config import SCHEDULABLE_REPORTS
 from logistics.apps.logistics.models import Location
 
+@login_required
 def email_reports(request, context={}, template="reports/scheduled_reports.html"):
     context['user'] = request.user
     d = [d for d in DailyReportSubscription.objects.filter(users=request.user)]

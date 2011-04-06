@@ -51,7 +51,18 @@ INSTALLED_APPS = [
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
+    "auditcare",
+    "registration",
 ]
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'auditcare.middleware.AuditMiddleware',
+)
 
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -59,11 +70,10 @@ INSTALLED_APPS = [
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
-    ("reporting",  				            "Reporting Rates"),
+    ("ewsghana_reporting",  				    "Usage"),
     #("input_stock",      				    "Input Stock"),
-    ("registration",      				    "Registration"),
-    ("ewsghana_message_log",                                "Message Log"),
-    ("email_reports",      			            "Email Reports"),
+    ("ewsghana_sms_registration", 			    "Configuration"),
+    #("email_reports",      			            "Email Reports"),
     ("help",      			                    "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
     #("rapidsms.contrib.locations.views.locations",         "Map"),
@@ -80,7 +90,7 @@ RAPIDSMS_TABS = [
 # debug mode is turned on as default, since rapidsms is under heavy
 # development at the moment, and full stack traces are very useful
 # when reporting bugs. don't forget to turn this off in production.
-DEBUG = TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = True
 
 
 # after login (which is handled by django.contrib.auth), redirect to the
@@ -181,14 +191,20 @@ DOMESTIC_DIALLING_CODE = 0
 COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
-DEBUG=True
 TIME_ZONE="Africa/Accra"
 
 # email settings used for sending out email reports
-EMAIL_LOGIN="user@domain.com"
+EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"
 EMAIL_SMTP_HOST="smtp.gmail.com"
 EMAIL_SMTP_PORT=587
+ACCOUNT_ACTIVATION_DAYS=30
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_PASSWORD='changeme'
+EMAIL_HOST_USER='name@dimagi.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
@@ -203,3 +219,27 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
 
+
+COUCH_SERVER_ROOT='127.0.0.1:5984'
+COUCH_USERNAME=''
+COUCH_PASSWORD=''
+COUCH_DATABASE_NAME='logistics'
+COUCHDB_APPS=['auditcare',]
+def get_server_url(server_root, username, password):
+    if username and password:
+        return "http://%(user)s:%(pass)s@%(server)s" % \
+            {"user": username,
+             "pass": password, "server": server_root } 
+    else:
+        return "http://%(server)s" % {"server": server_root }
+COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
+COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
+
+COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
+        'auditcare',
+    ]
+]
+
+DEBUG=True
+REGISTRATION_VIEW='ewsghana_sms_registration'
+REGISTRATION_EDIT='ewsghana_registration_edit'

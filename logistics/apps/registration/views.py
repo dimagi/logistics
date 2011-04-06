@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import csv
-
+import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -15,7 +14,7 @@ from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegist
 from .tables import ContactTable
 
 @transaction.commit_on_success
-def registration(req, pk=None):
+def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
     bulk_form = None
@@ -29,7 +28,7 @@ def registration(req, pk=None):
         if req.POST["submit"] == "Delete Contact":
             contact.delete()
             return HttpResponseRedirect(
-                reverse(registration))
+                reverse(settings.REGISTRATION_VIEW))
 
         elif "bulk" in req.FILES:
             # TODO use csv module
@@ -51,7 +50,7 @@ def registration(req, pk=None):
                 connection.save()
 
             return HttpResponseRedirect(
-                reverse(registration))
+                reverse(settings.REGISTRATION_VIEW))
         else:
             contact_form = CommoditiesContactForm(
                 instance=contact,
@@ -60,17 +59,18 @@ def registration(req, pk=None):
             if contact_form.is_valid():
                 contact = contact_form.save()
                 return HttpResponseRedirect(
-                    reverse(registration))
+                    reverse(settings.REGISTRATION_VIEW))
 
     else:
         contact_form = CommoditiesContactForm(
             instance=contact)
         bulk_form = BulkRegistrationForm()
     return render_to_response(
-        "registration/dashboard.html", {
+        template, {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
             "bulk_form": bulk_form,
-            "contact": contact
+            "contact": contact,
+            "registration_view": reverse(settings.REGISTRATION_VIEW)
         }, context_instance=RequestContext(req)
     )

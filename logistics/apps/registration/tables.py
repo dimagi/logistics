@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from rapidsms.models import Contact
@@ -9,7 +10,7 @@ from rapidsms.models import Contact
 
 def _edit_link(cell):
     return reverse(
-        "registration_edit",
+        settings.REGISTRATION_EDIT,
         args=[cell.row.pk])
 
 def _any_identity(cell):
