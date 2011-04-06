@@ -16,10 +16,11 @@
             <thead>
             <tr>
                 <th>{% trans "Commodity" %}</th>
-                <th>{% trans "Current Stock Level" %}</th>
-                <th>{% trans "Consumption Rate" %}</th>
+                <th>{% trans "Current Stock On Hand" %}</th>
+                <th>{% trans "Units" %}</th>
+                <th>{% trans "Average Monthly Consumption" %}</th>
                 <!-- TODO: hide this depending on the role of the logged-in user -->
-                <th>{% trans "Is Active?" %}</th>
+                <th>{% trans "Should Report?" %}</th>
             </tr>
             </thead>
             <tbody>
@@ -27,6 +28,7 @@
                     <tr>
                         <td>{{ stock.product }}</td>
                         <td><input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity }}"/></td>
+                        <td>{{ stock.product.units }}</td>
                         <td><input type="text" name="{{ stock.product.sms_code }}_consumption" id="id_{{ stock.product.sms_code }}_consumption" value="{{ stock.monthly_consumption }}"/></td>
                         <td>
                             <input type="checkbox" name="{{ stock.product.sms_code }}_is_active" id="id_{{ stock.product.sms_code }}_is_active"

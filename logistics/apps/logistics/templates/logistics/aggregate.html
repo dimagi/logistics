@@ -14,11 +14,11 @@
             <table class="stock" width=100%>
             <thead><tr>
                 <th scope="col">Facility</th>
-                <th scope="col" class="stock_col">Stockouts</th>
-                <th scope="col" class="stock_col">Emergency</th>
-                <th scope="col" class="stock_col">Low</th>
-                <th scope="col" class="stock_col">In Stock</th>
-                <th scope="col" class="stock_col">Overstocks</th>
+                <th scope="col" class="stockout stock_col">Stockouts</th>
+                <th scope="col" class="emergency stock_col">Emergency</th>
+                <th scope="col" class="low_supply stock_col">Low</th>
+                <th scope="col" class="good_supply stock_col">In Stock</th>
+                <th scope="col" class="overstock stock_col">Overstocks</th>
             </tr></thead>
             <tbody>
             {% for row in rows %}
