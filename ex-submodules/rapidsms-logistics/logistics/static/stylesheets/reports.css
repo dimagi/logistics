@@ -15,14 +15,15 @@
     font-weight: bold;
     color: white;
     text-shadow: #000 1px 1px 1px;
+    font-size: 1em;
 }
 
 .stockout {
-    background-color: darkred;
+    background-color: #FF0011;
 }
 
 .emergency {
-    background-color: orangered;
+    background-color: #CC4500;
 }
 
 .low_supply {
@@ -30,11 +31,11 @@
 }
 
 .good_supply {
-    background-color: darkgreen;
+    background-color: green;
 }
 
 .overstock {
-    background-color: indigo;
+    background-color: purple;
 }
 
 .stock_col{
