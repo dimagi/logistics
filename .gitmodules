@@ -10,6 +10,3 @@
 [submodule "submodules/tablib"]
 	path = submodules/tablib
 	url = git://github.com/dimagi/tablib.git
-[submodule "submodules/auditcare"]
-	path = submodules/auditcare
-	url = git://github.com/dimagi/auditcare.git
