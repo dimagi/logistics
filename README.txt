@@ -4,9 +4,10 @@ NON-PYTHON DEPENDENCIES
 * git
 * postgres
 * pip
+* couchdb
 
 You can install all of the above by running:
-> sudo apt-get install git-core postgresql python-psycopg2
+> sudo apt-get install git-core postgresql python-psycopg2 couchdb
 
 Install Django 1.2. Don't use apt-get on Lucid, it'll give you 1.1
 
