@@ -16,5 +16,11 @@ urlpatterns = patterns('',
     url(r'^messagelog/?$', 'logistics.apps.ewsghana.views.message_log', 
         name="ewsghana_message_log"),
     url(r'^reporting/?$', 'logistics.apps.ewsghana.views.reporting', 
-        name="ewsghana_reporting")
+        name="ewsghana_reporting"),
+    url(r'^registration/sms/?$', 'logistics.apps.ewsghana.views.sms_registration', 
+        name="ewsghana_sms_registration"),
+    url(r'^registration/web/?$', 'logistics.apps.ewsghana.views.web_registration', 
+        name="ewsghana_web_registration"),
+    url(r'^scheduled_reports/?$', 'logistics.apps.ewsghana.views.email_reports', 
+        name="ewsghana_scheduled_reports")
 )
