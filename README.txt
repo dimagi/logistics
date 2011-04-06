@@ -27,6 +27,8 @@ SETUP
 * ./manage.py syncdb
 * ./manage.py migrate
 * python import_facilities.py Facilities.csv
+* update relevant settings in settings.py or localsettings.py
+** most notably, use real email credentials
 * ./manage.py runserver &
 * ./manage.py runrouter &
 
