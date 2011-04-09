@@ -6,6 +6,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.registration.views import registration as logistics_registration
+from logistics.apps.web_registration.views import admin_does_all
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
@@ -25,8 +26,14 @@ urlpatterns = patterns('',
     url(r'^registration/sms/(?P<pk>\d+)/edit/?$', logistics_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_registration_edit"),
-    url(r'^registration/web/?$', 'logistics.apps.ewsghana.views.web_registration', 
-        name="ewsghana_web_registration"),
+    url(r'^registration/web/?$', admin_does_all,
+        {'template':'ewsghana/web_registration.html', 
+         'success_url': 'ewsghana_admin_web_registration_complete'}, 
+        name="ewsghana_admin_web_registration"),
+    url(r'^register/web/admin/complete(?:/(?P<caller>\w+))?(?:/(?P<account>\w+))?/$',
+       direct_to_template,
+       { 'template': 'web_registration/admin_registration_complete.html' },
+       name='ewsghana_admin_web_registration_complete'),
     url(r'^scheduled_reports/?$', 'logistics.apps.ewsghana.views.email_reports', 
         name="ewsghana_scheduled_reports")
 )

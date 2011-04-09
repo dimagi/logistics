@@ -2,10 +2,6 @@
 {% load forms_tags %}
 {% block title %}Login{% endblock %}
 
-{% block breadcrumbs %}
-{% include "ewsghana/partials/config_submenu.html" %}
-{% endblock %}
-
 {% block content %}
 
 {% if form.errors %}
@@ -17,7 +13,7 @@
 
 {% else %}
 
-<h1>Register a Web User</h1>
+<h1>Create a Web Account</h1>
 
 <form method="post" action="">
 <table>

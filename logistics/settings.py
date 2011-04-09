@@ -249,6 +249,7 @@ REGISTRATION_EDIT='ewsghana_registration_edit'
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
 'password/reset',
-'ewsghana/registration/web',
+'register',
 'logout',
+'activate',
 ]

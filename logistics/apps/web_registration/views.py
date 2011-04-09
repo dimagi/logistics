@@ -8,13 +8,15 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
 from .forms import AdminRegistersUserForm
 
 @transaction.commit_manually
-def admin_does_all(request, template='web_registration/admin_registration.html'):
+def admin_does_all(request, template='web_registration/admin_registration.html', 
+                   success_url='admin_web_registration_complete'):
     if request.method == 'POST': # If the form has been submitted...
         form = AdminRegistersUserForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
@@ -45,7 +47,7 @@ def admin_does_all(request, template='web_registration/admin_registration.html')
                                           context_instance = RequestContext(request))
             else:
                 transaction.commit()  
-                return HttpResponseRedirect( reverse('admin_web_registration_complete', 
+                return HttpResponseRedirect( reverse(success_url, 
                                                      kwargs={'caller':'admin', 
                                                              'account':new_user.username}) )
     else:
