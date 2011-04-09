@@ -30,8 +30,11 @@ SETUP
 * python import_facilities.py Facilities.csv
 * update relevant settings in settings.py or localsettings.py
 ** most notably, use real email credentials
+* sudo /etc/init.d.couchdb start
+* ./manage.py celeryd &
 * ./manage.py runserver &
 * ./manage.py runrouter &
+
 
 SUPPORTED OPERATING SYSTEM
 Ubuntu Lucid Lynx 10.0.4 LTS
