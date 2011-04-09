@@ -20,6 +20,13 @@ from logistics.apps.logistics.models import Facility, ProductStock, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 
+def dashboard(request):
+    if request.user.get_profile().facility:
+        return stockonhand_facility(request, request.user.get_profile().facility.code)
+    elif request.user.get_profile().location:
+        return aggregate(request, request.user.get_profile().location.code)
+    return aggregate(request, 'ghana')
+
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
     # QUESTION: is it possible to make a dynamic form?
