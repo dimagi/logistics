@@ -1,6 +1,9 @@
 {% extends "layout-split-2.html" %}
 {% load forms_tags %}
 {% block title %}Login{% endblock %}
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+{% endblock %}
 {% block content %}
 
 {% if form.errors %}
@@ -29,7 +32,8 @@
 <input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
 <p/>
-<div>Forgot your password? Reset it <a href="{% url auth_password_reset %}">here</a></div>
+<div class="note">Forgot your password? <a href="{% url auth_password_reset %}">Reset it here</a></div>
+<div class="note">Don't have an account? <a href="{% url ewsghana_web_registration %}">Create one here</a></div>
 <p/>
 
 </form>

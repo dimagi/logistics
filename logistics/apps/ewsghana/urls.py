@@ -25,8 +25,6 @@ urlpatterns = patterns('',
     url(r'^registration/sms/(?P<pk>\d+)/edit/?$', logistics_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_registration_edit"),
-
-        
     url(r'^registration/web/?$', 'logistics.apps.ewsghana.views.web_registration', 
         name="ewsghana_web_registration"),
     url(r'^scheduled_reports/?$', 'logistics.apps.ewsghana.views.email_reports', 

@@ -11,8 +11,9 @@ from logistics.apps.logistics.views import reporting as logistics_reporting
 from rapidsms.contrib.messagelog.views import message_log as rapidsms_message_log
 from auditcare.views import auditAll
 from logistics.apps.reports.views import email_reports as logistics_email_reports
-from registration.views import register
+from registration.views import register as django_register
 
+""" Usage-Related Views """
 @geography_context
 def reporting(request, location_code=None, context={}, template="ewsghana/reporting.html"):
     return logistics_reporting(request=request, location_code=location_code, 
@@ -24,10 +25,9 @@ def message_log(request, template="ewsghana/messagelog.html"):
 def auditor(request, template="ewsghana/auditor.html"):
     return auditAll(request, template)
 
-
-
+""" Configuration-Related Views """
 def web_registration(request, template_name="registration/registration_form.html"):
-    return register(request)
+    return django_register(request)
 
 def email_reports(request, context={}, template="ewsghana/email_reports.html"):
     return logistics_email_reports(request, context, template)
