@@ -47,6 +47,9 @@ class RequireLoginMiddleware(object):
           settings.MEDIA_URL not in request.path and \
           settings.STATIC_URL not in request.path and \
           request.user.is_anonymous():
+            for url in settings.NO_LOGIN_REQUIRED_FOR:
+                if url in request.path:
+                    return
             if request.POST:
                 return login(request)
             else:

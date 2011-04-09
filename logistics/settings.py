@@ -245,3 +245,9 @@ COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
 DEBUG=True
 REGISTRATION_VIEW='ewsghana_sms_registration'
 REGISTRATION_EDIT='ewsghana_registration_edit'
+
+# TODO: come back and clean this up
+NO_LOGIN_REQUIRED_FOR = [
+'password/reset',
+'logout',
+]
