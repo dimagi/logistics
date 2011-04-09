@@ -182,6 +182,8 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
+AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
+
 # celery
 CARROT_BACKEND = "django"
 

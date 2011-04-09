@@ -6,6 +6,7 @@ import math
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -16,7 +17,7 @@ from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.signals import post_save_product_report
+from logistics.apps.logistics.signals import post_save_product_report, create_user_profile
 from logistics.apps.logistics.errors import *
 #import logistics.apps.logistics.log
 
@@ -41,6 +42,15 @@ except ImportError:
                       "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
                       "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
 
+class LogisticsProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    location = models.ForeignKey(Location, blank=True, null=True)
+    facility = models.ForeignKey('Facility', blank=True, null=True)
+
+    def __unicode__(self):
+        return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
+
+post_save.connect(create_user_profile, sender=User)
 
 class Product(models.Model):
     """ e.g. oral quinine """

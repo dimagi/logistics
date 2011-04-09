@@ -28,12 +28,17 @@ def admin_does_all(request, template='web_registration/admin_registration.html',
                 
                 new_user.is_staff = False # Can never log into admin site
                 new_user.is_active = form.cleaned_data['is_active']
-                new_user.is_superuser = form.cleaned_data['is_admin']           
+                new_user.is_superuser = form.cleaned_data['is_admin']   
                 new_user.last_login =  datetime(1970,1,1)
                 # date_joined is used to determine expiration of the invitation key - I'd like to
                 # munge it back to 1970, but can't because it makes all keys look expired.
                 new_user.date_joined = datetime.utcnow()
                 new_user.save()
+                if 'location' in form.cleaned_data or 'facility' in form.cleaned_data:
+                    profile = new_user.get_profile()
+                    profile.location = form.cleaned_data['location']
+                    profile.facility = form.cleaned_data['facility']
+                    profile.save()
                     
                 _send_user_registration_email(new_user.email, 
                                               new_user.username, form.cleaned_data['password1'])
