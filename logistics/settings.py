@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
     "logistics.apps.registration",
+    "logistics.apps.web_registration",
     "logistics.apps.logistics",
     "logistics.apps.ewsghana",
     "logistics.apps.reports",

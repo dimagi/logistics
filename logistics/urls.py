@@ -5,11 +5,11 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
+    # Django URLs
     (r'^admin/', include(admin.site.urls)),
     
     # RapidSMS core URLs
     (r'^rapidsms/', include('rapidsms.urls.login_logout')),
-    (r'^accounts/', include('registration.urls')),
     url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
 
     # RapidSMS contrib app URLs
@@ -20,6 +20,12 @@ urlpatterns = patterns('',
     (r'^ewsghana/', include('logistics.apps.ewsghana.urls')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
+
+    # 3rd party django app URLs
+    (r'^accounts/', include('registration.urls')),
+
+    # other app URLS
+    (r'^', include('logistics.apps.web_registration.urls')),
     (r'^registration/', include('logistics.apps.registration.urls')),
     (r'^logistics/', include('logistics.apps.logistics.urls')),
     (r'^reports/', include('logistics.apps.reports.urls')),
