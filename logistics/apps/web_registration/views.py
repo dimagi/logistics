@@ -9,19 +9,31 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
-from .forms import AdminRegistersUserForm
+from .forms import AdminRegistersUserForm, AdminEditUserForm
 
-@transaction.commit_manually
-def admin_does_all(request, template='web_registration/admin_registration.html', 
+@transaction.commit_on_success
+def admin_does_all(request, pk=None, 
+                   template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
-    if request.method == 'POST': # If the form has been submitted...
+    context = {}
+    user = None
+    form = AdminRegistersUserForm() # An unbound form
+    if pk is not None:
+        user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST': 
+        if request.POST["submit"] == "Delete Contact":
+            user.delete()
+            return HttpResponseRedirect(
+                reverse('admin_web_registration'))
         form = AdminRegistersUserForm(request.POST) # A form bound to the POST data
+        if pk is not None:
+            form = AdminEditUserForm(request.POST)
         if form.is_valid(): # All validation rules pass
             try:
-                new_user = User()
+                new_user, created = User.objects.get_or_create(pk=pk)
                 new_user.username = form.cleaned_data['username']
                 new_user.email = form.cleaned_data['email']
                 new_user.set_password(form.cleaned_data['password1'])
@@ -39,11 +51,10 @@ def admin_does_all(request, template='web_registration/admin_registration.html',
                     profile.location = form.cleaned_data['location']
                     profile.facility = form.cleaned_data['facility']
                     profile.save()
-                    
+                
                 _send_user_registration_email(new_user.email, 
                                               new_user.username, form.cleaned_data['password1'])
             except:
-                transaction.rollback()                
                 vals = {'error_msg':'There was a problem with your request',
                         'error_details':sys.exc_info(),
                         'show_homepage_link': 1 }
@@ -51,16 +62,22 @@ def admin_does_all(request, template='web_registration/admin_registration.html',
                                           vals, 
                                           context_instance = RequestContext(request))
             else:
-                transaction.commit()  
-                return HttpResponseRedirect( reverse(success_url, 
-                                                     kwargs={'caller':'admin', 
-                                                             'account':new_user.username}) )
+                return HttpResponseRedirect( reverse('admin_web_registration'))
     else:
-        form = AdminRegistersUserForm() # An unbound form
-   
-    return render_to_response(template, 
-                              {'form': form, 
-                               'users': User.objects.all().order_by('username')}, 
+        if pk is not None:
+            form.fields['username'].initial = user.username
+            form.fields['email'].initial = user.email
+            form.fields['is_active'].initial = user.is_active
+            form.fields['is_admin'].initial = user.is_superuser
+            profile = user.get_profile()
+            if profile.location:
+                form.fields['location'].initial = user.get_profile().location.pk
+            if profile.facility:
+                form.fields['facility'].initial = user.get_profile().facility.pk
+            context['edit_user'] = user
+    context['form'] = form
+    context['users'] = User.objects.all().order_by('username')
+    return render_to_response(template, context, 
                               context_instance = RequestContext(request)) 
 
 def _send_user_registration_email(recipient, username, password):

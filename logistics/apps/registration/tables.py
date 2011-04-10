@@ -9,8 +9,11 @@ from rapidsms.models import Contact
 
 
 def _edit_link(cell):
+    registration_edit_view = 'registration_edit'
+    if hasattr(settings,'SMS_REGISTRATION_EDIT'):
+        registration_edit_view = settings.SMS_REGISTRATION_EDIT
     return reverse(
-        settings.REGISTRATION_EDIT,
+        registration_edit_view,
         args=[cell.row.pk])
 
 def _any_identity(cell):

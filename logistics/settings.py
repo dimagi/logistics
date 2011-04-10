@@ -83,6 +83,9 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
+# TODO: move this configuration over to urls.py
+SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
+SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -245,8 +248,6 @@ COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
 ]
 
 DEBUG=True
-REGISTRATION_VIEW='ewsghana_sms_registration'
-REGISTRATION_EDIT='ewsghana_registration_edit'
 
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [

@@ -18,6 +18,9 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
     bulk_form = None
+    registration_view = 'registration'
+    if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
+        registration_view = settings.SMS_REGISTRATION_VIEW
 
     if pk is not None:
         contact = get_object_or_404(
@@ -28,7 +31,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
         if req.POST["submit"] == "Delete Contact":
             contact.delete()
             return HttpResponseRedirect(
-                reverse(settings.REGISTRATION_VIEW))
+                reverse(registration_view))
 
         elif "bulk" in req.FILES:
             # TODO use csv module
@@ -50,7 +53,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                 connection.save()
 
             return HttpResponseRedirect(
-                reverse(settings.REGISTRATION_VIEW))
+                reverse(registration_view))
         else:
             contact_form = CommoditiesContactForm(
                 instance=contact,
@@ -59,7 +62,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             if contact_form.is_valid():
                 contact = contact_form.save()
                 return HttpResponseRedirect(
-                    reverse(settings.REGISTRATION_VIEW))
+                    reverse(registration_view))
 
     else:
         contact_form = CommoditiesContactForm(
@@ -71,6 +74,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             "contact_form": contact_form,
             "bulk_form": bulk_form,
             "contact": contact,
-            "registration_view": reverse(settings.REGISTRATION_VIEW)
+            "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)
     )

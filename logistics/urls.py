@@ -27,7 +27,7 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.urls')),
 
     # other app URLS
-    (r'^', include('logistics.apps.web_registration.urls')),
+    #(r'^', include('logistics.apps.web_registration.urls')), # stolen by ewsghana.urls
     (r'^registration/', include('logistics.apps.registration.urls')),
     (r'^logistics/', include('logistics.apps.logistics.urls')),
     (r'^reports/', include('logistics.apps.reports.urls')),

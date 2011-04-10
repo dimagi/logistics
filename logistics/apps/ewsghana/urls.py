@@ -19,21 +19,35 @@ urlpatterns = patterns('',
         name="ewsghana_message_log"),
     url(r'^reporting/?$', 'logistics.apps.ewsghana.views.reporting', 
         name="ewsghana_reporting"),
-        
+    
+    # sms user register
     url(r'^registration/sms/?$', logistics_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_sms_registration"),
+    # sms user edit
     url(r'^registration/sms/(?P<pk>\d+)/edit/?$', logistics_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_registration_edit"),
-    url(r'^registration/web/?$', admin_does_all,
+    url(r'^scheduled_reports/?$', 'logistics.apps.ewsghana.views.email_reports', 
+        name="ewsghana_scheduled_reports"),
+    
+    # register new user
+    url(r'^register/web/admin/?$', admin_does_all,   
+        {'template':'ewsghana/web_registration.html', 
+         'success_url': 'ewsghana_admin_web_registration_complete'},     
+       name='admin_web_registration'),
+    # edit existing web user
+    url(r'^register/web/(?P<pk>\d+)/edit/?$', admin_does_all,
         {'template':'ewsghana/web_registration.html', 
          'success_url': 'ewsghana_admin_web_registration_complete'}, 
-        name="ewsghana_admin_web_registration"),
+        name='admin_web_registration_edit'),
+    # web user registration done
     url(r'^register/web/admin/complete(?:/(?P<caller>\w+))?(?:/(?P<account>\w+))?/$',
        direct_to_template,
        { 'template': 'web_registration/admin_registration_complete.html' },
-       name='ewsghana_admin_web_registration_complete'),
-    url(r'^scheduled_reports/?$', 'logistics.apps.ewsghana.views.email_reports', 
-        name="ewsghana_scheduled_reports")
+       name='admin_web_registration_complete'),
+    
+    # steal the rapidsms login/logouts
+    url(r'^accounts/login/$', 'auth_login', name='rapidsms-login'),
+    url(r'^accounts/logout/$', 'auth_logout', name='rapidsms-logout'),
 )

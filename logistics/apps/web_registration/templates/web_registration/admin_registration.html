@@ -15,6 +15,11 @@ Create New User
 
 {% block left %}
 <div class="module">
+	{% if edit_user %}
+	<div class="toolbar">
+		<a href="{% url admin_web_registration %}" class="add">Add a Contact</a>
+	</div>
+	{% endif %}
 	<h2>Registered Web Users</h2>
 	<table><thead>
 		<tr>
@@ -22,11 +27,13 @@ Create New User
 			<th>Email</th>
 		</tr>
 	</thead><tbody>
-	{% for user in users %}
-	{% ifnotequal user.username "admin" %}
+	{% for registered_user in users %}
+	{% ifnotequal registered_user.username "admin" %}
 		<tr>
-			<td>{{ user.username }}</td>
-			<td>{{ user.email }}</td>
+			<td><a href="{% url admin_web_registration_edit registered_user.pk %}">
+			    {{ registered_user.username }}
+			</a></td>
+			<td>{{ registered_user.email }}</td>
 		</tr>
 	{% endifnotequal %}
 	{% endfor %}
@@ -44,7 +51,11 @@ Create New User
 {% if form_title %}
 {{form_title}}
 {% else %}
-Register a New Web User
+	{% if edit_user %}
+	Edit a Web User
+	{% else %}
+	Register a New Web User
+	{% endif %}
 {% endif %}
 </h2><br/>
 
@@ -70,7 +81,11 @@ Register a New Web User
 
 {% endfor %}
 
-<button type="submit">Submit</button>
+<div class="submit">
+	<input type="hidden" name="pk" value="{{ user.pk }}"/>
+	<input type="submit" name="submit" value="Save Contact" />{% if edit_user %}
+	<input type="submit" name="submit" value="Delete Contact" />{% endif %}
+</div>
 </form>
 </div>
 <!-- Registration request form -->  
