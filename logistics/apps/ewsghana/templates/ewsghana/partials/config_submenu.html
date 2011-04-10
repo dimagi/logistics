@@ -3,8 +3,10 @@
 {% endblock %}
 
 <div id="submenu"> 
-    <a href="{% url ewsghana_sms_registration %}">REGISTER NEW SMS USER</a> * 
-    <a href="{% url admin_web_registration %}">REGISTER NEW WEB USER</a> * 
-    <a href="{% url ewsghana_scheduled_reports %}">CONFIGURE MY EMAIL REPORTS</a>
+    <a href="{% url ewsghana_scheduled_reports %}">MY EMAIL REPORTS</a>
+    <a href="{% url ewsghana_sms_registration %}">SMS USERS</a> * 
+    <a href="{% url admin_web_registration %}">WEB USERS</a> * 
+    <a href="{% url facility_view %}">FACILITIES</a> * 
+    <a href="{% url commodity_view %}">COMMODITIES</a> * 
 </div>
 

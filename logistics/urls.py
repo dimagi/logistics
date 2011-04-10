@@ -30,7 +30,8 @@ urlpatterns = patterns('',
     # other app URLS
     #(r'^', include('logistics.apps.web_registration.urls')), # stolen by ewsghana.urls
     (r'^registration/', include('logistics.apps.registration.urls')),
-    (r'^logistics/', include('logistics.apps.logistics.urls')),
+    (r'^logistics/', include('logistics.apps.logistics.urls.logistics')),
+    #(r'^logistics/', include('logistics.apps.logistics.urls.config')), # stolen by ewsghana
     (r'^reports/', include('logistics.apps.reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^', include('auditcare.urls')),

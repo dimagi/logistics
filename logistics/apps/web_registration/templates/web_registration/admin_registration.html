@@ -44,9 +44,6 @@ Create New User
 {% block right %}
 <div class="module">
 <!-- Registration request form -->  
-<div class="span-12" style="margin-left:auto; margin-right:auto; float:none">
-<form class="sfb clear" name="form" method="post" action="">
-{% csrf_token %}
 <h2>
 {% if form_title %}
 {{form_title}}
@@ -57,7 +54,11 @@ Create New User
 	Register a New Web User
 	{% endif %}
 {% endif %}
-</h2><br/>
+</h2>
+<div class="span-12" style="margin-left:auto; margin-right:auto; float:none">
+<form class="sfb clear" name="form" method="post" action="">
+{% csrf_token %}
+<br/>
 
 {% if form.non_field_errors %}
   <div class="non_field_errors">

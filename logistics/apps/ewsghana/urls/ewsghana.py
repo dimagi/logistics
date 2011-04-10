@@ -7,6 +7,7 @@ from django.views.generic.simple import direct_to_template
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.registration.views import registration as logistics_registration
 from logistics.apps.web_registration.views import admin_does_all
+from logistics.apps.logistics import views as logistics_views
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
@@ -46,4 +47,21 @@ urlpatterns = patterns('',
        direct_to_template,
        { 'template': 'web_registration/admin_registration_complete.html' },
        name='admin_web_registration_complete'),
+
+    url(r'^facility?$',
+       logistics_views.facility, 
+       { 'template': "ewsghana/config.html"},
+       name='facility_view'),
+    url(r'^facility/(?P<pk>\d+)/edit/?$',
+       logistics_views.facility,
+       { 'template':"ewsghana/config.html"},
+       name='facility_edit'), 
+    url(r'^commodity/?$',
+       logistics_views.commodity,                           
+       { 'template':"ewsghana/config.html"},
+       name='commodity_view'),
+    url(r'^commodity/(?P<pk>\d+)/edit/?$',
+       logistics_views.commodity, 
+       { 'template': "ewsghana/config.html"},
+       name='commodity_edit'),
 )
