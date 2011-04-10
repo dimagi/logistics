@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import settings
 from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -8,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -19,6 +21,9 @@ from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
+from .models import Product
+from .forms import FacilityForm, CommodityForm
+from .tables import FacilityTable, CommodityTable
 
 def dashboard(request):
     if request.user.get_profile().facility:
@@ -205,3 +210,66 @@ def export_stockonhand(request, facility_code, format='xls', filename='stockonha
         )
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
+
+@transaction.commit_on_success
+def facility(req, pk=None, template="logistics/config.html"):
+    facility = None
+    form = None
+    if pk is not None:
+        facility = get_object_or_404(
+            Facility, pk=pk)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete":
+            facility.delete()
+            return HttpResponseRedirect(
+                reverse('facility_view'))
+        else:
+            form = FacilityForm(
+                                instance=facility,
+                                data=req.POST)
+            if form.is_valid():
+                facility = form.save()
+                return HttpResponseRedirect(
+                    reverse('facility_view'))
+    else:
+        form = FacilityForm(instance=facility)
+    return render_to_response(
+        template, {
+            "table": FacilityTable(Facility.objects.all(), request=req),
+            "form": form,
+            "object": facility,
+            "klass": "Facility",
+            "klass_view": reverse('facility_view')
+        }, context_instance=RequestContext(req)
+    )
+
+@transaction.commit_on_success
+def commodity(req, pk=None, template="logistics/config.html"):
+    form = None
+    commodity = None
+    if pk is not None:
+        commodity = get_object_or_404(Product, pk=pk)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete":
+            commodity.delete()
+            return HttpResponseRedirect(
+                reverse('facilities_view'))
+        else:
+            form = CommodityForm(
+                                 instance=commodity,
+                                 data=req.POST)
+            if form.is_valid():
+                commodity = form.save()
+                return HttpResponseRedirect(
+                    reverse('commodity_view'))
+    else:
+        form = CommodityForm(instance=commodity)
+    return render_to_response(
+        template, {
+            "table": CommodityTable(Product.objects.all(), request=req),
+            "form": form,
+            "object": commodity,
+            "klass": "Commodity",
+            "klass_view": reverse('commodity_view')
+        }, context_instance=RequestContext(req)
+    )
