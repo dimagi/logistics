@@ -46,8 +46,4 @@ urlpatterns = patterns('',
        direct_to_template,
        { 'template': 'web_registration/admin_registration_complete.html' },
        name='admin_web_registration_complete'),
-    
-    # steal the rapidsms login/logouts
-    url(r'^accounts/login/$', 'auth_login', name='rapidsms-login'),
-    url(r'^accounts/logout/$', 'auth_logout', name='rapidsms-logout'),
 )
