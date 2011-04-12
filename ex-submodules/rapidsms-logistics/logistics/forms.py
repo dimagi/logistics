@@ -7,7 +7,9 @@ from django.utils.translation import ugettext as _
 from .models import Facility, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
-    commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), required=False)
+    commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
+                                                 help_text='Select only commodities actively stocked by this facility', 
+                                                 required=False)
     
     class Meta:
         model = Facility
