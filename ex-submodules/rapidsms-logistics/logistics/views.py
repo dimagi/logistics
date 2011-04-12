@@ -8,6 +8,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
@@ -216,6 +217,7 @@ def export_stockonhand(request, facility_code, format='xls', filename='stockonha
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
 
+@permission_required('logistics')
 @transaction.commit_on_success
 def facility(req, pk=None, template="logistics/config.html"):
     facility = None
@@ -249,6 +251,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         }, context_instance=RequestContext(req)
     )
 
+@permission_required('logistics')
 @transaction.commit_on_success
 def commodity(req, pk=None, template="logistics/config.html"):
     form = None
