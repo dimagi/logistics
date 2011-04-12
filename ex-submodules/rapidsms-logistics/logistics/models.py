@@ -680,7 +680,7 @@ def get_geography():
 post_save.connect(post_save_product_report, sender=ProductReport)
 
 def _filtered_stock(product, producttype):
-    results = ProductStock.objects.all()
+    results = ProductStock.objects.filter(is_active=True)
     if product is not None:
         results = results.filter(product__sms_code=product)
     elif producttype is not None:
