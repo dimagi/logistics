@@ -256,3 +256,9 @@ NO_LOGIN_REQUIRED_FOR = [
 'logout',
 'activate',
 ]
+
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=10
+AXES_LOGIN_FAILURE_LIMIT=1
+
