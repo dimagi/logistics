@@ -3,6 +3,7 @@
 
 import sys, settings
 from datetime import datetime
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
@@ -14,6 +15,7 @@ from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
 from .forms import AdminRegistersUserForm
 
+@permission_required('web_registration')
 @transaction.commit_on_success
 def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, 
                    template='web_registration/admin_registration.html', 

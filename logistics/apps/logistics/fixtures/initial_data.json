@@ -1772,18 +1772,6 @@
         "pk": 1, 
         "model": "auth.group", 
         "fields": {
-            "name": "stock_reporters", 
-            "permissions": [
-                103, 
-                104, 
-                105
-            ]
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "auth.group", 
-        "fields": {
             "name": "program_admin", 
             "permissions": [
                 115, 

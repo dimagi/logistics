@@ -3,6 +3,7 @@
 
 import settings
 from django.template import RequestContext
+from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
@@ -13,6 +14,7 @@ from rapidsms.models import Contact
 from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
+@permission_required('registration')
 @transaction.commit_on_success
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None

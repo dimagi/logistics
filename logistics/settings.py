@@ -74,7 +74,7 @@ RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
     ("ewsghana_reporting",  				    "Usage"),
     #("input_stock",      				    "Input Stock"),
-    ("ewsghana_sms_registration", 			    "Configuration"),
+    ("ewsghana_scheduled_reports", 	                    "Configuration"),
     #("email_reports",      			            "Email Reports"),
     ("help",      			                    "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),

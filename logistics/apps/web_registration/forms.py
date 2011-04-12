@@ -62,6 +62,7 @@ class AdminRegistersUserForm(RegistrationForm):
             self.edit_user.set_password(self.cleaned_data['password1'])
             self.edit_user.email = self.cleaned_data['email']
             user = self.edit_user
+        user.is_active = True
         user.is_staff = False # Can never log into admin site
         user.save()
         if 'location' in self.cleaned_data or 'facility' in self.cleaned_data:
