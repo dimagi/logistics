@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
-from .forms import AdminRegistersUserForm, AdminEditUserForm
+from .forms import AdminRegistersUserForm
 
 @transaction.commit_on_success
 def admin_does_all(request, pk=None, 
@@ -20,38 +20,19 @@ def admin_does_all(request, pk=None,
                    success_url='admin_web_registration_complete'):
     context = {}
     user = None
-    form = AdminRegistersUserForm() # An unbound form
     if pk is not None:
         user = get_object_or_404(User, pk=pk)
+        context['edit_user'] = user
+    form = AdminRegistersUserForm(user=user) # An unbound form
     if request.method == 'POST': 
         if request.POST["submit"] == "Delete Contact":
             user.delete()
             return HttpResponseRedirect(
                 reverse('admin_web_registration'))
-        form = AdminRegistersUserForm(request.POST) # A form bound to the POST data
-        if pk is not None:
-            form = AdminEditUserForm(request.POST)
+        form = AdminRegistersUserForm(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
-                new_user, created = User.objects.get_or_create(pk=pk)
-                new_user.username = form.cleaned_data['username']
-                new_user.email = form.cleaned_data['email']
-                new_user.set_password(form.cleaned_data['password1'])
-                
-                new_user.is_staff = False # Can never log into admin site
-                new_user.is_active = form.cleaned_data['is_active']
-                new_user.is_superuser = form.cleaned_data['is_admin']   
-                new_user.last_login =  datetime(1970,1,1)
-                # date_joined is used to determine expiration of the invitation key - I'd like to
-                # munge it back to 1970, but can't because it makes all keys look expired.
-                new_user.date_joined = datetime.utcnow()
-                new_user.save()
-                if 'location' in form.cleaned_data or 'facility' in form.cleaned_data:
-                    profile = new_user.get_profile()
-                    profile.location = form.cleaned_data['location']
-                    profile.facility = form.cleaned_data['facility']
-                    profile.save()
-                
+                new_user = form.save()
                 _send_user_registration_email(new_user.email, 
                                               new_user.username, form.cleaned_data['password1'])
             except:
@@ -63,18 +44,6 @@ def admin_does_all(request, pk=None,
                                           context_instance = RequestContext(request))
             else:
                 return HttpResponseRedirect( reverse('admin_web_registration'))
-    else:
-        if pk is not None:
-            form.fields['username'].initial = user.username
-            form.fields['email'].initial = user.email
-            form.fields['is_active'].initial = user.is_active
-            form.fields['is_admin'].initial = user.is_superuser
-            profile = user.get_profile()
-            if profile.location:
-                form.fields['location'].initial = user.get_profile().location.pk
-            if profile.facility:
-                form.fields['facility'].initial = user.get_profile().facility.pk
-            context['edit_user'] = user
     context['form'] = form
     context['users'] = User.objects.all().order_by('username')
     return render_to_response(template, context, 
