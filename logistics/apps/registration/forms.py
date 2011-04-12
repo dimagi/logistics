@@ -3,6 +3,8 @@
 
 from django import forms
 from django.conf import settings
+from django.contrib.sites.models import Site
+from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
 
@@ -71,6 +73,7 @@ class ContactForm(forms.ModelForm):
         """
         raise NotImplementedError()
 
+    @transaction.commit_on_success
     def save(self, commit=True):
         model = super(ContactForm, self).save(commit=False)
         if commit:
@@ -134,6 +137,7 @@ class IntlSMSContactForm(ContactForm):
                                     {'intl':idc})
 
 class CommoditiesContactForm(IntlSMSContactForm):
+    @transaction.commit_on_success
     def save(self, commit=True):
         model = super(CommoditiesContactForm, self).save(commit=False)
         if commit:

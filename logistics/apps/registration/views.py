@@ -4,10 +4,12 @@
 import settings
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404
+from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
@@ -15,7 +17,6 @@ from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegist
 from .tables import ContactTable
 
 @permission_required('registration')
-@transaction.commit_on_success
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
@@ -63,6 +64,10 @@ def registration(req, pk=None, template="registration/dashboard.html"):
 
             if contact_form.is_valid():
                 contact = contact_form.save()
+                response = "Dear %(name)s, you have been registered on %(site)s" % \
+                    {'name': contact.name, 
+                     'site': Site.objects.get(id=settings.SITE_ID).domain }
+                send_message(contact.default_connection, response)
                 return HttpResponseRedirect(
                     reverse(registration_view))
 
