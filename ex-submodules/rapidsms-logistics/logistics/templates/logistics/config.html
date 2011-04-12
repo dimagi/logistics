@@ -28,7 +28,7 @@
 		{% csrf_token %}
 
 		<div class="submit">
-			<input type="submit" name="submit" value="Save {{ klass }}" />{% if contact %}
+			<input type="submit" name="submit" value="Save {{ klass }}" />{% if object %}
 			<input type="submit" name="submit" value="Delete {{ klass }}" />{% endif %}
 		</div>
 	</form>

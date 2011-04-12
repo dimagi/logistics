@@ -220,11 +220,12 @@ def export_stockonhand(request, facility_code, format='xls', filename='stockonha
 def facility(req, pk=None, template="logistics/config.html"):
     facility = None
     form = None
+    klass = "Facility"
     if pk is not None:
         facility = get_object_or_404(
             Facility, pk=pk)
     if req.method == "POST":
-        if req.POST["submit"] == "Delete":
+        if req.POST["submit"] == "Delete %s" % klass:
             facility.delete()
             return HttpResponseRedirect(
                 reverse('facility_view'))
@@ -243,7 +244,7 @@ def facility(req, pk=None, template="logistics/config.html"):
             "table": FacilityTable(Facility.objects.all(), request=req),
             "form": form,
             "object": facility,
-            "klass": "Facility",
+            "klass": klass,
             "klass_view": reverse('facility_view')
         }, context_instance=RequestContext(req)
     )
@@ -252,13 +253,14 @@ def facility(req, pk=None, template="logistics/config.html"):
 def commodity(req, pk=None, template="logistics/config.html"):
     form = None
     commodity = None
+    klass = "Commodity"
     if pk is not None:
         commodity = get_object_or_404(Product, pk=pk)
     if req.method == "POST":
-        if req.POST["submit"] == "Delete":
+        if req.POST["submit"] == "Delete %s" % klass:
             commodity.delete()
             return HttpResponseRedirect(
-                reverse('facilities_view'))
+                reverse('commodity_view'))
         else:
             form = CommodityForm(
                                  instance=commodity,
@@ -274,7 +276,7 @@ def commodity(req, pk=None, template="logistics/config.html"):
             "table": CommodityTable(Product.objects.all(), request=req),
             "form": form,
             "object": commodity,
-            "klass": "Commodity",
+            "klass": klass,
             "klass_view": reverse('commodity_view')
         }, context_instance=RequestContext(req)
     )
