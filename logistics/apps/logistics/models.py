@@ -30,7 +30,7 @@ RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
-GET_HELP_MESSAGE = " Please contact FRHP for assistance."
+GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 
 try:
@@ -429,7 +429,7 @@ class ProductReportsHelper(object):
         match = re.search("[0-9]",string)
         if not match:
             raise ValueError("Stock report should contain quantity of stock on hand. " + \
-                             "Please contact FRHP for assistance.")
+                             "Please contact your DHIO for assistance.")
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
@@ -581,7 +581,7 @@ class ProductReportsHelper(object):
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
-            #    Please contact FRHP for assistance." % {'code':i})
+            #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
                 if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
                    self.product_stock[i] != 0:
@@ -596,7 +596,7 @@ class ProductReportsHelper(object):
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly con/sumption.
-            #    Please contact FRHP for assistance." % {'code':i})
+            #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
                 if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
                    productstock.monthly_consumption>0:
