@@ -63,13 +63,16 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                 data=req.POST)
 
             if contact_form.is_valid():
+                created = False
+                if contact.pk is None:
+                    created = True
                 contact = contact_form.save()
-                response = "Dear %(name)s, you have been registered on %(site)s" % \
-                    {'name': contact.name, 
-                     'site': Site.objects.get(id=settings.SITE_ID).domain }
-                send_message(contact.default_connection, response)
-                return HttpResponseRedirect(
-                    reverse(registration_view))
+                if created:
+                    response = "Dear %(name)s, you have been registered on %(site)s" % \
+                        {'name': contact.name, 
+                         'site': Site.objects.get(id=settings.SITE_ID).domain }
+                    send_message(contact.default_connection, response)
+                    return HttpResponseRedirect(reverse(registration_view))
 
     else:
         contact_form = CommoditiesContactForm(
