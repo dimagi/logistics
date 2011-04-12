@@ -8,6 +8,7 @@ from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.registration.views import registration as logistics_registration
 from logistics.apps.web_registration.views import admin_does_all
 from logistics.apps.logistics import views as logistics_views
+from logistics.apps.ewsghana.forms import EWSGhanaWebRegistrationForm
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
@@ -33,13 +34,15 @@ urlpatterns = patterns('',
         name="ewsghana_scheduled_reports"),
     
     # register new user
-    url(r'^register/web/admin/?$', admin_does_all,   
-        {'template':'ewsghana/web_registration.html', 
+    url(r'^register/web/admin/?$', admin_does_all, 
+        {'Form':EWSGhanaWebRegistrationForm, 
+         'template':'ewsghana/web_registration.html', 
          'success_url': 'ewsghana_admin_web_registration_complete'},     
        name='admin_web_registration'),
     # edit existing web user
     url(r'^register/web/(?P<pk>\d+)/edit/?$', admin_does_all,
-        {'template':'ewsghana/web_registration.html', 
+        {'Form':EWSGhanaWebRegistrationForm, 
+         'template':'ewsghana/web_registration.html', 
          'success_url': 'ewsghana_admin_web_registration_complete'}, 
         name='admin_web_registration_edit'),
     # web user registration done

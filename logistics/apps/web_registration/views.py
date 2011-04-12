@@ -15,7 +15,7 @@ from rapidsms.models import Connection, Backend, Contact
 from .forms import AdminRegistersUserForm
 
 @transaction.commit_on_success
-def admin_does_all(request, pk=None, 
+def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
     context = {}
@@ -23,13 +23,13 @@ def admin_does_all(request, pk=None,
     if pk is not None:
         user = get_object_or_404(User, pk=pk)
         context['edit_user'] = user
-    form = AdminRegistersUserForm(user=user) # An unbound form
+    form = Form(user=user) # An unbound form
     if request.method == 'POST': 
         if request.POST["submit"] == "Delete Contact":
             user.delete()
             return HttpResponseRedirect(
                 reverse('admin_web_registration'))
-        form = AdminRegistersUserForm(request.POST, user=user) # A form bound to the POST data
+        form = Form(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
                 new_user = form.save()
