@@ -33,6 +33,10 @@ class FacilityAdmin(admin.ModelAdmin):
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
+class StockTransactionAdmin(admin.ModelAdmin):
+    model = StockTransaction
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductType, ProductTypeAdmin)
 admin.site.register(ProductStock, ProductStockAdmin)
@@ -42,4 +46,5 @@ admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(Facility, FacilityAdmin)
+admin.site.register(StockTransaction, StockTransactionAdmin)
 
