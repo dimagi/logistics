@@ -1,0 +1,14 @@
+{% extends "logistics/base.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div class="module">
+        <h2>Internet Explorer is NOT supported</h2>
+	    <p/>
+        {% trans "Please use FireFox or Chrome as your internet browser instead." %}<p/>
+        
+        <a href='http://www.mozilla.com?from=sfx&amp;uid=0&amp;t=588'>
+            <img src='{{ MEDIA_URL }}logistics/images/firefox.png' alt='Spread Firefox Affiliate Button' border='0' />
+        </a>
+    </div>
+{% endblock %}

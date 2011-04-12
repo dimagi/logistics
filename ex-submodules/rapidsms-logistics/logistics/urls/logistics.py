@@ -2,10 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.conf.urls.defaults import *
-from django.views.generic.simple import redirect_to
+from django.views.generic.simple import redirect_to, direct_to_template
 from ..models import get_geography, ProductStock, ProductReport
 
 urlpatterns = patterns('',
+    url(r'^no_ie_allowed/?$', 'logistics.apps.logistics.views.no_ie_allowed', 
+        name="no_ie_allowed"),
     url(r'^(?P<facility_code>\w+)/input_stock$',
         'logistics.apps.logistics.views.input_stock',
         name="input_stock"),

@@ -25,7 +25,12 @@ from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
 
+def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
+    return render_to_response(template, context_instance=RequestContext(request))
+
 def dashboard(request):
+    if 'MSIE' in request.META['HTTP_USER_AGENT']:
+        return no_ie_allowed(request)
     if request.user.get_profile().facility:
         return stockonhand_facility(request, request.user.get_profile().facility.code)
     elif request.user.get_profile().location:
