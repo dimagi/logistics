@@ -124,7 +124,8 @@ class ProductStock(models.Model):
 
     @property
     def months_remaining(self):
-        if self.monthly_consumption > 0 and self.quantity is not None:
+        if self.monthly_consumption is not None and self.monthly_consumption > 0 \
+          and self.quantity is not None:
             return float(self.quantity) / float(self.monthly_consumption)
         return None
 
