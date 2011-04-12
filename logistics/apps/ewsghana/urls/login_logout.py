@@ -8,9 +8,9 @@ from django.contrib.auth.views import logout as django_logout
 urlpatterns = patterns('',
     # steal the rapidsms login/logouts
 url(r'^accounts/login/$', django_login, 
-        kwargs={"template_name":"rapidsms/login.html"}, 
+        kwargs={"template_name":"ewsghana/login.html"}, 
         name='rapidsms-login'),
     url(r'^accounts/logout/$', django_logout, 
-        kwargs={"template_name":"rapidsms/loggedout.html"},
+        kwargs={"template_name":"ewsghana/loggedout.html"},
         name='rapidsms-logout'),
 )
