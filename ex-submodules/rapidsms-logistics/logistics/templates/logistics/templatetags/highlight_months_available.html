@@ -21,5 +21,9 @@
     {% endif %}
 {% endif %}
 >
-    {{ stockonhand.months_remaining|default_if_none:"n/a"|floatformat }}
+	{% if stockonhand.months_remaining %}
+    	{{ stockonhand.months_remaining|floatformat }}
+	{% else %}
+	    unknown
+	{% endif %}
 </td>
