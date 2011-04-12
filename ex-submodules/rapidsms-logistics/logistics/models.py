@@ -91,7 +91,7 @@ class ProductStock(models.Model):
     # in practice, this means: do we bug people to report on this commodity
     # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
     is_active = models.BooleanField(default=True)
-    quantity = models.IntegerField(blank=True, null=True)
+    quantity = models.IntegerField(blank=True, null=True, default=None)
     facility = models.ForeignKey('Facility')
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)

@@ -232,8 +232,7 @@ def facility(req, pk=None, template="logistics/config.html"):
             return HttpResponseRedirect(
                 reverse('facility_view'))
         else:
-            form = FacilityForm(
-                                instance=facility,
+            form = FacilityForm(instance=facility,
                                 data=req.POST)
             if form.is_valid():
                 facility = form.save()

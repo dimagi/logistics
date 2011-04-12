@@ -43,6 +43,10 @@
                 <br/>
                 {% ifequal request.user.get_profile.facility facility %}
                 <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+                {% else %}
+	                {% if request.user.is_superuser %}
+	                <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+	                {% endif %}
                 {% endifequal %}
                 {% if last_reported %}
                     <p>The last report received was on {{ last_reported|date:"M d, h:m A" }}.</p>
