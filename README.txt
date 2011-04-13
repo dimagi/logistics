@@ -4,9 +4,10 @@ NON-PYTHON DEPENDENCIES
 * git
 * postgres
 * pip
+* couchdb
 
 You can install all of the above by running:
-> sudo apt-get install git-core postgresql python-psycopg2
+> sudo apt-get install git-core postgresql python-psycopg2 couchdb
 
 Install Django 1.2. Don't use apt-get on Lucid, it'll give you 1.1
 
@@ -27,8 +28,13 @@ SETUP
 * ./manage.py syncdb
 * ./manage.py migrate
 * python import_facilities.py Facilities.csv
+* update relevant settings in settings.py or localsettings.py
+** most notably, use real email credentials
+* sudo /etc/init.d.couchdb start
+* ./manage.py celeryd &
 * ./manage.py runserver &
 * ./manage.py runrouter &
+
 
 SUPPORTED OPERATING SYSTEM
 Ubuntu Lucid Lynx 10.0.4 LTS

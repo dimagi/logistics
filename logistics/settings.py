@@ -15,6 +15,9 @@ INSTALLED_APPS = [
     "django_nose",
     "djtables",
     "rapidsms",
+    # for email reports
+    "djcelery", # pip install django-celery
+    "djkombu", # pip install django-kombu
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -44,10 +47,25 @@ INSTALLED_APPS = [
     #"rapidsms.contrib.registration",
     "logistics.apps.malawi",
     "logistics.apps.registration",
+    "logistics.apps.web_registration",
     "logistics.apps.logistics",
+    "logistics.apps.ewsghana",
+    "logistics.apps.reports",
     "logistics.apps.smsgh",
-    #"django_cpserver",
+    #"django_cpserver", # pip install django-cpserver
+    "auditcare",
+    "registration",
 ]
+
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'auditcare.middleware.AuditMiddleware',
+    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+)
 
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -62,9 +80,20 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),
     ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    #("ewsghana_reporting",  				    "Usage"),
+    #("input_stock",      				    "Input Stock"),
+    #("ewsghana_scheduled_reports", 	                    "Configuration"),
+    #("email_reports",      			            "Email Reports"),
+    ("help",      			                    "Help"),
+    #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
+    #("rapidsms.contrib.locations.views.locations",         "Map"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
+# TODO: move this configuration over to urls.py
+SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
+SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -74,7 +103,7 @@ RAPIDSMS_TABS = [
 # debug mode is turned on as default, since rapidsms is under heavy
 # development at the moment, and full stack traces are very useful
 # when reporting bugs. don't forget to turn this off in production.
-DEBUG = TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = True
 
 
 # after login (which is handled by django.contrib.auth), redirect to the
@@ -164,20 +193,36 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
+AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
+
+# celery
+CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact Focus Region Health Project for help."
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com."
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
 COUNTRY = "malawi"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
-DEBUG=True
 TIME_ZONE="Africa/Accra"
 filedir = os.path.dirname(__file__)
 
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "health_centers.csv")
+# email settings used for sending out email reports
+EMAIL_LOGIN="name@dimagi.com"
+EMAIL_PASSWORD="changeme"
+EMAIL_SMTP_HOST="smtp.gmail.com"
+EMAIL_SMTP_PORT=587
+ACCOUNT_ACTIVATION_DAYS=30
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_PASSWORD='changeme'
+EMAIL_HOST_USER='name@dimagi.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:
@@ -190,4 +235,40 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
         DATABASES[db_name]['TEST_NAME'] = os.path.join(
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
+
+
+COUCH_SERVER_ROOT='127.0.0.1:5984'
+COUCH_USERNAME=''
+COUCH_PASSWORD=''
+COUCH_DATABASE_NAME='logistics'
+COUCHDB_APPS=['auditcare',]
+def get_server_url(server_root, username, password):
+    if username and password:
+        return "http://%(user)s:%(pass)s@%(server)s" % \
+            {"user": username,
+             "pass": password, "server": server_root } 
+    else:
+        return "http://%(server)s" % {"server": server_root }
+COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
+COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
+
+COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
+        'auditcare',
+    ]
+]
+
+DEBUG=True
+
+# TODO: come back and clean this up
+NO_LOGIN_REQUIRED_FOR = [
+'password/reset',
+'register',
+'logout',
+'activate',
+]
+
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=10
+AXES_LOGIN_FAILURE_LIMIT=1
 

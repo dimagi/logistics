@@ -3,6 +3,8 @@
 
 from django import forms
 from django.conf import settings
+from django.contrib.sites.models import Site
+from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
 
@@ -45,11 +47,20 @@ class ContactForm(forms.ModelForm):
     def clean_phone(self):
         model = super(ContactForm, self).save(commit=False)
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
-        dupes = Connection.objects.filter(identity=self.cleaned_data['phone'])
+        if settings.DEFAULT_BACKEND:
+            backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
+        else:
+            backend = Backend.objects.all()[0]
+        dupes = Connection.objects.filter(identity=self.cleaned_data['phone'], 
+                                          backend=backend)
         dupe_count = dupes.count()
         if dupe_count > 1:
             raise forms.ValidationError("Phone number already registered!")
         if dupe_count == 1:
+            if dupes[0].contact is None:
+                # this is fine, it just means we have a dangling connection
+                # which we'll steal when we save
+                pass
             # could be that we are editing an existing model
             if dupes[0].contact.name != self.cleaned_data['name']:
                 raise forms.ValidationError("Phone number already registered!")
@@ -62,6 +73,7 @@ class ContactForm(forms.ModelForm):
         """
         raise NotImplementedError()
 
+    @transaction.commit_on_success
     def save(self, commit=True):
         model = super(ContactForm, self).save(commit=False)
         if commit:
@@ -72,8 +84,16 @@ class ContactForm(forms.ModelForm):
                     backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
                 else:
                     backend = Backend.objects.all()[0]
-                conn = Connection(backend=backend,
-                                  contact=model)
+                try:
+                    conn = Connection.objects.get(backend=backend, 
+                                                  identity=self.cleaned_data['phone'])
+                except Connection.DoesNotExist:
+                    # good, it doesn't exist already
+                    conn = Connection(backend=backend,
+                                      contact=model)
+                else: 
+                    # this connection already exists. just steal it. 
+                    conn.contact = model
             conn.identity = self.cleaned_data['phone']
             conn.save()
         return model
@@ -117,6 +137,7 @@ class IntlSMSContactForm(ContactForm):
                                     {'intl':idc})
 
 class CommoditiesContactForm(IntlSMSContactForm):
+    @transaction.commit_on_success
     def save(self, commit=True):
         model = super(CommoditiesContactForm, self).save(commit=False)
         if commit:
@@ -127,8 +148,15 @@ class CommoditiesContactForm(IntlSMSContactForm):
                     backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
                 else:
                     backend = Backend.objects.all()[0]
-                conn = Connection(backend=backend,
-                                  contact=model)
+                try:
+                    conn = Connection.objects.get(backend=backend, identity=self.cleaned_data['phone'])
+                except Connection.DoesNotExist:
+                    # good, it doesn't exist already
+                    conn = Connection(backend=backend,
+                                      contact=model)
+                else: 
+                    # this connection already exists. just steal it. 
+                    conn.contact = model
             conn.identity = self.cleaned_data['phone']
             conn.save()
             self.save_m2m()

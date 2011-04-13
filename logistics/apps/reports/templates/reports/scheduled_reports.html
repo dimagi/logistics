@@ -1,0 +1,81 @@
+{% extends "logistics/reports_base.html" %}
+{% load report_tags %}
+{% load i18n %}
+
+{% block head %}
+{{ block.super }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+    	$(".button").button();
+        $(".delete_link").addClass("dialog_opener");
+        $(".add_link").addClass("dialog_opener");
+        $(".delete_dialog").addClass("dialog");
+        $(".add_dialog").addClass("dialog");
+        $(".dialog_opener").each(function (){
+            this._dialog = $(this).next('.dialog');
+        });
+        $(".dialog").dialog({autoOpen: false, modal: true});
+        $(".dialog_opener").click(function(e){
+            e.preventDefault();
+           this._dialog.dialog('open');
+        });
+    });
+	</script>
+{% endblock %}
+
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/redmond/jquery-ui.css" />
+{% endblock %}
+
+
+{% block content %}
+<div class="module">
+	<h1>Scheduled Reports for {{ user.username|safe }}</h1>
+    {% if scheduled_reports %}
+        <table class='big_border'>
+            <tr><th></th>
+                <th>{% trans "Report" %}</th>
+                <th>{% trans "For" %}</th>
+                <th>{% trans "Time" %}</th>
+                <th>{% trans "Day of week" %}</th>
+                <th>{% trans "Stop notifications" %}</th>
+                <th>{% trans "Send test mail" %}</th>
+            </tr>
+            {% for report in scheduled_reports %}
+                <tr><td></td>
+                    <td>{{ report.report }}</td>
+                    <td>{% for k,v in report.view_args.items %}{{ v }}{% endfor %}</td>
+                    <td>{{ report.hours }}:00</td>
+                    <td>{% if not report.day_of_week %}Every day{% else %}{% int_to_day report.day_of_week %}{% endif %}</td>
+                    <td><a class="delete_link" href="#">{% trans "Stop" %}</a>
+                        <div class="delete_dialog" title="Drop Report Schedule?">
+                            <form name="drop_report" action="{% url drop_scheduled_report user.pk report.pk %}" method="POST">
+                            {% csrf_token %}
+                                <table>
+                                    <tr><td>
+                                    Are you sure you want to cancel this report?
+                                    </td></tr>
+                                </table>
+                                <input type="submit" value="Drop" />
+                            </form>
+                        </div>
+                    </td>
+                    <td><form name="test_report" action="{% url test_scheduled_report user.pk report.pk %}" method="POST">
+                        	{% csrf_token %}
+                            <a href="#" onclick="$(this).closest('form').submit()" class="button">Send</a>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p class="big_border">There are no scheduled email reports for {{ user.username|safe }}.</p>
+    {% endif %}
+    <a class="new_link" href="{% url add_scheduled_report user.pk %}">Schedule an email report</a>
+</div>
+{% endblock %}

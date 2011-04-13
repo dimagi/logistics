@@ -1,3 +1,15 @@
 [submodule "rapidsms"]
 	path = rapidsms
 	url = git://github.com/dimagi/rapidsms.git
+[submodule "submodules/dimagi-utils"]
+	path = submodules/dimagi-utils
+	url = git://github.com/dimagi/dimagi-utils.git
+[submodule "submodules/django-tablib"]
+	path = submodules/django-tablib
+	url = git://github.com/dimagi/django-tablib.git
+[submodule "submodules/tablib"]
+	path = submodules/tablib
+	url = git://github.com/dimagi/tablib.git
+[submodule "submodules/auditcare"]
+	path = submodules/auditcare
+	url = git://github.com/dimagi/auditcare.git
