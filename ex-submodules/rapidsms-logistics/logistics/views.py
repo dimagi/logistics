@@ -20,7 +20,7 @@ from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
+    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
@@ -32,11 +32,16 @@ def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
 def dashboard(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
-    if request.user.get_profile().facility:
+    try:
+        prof = request.user.get_profile()
+    except LogisticsProfile.DoesNotExist:
+        prof = None 
+        
+    if prof and prof.facility:
         return stockonhand_facility(request, request.user.get_profile().facility.code)
-    elif request.user.get_profile().location:
+    elif prof and prof.location:
         return aggregate(request, request.user.get_profile().location.code)
-    return aggregate(request, 'ghana')
+    return aggregate(request)
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
