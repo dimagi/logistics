@@ -6,6 +6,7 @@ from logistics.apps.logistics.models import ProductReportType, \
 
 class TestLocation (TestScript):
     apps = ([logistics_app.App])
+    fixtures = ["ghana_initial_data.json"] 
 
     def setUp(self):
         TestScript.setUp(self)
