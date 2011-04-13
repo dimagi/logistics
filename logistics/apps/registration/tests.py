@@ -7,7 +7,7 @@ from logistics.apps.logistics.models import Location, Facility, SupplyPointType
 from logistics.apps.registration.handlers.registration import REGISTER_MESSAGE
 
 class TestRegister(TestScript):
-
+    fixtures = ["ghana_initial_data.json"] 
     def setUp(self):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')

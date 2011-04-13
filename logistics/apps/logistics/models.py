@@ -29,9 +29,10 @@ STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = "Please contact FRHP for assistance."
-REGISTER_MESSAGE = "You must registered on EWS " + \
-                   "before you can submit a stock report. " + \
-                   "Please contact your district administrator."
+REGISTER_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"
+#"You must registered on EWS " + \
+#                   "before you can submit a stock report. " + \
+#                   "Please contact your district administrator."
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 
