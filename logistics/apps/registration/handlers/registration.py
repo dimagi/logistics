@@ -7,6 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, REGISTER_MESSAGE
 
+HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"
 class LanguageHandler(KeywordHandler):
     """
     Allow remote users to set their preferred language, by updating the
@@ -16,12 +17,12 @@ class LanguageHandler(KeywordHandler):
     keyword = "reg|register"
 
     def help(self):
-        self.respond(REGISTER_MESSAGE)
+        self.respond(_(HELP_MESSAGE))
     
     def handle(self, text):
         words = text.split()
         if len(words) < 2 or len(words) > 3:
-            self.respond(_("Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"))
+            self.respond(_(HELP_MESSAGE))
             return
         name = words[0]
         code = words[1]
