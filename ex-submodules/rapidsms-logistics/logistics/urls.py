@@ -11,6 +11,9 @@ urlpatterns = patterns('',
         name="input_stock"),
     # ok, so this isn't the most generic, but we don't yet know what the final dashboard will look like
     # so we'll use this as a placeholder until we do
+    url(r'^aggregate/?$',
+        'logistics.apps.logistics.views.aggregate',
+        name="aggregate"),
     url(r'^ghana/aggregate/?$',
         'logistics.apps.logistics.views.aggregate',
         {'location_code':'ghana'},

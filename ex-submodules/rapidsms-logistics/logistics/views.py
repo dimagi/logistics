@@ -125,7 +125,7 @@ def reporting(request, context={}, template="logistics/reporting.html"):
 
 @geography_context
 @filter_context
-def aggregate(request, location_code, context={}, template="logistics/aggregate.html"):
+def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
     where 'children' can either be sub-regions
@@ -146,6 +146,8 @@ def aggregate(request, location_code, context={}, template="logistics/aggregate.
             context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
+    if location_code is None:
+        location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
