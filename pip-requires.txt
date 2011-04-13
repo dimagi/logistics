@@ -7,4 +7,7 @@ nose==0.11.4
 python-dateutil==1.5
 pytz==2010b
 virtualenv==1.4.5
-
+django-celery
+djkombu
+django-registration
+couchdbkit>=0.5.4

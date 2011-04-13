@@ -458,8 +458,8 @@
         "pk": 1, 
         "model": "sites.site", 
         "fields": {
-            "domain": "ilsgateway.com", 
-            "name": "ilsgateway.com"
+            "domain": "ewsghana.com", 
+            "name": "ewsghana.com"
         }
     }, 
     {
@@ -554,6 +554,1242 @@
         }
     }, 
     {
+        "pk": 61, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_logentry", 
+            "name": "Can add log entry", 
+            "content_type": 21
+        }
+    }, 
+    {
+        "pk": 62, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_logentry", 
+            "name": "Can change log entry", 
+            "content_type": 21
+        }
+    }, 
+    {
+        "pk": 63, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_logentry", 
+            "name": "Can delete log entry", 
+            "content_type": 21
+        }
+    }, 
+    {
+        "pk": 127, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_fieldaccess", 
+            "name": "Can add field access", 
+            "content_type": 43
+        }
+    }, 
+    {
+        "pk": 128, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_fieldaccess", 
+            "name": "Can change field access", 
+            "content_type": 43
+        }
+    }, 
+    {
+        "pk": 129, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_fieldaccess", 
+            "name": "Can delete field access", 
+            "content_type": 43
+        }
+    }, 
+    {
+        "pk": 130, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_modelauditevent", 
+            "name": "Can add model audit event", 
+            "content_type": 44
+        }
+    }, 
+    {
+        "pk": 131, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_modelauditevent", 
+            "name": "Can change model audit event", 
+            "content_type": 44
+        }
+    }, 
+    {
+        "pk": 132, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_modelauditevent", 
+            "name": "Can delete model audit event", 
+            "content_type": 44
+        }
+    }, 
+    {
+        "pk": 52, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_group", 
+            "name": "Can add group", 
+            "content_type": 18
+        }
+    }, 
+    {
+        "pk": 53, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_group", 
+            "name": "Can change group", 
+            "content_type": 18
+        }
+    }, 
+    {
+        "pk": 54, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_group", 
+            "name": "Can delete group", 
+            "content_type": 18
+        }
+    }, 
+    {
+        "pk": 58, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_message", 
+            "name": "Can add message", 
+            "content_type": 20
+        }
+    }, 
+    {
+        "pk": 59, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_message", 
+            "name": "Can change message", 
+            "content_type": 20
+        }
+    }, 
+    {
+        "pk": 60, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_message", 
+            "name": "Can delete message", 
+            "content_type": 20
+        }
+    }, 
+    {
+        "pk": 49, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_permission", 
+            "name": "Can add permission", 
+            "content_type": 17
+        }
+    }, 
+    {
+        "pk": 50, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_permission", 
+            "name": "Can change permission", 
+            "content_type": 17
+        }
+    }, 
+    {
+        "pk": 51, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_permission", 
+            "name": "Can delete permission", 
+            "content_type": 17
+        }
+    }, 
+    {
+        "pk": 55, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_user", 
+            "name": "Can add user", 
+            "content_type": 19
+        }
+    }, 
+    {
+        "pk": 56, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_user", 
+            "name": "Can change user", 
+            "content_type": 19
+        }
+    }, 
+    {
+        "pk": 57, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_user", 
+            "name": "Can delete user", 
+            "content_type": 19
+        }
+    }, 
+    {
+        "pk": 67, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_contenttype", 
+            "name": "Can add content type", 
+            "content_type": 23
+        }
+    }, 
+    {
+        "pk": 68, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_contenttype", 
+            "name": "Can change content type", 
+            "content_type": 23
+        }
+    }, 
+    {
+        "pk": 69, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_contenttype", 
+            "name": "Can delete content type", 
+            "content_type": 23
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_crontabschedule", 
+            "name": "Can add crontab", 
+            "content_type": 9
+        }
+    }, 
+    {
+        "pk": 26, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_crontabschedule", 
+            "name": "Can change crontab", 
+            "content_type": 9
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_crontabschedule", 
+            "name": "Can delete crontab", 
+            "content_type": 9
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_intervalschedule", 
+            "name": "Can add interval", 
+            "content_type": 8
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_intervalschedule", 
+            "name": "Can change interval", 
+            "content_type": 8
+        }
+    }, 
+    {
+        "pk": 24, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_intervalschedule", 
+            "name": "Can delete interval", 
+            "content_type": 8
+        }
+    }, 
+    {
+        "pk": 31, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_periodictask", 
+            "name": "Can add periodic task", 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 32, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_periodictask", 
+            "name": "Can change periodic task", 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 33, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_periodictask", 
+            "name": "Can delete periodic task", 
+            "content_type": 11
+        }
+    }, 
+    {
+        "pk": 28, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_periodictasks", 
+            "name": "Can add periodic tasks", 
+            "content_type": 10
+        }
+    }, 
+    {
+        "pk": 29, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_periodictasks", 
+            "name": "Can change periodic tasks", 
+            "content_type": 10
+        }
+    }, 
+    {
+        "pk": 30, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_periodictasks", 
+            "name": "Can delete periodic tasks", 
+            "content_type": 10
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_taskmeta", 
+            "name": "Can add task meta", 
+            "content_type": 6
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_taskmeta", 
+            "name": "Can change task meta", 
+            "content_type": 6
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_taskmeta", 
+            "name": "Can delete task meta", 
+            "content_type": 6
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_tasksetmeta", 
+            "name": "Can add taskset meta", 
+            "content_type": 7
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_tasksetmeta", 
+            "name": "Can change taskset meta", 
+            "content_type": 7
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_tasksetmeta", 
+            "name": "Can delete taskset meta", 
+            "content_type": 7
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_taskstate", 
+            "name": "Can add task", 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 38, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_taskstate", 
+            "name": "Can change task", 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 39, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_taskstate", 
+            "name": "Can delete task", 
+            "content_type": 13
+        }
+    }, 
+    {
+        "pk": 34, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_workerstate", 
+            "name": "Can add worker", 
+            "content_type": 12
+        }
+    }, 
+    {
+        "pk": 35, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_workerstate", 
+            "name": "Can change worker", 
+            "content_type": 12
+        }
+    }, 
+    {
+        "pk": 36, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_workerstate", 
+            "name": "Can delete worker", 
+            "content_type": 12
+        }
+    }, 
+    {
+        "pk": 43, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_message", 
+            "name": "Can add message", 
+            "content_type": 15
+        }
+    }, 
+    {
+        "pk": 44, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_message", 
+            "name": "Can change message", 
+            "content_type": 15
+        }
+    }, 
+    {
+        "pk": 45, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_message", 
+            "name": "Can delete message", 
+            "content_type": 15
+        }
+    }, 
+    {
+        "pk": 40, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_queue", 
+            "name": "Can add queue", 
+            "content_type": 14
+        }
+    }, 
+    {
+        "pk": 41, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_queue", 
+            "name": "Can change queue", 
+            "content_type": 14
+        }
+    }, 
+    {
+        "pk": 42, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_queue", 
+            "name": "Can delete queue", 
+            "content_type": 14
+        }
+    }, 
+    {
+        "pk": 79, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_location", 
+            "name": "Can add location", 
+            "content_type": 27
+        }
+    }, 
+    {
+        "pk": 80, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_location", 
+            "name": "Can change location", 
+            "content_type": 27
+        }
+    }, 
+    {
+        "pk": 81, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_location", 
+            "name": "Can delete location", 
+            "content_type": 27
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_locationtype", 
+            "name": "Can add location type", 
+            "content_type": 26
+        }
+    }, 
+    {
+        "pk": 77, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_locationtype", 
+            "name": "Can change location type", 
+            "content_type": 26
+        }
+    }, 
+    {
+        "pk": 78, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_locationtype", 
+            "name": "Can delete location type", 
+            "content_type": 26
+        }
+    }, 
+    {
+        "pk": 73, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_point", 
+            "name": "Can add point", 
+            "content_type": 25
+        }
+    }, 
+    {
+        "pk": 74, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_point", 
+            "name": "Can change point", 
+            "content_type": 25
+        }
+    }, 
+    {
+        "pk": 75, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_point", 
+            "name": "Can delete point", 
+            "content_type": 25
+        }
+    }, 
+    {
+        "pk": 109, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_contactrole", 
+            "name": "Can add Role", 
+            "content_type": 37
+        }
+    }, 
+    {
+        "pk": 110, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_contactrole", 
+            "name": "Can change Role", 
+            "content_type": 37
+        }
+    }, 
+    {
+        "pk": 111, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_contactrole", 
+            "name": "Can delete Role", 
+            "content_type": 37
+        }
+    }, 
+    {
+        "pk": 115, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_facility", 
+            "name": "Can add facility", 
+            "content_type": 39
+        }
+    }, 
+    {
+        "pk": 116, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_facility", 
+            "name": "Can change facility", 
+            "content_type": 39
+        }
+    }, 
+    {
+        "pk": 117, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_facility", 
+            "name": "Can delete facility", 
+            "content_type": 39
+        }
+    }, 
+    {
+        "pk": 112, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_facilitytype", 
+            "name": "Can add facility type", 
+            "content_type": 38
+        }
+    }, 
+    {
+        "pk": 113, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_facilitytype", 
+            "name": "Can change facility type", 
+            "content_type": 38
+        }
+    }, 
+    {
+        "pk": 114, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_facilitytype", 
+            "name": "Can delete facility type", 
+            "content_type": 38
+        }
+    }, 
+    {
+        "pk": 88, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_logisticsprofile", 
+            "name": "Can add logistics profile", 
+            "content_type": 30
+        }
+    }, 
+    {
+        "pk": 89, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_logisticsprofile", 
+            "name": "Can change logistics profile", 
+            "content_type": 30
+        }
+    }, 
+    {
+        "pk": 90, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_logisticsprofile", 
+            "name": "Can delete logistics profile", 
+            "content_type": 30
+        }
+    }, 
+    {
+        "pk": 91, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_product", 
+            "name": "Can add product", 
+            "content_type": 31
+        }
+    }, 
+    {
+        "pk": 92, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_product", 
+            "name": "Can change product", 
+            "content_type": 31
+        }
+    }, 
+    {
+        "pk": 93, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_product", 
+            "name": "Can delete product", 
+            "content_type": 31
+        }
+    }, 
+    {
+        "pk": 103, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_productreport", 
+            "name": "Can add Product Report", 
+            "content_type": 35
+        }
+    }, 
+    {
+        "pk": 104, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_productreport", 
+            "name": "Can change Product Report", 
+            "content_type": 35
+        }
+    }, 
+    {
+        "pk": 105, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_productreport", 
+            "name": "Can delete Product Report", 
+            "content_type": 35
+        }
+    }, 
+    {
+        "pk": 100, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_productreporttype", 
+            "name": "Can add Product Report Type", 
+            "content_type": 34
+        }
+    }, 
+    {
+        "pk": 101, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_productreporttype", 
+            "name": "Can change Product Report Type", 
+            "content_type": 34
+        }
+    }, 
+    {
+        "pk": 102, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_productreporttype", 
+            "name": "Can delete Product Report Type", 
+            "content_type": 34
+        }
+    }, 
+    {
+        "pk": 97, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_productstock", 
+            "name": "Can add product stock", 
+            "content_type": 33
+        }
+    }, 
+    {
+        "pk": 98, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_productstock", 
+            "name": "Can change product stock", 
+            "content_type": 33
+        }
+    }, 
+    {
+        "pk": 99, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_productstock", 
+            "name": "Can delete product stock", 
+            "content_type": 33
+        }
+    }, 
+    {
+        "pk": 94, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_producttype", 
+            "name": "Can add Product Type", 
+            "content_type": 32
+        }
+    }, 
+    {
+        "pk": 95, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_producttype", 
+            "name": "Can change Product Type", 
+            "content_type": 32
+        }
+    }, 
+    {
+        "pk": 96, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_producttype", 
+            "name": "Can delete Product Type", 
+            "content_type": 32
+        }
+    }, 
+    {
+        "pk": 106, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_responsibility", 
+            "name": "Can add Responsibility", 
+            "content_type": 36
+        }
+    }, 
+    {
+        "pk": 107, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_responsibility", 
+            "name": "Can change Responsibility", 
+            "content_type": 36
+        }
+    }, 
+    {
+        "pk": 108, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_responsibility", 
+            "name": "Can delete Responsibility", 
+            "content_type": 36
+        }
+    }, 
+    {
+        "pk": 82, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_message", 
+            "name": "Can add message", 
+            "content_type": 28
+        }
+    }, 
+    {
+        "pk": 83, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_message", 
+            "name": "Can change message", 
+            "content_type": 28
+        }
+    }, 
+    {
+        "pk": 84, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_message", 
+            "name": "Can delete message", 
+            "content_type": 28
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_app", 
+            "name": "Can add app", 
+            "content_type": 2
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_app", 
+            "name": "Can change app", 
+            "content_type": 2
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_app", 
+            "name": "Can delete app", 
+            "content_type": 2
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_backend", 
+            "name": "Can add backend", 
+            "content_type": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_backend", 
+            "name": "Can change backend", 
+            "content_type": 1
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_backend", 
+            "name": "Can delete backend", 
+            "content_type": 1
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_connection", 
+            "name": "Can add connection", 
+            "content_type": 4
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_connection", 
+            "name": "Can change connection", 
+            "content_type": 4
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_connection", 
+            "name": "Can delete connection", 
+            "content_type": 4
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_contact", 
+            "name": "Can add Logistics Contact", 
+            "content_type": 3
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_contact", 
+            "name": "Can change Logistics Contact", 
+            "content_type": 3
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_contact", 
+            "name": "Can delete Logistics Contact", 
+            "content_type": 3
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_deliveryreport", 
+            "name": "Can add delivery report", 
+            "content_type": 5
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_deliveryreport", 
+            "name": "Can change delivery report", 
+            "content_type": 5
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_deliveryreport", 
+            "name": "Can delete delivery report", 
+            "content_type": 5
+        }
+    }, 
+    {
+        "pk": 133, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_registrationprofile", 
+            "name": "Can add registration profile", 
+            "content_type": 45
+        }
+    }, 
+    {
+        "pk": 134, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_registrationprofile", 
+            "name": "Can change registration profile", 
+            "content_type": 45
+        }
+    }, 
+    {
+        "pk": 135, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_registrationprofile", 
+            "name": "Can delete registration profile", 
+            "content_type": 45
+        }
+    }, 
+    {
+        "pk": 121, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_dailyreportsubscription", 
+            "name": "Can add daily report subscription", 
+            "content_type": 41
+        }
+    }, 
+    {
+        "pk": 122, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_dailyreportsubscription", 
+            "name": "Can change daily report subscription", 
+            "content_type": 41
+        }
+    }, 
+    {
+        "pk": 123, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_dailyreportsubscription", 
+            "name": "Can delete daily report subscription", 
+            "content_type": 41
+        }
+    }, 
+    {
+        "pk": 118, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_reportsubscription", 
+            "name": "Can add report subscription", 
+            "content_type": 40
+        }
+    }, 
+    {
+        "pk": 119, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_reportsubscription", 
+            "name": "Can change report subscription", 
+            "content_type": 40
+        }
+    }, 
+    {
+        "pk": 120, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_reportsubscription", 
+            "name": "Can delete report subscription", 
+            "content_type": 40
+        }
+    }, 
+    {
+        "pk": 124, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_weeklyreportsubscription", 
+            "name": "Can add weekly report subscription", 
+            "content_type": 42
+        }
+    }, 
+    {
+        "pk": 125, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_weeklyreportsubscription", 
+            "name": "Can change weekly report subscription", 
+            "content_type": 42
+        }
+    }, 
+    {
+        "pk": 126, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_weeklyreportsubscription", 
+            "name": "Can delete weekly report subscription", 
+            "content_type": 42
+        }
+    }, 
+    {
+        "pk": 85, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_eventschedule", 
+            "name": "Can add event schedule", 
+            "content_type": 29
+        }
+    }, 
+    {
+        "pk": 86, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_eventschedule", 
+            "name": "Can change event schedule", 
+            "content_type": 29
+        }
+    }, 
+    {
+        "pk": 87, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_eventschedule", 
+            "name": "Can delete event schedule", 
+            "content_type": 29
+        }
+    }, 
+    {
+        "pk": 64, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_session", 
+            "name": "Can add session", 
+            "content_type": 22
+        }
+    }, 
+    {
+        "pk": 65, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_session", 
+            "name": "Can change session", 
+            "content_type": 22
+        }
+    }, 
+    {
+        "pk": 66, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_session", 
+            "name": "Can delete session", 
+            "content_type": 22
+        }
+    }, 
+    {
+        "pk": 46, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_site", 
+            "name": "Can add site", 
+            "content_type": 16
+        }
+    }, 
+    {
+        "pk": 47, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_site", 
+            "name": "Can change site", 
+            "content_type": 16
+        }
+    }, 
+    {
+        "pk": 48, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_site", 
+            "name": "Can delete site", 
+            "content_type": 16
+        }
+    }, 
+    {
+        "pk": 70, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "add_migrationhistory", 
+            "name": "Can add migration history", 
+            "content_type": 24
+        }
+    }, 
+    {
+        "pk": 71, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "change_migrationhistory", 
+            "name": "Can change migration history", 
+            "content_type": 24
+        }
+    }, 
+    {
+        "pk": 72, 
+        "model": "auth.permission", 
+        "fields": {
+            "codename": "delete_migrationhistory", 
+            "name": "Can delete migration history", 
+            "content_type": 24
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "auth.group", 
+        "fields": {
+            "name": "program_admin", 
+            "permissions": [
+                115, 
+                116, 
+                117, 
+                91, 
+                92, 
+                93, 
+                103, 
+                104, 
+                105, 
+                7, 
+                8, 
+                9
+            ]
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "auth.user", 
         "fields": {
@@ -569,6 +1805,24 @@
             "password": "sha1$9e34e$68168e4770f70e01be6b874c1435c7f9447992dd", 
             "email": "rluk@dimagi.com", 
             "date_joined": "2011-02-08 15:50:56"
+        }
+    },
+    {
+        "pk": 2, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "rowena", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2011-03-29 17:44:07", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "sha1$6eabb$29981435838c92b49e848ac238bb101f9afe152f", 
+            "email": "rluk@dimagi.com", 
+            "date_joined": "2011-03-29 17:44:07"
         }
     },
     {
@@ -804,6 +2058,28 @@
             "last_modified": "2011-02-26 17:40:33",
             "days_stocked_out": 0,
             "quantity": 15
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "reports.reportsubscription", 
+        "fields": {
+            "report": "aggregate", 
+            "_view_args": "", 
+            "users": [
+                2
+            ],
+            "_view_args": "{\"location_code\": \"ghana\"}"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "reports.dailyreportsubscription", 
+        "fields": {
+            "hours": 11, 
+            "users": [
+                2
+            ]
         }
     }
 ]

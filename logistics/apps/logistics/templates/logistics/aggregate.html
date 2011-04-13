@@ -5,20 +5,20 @@
     <div class="module">
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-            <h2>{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
+            <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
             <div class="right">
                 {% include "logistics/partials/commoditytype_filter.html" %}
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
-            <div>
+            <div id="report-content">
             <table class="stock" width=100%>
             <thead><tr>
                 <th scope="col">Facility</th>
-                <th scope="col" class="stock_col">Stockouts</th>
-                <th scope="col" class="stock_col">Emergency</th>
-                <th scope="col" class="stock_col">Low</th>
-                <th scope="col" class="stock_col">In Stock</th>
-                <th scope="col" class="stock_col">Overstocks</th>
+                <th scope="col" class="stockout stock_col">Stockouts</th>
+                <th scope="col" class="emergency stock_col">Emergency</th>
+                <th scope="col" class="low_supply stock_col">Low</th>
+                <th scope="col" class="good_supply stock_col">In Stock</th>
+                <th scope="col" class="overstock stock_col">Overstock</th>
             </tr></thead>
             <tbody>
             {% for row in rows %}

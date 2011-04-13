@@ -1,24 +1,29 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import csv
-
+import settings
 from django.template import RequestContext
+from django.contrib.auth.decorators import permission_required
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404
+from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
 from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
-@transaction.commit_on_success
-def registration(req, pk=None):
+@permission_required('registration')
+def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
     bulk_form = None
+    registration_view = 'registration'
+    if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
+        registration_view = settings.SMS_REGISTRATION_VIEW
 
     if pk is not None:
         contact = get_object_or_404(
@@ -29,7 +34,7 @@ def registration(req, pk=None):
         if req.POST["submit"] == "Delete Contact":
             contact.delete()
             return HttpResponseRedirect(
-                reverse(registration))
+                reverse(registration_view))
 
         elif "bulk" in req.FILES:
             # TODO use csv module
@@ -51,26 +56,34 @@ def registration(req, pk=None):
                 connection.save()
 
             return HttpResponseRedirect(
-                reverse(registration))
+                reverse(registration_view))
         else:
             contact_form = CommoditiesContactForm(
                 instance=contact,
                 data=req.POST)
 
             if contact_form.is_valid():
+                created = False
+                if contact.pk is None:
+                    created = True
                 contact = contact_form.save()
-                return HttpResponseRedirect(
-                    reverse(registration))
+                if created:
+                    response = "Dear %(name)s, you have been registered on %(site)s" % \
+                        {'name': contact.name, 
+                         'site': Site.objects.get(id=settings.SITE_ID).domain }
+                    send_message(contact.default_connection, response)
+                    return HttpResponseRedirect(reverse(registration_view))
 
     else:
         contact_form = CommoditiesContactForm(
             instance=contact)
         bulk_form = BulkRegistrationForm()
     return render_to_response(
-        "registration/dashboard.html", {
+        template, {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
             "bulk_form": bulk_form,
-            "contact": contact
+            "contact": contact,
+            "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)
     )

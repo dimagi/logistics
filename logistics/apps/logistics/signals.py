@@ -21,3 +21,8 @@ def post_save_product_report(sender, instance, created, **kwargs):
     instance.facility.last_reported = datetime.now()
     instance.facility.save()
 
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create a matching profile whenever a User is created."""
+    if created:
+        from logistics.apps.logistics.models import LogisticsProfile
+        profile, new = LogisticsProfile.objects.get_or_create(user=instance)

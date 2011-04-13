@@ -73,16 +73,16 @@ def LoadProductsIntoFacilities():
             if ProductStock.objects.filter(facility=fac, product=product).count() == 0:
                 if fac.type.code == 'RMS':
                     # RMS get all products by default active, 100 stock
-                    ProductStock(quantity=0,
+                    ProductStock(quantity=None,
                                  facility=fac,
                                  product=product,
-                                 monthly_consumption=100).save()
+                                 monthly_consumption=None).save()
                 else:
                     # facilities get all products by default active, 10 stock
-                    ProductStock(quantity=0, is_active=False,
+                    ProductStock(quantity=None, 
                                  facility=fac,
                                  product=product,
-                                 monthly_consumption=10).save()
+                                 monthly_consumption=None).save()
         print "Loaded products into %(fac)s" % {'fac':fac.name}
         
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
@@ -105,5 +105,9 @@ if __name__ == "__main__":
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms'))
     sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms','contrib'))
     sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
+    sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
+    sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
+    sys.path.append(os.path.join(filedir,'..','submodules','tablib'))
+    sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
     LoadFacilities(sys.argv[1])
     LoadProductsIntoFacilities()

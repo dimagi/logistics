@@ -6,6 +6,7 @@ import math
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -16,8 +17,9 @@ from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.signals import post_save_product_report
+from logistics.apps.logistics.signals import post_save_product_report, create_user_profile
 from logistics.apps.logistics.errors import *
+#import logistics.apps.logistics.log
 
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
@@ -33,7 +35,7 @@ GET_HELP_MESSAGE = "Please contact FRHP for assistance."
 REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
-GET_HELP_MESSAGE = " Please contact FRHP for assistance."
+GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 
 try:
@@ -45,6 +47,15 @@ except ImportError:
                       "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
                       "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
 
+class LogisticsProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    location = models.ForeignKey(Location, blank=True, null=True)
+    facility = models.ForeignKey('Facility', blank=True, null=True)
+
+    def __unicode__(self):
+        return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
+
+post_save.connect(create_user_profile, sender=User)
 
 class Product(models.Model):
     """ e.g. oral quinine """
@@ -85,7 +96,7 @@ class ProductStock(models.Model):
     # in practice, this means: do we bug people to report on this commodity
     # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
     is_active = models.BooleanField(default=True)
-    quantity = models.IntegerField(blank=True, null=True)
+    quantity = models.IntegerField(blank=True, null=True, default=None)
     facility = models.ForeignKey('Facility')
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
@@ -118,7 +129,8 @@ class ProductStock(models.Model):
 
     @property
     def months_remaining(self):
-        if self.monthly_consumption > 0 and self.quantity is not None:
+        if self.monthly_consumption is not None and self.monthly_consumption > 0 \
+          and self.quantity is not None:
             return float(self.quantity) / float(self.monthly_consumption)
         return None
 
@@ -423,7 +435,7 @@ class ProductReportsHelper(object):
         match = re.search("[0-9]",string)
         if not match:
             raise ValueError("Stock report should contain quantity of stock on hand. " + \
-                             "Please contact FRHP for assistance.")
+                             "Please contact your DHIO for assistance.")
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
@@ -575,7 +587,7 @@ class ProductReportsHelper(object):
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
-            #    Please contact FRHP for assistance." % {'code':i})
+            #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
                 if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
                    self.product_stock[i] != 0:
@@ -590,7 +602,7 @@ class ProductReportsHelper(object):
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly con/sumption.
-            #    Please contact FRHP for assistance." % {'code':i})
+            #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
                 if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
                    productstock.monthly_consumption>0:
@@ -674,7 +686,7 @@ def get_geography():
 post_save.connect(post_save_product_report, sender=ProductReport)
 
 def _filtered_stock(product, producttype):
-    results = ProductStock.objects.all()
+    results = ProductStock.objects.filter(is_active=True)
     if product is not None:
         results = results.filter(product__sms_code=product)
     elif producttype is not None:

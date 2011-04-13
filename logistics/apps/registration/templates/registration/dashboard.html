@@ -12,7 +12,7 @@
 	{{ contacts_table.as_html }}{% if contact %}
 
 	<div class="toolbar">
-		<a href="{% url registration %}" class="add">Add a Contact</a>
+		<a href="{{ admin_web_registration }}" class="add">Add a Web User</a>
 	</div>{% endif %}
 </div>
 {% endblock %}
