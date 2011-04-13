@@ -85,3 +85,8 @@ LOG_LEVEL   = "DEBUG"
 LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
+
+COUCH_SERVER_ROOT='127.0.0.1:5984'
+COUCH_USERNAME='user'
+COUCH_PASSWORD='changeme'
+COUCH_DATABASE_NAME='logistics'

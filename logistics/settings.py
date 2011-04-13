@@ -223,6 +223,12 @@ EMAIL_HOST_USER='name@dimagi.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
+COUCH_SERVER_ROOT='127.0.0.1:5984'
+COUCH_USERNAME=''
+COUCH_PASSWORD=''
+COUCH_DATABASE_NAME='logistics'
+COUCHDB_APPS=['auditcare',]
+
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:
@@ -237,11 +243,6 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             "%s.rapidsms.test.sqlite3" % db_name)
 
 
-COUCH_SERVER_ROOT='127.0.0.1:5984'
-COUCH_USERNAME=''
-COUCH_PASSWORD=''
-COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare',]
 def get_server_url(server_root, username, password):
     if username and password:
         return "http://%(user)s:%(pass)s@%(server)s" % \
