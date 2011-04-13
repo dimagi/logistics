@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.conf.urls.defaults import *
-from logistics.apps.logistics.models import get_geography
+from django.views.generic.simple import redirect_to, direct_to_template
+from ..models import get_geography, ProductStock, ProductReport
 
 urlpatterns = patterns('',
+    url(r'^no_ie_allowed/?$', 'logistics.apps.logistics.views.no_ie_allowed', 
+        name="no_ie_allowed"),
     url(r'^(?P<facility_code>\w+)/input_stock$',
         'logistics.apps.logistics.views.input_stock',
         name="input_stock"),
@@ -30,4 +32,11 @@ urlpatterns = patterns('',
     url(r'^reporting$',
         'logistics.apps.logistics.views.reporting',
         name="reporting"),
+
+    url(r'^reporting/export/xls$', 'django_tablib.views.export', {
+        'queryset': ProductReport.objects.all().order_by('report_date')}, 
+        name="export_reporting"),
+    url(r'^(?P<facility_code>\w+)/stockonhand/export/xls$', 
+        'logistics.apps.logistics.views.export_stockonhand',  
+        name="export_stock"),
 )

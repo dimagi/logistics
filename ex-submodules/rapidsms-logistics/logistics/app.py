@@ -108,7 +108,7 @@ class App(AppBase):
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
             message.error("%s is not a recognized commodity code. " % code + 
-                          "Please contact FRHP for assistance." )
+                          "Please contact your DHIO for assistance." )
         elif settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
                           project_name=settings.PROJECT_NAME)

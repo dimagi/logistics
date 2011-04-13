@@ -1,24 +1,41 @@
-.stockout {
-    background-color: red;
+#submenu {
+	font-weight: bold;
+	margin-left: 1em;
+	margin-top: 1em;
+}
+
+.filter {
+    font-weight: bold;
+    padding: 0.3em;
+}
+
+.stockout, .emergency, .low_supply, 
+.good_supply, .overstock {
+    background: none;
     font-weight: bold;
     color: white;
     text-shadow: #000 1px 1px 1px;
+    font-size: 1em;
+}
+
+.stockout {
+    background-color: #FF0011;
 }
 
 .emergency {
-    background-color: orange;
+    background-color: #CC4500;
 }
 
 .low_supply {
-    background-color: yellow;
+    background-color: darkgoldenrod;
 }
 
 .good_supply {
-    background-color: lightgreen;
+    background-color: green;
 }
 
 .overstock {
-    background-color: #ffa0aa;
+    background-color: purple;
 }
 
 .stock_col{

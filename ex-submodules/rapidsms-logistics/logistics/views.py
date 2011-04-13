@@ -1,22 +1,42 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import settings
 from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
+from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from django_tablib import ModelDataset
+from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
+from .models import Product
+from .forms import FacilityForm, CommodityForm
+from .tables import FacilityTable, CommodityTable
+
+def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
+    return render_to_response(template, context_instance=RequestContext(request))
+
+def dashboard(request):
+    if 'MSIE' in request.META['HTTP_USER_AGENT']:
+        return no_ie_allowed(request)
+    if request.user.get_profile().facility:
+        return stockonhand_facility(request, request.user.get_profile().facility.code)
+    elif request.user.get_profile().location:
+        return aggregate(request, request.user.get_profile().location.code)
+    return aggregate(request, 'ghana')
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
@@ -114,7 +134,7 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     )
 
 @geography_context
-def reporting(request, context={}, template="logistics/reporting.html"):
+def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
     context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
@@ -185,3 +205,82 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
                                                      producttype=commoditytype_filter)
         rows.append(row)
     return rows
+
+def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
+    class ProductReportDataset(ModelDataset):
+        class Meta:
+            queryset = ProductReport.objects.filter(facility__code=facility_code).order_by('report_date')
+    dataset = getattr(ProductReportDataset(), format)
+    filename = '%s_%s.%s' % (filename, facility_code, format)
+    response = HttpResponse(
+        dataset,
+        mimetype=mimetype_map.get(format, 'application/octet-stream')
+        )
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response
+
+@permission_required('logistics')
+@transaction.commit_on_success
+def facility(req, pk=None, template="logistics/config.html"):
+    facility = None
+    form = None
+    klass = "Facility"
+    if pk is not None:
+        facility = get_object_or_404(
+            Facility, pk=pk)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete %s" % klass:
+            facility.delete()
+            return HttpResponseRedirect(
+                reverse('facility_view'))
+        else:
+            form = FacilityForm(instance=facility,
+                                data=req.POST)
+            if form.is_valid():
+                facility = form.save()
+                return HttpResponseRedirect(
+                    reverse('facility_view'))
+    else:
+        form = FacilityForm(instance=facility)
+    return render_to_response(
+        template, {
+            "table": FacilityTable(Facility.objects.all(), request=req),
+            "form": form,
+            "object": facility,
+            "klass": klass,
+            "klass_view": reverse('facility_view')
+        }, context_instance=RequestContext(req)
+    )
+
+@permission_required('logistics')
+@transaction.commit_on_success
+def commodity(req, pk=None, template="logistics/config.html"):
+    form = None
+    commodity = None
+    klass = "Commodity"
+    if pk is not None:
+        commodity = get_object_or_404(Product, pk=pk)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete %s" % klass:
+            commodity.delete()
+            return HttpResponseRedirect(
+                reverse('commodity_view'))
+        else:
+            form = CommodityForm(
+                                 instance=commodity,
+                                 data=req.POST)
+            if form.is_valid():
+                commodity = form.save()
+                return HttpResponseRedirect(
+                    reverse('commodity_view'))
+    else:
+        form = CommodityForm(instance=commodity)
+    return render_to_response(
+        template, {
+            "table": CommodityTable(Product.objects.all(), request=req),
+            "form": form,
+            "object": commodity,
+            "klass": klass,
+            "klass_view": reverse('commodity_view')
+        }, context_instance=RequestContext(req)
+    )

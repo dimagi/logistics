@@ -1,0 +1,36 @@
+{% extends "registration/base.html" %}
+{% load forms_tags %}
+
+{% block stylesheets %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}registration/stylesheets/dashboard.css" />
+{% endblock %}
+
+{% block left %}
+<div class="module">
+	<h2>{{ klass }}</h2>
+	{{ table.as_html }}{% if object %}
+	<div class="toolbar">
+		<a href="{{ klass_view }}" class="add">Add a {{ klass }}</a>
+	</div>{% endif %}
+</div>
+{% endblock %}
+
+{% block right %}
+<div class="module">
+	<h2>{% if object %}
+		Edit {{ object }}{% else %}
+		Add a {{ klass }}{% endif %}
+	</h2>
+
+	<form action="" method="post">
+		{% render_form form %}
+		{% csrf_token %}
+
+		<div class="submit">
+			<input type="submit" name="submit" value="Save {{ klass }}" />{% if object %}
+			<input type="submit" name="submit" value="Delete {{ klass }}" />{% endif %}
+		</div>
+	</form>
+</div>
+{% endblock %}
