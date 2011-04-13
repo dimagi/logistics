@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
+    "logistics.apps.malawi",
     "logistics.apps.registration",
     "logistics.apps.logistics",
     "logistics.apps.smsgh",
@@ -53,7 +54,7 @@ INSTALLED_APPS = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
+    ("aggregate",                                     "Stock Levels"),
     ("reporting",                              "Reporting Rates"),
     #("input_stock",                          "Input Stock"),
     ("registration",                          "Registration"),
@@ -169,12 +170,14 @@ DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact F
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
-COUNTRY = "ghana"
+COUNTRY = "malawi"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 DEBUG=True
 TIME_ZONE="Africa/Accra"
+filedir = os.path.dirname(__file__)
 
+STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "health_centers.csv")
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:
