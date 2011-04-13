@@ -1,4 +1,5 @@
 <td
+{% if stockonhand.is_active %}
     {% if stockonhand.is_stocked_out %}
         class="stockout"
     {% else %}
@@ -18,6 +19,11 @@
             {% endif %}
         {% endif %}
     {% endif %}
+{% endif %}
 >
-    {{ stockonhand.months_remaining|default_if_none:"n/a"|floatformat }}
+	{% if stockonhand.months_remaining %}
+    	{{ stockonhand.months_remaining|floatformat }}
+	{% else %}
+	    unknown
+	{% endif %}
 </td>
