@@ -27,3 +27,17 @@
     top: 10px;
     width: 200px;
 }
+
+
+#footer {
+    /* stealing the rapidsms footer stylesheet to make room for USAID logo */
+    border-top: 1px dotted #eee;
+    padding: 0.5em;
+    clear: both;
+    color: #ccc;
+
+    /* reserve space for at two lines of links @ LH=1.4 (for the
+     * copyright and licensing/download info) */
+    min-height: 6.2em;
+}
+

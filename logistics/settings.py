@@ -263,6 +263,6 @@ NO_LOGIN_REQUIRED_FOR = [
 AXES_LOGIN_FAILURE_LIMIT=10
 AXES_LOGIN_FAILURE_LIMIT=1
 
-LOGO_LEFT_URL="static/ewsghana/images/ghs_logo.png"
-LOGO_RIGHT_URL="static/ewsghana/images/jsi_logo.png"
+LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="Early Warning System"
