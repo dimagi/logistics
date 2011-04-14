@@ -108,12 +108,12 @@ div.clear-hack {
 
         #logo_right{
             float:right;
-            height:65px;
+            height:60px;
         }
 
             #branding h1 a span {
-                position: absolute;
-                left: -9999px;
+            	color: #fff;
+            	font-size: 2em;
             }
 
     #tabs,
