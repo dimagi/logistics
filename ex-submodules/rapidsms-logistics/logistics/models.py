@@ -519,7 +519,7 @@ class ProductReportsHelper(object):
     def _record_product_receipt(self, product, quantity):
         self._record_product_report(product, quantity, RECEIPT_REPORT_TYPE)
 
-    def add_product_receipt(self, product_code, quantity, save=True):
+    def add_product_receipt(self, product_code, quantity, save=False):
         if isinstance(quantity, basestring) and quantity.isdigit():
             quantity = int(quantity)
         if not isinstance(quantity, int):
