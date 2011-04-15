@@ -505,6 +505,13 @@
         }
     },
     {
+        "pk": "ph",
+        "model": "logistics.facilitytype",
+        "fields": {
+            "name": "Psychiatric Hospital"
+        }
+    },
+    {
         "pk": 1, 
         "model": "logistics.responsibility", 
         "fields": {
@@ -1921,7 +1928,7 @@
         "model": "locations.location",
         "fields": {
             "code": "m",
-            "name": "Mfantseman",
+            "name": "Mfantsiman",
             "point": null,
             "parent_type": 17,
             "parent_id": 3,
