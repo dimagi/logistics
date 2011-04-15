@@ -1,4 +1,4 @@
-{% extends "layout-split-2.html" %}
+{% extends "ewsghana/base-split-2.html" %}
 {% block title %}Goodbye{% endblock %}
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
@@ -11,14 +11,4 @@
 
 <a href="{% url rapidsms-login %}">Log in again</a>
 
-{% endblock %}
-
-{% block footer %}
-<div id="footer">
-	<p class="rights">
-		<img src="{{ MEDIA_URL }}ewsghana/images/usaid_logo.png"></img><br/>
-		<a href="http://www.rapidsms.org/">RapidSMS</a> is available under
-		<a href="http://github.com/rapidsms/rapidsms/raw/master/LICENSE">the BSD license</a>.
-	</p>
-</div>
 {% endblock %}

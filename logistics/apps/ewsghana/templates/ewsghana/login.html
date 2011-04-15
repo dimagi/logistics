@@ -1,4 +1,4 @@
-{% extends "layout-split-2.html" %}
+{% extends "ewsghana/base-split-2.html" %}
 {% load forms_tags %}
 {% block title %}Login{% endblock %}
 {% block stylesheets %}{{ block.super }}
@@ -40,13 +40,3 @@
 {% endif %}
 {% endblock %}
 
-
-{% block footer %}
-<div id="footer">
-	<p class="rights">
-		<img src="{{ MEDIA_URL }}ewsghana/images/usaid_logo.png"></img><br/>
-		<a href="http://www.rapidsms.org/">RapidSMS</a> is available under
-		<a href="http://github.com/rapidsms/rapidsms/raw/master/LICENSE">the BSD license</a>.
-	</p>
-</div>
-{% endblock %}
