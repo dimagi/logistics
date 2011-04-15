@@ -226,7 +226,7 @@ def export_stockonhand(request, facility_code, format='xls', filename='stockonha
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
 
-@permission_required('logistics')
+@permission_required('logistics.add_facility')
 @transaction.commit_on_success
 def facility(req, pk=None, template="logistics/config.html"):
     facility = None
@@ -259,7 +259,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         }, context_instance=RequestContext(req)
     )
 
-@permission_required('logistics')
+@permission_required('logistics.add_commodity')
 @transaction.commit_on_success
 def commodity(req, pk=None, template="logistics/config.html"):
     form = None
