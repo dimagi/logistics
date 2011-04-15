@@ -51,12 +51,12 @@
                 {% if last_reported %}
                     <p>The last report received was on {{ last_reported|date:"M d, h:m A" }}.</p>
                 {%  endif %}
+	            </div>
             {% else %}<p></p>
                 <div class="error">
                     {{ facility.name }} has not been configured with the appropriate stock yet. Please contact Focus Region Health Project for assistance.
                 </div>
             {% endif %}
-            </div>
         </div>
     </div>
 {% endblock %}
