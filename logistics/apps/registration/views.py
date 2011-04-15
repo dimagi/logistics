@@ -64,7 +64,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
 
             if contact_form.is_valid():
                 created = False
-                if contact.pk is None:
+                if contact is None:
                     created = True
                 contact = contact_form.save()
                 if created:
