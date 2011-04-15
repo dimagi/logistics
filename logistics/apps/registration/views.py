@@ -16,7 +16,7 @@ from rapidsms.models import Contact
 from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
-@permission_required('registration')
+@permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None

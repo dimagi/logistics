@@ -15,7 +15,7 @@ from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
 from .forms import AdminRegistersUserForm
 
-@permission_required('web_registration')
+@permission_required('auth.add_user')
 @transaction.commit_on_success
 def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, 
                    template='web_registration/admin_registration.html', 
