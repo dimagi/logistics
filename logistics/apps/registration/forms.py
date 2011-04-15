@@ -62,7 +62,7 @@ class ContactForm(forms.ModelForm):
                 # which we'll steal when we save
                 pass
             # could be that we are editing an existing model
-            if dupes[0].contact.name != self.cleaned_data['name']:
+            elif dupes[0].contact.name != self.cleaned_data['name']:
                 raise forms.ValidationError("Phone number already registered!")
         return self.cleaned_data['phone']
 
