@@ -52,21 +52,30 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
         for stock in productstocks:
             try:
                 if stock.product.sms_code in request.POST:
-                    quantity = request.POST[stock.product.sms_code]
-                    if not quantity.isdigit():
+                    quantity = request.POST[stock.product.sms_code].strip()
+                    if quantity:
+                        if not quantity.isdigit():
+                            errors = ", ".join([errors, stock.product.name])
+                            continue
+                        prh.add_product_stock(stock.product.sms_code, quantity, save=False)
+                if "%s_receipt" % stock.product.sms_code in request.POST:
+                    receipt = request.POST["%s_receipt" % stock.product.sms_code].strip()
+                    if not receipt.isdigit():
                         errors = ", ".join([errors, stock.product.name])
                         continue
-                    prh.add_product_stock(stock.product.sms_code, quantity)
-                    if "%s_consumption" % stock.product.sms_code in request.POST:
-                        consumption = request.POST["%s_consumption" % stock.product.sms_code]
+                    if int(receipt) != 0:
+                        prh.add_product_receipt(stock.product.sms_code, receipt, save=False)
+                if "%s_consumption" % stock.product.sms_code in request.POST:
+                    consumption = request.POST["%s_consumption" % stock.product.sms_code].strip()
+                    if consumption:
                         if not consumption.isdigit():
                             errors = ", ".join([errors, stock.product.name])
                             continue
                         prh.add_product_consumption(stock.product, consumption)
-                    if "%s_is_active" % stock.product.sms_code in request.POST:
-                        rms.activate_product(stock.product)
-                    else:
-                        rms.deactivate_product(stock.product)
+                if "%s_is_active" % stock.product.sms_code in request.POST:
+                    rms.activate_product(stock.product)
+                else:
+                    rms.deactivate_product(stock.product)
             except ValueError, e:
                 errors = errors + unicode(e)
         if not errors:
