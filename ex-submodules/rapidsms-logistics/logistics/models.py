@@ -258,17 +258,6 @@ class Facility(models.Model):
         ps.monthly_consumption = rate
         ps.save()
 
-    # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
-    # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
-    #@property
-    #def last_reported(self):
-    #    from logistics.apps.logistics.models import ProductReport, ProductStock
-    #    report_count = ProductReport.objects.filter(facility=self).count()
-    #    if report_count > 0:
-    #        last_report = ProductReport.objects.filter(facility=self).order_by("-report_date")[0]
-    #        return last_report.report_date
-    #    return None
-
     def stockout_count(self, product=None, producttype=None):
         return stockout_count(facilities=[self], 
                               product=product, 
