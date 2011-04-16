@@ -10,7 +10,8 @@ import re
 from rapidsms.conf import settings
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
-from rapidsms.contrib.scheduler.models import EventSchedule, set_weekly_event
+from rapidsms.contrib.scheduler.models import EventSchedule, \
+    set_weekly_event, set_monthly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.models import REGISTER_MESSAGE
@@ -47,6 +48,13 @@ class App(AppBase):
             except EventSchedule.DoesNotExist:
                 # 2:15 pm on Mondays
                 set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",1,14,02)
+
+            # set up rrirv reminder
+            try:
+                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV")
+            except EventSchedule.DoesNotExist:
+                # 2:15 pm on the 28th
+                set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""

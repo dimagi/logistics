@@ -195,6 +195,14 @@ class ProductReport(models.Model):
     def __unicode__(self):
         return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
 
+class RequisitionReport(models.Model):
+    facility = models.ForeignKey("Facility")
+    submitted = models.BooleanField()
+    report_date = models.DateTimeField(default=datetime.now)
+    message = models.ForeignKey(Message)
+
+    class Meta:
+        ordering = ('-report_date',)
 
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
