@@ -46,8 +46,11 @@ class App(AppBase):
             try:
                 EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
             except EventSchedule.DoesNotExist:
-                # 2:15 pm on Mondays
-                set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",1,14,02)
+                # 2:15 pm on Wednesdays
+                set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
+                #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
+                #                         hours='*', minutes='*', callback_args=None )
+                #schedule.save()
 
             # set up rrirv reminder
             try:
