@@ -13,6 +13,7 @@ from django.utils.translation import ugettext as _
 STOCK_ON_HAND_REMINDER = _('Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.')
 SECOND_STOCK_ON_HAND_REMINDER = _('Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.')
 THIRD_STOCK_ON_HAND_REMINDER = _('Dear %(name)s, your facility has not reported its stock this week. Please ensure they submit their SMS stock report.')
+RRIRV_REMINDER = _("Dear %(name)s, have you submitted your stock requisition this month? Please reply 'yes' or 'no'")
 
 def first_soh_reminder (router):
     """ thusday reminders """
@@ -43,5 +44,14 @@ def third_soh_to_super (router):
         five_days_ago = datetime.now() + relativedelta(days=-7)
         if not latest_reports or latest_reports[0].report_date < five_days_ago:
             response = THIRD_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+            OutgoingMessage(reporter.default_connection, response).send()
+
+def reminder_to_submit_RRIRV(router):
+    """ the 30th of each month, verify that they've submitted RRIRV """
+    logging.info("running RRIRV reminder")
+    reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    for reporter in reporters:
+        if reporter.needs_reminders:
+            response = RRIRV_REMINDER % {'name':reporter.name}
             OutgoingMessage(reporter.default_connection, response).send()
 
