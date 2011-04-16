@@ -3,6 +3,7 @@
 
 import re
 import math
+import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -193,7 +194,61 @@ class ProductReport(models.Model):
         ordering = ('-report_date',)
 
     def __unicode__(self):
-        return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
+        return "%s | %s | %s" % (self.facility.name, self.product.name, self.report_type.name)
+
+class StockTransaction(models.Model):
+    """
+     StockTransactions exist to track atomic changes to the ProductStock per facility
+     This may look deceptively like the ProductReport. The utility of having a separate
+     model is that some ProductReports may be duplicates, invalid, or false reports
+     from the field, so how we decide to map reports to transactions may vary 
+    """
+    product = models.ForeignKey(Product)
+    facility = models.ForeignKey('Facility')
+    quantity = models.IntegerField()
+    # we need some sort of 'balance' field, so that we can get a snapshot
+    # of balances over time. we add both beginning and ending balance since
+    # the outcome of a transaction might vary, depending on whether balances
+    # can be negative or not
+    beginning_balance = models.IntegerField()
+    ending_balance = models.IntegerField()
+    date = models.DateTimeField(default=datetime.now)
+    product_report = models.ForeignKey(ProductReport, null=True)
+    
+    class Meta:
+        verbose_name = "Stock Transaction"
+        ordering = ('-date',)
+
+    def __unicode__(self):
+        return "%s - %s (%s)" % (self.facility.name, self.product.name, self.quantity)
+    
+    @classmethod
+    def from_product_report(cls, pr, beginning_balance):
+        # no need to generate transaction if it's just a report of 0 receipts
+        if pr.report_type.code == RECEIPT_REPORT_TYPE and \
+          pr.quantity == 0:
+            return None
+        # alsopr no need to generate transaction if it's a soh which is the same as before
+        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE and \
+          beginning_balance == pr.quantity:
+            return None
+        st = cls(product_report=pr, facility=pr.facility, 
+                 product=pr.product)
+        st.beginning_balance = beginning_balance
+        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
+            st.ending_balance = pr.quantity
+            st.quantity = st.ending_balance - st.beginning_balance
+        elif pr.report_type.code == RECEIPT_REPORT_TYPE:
+            # you might think 'receipt' should show up as a positive quantity
+            # in fact, given that we're already account for receipts in the soh
+            # 'receipts' here actually indicate additional disbursements
+            st.ending_balance = st.beginning_balance
+            st.quantity = -pr.quantity
+        else:
+            err_msg = "UNDEFINED BEHAVIOUR FOR UNKNOWN REPORT TYPE %s" % pr.report_type.code
+            logging.error(err_msg)
+            raise ValueError(err_msg)
+        return st
 
 class RequisitionReport(models.Model):
     facility = models.ForeignKey("Facility")
@@ -260,6 +315,27 @@ class Facility(models.Model):
     @property
     def label(self):
         return unicode(self)
+    
+    def update_stock(self, product, quantity):
+        try:
+            productstock = ProductStock.objects.get(facility=self,
+                                                    product=product)
+        except ProductStock.DoesNotExist:
+            productstock = ProductStock(is_active=False, facility=self,
+                                        product=product)
+        productstock.quantity = quantity
+        productstock.save()
+        return productstock
+
+    def stock(self, product):
+        try:
+            productstock = ProductStock.objects.get(facility=self,
+                                                    product=product)
+        except ProductStock.DoesNotExist:
+            return 0
+        if productstock.quantity == None:
+            return 0
+        return productstock.quantity
 
     def record_consumption_by_code(self, product_code, rate):
         ps = ProductStock.objects.get(product__sms_code=product_code, facility=self)
