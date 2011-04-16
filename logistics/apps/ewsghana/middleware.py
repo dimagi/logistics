@@ -51,7 +51,9 @@ class RequireLoginMiddleware(object):
                 if url in request.path:
                     return
             if request.POST:
-                return login(request)
+                # hm. is this ok?
+                # return login(request)
+                return HttpResponseRedirect(self.require_login_path)
             else:
                 return HttpResponseRedirect('%s?next=%s' % (self.require_login_path, request.path))
 
