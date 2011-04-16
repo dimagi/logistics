@@ -210,6 +210,9 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
                                                      producttype=commoditytype_filter)
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
+        if commodity_filter is not None:
+            row['consumption'] = child.consumption(product=commodity_filter, 
+                                                   producttype=commoditytype_filter)
         rows.append(row)
     return rows
 

@@ -14,11 +14,13 @@
             <table class="stock" width=100%>
             <thead><tr>
                 <th scope="col">Facility</th>
-                <th scope="col" class="stockout stock_col">Stockouts</th>
+                <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
                 <th scope="col" class="emergency stock_col">Emergency</th>
-                <th scope="col" class="low_supply stock_col">Low</th>
-                <th scope="col" class="good_supply stock_col">In Stock</th>
-                <th scope="col" class="overstock stock_col">Overstock</th>
+                <th scope="col" class="low_supply stock_col">{% trans "Re-Order" %}</th>
+                <th scope="col" class="good_supply stock_col">{% trans "Good Stock" %}</th>
+                <th scope="col" class="overstock stock_col">{% trans "Over" %}</th>
+                <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
+                {% if commodity_filter %}<th scope="col" >{% trans "AMC" %}</th>{% endif %}
             </tr></thead>
             <tbody>
             {% for row in rows %}
@@ -29,6 +31,8 @@
                 <td {% ifnotequal row.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ row.low_stock_count }}</td>
                 <td {% ifnotequal row.good_supply_count 0 %}class="good_supply"{% endifnotequal %}>{{ row.good_supply_count }}</td>
                 <td {% ifnotequal row.overstocked_count 0 %}class="overstock"{% endifnotequal %}>{{ row.overstocked_count }}</td>
+                <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
+                {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
                 </tr>
             {% endfor %}
             </tr></tbody>
