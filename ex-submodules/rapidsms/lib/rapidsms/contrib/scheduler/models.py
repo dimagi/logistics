@@ -263,6 +263,13 @@ class EventSchedule(models.Model):
 # global utility functions #
 ############################
 
+def set_monthly_event(callback, day, hour, minute, callback_args=None):
+    # relies on all the built-in checks in EventSchedule.save()
+    schedule = EventSchedule(callback=callback, hours=set([hour]), \
+                             days_of_month=set([day]), minutes=set([minute]), \
+                             callback_args=callback_args )
+    schedule.save()
+
 def set_weekly_event(callback, day, hour, minute, callback_args=None):
     # relies on all the built-in checks in EventSchedule.save()
     schedule = EventSchedule(callback=callback, hours=set([hour]), \
