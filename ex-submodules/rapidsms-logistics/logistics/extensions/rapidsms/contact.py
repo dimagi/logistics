@@ -5,7 +5,7 @@ class Contact(models.Model):
     # if one person wants to submit stocks for multiple facilities, then
     # they'll have to create multiple contacts for themselves
     role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
-    facility = models.ForeignKey("logistics.Facility", null=True, blank=True)
+    supply_point = models.ForeignKey("logistics.SupplyPoint", null=True, blank=True)
     needs_reminders = models.BooleanField(default=True)
     commodities = models.ManyToManyField("logistics.Product", 
                                          help_text="User manages these commodities.",
@@ -36,6 +36,6 @@ class Contact(models.Model):
         if SUPERVISOR not in self.role.responsibilities.objects.all():
             return Contact.objects.filter(facility=self.facility,
                                                    role=SUPERVISOR)
-        return Contact.objects.filter(facility=self.facility.parentsdp(),
+        return Contact.objects.filter(supply_point=self.facility.parentsdp(),
                                                role=SUPERVISOR)
         

@@ -59,7 +59,7 @@ class App(AppBase):
         if not hasattr(message,'logistics_contact'):
             message.respond(REGISTER_MESSAGE)
             return True
-        sdp = message.logistics_contact.facility
+        sdp = message.logistics_contact.supply_point
         if sdp is None:
             message.respond('You are not associated with a facility. ' +
                             'Please contact your district administrator for assistance.')
