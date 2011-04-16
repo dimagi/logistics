@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
@@ -291,6 +291,11 @@ class Facility(models.Model):
         return overstocked_count(facilities=[self], 
                                  product=product, 
                                  producttype=producttype)
+
+    def consumption(self, product=None, producttype=None):
+        return consumption(facilities=[self], 
+                           product=product, 
+                           producttype=producttype)
 
     def report(self, product, report_type, quantity, message=None):
         npr = ProductReport(product=product, report_type=report_type, 
@@ -721,5 +726,10 @@ def overstocked_count(facilities=None, product=None, producttype=None):
         if stock.is_overstocked():
             overstock_count = overstock_count + 1
     return overstock_count
+
+def consumption(facilities=None, product=None, producttype=None):
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities)
+    consumption = stocks.exclude(monthly_consumption=None).aggregate(consumption=Sum('monthly_consumption'))['consumption']
+    return consumption
 
 
