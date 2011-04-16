@@ -25,7 +25,6 @@ from logistics.apps.logistics.errors import *
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
-SUPERVISOR_RESPONSIBILITY = 'supervisor'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must registered on EWS " + \
@@ -33,6 +32,7 @@ REGISTER_MESSAGE = "You must registered on EWS " + \
                    "Please contact your district administrator."
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
+CHPS_TYPE = 'chps'
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
