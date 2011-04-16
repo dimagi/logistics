@@ -463,6 +463,13 @@
         }
     }, 
     {
+        "pk": "hsa",
+        "model": "logistics.supplypointtype",
+        "fields": {
+            "name": "Health Worker"
+        }
+    },
+    {
         "pk": "hc",
         "model": "logistics.supplypointtype",
         "fields": {
@@ -2005,7 +2012,7 @@
             "role": 1,
             "name": "In Charge",
             "language": "en-us",
-            "facility": 1
+            "supply_point": 1
         }
     },
     {
@@ -2016,7 +2023,7 @@
             "role": 2,
             "name": "Test User",
             "language": "en-us",
-            "facility": 1
+            "supply_point": 1
         }
     },
     {

@@ -26,7 +26,7 @@ class ReceiptHandler(KeywordHandler):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(REGISTER_MESSAGE)
             return
-        facility = self.msg.logistics_contact.facility
+        facility = self.msg.logistics_contact.supply_point
         stock_report = ProductReportsHelper(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
         stock_report.save()

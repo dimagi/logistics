@@ -8,7 +8,7 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, REGISTER_MESSAGE
 
 HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"
-class LanguageHandler(KeywordHandler):
+class RegistrationHandler(KeywordHandler):
     """
     Allow remote users to set their preferred language, by updating the
     ``language`` field of the Contact associated with their connection.
@@ -38,9 +38,9 @@ class LanguageHandler(KeywordHandler):
             except ContactRole.DoesNotExist:
                 self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
                 return
-            contact = Contact.objects.create(name=name, facility=fac, role=role)
+            contact = Contact.objects.create(name=name, supply_point=fac, role=role)
         else:
-            contact = Contact.objects.create(name=name, facility=fac)
+            contact = Contact.objects.create(name=name, supply_point=fac)
         self.msg.connection.contact = contact
         self.msg.connection.save()
         kwargs = {'sdp_name': fac.name,

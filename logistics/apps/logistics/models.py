@@ -320,12 +320,12 @@ class SupplyPoint(models.Model):
         return self.report(product, report_type, quantity)
 
     def reporters(self):
-        reporters = Contact.objects.filter(facility=self)
+        reporters = Contact.objects.filter(supply_point=self)
         reporters = reporters.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
         return reporters
 
     def reportees(self):
-        reporters = Contact.objects.filter(facility=self)
+        reporters = Contact.objects.filter(supply_point=self)
         reporters = reporters.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
@@ -374,6 +374,9 @@ class Facility(SupplyPoint):
     """A facility is a type of supply point"""
     # it currently has no unique functionality
     pass 
+
+class HealthWorker(SupplyPoint, ContactRole):
+    pass
 
 class ProductReportsHelper(object):
     """
