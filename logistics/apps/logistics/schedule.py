@@ -26,10 +26,10 @@ def first_soh_reminder (router):
     """ thusday reminders """
     logging.info("running first soh reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
-        if reporter.needs_reminders:
-            response = STOCK_ON_HAND_REMINDER % {'name':reporter.name}
-            OutgoingMessage(reporter.default_connection, response).send()
+        response = STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+        OutgoingMessage(reporter.default_connection, response).send()
 
 def second_soh_reminder (router):
     """monday follow-up"""
@@ -70,8 +70,8 @@ def reminder_to_submit_RRIRV(router):
     """ the 30th of each month, verify that they've submitted RRIRV """
     logging.info("running RRIRV reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
-        if reporter.needs_reminders:
-            response = RRIRV_REMINDER % {'name':reporter.name}
-            OutgoingMessage(reporter.default_connection, response).send()
+        response = RRIRV_REMINDER % {'name':reporter.name}
+        OutgoingMessage(reporter.default_connection, response).send()
 
