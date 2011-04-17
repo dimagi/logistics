@@ -27,7 +27,7 @@ STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
-REGISTER_MESSAGE = "You must registered on EWS " + \
+REGISTER_MESSAGE = "You must be registered on EWS " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
@@ -228,12 +228,14 @@ class StockTransaction(models.Model):
         if pr.report_type.code == RECEIPT_REPORT_TYPE and \
           pr.quantity == 0:
             return None
-        # alsopr no need to generate transaction if it's a soh which is the same as before
+        # also no need to generate transaction if it's a soh which is the same as before
         if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE and \
           beginning_balance == pr.quantity:
             return None
         st = cls(product_report=pr, facility=pr.facility, 
                  product=pr.product)
+
+        
         st.beginning_balance = beginning_balance
         if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
             st.ending_balance = pr.quantity
