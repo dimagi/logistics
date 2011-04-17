@@ -45,7 +45,6 @@ class ContactForm(forms.ModelForm):
                 self.initial['phone'] = instance.phone
 
     def clean_phone(self):
-        model = super(ContactForm, self).save(commit=False)
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
         if settings.DEFAULT_BACKEND:
             backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
