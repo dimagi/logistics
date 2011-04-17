@@ -35,8 +35,10 @@ def admin_does_all(request, pk=None, Form=AdminRegistersUserForm,
         if form.is_valid(): # All validation rules pass
             try:
                 new_user = form.save()
-                _send_user_registration_email(new_user.email, 
-                                              new_user.username, form.cleaned_data['password1'])
+                if user is None:
+                    # only send this if the account was created brand-new
+                    _send_user_registration_email(new_user.email, 
+                                                  new_user.username, form.cleaned_data['password1'])
             except:
                 vals = {'error_msg':'There was a problem with your request',
                         'error_details':sys.exc_info(),
