@@ -28,7 +28,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
-        connection = get_object_or_404(Connection,contact__name=contact.name)
+        connection = get_object_or_404(Connection,contact=contact)
 
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
