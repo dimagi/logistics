@@ -21,9 +21,11 @@ def load_locations(file_path, log_to_console=True):
     country_type = LocationType.objects.get_or_create(slug="country", name="country")[0]
     district_type = LocationType.objects.get_or_create(slug="district", name="district")[0]
     facility_type = LocationType.objects.get_or_create(slug="facility", name="facility")[0]
+    hsa_type = LocationType.objects.get_or_create(slug="hsa", name="hsa")[0]
     country = Location.objects.get_or_create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)[0]
     
     fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code="hf")[0]
+    # we don't use this anywhere in the loader, but make sure to create it
     hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code="hsa")[0]
     
     csv_file = open(file_path, 'r')
@@ -56,7 +58,7 @@ def load_locations(file_path, log_to_console=True):
             
             # create/load supply point info
             try:
-                fac_sp = SupplyPoint.objects.get(location=fac_loc)
+                fac_sp = SupplyPoint.objects.get(location=fac_loc, type=fac_sp_type)
             except SupplyPoint.DoesNotExist:
                 fac_sp = SupplyPoint(location=fac_loc)
             fac_sp.name = fac_loc.name
