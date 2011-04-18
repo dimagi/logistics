@@ -35,7 +35,13 @@
 					<h1>
 						<a title="{% trans "Return to the Dashboard" %}" href="{% url rapidsms-dashboard %}">
                             <img src="{{ logo_left_url }}" alt="" id="logo_left">
-							<span>RapidSMS</span>
+							<span>
+		                        {% if site_title %}
+									{{ site_title }}
+								{% else %}
+									RapidSMS
+								{% endif %}
+							</span>
 						</a>
                         <img src="{{ logo_right_url }}" alt="" id="logo_right">           
 					</h1>
@@ -51,7 +57,7 @@
 				{% get_tabs as tabs %}
 
 				<ul id="tabs">{% for tab in tabs %}
-					<li class="app-{{ tab.name }}{% if tab.is_active %} active{% endif %}">
+					<li class="app-{{ tab.caption_slug }}{% if tab.is_active %} active{% endif %}">
 						<a href="{{ tab.url }}"><span>{{ tab.caption }}</span></a>
 					</li>{% endfor %}
 				</ul>

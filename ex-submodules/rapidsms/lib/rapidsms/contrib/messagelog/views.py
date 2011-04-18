@@ -8,9 +8,9 @@ from .tables import MessageTable
 from .models import Message
 
 
-def message_log(req):
+def message_log(req, template="messagelog/index.html"):
     return render_to_response(
-        "messagelog/index.html", {
+        template, {
             "messages_table": MessageTable(Message.objects.all(), request=req)
         }, context_instance=RequestContext(req)
     )

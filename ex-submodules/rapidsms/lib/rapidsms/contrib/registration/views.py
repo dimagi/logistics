@@ -16,7 +16,7 @@ from .tables import ContactTable
 from .forms import BulkRegistrationForm
 
 @transaction.commit_on_success
-def registration(req, pk=None):
+def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
     bulk_form = None
@@ -75,7 +75,7 @@ def registration(req, pk=None):
         connection_form = ConnectionForm(instance=connection)
 
     return render_to_response(
-        "registration/dashboard.html", {
+        template, {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
             "connection_form": connection_form,
