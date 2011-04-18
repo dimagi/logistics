@@ -28,8 +28,8 @@ class HSARegistrationHandler(KeywordHandler):
         id =   words[1]
         code = words[2]
         try:
-            fac = Facility.objects.get(code__contains=code)
-        except Facility.DoesNotExist:
+            fac = SupplyPoint.objects.get(code__iexact=code)
+        except SupplyPoint.DoesNotExist:
             self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
             return
 

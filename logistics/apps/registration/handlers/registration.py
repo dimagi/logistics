@@ -5,7 +5,8 @@ from django.utils.translation import ugettext as _
 from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, Facility, REGISTER_MESSAGE
+from logistics.apps.logistics.models import ContactRole, Facility, REGISTER_MESSAGE,\
+    SupplyPoint
 
 HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"
 class RegistrationHandler(KeywordHandler):
@@ -27,9 +28,9 @@ class RegistrationHandler(KeywordHandler):
         name = words[0]
         code = words[1]
         try:
-            fac = Facility.objects.get(code__contains=code)
-        except Facility.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
+            fac = SupplyPoint.objects.get(code__iexact=code)
+        except SupplyPoint.DoesNotExist:
+            self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
             return
         if len(words) == 3:
             role_code = words[2]
