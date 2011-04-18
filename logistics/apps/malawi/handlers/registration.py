@@ -6,6 +6,7 @@ from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType
+from rapidsms.contrib.locations.models import Location, LocationType
 
 HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: register john 115 dwdh'"
 class HSARegistrationHandler(KeywordHandler):
@@ -42,7 +43,11 @@ class HSARegistrationHandler(KeywordHandler):
                 self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
                 return
 
-        sp = SupplyPoint.objects.create(name=name, code=id, type=SupplyPointType.objects.get(pk="hsa"), location=fac.location, supplied_by=fac)
+        # create a location and supply point for the HSA
+        hsa_loc = Location.objects.create(name=name, type=LocationType.objects.get(slug="hsa"), 
+                                          code=id, parent=fac.location)
+        sp = SupplyPoint.objects.create(name=name, code=id, type=SupplyPointType.objects.get(pk="hsa"), 
+                                        location=hsa_loc, supplied_by=fac)
 
         if role:
             contact = Contact.objects.create(name=name, supply_point=sp, role=role)
