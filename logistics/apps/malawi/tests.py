@@ -9,6 +9,7 @@ from logistics.apps.malawi.handlers.registration import REGISTER_MESSAGE, HELP_M
 
 class TestHSARegister(TestScript):
     fixtures = ["ghana_initial_data.json"]
+    
     def setUp(self):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
