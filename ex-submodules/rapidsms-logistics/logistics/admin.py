@@ -30,9 +30,6 @@ class ProductReportAdmin(admin.ModelAdmin):
 class ProductReportTypeAdmin(admin.ModelAdmin):
     model = ProductReportType
 
-class StockTransactionAdmin(admin.ModelAdmin):
-    model = StockTransaction
-
 class RequisitionReportAdmin(admin.ModelAdmin):
     model = RequisitionReport
     
@@ -44,6 +41,9 @@ class SupplyPointTypeAdmin(admin.ModelAdmin):
 
 class SupplyPointAdmin(admin.ModelAdmin):
     model = SupplyPoint
+
+class StockRequestAdmin(admin.ModelAdmin):
+    model = StockRequest
 
 class StockTransactionAdmin(admin.ModelAdmin):
     model = StockTransaction
@@ -62,5 +62,5 @@ admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(Facility, FacilityAdmin)
-admin.site.register(StockTransaction, StockTransactionAdmin)
+admin.site.register(StockRequest, StockRequestAdmin)
 
