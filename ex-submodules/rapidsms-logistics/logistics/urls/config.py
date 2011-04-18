@@ -7,7 +7,7 @@ from django.views.generic.simple import redirect_to
 from logistics.apps.logistics import views
 
 urlpatterns = patterns('',
-    url(r'^facility?$',
+    url(r'^facility/?$',
        views.facility,                           
        name='facility_view'),
     url(r'^facility/(?P<pk>\d+)/edit/?$',
