@@ -1,38 +1,31 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
+from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
 
 class LoaderException(Exception):
     pass
 
+def clear_locations():
+    Location.objects.all().delete()
+    LocationType.objects.all().delete()
+    
+    
 def load_locations(file_path, log_to_console=True):
     if log_to_console: print "loading static locations from %s" % file_path
     # give django some time to bootstrap itself
     if not os.path.exists(file_path):
         raise LoaderException("Invalid file path: %s." % file_path)
     
-    # clear first
-    Location.objects.all().delete()
-    LocationType.objects.all().delete()
-    
     # create/load static types    
-    try:
-        country_type = LocationType.objects.get(slug="country")
-    except LocationType.DoesNotExist:
-        country_type = LocationType.objects.create\
-            (slug="country", name="country")
+    country_type = LocationType.objects.get_or_create(slug="country", name="country")[0]
+    district_type = LocationType.objects.get_or_create(slug="district", name="district")[0]
+    facility_type = LocationType.objects.get_or_create(slug="facility", name="facility")[0]
+    country = Location.objects.get_or_create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)[0]
     
-    try:
-        district_type = LocationType.objects.get(slug="district")
-    except LocationType.DoesNotExist:
-        district_type = LocationType.objects.create\
-            (slug="district", name="district")
+    fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code="hf")[0]
+    hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code="hsa")[0]
     
-    try:
-        facility_type = LocationType.objects.get(slug="facility", name="facility")
-    except LocationType.DoesNotExist:
-        facility_type = LocationType.objects.create(slug="facility", name="facility")
-    country = Location.objects.create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)
     csv_file = open(file_path, 'r')
     try:
         count = 0
@@ -44,22 +37,36 @@ def load_locations(file_path, log_to_console=True):
     
             #create/load district
             try:
-                district = Location.objects.get(name__iexact=district_name.strip(), type=district_type)
+                district = Location.objects.get(code=district_code)
             except Location.DoesNotExist:
-                district = Location.objects.create(name=district_name.lower().strip(), type=district_type, 
+                district = Location.objects.create(name=district_name.strip(), type=district_type, 
                                                    code=district_code, parent=country)
             
-            #create/load facility
+            #create/load location info
             if not facility_code:
                 facility_code = "temp%s" % count
             try:
-                facility = Location.objects.get(code=facility_code)
+                fac_loc = Location.objects.get(code=facility_code)
             except Location.DoesNotExist:
-                facility = Location(code=facility_code)
-            facility.name = facility_name.strip()
-            facility.parent = district
-            facility.type = facility_type
-            facility.save()
+                fac_loc = Location(code=facility_code)
+            fac_loc.name = facility_name.strip()
+            fac_loc.parent = district
+            fac_loc.type = facility_type
+            fac_loc.save()
+            
+            # create/load supply point info
+            try:
+                fac_sp = SupplyPoint.objects.get(location=fac_loc)
+            except SupplyPoint.DoesNotExist:
+                fac_sp = SupplyPoint(location=fac_loc)
+            fac_sp.name = fac_loc.name
+            fac_sp.active = True
+            fac_sp.type = fac_sp_type
+            fac_sp.code = facility_code
+            # TODO
+            # fac_sp.supplied_by = ?
+            fac_sp.save()
+            
             count += 1
     
         if log_to_console: print "Successfully processed %s locations." % count
