@@ -74,7 +74,7 @@ class Location(models.Model):
         """
         """
         
-        return getattr(self, "name", "#%d" % self.pk)
+        return getattr(self, "name", "#%d" % self.pk if self.pk else "unsaved facility")
 
     @property
     def uid(self):
