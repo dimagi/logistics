@@ -253,10 +253,7 @@ def get_server_url(server_root, username, password):
 COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
 COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
 
-COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
-        'auditcare',
-    ]
-]
+COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
 DEBUG=True
 
