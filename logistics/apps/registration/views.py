@@ -16,7 +16,7 @@ from rapidsms.models import Contact
 from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
-@permission_required('registration')
+@permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
@@ -28,7 +28,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
-        connection = get_object_or_404(Connection,contact__name=contact.name)
+        connection = get_object_or_404(Connection,contact=contact)
 
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
@@ -64,7 +64,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
 
             if contact_form.is_valid():
                 created = False
-                if contact.pk is None:
+                if contact is None:
                     created = True
                 contact = contact_form.save()
                 if created:

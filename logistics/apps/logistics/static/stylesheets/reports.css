@@ -65,7 +65,7 @@
 #main{
   float:right;
   display:inline;
-  width:70%;
+  width:73%;
   padding-bottom:1.3em;
   position:relative;
   overflow:hidden
@@ -96,7 +96,7 @@ a {
 #side{
   float:left;
   display:inline;
-  width:260px;
+  width:240px;
   padding-bottom:1.3em;
   position:relative;
   overflow:hidden;

@@ -8,6 +8,7 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import User
 from registration.forms import RegistrationForm
+from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility
 
@@ -51,7 +52,11 @@ class AdminRegistersUserForm(RegistrationForm):
     def save(self, profile_callback=None):
         if self.edit_user is None:
             # creates user and profile object
-            user = super(AdminRegistersUserForm, self).save(profile_callback)
+            user = RegistrationProfile.objects.create_inactive_user(username=self.cleaned_data['username'],
+                                                                    password=self.cleaned_data['password1'],
+                                                                    email=self.cleaned_data['email'], 
+                                                                    send_email=False,
+                                                                    profile_callback=profile_callback)
             user.last_login =  datetime(1970,1,1)
             # date_joined is used to determine expiration of the invitation key - I'd like to
             # munge it back to 1970, but can't because it makes all keys look expired.

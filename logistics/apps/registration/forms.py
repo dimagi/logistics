@@ -45,7 +45,6 @@ class ContactForm(forms.ModelForm):
                 self.initial['phone'] = instance.phone
 
     def clean_phone(self):
-        model = super(ContactForm, self).save(commit=False)
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
         if settings.DEFAULT_BACKEND:
             backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
@@ -62,7 +61,7 @@ class ContactForm(forms.ModelForm):
                 # which we'll steal when we save
                 pass
             # could be that we are editing an existing model
-            if dupes[0].contact.name != self.cleaned_data['name']:
+            elif dupes[0].contact.name != self.cleaned_data['name']:
                 raise forms.ValidationError("Phone number already registered!")
         return self.cleaned_data['phone']
 

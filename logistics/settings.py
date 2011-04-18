@@ -136,6 +136,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
+    "rapidsms.context_processors.logo",
 ]
 
 
@@ -199,7 +200,7 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com."
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
@@ -270,3 +271,8 @@ NO_LOGIN_REQUIRED_FOR = [
 AXES_LOGIN_FAILURE_LIMIT=10
 AXES_LOGIN_FAILURE_LIMIT=1
 
+LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
+SITE_TITLE="Early Warning System"
+BASE_TEMPLATE="ewsghana/base.html"
+BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"

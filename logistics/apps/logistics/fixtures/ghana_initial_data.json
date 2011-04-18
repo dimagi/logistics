@@ -512,6 +512,13 @@
         }
     },
     {
+        "pk": "ph",
+        "model": "logistics.facilitytype",
+        "fields": {
+            "name": "Psychiatric Hospital"
+        }
+    },
+    {
         "pk": 1, 
         "model": "logistics.responsibility", 
         "fields": {
@@ -1781,6 +1788,9 @@
         "fields": {
             "name": "program_admin", 
             "permissions": [
+                55, 
+                56, 
+                57, 
                 115, 
                 116, 
                 117, 
@@ -1792,7 +1802,10 @@
                 105, 
                 7, 
                 8, 
-                9
+                9,
+                133, 
+                134, 
+                135
             ]
         }
     }, 
@@ -1928,7 +1941,7 @@
         "model": "locations.location",
         "fields": {
             "code": "m",
-            "name": "Mfantseman",
+            "name": "Mfantsiman",
             "point": null,
             "parent_type": 17,
             "parent_id": 3,
@@ -2042,32 +2055,6 @@
             "contact": 2,
             "identity": "16176023315",
             "backend": 1
-        }
-    },
-    {
-        "pk": 1,
-        "model": "logistics.productstock",
-        "fields": {
-            "product": 1,
-            "supply_point": 3,
-            "monthly_consumption": 5,
-            "is_active": true,
-            "last_modified": "2011-02-26 17:40:25",
-            "days_stocked_out": 0,
-            "quantity": 10
-        }
-    },
-    {
-        "pk": 2,
-        "model": "logistics.productstock",
-        "fields": {
-            "product": 2,
-            "supply_point": 3,
-            "monthly_consumption": 8,
-            "is_active": true,
-            "last_modified": "2011-02-26 17:40:33",
-            "days_stocked_out": 0,
-            "quantity": 15
         }
     },
     {
