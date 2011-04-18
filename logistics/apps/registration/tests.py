@@ -4,7 +4,8 @@ from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.registration.forms import IntlSMSContactForm
 from logistics.apps.logistics.models import Location, Facility, SupplyPointType 
-from logistics.apps.registration.handlers.registration import REGISTER_MESSAGE
+from logistics.apps.registration.handlers.registration import REGISTER_MESSAGE,\
+    HELP_MESSAGE
 
 class TestRegister(TestScript):
     fixtures = ["ghana_initial_data.json"] 
@@ -27,7 +28,7 @@ class TestRegister(TestScript):
               8005551212 < Sorry, can't find the location with FACILITY CODE doesntexist
               8005551212 > register stella dedh
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-            """ % {'register_message':REGISTER_MESSAGE}
+            """ % {'register_message':HELP_MESSAGE}
         self.runScript(a)
 
     def testRegisterTwice(self):

@@ -513,7 +513,7 @@
     },
     {
         "pk": "ph",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "Psychiatric Hospital"
         }
