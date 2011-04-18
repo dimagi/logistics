@@ -165,6 +165,40 @@ class ProductStock(models.Model):
                 return True
         return False
 
+class StockRequestStatus(object):
+    """Basically a const for our choices"""
+    REQUESTED = "requested"
+    APPROVED = "approved"
+    RECEIVED = "received" 
+    
+    CHOICES = [StockRequestStatus.REQUESTED, StockRequestStatus.APPROVED, 
+               StockRequestStatus.RECEIVED]
+
+STOCK_REQUEST_STATUS_CHOICES = ((val, val) for val in StockRequestStatus.CHOICES)
+
+class StockRequest(models.Model):
+    """
+    In some deployments, you make a stock request, but it's not filled
+    immediately. This object keeps track of those requests. It's sort
+    of like a special type of ProductReport with a status flag.
+    """
+    product = models.ForeignKey(Product)
+    supply_point = models.ForeignKey("SupplyPoint")
+    status = models.CharField(max_length=10, choices=STOCK_REQUEST_STATUS_CHOICES)
+    
+    requested_on = models.DateTimeField(default=datetime.now)
+    approved_on = models.DateTimeField(null=True)
+    received_on = models.DateTimeField(null=True)
+    
+    requested_by = models.ForeignKey(Contact)
+    approved_by = models.ForeignKey(Contact)
+    received_by = models.ForeignKey(Contact)
+    
+    amount_requested = models.PositiveIntegerField()
+    amount_approved = models.PositiveIntegerField()
+    amount_received = models.PositiveIntegerField()
+    
+    
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
     name = models.CharField(max_length=100)
@@ -463,11 +497,9 @@ class SupplyPoint(models.Model):
 
 class Facility(SupplyPoint):
     """A facility is a type of supply point"""
-    # it currently has no unique functionality
+    # it currently has no unique functionality, and will probably be deprecated
+    # and removed eventually unless it needs any.
     pass 
-
-class HealthWorker(SupplyPoint, ContactRole):
-    pass
 
 class ProductReportsHelper(object):
     """
