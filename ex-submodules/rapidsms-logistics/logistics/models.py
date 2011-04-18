@@ -219,7 +219,7 @@ class StockTransaction(models.Model):
      from the field, so how we decide to map reports to transactions may vary 
     """
     product = models.ForeignKey(Product)
-    facility = models.ForeignKey('Facility')
+    supply_point = models.ForeignKey('SupplyPoint')
     quantity = models.IntegerField()
     # we need some sort of 'balance' field, so that we can get a snapshot
     # of balances over time. we add both beginning and ending balance since
@@ -235,7 +235,7 @@ class StockTransaction(models.Model):
         ordering = ('-date',)
 
     def __unicode__(self):
-        return "%s - %s (%s)" % (self.facility.name, self.product.name, self.quantity)
+        return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
     
     @classmethod
     def from_product_report(cls, pr, beginning_balance):
@@ -247,7 +247,7 @@ class StockTransaction(models.Model):
         if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE and \
           beginning_balance == pr.quantity:
             return None
-        st = cls(product_report=pr, facility=pr.facility, 
+        st = cls(product_report=pr, supply_point=pr.supply_point, 
                  product=pr.product)
 
         
@@ -268,7 +268,7 @@ class StockTransaction(models.Model):
         return st
 
 class RequisitionReport(models.Model):
-    facility = models.ForeignKey("Facility")
+    supply_point = models.ForeignKey("SupplyPoint")
     submitted = models.BooleanField()
     report_date = models.DateTimeField(default=datetime.now)
     message = models.ForeignKey(Message)
@@ -348,7 +348,7 @@ class SupplyPoint(models.Model):
 
     def stock(self, product):
         try:
-            productstock = ProductStock.objects.get(facility=self,
+            productstock = ProductStock.objects.get(supply_point=self,
                                                     product=product)
         except ProductStock.DoesNotExist:
             return 0
