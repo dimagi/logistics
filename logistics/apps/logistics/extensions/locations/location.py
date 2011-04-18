@@ -58,3 +58,7 @@ class Location(models.Model):
     def overstocked_count(self, product=None, producttype=None):
         from logistics.apps.logistics.models import overstocked_count
         return overstocked_count(self.all_facilities, product, producttype)
+
+    def consumption(self, product=None, producttype=None):
+        from logistics.apps.logistics.models import consumption
+        return consumption(self.all_facilities, product, producttype)

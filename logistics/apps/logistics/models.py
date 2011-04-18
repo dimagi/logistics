@@ -3,12 +3,13 @@
 
 import re
 import math
+import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
@@ -24,19 +25,15 @@ from logistics.apps.logistics.errors import *
 
 STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
-SUPERVISOR_RESPONSIBILITY = 'supervisor'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
-REGISTER_MESSAGE = "You must registered on the Early Warning System " + \
-                   "before you can submit a stock report. " + \
-                   "Please contact your district administrator."
-INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
-GET_HELP_MESSAGE = "Please contact FRHP for assistance."
 REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
                    "Please contact your district administrator."
+INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
+CHPS_TYPE = 'chps'
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -198,8 +195,72 @@ class ProductReport(models.Model):
         ordering = ('-report_date',)
 
     def __unicode__(self):
-        return "%s-%s-%s" % (self.facility.name, self.product.name, self.report_type.name)
+        return "%s | %s | %s" % (self.facility.name, self.product.name, self.report_type.name)
 
+class StockTransaction(models.Model):
+    """
+     StockTransactions exist to track atomic changes to the ProductStock per facility
+     This may look deceptively like the ProductReport. The utility of having a separate
+     model is that some ProductReports may be duplicates, invalid, or false reports
+     from the field, so how we decide to map reports to transactions may vary 
+    """
+    product = models.ForeignKey(Product)
+    facility = models.ForeignKey('Facility')
+    quantity = models.IntegerField()
+    # we need some sort of 'balance' field, so that we can get a snapshot
+    # of balances over time. we add both beginning and ending balance since
+    # the outcome of a transaction might vary, depending on whether balances
+    # can be negative or not
+    beginning_balance = models.IntegerField()
+    ending_balance = models.IntegerField()
+    date = models.DateTimeField(default=datetime.now)
+    product_report = models.ForeignKey(ProductReport, null=True)
+    
+    class Meta:
+        verbose_name = "Stock Transaction"
+        ordering = ('-date',)
+
+    def __unicode__(self):
+        return "%s - %s (%s)" % (self.facility.name, self.product.name, self.quantity)
+    
+    @classmethod
+    def from_product_report(cls, pr, beginning_balance):
+        # no need to generate transaction if it's just a report of 0 receipts
+        if pr.report_type.code == RECEIPT_REPORT_TYPE and \
+          pr.quantity == 0:
+            return None
+        # also no need to generate transaction if it's a soh which is the same as before
+        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE and \
+          beginning_balance == pr.quantity:
+            return None
+        st = cls(product_report=pr, facility=pr.facility, 
+                 product=pr.product)
+
+        
+        st.beginning_balance = beginning_balance
+        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
+            st.ending_balance = pr.quantity
+            st.quantity = st.ending_balance - st.beginning_balance
+        elif pr.report_type.code == RECEIPT_REPORT_TYPE:
+            # you might think 'receipt' should show up as a positive quantity
+            # in fact, given that we're already account for receipts in the soh
+            # 'receipts' here actually indicate additional disbursements
+            st.ending_balance = st.beginning_balance
+            st.quantity = -pr.quantity
+        else:
+            err_msg = "UNDEFINED BEHAVIOUR FOR UNKNOWN REPORT TYPE %s" % pr.report_type.code
+            logging.error(err_msg)
+            raise ValueError(err_msg)
+        return st
+
+class RequisitionReport(models.Model):
+    facility = models.ForeignKey("Facility")
+    submitted = models.BooleanField()
+    report_date = models.DateTimeField(default=datetime.now)
+    message = models.ForeignKey(Message)
+
+    class Meta:
+        ordering = ('-report_date',)
 
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
@@ -257,22 +318,32 @@ class Facility(models.Model):
     @property
     def label(self):
         return unicode(self)
+    
+    def update_stock(self, product, quantity):
+        try:
+            productstock = ProductStock.objects.get(facility=self,
+                                                    product=product)
+        except ProductStock.DoesNotExist:
+            productstock = ProductStock(is_active=False, facility=self,
+                                        product=product)
+        productstock.quantity = quantity
+        productstock.save()
+        return productstock
+
+    def stock(self, product):
+        try:
+            productstock = ProductStock.objects.get(facility=self,
+                                                    product=product)
+        except ProductStock.DoesNotExist:
+            return 0
+        if productstock.quantity == None:
+            return 0
+        return productstock.quantity
 
     def record_consumption_by_code(self, product_code, rate):
         ps = ProductStock.objects.get(product__sms_code=product_code, facility=self)
         ps.monthly_consumption = rate
         ps.save()
-
-    # We use 'last_reported' above instead of the following to generate reports of lateness and on-timeness.
-    # This is faster and more readable, but it's duplicate data in the db, which is bad db design. Fix later?
-    #@property
-    #def last_reported(self):
-    #    from logistics.apps.logistics.models import ProductReport, ProductStock
-    #    report_count = ProductReport.objects.filter(facility=self).count()
-    #    if report_count > 0:
-    #        last_report = ProductReport.objects.filter(facility=self).order_by("-report_date")[0]
-    #        return last_report.report_date
-    #    return None
 
     def stockout_count(self, product=None, producttype=None):
         return stockout_count(facilities=[self], 
@@ -307,6 +378,11 @@ class Facility(models.Model):
         return overstocked_count(facilities=[self], 
                                  product=product, 
                                  producttype=producttype)
+
+    def consumption(self, product=None, producttype=None):
+        return consumption(facilities=[self], 
+                           product=product, 
+                           producttype=producttype)
 
     def report(self, product, report_type, quantity, message=None):
         npr = ProductReport(product=product, report_type=report_type, 
@@ -535,7 +611,7 @@ class ProductReportsHelper(object):
     def _record_product_receipt(self, product, quantity):
         self._record_product_report(product, quantity, RECEIPT_REPORT_TYPE)
 
-    def add_product_receipt(self, product_code, quantity, save=True):
+    def add_product_receipt(self, product_code, quantity, save=False):
         if isinstance(quantity, basestring) and quantity.isdigit():
             quantity = int(quantity)
         if not isinstance(quantity, int):
@@ -737,4 +813,10 @@ def overstocked_count(facilities=None, product=None, producttype=None):
         if stock.is_overstocked():
             overstock_count = overstock_count + 1
     return overstock_count
+
+def consumption(facilities=None, product=None, producttype=None):
+    stocks = _filtered_stock(product, producttype).filter(facility__in=facilities)
+    consumption = stocks.exclude(monthly_consumption=None).aggregate(consumption=Sum('monthly_consumption'))['consumption']
+    return consumption
+
 
