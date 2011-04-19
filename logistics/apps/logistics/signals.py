@@ -10,7 +10,6 @@ def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resol
     supply_point.notify_suppliees_of_stockouts_resolved([p.code for p in products], 
                                                         exclude=exclude_list)
     
-# why are these here?
 @transaction.commit_on_success
 def post_save_product_report(sender, instance, created, **kwargs):
     """
