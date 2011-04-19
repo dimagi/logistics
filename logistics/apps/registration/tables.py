@@ -20,9 +20,9 @@ def _any_identity(cell):
     if cell.object.connection_set.count() > 0:
         return cell.object.connection_set.all()[0].identity
 
-def _any_facility(cell):
-    if cell.object.facility:
-        return cell.object.facility.code
+def _any_supply_point(cell):
+    if cell.object.supply_point:
+        return cell.object.supply_point.code
 
 def _list_commodities(cell):
     commodities = cell.object.commodities.all()
@@ -32,10 +32,10 @@ def _list_commodities(cell):
 
 class ContactTable(Table):
     name     = Column(link=_edit_link)
-    facility = Column(value=_any_facility)
+    supply_point = Column(value=_any_supply_point)
     phone = Column(value=_any_identity)
     commodities = Column(name="Responsible For These Commodities", 
                          value=_list_commodities)
 
     class Meta:
-        order_by = 'facility'
+        order_by = 'supply_point'

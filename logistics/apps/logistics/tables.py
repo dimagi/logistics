@@ -5,8 +5,6 @@
 import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
-from .models import Facility
-from .models import Product as Commodity
 
 def _edit_link(cell):
     return reverse(
