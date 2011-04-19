@@ -21,7 +21,6 @@ from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved
 from logistics.apps.logistics.errors import *
-from win32con import STOCK_LAST
 #import logistics.apps.logistics.log
 
 
