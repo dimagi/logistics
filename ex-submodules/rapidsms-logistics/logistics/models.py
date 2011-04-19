@@ -191,13 +191,13 @@ class StockRequest(models.Model):
     approved_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
-    requested_by = models.ForeignKey(Contact, related_name="requested_by")
-    approved_by = models.ForeignKey(Contact, related_name="approved_by")
-    received_by = models.ForeignKey(Contact, related_name="received_by")
+    requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by")
+    approved_by = models.ForeignKey(Contact, null=True, related_name="approved_by")
+    received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
     
-    amount_requested = models.PositiveIntegerField()
-    amount_approved = models.PositiveIntegerField()
-    amount_received = models.PositiveIntegerField()
+    amount_requested = models.PositiveIntegerField(null=True)
+    amount_approved = models.PositiveIntegerField(null=True)
+    amount_received = models.PositiveIntegerField(null=True)
     
     @classmethod
     def create_from_report(cls, stock_report, message):
