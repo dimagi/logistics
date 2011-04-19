@@ -25,7 +25,7 @@ class TestRegister(TestScript):
               8005551212 > register stella
               8005551212 < Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'
               8005551212 > register stella doesntexist
-              8005551212 < Sorry, can't find the location with FACILITY CODE doesntexist
+              8005551212 < Sorry, can't find the location with CODE doesntexist
               8005551212 > register stella dedh
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
             """ % {'register_message':HELP_MESSAGE}

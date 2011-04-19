@@ -18,6 +18,8 @@ from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
+NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district administrator for assistance."
+SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
 SOH_KEYWORD = 'soh'
 
 class App(AppBase):
@@ -63,22 +65,36 @@ class App(AppBase):
         """Parse and annotate messages in the parse phase."""
         pass
 
-    def handle (self, message):
-        """Add your main application logic in the handle phase."""
+    def _check_preconditions(self, message):
+        """
+        Handles base logic of whether this message should be processed.
+        Returns a tuple, the first value is whether the operation should
+        proceed with the normal handle phase, the second being the return n
+        code. If the first argument is True, the value of the second argument 
+        is not defined.
+        """
         if not self._should_handle(message):
-            return False
+            return (False, False)
         if not hasattr(message,'logistics_contact'):
             message.respond(REGISTER_MESSAGE)
-            return True
-        sdp = message.logistics_contact.supply_point
-        if sdp is None:
-            message.respond('You are not associated with a facility. ' +
-                            'Please contact your district administrator for assistance.')
-            return True
-
+            return (False, True)
+        if message.logistics_contact.supply_point is None:
+            message.respond(NO_SUPPLY_POINT_MESSAGE)
+            return (False, True)
+        if not self._clean_message(message.text):
+            message.respond(SOH_HELP_MESSAGE)
+            return (False, True)
+        return (True, None)
+        
+    def handle (self, message):
+        """Add your main application logic in the handle phase."""
+        should_proceed, return_code = self._check_preconditions(message)
+        if not should_proceed:
+            return return_code
         try:
             message.text = self._clean_message(message.text)
-            stock_report = ProductReportsHelper(sdp, STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
+            stock_report = ProductReportsHelper(message.logistics_contact.supply_point, 
+                                                STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
             if stock_report.errors:
@@ -101,7 +117,8 @@ class App(AppBase):
             (response, super_response, kwargs) = stock_report.get_responses()
             message.respond(response, **kwargs)
             if super_response:
-                sdp.report_to_supervisor(super_response, kwargs, exclude=[message.logistics_contact])
+                message.logistics_contact.supply_point.report_to_supervisor\
+                    (super_response, kwargs, exclude=[message.logistics_contact])
             return True
 
         except Exception, e:
@@ -138,8 +155,10 @@ class App(AppBase):
         pass
 
     def _should_handle(self, message):
-        """ Tests whether this message is one which should go through the handle phase
-        i.e. if it begins with soh or one of the product codes """
+        """
+        Tests whether this message is one which should go through the handle phase
+        i.e. if it begins with soh or one of the product codes
+        """
         keywords = [SOH_KEYWORD]
         keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
         text = message.text.lower()
@@ -148,6 +167,7 @@ class App(AppBase):
                 return True
         return False
 
+        
     def _clean_message(self, text):
         text = text.lower()
         if text.startswith(SOH_KEYWORD):
