@@ -18,8 +18,10 @@ from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.signals import post_save_product_report, create_user_profile
+from logistics.apps.logistics.signals import post_save_product_report, create_user_profile,\
+    stockout_resolved
 from logistics.apps.logistics.errors import *
+from win32con import STOCK_LAST
 #import logistics.apps.logistics.log
 
 
@@ -609,21 +611,23 @@ class ProductReportsHelper(object):
             except ProductStock.DoesNotExist:
                 original_quantity = 0
             new_quantity = self.product_stock[stock_code]
-            self._record_product_report_by_code(stock_code, new_quantity, self.report_type)
+            self._record_product_report(self.get_product(stock_code), new_quantity, self.report_type)
             if original_quantity == 0 and new_quantity > 0:
                 stockouts_resolved.append(stock_code)
         if stockouts_resolved:
-            # notify all facilities supplied by this one
-            # this needs to be decoupled more; could pull it out into a signal
-            if self.message:
-                self.supply_point.notify_suppliees_of_stockouts_resolved(stockouts_resolved, 
-                                                                     exclude=[self.message.contact])
-            else:
-                self.supply_point.notify_suppliees_of_stockouts_resolved(stockouts_resolved)
+            # use signals framework to manage custom notifications
+            reporter = self.message.contact if self.message else None
+            stockout_resolved.send(sender="product_report", supply_point=self.supply_point, 
+                                   products=[self.get_product(code) for code in stockouts_resolved], 
+                                   resolved_by=reporter)
+            
         for stock_code in self.consumption:
-            self.supply_point.record_consumption_by_code(stock_code, self.consumption[stock_code])
+            self.supply_point.record_consumption_by_code(stock_code, 
+                                                         self.consumption[stock_code])
         for stock_code in self.product_received:
-            self._record_product_report_by_code(stock_code, self.product_received[stock_code], RECEIPT_REPORT_TYPE)
+            self._record_product_report(self.get_product(stock_code), 
+                                        self.product_received[stock_code], 
+                                        RECEIPT_REPORT_TYPE)
 
     def add_product_consumption(self, product, consumption):
         if isinstance(consumption, basestring) and consumption.isdigit():
@@ -631,16 +635,23 @@ class ProductReportsHelper(object):
         if not isinstance(consumption, int):
             raise TypeError("Consumption must be reported in integers")
         self.consumption[product.sms_code] = consumption
-
+    
+    def get_product(self, product_code):
+        """
+        Gets a product by code, or raises an UnknownCommodityCodeError 
+        if the product can't be found.
+        """
+        try:
+            return Product.objects.get(sms_code__icontains=product_code)
+        except (Product.DoesNotExist, Product.MultipleObjectsReturned):
+            raise UnknownCommodityCodeError(product_code)
+    
     def add_product_stock(self, product_code, stock, save=False, consumption=None):
         if isinstance(stock, basestring) and stock.isdigit():
             stock = int(stock)
         if not isinstance(stock, int):
             raise TypeError("Stock must be reported in integers")
-        try:
-            product = Product.objects.get(sms_code__icontains=product_code)
-        except (Product.DoesNotExist, Product.MultipleObjectsReturned):
-            raise UnknownCommodityCodeError(product_code)
+        product = self.get_product(product_code)
         if save:
             self._record_product_report(product, stock, self.report_type)
         self.product_stock[product_code] = stock
@@ -648,13 +659,6 @@ class ProductReportsHelper(object):
             self.consumption[product_code] = consumption
         if stock == 0:
             self.has_stockout = True
-
-    def _record_product_report_by_code(self, product_code, quantity, report_type):
-        try:
-            product = Product.objects.get(sms_code__icontains=product_code)
-        except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise UnknownCommodityCodeError(product_code)
-        self._record_product_report(product, quantity, report_type)
 
     def _record_product_report(self, product, quantity, report_type):
         report_type = ProductReportType.objects.get(code=report_type)
@@ -672,10 +676,7 @@ class ProductReportsHelper(object):
             quantity = int(quantity)
         if not isinstance(quantity, int):
             raise TypeError("stock must be reported in integers")
-        try:
-            product = Product.objects.get(sms_code__icontains=product_code)
-        except Product.DoesNotExist, Product.MultipleObjectsReturned:
-            raise UnknownCommodityCodeError(product_code)
+        product = self.get_product(product_code)
         self.product_received[product_code] = quantity
         if save:
             self._record_product_receipt(product, quantity)

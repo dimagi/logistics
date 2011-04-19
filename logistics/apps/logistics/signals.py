@@ -1,7 +1,16 @@
 import logging
 from datetime import datetime
 from django.db import transaction
+from django.dispatch import Signal
 
+stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
+
+def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resolved_by):
+    exclude_list = [] if resolved_by is None else [resolved_by]
+    supply_point.notify_suppliees_of_stockouts_resolved([p.code for p in products], 
+                                                        exclude=exclude_list)
+    
+# why are these here?
 @transaction.commit_on_success
 def post_save_product_report(sender, instance, created, **kwargs):
     """
