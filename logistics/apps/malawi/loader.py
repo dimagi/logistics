@@ -1,11 +1,21 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
+from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
+    ProductReportType
 
 class LoaderException(Exception):
     pass
 
+def init_static_data():
+    """
+    Initialize any data that should be static here
+    """
+    # These are annoyingly necessary to live in the DB. 
+    # Really this should be app logic, I think.
+    ProductReportType.objects.get_or_create(name="Stock on Hand", code="soh")
+    ProductReportType.objects.get_or_create(name="Stock Received", code="rec")
+    
 def clear_locations():
     Location.objects.all().delete()
     LocationType.objects.all().delete()

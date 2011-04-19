@@ -1,0 +1,95 @@
+[
+    {
+        "pk": 1,
+        "model": "logistics.producttype",
+        "fields": {
+            "name": "CCM",
+            "code": "ccm"
+        }
+    },
+    {
+        "pk": 1, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "pa",
+            "product_code": "", 
+            "name": "Paracetamol", 
+            "type": 1,
+            "description": "Paracetamol"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "co", 
+            "product_code": "", 
+            "name": "Cotrimoxazole", 
+            "type": 1,
+            "description": "Cotrimoxazole"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "or",
+            "product_code": "", 
+            "name": "ORS", 
+            "type": 1,
+            "description": "ORS"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "la1",
+            "product_code": "", 
+            "name": "LA 1X6", 
+            "type": 1,
+            "description": "LA 1X6"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "la2",
+            "product_code": "", 
+            "name": "LA 2X6", 
+            "type": 1,
+            "description": "LA 2X6"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "te", 
+            "product_code": "", 
+            "name": "Tetracycline Eye Ointment", 
+            "type": 1,
+            "description": "Tetracycline Eye Ointment"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "logistics.product", 
+        "fields": {
+            "units": "", 
+            "sms_code": "zi",
+            "product_code": "", 
+            "name": "Zinc", 
+            "type": 1,
+            "description": "Zinc"
+        }
+    } 
+]
+

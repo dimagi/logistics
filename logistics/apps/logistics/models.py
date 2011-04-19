@@ -200,6 +200,33 @@ class StockRequest(models.Model):
     amount_approved = models.PositiveIntegerField()
     amount_received = models.PositiveIntegerField()
     
+    @classmethod
+    def create_from_report(cls, stock_report, message):
+        """
+        From a stock report helper object, create any pending stock requests.
+        """
+        def _calculate_resupply_total(contact, product):
+                # TODO: this is obviously just a placeholder
+                # top everyone up to 200 "units"
+                return 200
+            
+        requests = []
+        for product_code, stock in stock_report.product_stock.items():
+            product = stock_report.get_product(product_code)
+            contact = message.logistics_contact
+            resupply_amount = _calculate_resupply_total(contact.supply_point, product)
+            if resupply_amount > stock:
+                req = StockRequest.objects.create(product=product, 
+                                                  supply_point=contact.supply_point,
+                                                  status=StockRequestStatus.REQUESTED,
+                                                  requested_by=contact,
+                                                  amount_requested=resupply_amount - stock)
+                requests.append(req)
+                # TODO: close existing pending stock requests. 
+                # The latest one trumps them.
+                
+        return requests
+        
     
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""

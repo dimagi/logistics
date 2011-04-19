@@ -4,10 +4,13 @@ from django import forms
 from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.registration.forms import IntlSMSContactForm
-from logistics.apps.logistics.models import Location, Facility, SupplyPointType
+from logistics.apps.logistics.models import Location, Facility, SupplyPointType,\
+    SupplyPoint
 from logistics.apps.malawi.handlers.registration import REGISTER_MESSAGE, HELP_MESSAGE
+from logistics.apps.malawi import app as malawi_app
 
 class TestHSARegister(TestScript):
+    apps = ([malawi_app.App])
     fixtures = ["ghana_initial_data.json"]
     
     def setUp(self):
@@ -31,3 +34,6 @@ class TestHSARegister(TestScript):
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
             """ % {'register_message':REGISTER_MESSAGE, 'help_message':HELP_MESSAGE}
         self.runScript(a)
+        loc = Location.objects.get(code="dedh115")
+        sp = SupplyPoint.objects.get(code="dedh115")
+        self.assertEqual(sp.location, loc)

@@ -43,10 +43,16 @@ class HSARegistrationHandler(KeywordHandler):
                 self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
                 return
 
+        def format_id(code, id):
+            # TODO, finalize this
+            return "%s%s" % (code, id)
+        
+        hsa_id = format_id(code, id)
+        
         # create a location and supply point for the HSA
         hsa_loc = Location.objects.create(name=name, type=LocationType.objects.get(slug="hsa"), 
-                                          code=id, parent=fac.location)
-        sp = SupplyPoint.objects.create(name=name, code=id, type=SupplyPointType.objects.get(pk="hsa"), 
+                                          code=hsa_id, parent=fac.location)
+        sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=SupplyPointType.objects.get(pk="hsa"), 
                                         location=hsa_loc, supplied_by=fac)
 
         if role:
