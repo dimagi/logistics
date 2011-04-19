@@ -260,8 +260,9 @@ NO_LOGIN_REQUIRED_FOR = [
 
 # AUDITCARE CONFIG
 # users can fail login 10 times, resulting in a 1 hour cooloff period
-AXES_LOGIN_FAILURE_LIMIT=10
+AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
+AXES_LOCK_OUT_AT_FAILURE=False
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
