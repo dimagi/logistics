@@ -171,8 +171,8 @@ class StockRequestStatus(object):
     APPROVED = "approved"
     RECEIVED = "received" 
     
-    CHOICES = [StockRequestStatus.REQUESTED, StockRequestStatus.APPROVED, 
-               StockRequestStatus.RECEIVED]
+    CHOICES = [REQUESTED, APPROVED, RECEIVED] 
+               
 
 STOCK_REQUEST_STATUS_CHOICES = ((val, val) for val in StockRequestStatus.CHOICES)
 
@@ -190,9 +190,9 @@ class StockRequest(models.Model):
     approved_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
-    requested_by = models.ForeignKey(Contact)
-    approved_by = models.ForeignKey(Contact)
-    received_by = models.ForeignKey(Contact)
+    requested_by = models.ForeignKey(Contact, related_name="requested_by")
+    approved_by = models.ForeignKey(Contact, related_name="approved_by")
+    received_by = models.ForeignKey(Contact, related_name="received_by")
     
     amount_requested = models.PositiveIntegerField()
     amount_approved = models.PositiveIntegerField()
