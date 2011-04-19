@@ -76,7 +76,7 @@ class TestStockOnHand (TestScript):
            16176023315 >
            16176023315 < Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com
            16176023315 > soh
-           16176023315 < Dear stella, thank you for reporting the commodities you have in stock. 
+           16176023315 < To report stock on hand, send SOH [space] [product code] [space] [amount] 
            """
         self.runScript(a)
 
