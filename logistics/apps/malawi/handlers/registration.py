@@ -23,6 +23,9 @@ class HSARegistrationHandler(KeywordHandler):
     
     def handle(self, text):
         
+        if hasattr(self.msg,'logistics_contact') and self.msg.logistics_contact.is_active:
+            self.respond("You are already registered. To change your information you must first text LEAVE")
+            return
         
         words = text.split()
         if len(words) < 3 or len(words) > 4:
@@ -52,6 +55,8 @@ class HSARegistrationHandler(KeywordHandler):
         
         hsa_id = format_id(code, id)
         
+        # overwrite the existing contact data if it was already there
+        # we know at least they were not active since we checked above
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
         
         if Location.objects.filter(code=hsa_id).exists():
@@ -67,7 +72,6 @@ class HSARegistrationHandler(KeywordHandler):
         sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=const.hsa_supply_point_type(), 
                                         location=hsa_loc, supplied_by=fac)
         
-        # overwrite the existing contact data if it was already there
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
         contact.name = name
         contact.supply_point = sp

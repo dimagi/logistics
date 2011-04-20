@@ -42,7 +42,7 @@ class TestHSARegister(TestScript):
               8005551212 > reg stella 1 2616
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
               8005551212 > reg stella 1 2616
-              8005551212 < Sorry, a location with 26161 already exists. Another HSA may have already registered this ID
+              8005551212 < You are already registered. To change your information you must first text LEAVE
             """ 
         self.runScript(a)
         contact = Contact.objects.get(name="stella")
