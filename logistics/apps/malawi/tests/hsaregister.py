@@ -11,29 +11,28 @@ from logistics.apps.malawi import app as malawi_app
 
 class TestHSARegister(TestScript):
     apps = ([malawi_app.App])
-    fixtures = ["ghana_initial_data.json"]
     
-    def setUp(self):
-        TestScript.setUp(self)
-        location = Location.objects.get(code='de')
-        facilitytype = SupplyPointType.objects.get(code='hc')
-        rms = Facility.objects.get(code='garms')
-        Facility.objects.get_or_create(code='dedh', name='Dangme East District Hospital',
-                                       location=location, active=True,
-                                       type=facilitytype, supplied_by=rms)
-
     def testRegister(self):
         a = """
-              8005551212 > hsareg
+              8005551212 > reg
               8005551212 < %(help_message)s
-              8005551212 > hsareg stella
+              8005551212 > reg stella
               8005551212 < %(help_message)s
-              8005551212 > hsareg stella 115 doesntexist
-              8005551212 < Sorry, can't find the location with FACILITY CODE doesntexist
-              8005551212 > hsareg stella 115 dedh
-              8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-            """ % {'register_message':REGISTER_MESSAGE, 'help_message':HELP_MESSAGE}
+              8005551212 > reg stella 1 doesntexist
+              8005551212 < Sorry, can't find the location with CODE doesntexist
+              8005551212 > reg stella 1 2616
+              8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja            """ % {'register_message':REGISTER_MESSAGE, 'help_message':HELP_MESSAGE}
         self.runScript(a)
-        loc = Location.objects.get(code="dedh115")
-        sp = SupplyPoint.objects.get(code="dedh115")
+        loc = Location.objects.get(code="26161")
+        sp = SupplyPoint.objects.get(code="26161")
         self.assertEqual(sp.location, loc)
+
+    def testDuplicateId(self):
+        a = """
+              8005551212 > reg stella 1 2616
+              8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+              8005551213 > reg dupe 1 2616
+              8005551213 < Sorry, a location with 26161 already exists. Another HSA may have already registered this ID
+            """ 
+        self.runScript(a)
+        

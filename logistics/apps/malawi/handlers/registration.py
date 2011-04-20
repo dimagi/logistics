@@ -21,6 +21,8 @@ class HSARegistrationHandler(KeywordHandler):
         self.respond(_(HELP_MESSAGE))
     
     def handle(self, text):
+        
+        
         words = text.split()
         if len(words) < 3 or len(words) > 4:
             self.respond(_(HELP_MESSAGE))
@@ -31,14 +33,14 @@ class HSARegistrationHandler(KeywordHandler):
         try:
             fac = SupplyPoint.objects.get(code__iexact=code)
         except SupplyPoint.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with FACILITY CODE %(code)s"), code=code )
+            self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
             return
 
         role = None
         if len(words) == 4:
             role_code = words[3]
             try:
-                role = ContactRole.objects.get(code=role_code)
+                role = ContactRole.objects.get(code__iexact=role_code)
             except ContactRole.DoesNotExist:
                 self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
                 return
@@ -49,16 +51,24 @@ class HSARegistrationHandler(KeywordHandler):
         
         hsa_id = format_id(code, id)
         
+        if Location.objects.filter(code=hsa_id).exists():
+            self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
+            return
+        if SupplyPoint.objects.filter(code=hsa_id).exists():
+            self.respond("Sorry, a supply point with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
+            return
+        
         # create a location and supply point for the HSA
         hsa_loc = Location.objects.create(name=name, type=LocationType.objects.get(slug="hsa"), 
                                           code=hsa_id, parent=fac.location)
         sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=SupplyPointType.objects.get(pk="hsa"), 
                                         location=hsa_loc, supplied_by=fac)
-
-        if role:
-            contact = Contact.objects.create(name=name, supply_point=sp, role=role)
-        else:
-            contact = Contact.objects.create(name=name, supply_point=sp)
+        
+        contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
+        contact.name = name
+        contact.supply_point = sp
+        contact.role = role
+        contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
         kwargs = {'sdp_name': fac.name,
