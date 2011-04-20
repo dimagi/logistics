@@ -14,10 +14,10 @@ urlpatterns = patterns('',
     # ok, so this isn't the most generic, but we don't yet know what the final dashboard will look like
     # so we'll use this as a placeholder until we do
     url(r'^dashboard/?$',
-        'logistics.apps.logistics.views.aggregate',
+        'logistics.apps.logistics.views.dashboard',
         name="logistics_dashboard"),
     url(r'^dashboard/(?P<location_code>[\w-]+)/?$',
-        'logistics.apps.logistics.views.aggregate',
+        'logistics.apps.logistics.views.dashboard',
         name="logistics_dashboard"),
     url(r'^aggregate/?$',
         'logistics.apps.logistics.views.aggregate',

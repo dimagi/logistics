@@ -24,6 +24,7 @@
             </tr></thead>
             <tbody>
             {% for row in rows %}
+                {% if row.is_active %}
                 <tr>
                 <td><a href="{{ row.url }}">{{ row.name }}</a></td>
                 <td {% ifnotequal row.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ row.stockout_count }}</td>
@@ -34,7 +35,9 @@
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
                 {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
                 </tr>
+                {% endif %}
             {% endfor %}
+            
             </tr></tbody>
             </table>
 
