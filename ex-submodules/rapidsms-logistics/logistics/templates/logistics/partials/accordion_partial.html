@@ -1,3 +1,4 @@
+{% if geography.is_active %}
 {% load geonav_tags %}
 <li {% ifequal geography.name location.name %}id="current"{% endifequal %}>
     <a href="{% url aggregate geography.code %}">{{ geography.name }}</a>
@@ -7,3 +8,4 @@
 	{% endfor %} 
 	</ul>   
 </li>
+{% endif %}
