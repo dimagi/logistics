@@ -230,6 +230,10 @@ COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='logistics'
 COUCHDB_APPS=['auditcare',]
 
+# change to not make product reports "active" by default
+# should be True for Malawi, False for Ghana
+LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True 
+
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:

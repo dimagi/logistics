@@ -424,8 +424,8 @@ class SupplyPoint(models.Model):
             productstock = ProductStock.objects.get(supply_point=self,
                                                     product=product)
         except ProductStock.DoesNotExist:
-            productstock = ProductStock(is_active=False, supply_point=self,
-                                        product=product)
+            productstock = ProductStock(is_active=settings.LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS, 
+                                        supply_point=self, product=product)
         productstock.quantity = quantity
         productstock.save()
         return productstock
