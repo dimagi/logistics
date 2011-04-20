@@ -10,7 +10,7 @@ from rapidsms.contrib.locations.models import Location, LocationType
 
 NOT_REGISTERED_MESSAGE = "We do not have a record of your registration. Nothing was done."
 LEFT_MESSAGE = "You have successfully left the Stock Alert system. Goodbye!"
-class HSARegistrationHandler(KeywordHandler):
+class HSADeregistrationHandler(KeywordHandler):
     """
     Allow remote users to set their preferred language, by updating the
     ``language`` field of the Contact associated with their connection.
@@ -25,6 +25,6 @@ class HSARegistrationHandler(KeywordHandler):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(REGISTER_MESSAGE)
         else:
-            self.msg.logistics_contact.delete()
+            self.msg.logistics_contact.is_active = False
             self.respond(LEFT_MESSAGE)
         
