@@ -53,7 +53,7 @@ class TestHSARegister(TestScript):
             """ 
         self.runScript(b)
         contact = Contact.objects.get(name="stella")
-        self.assertTrue(contact.is_active)
+        self.assertFalse(contact.is_active)
         c = """
               8005551212 > reg stella 1 2616
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja

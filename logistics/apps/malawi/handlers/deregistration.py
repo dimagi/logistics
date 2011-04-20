@@ -27,8 +27,10 @@ class HSADeregistrationHandler(KeywordHandler):
             self.respond(REGISTER_MESSAGE)
         else:
             self.msg.logistics_contact.is_active = False
+            self.msg.logistics_contact.save()
             if self.msg.logistics_contact.supply_point and \
                self.msg.logistics_contact.supply_point.type == const.hsa_supply_point_type():
                 self.msg.logistics_contact.supply_point.deprecate()
+            
             self.respond(LEFT_MESSAGE)
         
