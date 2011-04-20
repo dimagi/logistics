@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from django.db import models
 from django.db.models import Q
 import itertools
+import uuid
 
 class Location(models.Model):
     """
@@ -10,7 +11,8 @@ class Location(models.Model):
     """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100, blank=True, null=True)
-
+    is_active = models.BooleanField(default=True)
+    
     class Meta:
         abstract = True
 
@@ -67,3 +69,13 @@ class Location(models.Model):
     def consumption(self, product=None, producttype=None):
         from logistics.apps.logistics.models import consumption
         return consumption(self.all_facilities, product, producttype)
+
+    def deprecate(self, new_code=None):
+        """
+        Deprecates a location, by changing the code and deactivating it.
+        """
+        if new_code is None:
+            new_code = "deprecated-%s-%s" % (self.code, uuid.uuid4()) 
+        self.code = new_code
+        self.is_active = False
+        self.save()

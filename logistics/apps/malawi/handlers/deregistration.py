@@ -7,6 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType
 from rapidsms.contrib.locations.models import Location, LocationType
+from logistics.apps.malawi import const
 
 NOT_REGISTERED_MESSAGE = "We do not have a record of your registration. Nothing was done."
 LEFT_MESSAGE = "You have successfully left the Stock Alert system. Goodbye!"
@@ -26,5 +27,8 @@ class HSADeregistrationHandler(KeywordHandler):
             self.respond(REGISTER_MESSAGE)
         else:
             self.msg.logistics_contact.is_active = False
+            if self.msg.logistics_contact.supply_point and \
+               self.msg.logistics_contact.supply_point.type == const.hsa_supply_point_type():
+                self.msg.logistics_contact.supply_point.deprecate()
             self.respond(LEFT_MESSAGE)
         

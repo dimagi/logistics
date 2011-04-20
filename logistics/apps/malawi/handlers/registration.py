@@ -7,6 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType
 from rapidsms.contrib.locations.models import Location, LocationType
+from logistics.apps.malawi import const
 
 HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: register john 115 dwdh'"
 class HSARegistrationHandler(KeywordHandler):
@@ -51,6 +52,8 @@ class HSARegistrationHandler(KeywordHandler):
         
         hsa_id = format_id(code, id)
         
+        contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
+        
         if Location.objects.filter(code=hsa_id).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
@@ -59,15 +62,17 @@ class HSARegistrationHandler(KeywordHandler):
             return
         
         # create a location and supply point for the HSA
-        hsa_loc = Location.objects.create(name=name, type=LocationType.objects.get(slug="hsa"), 
+        hsa_loc = Location.objects.create(name=name, type=const.hsa_location_type(),
                                           code=hsa_id, parent=fac.location)
-        sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=SupplyPointType.objects.get(pk="hsa"), 
+        sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=const.hsa_supply_point_type(), 
                                         location=hsa_loc, supplied_by=fac)
         
+        # overwrite the existing contact data if it was already there
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
         contact.name = name
         contact.supply_point = sp
         contact.role = role
+        contact.is_active = True
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()

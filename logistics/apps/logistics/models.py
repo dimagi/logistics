@@ -22,6 +22,7 @@ from logistics.apps.logistics.signals import post_save_product_report, create_us
     stockout_resolved
 from logistics.apps.logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
+import uuid
 #import logistics.apps.logistics.log
 
 
@@ -406,6 +407,18 @@ class SupplyPoint(models.Model):
     def label(self):
         return unicode(self)
     
+    def deprecate(self, new_code=None):
+        """
+        Deprecates this supply point, by changing the id and location id,
+        and deactivating it.
+        """
+        if new_code is None:
+            new_code = "deprecated-%s-%s" % (self.code, uuid.uuid4()) 
+        self.code = new_code
+        self.active=False
+        self.save()
+        self.location.deprecate(new_code=new_code)
+        
     def update_stock(self, product, quantity):
         try:
             productstock = ProductStock.objects.get(supply_point=self,
