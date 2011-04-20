@@ -34,6 +34,9 @@ def post_save_product_report(sender, instance, created, **kwargs):
     if instance.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
         instance.supply_point.update_stock(instance.product, instance.quantity)
     
+    elif instance.report_type.code == RECEIPT_REPORT_TYPE:
+        instance.supply_point.update_stock(instance.product, instance.quantity + beginning_balance)
+    
     st = StockTransaction.from_product_report(instance, beginning_balance)
     if st is not None:
         st.save()
