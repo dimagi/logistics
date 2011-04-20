@@ -30,7 +30,7 @@ from .tables import FacilityTable, CommodityTable
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
 
-def dashboard(request):
+def landing_page(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
     try:
@@ -42,7 +42,7 @@ def dashboard(request):
         return stockonhand_facility(request, request.user.get_profile().facility.code)
     elif prof and prof.location:
         return aggregate(request, request.user.get_profile().location.code)
-    return aggregate(request)
+    return dashboard(request)
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
@@ -160,6 +160,18 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
 
 @geography_context
 @filter_context
+def dashboard(request, location_code=None, context={}, template="logistics/aggregate.html"):
+    if location_code is None:
+        location_code = settings.COUNTRY
+    location = get_object_or_404(Location, code=location_code)
+    # if the location has no children, and 1 supply point treat it like
+    # a stock on hand request. Otherwise treat it like an aggregate.
+    if location.children().count() == 0 and location.facilities().count() == 1:
+        return stockonhand_facility(request, location_code)
+    return aggregate(request, location_code )
+
+@geography_context
+@filter_context
 def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
@@ -191,22 +203,13 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
 
 def _get_location_children(location, commodity_filter, commoditytype_filter):
     rows = []
-    is_facility = False
     children = location.children()
-    if not children:
-        is_facility = True
-        children = location.facilities()
     for child in children:
         row = {}
+        row['is_active'] = child.is_active
         row['name'] = child.name
         row['code'] = child.code
-        if is_facility:
-            row['url'] = reverse('stockonhand_facility', args=[child.code])
-        else:
-            if child.type and child.type.slug == DISTRICT_TYPE:
-                row['url'] = reverse('district', args=[child.code])
-            else:
-                row['url'] = reverse('aggregate', args=[child.code])
+        row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 

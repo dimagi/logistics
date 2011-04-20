@@ -22,8 +22,6 @@ class Location(models.Model):
 
     def facilities(self):
         from logistics.apps.logistics.models import SupplyPoint
-        # temp hack to get this working for tomorrow's showcase
-        # TODO make this properly recursive
         return SupplyPoint.objects.filter(location=self).order_by('name')
 
     def all_facilities(self):
