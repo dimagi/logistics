@@ -16,6 +16,7 @@
             "product_code": "", 
             "name": "Paracetamol", 
             "type": 1,
+            "average_monthly_consumption": 500,
             "description": "Paracetamol"
         }
     }, 
@@ -28,6 +29,7 @@
             "product_code": "", 
             "name": "Cotrimoxazole", 
             "type": 1,
+            "average_monthly_consumption": 500,
             "description": "Cotrimoxazole"
         }
     }, 
@@ -40,6 +42,7 @@
             "product_code": "", 
             "name": "ORS", 
             "type": 1,
+            "average_monthly_consumption": 50,
             "description": "ORS"
         }
     }, 
@@ -52,6 +55,7 @@
             "product_code": "", 
             "name": "LA 1X6", 
             "type": 1,
+            "average_monthly_consumption": 360,
             "description": "LA 1X6"
         }
     }, 
@@ -64,6 +68,7 @@
             "product_code": "", 
             "name": "LA 2X6", 
             "type": 1,
+            "average_monthly_consumption": 720,
             "description": "LA 2X6"
         }
     }, 
@@ -76,6 +81,7 @@
             "product_code": "", 
             "name": "Tetracycline Eye Ointment", 
             "type": 1,
+            "average_monthly_consumption": 0,
             "description": "Tetracycline Eye Ointment"
         }
     }, 
@@ -88,6 +94,7 @@
             "product_code": "", 
             "name": "Zinc", 
             "type": 1,
+            "average_monthly_consumption": 200,
             "description": "Zinc"
         }
     } 
