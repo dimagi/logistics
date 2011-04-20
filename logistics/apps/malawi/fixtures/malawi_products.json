@@ -51,7 +51,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "", 
-            "sms_code": "la1",
+            "sms_code": "la",
             "product_code": "", 
             "name": "LA 1X6", 
             "type": 1,
@@ -64,7 +64,7 @@
         "model": "logistics.product", 
         "fields": {
             "units": "", 
-            "sms_code": "la2",
+            "sms_code": "lb",
             "product_code": "", 
             "name": "LA 2X6", 
             "type": 1,
