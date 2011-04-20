@@ -2,7 +2,8 @@ import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
-    ProductReportType
+    ProductReportType, ContactRole
+from logistics.apps.malawi import const
 
 class LoaderException(Exception):
     pass
@@ -13,8 +14,17 @@ def init_static_data():
     """
     # These are annoyingly necessary to live in the DB. 
     # Really this should be app logic, I think.
-    ProductReportType.objects.get_or_create(name="Stock on Hand", code="soh")
-    ProductReportType.objects.get_or_create(name="Stock Received", code="rec")
+    for code, name in const.REPORTS.items():
+        prod = ProductReportType.objects.get_or_create(code=code)[0]
+        if prod.name != name:
+            prod.name = name
+            prod.save()
+    
+    for code, name in const.ROLES.items():
+        role = ContactRole.objects.get_or_create(code=code)[0]
+        if role.name != name:
+            role.name = name
+            role.save()
     
 def clear_locations():
     Location.objects.all().delete()
