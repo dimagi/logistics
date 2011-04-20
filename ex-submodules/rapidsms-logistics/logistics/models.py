@@ -21,6 +21,7 @@ from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved
 from logistics.apps.logistics.errors import *
+from django.db.models.fields import PositiveIntegerField
 #import logistics.apps.logistics.log
 
 
@@ -65,6 +66,7 @@ class Product(models.Model):
     # be synced up with whatever internal warehousing system is used at the
     # medical facilities later
     product_code = models.CharField(max_length=100, null=True, blank=True)
+    average_monthly_consumption = PositiveIntegerField(null=True)
     type = models.ForeignKey('ProductType')
 
     def __unicode__(self):
@@ -98,7 +100,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    monthly_consumption = models.IntegerField(default=None, blank=True, null=True)
+    monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -107,29 +109,36 @@ class ProductStock(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
+    def get_monthly_consumption(self):
+        if self.monthly_consumption is not None:
+            return self.monthly_consumption
+        elif self.product.average_monthly_consumption is not None:
+            return self.product.average_monthly_consumption
+        return None
+    
     @property
     def emergency_reorder_level(self):
-        if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+        if self.get_monthly_consumption() is not None:
+            return int(self.get_monthly_consumption()*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
         return None
 
     @property
     def reorder_level(self):
-        if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+        if self.get_monthly_consumption() is not None:
+            return int(self.get_monthly_consumption()*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
         return None
 
     @property
     def maximum_level(self):
-        if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+        if self.get_monthly_consumption() is not None:
+            return int(self.get_monthly_consumption()*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
         return None
 
     @property
     def months_remaining(self):
-        if self.monthly_consumption is not None and self.monthly_consumption > 0 \
+        if self.get_monthly_consumption() is not None and self.get_monthly_consumption() > 0 \
           and self.quantity is not None:
-            return float(self.quantity) / float(self.monthly_consumption)
+            return float(self.quantity) / float(self.get_monthly_consumption())
         return None
 
     def is_stocked_out(self):
@@ -689,7 +698,7 @@ class ProductReportsHelper(object):
     def _record_product_report(self, product, quantity, report_type):
         report_type = ProductReportType.objects.get(code=report_type)
         self.supply_point.report(product=product, report_type=report_type,
-                             quantity=quantity, message=self.message)
+                                 quantity=quantity, message=self.message)
 
     def _record_product_stock(self, product_code, quantity):
         self._record_product_report(product_code, quantity, STOCK_ON_HAND_REPORT_TYPE)
@@ -741,8 +750,8 @@ class ProductReportsHelper(object):
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
             #    Please contact your DHIO for assistance." % {'code':i})
-            if productstock.monthly_consumption is not None:
-                if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
+            if productstock.get_monthly_consumption() is not None:
+                if self.product_stock[i] <= productstock.get_monthly_consumption()*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
                    self.product_stock[i] != 0:
                     low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
@@ -756,9 +765,9 @@ class ProductReportsHelper(object):
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact your DHIO for assistance." % {'code':i})
-            if productstock.monthly_consumption is not None:
-                if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
-                   productstock.monthly_consumption>0:
+            if productstock.get_monthly_consumption() is not None:
+                if self.product_stock[i] >= productstock.get_monthly_consumption()*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
+                   productstock.get_monthly_consumption()>0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
