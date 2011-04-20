@@ -72,7 +72,7 @@ MIDDLEWARE_CLASSES = (
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate",                                     "Stock Levels"),
+    ("logistics_dashboard",                    "Stock Levels"),
     ("reporting",                              "Reporting Rates"),
     #("input_stock",                          "Input Stock"),
     ("registration",                          "Registration"),
