@@ -11,7 +11,8 @@ class Contact(models.Model):
                                          help_text="User manages these commodities.",
                                          related_name="reported_by",
                                          blank=True, null=True)
-
+    is_active = models.BooleanField(default=True)
+    
     class Meta:
         abstract = True
         verbose_name = "Logistics Contact"
