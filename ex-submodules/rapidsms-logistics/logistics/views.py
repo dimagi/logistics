@@ -20,7 +20,8 @@ from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile
+    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
+    SupplyPoint
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
@@ -47,7 +48,7 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
     # TODO: replace this with something that depends on the current user
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
-    rms = get_object_or_404(Facility, code=facility_code)
+    rms = get_object_or_404(SupplyPoint, code=facility_code)
     productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
@@ -102,7 +103,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
     """
      this view currently only shows the current stock on hand for a given facility
     """
-    facility = get_object_or_404(Facility, code=facility_code)
+    facility = get_object_or_404(SupplyPoint, code=facility_code)
     stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
     last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
     if last_reports:
@@ -128,7 +129,6 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
-        filtered_by_commodity = False
         if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
             commodity_filter = request.REQUEST['commodity']
             context['commodity_filter'] = commodity_filter
@@ -151,8 +151,8 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
+    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
+    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -169,7 +169,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
-        filtered_by_commodity = False
         if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
             commodity_filter = request.REQUEST['commodity']
             context['commodity_filter'] = commodity_filter
