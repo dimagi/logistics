@@ -15,7 +15,7 @@ class HSARegistrationHandler(KeywordHandler):
     ``language`` field of the Contact associated with their connection.
     """
 
-    keyword = "hsareg|hsaregister"
+    keyword = "reg|register"
 
     def help(self):
         self.respond(_(HELP_MESSAGE))
