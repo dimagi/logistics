@@ -24,7 +24,7 @@ class HSARegistrationHandler(KeywordHandler):
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(REGISTER_MESSAGE)
-            return
-        self.msg.logistics_contact.delete()
-        self.respond(LEFT_MESSAGE)
+        else:
+            self.msg.logistics_contact.delete()
+            self.respond(LEFT_MESSAGE)
         
