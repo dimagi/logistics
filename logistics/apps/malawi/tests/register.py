@@ -56,8 +56,14 @@ class TestHSARegister(TestScript):
             """ 
         self.runScript(b)
         self.assertEqual(ContactRole.objects.get(code=const.ROLE_IN_CHARGE),Contact.objects.get(name="incharge").role)
-        
     
+    def testManager(self):
+        a = """
+              8005551214 > manage incharge ic 2616
+              8005551214 < Congratulations incharge, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+            """ 
+        self.runScript(a)
+        
     def testLeave(self):
         a = """
               8005551212 > reg stella 1 2616
