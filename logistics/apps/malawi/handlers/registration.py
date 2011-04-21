@@ -8,52 +8,30 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType
 from rapidsms.contrib.locations.models import Location, LocationType
 from logistics.apps.malawi import const
+from logistics.apps.malawi.handlers.abstract import AbstractBaseHandler
 
-HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: register john 115 dwdh'"
-class HSARegistrationHandler(KeywordHandler):
+HSA_HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
+
+class HSARegistrationHandler(AbstractBaseHandler):
     """
-    Allow remote users to set their preferred language, by updating the
-    ``language`` field of the Contact associated with their connection.
+    Registration for HSAs
     """
 
     keyword = "reg|register"
-
-    def help(self):
-        self.respond(_(HELP_MESSAGE))
+    help_message = HSA_HELP_MESSAGE
     
     def handle(self, text):
-        
-        if hasattr(self.msg,'logistics_contact') and self.msg.logistics_contact.is_active:
-            self.respond("You are already registered. To change your information you must first text LEAVE")
+        if self.handle_preconditions(text):
             return
         
-        words = text.split()
-        if len(words) < 3 or len(words) > 4:
-            self.respond(_(HELP_MESSAGE))
-            return
-        name = words[0]
-        id =   words[1]
-        code = words[2]
-        try:
-            fac = SupplyPoint.objects.get(code__iexact=code)
-        except SupplyPoint.DoesNotExist:
-            self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
-            return
-
+        # default to HSA
         role = ContactRole.objects.get(code=const.ROLE_HSA)
-        if len(words) == 4:
-            role_code = words[3]
-            try:
-                role = ContactRole.objects.get(code__iexact=role_code)
-            except ContactRole.DoesNotExist:
-                self.respond("Sorry, I don't understand the role %(role)s", role=role_code)
-                return
-
+        
         def format_id(code, id):
             # TODO, finalize this
             return "%s%s" % (code, id)
         
-        hsa_id = format_id(code, id)
+        hsa_id = format_id(self.supply_point.code, self.extra)
         
         # overwrite the existing contact data if it was already there
         # we know at least they were not active since we checked above
@@ -67,20 +45,20 @@ class HSARegistrationHandler(KeywordHandler):
             return
         
         # create a location and supply point for the HSA
-        hsa_loc = Location.objects.create(name=name, type=const.hsa_location_type(),
-                                          code=hsa_id, parent=fac.location)
-        sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=const.hsa_supply_point_type(), 
-                                        location=hsa_loc, supplied_by=fac)
+        hsa_loc = Location.objects.create(name=self.contact_name, type=const.hsa_location_type(),
+                                          code=hsa_id, parent=self.supply_point.location)
+        sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=const.hsa_supply_point_type(), 
+                                        location=hsa_loc, supplied_by=self.supply_point)
         
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
-        contact.name = name
+        contact.name = self.contact_name
         contact.supply_point = sp
         contact.role = role
         contact.is_active = True
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        kwargs = {'sdp_name': fac.name,
-                  'code': code,
+        kwargs = {'sdp_name': self.supply_point.name,
                   'contact_name': contact.name}
         self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Early Warning System. Your facility is %(sdp_name)s"), **kwargs)
+
