@@ -227,7 +227,17 @@ class StockRequest(models.Model):
         self.status = StockRequestStatus.CANCELED
         self.canceled_for = canceled_for
         self.save()
-        
+    
+    def sms_format(self):
+        assert(self.status != StockRequestStatus.CANCELED)
+        if self.status == StockRequestStatus.REQUESTED:
+            return "%s %s" % (self.product.sms_code, self.amount_requested)
+        elif self.status == StockRequestStatus.APPROVED:
+            return "%s %s" % (self.product.sms_code, self.amount_approved)
+        elif self.status == StockRequestStatus.RECEIVED:
+            return "%s %s" % (self.product.sms_code, self.amount_received)
+        raise Exception("bad call to sms format, unexpected status: %s" % self.status)
+    
     @classmethod
     def pending_requests(cls):
         return cls.objects.filter(status__in=StockRequestStatus.CHOICES_PENDING)
