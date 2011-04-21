@@ -4,12 +4,12 @@ from rapidsms.contrib.locations.models import LocationType
 HSA = "hsa"
 
 ROLE_HSA = HSA
-ROLE_SENIOR_HSA = "senior_hsa"
-ROLE_IN_CHARGE = "in_charge"
-ROLE_CLUSTER_SUPERVISOR = "cluster_supervisor"
-ROLE_DISTRICT_SUPERVISOR = "district_supervisor"
-ROLE_DISTRICT_PHARMACIST = "district_pharmacist"
-ROLE_IMCI_COORDINATOR = "imci_coordinator"
+ROLE_SENIOR_HSA = "sh"
+ROLE_IN_CHARGE = "ic"
+ROLE_CLUSTER_SUPERVISOR = "cs"
+ROLE_DISTRICT_SUPERVISOR = "ds"
+ROLE_DISTRICT_PHARMACIST = "dp"
+ROLE_IMCI_COORDINATOR = "ic"
 
 ROLES = {
     ROLE_HSA: "health surveillance assistant",
@@ -28,6 +28,7 @@ REPORTS = {
     REPORT_SOH: "stock on hand",
     REPORT_REC: "stock received"
 }
+
 def hsa_supply_point_type():
     """
     The supply point type for HSAs

@@ -40,7 +40,7 @@ class HSARegistrationHandler(KeywordHandler):
             self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
             return
 
-        role = None
+        role = ContactRole.objects.get(code=const.ROLE_HSA)
         if len(words) == 4:
             role_code = words[3]
             try:

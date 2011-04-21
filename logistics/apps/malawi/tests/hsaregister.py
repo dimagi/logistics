@@ -6,9 +6,9 @@ from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.registration.forms import IntlSMSContactForm
 from logistics.apps.logistics.models import Location, Facility, SupplyPointType,\
-    SupplyPoint
+    SupplyPoint, ContactRole
 from logistics.apps.malawi.handlers.registration import REGISTER_MESSAGE, HELP_MESSAGE
-from logistics.apps.malawi import app as malawi_app
+from logistics.apps.malawi import app as malawi_app, const
 
 class TestHSARegister(TestScript):
     apps = ([malawi_app.App])
@@ -36,6 +36,24 @@ class TestHSARegister(TestScript):
               8005551213 < Sorry, a location with 26161 already exists. Another HSA may have already registered this ID
             """ 
         self.runScript(a)
+    
+    def testRoles(self):
+        a = """
+              8005551212 > reg hsa 1 2616
+              8005551212 < Congratulations hsa, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+              8005551213 > reg hsa2 2 2616 hsa
+              8005551213 < Congratulations hsa2, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+              8005551214 > reg badrole 3 2616 doesntexist
+              8005551214 < Sorry, I don't understand the role doesntexist
+              8005551214 > reg incharge 3 2616 ic
+              8005551214 < Congratulations incharge, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+            """ 
+        self.runScript(a)
+        # default to HSA
+        self.assertEqual(ContactRole.objects.get(code=const.ROLE_HSA),Contact.objects.get(name="hsa").role)
+        self.assertEqual(ContactRole.objects.get(code=const.ROLE_HSA),Contact.objects.get(name="hsa2").role)
+        self.assertEqual(ContactRole.objects.get(code=const.ROLE_IN_CHARGE),Contact.objects.get(name="incharge").role)
+        
     
     def testLeave(self):
         a = """
