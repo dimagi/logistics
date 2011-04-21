@@ -40,6 +40,7 @@ class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
 class SupplyPointAdmin(admin.ModelAdmin):
+    list_display = ("name", "code")
     model = SupplyPoint
 
 class StockRequestAdmin(admin.ModelAdmin):
