@@ -33,10 +33,6 @@ class HSARegistrationHandler(AbstractBaseHandler):
         
         hsa_id = format_id(self.supply_point.code, self.extra)
         
-        # overwrite the existing contact data if it was already there
-        # we know at least they were not active since we checked above
-        contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
-        
         if Location.objects.filter(code=hsa_id).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
@@ -50,6 +46,8 @@ class HSARegistrationHandler(AbstractBaseHandler):
         sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=const.hsa_supply_point_type(), 
                                         location=hsa_loc, supplied_by=self.supply_point)
         
+        # overwrite the existing contact data if it was already there
+        # we know at least they were not active since we checked above
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
         contact.name = self.contact_name
         contact.supply_point = sp

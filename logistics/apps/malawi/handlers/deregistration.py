@@ -24,7 +24,7 @@ class HSADeregistrationHandler(KeywordHandler):
         
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
-            self.respond(REGISTER_MESSAGE)
+            self.respond(NOT_REGISTERED_MESSAGE)
         else:
             self.msg.logistics_contact.is_active = False
             self.msg.logistics_contact.save()

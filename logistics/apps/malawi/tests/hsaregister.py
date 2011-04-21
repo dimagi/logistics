@@ -1,4 +1,5 @@
 from rapidsms.models import Contact
+from logistics.apps.malawi.handlers.deregistration import NOT_REGISTERED_MESSAGE
 __author__ = 'ternus'
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole
@@ -63,7 +64,9 @@ class TestHSARegister(TestScript):
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
               8005551212 > reg stella 1 2616
               8005551212 < You are already registered. To change your information you must first text LEAVE
-            """ 
+              8005551213 > leave
+              8005551213 < %(not_registered)s
+            """ % {"not_registered": NOT_REGISTERED_MESSAGE}
         self.runScript(a)
         contact = Contact.objects.get(name="stella")
         self.assertTrue(contact.is_active)
