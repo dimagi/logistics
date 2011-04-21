@@ -232,7 +232,10 @@ COUCHDB_APPS=['auditcare',]
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
-LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True 
+LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
+LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
+LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
+
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
