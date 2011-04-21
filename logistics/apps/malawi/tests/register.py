@@ -48,14 +48,14 @@ class TestHSARegister(TestScript):
             """
         self.runScript(a)
         # default to HSA
-        self.assertEqual(ContactRole.objects.get(code=const.ROLE_HSA),Contact.objects.get(name="hsa").role)
+        self.assertEqual(ContactRole.objects.get(code=const.Roles.HSA),Contact.objects.get(name="hsa").role)
         
         b = """
               8005551214 > manage incharge ic 2616
               8005551214 < Congratulations incharge, you have successfully been registered for the Early Warning System. Your facility is Ntaja
             """ 
         self.runScript(b)
-        self.assertEqual(ContactRole.objects.get(code=const.ROLE_IN_CHARGE),Contact.objects.get(name="incharge").role)
+        self.assertEqual(ContactRole.objects.get(code=const.Roles.IN_CHARGE),Contact.objects.get(name="incharge").role)
     
     def testManager(self):
         a = """

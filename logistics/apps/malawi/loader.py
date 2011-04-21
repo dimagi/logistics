@@ -20,7 +20,7 @@ def init_static_data():
             prod.name = name
             prod.save()
     
-    for code, name in const.ROLES.items():
+    for code, name in const.Roles.ALL_ROLES.items():
         role = ContactRole.objects.get_or_create(code=code)[0]
         if role.name != name:
             role.name = name

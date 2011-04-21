@@ -25,7 +25,7 @@ class HSARegistrationHandler(AbstractBaseHandler):
             return
         
         # default to HSA
-        role = ContactRole.objects.get(code=const.ROLE_HSA)
+        role = ContactRole.objects.get(code=const.Roles.HSA)
         
         def format_id(code, id):
             # TODO, finalize this

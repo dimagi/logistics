@@ -42,7 +42,7 @@ class App(LogisticsApp):
             else:
                 # normal malawi logic goes here
                 try:
-                    supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.ROLE_IN_CHARGE), 
+                    supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE), 
                                                      supply_point=sp.supplied_by)
                     supervisor.message(SUPERVISOR_NOTIFICATION, 
                                        hsa=message.logistics_contact.name,

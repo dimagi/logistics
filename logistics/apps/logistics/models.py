@@ -199,7 +199,7 @@ class StockRequest(models.Model):
     supply_point = models.ForeignKey("SupplyPoint")
     status = models.CharField(max_length=10, choices=STOCK_REQUEST_STATUS_CHOICES)
     
-    requested_on = models.DateTimeField(default=datetime.now)
+    requested_on = models.DateTimeField(default=datetime.utcnow)
     approved_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
@@ -219,6 +219,13 @@ class StockRequest(models.Model):
     def is_closed(self):
         return self.status in StockRequestStatus.CHOICES_CLOSED
     
+    def approve(self, by, amt):
+        self.approved_by = by
+        self.amount_approved = amt
+        self.approved_on = datetime.utcnow()
+        self.status = StockRequestStatus.APPROVED
+        self.save()
+        
     def cancel(self, canceled_for):
         """
         Cancel a supply request, in lieu of a newer one
@@ -293,7 +300,7 @@ class ProductReport(models.Model):
     supply_point = models.ForeignKey('SupplyPoint')
     report_type = models.ForeignKey(ProductReportType)
     quantity = models.IntegerField()
-    report_date = models.DateTimeField(default=datetime.now)
+    report_date = models.DateTimeField(default=datetime.utcnow)
     # message should only be null if the stock report was provided over the web
     message = models.ForeignKey(Message, blank=True, null=True)
 
@@ -334,7 +341,7 @@ class StockTransaction(models.Model):
     # can be negative or not
     beginning_balance = models.IntegerField()
     ending_balance = models.IntegerField()
-    date = models.DateTimeField(default=datetime.now)
+    date = models.DateTimeField(default=datetime.utcnow)
     product_report = models.ForeignKey(ProductReport, null=True)
     
     class Meta:
@@ -377,7 +384,7 @@ class StockTransaction(models.Model):
 class RequisitionReport(models.Model):
     supply_point = models.ForeignKey("SupplyPoint")
     submitted = models.BooleanField()
-    report_date = models.DateTimeField(default=datetime.now)
+    report_date = models.DateTimeField(default=datetime.utcnow)
     message = models.ForeignKey(Message)
 
     class Meta:
@@ -826,7 +833,7 @@ class ProductReportsHelper(object):
         to this stockreport helper
         """
         all_products = []
-        date_check = datetime.now() + relativedelta(days=-7)
+        date_check = datetime.utcnow() + relativedelta(days=-7)
         reporter = self.message.contact
         missing_products = Product.objects.filter(Q(reported_by=reporter),
                                                   ~Q(productreport__report_date__gt=date_check,

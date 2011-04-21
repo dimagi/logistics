@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4
+
+from django.utils.translation import ugettext as _
+from rapidsms.conf import settings
+from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.models import Contact
+from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType,\
+    StockRequest
+from rapidsms.contrib.locations.models import Location, LocationType
+from logistics.apps.malawi import const
+from logistics.apps.malawi.const import Messages, Operations,\
+    hsa_supply_point_type
+from logistics.apps.malawi.roles import user_can_do
+
+class OrderReadyHandler(KeywordHandler):
+    """
+    Allow remote users to set their preferred language, by updating the
+    ``language`` field of the Contact associated with their connection.
+    """
+
+    keyword = "ready"
+
+    def help(self):
+        self.respond(Messages.ORDERREADY_HELP_MESSAGE)
+        
+    def handle(self, text):
+        if not hasattr(self.msg,'logistics_contact'):
+            self.respond(Messages.REGISTRATION_REQUIRED_MESSAGE)
+        elif not user_can_do(self.msg.logistics_contact, Operations.FILL_ORDER):
+            self.respond(Messages.UNSUPPORTED_OPERATION)
+        else:
+            words = text.split(" ")
+            hsa_id = words[0]    
+            try:
+                sp = SupplyPoint.objects.get(code=hsa_id)
+                hsa = Contact.objects.get(supply_point=sp)
+                if sp.type != hsa_supply_point_type():
+                    self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
+                else:
+                    pending_reqs = StockRequest.pending_requests().filter(supply_point=sp)
+                    for req in pending_reqs:
+                        req.approve(self.msg.logistics_contact, req.amount_requested)
+                    
+                    products = ", ".join(req.sms_format() for req in pending_reqs)
+                    self.respond(Messages.APPROVAL_RESPONSE, hsa=hsa.name,
+                                 products=products)
+                    hsa.message(Messages.APPROVAL_NOTICE, hsa=hsa.name, 
+                                products=products)
+            except SupplyPoint.DoesNotExist, Contact.DoesNotExist:
+                self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
