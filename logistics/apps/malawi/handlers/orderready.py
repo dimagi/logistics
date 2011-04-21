@@ -15,8 +15,8 @@ from logistics.apps.malawi.roles import user_can_do
 
 class OrderReadyHandler(KeywordHandler):
     """
-    Allow remote users to set their preferred language, by updating the
-    ``language`` field of the Contact associated with their connection.
+    When a supply has been ordered, it is confirmed "ready" by the person
+    providing supplies with this handler.
     """
 
     keyword = "ready"
