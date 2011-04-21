@@ -17,12 +17,20 @@ class TestHSARegister(TestScript):
               8005551212 > reg stella 1 doesntexist
               8005551212 < Sorry, can't find the location with CODE doesntexist
               8005551212 > reg stella 1 2616
-              8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja            """ % {'register_message':REGISTER_MESSAGE, 'help_message':HSA_HELP_MESSAGE}
+              8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+            """ % {'register_message':REGISTER_MESSAGE, 'help_message':HSA_HELP_MESSAGE}
         self.runScript(a)
         loc = Location.objects.get(code="26161")
         sp = SupplyPoint.objects.get(code="26161")
         self.assertEqual(sp.location, loc)
 
+    def testRegisterMultiName(self):
+        a = """
+              8005551212 > reg john wilkes booth 1 2616
+              8005551212 < Congratulations john wilkes booth, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+            """
+        self.runScript(a)
+        
     def testDuplicateId(self):
         a = """
               8005551212 > reg stella 1 2616
@@ -41,16 +49,12 @@ class TestHSARegister(TestScript):
         # default to HSA
         self.assertEqual(ContactRole.objects.get(code=const.ROLE_HSA),Contact.objects.get(name="hsa").role)
         
-        b= """
-              8005551213 > reg hsa2 2 2616 hsa
-              8005551213 < Congratulations hsa2, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-              8005551214 > reg badrole 3 2616 doesntexist
-              8005551214 < Sorry, I don't understand the role doesntexist
-              8005551214 > reg incharge 3 2616 ic
+        b = """
+              8005551214 > manage incharge ic 2616
               8005551214 < Congratulations incharge, you have successfully been registered for the Early Warning System. Your facility is Ntaja
             """ 
-        # self.assertEqual(ContactRole.objects.get(code=const.ROLE_HSA),Contact.objects.get(name="hsa2").role)
-        # self.assertEqual(ContactRole.objects.get(code=const.ROLE_IN_CHARGE),Contact.objects.get(name="incharge").role)
+        self.runScript(b)
+        self.assertEqual(ContactRole.objects.get(code=const.ROLE_IN_CHARGE),Contact.objects.get(name="incharge").role)
         
     
     def testLeave(self):
