@@ -181,8 +181,10 @@ class StockRequestStatus(object):
     REQUESTED = "requested"
     APPROVED = "approved"
     RECEIVED = "received" 
-    
-    CHOICES = [REQUESTED, APPROVED, RECEIVED] 
+    CANCELED = "canceled"
+    CHOICES = [REQUESTED, APPROVED, RECEIVED, CANCELED] 
+    CHOICES_PENDING = [REQUESTED, APPROVED]
+    CHOICES_CLOSED = [RECEIVED, CANCELED]
                
 
 STOCK_REQUEST_STATUS_CHOICES = ((val, val) for val in StockRequestStatus.CHOICES)
@@ -209,33 +211,56 @@ class StockRequest(models.Model):
     amount_approved = models.PositiveIntegerField(null=True)
     amount_received = models.PositiveIntegerField(null=True)
     
+    canceled_for = models.ForeignKey("StockRequest", null=True)
+    
+    def is_pending(self):
+        return self.status in StockRequestStatus.CHOICES_PENDING
+    
+    def is_closed(self):
+        return self.status in StockRequestStatus.CHOICES_CLOSED
+    
+    def cancel(self, canceled_for):
+        """
+        Cancel a supply request, in lieu of a newer one
+        """
+        assert(self.is_pending()) # we should only cancel pending requests
+        self.status = StockRequestStatus.CANCELED
+        self.canceled_for = canceled_for
+        self.save()
+        
     @classmethod
-    def create_from_report(cls, stock_report, message):
+    def pending_requests(cls):
+        return cls.objects.filter(status__in=StockRequestStatus.CHOICES_PENDING)
+    
+    @classmethod
+    def create_from_report(cls, stock_report, contact):
         """
         From a stock report helper object, create any pending stock requests.
         """
-        def _calculate_resupply_total(contact, product):
-                # TODO: this is obviously just a placeholder
-                # top everyone up to 200 "units"
-                return 200
-            
         requests = []
         for product_code, stock in stock_report.product_stock.items():
             product = stock_report.get_product(product_code)
-            contact = message.logistics_contact
-            resupply_amount = _calculate_resupply_total(contact.supply_point, product)
+            #contact = message.logistics_contact
+            resupply_amount = ProductStock.objects.get(supply_point=stock_report.supply_point, 
+                                                       product=product).maximum_level
             if resupply_amount > stock:
                 req = StockRequest.objects.create(product=product, 
-                                                  supply_point=contact.supply_point,
+                                                  supply_point=stock_report.supply_point,
                                                   status=StockRequestStatus.REQUESTED,
                                                   requested_by=contact,
                                                   amount_requested=resupply_amount - stock)
                 requests.append(req)
-                # TODO: close existing pending stock requests. 
+                pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
+                                                                          product=product).exclude(pk=req.pk)
+                
+                # close/delete existing pending stock requests. 
                 # The latest one trumps them.
+                assert(pending_requests.count() <= 1) # we should never have more than one pending request
+                for pending in pending_requests:
+                    pending.cancel(req)
                 
         return requests
-        
+    
     
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""

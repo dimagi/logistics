@@ -29,9 +29,12 @@ class App(LogisticsApp):
                                                 STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
             stock_report.parse(self._clean_message(message.text))
             stock_report.save()
-            requests = StockRequest.create_from_report(stock_report, message)
-            
-            self._send_responses(message, stock_report)
+            requests = StockRequest.create_from_report(stock_report, message.logistics_contact)
+            if stock_report.errors:
+                self._send_error_response(message, stock_report)
+            else:
+                # normal malawi logic goes here
+                self._send_responses(message, stock_report)
             return True
         except Exception, e:
             if settings.DEBUG:
