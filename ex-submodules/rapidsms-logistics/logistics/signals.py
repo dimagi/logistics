@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from django.dispatch import Signal
+from logistics.apps.logistics.const import Reports
 
 stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
 
@@ -23,19 +24,21 @@ def post_save_product_report(sender, instance, created, **kwargs):
     """
     if not created:             return
     from logistics.apps.logistics.models import ProductStock, Facility, \
-        STOCK_ON_HAND_REPORT_TYPE, RECEIPT_REPORT_TYPE, StockTransaction
+        StockTransaction
     
     # 1. Update the facility report date information 
     instance.supply_point.last_reported = datetime.now()
     instance.supply_point.save()
     # 2. update the stock information at the given facility """
     beginning_balance = instance.supply_point.stock(instance.product)
-
-    if instance.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
+    if instance.report_type.code == Reports.SOH:
         instance.supply_point.update_stock(instance.product, instance.quantity)
-    
-    elif instance.report_type.code == RECEIPT_REPORT_TYPE:
-        instance.supply_point.update_stock(instance.product, instance.quantity + beginning_balance)
+    elif instance.report_type.code == Reports.REC:
+        # receipts are additive
+        instance.supply_point.update_stock(instance.product, beginning_balance + instance.quantity)
+    elif instance.report_type.code == Reports.GIVE:
+        # gives are subtractitive, if that were a word
+        instance.supply_point.update_stock(instance.product, beginning_balance - instance.quantity)
     
     st = StockTransaction.from_product_report(instance, beginning_balance)
     if st is not None:
