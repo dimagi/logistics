@@ -27,16 +27,3 @@ class Contact(models.Model):
         else:
             return " "
 
-    def supervisor(self):
-        """
-        If this contact is not a supervisor, message all staff with a supervisor responsibility at this facility
-        If this contact is a supervisor, message the super at the next facility up
-        Question: this looks like business/controller logic. Should it really be in 'model' code?
-        """
-
-        if SUPERVISOR not in self.role.responsibilities.objects.all():
-            return Contact.objects.filter(facility=self.facility,
-                                                   role=SUPERVISOR)
-        return Contact.objects.filter(supply_point=self.facility.parentsdp(),
-                                               role=SUPERVISOR)
-        
