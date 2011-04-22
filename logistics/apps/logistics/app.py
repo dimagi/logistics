@@ -16,10 +16,9 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
+from logistics.apps.malawi.const import Messages
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
-NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district administrator for assistance."
-SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
 SOH_KEYWORD = 'soh'
 
 class App(AppBase):
@@ -79,10 +78,10 @@ class App(AppBase):
             message.respond(REGISTER_MESSAGE)
             return (False, True)
         if message.logistics_contact.supply_point is None:
-            message.respond(NO_SUPPLY_POINT_MESSAGE)
+            message.respond(Messages.NO_SUPPLY_POINT_MESSAGE)
             return (False, True)
         if not self._clean_message(message.text):
-            message.respond(SOH_HELP_MESSAGE)
+            message.respond(Messages.SOH_HELP_MESSAGE)
             return (False, True)
         return (True, None)
         

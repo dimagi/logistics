@@ -1,0 +1,5 @@
+
+
+
+class MultipleHSAException(Exception):
+    pass

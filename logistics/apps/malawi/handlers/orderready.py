@@ -8,7 +8,7 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType,\
     StockRequest
 from rapidsms.contrib.locations.models import Location, LocationType
-from logistics.apps.malawi import const
+from logistics.apps.malawi import const, util
 from logistics.apps.malawi.const import Messages, Operations,\
     hsa_supply_point_type
 from logistics.apps.malawi.roles import user_can_do
@@ -31,21 +31,19 @@ class OrderReadyHandler(KeywordHandler):
             self.respond(Messages.UNSUPPORTED_OPERATION)
         else:
             words = text.split(" ")
-            hsa_id = words[0]    
-            try:
-                sp = SupplyPoint.objects.get(code=hsa_id)
-                hsa = Contact.objects.get(supply_point=sp)
-                if sp.type != hsa_supply_point_type():
-                    self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
-                else:
-                    pending_reqs = StockRequest.pending_requests().filter(supply_point=sp)
-                    for req in pending_reqs:
-                        req.approve(self.msg.logistics_contact, req.amount_requested)
-                    
-                    products = ", ".join(req.sms_format() for req in pending_reqs)
-                    self.respond(Messages.APPROVAL_RESPONSE, hsa=hsa.name,
-                                 products=products)
-                    hsa.message(Messages.APPROVAL_NOTICE, hsa=hsa.name, 
-                                products=products)
-            except SupplyPoint.DoesNotExist, Contact.DoesNotExist:
+            hsa_id = words[0]
+            hsa = util.get_hsa(hsa_id)
+            if hsa is None:
                 self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
+            else:
+                pending_reqs = StockRequest.pending_requests().filter(supply_point=hsa.supply_point)
+                for req in pending_reqs:
+                    req.approve(self.msg.logistics_contact, req.amount_requested)
+                
+                products = ", ".join(req.sms_format() for req in pending_reqs)
+                self.respond(Messages.APPROVAL_RESPONSE, hsa=hsa.name,
+                             products=products)
+                hsa.message(Messages.APPROVAL_NOTICE, hsa=hsa.name, 
+                            products=products)
+            
+                

@@ -1,9 +1,6 @@
 from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
-from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductReportsHelper, Facility, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE,\
-    StockRequest, SupplyPoint, StockRequestStatus
+from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus 
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 

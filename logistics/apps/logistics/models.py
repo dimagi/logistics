@@ -23,6 +23,7 @@ from logistics.apps.logistics.signals import post_save_product_report, create_us
 from logistics.apps.logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
 import uuid
+from logistics.apps.logistics.const import Reports
 #import logistics.apps.logistics.log
 
 
@@ -76,6 +77,10 @@ class Product(models.Model):
     @property
     def code(self):
         return self.sms_code
+    
+    @classmethod
+    def by_code(cls, code):
+        return cls.objects.get(sms_code=code)
 
 class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
@@ -358,7 +363,7 @@ class StockTransaction(models.Model):
           pr.quantity == 0:
             return None
         # also no need to generate transaction if it's a soh which is the same as before
-        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE and \
+        if pr.report_type.code == Reports.SOH and \
           beginning_balance == pr.quantity:
             return None
         st = cls(product_report=pr, supply_point=pr.supply_point, 
@@ -366,13 +371,13 @@ class StockTransaction(models.Model):
 
         
         st.beginning_balance = beginning_balance
-        if pr.report_type.code == STOCK_ON_HAND_REPORT_TYPE:
+        if pr.report_type.code == Reports.SOH:
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
-        elif pr.report_type.code == RECEIPT_REPORT_TYPE:
-            # you might think 'receipt' should show up as a positive quantity
-            # in fact, given that we're already account for receipts in the soh
-            # 'receipts' here actually indicate additional disbursements
+        elif pr.report_type.code == Reports.REC:
+            st.ending_balance = st.beginning_balance
+            st.quantity = pr.quantity
+        elif pr.report_type.code == Reports.GIVE:
             st.ending_balance = st.beginning_balance
             st.quantity = -pr.quantity
         else:
@@ -702,6 +707,8 @@ class ProductReportsHelper(object):
                 original_quantity = 0
             new_quantity = self.product_stock[stock_code]
             self._record_product_report(self.get_product(stock_code), new_quantity, self.report_type)
+            # in the case of transfers out this logic is broken
+            # for now that's ok, since malawi doesn't do anything with this 
             if original_quantity == 0 and new_quantity > 0:
                 stockouts_resolved.append(stock_code)
         if stockouts_resolved:
@@ -778,24 +785,14 @@ class ProductReportsHelper(object):
         return set([p for p in self.product_received])
 
     def all(self):
-        reply_list = []
-        for i in self.product_stock:
-            reply_list.append('%s %s' % (i, self.product_stock[i]))
-        return ', '.join(reply_list)
-
+        return ", ".join('%s %s' % (key, val) for key, val in self.product_stock.items())
+        
     def received(self):
-        reply_list = []
-        for i in self.product_received:
-            reply_list.append('%s %s' % (i, self.product_received[i]))
-        return ', '.join(reply_list)
-
+        return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
+        
     def stockouts(self):
-        stocked_out = ""
-        for i in self.product_stock:
-            if self.product_stock[i] == 0:
-                stocked_out = "%s %s" % (stocked_out, i)
-        stocked_out = stocked_out.strip()
-        return stocked_out
+        return ", ".join('%s %s' % (key, val) for key, val in self.product_stock.items() if val == 0)
+        
 
     def low_supply(self):
         low_supply = ""

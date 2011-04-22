@@ -11,5 +11,7 @@ def user_can_do(contact, operation):
         return False
     if operation == Operations.FILL_ORDER:
         return contact.role == ContactRole.objects.get(code=const.Roles.IN_CHARGE)
+    if operation == Operations.MAKE_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=const.Roles.HSA)
     # TODO, fill this in
     return True

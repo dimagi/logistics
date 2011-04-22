@@ -4,6 +4,7 @@ from rapidsms.contrib.locations.models import LocationType, Location, Point
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole
 from logistics.apps.malawi import const
+from logistics.apps.logistics.const import Reports
 
 class LoaderException(Exception):
     pass
@@ -12,9 +13,9 @@ def init_static_data():
     """
     Initialize any data that should be static here
     """
-    # These are annoyingly necessary to live in the DB. 
+    # These are annoyingly necessary to live in the DB, currently. 
     # Really this should be app logic, I think.
-    for code, name in const.REPORTS.items():
+    for code, name in Reports.ALL_REPORTS.items():
         prod = ProductReportType.objects.get_or_create(code=code)[0]
         if prod.name != name:
             prod.name = name

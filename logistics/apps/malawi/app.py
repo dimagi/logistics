@@ -1,8 +1,7 @@
 from logistics.apps.logistics.app import App as LogisticsApp, SOH_KEYWORD
 from logistics.apps.logistics.models import ProductReportsHelper,\
-    STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE, StockRequest,\
-    StockRequestStatus, ContactRole
-from logistics.apps.logistics.errors import UnknownCommodityCodeError
+    STOCK_ON_HAND_REPORT_TYPE, StockRequest,\
+    ContactRole
 from django.conf import settings
 from django.db import transaction
 from logistics.apps.malawi import const
