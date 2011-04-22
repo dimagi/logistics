@@ -33,11 +33,13 @@ def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
 def landing_page(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
+    prof = None 
     try:
-        prof = request.user.get_profile()
+        if not request.user.is_anonymous():
+            prof = request.user.get_profile()
     except LogisticsProfile.DoesNotExist:
-        prof = None 
-        
+        pass
+    
     if prof and prof.facility:
         return stockonhand_facility(request, request.user.get_profile().facility.code)
     elif prof and prof.location:
