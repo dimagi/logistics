@@ -20,9 +20,14 @@ PATH_SEP = "/" # necessary to deploy from windows to *nix
 
 env.code_cleanup = True
 env.db_cleanup = True
+env.db_name = "logistics"
 env.remote = "origin"
 env.branch = "master"
 env.pathhack = False
+env.stop_start = False
+
+def do_nothing(): pass
+env.extras = do_nothing
 
 def _join(*args):
     if env.pathhack:
@@ -46,8 +51,13 @@ def malawi():
     env.code_dir = _join(env.deploy_dir, 'logistics')
     env.code_cleanup = False
     env.db_cleanup = True
+    env.db_name = "sc4ccm"
+    env.stop_start = True
     env.branch = "malawi_model_support"
     env.hosts = ['sc4ccm@50.56.116.170']
+    def malawi_extras():
+        run("python manage.py loaddata malawi_products")
+    env.extras = malawi_extras
 
 def staging():
     env.config = 'staging'
@@ -85,10 +95,14 @@ def bootstrap():
             run('./manage.py migrate --noinput')
             # this doesn't seem to exist
             #run('./bootstrap_db.py')
+            env.extras()
 
 def deploy():
     """ deploy code to some remote environment """
     require('config', provided_by=('test', 'staging', 'production', 'malawi'))
+    if env.stop_start:
+        sudo("/etc/init.d/apache2 stop")
+        sudo("supervisorctl stop all")
     if env.config == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
                                default=False):
@@ -103,7 +117,18 @@ def deploy():
         with cd(env.code_dir):
             run('git checkout %(branch)s' % {"branch": env.branch})
             run('git pull %(repo)s %(branch)s' % {"repo": env.remote, "branch": env.branch})
+    if env.db_cleanup:
+        if not console.confirm('Are you sure you want to wipe out the database?',
+                               default=False):
+            utils.abort('Deployment aborted.')
+        sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+        sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+        
     bootstrap()
+    if env.stop_start:
+        sudo("/etc/init.d/apache2 start")
+        sudo("supervisorctl start all")
+    
 
 def test_and_deploy():
     django_tests()
