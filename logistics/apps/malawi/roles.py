@@ -13,5 +13,7 @@ def user_can_do(contact, operation):
         return contact.role == ContactRole.objects.get(code=const.Roles.IN_CHARGE)
     if operation == Operations.MAKE_TRANSFER:
         return contact.role == ContactRole.objects.get(code=const.Roles.HSA)
-    # TODO, fill this in
+    if operation == Operations.CONFIRM_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=const.Roles.HSA)
+    # TODO, fill this in more
     return True

@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.logistics.models import ProductReportsHelper 
+from logistics.apps.logistics.models import ProductReportsHelper , StockTransfer
 from logistics.apps.malawi import util
 from logistics.apps.malawi.const import Messages, Operations    
 from logistics.apps.malawi.roles import user_can_do
@@ -39,6 +39,7 @@ class TransferHandler(KeywordHandler):
                     # todo
                     self.respond("FAIL")
                 else:
+                    transfers = StockTransfer.create_from_report(stock_report, hsa.supply_point)
                     self.respond(Messages.TRANSFER_RESPONSE, 
                                  giver=self.msg.logistics_contact.name,
                                  receiver=hsa.name,

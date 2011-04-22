@@ -2,8 +2,7 @@ from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductReportsHelper, Facility, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE,\
-    StockRequest, SupplyPoint, StockRequestStatus
+    StockRequest, SupplyPoint, StockRequestStatus, StockTransfer
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi.const import Messages
@@ -14,7 +13,7 @@ class TestTransfer(TestScript):
     
     def setUp(self):
         TestScript.setUp(self)
-        StockRequest.objects.all().delete()
+        StockTransfer.objects.all().delete()
     
     def testBadRoles(self):
         a = """
@@ -48,6 +47,7 @@ class TestTransfer(TestScript):
                                             product=Product.by_code("zi"))
         self.assertEqual(100, stock_from.quantity)
         self.assertEqual(10, stock_to.quantity)
+        
         b = """
            16175551000 > give 26162 zi 20
            16175551000 < Thank you wendy. You have transfered steve the following products: zi 20
@@ -56,6 +56,13 @@ class TestTransfer(TestScript):
         self.runScript(b)
         self.assertEqual(80, ProductStock.objects.get(pk=stock_from.pk).quantity)
         self.assertEqual(10, ProductStock.objects.get(pk=stock_to.pk).quantity)
+        [st] = StockTransfer.objects.all()
+        self.assertTrue(st.is_pending())
+        self.assertEqual(20, st.amount)
+        self.assertEqual(Product.by_code("zi"), st.product)
+        self.assertEqual(SupplyPoint.objects.get(code="26161"), st.giver)
+        self.assertEqual(SupplyPoint.objects.get(code="26162"), st.receiver)
+        
         c = """
            16175551001 > confirm
            16175551001 < Thank you steve. You have confirmed receipt of the following products: zi 20
@@ -63,5 +70,8 @@ class TestTransfer(TestScript):
         self.runScript(c)
         self.assertEqual(80, ProductStock.objects.get(pk=stock_from.pk).quantity)
         self.assertEqual(30, ProductStock.objects.get(pk=stock_to.pk).quantity)
+        [st] = StockTransfer.objects.all()
+        self.assertTrue(st.is_closed())
+        
         
         

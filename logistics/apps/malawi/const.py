@@ -40,6 +40,7 @@ class Roles(object):
 class Operations(object):
     FILL_ORDER = "fill"
     MAKE_TRANSFER = "transfer"
+    CONFIRM_TRANSFER = "confirm"
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -56,6 +57,9 @@ class Messages(object):
     TRANSFER_HELP_MESSAGE = "To report a stock transfer type GIVE [hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
     TRANSFER_RESPONSE = "Thank you %(giver)s. You have transfered %(receiver)s the following products: %(products)s"
     TRANSFER_CONFIRM = "Confirm receipt of %(products)s from %(giver)s? Please respond 'confirm'"
+    # transfer confirm
+    NO_PENDING_TRANSFERS = "Sorry, you don't have any pending transfers to confirm"
+    CONFIRM_RESPONSE = "Thank you %(receiver)s. You have confirmed receipt of the following products: %(products)s"
     # soh
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
 
