@@ -181,6 +181,77 @@ class ProductStock(models.Model):
                 return True
         return False
 
+class StockTransferStatus(object):
+    """Basically a const for our choices"""
+    INITIATED = "initiated"
+    CONFIRMED = "confirmed"
+    CANCELED = "canceled"
+    CHOICES = [INITIATED, CONFIRMED, CANCELED] 
+    STATUS_CHOICES = ((val, val) for val in CHOICES)
+        
+class StockTransfer(models.Model):
+    """
+    Transfers can be made between supply points. 
+    
+    This model keeps track of them.
+    """
+    giver = models.ForeignKey("SupplyPoint", related_name="giver")
+    receiver = models.ForeignKey("SupplyPoint", related_name="receiver")
+    product = models.ForeignKey(Product)
+    amount = models.PositiveIntegerField(null=True)
+    status = models.CharField(max_length=10, choices=StockTransferStatus.STATUS_CHOICES)
+    initiated_on = models.DateTimeField()
+    closed_on = models.DateTimeField(null=True)
+    
+    def sms_format(self):
+        return "%s %s" % (self.product.sms_code, self.amount)
+    
+    def is_pending(self):
+        return self.status == StockTransferStatus.INITIATED
+    
+    def is_closed(self):
+        return not self.is_pending()
+    
+    def cancel(self, date):
+        assert(self.is_pending())
+        self.status = StockTransferStatus.CANCELED
+        self.closed_on = date
+        self.save()
+    
+    def confirm(self, date):
+        assert(self.is_pending())
+        self.status = StockTransferStatus.CONFIRMED
+        self.closed_on = date
+        self.save()
+        
+    
+    @classmethod
+    def pending_transfers(cls):
+        return cls.objects.filter(status=StockTransferStatus.INITIATED)
+    
+    @classmethod
+    def create_from_report(cls, stock_report, receiver):
+        """
+        Creates stock transfers from a report
+        """
+        transfers = []
+        now = datetime.utcnow()
+        # cancel any pending transfers, don't want to accidentally confirm them
+        # in response to thils
+        for pending in cls.pending_transfers().filter(receiver=receiver):
+            pending.cancel(now)
+        for product_code, amount in stock_report.product_stock.items():
+            product = stock_report.get_product(product_code)
+            transfers.append(StockTransfer.objects.create(giver=stock_report.supply_point,
+                                                          receiver=receiver,
+                                                          product=product,
+                                                          status=StockTransferStatus.INITIATED,
+                                                          amount=amount,
+                                                          initiated_on=now))
+        return transfers
+            
+        
+        
 class StockRequestStatus(object):
     """Basically a const for our choices"""
     REQUESTED = "requested"
@@ -190,9 +261,7 @@ class StockRequestStatus(object):
     CHOICES = [REQUESTED, APPROVED, RECEIVED, CANCELED] 
     CHOICES_PENDING = [REQUESTED, APPROVED]
     CHOICES_CLOSED = [RECEIVED, CANCELED]
-               
-
-STOCK_REQUEST_STATUS_CHOICES = ((val, val) for val in StockRequestStatus.CHOICES)
+    STATUS_CHOICES = ((val, val) for val in CHOICES)
 
 class StockRequest(models.Model):
     """
@@ -202,9 +271,9 @@ class StockRequest(models.Model):
     """
     product = models.ForeignKey(Product)
     supply_point = models.ForeignKey("SupplyPoint")
-    status = models.CharField(max_length=10, choices=STOCK_REQUEST_STATUS_CHOICES)
+    status = models.CharField(max_length=10, choices=StockRequestStatus.STATUS_CHOICES)
     
-    requested_on = models.DateTimeField(default=datetime.utcnow)
+    requested_on = models.DateTimeField()
     approved_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
@@ -260,9 +329,9 @@ class StockRequest(models.Model):
         From a stock report helper object, create any pending stock requests.
         """
         requests = []
+        now = datetime.utcnow()
         for product_code, stock in stock_report.product_stock.items():
             product = stock_report.get_product(product_code)
-            #contact = message.logistics_contact
             resupply_amount = ProductStock.objects.get(supply_point=stock_report.supply_point, 
                                                        product=product).maximum_level
             if resupply_amount > stock:
@@ -270,7 +339,8 @@ class StockRequest(models.Model):
                                                   supply_point=stock_report.supply_point,
                                                   status=StockRequestStatus.REQUESTED,
                                                   requested_by=contact,
-                                                  amount_requested=resupply_amount - stock)
+                                                  amount_requested=resupply_amount - stock,
+                                                  requested_on=now)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)
