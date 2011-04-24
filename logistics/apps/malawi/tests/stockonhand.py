@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus 
+from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus ,\
+    ProductStock
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 
@@ -39,6 +40,10 @@ class TestStockOnHandMalawi(TestScript):
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
             self.assertTrue(req.is_pending())
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        self.assertEqual(zi.quantity, 10)
+        self.assertEqual(la.quantity, 15)
         b = """
            16175551001 > ready 26161
            16175551001 < Thank you for confirming order for wendy. You approved: zi 390, la 705
@@ -53,6 +58,10 @@ class TestStockOnHandMalawi(TestScript):
             self.assertEqual(req.amount_requested, req.amount_approved)
             self.assertTrue(req.approved_on > req.requested_on)
         
+        # stocks shouldn't get updated
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 10)
+        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 15)
+        
         c = """
            16175551000 > rec zi 390 la 705
            16175551000 < Thank you, you reported receipts for zi la.
@@ -65,4 +74,8 @@ class TestStockOnHandMalawi(TestScript):
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
             self.assertTrue(req.received_on > req.approved_on > req.requested_on)
-            
+        
+        # stocks should now be updated
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 400)
+        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
+        
