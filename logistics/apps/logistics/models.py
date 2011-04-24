@@ -293,11 +293,20 @@ class StockRequest(models.Model):
     def is_closed(self):
         return self.status in StockRequestStatus.CHOICES_CLOSED
     
-    def approve(self, by, amt):
+    def approve(self, by, amt, on):
+        assert(self.is_pending()) # we should only approve pending requests
         self.approved_by = by
         self.amount_approved = amt
-        self.approved_on = datetime.utcnow()
+        self.approved_on = on
         self.status = StockRequestStatus.APPROVED
+        self.save()
+        
+    def receive(self, by, amt, on):
+        assert(self.is_pending()) # we should only receive pending requests
+        self.received_by = by
+        self.amount_received = amt
+        self.received_on = on
+        self.status = StockRequestStatus.RECEIVED
         self.save()
         
     def cancel(self, canceled_for):

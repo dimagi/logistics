@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
+from datetime import datetime
 from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
@@ -36,9 +37,10 @@ class OrderReadyHandler(KeywordHandler):
             if hsa is None:
                 self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
             else:
+                now = datetime.utcnow()
                 pending_reqs = StockRequest.pending_requests().filter(supply_point=hsa.supply_point)
                 for req in pending_reqs:
-                    req.approve(self.msg.logistics_contact, req.amount_requested)
+                    req.approve(self.msg.logistics_contact, req.amount_requested, now)
                 
                 products = ", ".join(req.sms_format() for req in pending_reqs)
                 self.respond(Messages.APPROVAL_RESPONSE, hsa=hsa.name,

@@ -48,10 +48,21 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.APPROVED, req.status)
+            self.assertTrue(req.is_pending())
             self.assertEqual(Contact.objects.get(name="sally"), req.approved_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
             self.assertTrue(req.approved_on > req.requested_on)
-            self.assertTrue(req.is_pending())
         
-        
-    
+        c = """
+           16175551000 > rec zi 390 la 705
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(c)
+        self.assertEqual(2, StockRequest.objects.count())
+        for req in StockRequest.objects.all():
+            self.assertEqual(StockRequestStatus.RECEIVED, req.status)
+            self.assertFalse(req.is_pending())
+            self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
+            self.assertEqual(req.amount_received, req.amount_requested)
+            self.assertTrue(req.received_on > req.approved_on > req.requested_on)
+            
