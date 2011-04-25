@@ -6,10 +6,10 @@ from django.conf import settings
 from django.db import transaction
 from logistics.apps.malawi import const
 from rapidsms.models import Contact
+from logistics.apps.malawi.const import Messages
 
 ORDER_CONFIRM = "Thank you %(contact)s. The health center in charge has been notified and you will receive an alert when supplies are ready." 
 NO_IN_CHARGE = "There is no in-charge registered for %(supply_point)s. Please contact your supervisor to resolve this."
-SUPERVISOR_NOTIFICATION = "%(hsa)s needs the following supplies: %(supplies)s. Respond 'ready %(hsa_id)s' when supplies are ready"
                                 
 class App(LogisticsApp):
     """
@@ -43,7 +43,7 @@ class App(LogisticsApp):
                 try:
                     supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE), 
                                                      supply_point=sp.supplied_by)
-                    supervisor.message(SUPERVISOR_NOTIFICATION, 
+                    supervisor.message(Messages.SUPERVISOR_SOH_NOTIFICATION, 
                                        hsa=message.logistics_contact.name,
                                        supplies=", ".join(req.sms_format() for req in requests),
                                        hsa_id=message.logistics_contact.supply_point.code)

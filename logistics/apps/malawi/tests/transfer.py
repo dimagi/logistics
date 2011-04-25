@@ -12,10 +12,6 @@ class TestTransfer(TestScript):
     apps = ([malawi_app.App])
     fixtures = ["malawi_products.json"]
     
-    def setUp(self):
-        TestScript.setUp(self)
-        StockTransfer.objects.all().delete()
-    
     def testBadRoles(self):
         a = """
            16175551234 > manage cindy ic 2616

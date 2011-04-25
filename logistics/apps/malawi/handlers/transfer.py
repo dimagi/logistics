@@ -36,8 +36,8 @@ class TransferHandler(KeywordHandler):
                 stock_report.parse(text)
                 stock_report.save()
                 if stock_report.errors:
-                    # todo
-                    self.respond("FAIL")
+                    # TODO: respond better.
+                    self.respond(Messages.GENERIC_ERROR)
                 else:
                     transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
                     self.respond(Messages.TRANSFER_RESPONSE, 

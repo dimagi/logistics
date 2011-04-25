@@ -42,19 +42,10 @@ class ReceiptHandler(KeywordHandler):
         
         # Close pending requests. This logic only applies if you are using the 
         # StockRequest workflow, but should not break anything if you are not
-        pending_reqs = StockRequest.pending_requests().filter\
-            (supply_point=self.msg.logistics_contact.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys())
-        now = datetime.utcnow()
-        for req in pending_reqs:
-            req.receive(self.msg.logistics_contact, 
-                        stock_report.product_stock[req.product.sms_code],
-                        now)
+        StockRequest.close_pending_from_receipt_report(stock_report, self.msg.logistics_contact)
         
         # fill in transfers, if there were any
         if supplier is not None:
-            transfers = StockTransfer.create_from_receipt_report(stock_report, supplier)
+            StockTransfer.create_from_receipt_report(stock_report, supplier)
 
-            
-                    
         self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())

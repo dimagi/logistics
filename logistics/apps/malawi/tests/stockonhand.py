@@ -9,10 +9,6 @@ class TestStockOnHandMalawi(TestScript):
     apps = ([malawi_app.App])
     fixtures = ["malawi_products.json"]
     
-    def setUp(self):
-        TestScript.setUp(self)
-        StockRequest.objects.all().delete()
-    
     def testNoInCharge(self):
         
         a = """

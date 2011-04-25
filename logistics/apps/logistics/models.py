@@ -390,6 +390,22 @@ class StockRequest(models.Model):
                 
         return requests
     
+    @classmethod
+    def close_pending_from_receipt_report(cls, stock_report, contact):
+        """
+        From a stock report helper object, close any pending stock requests.
+        """
+        requests = []
+        pending_reqs = StockRequest.pending_requests().filter\
+            (supply_point=stock_report.supply_point,
+             product__sms_code__in=stock_report.product_stock.keys())
+        now = datetime.utcnow()
+        for req in pending_reqs:
+            req.receive(contact, 
+                        stock_report.product_stock[req.product.sms_code],
+                        now)
+            requests.append(req)
+        return requests
     
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""

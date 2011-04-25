@@ -41,6 +41,7 @@ class Operations(object):
     FILL_ORDER = "fill"
     MAKE_TRANSFER = "transfer"
     CONFIRM_TRANSFER = "confirm"
+    REPORT_FOR_OTHERS = "report"
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -48,7 +49,7 @@ class Messages(object):
     UNSUPPORTED_OPERATION = "Sorry, your current role does not allow you to do that. For help, please contact your supervisor"
     UNKNOWN_HSA = "Cannot find hsa with id %(hsa_id)s. Please double check the id and try again."
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district administrator for assistance."
-
+    GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble contact your supervisor for help."
     # orderready
     ORDERREADY_HELP_MESSAGE = "To confirm an order type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You approved: %(products)s"
@@ -62,5 +63,11 @@ class Messages(object):
     CONFIRM_RESPONSE = "Thank you %(receiver)s. You have confirmed receipt of the following products: %(products)s"
     # soh
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
+    SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following supplies: %(supplies)s. Respond 'ready %(hsa_id)s' when supplies are ready"
 
+    # report
+    REPORT_HELP = "To report stock for someone use: report [hsa id] soh [prod code] [amount]. To report receipts use: report [hsa id] soh [prod code] [amount]"
+    BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"
+    REPORT_SOH_RESPONSE = "%(hsa)s needs the following products: %(products)s. Use 'report %(hsa_id)s rec [prod code] [amount]' to report receipts for the HSA."
+    REPORT_RECEIPT_RESPONSE = "Thank you %(reporter)s. You reported the following receipts for %(hsa)s: %(products)s"
     
