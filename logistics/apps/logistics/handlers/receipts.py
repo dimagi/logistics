@@ -5,7 +5,7 @@ from datetime import datetime
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE,\
-    StockRequest
+    StockRequest, StockTransfer
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 
 class ReceiptHandler(KeywordHandler):
@@ -22,10 +22,24 @@ class ReceiptHandler(KeywordHandler):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(REGISTER_MESSAGE)
             return
-        facility = self.msg.logistics_contact.supply_point
-        stock_report = ProductReportsHelper(facility, RECEIPT_REPORT_TYPE, self.msg.logger_msg)
+        
+        # at the end of your receipt message you can write:
+        # 'from xxx' to indicate the source of the supplies.
+        # this is used in the stock transfer workflow
+        # TODO: less brittle parsing
+        if "from" in text.lower().split():
+            splittext = text.lower().split()
+            text = " ".join(splittext[:splittext.index("from")])
+            supplier = " ".join(splittext[splittext.index("from") + 1:])
+        else: 
+            supplier = None
+        
+        # parse the report and save as normal receipt
+        stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
+                                            RECEIPT_REPORT_TYPE, self.msg.logger_msg)
         stock_report.parse(text)
         stock_report.save()
+        
         # Close pending requests. This logic only applies if you are using the 
         # StockRequest workflow, but should not break anything if you are not
         pending_reqs = StockRequest.pending_requests().filter\
@@ -36,5 +50,11 @@ class ReceiptHandler(KeywordHandler):
             req.receive(self.msg.logistics_contact, 
                         stock_report.product_stock[req.product.sms_code],
                         now)
-                
+        
+        # fill in transfers, if there were any
+        if supplier is not None:
+            transfers = StockTransfer.create_from_receipt_report(stock_report, supplier)
+
+            
+                    
         self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())

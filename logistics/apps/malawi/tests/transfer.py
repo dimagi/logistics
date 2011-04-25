@@ -2,7 +2,8 @@ from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.models import Product, ProductStock, \
-    StockRequest, SupplyPoint, StockRequestStatus, StockTransfer
+    StockRequest, SupplyPoint, StockRequestStatus, StockTransfer,\
+    StockTransferStatus
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi.const import Messages
@@ -74,4 +75,43 @@ class TestTransfer(TestScript):
         self.assertTrue(st.is_closed())
         
         
+    def testTransferFromReceipt(self):
+        a = """
+           16175551000 > register wendy 1 2616
+           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+           16175551001 > register steve 2 2616
+           16175551001 < Congratulations steve, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+           16175551000 > rec zi 100 la 250 from 26162
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(a)
+        self.assertEqual(2, StockTransfer.objects.count())
+        self.assertEqual(100, StockTransfer.objects.get(product__sms_code="zi").amount)
+        self.assertEqual(250, StockTransfer.objects.get(product__sms_code="la").amount)
+        for transfer in StockTransfer.objects.all():
+            self.assertEqual(SupplyPoint.objects.get(code="26162"), transfer.giver)
+            self.assertEqual("", transfer.giver_unknown)
+            self.assertEqual(SupplyPoint.objects.get(code="26161"), transfer.receiver)
+            self.assertEqual(StockTransferStatus.CONFIRMED, transfer.status)
+            self.assertEqual(None, transfer.initiated_on)
+            
+        
+    def testTransferFromReceiptNoSupplyPoint(self):
+        a = """
+           16175551000 > register wendy 1 2616
+           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+           16175551000 > rec zi 100 la 250 from someone random
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(a)
+        self.assertEqual(2, StockTransfer.objects.count())
+        self.assertEqual(100, StockTransfer.objects.get(product__sms_code="zi").amount)
+        self.assertEqual(250, StockTransfer.objects.get(product__sms_code="la").amount)
+        for transfer in StockTransfer.objects.all():
+            self.assertEqual(None, transfer.giver)
+            self.assertEqual("someone random", transfer.giver_unknown)
+            self.assertEqual(SupplyPoint.objects.get(code="26161"), transfer.receiver)
+            self.assertEqual(StockTransferStatus.CONFIRMED, transfer.status)
+            self.assertEqual(None, transfer.initiated_on)
+            
         

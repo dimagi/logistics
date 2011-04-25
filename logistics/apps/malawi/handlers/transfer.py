@@ -39,7 +39,7 @@ class TransferHandler(KeywordHandler):
                     # todo
                     self.respond("FAIL")
                 else:
-                    transfers = StockTransfer.create_from_report(stock_report, hsa.supply_point)
+                    transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
                     self.respond(Messages.TRANSFER_RESPONSE, 
                                  giver=self.msg.logistics_contact.name,
                                  receiver=hsa.name,
