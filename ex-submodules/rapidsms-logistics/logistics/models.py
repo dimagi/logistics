@@ -195,13 +195,14 @@ class StockTransfer(models.Model):
     
     This model keeps track of them.
     """
-    giver = models.ForeignKey("SupplyPoint", related_name="giver")
+    giver = models.ForeignKey("SupplyPoint", related_name="giver", null=True, blank=True)
+    giver_unknown = models.CharField(max_length=200, blank=True)
     receiver = models.ForeignKey("SupplyPoint", related_name="receiver")
     product = models.ForeignKey(Product)
-    amount = models.PositiveIntegerField(null=True)
+    amount = models.PositiveIntegerField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=StockTransferStatus.STATUS_CHOICES)
-    initiated_on = models.DateTimeField()
-    closed_on = models.DateTimeField(null=True)
+    initiated_on = models.DateTimeField(null=True, blank=True)
+    closed_on = models.DateTimeField(null=True, blank=True)
     
     def sms_format(self):
         return "%s %s" % (self.product.sms_code, self.amount)
@@ -224,33 +225,60 @@ class StockTransfer(models.Model):
         self.closed_on = date
         self.save()
         
+    @property
+    def giver_display(self):
+        return self.giver.name if self.giver else self.giver_unknown
     
     @classmethod
     def pending_transfers(cls):
         return cls.objects.filter(status=StockTransferStatus.INITIATED)
     
     @classmethod
-    def create_from_report(cls, stock_report, receiver):
+    def create_from_transfer_report(cls, stock_report, receiver):
         """
-        Creates stock transfers from a report
+        Creates stock transfers from a transfer report
         """
         transfers = []
         now = datetime.utcnow()
         # cancel any pending transfers, don't want to accidentally confirm them
-        # in response to thils
+        # in response to this
         for pending in cls.pending_transfers().filter(receiver=receiver):
             pending.cancel(now)
+        
         for product_code, amount in stock_report.product_stock.items():
-            product = stock_report.get_product(product_code)
             transfers.append(StockTransfer.objects.create(giver=stock_report.supply_point,
                                                           receiver=receiver,
-                                                          product=product,
+                                                          product=stock_report.get_product(product_code),
                                                           status=StockTransferStatus.INITIATED,
                                                           amount=amount,
                                                           initiated_on=now))
         return transfers
             
+    @classmethod
+    def create_from_receipt_report(cls, stock_report, supplier):
+        """
+        Creates stock transfers from a receipt report
+        """
+        # either we use an official supplier code, or store the 
+        # "unknown" value as text
+        try:
+            sp = SupplyPoint.objects.get(code=supplier)
+            sp_unknown = ""
+        except SupplyPoint.DoesNotExist:
+            sp = None
+            sp_unknown = supplier
         
+        transfers = []
+        now = datetime.utcnow()
+        for product_code, amount in stock_report.product_stock.items():
+            transfers.append(StockTransfer.objects.create(giver=sp,
+                                                          giver_unknown=sp_unknown,
+                                                          receiver=stock_report.supply_point,
+                                                          product=stock_report.get_product(product_code),
+                                                          status=StockTransferStatus.CONFIRMED,
+                                                          amount=amount,
+                                                          closed_on=now))
+        return transfers
         
 class StockRequestStatus(object):
     """Basically a const for our choices"""
