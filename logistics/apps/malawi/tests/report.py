@@ -15,7 +15,7 @@ class TestReport(TestScript):
            16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > register joe 1 2616
            16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551234 > report 26161 soh zi 40 la 200 
+           16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_role)s
         """ % {"bad_role": Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
@@ -24,9 +24,9 @@ class TestReport(TestScript):
         a = """
            16175551234 > manage charles ic 2616
            16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551234 > report 26161 soh zi 40 la 200 
+           16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_hsa)s
-        """ % {"bad_hsa": Messages.UNKNOWN_HSA % {"hsa_id": 26161}}
+        """ % {"bad_hsa": Messages.UNKNOWN_HSA % {"hsa_id": 261601}}
         self.runScript(a)
     
     def testSohAndReceiptReporting(self):
@@ -35,11 +35,11 @@ class TestReport(TestScript):
            16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > register joe 1 2616
            16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551234 > report 26161 soh zi 40 la 200 
-           16175551234 < joe needs the following products: zi 360, la 520. Use 'report 26161 rec [prod code] [amount]' to report receipts for the HSA.
+           16175551234 > report 261601 soh zi 40 la 200 
+           16175551234 < joe needs the following products: zi 360, la 520. Use 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
         """ 
         self.runScript(a)
-        hsa_sp = SupplyPoint.objects.get(code=26161)
+        hsa_sp = SupplyPoint.objects.get(code=261601)
         self.assertEqual(40, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="zi").quantity)
         self.assertEqual(200, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="la").quantity)
         self.assertEqual(2, StockRequest.objects.count())
@@ -48,7 +48,7 @@ class TestReport(TestScript):
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
             self.assertTrue(req.is_pending())
         b = """
-           16175551234 > report 26161 rec zi 360 la 520
+           16175551234 > report 261601 rec zi 360 la 520
            16175551234 < Thank you charles. You reported the following receipts for joe: zi la
         """ 
         self.runScript(b)
@@ -66,11 +66,11 @@ class TestReport(TestScript):
            16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > register joe 1 2616
            16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551234 > report 26161 rec zi 100 la 400 
+           16175551234 > report 261601 rec zi 100 la 400 
            16175551234 < Thank you charles. You reported the following receipts for joe: zi la
         """ 
         self.runScript(a)
-        hsa_sp = SupplyPoint.objects.get(code=26161)
+        hsa_sp = SupplyPoint.objects.get(code=261601)
         self.assertEqual(100, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="zi").quantity)
         self.assertEqual(400, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="la").quantity)
         

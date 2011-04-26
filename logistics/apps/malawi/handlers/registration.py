@@ -8,6 +8,7 @@ from logistics.apps.malawi import const
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.malawi.const import Messages
+from logistics.apps.malawi.exceptions import IdFormatException
 
 
 class HSARegistrationHandler(RegistrationBaseHandler):
@@ -28,10 +29,19 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         role = ContactRole.objects.get(code=const.Roles.HSA)
         
         def format_id(code, id):
-            # TODO, finalize this
-            return "%s%s" % (code, id)
+            try:
+                id_num = int(id)
+                if id_num < 1 or id_num >= 100:
+                    raise IdFormatException("id must be a number between 1 and 99. %s is out of range" % id)
+                return "%s%02d" % (code, id_num)
+            except ValueError:
+                raise IdFormatException("id must be a number between 1 and 99. %s is not a number" % id)
         
-        hsa_id = format_id(self.supply_point.code, self.extra)
+        try:
+            hsa_id = format_id(self.supply_point.code, self.extra)
+        except IdFormatException, e:
+            self.respond(str(e))
+            return
         
         if Location.objects.filter(code=hsa_id).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)

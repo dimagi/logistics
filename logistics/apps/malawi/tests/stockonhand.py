@@ -25,20 +25,20 @@ class TestStockOnHandMalawi(TestScript):
         a = """
            16175551000 > soh zi 10 la 15
            16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
+           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
         """
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
-            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
             self.assertTrue(req.is_pending())
-        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
-        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         b = """
-           16175551001 > ready 26161
+           16175551001 > ready 261601
            16175551001 < Thank you for confirming order for wendy. You approved: zi 390, la 705
            16175551000 < Dear wendy, your pending order has been approved. The following supplies are ready: zi 390, la 705
         """
@@ -77,19 +77,19 @@ class TestStockOnHandMalawi(TestScript):
         a = """
            16175551000 > soh zi 10 la 15
            16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
-           16175551001 > os 26161
+           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
+           16175551001 > os 261601
            16175551001 < Thank you sally. You have reported stockouts for the following products: zi, la. The district office has been notified.
            16175551000 < Dear wendy, your pending order is stocked out at the facility. Please work with the in-charge to resolve this issue in a timely manner.
         """
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
-            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.STOCKED_OUT, req.status)
             self.assertTrue(req.is_pending())
-        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
-        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         
@@ -98,19 +98,19 @@ class TestStockOnHandMalawi(TestScript):
         a = """
            16175551000 > soh zi 10 la 15
            16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
-           16175551001 > partial 26161
+           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
+           16175551001 > partial 261601
            16175551001 < Thank you for partially confirming order for wendy. You approved some of: zi, la
            16175551000 < Dear wendy, your pending is now ready to be partially filled. Not all products were available but some are ready.
         """
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
-            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.PARTIALLY_STOCKED, req.status)
             self.assertTrue(req.is_pending())
-        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
-        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         

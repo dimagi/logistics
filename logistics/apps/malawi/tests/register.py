@@ -22,8 +22,8 @@ class TestHSARegister(TestScript):
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
             """ % {'register_message':REGISTER_MESSAGE, 'help_message':Messages.HSA_HELP}
         self.runScript(a)
-        loc = Location.objects.get(code="26161")
-        sp = SupplyPoint.objects.get(code="26161")
+        loc = Location.objects.get(code="261601")
+        sp = SupplyPoint.objects.get(code="261601")
         self.assertEqual(sp.location, loc)
 
     def testRegisterMultiName(self):
@@ -38,7 +38,26 @@ class TestHSARegister(TestScript):
               8005551212 > reg stella 1 2616
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
               8005551213 > reg dupe 1 2616
-              8005551213 < Sorry, a location with 26161 already exists. Another HSA may have already registered this ID
+              8005551213 < Sorry, a location with 261601 already exists. Another HSA may have already registered this ID
+            """ 
+        self.runScript(a)
+    
+    def testBadIds(self):
+        a = """
+              8005551212 > reg stella 0 2616
+              8005551212 < id must be a number between 1 and 99. 0 is out of range
+              8005551212 > reg stella -5 2616
+              8005551212 < id must be a number between 1 and 99. -5 is out of range
+              8005551212 > reg stella 100 2616
+              8005551212 < id must be a number between 1 and 99. 100 is out of range
+              8005551212 > reg stella o1 2616
+              8005551212 < id must be a number between 1 and 99. o1 is not a number
+              8005551212 > reg stella i 2616
+              8005551212 < id must be a number between 1 and 99. i is not a number
+              8005551212 > reg stella pi 2616
+              8005551212 < id must be a number between 1 and 99. pi is not a number
+              8005551212 > reg stella 1.0 2616
+              8005551212 < id must be a number between 1 and 99. 1.0 is not a number
             """ 
         self.runScript(a)
     
