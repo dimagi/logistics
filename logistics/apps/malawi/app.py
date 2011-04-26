@@ -1,16 +1,13 @@
 from logistics.apps.logistics.app import App as LogisticsApp, SOH_KEYWORD
 from logistics.apps.logistics.models import ProductReportsHelper,\
-    STOCK_ON_HAND_REPORT_TYPE, StockRequest,\
-    ContactRole
+    StockRequest, ContactRole
 from django.conf import settings
 from django.db import transaction
 from logistics.apps.malawi import const
 from rapidsms.models import Contact
 from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.const import Reports
 
-ORDER_CONFIRM = "Thank you %(contact)s. The health center in charge has been notified and you will receive an alert when supplies are ready." 
-NO_IN_CHARGE = "There is no in-charge registered for %(supply_point)s. Please contact your supervisor to resolve this."
-                                
 class App(LogisticsApp):
     """
     This app overrides the base functionality of the logistics app, allowing 
@@ -31,7 +28,7 @@ class App(LogisticsApp):
             return return_code
         try:
             sp = message.logistics_contact.supply_point
-            stock_report = ProductReportsHelper(sp, STOCK_ON_HAND_REPORT_TYPE,  
+            stock_report = ProductReportsHelper(sp, Reports.SOH,  
                                                 message.logger_msg)
             stock_report.parse(self._clean_message(message.text))
             stock_report.save()
@@ -47,11 +44,11 @@ class App(LogisticsApp):
                                        hsa=message.logistics_contact.name,
                                        supplies=", ".join(req.sms_format() for req in requests),
                                        hsa_id=message.logistics_contact.supply_point.code)
-                    message.respond(ORDER_CONFIRM,
+                    message.respond(Messages.SOH_ORDER_CONFIRM,
                                     contact=message.logistics_contact.name)
                 
                 except Contact.DoesNotExist:
-                    message.respond(NO_IN_CHARGE,
+                    message.respond(Messages.NO_IN_CHARGE,
                                     supply_point=message.logistics_contact.supply_point.supplied_by.name)
                 
                     
@@ -73,5 +70,5 @@ class App(LogisticsApp):
         Tests whether this message is one which should go through the handle phase.
         Currently only SOH keyword is supported.
         """
-        return message.text.lower().split(" ") and message.text.lower().split(" ")[0] == SOH_KEYWORD
+        return message.text.lower().split(" ")[0] == SOH_KEYWORD
     

@@ -42,6 +42,7 @@ class Operations(object):
     MAKE_TRANSFER = "transfer"
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
+    REPORT_STOCK = "report_stock"
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -50,6 +51,8 @@ class Messages(object):
     UNKNOWN_HSA = "Cannot find hsa with id %(hsa_id)s. Please double check the id and try again."
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district administrator for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble contact your supervisor for help."
+    NO_IN_CHARGE = "There is no in-charge registered for %(supply_point)s. Please contact your supervisor to resolve this."
+
     # orderready
     ORDERREADY_HELP_MESSAGE = "To confirm an order type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You approved: %(products)s"
@@ -72,7 +75,9 @@ class Messages(object):
     # soh
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following supplies: %(supplies)s. Respond 'ready %(hsa_id)s' when supplies are ready"
-
+    SOH_ORDER_CONFIRM = "Thank you %(contact)s. The health center in charge has been notified and you will receive an alert when supplies are ready." 
+    # emergency
+    EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
     # report
     REPORT_HELP = "To report stock for someone use: report [hsa id] soh [prod code] [amount]. To report receipts use: report [hsa id] soh [prod code] [amount]"
     BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"
@@ -82,4 +87,4 @@ class Messages(object):
     HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
     # manager registration
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
-
+     

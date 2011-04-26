@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
 from datetime import datetime
 from logistics.apps.logistics.models import StockRequest
 from logistics.apps.malawi.const import Messages
@@ -34,4 +31,3 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
         self.hsa.message(Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)
         # TODO: district notifications 
     
-                
