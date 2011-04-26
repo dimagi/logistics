@@ -33,6 +33,7 @@ class TestStockOnHandMalawi(TestScript):
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
             self.assertTrue(req.is_pending())
+            self.assertFalse(req.is_emergency)
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
@@ -50,7 +51,7 @@ class TestStockOnHandMalawi(TestScript):
             self.assertEqual(Contact.objects.get(name="sally"), req.responded_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
             self.assertTrue(req.responded_on > req.requested_on)
-        
+                    
         # stocks shouldn't get updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 10)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 15)

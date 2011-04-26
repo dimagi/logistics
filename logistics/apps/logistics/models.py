@@ -302,6 +302,7 @@ class StockRequest(models.Model):
     product = models.ForeignKey(Product)
     supply_point = models.ForeignKey("SupplyPoint")
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES)
+    is_emergency = models.BooleanField(default=False) 
     
     requested_on = models.DateTimeField()
     responded_on = models.DateTimeField(null=True)
@@ -389,12 +390,18 @@ class StockRequest(models.Model):
             resupply_amount = ProductStock.objects.get(supply_point=stock_report.supply_point, 
                                                        product=product).maximum_level
             if resupply_amount > stock:
+                # confusingly, we don't flag emergencies unless it is an 
+                # emergency level AND an emergency order. this logic
+                # is probably not ideal
+                is_emergency = stock_report.report_type == Reports.EMERGENCY_SOH and \
+                               resupply_amount.is_below_emergency_level
                 req = StockRequest.objects.create(product=product, 
                                                   supply_point=stock_report.supply_point,
                                                   status=StockRequestStatus.REQUESTED,
                                                   requested_by=contact,
                                                   amount_requested=resupply_amount - stock,
-                                                  requested_on=now)
+                                                  requested_on=now, 
+                                                  is_emergency=is_emergency)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)

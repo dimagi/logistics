@@ -9,6 +9,8 @@ def user_can_do(contact, operation):
     # coupling between app logic and database logic, so it's here
     if not contact.is_active:
         return False
+    if operation == Operations.REPORT_STOCK:
+        return contact.role == ContactRole.objects.get(code=const.Roles.HSA)
     if operation == Operations.FILL_ORDER:
         return contact.role == ContactRole.objects.get(code=const.Roles.IN_CHARGE)
     if operation == Operations.MAKE_TRANSFER:

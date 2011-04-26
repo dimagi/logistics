@@ -4,9 +4,10 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.malawi.const import Messages, Operations
 from logistics.apps.malawi.roles import user_can_do
 from logistics.apps.malawi import util
+from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 
 
-class OrderResponseBaseHandler(KeywordHandler):
+class OrderResponseBaseHandler(RecordResponseHandler):
     hsa = None
     
     def handle_preconditions(self, text):
@@ -31,4 +32,4 @@ class OrderResponseBaseHandler(KeywordHandler):
             if self.hsa is None:
                 self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
                 
-            
+            return self.responded

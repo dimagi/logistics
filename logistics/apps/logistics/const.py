@@ -10,9 +10,11 @@ class Reports(object):
     SOH = "soh"
     REC = "rec"
     GIVE = "give"
+    EMERGENCY_SOH = "eo" # eo = emergency order
     ALL_REPORTS = {
         SOH: "stock on hand",
         REC: "stock received",
-        GIVE: "stock given"
+        GIVE: "stock given",
+        EMERGENCY_SOH: "emergency stock on hand"
     }
 

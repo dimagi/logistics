@@ -10,65 +10,21 @@ from logistics.apps.logistics.const import Reports
 
 class App(LogisticsApp):
     """
-    This app overrides the base functionality of the logistics app, allowing 
-    us to do custom logic for Malawi
+    Once upon a time this app overrode some stuff.
+    All logic has since been moved into handlers, 
+    and this actually does nothing.
     """
-    
     
     def start (self):
         # don't do all the scheduling stuff
         pass
     
-    @transaction.commit_on_success()
     def handle (self, message):
-        # we override the builtin logic here. ideally this would call the
-        # base class first, but there's a lot of cruft in there currently
-        should_proceed, return_code = self._check_preconditions(message)
-        if not should_proceed:
-            return return_code
-        try:
-            sp = message.logistics_contact.supply_point
-            stock_report = ProductReportsHelper(sp, Reports.SOH,  
-                                                message.logger_msg)
-            stock_report.parse(self._clean_message(message.text))
-            stock_report.save()
-            requests = StockRequest.create_from_report(stock_report, message.logistics_contact)
-            if stock_report.errors:
-                self._send_error_response(message, stock_report)
-            else:
-                # normal malawi logic goes here
-                try:
-                    supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE), 
-                                                     supply_point=sp.supplied_by)
-                    supervisor.message(Messages.SUPERVISOR_SOH_NOTIFICATION, 
-                                       hsa=message.logistics_contact.name,
-                                       supplies=", ".join(req.sms_format() for req in requests),
-                                       hsa_id=message.logistics_contact.supply_point.code)
-                    message.respond(Messages.SOH_ORDER_CONFIRM,
-                                    contact=message.logistics_contact.name)
-                
-                except Contact.DoesNotExist:
-                    message.respond(Messages.NO_IN_CHARGE,
-                                    supply_point=message.logistics_contact.supply_point.supplied_by.name)
-                
-                    
-                #self._send_responses(message, stock_report)
-            return True
-        except Exception, e:
-            if settings.DEBUG:
-                # this error actually gets logged deep within rapidSMS
-                message.respond(unicode(e))
-            raise
-    
+        pass
+        
     def default(self, message):
         # the base class overrides all possible responses. 
         # this avoids that problem.
         pass
     
-    def _should_handle(self, message):
-        """ 
-        Tests whether this message is one which should go through the handle phase.
-        Currently only SOH keyword is supported.
-        """
-        return message.text.lower().split(" ")[0] == SOH_KEYWORD
     
