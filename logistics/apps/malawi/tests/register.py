@@ -1,10 +1,10 @@
 from rapidsms.models import Contact
 from logistics.apps.malawi.handlers.deregistration import NOT_REGISTERED_MESSAGE
+from logistics.apps.malawi.const import Messages
 __author__ = 'ternus'
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
     REGISTER_MESSAGE
-from logistics.apps.malawi.handlers.registration import HSA_HELP_MESSAGE
 from logistics.apps.malawi import app as malawi_app, const
 
 class TestHSARegister(TestScript):
@@ -20,7 +20,7 @@ class TestHSARegister(TestScript):
               8005551212 < Sorry, can't find the location with CODE doesntexist
               8005551212 > reg stella 1 2616
               8005551212 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-            """ % {'register_message':REGISTER_MESSAGE, 'help_message':HSA_HELP_MESSAGE}
+            """ % {'register_message':REGISTER_MESSAGE, 'help_message':Messages.HSA_HELP}
         self.runScript(a)
         loc = Location.objects.get(code="26161")
         sp = SupplyPoint.objects.get(code="26161")

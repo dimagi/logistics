@@ -70,4 +70,8 @@ class Messages(object):
     BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"
     REPORT_SOH_RESPONSE = "%(hsa)s needs the following products: %(products)s. Use 'report %(hsa_id)s rec [prod code] [amount]' to report receipts for the HSA."
     REPORT_RECEIPT_RESPONSE = "Thank you %(reporter)s. You reported the following receipts for %(hsa)s: %(products)s"
-    
+    # registration
+    HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
+    # manager registration
+    MANAGER_HELP = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
+

@@ -7,8 +7,8 @@ from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi import const
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
+from logistics.apps.malawi.const import Messages
 
-HSA_HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
 
 class HSARegistrationHandler(RegistrationBaseHandler):
     """
@@ -16,7 +16,9 @@ class HSARegistrationHandler(RegistrationBaseHandler):
     """
 
     keyword = "reg|register"
-    help_message = HSA_HELP_MESSAGE
+    
+    def help(self):
+        self.respond(Messages.HSA_HELP)
     
     def handle(self, text):
         if self.handle_preconditions(text):

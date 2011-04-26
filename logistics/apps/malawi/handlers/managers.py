@@ -3,21 +3,23 @@ from logistics.apps.logistics.models import ContactRole
 from rapidsms.models import Contact
 from django.utils.translation import ugettext as _
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from logistics.apps.malawi.const import Messages
 
-MANAGER_HELP_MESSAGE = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
 class ManagerRegistrationHandler(RegistrationBaseHandler):
     """
     Registration for everyone else
     """
     
     keyword = "manage"
-    help_message = MANAGER_HELP_MESSAGE
+     
+    def help(self):
+        self.respond(Messages.MANAGER_HELP)
+    
     
     def handle(self, text):
         if self.handle_preconditions(text):
             return
         
-        # todo
         try:
             role = ContactRole.objects.get(code__iexact=self.extra)
         except ContactRole.DoesNotExist:

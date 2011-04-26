@@ -1,25 +1,13 @@
 from django.utils.translation import ugettext as _
 from logistics.apps.logistics.models import SupplyPoint
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 
-# Rather than hack rapidsms to understand the notion of an abstract handler
-# we use this 'abstract' class as a real handler that others can override.
-# I would prefer this live in the same module as the subclasses, but 
-# unfortunately rapidsms also doesn't like that. 
-
-class RegistrationBaseHandler(KeywordHandler):
+class RegistrationBaseHandler(RecordResponseHandler):
     help_message = "You shouldn't be seeing this message. Something is very wrong."
-    _responded = False
     supply_point = None
     contact_name = ""
     extra = None
-    
-    def help(self):
-        self.respond(_(self.help_message))
-    
-    def respond(self, template, **kwargs):
-        super(RegistrationBaseHandler, self).respond(template, **kwargs)
-        self._responded = True
     
     def handle_preconditions(self, text):
         """
@@ -44,5 +32,5 @@ class RegistrationBaseHandler(KeywordHandler):
             except SupplyPoint.DoesNotExist:
                 self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
 
-        return self._responded
+        return self.responded
         
