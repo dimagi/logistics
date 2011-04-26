@@ -15,7 +15,7 @@ class RegistrationBaseHandler(RecordResponseHandler):
         Return true if there is a precondition that wasn't met. If all preconditions
         are met, the variables for facility and name will be set.
         
-        This method will manage replies as well.
+        This method will manage some replies as well.
         """
         if hasattr(self.msg,'logistics_contact') and self.msg.logistics_contact.is_active:
             self.respond("You are already registered. To change your information you must first text LEAVE")
