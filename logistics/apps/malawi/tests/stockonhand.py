@@ -93,6 +93,27 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         
+    def testPartialFillSupplyFlow(self):
+        self._setup_users()
+        a = """
+           16175551000 > soh zi 10 la 15
+           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
+           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
+           16175551001 > partial 26161
+           16175551001 < Thank you for partially confirming order for wendy. You approved some of: zi, la
+           16175551000 < Dear wendy, your pending is now ready to be partially filled. Not all products were available but some are ready.
+        """
+        self.runScript(a)
+        self.assertEqual(2, StockRequest.objects.count())
+        for req in StockRequest.objects.all():
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
+            self.assertEqual(StockRequestStatus.PARTIALLY_STOCKED, req.status)
+            self.assertTrue(req.is_pending())
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        self.assertEqual(zi.quantity, 10)
+        self.assertEqual(la.quantity, 15)
+        
     def _setup_users(self):
         a = """
            16175551000 > register wendy 1 2616
