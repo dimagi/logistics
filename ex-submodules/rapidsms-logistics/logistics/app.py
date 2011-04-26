@@ -68,7 +68,7 @@ class App(AppBase):
         """
         Handles base logic of whether this message should be processed.
         Returns a tuple, the first value is whether the operation should
-        proceed with the normal handle phase, the second being the return n
+        proceed with the normal handle phase, the second being the return 
         code. If the first argument is True, the value of the second argument 
         is not defined.
         """
