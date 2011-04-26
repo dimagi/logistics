@@ -2,17 +2,15 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
-from rapidsms.conf import settings
-from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, Facility, SupplyPoint, REGISTER_MESSAGE, SupplyPointType
-from rapidsms.contrib.locations.models import Location, LocationType
+from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi import const
-from logistics.apps.malawi.handlers.abstract import AbstractBaseHandler
+from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from rapidsms.contrib.locations.models import Location
 
 HSA_HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
 
-class HSARegistrationHandler(AbstractBaseHandler):
+class HSARegistrationHandler(RegistrationBaseHandler):
     """
     Registration for HSAs
     """

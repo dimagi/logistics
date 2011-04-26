@@ -2,8 +2,9 @@ from rapidsms.models import Contact
 from logistics.apps.malawi.handlers.deregistration import NOT_REGISTERED_MESSAGE
 __author__ = 'ternus'
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole
-from logistics.apps.malawi.handlers.registration import REGISTER_MESSAGE, HSA_HELP_MESSAGE
+from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
+    REGISTER_MESSAGE
+from logistics.apps.malawi.handlers.registration import HSA_HELP_MESSAGE
 from logistics.apps.malawi import app as malawi_app, const
 
 class TestHSARegister(TestScript):

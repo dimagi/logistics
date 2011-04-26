@@ -1,11 +1,11 @@
 """Managers register for the system here"""
-from logistics.apps.malawi.handlers.abstract import AbstractBaseHandler
 from logistics.apps.logistics.models import ContactRole
 from rapidsms.models import Contact
 from django.utils.translation import ugettext as _
+from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 
 MANAGER_HELP_MESSAGE = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
-class ManagerRegistrationHandler(AbstractBaseHandler):
+class ManagerRegistrationHandler(RegistrationBaseHandler):
     """
     Registration for everyone else
     """

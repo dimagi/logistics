@@ -7,8 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 # I would prefer this live in the same module as the subclasses, but 
 # unfortunately rapidsms also doesn't like that. 
 
-class AbstractBaseHandler(KeywordHandler):
-    keyword = "thiskeywordshouldreallyneverfireandthisisahack"
+class RegistrationBaseHandler(KeywordHandler):
     help_message = "You shouldn't be seeing this message. Something is very wrong."
     _responded = False
     supply_point = None
@@ -19,7 +18,7 @@ class AbstractBaseHandler(KeywordHandler):
         self.respond(_(self.help_message))
     
     def respond(self, template, **kwargs):
-        super(AbstractBaseHandler, self).respond(template, **kwargs)
+        super(RegistrationBaseHandler, self).respond(template, **kwargs)
         self._responded = True
     
     def handle_preconditions(self, text):
