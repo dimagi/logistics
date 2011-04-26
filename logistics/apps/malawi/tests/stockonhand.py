@@ -21,11 +21,8 @@ class TestStockOnHandMalawi(TestScript):
         self.runScript(a)
         
     def testBasicSupplyFlow(self):
+        self._setup_users()
         a = """
-           16175551000 > register wendy 1 2616
-           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551001 > manage sally ic 2616
-           16175551001 < Congratulations sally, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > soh zi 10 la 15
            16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
            16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
@@ -50,9 +47,9 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.APPROVED, req.status)
             self.assertTrue(req.is_pending())
-            self.assertEqual(Contact.objects.get(name="sally"), req.approved_by)
+            self.assertEqual(Contact.objects.get(name="sally"), req.responded_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
-            self.assertTrue(req.approved_on > req.requested_on)
+            self.assertTrue(req.responded_on > req.requested_on)
         
         # stocks shouldn't get updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 10)
@@ -69,9 +66,38 @@ class TestStockOnHandMalawi(TestScript):
             self.assertFalse(req.is_pending())
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
-            self.assertTrue(req.received_on > req.approved_on > req.requested_on)
+            self.assertTrue(req.received_on > req.responded_on > req.requested_on)
         
         # stocks should now be updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 400)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
         
+    def testStockoutSupplyFlow(self):
+        self._setup_users()
+        a = """
+           16175551000 > soh zi 10 la 15
+           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
+           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 26161' when supplies are ready
+           16175551001 > os 26161
+           16175551001 < Thank you sally. You have reported stockouts for the following products: zi, la. The district office has been notified.
+           16175551000 < Dear wendy, your pending order is stocked out at the facility. Please work with the in-charge to resolve this issue in a timely manner.
+        """
+        self.runScript(a)
+        self.assertEqual(2, StockRequest.objects.count())
+        for req in StockRequest.objects.all():
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="26161"))
+            self.assertEqual(StockRequestStatus.STOCKED_OUT, req.status)
+            self.assertTrue(req.is_pending())
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="26161"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="26161"))
+        self.assertEqual(zi.quantity, 10)
+        self.assertEqual(la.quantity, 15)
+        
+    def _setup_users(self):
+        a = """
+           16175551000 > register wendy 1 2616
+           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+           16175551001 > manage sally ic 2616
+           16175551001 < Congratulations sally, you have successfully been registered for the Early Warning System. Your facility is Ntaja
+        """
+        self.runScript(a)

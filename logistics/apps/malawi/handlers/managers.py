@@ -15,7 +15,6 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
     def help(self):
         self.respond(Messages.MANAGER_HELP)
     
-    
     def handle(self, text):
         if self.handle_preconditions(text):
             return

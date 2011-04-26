@@ -284,10 +284,12 @@ class StockRequestStatus(object):
     """Basically a const for our choices"""
     REQUESTED = "requested"
     APPROVED = "approved"
-    RECEIVED = "received" 
+    STOCKED_OUT = "stocked_out"
+    PARTIALLY_STOCKED = "partially_stocked"
+    RECEIVED = "received"
     CANCELED = "canceled"
-    CHOICES = [REQUESTED, APPROVED, RECEIVED, CANCELED] 
-    CHOICES_PENDING = [REQUESTED, APPROVED]
+    CHOICES = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED, RECEIVED, CANCELED] 
+    CHOICES_PENDING = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED]
     CHOICES_CLOSED = [RECEIVED, CANCELED]
     STATUS_CHOICES = ((val, val) for val in CHOICES)
 
@@ -299,18 +301,21 @@ class StockRequest(models.Model):
     """
     product = models.ForeignKey(Product)
     supply_point = models.ForeignKey("SupplyPoint")
-    status = models.CharField(max_length=10, choices=StockRequestStatus.STATUS_CHOICES)
+    status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES)
     
     requested_on = models.DateTimeField()
-    approved_on = models.DateTimeField(null=True)
+    responded_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
     requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by")
-    approved_by = models.ForeignKey(Contact, null=True, related_name="approved_by")
+    responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by")
     received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
     
     amount_requested = models.PositiveIntegerField(null=True)
-    amount_approved = models.PositiveIntegerField(null=True)
+    # this field is actually unnecessary with no ability to 
+    # approve partial resupplies in the current system, but is
+    # left in the models for possibile use down the road
+    amount_approved = models.PositiveIntegerField(null=True) 
     amount_received = models.PositiveIntegerField(null=True)
     
     canceled_for = models.ForeignKey("StockRequest", null=True)
@@ -321,12 +326,22 @@ class StockRequest(models.Model):
     def is_closed(self):
         return self.status in StockRequestStatus.CHOICES_CLOSED
     
-    def approve(self, by, amt, on):
+    def approve(self, by, on, amt):
+        return self.respond(StockRequestStatus.APPROVED, by, on, amt)
+    
+    def mark_partial(self, by, on):
+        return self.respond(StockRequestStatus.PARTIALLY_STOCKED, by, on)
+    
+    def mark_stockout(self, by, on):
+        return self.respond(StockRequestStatus.STOCKED_OUT, by, on)
+    
+    def respond(self, status, by, on, amt=None):
         assert(self.is_pending()) # we should only approve pending requests
-        self.approved_by = by
-        self.amount_approved = amt
-        self.approved_on = on
-        self.status = StockRequestStatus.APPROVED
+        self.responded_by = by
+        if amt:
+            self.amount_approved = amt
+        self.responded_on = on
+        self.status = status
         self.save()
         
     def receive(self, by, amt, on):
@@ -354,6 +369,8 @@ class StockRequest(models.Model):
             return "%s %s" % (self.product.sms_code, self.amount_approved)
         elif self.status == StockRequestStatus.RECEIVED:
             return "%s %s" % (self.product.sms_code, self.amount_received)
+        elif self.status in [StockRequestStatus.PARTIALLY_STOCKED, StockRequestStatus.STOCKED_OUT]:
+            return self.product.sms_code # no valid amount information
         raise Exception("bad call to sms format, unexpected status: %s" % self.status)
     
     @classmethod
