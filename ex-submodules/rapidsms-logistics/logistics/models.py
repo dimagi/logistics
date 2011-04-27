@@ -387,19 +387,20 @@ class StockRequest(models.Model):
         now = datetime.utcnow()
         for product_code, stock in stock_report.product_stock.items():
             product = stock_report.get_product(product_code)
-            resupply_amount = ProductStock.objects.get(supply_point=stock_report.supply_point, 
-                                                       product=product).maximum_level
-            if resupply_amount > stock:
+            
+            current_stock = ProductStock.objects.get(supply_point=stock_report.supply_point, 
+                                                     product=product)
+            if current_stock.maximum_level > stock:
                 # confusingly, we don't flag emergencies unless it is an 
                 # emergency level AND an emergency order. this logic
                 # is probably not ideal
                 is_emergency = stock_report.report_type == Reports.EMERGENCY_SOH and \
-                               resupply_amount.is_below_emergency_level
+                               current_stock.is_below_emergency_level()
                 req = StockRequest.objects.create(product=product, 
                                                   supply_point=stock_report.supply_point,
                                                   status=StockRequestStatus.REQUESTED,
                                                   requested_by=contact,
-                                                  amount_requested=resupply_amount - stock,
+                                                  amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
                                                   is_emergency=is_emergency)
                 requests.append(req)
@@ -518,7 +519,7 @@ class StockTransaction(models.Model):
 
         
         st.beginning_balance = beginning_balance
-        if pr.report_type.code == Reports.SOH:
+        if pr.report_type.code == Reports.SOH or pr.report_type.code == Reports.EMERGENCY_SOH:
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
         elif pr.report_type.code == Reports.REC:
