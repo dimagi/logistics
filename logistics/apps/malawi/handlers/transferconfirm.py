@@ -5,6 +5,7 @@ from logistics.apps.malawi.const import Messages, Operations
 from logistics.apps.malawi.roles import user_can_do
 from logistics.apps.logistics.const import Reports
 from datetime import datetime
+from logistics.apps.logistics.decorators import logistics_contact_required
 
 class TransferConfirmHandler(KeywordHandler):
     """
@@ -15,11 +16,10 @@ class TransferConfirmHandler(KeywordHandler):
 
     def help(self):
         self.handle("")
-        
+
+    @logistics_contact_required
     def handle(self, text):
-        if not hasattr(self.msg,'logistics_contact'):
-            self.respond(Messages.REGISTRATION_REQUIRED_MESSAGE)
-        elif not user_can_do(self.msg.logistics_contact, Operations.CONFIRM_TRANSFER):
+        if not user_can_do(self.msg.logistics_contact, Operations.CONFIRM_TRANSFER):
             self.respond(Messages.UNSUPPORTED_OPERATION)
         else:
             pending = StockTransfer.pending_transfers().filter\

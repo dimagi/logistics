@@ -18,7 +18,10 @@ class testContactsAndRoles(TestScript):
                 5551212 < %(required)s
                 5551212 > os 100100
                 5551212 < %(required)s
+                5551212 > confirm
+                5551212 < %(required)s
+                5551212 > give 100101 la 200
+                5551212 < %(required)s
             """ % {"required": Messages.REGISTRATION_REQUIRED_MESSAGE}
         self.runScript(a)
-        
         
