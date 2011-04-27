@@ -177,7 +177,7 @@ class ProductStock(models.Model):
 
     def is_overstocked(self):
         if self.maximum_level is not None:
-            if self.quantity >= self.maximum_level:
+            if self.quantity > self.maximum_level:
                 return True
         return False
 
