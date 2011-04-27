@@ -40,5 +40,4 @@ class StockReportBaseHandler(RecordResponseHandler):
         stock_report.parse(text)
         stock_report.save()
         self.requests = StockRequest.create_from_report(stock_report, self.hsa)
-        self.send_responses(stock_report)
-        
+        self.send_responses(stock_report)        

@@ -78,6 +78,7 @@ class Messages(object):
     SOH_ORDER_CONFIRM = "Thank you %(contact)s. The health center in charge has been notified and you will receive an alert when supplies are ready." 
     # emergency
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
+    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products: %(emergency_products)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     # report
     REPORT_HELP = "To report stock for someone use: report [hsa id] soh [prod code] [amount]. To report receipts use: report [hsa id] soh [prod code] [amount]"
     BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"

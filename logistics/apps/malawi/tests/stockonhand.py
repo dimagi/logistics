@@ -115,6 +115,30 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         
+    def testEmergencyStockOnHand(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 10 la 500
+           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
+           16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
+        """
+        self.runScript(a)
+        self.assertEqual(2, StockRequest.objects.count())
+        for req in StockRequest.objects.all():
+            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
+            self.assertEqual(StockRequestStatus.REQUESTED, req.status)
+            self.assertTrue(req.is_pending())
+            if req.product.sms_code == "zi":
+                self.assertTrue(req.is_emergency)
+            else:
+                self.assertEqual("la", req.product.sms_code)
+                self.assertFalse(req.is_emergency)
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
+        self.assertEqual(zi.quantity, 10)
+        self.assertEqual(la.quantity, 500)
+        
+        
     def _setup_users(self):
         a = """
            16175551000 > register wendy 1 2616
