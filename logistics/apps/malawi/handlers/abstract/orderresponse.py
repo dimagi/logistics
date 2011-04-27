@@ -32,4 +32,4 @@ class OrderResponseBaseHandler(RecordResponseHandler):
             if self.hsa is None:
                 self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
                 
-            return self.responded
+        return self.responded

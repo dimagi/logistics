@@ -110,4 +110,4 @@ class TestHSARegister(TestScript):
         self.runScript(c)
         contact = Contact.objects.get(name="stella")
         self.assertTrue(contact.is_active)
-        
+    

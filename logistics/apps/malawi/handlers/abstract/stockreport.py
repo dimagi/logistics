@@ -33,11 +33,11 @@ class StockReportBaseHandler(RecordResponseHandler):
             self.respond(Messages.UNSUPPORTED_OPERATION)
         else:
             self.hsa = self.msg.logistics_contact
-        
-        stock_report = ProductReportsHelper(self.hsa.supply_point, 
-                                            self.get_report_type(),  
-                                            self.msg.logger_msg)
-        stock_report.parse(text)
-        stock_report.save()
-        self.requests = StockRequest.create_from_report(stock_report, self.hsa)
-        self.send_responses(stock_report)        
+            
+            stock_report = ProductReportsHelper(self.hsa.supply_point, 
+                                                self.get_report_type(),  
+                                                self.msg.logger_msg)
+            stock_report.parse(text)
+            stock_report.save()
+            self.requests = StockRequest.create_from_report(stock_report, self.hsa)
+            self.send_responses(stock_report)        
