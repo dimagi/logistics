@@ -4,7 +4,6 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 
 class RegistrationBaseHandler(RecordResponseHandler):
-    help_message = "You shouldn't be seeing this message. Something is very wrong."
     supply_point = None
     contact_name = ""
     extra = None
