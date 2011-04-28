@@ -10,6 +10,8 @@ class testContactsAndRoles(TestScript):
                 5551212 < %(required)s
                 5551212 > eo la 200
                 5551212 < %(required)s
+                5551212 > rec la 200
+                5551212 < %(required)s
                 5551212 > report 100101 soh la 200
                 5551212 < %(required)s
                 5551212 > report 100101 rec la 200
@@ -44,6 +46,9 @@ class testContactsAndRoles(TestScript):
                 5551112 < %(bad_perms)s
                 5551112 > eo la 200
                 5551112 < %(bad_perms)s
+                # doesn't work yet.
+                # 5551112 > rec la 200
+                # 5551112 < %(bad_perms)s
                 5551112 > give 100101 la 200
                 5551112 < %(bad_perms)s
                 5551112 > confirm

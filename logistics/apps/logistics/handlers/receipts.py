@@ -7,6 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE,\
     StockRequest, StockTransfer
 from logistics.apps.logistics.models import REGISTER_MESSAGE
+from logistics.apps.logistics.decorators import logistics_contact_required
 
 class ReceiptHandler(KeywordHandler):
     """
@@ -18,11 +19,8 @@ class ReceiptHandler(KeywordHandler):
     def help(self):
         self.respond(_("Please send in information about your receipts in the format 'rec <product> <amount> <product> <amount>...'"))
 
+    @logistics_contact_required()
     def handle(self, text):
-        if not hasattr(self.msg,'logistics_contact'):
-            self.respond(REGISTER_MESSAGE)
-            return
-        
         # at the end of your receipt message you can write:
         # 'from xxx' to indicate the source of the supplies.
         # this is used in the stock transfer workflow
