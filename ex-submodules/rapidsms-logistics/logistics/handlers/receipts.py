@@ -29,7 +29,7 @@ class ReceiptHandler(KeywordHandler):
             splittext = text.lower().split()
             text = " ".join(splittext[:splittext.index("from")])
             supplier = " ".join(splittext[splittext.index("from") + 1:])
-        else: 
+        else:
             supplier = None
         
         # parse the report and save as normal receipt
