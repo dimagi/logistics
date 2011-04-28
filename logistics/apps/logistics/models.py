@@ -464,20 +464,6 @@ class ProductReport(models.Model):
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
 
-#unused malawi version, left for a little while
-#class StockTransaction(models.Model):
-#    """A specific transaction related to a single product and supply point"""
-#    supply = models.ForeignKey(ProductStock)
-#    date = models.DateField()
-#    amount = models.IntegerField(help_text="Use positive numbers for receipts, negative for consumption") 
-#    
-#    @property
-#    def is_receipt(self):
-#        return self.amount > 0
-#    
-#    def __unicode__(self):
-#        return "%s: %s on %s" % (self.supply, self.amount, self.date)
-
 class StockTransaction(models.Model):
     """
      StockTransactions exist to track atomic changes to the ProductStock per facility
