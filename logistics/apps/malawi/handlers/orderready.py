@@ -17,10 +17,7 @@ class OrderReadyHandler(OrderResponseBaseHandler):
     def help(self):
         self.respond(Messages.ORDERREADY_HELP_MESSAGE)
         
-    def handle(self, text):
-        if self.handle_preconditions(text):
-            return
-        
+    def handle_custom(self, text):
         now = datetime.utcnow()
         pending_reqs = StockRequest.pending_requests().filter(supply_point=self.hsa.supply_point)
         for req in pending_reqs:

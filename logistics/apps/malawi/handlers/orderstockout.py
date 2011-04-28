@@ -5,8 +5,8 @@ from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseB
 
 class OrderStockoutHandler(OrderResponseBaseHandler):
     """
-    When a supply has been ordered, it is confirmed "ready" by the person
-    providing supplies with this handler.
+    When a supply has been ordered and can't be filled, it is marked 
+    out of stock with this handler.
     """
 
     keyword = "os|so|out"
@@ -14,10 +14,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
     def help(self):
         self.respond(Messages.STOCKOUT_HELP)
         
-    def handle(self, text):
-        if self.handle_preconditions(text):
-            return
-        
+    def handle_custom(self, text):
         now = datetime.utcnow()
         
         # Currently we just mark these stock requests stocked out.

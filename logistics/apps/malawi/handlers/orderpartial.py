@@ -17,9 +17,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
     def help(self):
         self.respond(Messages.PARTIAL_FILL_HELP)
         
-    def handle(self, text):
-        if self.handle_preconditions(text):
-            return
+    def handle_custom(self, text):
         
         now = datetime.utcnow()
         
