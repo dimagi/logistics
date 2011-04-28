@@ -45,6 +45,7 @@ def load_locations(file_path, log_to_console=True):
     hsa_type = LocationType.objects.get_or_create(slug="hsa", name="hsa")[0]
     country = Location.objects.get_or_create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)[0]
     
+    district_sp_type = SupplyPointType.objects.get_or_create(name="district", code="d")[0]
     fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code="hf")[0]
     # we don't use this anywhere in the loader, but make sure to create it
     hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code="hsa")[0]
@@ -64,6 +65,8 @@ def load_locations(file_path, log_to_console=True):
             except Location.DoesNotExist:
                 district = Location.objects.create(name=district_name.strip(), type=district_type, 
                                                    code=district_code, parent=country)
+            # create/load district supply point info
+            dist_sp = _supply_point_from_location(district, type=district_sp_type)
             
             #create/load location info
             if not facility_code:
@@ -78,17 +81,7 @@ def load_locations(file_path, log_to_console=True):
             fac_loc.save()
             
             # create/load supply point info
-            try:
-                fac_sp = SupplyPoint.objects.get(location=fac_loc, type=fac_sp_type)
-            except SupplyPoint.DoesNotExist:
-                fac_sp = SupplyPoint(location=fac_loc)
-            fac_sp.name = fac_loc.name
-            fac_sp.active = True
-            fac_sp.type = fac_sp_type
-            fac_sp.code = facility_code
-            # TODO
-            # fac_sp.supplied_by = ?
-            fac_sp.save()
+            fac_sp = _supply_point_from_location(fac_loc, type=fac_sp_type, parent=dist_sp)
             
             count += 1
     
@@ -97,5 +90,19 @@ def load_locations(file_path, log_to_console=True):
     finally:
         csv_file.close()
             
+def _supply_point_from_location(loc, type, parent=None):
+    try:
+        sp = SupplyPoint.objects.get(location=loc, type=type)
+    except SupplyPoint.DoesNotExist:
+        sp = SupplyPoint(location=loc)
+    sp.name = loc.name
+    sp.active = True
+    sp.type = type
+    sp.code = loc.code
+    sp.supplied_by = parent
+    sp.save()
+    return sp
+    
+    
 def _clean(location_name):
     return location_name.lower().strip().replace(" ", "_")[:30]
