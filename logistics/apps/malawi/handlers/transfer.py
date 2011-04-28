@@ -5,9 +5,8 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import ProductReportsHelper , StockTransfer
 from logistics.apps.malawi import util
 from logistics.apps.malawi.const import Messages, Operations    
-from logistics.apps.malawi.roles import user_can_do
 from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
 
 class TransferHandler(KeywordHandler):
     """
@@ -19,32 +18,29 @@ class TransferHandler(KeywordHandler):
     def help(self):
         self.respond(Messages.TRANSFER_HELP_MESSAGE)
     
-    @logistics_contact_required
+    @logistics_contact_and_permission_required(Operations.MAKE_TRANSFER)
     def handle(self, text):
-        if not user_can_do(self.msg.logistics_contact, Operations.MAKE_TRANSFER):
-            self.respond(Messages.UNSUPPORTED_OPERATION)
+        words = text.split(" ")
+        hsa_id = words[0]
+        hsa = util.get_hsa(hsa_id)
+        if hsa is None:
+            self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:
-            words = text.split(" ")
-            hsa_id = words[0]
-            hsa = util.get_hsa(hsa_id)
-            if hsa is None:
-                self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
+            # deduct from the sender, add to the receiver.
+            stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
+                                                Reports.GIVE, self.msg.logger_msg)
+            stock_report.parse(text)
+            stock_report.save()
+            if stock_report.errors:
+                # TODO: respond better.
+                self.respond(Messages.GENERIC_ERROR)
             else:
-                # deduct from the sender, add to the receiver.
-                stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
-                                                    Reports.GIVE, self.msg.logger_msg)
-                stock_report.parse(text)
-                stock_report.save()
-                if stock_report.errors:
-                    # TODO: respond better.
-                    self.respond(Messages.GENERIC_ERROR)
-                else:
-                    transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
-                    self.respond(Messages.TRANSFER_RESPONSE, 
-                                 giver=self.msg.logistics_contact.name,
-                                 receiver=hsa.name,
-                                 products=stock_report.all())
-                    hsa.message(Messages.TRANSFER_CONFIRM, 
-                                giver=self.msg.logistics_contact.name,
-                                products=stock_report.all())
-                    
+                transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
+                self.respond(Messages.TRANSFER_RESPONSE, 
+                             giver=self.msg.logistics_contact.name,
+                             receiver=hsa.name,
+                             products=stock_report.all())
+                hsa.message(Messages.TRANSFER_CONFIRM, 
+                            giver=self.msg.logistics_contact.name,
+                            products=stock_report.all())
+                
