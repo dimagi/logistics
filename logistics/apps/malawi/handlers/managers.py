@@ -22,9 +22,10 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         try:
             role = ContactRole.objects.get(code__iexact=self.extra)
         except ContactRole.DoesNotExist:
-            self.respond("Sorry, I don't understand the role %(role)s", role=self.extra)
+            self.respond(Messages.UNKNOWN_ROLE, role=self.extra,
+                         valid_roles=" ".join(ContactRole.objects.values_list\
+                                              ("code", flat=True).order_by("code")))
             return
-
         # overwrite the existing contact data if it was already there
         # we know at least they were not active since we checked above
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
@@ -35,6 +36,5 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        kwargs = {'sdp_name': self.supply_point.name,
-                  'contact_name': contact.name}
-        self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Early Warning System. Your facility is %(sdp_name)s"), **kwargs)
+        self.respond(_(Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+                     contact_name=contact.name, role=contact.role.name)

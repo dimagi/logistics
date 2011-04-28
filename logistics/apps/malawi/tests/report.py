@@ -4,37 +4,35 @@ from logistics.apps.logistics.models import ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus
 from logistics.apps.malawi import app as malawi_app
 from logistics.apps.malawi.const import Messages
+from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
 class TestReport(TestScript):
     apps = ([malawi_app.App])
     fixtures = ["malawi_products.json"]
     
     def testBadRoles(self):
+        create_hsa(self, "16175551000", "joe")
+        create_manager(self, "16175551234", "charles", role="hsa")
         a = """
-           16175551234 > manage charles hsa 2616
-           16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551000 > register joe 1 2616
-           16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_role)s
         """ % {"bad_role": Messages.UNSUPPORTED_OPERATION}
+               
         self.runScript(a)
     
     def testBadHsaId(self):
+        create_manager(self, "16175551234", "charles", role="ic")
         a = """
-           16175551234 > manage charles ic 2616
-           16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_hsa)s
         """ % {"bad_hsa": Messages.UNKNOWN_HSA % {"hsa_id": 261601}}
+        
         self.runScript(a)
     
     def testSohAndReceiptReporting(self):
+        create_manager(self, "16175551234", "charles", role="ic")
+        create_hsa(self, "16175551000", "joe")
         a = """
-           16175551234 > manage charles ic 2616
-           16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551000 > register joe 1 2616
-           16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < joe needs the following products: zi 360, la 520. Use 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
         """ 
@@ -61,11 +59,9 @@ class TestReport(TestScript):
             self.assertFalse(req.is_pending())
         
     def testReceiptReporting(self):
+        create_manager(self, "16175551234", "charles", role="ic")
+        create_hsa(self, "16175551000", "joe")
         a = """
-           16175551234 > manage charles ic 2616
-           16175551234 < Congratulations charles, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551000 > register joe 1 2616
-           16175551000 < Congratulations joe, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > report 261601 rec zi 100 la 400 
            16175551234 < Thank you charles. You reported the following receipts for joe: zi la
         """ 

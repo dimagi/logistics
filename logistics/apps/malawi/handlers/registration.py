@@ -66,7 +66,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        kwargs = {'sdp_name': self.supply_point.name,
-                  'contact_name': contact.name}
-        self.respond(_("Congratulations %(contact_name)s, you have successfully been registered for the Early Warning System. Your facility is %(sdp_name)s"), **kwargs)
+        self.respond(_(Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+                     contact_name=contact.name, role=contact.role.name)
+        
 

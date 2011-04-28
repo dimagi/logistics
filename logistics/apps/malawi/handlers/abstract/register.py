@@ -2,6 +2,7 @@ from django.utils.translation import ugettext as _
 from logistics.apps.logistics.models import SupplyPoint
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics.apps.malawi.const import Messages
 
 class RegistrationBaseHandler(RecordResponseHandler):
     supply_point = None
@@ -17,7 +18,7 @@ class RegistrationBaseHandler(RecordResponseHandler):
         This method will manage some replies as well.
         """
         if hasattr(self.msg,'logistics_contact') and self.msg.logistics_contact.is_active:
-            self.respond("You are already registered. To change your information you must first text LEAVE")
+            self.respond(Messages.ALREADY_REGISTERED)
         
         words = text.split()
         if len(words) < 3:
@@ -29,7 +30,7 @@ class RegistrationBaseHandler(RecordResponseHandler):
             try:
                 self.supply_point = SupplyPoint.objects.get(code__iexact=code)
             except SupplyPoint.DoesNotExist:
-                self.respond(_("Sorry, can't find the location with CODE %(code)s"), code=code )
+                self.respond(_(Messages.UNKNOWN_LOCATION), code=code )
 
         return self.responded
         

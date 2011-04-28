@@ -1,5 +1,6 @@
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.malawi.const import Messages
+from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
 
 class testContactsAndRoles(TestScript):
@@ -29,11 +30,10 @@ class testContactsAndRoles(TestScript):
         
         
     def testRolesAndOperations(self):
+        create_hsa(self, "5551111", "hsa")
+        create_manager(self, "5551112", "in charge")
+        
         a = """
-                5551111 > register hsa 1 1001
-                5551111 < Congratulations hsa, you have successfully been registered for the Early Warning System. Your facility is Bua
-                5551112 > manage in charge ic 1001
-                5551112 < Congratulations in charge, you have successfully been registered for the Early Warning System. Your facility is Bua
                 5551111 > ready 100100
                 5551111 < %(bad_perms)s
                 5551111 > os 100100

@@ -26,9 +26,9 @@ class Roles(object):
     CLUSTER_SUPERVISOR = "cs"
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
-    IMCI_COORDINATOR = "ic"
+    IMCI_COORDINATOR = "im"
     ALL_ROLES = {
-        HSA: "health surveillance assistant",
+        HSA: "hsa",
         SENIOR_HSA: "senior hsa",
         IN_CHARGE: "in charge",
         CLUSTER_SUPERVISOR: "cluster supervisor",
@@ -46,13 +46,16 @@ class Operations(object):
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
+    ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
+    UNKNOWN_LOCATION = "Sorry, can't find the location with CODE %(code)s. Please double check the location code and try again."
     REGISTRATION_REQUIRED_MESSAGE = "Sorry, you have to be registered with the system to do that. For help, please contact your supervisor"
     UNSUPPORTED_OPERATION = "Sorry, your current role does not allow you to do that. For help, please contact your supervisor"
     UNKNOWN_HSA = "Cannot find hsa with id %(hsa_id)s. Please double check the id and try again."
+    UNKNOWN_ROLE = "Sorry, I don't understand the role %(role)s. Valid roles are %(valid_roles)s"
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district administrator for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble contact your supervisor for help."
     NO_IN_CHARGE = "There is no in-charge registered for %(supply_point)s. Please contact your supervisor to resolve this."
-
+    REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
     # orderready
     ORDERREADY_HELP_MESSAGE = "To confirm an order type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You approved: %(products)s"
@@ -88,4 +91,8 @@ class Messages(object):
     HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
     # manager registration
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
-     
+    # leave
+    LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
+    LEAVE_CONFIRM = "You have successfully left the cStock system. Goodbye!"
+
+

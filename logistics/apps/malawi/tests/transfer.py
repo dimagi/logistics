@@ -7,17 +7,16 @@ from logistics.apps.logistics.models import Product, ProductStock, \
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi.const import Messages
+from logistics.apps.malawi.tests.util import create_manager, create_hsa
 
 class TestTransfer(TestScript):
     apps = ([malawi_app.App])
     fixtures = ["malawi_products.json"]
     
     def testBadRoles(self):
+        create_manager(self, "16175551234", "cindy")
+        create_hsa(self, "16175551235", "alex")
         a = """
-           16175551234 > manage cindy ic 2616
-           16175551234 < Congratulations cindy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551235 > register alex 1 2616
-           16175551235 < Congratulations alex, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > give 261601 zi 20 
            16175551234 < %(bad_role)s
            16175551235 > give 2616 zi 20
@@ -26,11 +25,9 @@ class TestTransfer(TestScript):
         self.runScript(a)
         
     def testBasicTransfer(self):
+        create_hsa(self, "16175551000", "wendy")
+        create_hsa(self, "16175551001", "steve", id="2")
         a = """
-           16175551000 > register wendy 1 2616
-           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551001 > register steve 2 2616
-           16175551001 < Congratulations steve, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > soh zi 100
            16175551000 < There is no in-charge registered for Ntaja. Please contact your supervisor to resolve this.
            16175551001 > soh zi 10
@@ -72,11 +69,9 @@ class TestTransfer(TestScript):
         
         
     def testTransferFromReceipt(self):
+        create_hsa(self, "16175551000", "wendy")
+        create_hsa(self, "16175551001", "steve", id="2")
         a = """
-           16175551000 > register wendy 1 2616
-           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551001 > register steve 2 2616
-           16175551001 < Congratulations steve, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > rec zi 100 la 250 from 261602
            16175551000 < Thank you, you reported receipts for zi la.
         """
@@ -93,9 +88,8 @@ class TestTransfer(TestScript):
             
         
     def testTransferFromReceiptNoSupplyPoint(self):
+        create_hsa(self, "16175551000", "wendy")
         a = """
-           16175551000 > register wendy 1 2616
-           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551000 > rec zi 100 la 250 from someone random
            16175551000 < Thank you, you reported receipts for zi la.
         """

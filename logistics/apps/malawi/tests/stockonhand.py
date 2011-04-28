@@ -4,17 +4,15 @@ from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequ
     ProductStock
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
+from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
 class TestStockOnHandMalawi(TestScript):
     apps = ([malawi_app.App])
     fixtures = ["malawi_products.json"]
     
     def testNoInCharge(self):
-        
+        create_hsa(self, "16175551234", "stella")
         a = """
-        
-           16175551234 > register stella 1 2616
-           16175551234 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Ntaja
            16175551234 > soh zi 10
            16175551234 < There is no in-charge registered for Ntaja. Please contact your supervisor to resolve this.
            """
@@ -140,10 +138,6 @@ class TestStockOnHandMalawi(TestScript):
         
         
     def _setup_users(self):
-        a = """
-           16175551000 > register wendy 1 2616
-           16175551000 < Congratulations wendy, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-           16175551001 > manage sally ic 2616
-           16175551001 < Congratulations sally, you have successfully been registered for the Early Warning System. Your facility is Ntaja
-        """
-        self.runScript(a)
+        create_hsa(self, "16175551000", "wendy")
+        create_manager(self, "16175551001", "sally")
+        
