@@ -1,7 +1,8 @@
 from datetime import datetime
-from logistics.apps.logistics.models import StockRequest
-from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.models import StockRequest, ContactRole
+from logistics.apps.malawi.const import Messages, Roles
 from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
+from rapidsms.models import Contact
 
 class OrderStockoutHandler(OrderResponseBaseHandler):
     """
@@ -26,5 +27,16 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
         self.respond(Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
                      products=products)
         self.hsa.message(Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)
-        # TODO: district notifications 
-    
+        supplier = self.msg.logistics_contact.supply_point.supplied_by
+        if supplier is not None:
+            supervisors = Contact.objects.filter(supply_point=supplier, 
+                                                 role__in=[ContactRole.objects.get(code=Roles.DISTRICT_PHARMACIST),
+                                                           ContactRole.objects.get(code=Roles.IMCI_COORDINATOR)])
+            # note that if there are no supervisors registered, this will silently
+            # not send notifications 
+            for super in supervisors:
+                super.message(Messages.SUPERVISOR_STOCKOUT_NOTIFICATION, 
+                              contact=self.msg.logistics_contact.name,
+                              supply_point=self.msg.logistics_contact.supply_point.name,
+                              products=products)
+            

@@ -64,6 +64,7 @@ class Messages(object):
     STOCKOUT_HELP = "To report stockouts type os [space] [hsa id], for example: 'os 100101'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. The district office has been notified."
     STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the facility. Please work with the in-charge to resolve this issue in a timely manner."
+    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s."
     # partial order availability
     PARTIAL_FILL_HELP = "To partially fill an order type partial [space] [hsa id], for example: 'partial 100101'"
     PARTIAL_FILL_RESPONSE = "Thank you for partially confirming order for %(hsa)s. You approved some of: %(products)s"

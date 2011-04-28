@@ -5,6 +5,7 @@ from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequ
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
+from logistics.apps.malawi.const import Roles, Messages
 
 class TestStockOnHandMalawi(TestScript):
     apps = ([malawi_app.App])
@@ -80,7 +81,11 @@ class TestStockOnHandMalawi(TestScript):
            16175551001 > os 261601
            16175551001 < Thank you sally. You have reported stockouts for the following products: zi, la. The district office has been notified.
            16175551000 < Dear wendy, your pending order is stocked out at the facility. Please work with the in-charge to resolve this issue in a timely manner.
-        """
+           16175551002 < %(district)s
+           16175551003 < %(district)s
+        """ % {"district": Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
+                    
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -140,4 +145,6 @@ class TestStockOnHandMalawi(TestScript):
     def _setup_users(self):
         create_hsa(self, "16175551000", "wendy")
         create_manager(self, "16175551001", "sally")
+        create_manager(self, "16175551002", "peter", Roles.IMCI_COORDINATOR, "26")
+        create_manager(self, "16175551003", "ruth", Roles.DISTRICT_PHARMACIST, "26")
         
