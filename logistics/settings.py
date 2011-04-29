@@ -212,6 +212,7 @@ TIME_ZONE="Africa/Accra"
 filedir = os.path.dirname(__file__)
 
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "health_centers.csv")
+STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "products.csv")
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"

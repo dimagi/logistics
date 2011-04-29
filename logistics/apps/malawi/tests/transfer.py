@@ -10,8 +10,6 @@ from logistics.apps.malawi.const import Messages
 from logistics.apps.malawi.tests.util import create_manager, create_hsa
 
 class TestTransfer(TestScript):
-    apps = ([malawi_app.App])
-    fixtures = ["malawi_products.json"]
     
     def testBadRoles(self):
         create_manager(self, "16175551234", "cindy")

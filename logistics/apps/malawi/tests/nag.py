@@ -8,7 +8,6 @@ from rapidsms.tests.scripted import TestScript
 import logging
 
 class TestNag(TestScript):
-    fixtures = ["malawi_products.json"]
     
     def testGetNonReportingHSAs(self):
         hsa = self._setup_users()

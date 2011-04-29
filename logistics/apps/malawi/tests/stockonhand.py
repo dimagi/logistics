@@ -9,8 +9,6 @@ from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
 from logistics.apps.malawi.const import Roles, Messages
 
 class TestStockOnHandMalawi(TestScript):
-    apps = ([malawi_app.App])
-    fixtures = ["malawi_products.json"]
     
     def testNoInCharge(self):
         create_hsa(self, "16175551234", "stella")

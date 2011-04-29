@@ -2,7 +2,7 @@ import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
-    ProductReportType, ContactRole
+    ProductReportType, ContactRole, Product, ProductType
 from logistics.apps.malawi import const
 from logistics.apps.logistics.const import Reports
 
@@ -31,7 +31,45 @@ def clear_locations():
     Location.objects.all().delete()
     LocationType.objects.all().delete()
     
+def clear_products():
+    Product.objects.all().delete()
+    ProductType.objects.all().delete()
+
+def load_products(file_path, log_to_console=True):
+    if log_to_console: print "loading static products from %s" % file_path
+    # give django some time to bootstrap itself
+    if not os.path.exists(file_path):
+        raise LoaderException("Invalid file path: %s." % file_path)
     
+    csv_file = open(file_path, 'r')
+    try:
+        count = 0
+        for line in csv_file:
+            #leave out first line
+            if "monthly consumption" in line.lower():
+                continue
+            name, code, monthly_consumption, typename = line.split(",")
+    
+            #create/load type
+            type = ProductType.objects.get_or_create(name=typename, code=typename.lower())[0]
+            
+            try:
+                product = Product.objects.get(sms_code=code.lower())
+            except Product.DoesNotExist:
+                product = Product(sms_code=code.lower())
+            product.name = name
+            product.description = name # todo
+            product.type = type
+            product.monthly_consumption = int(monthly_consumption) if monthly_consumption else None
+            product.save()
+            
+            count += 1
+    
+        if log_to_console: print "Successfully processed %s products." % count
+    
+    finally:
+        csv_file.close()
+
 def load_locations(file_path, log_to_console=True):
     if log_to_console: print "loading static locations from %s" % file_path
     # give django some time to bootstrap itself

@@ -56,7 +56,8 @@ def malawi():
     env.branch = "malawi_model_support"
     env.hosts = ['sc4ccm@50.56.116.170']
     def malawi_extras():
-        run("python manage.py loaddata malawi_products")
+        pass
+        #run("python manage.py loaddata malawi_products")
     env.extras = malawi_extras
 
 def staging():
