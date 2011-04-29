@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     "django_nose",
     "djtables",
     "rapidsms",
+    "django_extensions",
     # for email reports
     "djcelery", # pip install django-celery
     "djkombu", # pip install django-kombu
@@ -176,7 +177,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "logistics",
         "USER": "postgres",
-        "PASSWORD": "",
+        "PASSWORD": "dimagi4vm",
         "HOST": "localhost",
     }
 }
