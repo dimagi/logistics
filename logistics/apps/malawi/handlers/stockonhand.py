@@ -28,7 +28,7 @@ class StockOnHandReportHandler(StockReportBaseHandler):
                                                  supply_point=self.msg.logistics_contact.supply_point.supplied_by)
                 supervisor.message(Messages.SUPERVISOR_SOH_NOTIFICATION, 
                                    hsa=self.msg.logistics_contact.name,
-                                   supplies=", ".join(req.sms_format() for req in self.requests),
+                                   products=", ".join(req.sms_format() for req in self.requests),
                                    hsa_id=self.msg.logistics_contact.supply_point.code)
                 self.respond(Messages.SOH_ORDER_CONFIRM,
                                 contact=self.msg.logistics_contact.name)

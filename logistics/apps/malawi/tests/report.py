@@ -34,7 +34,7 @@ class TestReport(TestScript):
         create_hsa(self, "16175551000", "joe")
         a = """
            16175551234 > report 261601 soh zi 40 la 200 
-           16175551234 < joe needs the following products: zi 360, la 520. Use 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
+           16175551234 < joe needs the following products: zi 360, la 520. Type 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
         """ 
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code=261601)

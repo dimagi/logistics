@@ -29,11 +29,10 @@ class TestTransfer(TestScript):
         create_hsa(self, "16175551001", "steve", id="2")
         a = """
            16175551000 > soh zi 100
-           16175551000 < There is no in-charge registered for Ntaja. Please contact your supervisor to resolve this.
+           16175551000 < %(no_super)s
            16175551001 > soh zi 10
-           16175551001 < There is no in-charge registered for Ntaja. Please contact your supervisor to resolve this.
-           
-        """
+           16175551001 < %(no_super)s
+        """ % {"no_super": Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
         self.runScript(a)
         stock_from = ProductStock.objects.get(supply_point=SupplyPoint.objects.get(code="261601"), 
                                               product=Product.by_code("zi"))
@@ -44,9 +43,10 @@ class TestTransfer(TestScript):
         
         b = """
            16175551000 > give 261602 zi 20
-           16175551000 < Thank you wendy. You have transfered steve the following products: zi 20
+           16175551000 < %(confirm)s
            16175551001 < Confirm receipt of zi 20 from wendy? Please respond 'confirm'
-        """
+        """ % {"confirm": Messages.TRANSFER_RESPONSE % \
+                    {"giver": "wendy", "receiver": "steve", "products": "zi 20"}}
         self.runScript(b)
         self.assertEqual(80, ProductStock.objects.get(pk=stock_from.pk).quantity)
         self.assertEqual(10, ProductStock.objects.get(pk=stock_to.pk).quantity)

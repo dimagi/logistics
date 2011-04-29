@@ -4,7 +4,8 @@ from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequ
     ProductStock
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
-from logistics.apps.malawi.tests.util import create_hsa, create_manager
+from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
+    report_stock
 from logistics.apps.malawi.const import Roles, Messages
 
 class TestStockOnHandMalawi(TestScript):
@@ -15,18 +16,14 @@ class TestStockOnHandMalawi(TestScript):
         create_hsa(self, "16175551234", "stella")
         a = """
            16175551234 > soh zi 10
-           16175551234 < There is no in-charge registered for Ntaja. Please contact your supervisor to resolve this.
-           """
+           16175551234 < %(no_super)s
+           """ % {"no_super": Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
         self.runScript(a)
         
     def testBasicSupplyFlow(self):
-        self._setup_users()
-        a = """
-           16175551000 > soh zi 10 la 15
-           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
-        """
-        self.runScript(a)
+        hsa, ic = self._setup_users()[0:2]
+        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
@@ -39,9 +36,14 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(la.quantity, 15)
         b = """
            16175551001 > ready 261601
-           16175551001 < Thank you for confirming order for wendy. You approved: zi 390, la 705
-           16175551000 < Dear wendy, your pending order has been approved. The following supplies are ready: zi 390, la 705
-        """
+           16175551001 < %(confirm)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": Messages.APPROVAL_RESPONSE % \
+                    {"hsa": "wendy", "products": "zi 390, la 705"},
+               "hsa_notice": Messages.APPROVAL_NOTICE % \
+                    {"hsa": "wendy", "products": "zi 390, la 705"}}
+        
+
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -73,18 +75,22 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
         
     def testStockoutSupplyFlow(self):
-        self._setup_users()
+        hsa, ic = self._setup_users()[0:2]
+        
+        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        
         a = """
-           16175551000 > soh zi 10 la 15
-           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
            16175551001 > os 261601
-           16175551001 < Thank you sally. You have reported stockouts for the following products: zi, la. The district office has been notified.
-           16175551000 < Dear wendy, your pending order is stocked out at the facility. Please work with the in-charge to resolve this issue in a timely manner.
+           16175551001 < %(confirm)s
            16175551002 < %(district)s
            16175551003 < %(district)s
-        """ % {"district": Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
-                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": Messages.STOCKOUT_RESPONSE %\
+                    {"reporter": "sally", "products": "zi, la"},
+               "district": Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
+               "hsa_notice": Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+                    
                     
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -97,34 +103,15 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
         
-    def testPartialFillSupplyFlow(self):
-        self._setup_users()
-        a = """
-           16175551000 > soh zi 10 la 15
-           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
-           16175551001 < wendy needs the following supplies: zi 390, la 705. Respond 'ready 261601' when supplies are ready
-           16175551001 > partial 261601
-           16175551001 < Thank you for partially confirming order for wendy. You approved some of: zi, la
-           16175551000 < Dear wendy, your pending is now ready to be partially filled. Not all products were available but some are ready.
-        """
-        self.runScript(a)
-        self.assertEqual(2, StockRequest.objects.count())
-        for req in StockRequest.objects.all():
-            self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
-            self.assertEqual(StockRequestStatus.PARTIALLY_STOCKED, req.status)
-            self.assertTrue(req.is_pending())
-        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
-        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
-        self.assertEqual(zi.quantity, 10)
-        self.assertEqual(la.quantity, 15)
-        
+    
     def testEmergencyStockOnHand(self):
         self._setup_users()
         a = """
            16175551000 > eo zi 10 la 500
-           16175551000 < Thank you wendy. The health center in charge has been notified and you will receive an alert when supplies are ready.
+           16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """
+        """ % {"confirm": Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+                    
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -143,8 +130,9 @@ class TestStockOnHandMalawi(TestScript):
         
         
     def _setup_users(self):
-        create_hsa(self, "16175551000", "wendy")
-        create_manager(self, "16175551001", "sally")
-        create_manager(self, "16175551002", "peter", Roles.IMCI_COORDINATOR, "26")
-        create_manager(self, "16175551003", "ruth", Roles.DISTRICT_PHARMACIST, "26")
+        hsa = create_hsa(self, "16175551000", "wendy")
+        ic = create_manager(self, "16175551001", "sally")
+        im = create_manager(self, "16175551002", "peter", Roles.IMCI_COORDINATOR, "26")
+        dp = create_manager(self, "16175551003", "ruth", Roles.DISTRICT_PHARMACIST, "26")
+        return (hsa, ic, im, dp) 
         
