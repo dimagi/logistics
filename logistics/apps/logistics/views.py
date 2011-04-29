@@ -6,7 +6,6 @@ from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
