@@ -529,6 +529,13 @@ class RequisitionReport(models.Model):
     class Meta:
         ordering = ('-report_date',)
 
+class NagRecord(models.Model):
+    supply_point = models.ForeignKey("SupplyPoint")
+    report_date = models.DateTimeField(default=datetime.utcnow)
+    warning = models.IntegerField(default=1)
+
+    class Meta:
+        ordering = ('-report_date',)
     
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
@@ -1048,5 +1055,3 @@ def consumption(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
     consumption = stocks.exclude(monthly_consumption=None).aggregate(consumption=Sum('monthly_consumption'))['consumption']
     return consumption
-
-
