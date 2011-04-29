@@ -95,5 +95,11 @@ class Messages(object):
     # leave
     LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
     LEAVE_CONFIRM = "You have successfully left the cStock system. Goodbye!"
+    #nag
+    HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
+    HSA_NAG_SECOND = "Dear %(hsa)s, you must report your stock on hand. " + SOH_HELP_MESSAGE
+    HSA_NAG_THIRD = "Dear %(hsa)s, you must report your stock on hand.  Your supervisor has been notified. " + SOH_HELP_MESSAGE
+    HSA_SUPERVISOR_NAG = "%(hsa)s has failed to report their stock on hand this month."
+
 
 
