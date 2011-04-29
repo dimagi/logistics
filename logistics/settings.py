@@ -279,8 +279,8 @@ NO_LOGIN_REQUIRED_FOR = [
 AXES_LOGIN_FAILURE_LIMIT=10
 AXES_LOGIN_FAILURE_LIMIT=1
 
-LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="cStock"
-BASE_TEMPLATE="ewsghana/base.html"
+BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
