@@ -26,32 +26,32 @@ class App(AppBase):
 
     def start (self):
         """Configure your app in the start phase."""
-        if not self.bootstrapped:
+        if not self.bootstrapped :
             self.bootstrapped = True
-            
-            # set up first soh reminder
-            try:
-                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
-            except EventSchedule.DoesNotExist:
-                # 2:15 pm on Thursdays
-                set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
-
-            # set up second soh reminder
-            try:
-                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
-            except EventSchedule.DoesNotExist:
-                # 2:15 pm on Mondays
-                set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
-
-            # set up third soh reminder
-            try:
-                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
-            except EventSchedule.DoesNotExist:
-                # 2:15 pm on Wednesdays
-                set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
-                #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
-                #                         hours='*', minutes='*', callback_args=None )
-                #schedule.save()
+            if settings.LOGISTICS_GHANA_HACK_CREATE_SCHEDULES:
+                # set up first soh reminder
+                try:
+                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
+                except EventSchedule.DoesNotExist:
+                    # 2:15 pm on Thursdays
+                    set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
+    
+                # set up second soh reminder
+                try:
+                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
+                except EventSchedule.DoesNotExist:
+                    # 2:15 pm on Mondays
+                    set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
+    
+                # set up third soh reminder
+                try:
+                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
+                except EventSchedule.DoesNotExist:
+                    # 2:15 pm on Wednesdays
+                    set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
+                    #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
+                    #                         hours='*', minutes='*', callback_args=None )
+                    #schedule.save()
 
             # set up rrirv reminder
             try:
