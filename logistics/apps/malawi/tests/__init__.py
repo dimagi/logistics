@@ -1,5 +1,6 @@
 import unittest
 from logistics.apps.malawi.tests.nag import *
+from logistics.apps.malawi.tests.product import *
 from logistics.apps.malawi.tests.register import *
 from logistics.apps.malawi.tests.report import *
 from logistics.apps.malawi.tests.roles import *
