@@ -96,10 +96,11 @@ class Messages(object):
     # product add/remove
     ADD_HELP_MESSAGE = "To add products you supply, send ADD [product codes]."
     REMOVE_HELP_MESSAGE = "To remove products you supply, send REMOVE [product codes]."
-    ADD_FAILURE_MESSAGE = "You are already supplying the following products: %(product)s"
-    REMOVE_FAILURE_MESSAGE = "You are already supplying the following products: %(product)s"
-    ADD_SUCCESS_MESSAGE = "Thank you, you now supply the following products: %(product)s"
-    REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply the following products: %(product)s"
+    ADD_FAILURE_MESSAGE = "You are already supplying: %(products)s. Nothing done."
+    REMOVE_FAILURE_MESSAGE = "You are not currently supplying: %(products)s. Nothing done."
+    ADD_SUCCESS_MESSAGE = "Thank you, you are now supplying: %(products)s"
+    REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply: %(products)s"
+    UNKNOWN_CODE = "Sorry, no product matches code %(product)s.  Nothing done."
     # registration
     HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
     # manager registration
