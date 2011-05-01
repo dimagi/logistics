@@ -201,7 +201,7 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
