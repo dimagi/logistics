@@ -82,7 +82,6 @@ class Messages(object):
     BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"
     REPORT_SOH_RESPONSE = "%(hsa)s needs the following products: %(products)s. Type 'report %(hsa_id)s rec [prod code] [amount]' to report receipts for the HSA."
     REPORT_RECEIPT_RESPONSE = "Thank you %(reporter)s. You reported the following receipts for %(hsa)s: %(products)s"
-
     # Other  Messages (usually for error conditions)
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
     UNKNOWN_LOCATION = "Sorry, can't find the facility with CODE %(code)s. Please double check the facility code and try again."
@@ -94,6 +93,20 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
+    # product add/remove
+    ADD_HELP_MESSAGE = "To add products you supply, send ADD [product codes]."
+    REMOVE_HELP_MESSAGE = "To remove products you supply, send REMOVE [product codes]."
+    ADD_FAILURE_MESSAGE = "You are already supplying the following products: %(product)s"
+    REMOVE_FAILURE_MESSAGE = "You are already supplying the following products: %(product)s"
+    ADD_SUCCESS_MESSAGE = "Thank you, you now supply the following products: %(product)s"
+    REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply the following products: %(product)s"
+    # registration
+    HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
+    # manager registration
+    MANAGER_HELP = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
+    # leave
+    LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
+    LEAVE_CONFIRM = "You have successfully left the cStock system. Goodbye!"
     #nag
     HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
     HSA_NAG_SECOND = "Dear %(hsa)s, you must report your stock on hand. " + SOH_HELP_MESSAGE

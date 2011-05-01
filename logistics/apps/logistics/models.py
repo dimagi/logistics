@@ -707,6 +707,13 @@ class SupplyPoint(models.Model):
             kwargs['admin_name'] = reportee.name
             reportee.message(report % kwargs)
 
+    def supplies_product(self, product):
+        try:
+            ps = ProductStock.objects.get(supply_point=self, product=product)
+        except ProductStock.DoesNotExist:
+            return False
+        return ps.is_active
+
     def activate_product(self, product):
         ps = ProductStock.objects.get(supply_point=self, product=product)
         if ps.is_active == False:
