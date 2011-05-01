@@ -101,13 +101,6 @@ class Messages(object):
     ADD_SUCCESS_MESSAGE = "Thank you, you are now supplying: %(products)s"
     REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply: %(products)s"
     UNKNOWN_CODE = "Sorry, no product matches code %(product)s.  Nothing done."
-    # registration
-    HSA_HELP = "Sorry, I didn't understand. To register, send register <name> <id> <parent facility>. Example: 'register john 1 1001'"
-    # manager registration
-    MANAGER_HELP = "Sorry, I didn't understand. To register, send manage <name> <role> <parent facility>. Example: 'manage john ic 1001'"
-    # leave
-    LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
-    LEAVE_CONFIRM = "You have successfully left the cStock system. Goodbye!"
     #nag
     HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
     HSA_NAG_SECOND = "Dear %(hsa)s, you must report your stock on hand. " + SOH_HELP_MESSAGE
