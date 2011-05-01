@@ -1,21 +1,21 @@
-Name,Code,Monthly Consumption,Family
-LA 1 x 6,LA,360,CCM
-LA 2 x 6,LB,720,CCM
-Paracetamol 500mg,PA,500,CCM
-ORS,OR,50,CCM
-Cotrimoxazole 480mg,CO,500,CCM
-Zinc 20mg,ZI,200,CCM
-Tetracycline Eye Ointment,TE,,CCM
-DMPA,DM,,CCM
-Combined Low Oestegen,CL,,CCM
-Progestogen only,PO,,CCM
-Condom-Male,CM,,CCM
-Condom-Female,CF,,CCM
-Determine HIV,DE,,CCM
-Unigold,UN,,CCM
-Bioline,BI,,CCM
-Gloves,GL,,CCM
-Cotton Wool,CW,,CCM
-Pills' bags,PB,,CCM
-Surgical spirit,SS,,CCM
-Lancets,LC,,CCM
+Product Name,Code,Average Monthly Consumption,Family,Formulation,EOP Quantity
+LA 1 x 6,LA,360,CCM,Tablet,36
+LA 2 x 6,LB,720,CCM,Tablet,72
+Paracetamol 500mg,PA,500,CCM,Tablet,36
+ORS,OR,50,CCM,Sachet,12
+Cotrimoxazole 480mg,CO,500,CCM,Tablet,60
+Zinc 20mg,ZI,200,CCM,Tablet,60
+Tetracycline Eye Ointment,TE,,CCM,Tube,6
+DMPA,DM,,CCM,Vial,6
+Combined Low Oestegen,CL,,CCM,Cycle,6
+Progestogen only,PO,,CCM,Cycle,6
+Condom-Male,CM,,CCM,Piece,100
+Condom-Female,CF,,CCM,Piece,100
+Determine HIV,DE,,CCM,Test,6
+Unigold,UN,,CCM,Test,6
+Bioline,BI,,CCM,Test,6
+Gloves,GL,,CCM,Piece,20
+Cotton Wool,CW,,CCM,Piece,1
+Pills' bags,PB,,CCM,Piece,20
+Surgical spirit,SS,,CCM,1 ltr bottle,1
+Lancets,LC,,CCM,Piece,1000

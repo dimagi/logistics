@@ -45,11 +45,10 @@ def load_products(file_path, log_to_console=True):
     try:
         count = 0
         for line in csv_file:
-            #leave out first line
+            # leave out first line
             if "monthly consumption" in line.lower():
                 continue
-            name, code, monthly_consumption, typename = line.split(",")
-    
+            name, code, monthly_consumption, typename, form, eop_quant = line.split(",")
             #create/load type
             type = ProductType.objects.get_or_create(name=typename, code=typename.lower())[0]
             
@@ -60,7 +59,7 @@ def load_products(file_path, log_to_console=True):
             product.name = name
             product.description = name # todo
             product.type = type
-            product.monthly_consumption = int(monthly_consumption) if monthly_consumption else None
+            product.average_monthly_consumption = int(monthly_consumption) if monthly_consumption else None
             product.save()
             
             count += 1
