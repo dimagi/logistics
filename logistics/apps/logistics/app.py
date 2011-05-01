@@ -17,9 +17,9 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.const import Reports
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
-SOH_KEYWORD = 'soh'
 
 class App(AppBase):
     bootstrapped = False
@@ -210,18 +210,22 @@ class App(AppBase):
         Tests whether this message is one which should go through the handle phase
         i.e. if it begins with soh or one of the product codes
         """
-        keywords = [SOH_KEYWORD]
-        keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
-        text = message.text.lower()
-        for keyword in keywords:
-            if text.startswith(keyword):
-                return True
-        return False
+        if not settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
+            return message.text.lower().startswith(Reports.SOH) 
+        else:
+            keywords = [Reports.SOH]
+            
+            keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
+            text = message.text.lower()
+            for keyword in keywords:
+                if text.startswith(keyword):
+                    return True
+            return False
 
         
     def _clean_message(self, text):
         text = text.lower()
-        if text.startswith(SOH_KEYWORD):
-            return text.strip(SOH_KEYWORD)
+        if text.startswith(Reports.SOH):
+            return text.strip(Reports.SOH)
         return text
 

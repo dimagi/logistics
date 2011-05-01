@@ -1,12 +1,4 @@
-from logistics.apps.logistics.app import App as LogisticsApp, SOH_KEYWORD
-from logistics.apps.logistics.models import ProductReportsHelper,\
-    StockRequest, ContactRole
-from django.conf import settings
-from django.db import transaction
-from logistics.apps.malawi import const
-from rapidsms.models import Contact
-from logistics.apps.malawi.const import Messages
-from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.app import App as LogisticsApp
 
 class App(LogisticsApp):
     """

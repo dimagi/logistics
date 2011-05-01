@@ -79,7 +79,7 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
     #("rapidsms.contrib.locations.views.locations",          "Map"),
-    ("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     #("ewsghana_reporting",  				    "Usage"),
     #("input_stock",      				    "Input Stock"),
     #("ewsghana_scheduled_reports", 	                    "Configuration"),
@@ -237,7 +237,7 @@ COUCHDB_APPS=['auditcare',]
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
 LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
-
+LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
