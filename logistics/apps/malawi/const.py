@@ -43,6 +43,8 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+    ADD_PRODUCT = "add_product"
+    REMOVE_PRODUCT = "remove_product"
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -97,10 +99,8 @@ class Messages(object):
     # product add/remove
     ADD_HELP_MESSAGE = "To add products you supply, send ADD [product codes]."
     REMOVE_HELP_MESSAGE = "To remove products you supply, send REMOVE [product codes]."
-    ADD_FAILURE_MESSAGE = "You are already supplying: %(products)s. Nothing done."
-    REMOVE_FAILURE_MESSAGE = "You are not currently supplying: %(products)s. Nothing done."
-    ADD_SUCCESS_MESSAGE = "Thank you, you are now supplying: %(products)s"
-    REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply: %(products)s"
+    ADD_SUCCESS_MESSAGE = "Thank you, you now supply: %(products)s"
+    REMOVE_SUCCESS_MESSAGE = "Done. You now supply: %(products)s"
     UNKNOWN_CODE = "Sorry, no product matches code %(product)s.  Nothing done."
     #nag
     HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
