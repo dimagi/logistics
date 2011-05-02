@@ -84,7 +84,7 @@ RAPIDSMS_TABS = [
     #("input_stock",      				    "Input Stock"),
     #("ewsghana_scheduled_reports", 	                    "Configuration"),
     #("email_reports",      			            "Email Reports"),
-    ("help",      			                    "Help"),
+    #("help",      			                    "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
     #("rapidsms.contrib.locations.views.locations",         "Map"),
     #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
