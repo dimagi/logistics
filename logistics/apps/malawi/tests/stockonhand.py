@@ -37,9 +37,9 @@ class TestStockOnHandMalawi(TestScript):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy", "products": "zi 390, la 705"},
+                    {"hsa": "wendy", "products": "zi, la"},
                "hsa_notice": Messages.APPROVAL_NOTICE % \
-                    {"hsa": "wendy", "products": "zi 390, la 705"}}
+                    {"hsa": "wendy", "products": "zi, la"}}
         
 
         self.runScript(b)
@@ -125,7 +125,23 @@ class TestStockOnHandMalawi(TestScript):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 500)
-        
+    
+    def testEmergencyStockOut(self):
+        self.testEmergencyStockOnHand()
+        # the difference here is that only emergency products are
+        # reported/escalated 
+        a = """
+           16175551001 > os 261601
+           16175551001 < %(confirm)s
+           16175551002 < %(district)s
+           16175551003 < %(district)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": Messages.STOCKOUT_RESPONSE %\
+                    {"reporter": "sally", "products": "zi"},
+               "district": Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
+               "hsa_notice": Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+        self.runScript(a)
         
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
