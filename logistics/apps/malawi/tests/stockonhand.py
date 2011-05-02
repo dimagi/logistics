@@ -143,6 +143,27 @@ class TestStockOnHandMalawi(TestScript):
                "hsa_notice": Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
         self.runScript(a)
         
+    def testEmergencyOrderNoProductsInEmergency(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 400 la 500
+           16175551000 < %(confirm)s
+           16175551001 < wendy needs emergency products: none, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+                    
+        self.runScript(a)
+        
+    def testEmergencyOrderNoProductsNotInEmergency(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 0 la 0
+           16175551000 < %(confirm)s
+           16175551001 < wendy needs emergency products: zi 400, la 720. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+                    
+        self.runScript(a)
+        
+        
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")

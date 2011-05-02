@@ -70,6 +70,7 @@ class Messages(object):
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products: %(emergency_products)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
+    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
     TRANSFER_RESPONSE = "Thank you %(giver)s. You have transferred to %(receiver)s the following products: %(products)s"

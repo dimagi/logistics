@@ -27,11 +27,20 @@ class EmergencyReportHandler(StockReportBaseHandler):
                 supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE), 
                                                  supply_point=self.msg.logistics_contact.supply_point.supplied_by)
                 
-                supervisor.message(Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION, 
-                                   hsa=self.msg.logistics_contact.name,
-                                   emergency_products=", ".join(req.sms_format() for req in self.requests if req.is_emergency),
-                                   normal_products=", ".join(req.sms_format() for req in self.requests if not req.is_emergency),
-                                   hsa_id=self.msg.logistics_contact.supply_point.code)
+                emergency_products = [req for req in self.requests if req.is_emergency == True]
+                emergency_product_string = ", ".join(req.sms_format() for req in emergency_products) if emergency_products else "none"
+                normal_products = [req for req in self.requests if req.is_emergency == False]
+                if normal_products:
+                    supervisor.message(Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION, 
+                                       hsa=self.msg.logistics_contact.name,
+                                       emergency_products=emergency_product_string,
+                                       normal_products=", ".join(req.sms_format() for req in normal_products),
+                                       hsa_id=self.msg.logistics_contact.supply_point.code)
+                else:
+                    supervisor.message(Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL, 
+                                       hsa=self.msg.logistics_contact.name,
+                                       emergency_products=emergency_product_string,
+                                       hsa_id=self.msg.logistics_contact.supply_point.code)
                 self.respond(Messages.SOH_ORDER_CONFIRM,
                              contact=self.msg.logistics_contact.name)
             
