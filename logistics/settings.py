@@ -9,7 +9,7 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
-INSTALLED_APPS = [
+BASE_APPS = [
 
     # the essentials.
     "django_nose",
@@ -45,11 +45,9 @@ INSTALLED_APPS = [
     "rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
-    "logistics.apps.malawi",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
-    "logistics.apps.ewsghana",
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
@@ -57,39 +55,7 @@ INSTALLED_APPS = [
     "registration",
 ]
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'auditcare.middleware.AuditMiddleware',
-    #'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
-)
-
-
-# this rapidsms-specific setting defines which views are linked by the
-# tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
-# to add it here, also, to expose it in the rapidsms ui.
-RAPIDSMS_TABS = [
-    ("logistics_dashboard",                    "Stock Levels"),
-    ("reporting",                              "Reporting Rates"),
-    #("input_stock",                          "Input Stock"),
-    ("registration",                          "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",          "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
-    #("ewsghana_reporting",  				    "Usage"),
-    #("input_stock",      				    "Input Stock"),
-    #("ewsghana_scheduled_reports", 	                    "Configuration"),
-    #("email_reports",      			            "Email Reports"),
-    ("help",      			                    "Help"),
-    #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",         "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
-]
+APPS = []
 
 # TODO: move this configuration over to urls.py
 SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
@@ -201,18 +167,11 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
 INTL_DIALLING_CODE = "+"
-COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
-COUNTRY = "malawi"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
-TIME_ZONE="Africa/Accra"
-filedir = os.path.dirname(__file__)
 
-STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "health_centers.csv")
-STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "products.csv")
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"
@@ -231,15 +190,6 @@ COUCH_USERNAME=''
 COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='logistics'
 COUCHDB_APPS=['auditcare',]
-
-# change to not make product reports "active" by default
-# should be True for Malawi, False for Ghana
-LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
-LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
-LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
-LOGISTICS_AGGRESSIVE_SOH_PARSING = False
-LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
-
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 try:
@@ -253,6 +203,7 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
 
+INSTALLED_APPS = BASE_APPS + APPS
 
 def get_server_url(server_root, username, password):
     if username and password:
@@ -281,9 +232,3 @@ NO_LOGIN_REQUIRED_FOR = [
 AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
-
-LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
-LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
-SITE_TITLE="cStock"
-BASE_TEMPLATE="malawi/base.html"
-BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
