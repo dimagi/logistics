@@ -20,7 +20,7 @@ class StockReportBaseHandler(RecordResponseHandler):
     @logistics_contact_and_permission_required(Operations.REPORT_STOCK)
     def handle(self, text):
         """
-        Check some precondidtions, based on shared assumptions of these handlers.
+        Check some preconditions, based on shared assumptions of these handlers.
         Return true if there is a precondition that wasn't met. If all preconditions
         are met, the variables for facility and name will be set.
         
