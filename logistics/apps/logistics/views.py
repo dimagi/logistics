@@ -6,7 +6,6 @@ from random import randint
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
@@ -20,7 +19,8 @@ from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE
+    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
+    SupplyPoint
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
@@ -29,21 +29,28 @@ from .tables import FacilityTable, CommodityTable
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
 
-def dashboard(request):
+def landing_page(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
-    if request.user.get_profile().facility:
+    prof = None 
+    try:
+        if not request.user.is_anonymous():
+            prof = request.user.get_profile()
+    except LogisticsProfile.DoesNotExist:
+        pass
+    
+    if prof and prof.facility:
         return stockonhand_facility(request, request.user.get_profile().facility.code)
-    elif request.user.get_profile().location:
+    elif prof and prof.location:
         return aggregate(request, request.user.get_profile().location.code)
-    return aggregate(request, 'ghana')
+    return dashboard(request)
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
-    rms = get_object_or_404(Facility, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(facility=rms).order_by('product')]
+    rms = get_object_or_404(SupplyPoint, code=facility_code)
+    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
@@ -97,13 +104,14 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
     """
      this view currently only shows the current stock on hand for a given facility
     """
-    facility = get_object_or_404(Facility, code=facility_code)
-    stockonhands = ProductStock.objects.filter(facility=facility).order_by('product')
-    last_reports = ProductReport.objects.filter(facility=facility).order_by('-report_date')
+    facility = get_object_or_404(SupplyPoint, code=facility_code)
+    stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
+    last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
     if last_reports:
         context['last_reported'] = last_reports[0].report_date
     context['stockonhands'] = stockonhands
     context['facility'] = facility
+    context["location"] = facility.location
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -118,25 +126,24 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     """
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(facility__location=location)
+    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location=location)
     commodity_filter = None
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
-        filtered_by_commodity = False
         if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
             commodity_filter = request.REQUEST['commodity']
             context['commodity_filter'] = commodity_filter
             commodity = Product.objects.get(sms_code=commodity_filter)
             context['commoditytype_filter'] = commodity.type.code
             template="logistics/stockonhand_district.html"
-            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('facility__name')
+            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
         elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
             commoditytype_filter = request.REQUEST['commoditytype']
             context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
-            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('facility__name')
+            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('supply_point__name')
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
@@ -146,15 +153,27 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = Facility.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = Facility.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
+    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
+    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
 @geography_context
 @filter_context
-def aggregate(request, location_code, context={}, template="logistics/aggregate.html"):
+def dashboard(request, location_code=None, context={}, template="logistics/aggregate.html"):
+    if location_code is None:
+        location_code = settings.COUNTRY
+    location = get_object_or_404(Location, code=location_code)
+    # if the location has no children, and 1 supply point treat it like
+    # a stock on hand request. Otherwise treat it like an aggregate.
+    if location.children().count() == 0 and location.facilities().count() == 1:
+        return stockonhand_facility(request, location_code)
+    return aggregate(request, location_code )
+
+@geography_context
+@filter_context
+def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
     where 'children' can either be sub-regions
@@ -164,7 +183,6 @@ def aggregate(request, location_code, context={}, template="logistics/aggregate.
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
         # We support GETs so that folks can share this report as a url
-        filtered_by_commodity = False
         if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
             commodity_filter = request.REQUEST['commodity']
             context['commodity_filter'] = commodity_filter
@@ -175,6 +193,8 @@ def aggregate(request, location_code, context={}, template="logistics/aggregate.
             context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
+    if location_code is None:
+        location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
@@ -184,22 +204,13 @@ def aggregate(request, location_code, context={}, template="logistics/aggregate.
 
 def _get_location_children(location, commodity_filter, commoditytype_filter):
     rows = []
-    is_facility = False
     children = location.children()
-    if not children:
-        is_facility = True
-        children = location.facilities()
     for child in children:
         row = {}
+        row['is_active'] = child.is_active
         row['name'] = child.name
         row['code'] = child.code
-        if is_facility:
-            row['url'] = reverse('stockonhand_facility', args=[child.code])
-        else:
-            if child.type and child.type.slug == DISTRICT_TYPE:
-                row['url'] = reverse('district', args=[child.code])
-            else:
-                row['url'] = reverse('aggregate', args=[child.code])
+        row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 

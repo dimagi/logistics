@@ -6,6 +6,7 @@ from logistics.apps.logistics.models import ProductReportType, \
 
 class TestLocation (TestScript):
     apps = ([logistics_app.App])
+    fixtures = ["ghana_initial_data.json"] 
 
     def setUp(self):
         TestScript.setUp(self)
@@ -16,5 +17,5 @@ class TestLocation (TestScript):
         soh = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
         npr = facility.report(product, soh, 3)
         self.assertEquals(npr.quantity, 3)
-        self.assertEquals(ProductStock.objects.get(facility=facility, product=product).quantity, 3)
+        self.assertEquals(ProductStock.objects.get(supply_point=facility, product=product).quantity, 3)
         

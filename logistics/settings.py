@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
+    "logistics.apps.malawi",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
@@ -63,7 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    #'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 
@@ -71,10 +72,17 @@ MIDDLEWARE_CLASSES = (
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
-    ("ewsghana_reporting",  				    "Usage"),
+    ("logistics_dashboard",                    "Stock Levels"),
+    ("reporting",                              "Reporting Rates"),
+    #("input_stock",                          "Input Stock"),
+    ("registration",                          "Registration"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
+    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+    #("rapidsms.contrib.locations.views.locations",          "Map"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    #("ewsghana_reporting",  				    "Usage"),
     #("input_stock",      				    "Input Stock"),
-    ("ewsghana_scheduled_reports", 	                    "Configuration"),
+    #("ewsghana_scheduled_reports", 	                    "Configuration"),
     #("email_reports",      			            "Email Reports"),
     ("help",      			                    "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
@@ -147,6 +155,7 @@ TEST_EXCLUDED_APPS = [
     "rapidsms",
     "rapidsms.contrib.ajax",
     "rapidsms.contrib.httptester",
+    "djcelery"
 ]
 
 # the project-level url patterns
@@ -192,15 +201,18 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
 INTL_DIALLING_CODE = "+"
 COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
-COUNTRY = "ghana"
+COUNTRY = "malawi"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 TIME_ZONE="Africa/Accra"
+filedir = os.path.dirname(__file__)
 
+STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "health_centers.csv")
+STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.abspath(os.path.dirname(__file__))), "static", "malawi", "products.csv")
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"
@@ -213,6 +225,20 @@ EMAIL_HOST_PASSWORD='changeme'
 EMAIL_HOST_USER='name@dimagi.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
+
+COUCH_SERVER_ROOT='127.0.0.1:5984'
+COUCH_USERNAME=''
+COUCH_PASSWORD=''
+COUCH_DATABASE_NAME='logistics'
+COUCHDB_APPS=['auditcare',]
+
+# change to not make product reports "active" by default
+# should be True for Malawi, False for Ghana
+LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
+LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
+LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
+LOGISTICS_AGGRESSIVE_SOH_PARSING = False
+LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
@@ -228,11 +254,6 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             "%s.rapidsms.test.sqlite3" % db_name)
 
 
-COUCH_SERVER_ROOT='127.0.0.1:5984'
-COUCH_USERNAME=''
-COUCH_PASSWORD=''
-COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare',]
 def get_server_url(server_root, username, password):
     if username and password:
         return "http://%(user)s:%(pass)s@%(server)s" % \
@@ -243,10 +264,7 @@ def get_server_url(server_root, username, password):
 COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
 COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
 
-COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
-        'auditcare',
-    ]
-]
+COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
 DEBUG=True
 
@@ -264,8 +282,8 @@ AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 
-LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
-SITE_TITLE="Early Warning System"
-BASE_TEMPLATE="ewsghana/base.html"
+SITE_TITLE="cStock"
+BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
