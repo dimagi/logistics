@@ -15,7 +15,7 @@ def daily_reports():
 def weekly_reports():    
     # this should get called every hour by celery
     now = datetime.utcnow()
-    reps = WeeklyReportSubscription.objects.filter(day_of_week=now.weekday())
+    reps = WeeklyReportSubscription.objects.filter(day_of_week=now.weekday()).filter(hours=now.hour)
     _run_reports(reps)
     
 def _run_reports(reports):
