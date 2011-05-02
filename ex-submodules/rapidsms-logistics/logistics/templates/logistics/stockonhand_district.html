@@ -31,10 +31,10 @@
                         </td>
                             {% highlight_months stockonhand %}
                         <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
-                        <td {% ifequal stockonhand.monthly_consumption None %}
+                        <td {% ifequal stockonhand.get_monthly_consumption None %}
                                 class="big_error"
                             {% endifequal %}>
-                            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+                            {{ stockonhand.get_monthly_consumption|default_if_none:"not set" }}
                         </td>
                         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
                         <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>

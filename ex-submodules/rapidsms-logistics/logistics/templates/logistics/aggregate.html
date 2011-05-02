@@ -13,7 +13,7 @@
             <div id="report-content">
             <table class="stock" width=100%>
             <thead><tr>
-                <th scope="col">Facility</th>
+                <th scope="col">Supply Point</th>
                 <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
                 <th scope="col" class="emergency stock_col">Emergency</th>
                 <th scope="col" class="low_supply stock_col">{% trans "Re-Order" %}</th>
@@ -24,6 +24,7 @@
             </tr></thead>
             <tbody>
             {% for row in rows %}
+                {% if row.is_active %}
                 <tr>
                 <td><a href="{{ row.url }}">{{ row.name }}</a></td>
                 <td {% ifnotequal row.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ row.stockout_count }}</td>
@@ -34,7 +35,9 @@
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
                 {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
                 </tr>
+                {% endif %}
             {% endfor %}
+            
             </tr></tbody>
             </table>
 
