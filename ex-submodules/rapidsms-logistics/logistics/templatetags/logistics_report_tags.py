@@ -21,8 +21,8 @@ def reporting_rates(locations, type=None):
             return render_to_string("logistics/partials/reporting_rates.html", 
                                     {"late_facilities": late_facilities,
                                      "on_time_facilities": on_time_facilities,
-                                     "graph_width": 150,
-                                     "graph_height": 150,
+                                     "graph_width": 200,
+                                     "graph_height": 200,
                                      "table_class": "minor_table",
                                      "MEDIA_URL": settings.MEDIA_URL})
     return "" # no data, no report
