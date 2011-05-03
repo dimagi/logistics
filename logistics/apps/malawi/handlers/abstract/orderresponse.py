@@ -2,7 +2,6 @@ from django.utils.translation import ugettext as _
 from logistics.apps.logistics.models import SupplyPoint
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.malawi.const import Messages, Operations
-from logistics.apps.malawi.roles import user_can_do
 from logistics.apps.malawi import util
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required

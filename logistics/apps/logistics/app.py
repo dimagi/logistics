@@ -8,6 +8,7 @@ Look at the unit tests for specific examples.
 
 import re
 from rapidsms.conf import settings
+from django.utils.importlib import import_module
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, \
@@ -16,8 +17,8 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
-from logistics.apps.malawi.const import Messages
 from logistics.apps.logistics.const import Reports
+const = import_module(settings.CONST)
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
@@ -78,10 +79,10 @@ class App(AppBase):
             message.respond(REGISTER_MESSAGE)
             return (False, True)
         if message.logistics_contact.supply_point is None:
-            message.respond(Messages.NO_SUPPLY_POINT_MESSAGE)
+            message.respond(const.Messages.NO_SUPPLY_POINT_MESSAGE)
             return (False, True)
         if not self._clean_message(message.text):
-            message.respond(Messages.SOH_HELP_MESSAGE)
+            message.respond(const.Messages.SOH_HELP_MESSAGE)
             return (False, True)
         return (True, None)
         

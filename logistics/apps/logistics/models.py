@@ -939,7 +939,9 @@ class ProductReportsHelper(object):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
         
     def stockouts(self):
-        return ", ".join('%s %s' % (key, val) for key, val in self.product_stock.items() if val == 0)
+        # slightly different syntax than above, since there's no point in 
+        # reporting stock levels for stocks which we know are at level '0'
+        return " ".join('%s' % (key) for key, val in self.product_stock.items() if val == 0)
         
 
     def low_supply(self):

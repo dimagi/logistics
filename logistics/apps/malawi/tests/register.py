@@ -4,7 +4,8 @@ __author__ = 'ternus'
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
     REGISTER_MESSAGE
-from logistics.apps.malawi import app as malawi_app, const
+from logistics.apps.malawi import app as malawi_app
+from logistics.apps.malawi import const
 
 class TestHSARegister(TestScript):
     apps = ([malawi_app.App])

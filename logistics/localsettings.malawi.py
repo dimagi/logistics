@@ -103,7 +103,7 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
 COUNTRY = "malawi"
 TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
@@ -126,3 +126,6 @@ LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+
+CONST = 'logistics.apps.malawi.const'
+ROLES = 'logistics.apps.malawi.roles'

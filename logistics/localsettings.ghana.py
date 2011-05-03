@@ -95,7 +95,7 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
 COUNTRY = "ghana"
 TIME_ZONE="Africa/Accra"
 COUNTRY_DIALLING_CODE = 233
@@ -105,3 +105,6 @@ LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+
+CONST = 'logistics.apps.ewsghana.const'
+ROLES = 'logistics.apps.ewsghana.roles'
