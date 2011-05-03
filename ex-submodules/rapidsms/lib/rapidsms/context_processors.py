@@ -4,13 +4,19 @@ def logo(request):
     try:
         logo_right_url = settings.LOGO_RIGHT_URL
         logo_left_url = settings.LOGO_LEFT_URL
-        site_title = settings.SITE_TITLE
-        base_template = settings.BASE_TEMPLATE
     except AttributeError:
-        warnings.warn("No LOGO_LEFT_URL and/or LOGO_RIGHT_URL and/or SITE_TITLE specified in settings! rapidsms.context_processors.logo")
+        warnings.warn("No LOGO_LEFT_URL and/or LOGO_RIGHT_URL specified in settings! rapidsms.context_processors.logo")
         logo_right_url = ""
         logo_left_url = ""
+    try:
+        site_title = settings.SITE_TITLE
+    except AttributeError:
+        warnings.warn("No SITE_TITLE specified in settings! rapidsms.context_processors.logo")
         site_title = "RapidSMS"
+    try:
+        base_template = settings.BASE_TEMPLATE
+    except AttributeError:
+        warnings.warn("No base_template specified in settings! rapidsms.context_processors.logo")
         base_template = "layout.html"
 
     try:
