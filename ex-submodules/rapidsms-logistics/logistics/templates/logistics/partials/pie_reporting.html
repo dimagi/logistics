@@ -56,7 +56,7 @@
     <!--<div class="toolbar">
         <a href="">{% trans 'All Reports'%}</a>
     </div>-->
-    <div id="reporting_chart" style="width:300px; height:300px" title="{% trans "This graph represents the R&R submission Summary for the current district." %}"></div>
+    <div id="reporting_chart" style="width:{{graph_width|default:300}}px; height:{{graph_height|default:300}}px" title="{% trans "This graph represents the R&R submission Summary for the current district." %}"></div>
     <div id="hover" style="text-align:center;">
         <!-- This div is where the hover text hint shows up -->
         &nbsp;
