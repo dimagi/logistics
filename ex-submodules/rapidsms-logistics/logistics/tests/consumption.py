@@ -14,10 +14,10 @@ class TestConsumption (TestScript):
         ps = ProductStock.objects.get(supply_point=sp,product=pr)
 
         # Not enough data.
-        self.assertEquals(None, ps.get_daily_consumption())
-        self.assertEquals(ps.product.average_monthly_consumption, ps.get_monthly_consumption()) #fallback
+        self.assertEquals(None, ps.daily_consumption)
+        self.assertEquals(ps.product.average_monthly_consumption, ps.monthly_consumption) #fallback
 
-        ps.monthly_consumption = 999
+        ps.base_monthly_consumption = 999
 
         st = StockTransaction.objects.get(supply_point=sp,product=pr)
         st.date = st.date - timedelta(days=5)
@@ -25,8 +25,8 @@ class TestConsumption (TestScript):
         sp.report_stock(pr, 150)
 
         # 5 days still aren't enough to compute.
-        self.assertEquals(None, ps.get_daily_consumption())
-        self.assertEquals(ps.monthly_consumption, ps.get_monthly_consumption())
+        self.assertEquals(None, ps.daily_consumption)
+        self.assertEquals(ps.base_monthly_consumption, ps.base_monthly_consumption)
 
         sta = StockTransaction.objects.filter(supply_point=sp,product=pr)
         for st in sta:
@@ -35,8 +35,8 @@ class TestConsumption (TestScript):
         sp.report_stock(pr, 100)
 
         # 10 days is enough.
-        self.assertEquals(10, ps.get_daily_consumption())
-        self.assertEquals(300, ps.get_monthly_consumption())
+        self.assertEquals(10, ps.daily_consumption)
+        self.assertEquals(300, ps.monthly_consumption)
 
         sta = StockTransaction.objects.filter(supply_point=sp,product=pr)
         for st in sta:
@@ -45,7 +45,7 @@ class TestConsumption (TestScript):
         sp.report_stock(pr, 50)
 
         # Another data point.
-        self.assertEquals(7, ps.get_daily_consumption())
+        self.assertEquals(7, ps.daily_consumption)
 
         sta = StockTransaction.objects.filter(supply_point=sp,product=pr)
         for st in sta:
@@ -54,5 +54,5 @@ class TestConsumption (TestScript):
         sp.report_stock(pr, 100)
 
         # Reporting higher stock shouldn't change the daily consumption metric.        
-        self.assertEquals(7, ps.get_daily_consumption())
+        self.assertEquals(7, ps.daily_consumption)
         

@@ -108,7 +108,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    base_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -117,18 +117,20 @@ class ProductStock(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
-    def get_monthly_consumption(self):
-        d = self.get_daily_consumption()
+    @property
+    def monthly_consumption(self):
+        d = self.daily_consumption
         if d is None:
-            if self.monthly_consumption is not None:
-                return self.monthly_consumption
+            if self.base_monthly_consumption is not None:
+                return self.base_monthly_consumption
             elif self.product.average_monthly_consumption is not None:
                 return self.product.average_monthly_consumption
             return None
 
         return d * 30
 
-    def get_daily_consumption(self):
+    @property
+    def daily_consumption(self):
         trans = StockTransaction.objects.filter(supply_point=self.supply_point,
                                                 product=self.product).order_by('date')
         if len(trans) < 2:
@@ -149,27 +151,27 @@ class ProductStock(models.Model):
 
     @property
     def emergency_reorder_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
         return None
 
     @property
     def reorder_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
         return None
 
     @property
     def maximum_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
         return None
 
     @property
     def months_remaining(self):
-        if self.get_monthly_consumption() is not None and self.get_monthly_consumption() > 0 \
+        if self.monthly_consumption is not None and self.monthly_consumption > 0 \
           and self.quantity is not None:
-            return float(self.quantity) / float(self.get_monthly_consumption())
+            return float(self.quantity) / float(self.monthly_consumption)
         return None
 
     def is_stocked_out(self):
