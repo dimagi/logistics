@@ -31,17 +31,17 @@
                 {% if row.is_active %}
                 <tr>
                 <td><a href="{{ row.url }}">{{ row.name }}</a></td>
-                <td {% ifnotequal row.stockout_count 0 %}class="stockout"{% endifnotequal %}>{{ row.stockout_count }}</td>
-                <td {% ifnotequal row.emergency_stock_count 0 %}class="emergency"{% endifnotequal %}>{{ row.emergency_stock_count }}</td>
-                <td {% ifnotequal row.low_stock_count 0 %}class="low_supply"{% endifnotequal %}>{{ row.low_stock_count }}</td>
-                <td {% ifnotequal row.good_supply_count 0 %}class="good_supply"{% endifnotequal %}>{{ row.good_supply_count }}</td>
-                <td {% ifnotequal row.overstocked_count 0 %}class="overstock"{% endifnotequal %}>{{ row.overstocked_count }}</td>
+                <td> {{ row.stockout_count }} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
+                <td> {{ row.emergency_stock_count }} {% ifnotequal row.emergency_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
+                <td> {{ row.low_stock_count }} {% ifnotequal row.low_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/warning.png" title="Low supply">{% endifnotequal %}</td>
+                <td> {{ row.good_supply_count }} {% ifnotequal row.good_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Good supply">{% endifnotequal %}</td>
+                <td> {{ row.overstocked_count }} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
                 {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
                 </tr>
                 {% endif %}
             {% endfor %}
-            
+
             </tr></tbody>
             </table>
 
