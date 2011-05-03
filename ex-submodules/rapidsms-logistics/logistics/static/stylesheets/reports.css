@@ -88,6 +88,10 @@
     width:50%;
 }
 
+.stock td {
+    vertical-align: middle;
+}
+
 .aggregate_stock tbody tr td{
     width:80px;
 }
