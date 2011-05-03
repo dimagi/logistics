@@ -207,6 +207,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
     children = location.children()
     for child in children:
         row = {}
+        row['location'] = child
         row['is_active'] = child.is_active
         row['name'] = child.name
         row['code'] = child.code
