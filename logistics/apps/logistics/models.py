@@ -38,6 +38,8 @@ INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
+MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION=10
+
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -116,12 +118,35 @@ class ProductStock(models.Model):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
     def get_monthly_consumption(self):
-        if self.monthly_consumption is not None:
-            return self.monthly_consumption
-        elif self.product.average_monthly_consumption is not None:
-            return self.product.average_monthly_consumption
-        return None
-    
+        d = self.get_daily_consumption()
+        if d is None:
+            if self.monthly_consumption is not None:
+                return self.monthly_consumption
+            elif self.product.average_monthly_consumption is not None:
+                return self.product.average_monthly_consumption
+            return None
+
+        return d * 30
+
+    def get_daily_consumption(self):
+        trans = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                                product=self.product).order_by('date')
+        if len(trans) < 2:
+            # not enough data
+            return None
+        quantity = 0
+        days = 0
+        prior = trans[0]
+        for tr in trans[1:]:
+            if tr.quantity < 0: # consumption
+                quantity -= tr.quantity # negative number
+                delta = tr.date - prior.date
+                days += delta.days
+            prior = tr
+        if days < MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
+            return None
+        return quantity / days
+
     @property
     def emergency_reorder_level(self):
         if self.get_monthly_consumption() is not None:
