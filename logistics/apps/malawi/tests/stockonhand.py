@@ -26,6 +26,7 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
+            self.assertEqual(None, req.response_status)
             self.assertTrue(req.is_pending())
             self.assertFalse(req.is_emergency)
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
@@ -46,6 +47,7 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.APPROVED, req.status)
+            self.assertEqual(StockRequestStatus.APPROVED, req.response_status)
             self.assertTrue(req.is_pending())
             self.assertEqual(Contact.objects.get(name="sally"), req.responded_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
@@ -63,6 +65,7 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.RECEIVED, req.status)
+            self.assertEqual(StockRequestStatus.APPROVED, req.response_status)
             self.assertFalse(req.is_pending())
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
@@ -95,6 +98,7 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.STOCKED_OUT, req.status)
+            self.assertEqual(StockRequestStatus.STOCKED_OUT, req.response_status)
             self.assertTrue(req.is_pending())
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
@@ -115,6 +119,7 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
+            self.assertEqual(None, req.response_status)
             self.assertTrue(req.is_pending())
             if req.product.sms_code == "zi":
                 self.assertTrue(req.is_emergency)
