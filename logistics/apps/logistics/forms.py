@@ -19,7 +19,7 @@ class FacilityForm(forms.ModelForm):
         if 'instance' in kwargs:
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
-            pss = ProductStock.objects.filter(facility=kwargs['instance'], 
+            pss = ProductStock.objects.filter(supply_point=kwargs['instance'], 
                                               is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
         super(FacilityForm, self).__init__(*args, **kwargs)
