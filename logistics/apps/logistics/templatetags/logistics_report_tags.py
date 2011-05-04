@@ -33,9 +33,43 @@ def reporting_rates(locations, type=None, days=30):
     return "" # no data, no report
 
 @register.simple_tag
+def order_response_stats(locations, type=None, days=30):
+    """
+    With a list of locations - display reporting
+    rates associated with those locations.
+    This method only looks at closed orders
+    """
+    if locations:
+        since = datetime.utcnow() - timedelta(days=days)
+        base_points = SupplyPoint.objects.filter(location__in=locations)
+        if type is not None:
+            base_points = base_points.filter(type__code=type)
+        if base_points.count() > 0:
+            data = []
+            for sp in base_points:
+                this_sp_data = defaultdict(lambda x: 0)
+                this_sp_data["supply_point"] = sp
+                base_reqs = StockRequest.objects.filter(supply_point=sp, 
+                                                        requested_on__gte=since)
+                this_sp_data["total"] = base_reqs.aggregate(Count("pk"))["pk__count"]
+                # by status
+                by_status = base_reqs.values('status').annotate(total=Count('pk'))
+                for row in by_status:
+                    this_sp_data[row["status"]] = row["total"]
+                data.append(this_sp_data)
+            return render_to_string("logistics/partials/order_response_stats.html", 
+                                    {"data": data,
+                                     "MEDIA_URL": settings.MEDIA_URL})
+            
+            
+            
+@register.simple_tag
 def order_fill_stats(locations, type=None, days=30):
-    # with a list of locations - display reporting
-    # rates associated with those locations
+    """
+    With a list of locations - display reporting
+    rates associated with those locations.
+    This method only looks at closed orders
+    """
     if locations:
         since = datetime.utcnow() - timedelta(days=days)
         base_points = SupplyPoint.objects.filter(location__in=locations)
@@ -46,10 +80,11 @@ def order_fill_stats(locations, type=None, days=30):
                                                     requested_on__gte=since, 
                                                     status__in=StockRequestStatus.CHOICES_CLOSED)
             totals = base_reqs.values('product').annotate(total=Count('pk'))
-            stocked_out = base_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
-            under_supplied = base_reqs.filter(amount_received__gt=0,amount_requested__gt=F('amount_received')).values('product').annotate(total=Count('pk'))
-            well_supplied = base_reqs.filter(amount_received__gt=0,amount_requested=F('amount_received')).values('product').annotate(total=Count('pk'))
-            over_supplied = base_reqs.filter(amount_received__gt=0,amount_requested__lt=F('amount_received')).values('product').annotate(total=Count('pk'))
+            stocked_out = base_reqs.filter(Q(response_status=StockRequestStatus.STOCKED_OUT) | Q(amount_received=0)).values('product').annotate(total=Count('pk'))
+            not_stocked_out = base_reqs.filter(amount_received__gt=0).exclude(response_status=StockRequestStatus.STOCKED_OUT)
+            under_supplied = not_stocked_out.filter(amount_requested__gt=F('amount_received')).values('product').annotate(total=Count('pk'))
+            well_supplied = not_stocked_out.filter(amount_requested=F('amount_received')).values('product').annotate(total=Count('pk'))
+            over_supplied = not_stocked_out.filter(amount_requested__lt=F('amount_received')).values('product').annotate(total=Count('pk'))
             main_data = {}
             for row in totals:
                 main_data[row["product"]]=defaultdict(lambda x: 0)
