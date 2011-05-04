@@ -61,7 +61,7 @@ def order_response_stats(locations, type=None, days=30):
                                     {"data": data,
                                      "MEDIA_URL": settings.MEDIA_URL})
             
-            
+    return "" # no data, no report
             
 @register.simple_tag
 def order_fill_stats(locations, type=None, days=30):
