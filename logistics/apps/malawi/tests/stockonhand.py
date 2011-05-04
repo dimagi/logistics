@@ -4,6 +4,7 @@ from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequ
     ProductStock
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
+from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
 from logistics.apps.logistics.util import config
@@ -11,6 +12,10 @@ from config import Messages
 from config import Roles
 
 class TestStockOnHandMalawi(TestScript):
+    
+    def setUp(self):
+        TestScript.setUp(self)
+        load_static_data()
     
     def testNoInCharge(self):
         create_hsa(self, "16175551234", "stella")
