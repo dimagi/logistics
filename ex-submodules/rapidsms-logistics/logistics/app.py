@@ -8,6 +8,7 @@ Look at the unit tests for specific examples.
 
 import re
 from rapidsms.conf import settings
+from django.utils.importlib import import_module
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 from rapidsms.contrib.scheduler.models import EventSchedule, \
@@ -16,8 +17,9 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
-from logistics.apps.malawi.const import Messages
 from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
+from config import Messages
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
@@ -183,7 +185,7 @@ class App(AppBase):
         this is what the folks in the field want 
         """
         match = re.search("[0-9]", message.text)
-        if match is not None:
+        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
             message.error("%s is not a recognized commodity code. " % code + 

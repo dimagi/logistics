@@ -18,7 +18,7 @@ class FacilityTable(Table):
     location = Column(value=_location)
 
     class Meta:
-        order_by = 'name'
+        order_by = 'location'
 
 def _edit_link(cell):
     return reverse(
