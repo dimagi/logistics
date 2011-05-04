@@ -100,6 +100,8 @@ COUNTRY = "ghana"
 TIME_ZONE="Africa/Accra"
 COUNTRY_DIALLING_CODE = 233
 
+LOGISTICS_AGGRESSIVE_SOH_PARSING = True
+
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="Early Warning System"

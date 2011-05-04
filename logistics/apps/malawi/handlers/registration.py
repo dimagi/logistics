@@ -34,7 +34,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
                 id_num = int(id)
                 if id_num < 1 or id_num >= 100:
                     raise IdFormatException("id must be a number between 1 and 99. %s is out of range" % id)
-                    return "%s%02d" % (code, id_num)
+                return "%s%02d" % (code, id_num)
             except ValueError:
                 raise IdFormatException("id must be a number between 1 and 99. %s is not a number" % id)
         
