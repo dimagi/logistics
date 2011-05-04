@@ -53,9 +53,9 @@ def order_response_stats(locations, type=None, days=30):
                                                         requested_on__gte=since)
                 this_sp_data["total"] = base_reqs.aggregate(Count("pk"))["pk__count"]
                 # by status
-                by_status = base_reqs.values('status').annotate(total=Count('pk'))
+                by_status = base_reqs.values('response_status').annotate(total=Count('pk'))
                 for row in by_status:
-                    this_sp_data[row["status"]] = row["total"]
+                    this_sp_data[row["response_status"] if row["response_status"] else "requested"] = row["total"]
                 data.append(this_sp_data)
             return render_to_string("logistics/partials/order_response_stats.html", 
                                     {"data": data,
@@ -80,7 +80,7 @@ def order_fill_stats(locations, type=None, days=30):
                                                     requested_on__gte=since, 
                                                     status__in=StockRequestStatus.CHOICES_CLOSED)
             totals = base_reqs.values('product').annotate(total=Count('pk'))
-            stocked_out = base_reqs.filter(Q(response_status=StockRequestStatus.STOCKED_OUT) | Q(amount_received=0)).values('product').annotate(total=Count('pk'))
+            stocked_out = base_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
             not_stocked_out = base_reqs.filter(amount_received__gt=0).exclude(response_status=StockRequestStatus.STOCKED_OUT)
             under_supplied = not_stocked_out.filter(amount_requested__gt=F('amount_received')).values('product').annotate(total=Count('pk'))
             well_supplied = not_stocked_out.filter(amount_requested=F('amount_received')).values('product').annotate(total=Count('pk'))
