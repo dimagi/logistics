@@ -1,7 +1,9 @@
-from logistics.apps.malawi.const import Messages, Operations
+from django.db import transaction
+from logistics.apps.logistics.util import config
+from config import Messages
+from config import Operations
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.apps.logistics.models import ProductReportsHelper, StockRequest
-from django.db import transaction
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
 
 

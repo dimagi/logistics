@@ -6,7 +6,8 @@ from logistics.apps.logistics.models import Product, ProductStock, \
     StockTransferStatus
 from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
-from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.util import config
+from config import Messages
 from logistics.apps.malawi.tests.util import create_manager, create_hsa
 
 class TestTransfer(TestScript):

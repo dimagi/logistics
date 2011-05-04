@@ -1,10 +1,12 @@
 from logistics.apps.logistics.models import ProductReportsHelper, StockRequest
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.malawi.const import Messages, Operations
-from logistics.apps.malawi import util
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
+from logistics.apps.logistics.util import config
+from config import Messages
+from config import Operations
+from logistics.apps.malawi import util
 
 class ReportRegistrationHandler(KeywordHandler):
     """

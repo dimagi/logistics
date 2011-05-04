@@ -1,11 +1,11 @@
 from rapidsms.models import Contact
-from logistics.apps.malawi.const import Messages
 __author__ = 'ternus'
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
     REGISTER_MESSAGE
 from logistics.apps.malawi import app as malawi_app
-from logistics.apps.malawi import const
+from logistics.apps.logistics.util import config
+from config import Messages
 
 class TestHSARegister(TestScript):
     apps = ([malawi_app.App])
@@ -79,7 +79,7 @@ class TestHSARegister(TestScript):
         
         self.runScript(a)
         # default to HSA
-        self.assertEqual(ContactRole.objects.get(code=const.Roles.HSA),Contact.objects.get(name="hsa").role)
+        self.assertEqual(ContactRole.objects.get(code=config.Roles.HSA),Contact.objects.get(name="hsa").role)
         
         b = """
               8005551214 > manage incharge ic 2616
@@ -88,7 +88,7 @@ class TestHSARegister(TestScript):
                                                                 "role": "in charge",
                                                                 "contact_name": "incharge"}}
         self.runScript(b)
-        self.assertEqual(ContactRole.objects.get(code=const.Roles.IN_CHARGE),Contact.objects.get(name="incharge").role)
+        self.assertEqual(ContactRole.objects.get(code=config.Roles.IN_CHARGE),Contact.objects.get(name="incharge").role)
     
     def testManager(self):
         a = """

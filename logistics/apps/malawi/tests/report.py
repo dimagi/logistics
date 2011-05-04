@@ -2,8 +2,9 @@ from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus
+from logistics.apps.logistics.util import config
+from config import Messages
 from logistics.apps.malawi import app as malawi_app
-from logistics.apps.malawi.const import Messages
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
 class TestReport(TestScript):

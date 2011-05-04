@@ -1,9 +1,9 @@
-from logistics.apps.logistics.models import ContactRole, Product, ProductStock
-from logistics.apps.malawi.const import Messages
-from logistics.apps.logistics.const import Reports
-from logistics.apps.malawi import const
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
+from logistics.apps.logistics.models import ContactRole, Product, ProductStock
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
+from config import Messages
 
 class RemoveProductHandler(KeywordHandler):
     """

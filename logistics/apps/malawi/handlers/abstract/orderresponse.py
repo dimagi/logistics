@@ -1,11 +1,13 @@
+from django.db import transaction
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import SupplyPoint
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.malawi.const import Messages, Operations
+from logistics.apps.logistics.util import config
+from config import Messages
+from config import Operations
+from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
+from logistics.apps.logistics.models import SupplyPoint
 from logistics.apps.malawi import util
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from django.db import transaction
 
 
 class OrderResponseBaseHandler(RecordResponseHandler):

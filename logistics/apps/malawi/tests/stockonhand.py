@@ -6,7 +6,9 @@ from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
-from logistics.apps.malawi.const import Roles, Messages
+from logistics.apps.logistics.util import config
+from config import Messages
+from config import Roles
 
 class TestStockOnHandMalawi(TestScript):
     

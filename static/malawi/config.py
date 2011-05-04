@@ -1,20 +1,8 @@
-from logistics.apps.logistics.models import SupplyPointType
 from rapidsms.contrib.locations.models import LocationType
+from logistics.apps.logistics.models import SupplyPointType
+from logistics.apps.logistics.models import ContactRole
 
 HSA = "hsa"
-
-
-def hsa_supply_point_type():
-    """
-    The supply point type for HSAs
-    """
-    return SupplyPointType.objects.get(pk=HSA)
-
-def hsa_location_type():
-    """
-    The location type for HSAs
-    """
-    return LocationType.objects.get(slug=HSA)
 
 class Roles(object):
     """
@@ -43,6 +31,37 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+
+def has_permissions_to(contact, operation):
+    # one might want to use the responsibilities framework to manage
+    # this but currently it seems strange that we'd have such tight
+    # coupling between app logic and database logic, so it's here
+    if not contact.is_active:
+        return False
+    if operation == Operations.REPORT_STOCK:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.FILL_ORDER:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    if operation == Operations.MAKE_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.CONFIRM_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.REPORT_FOR_OTHERS:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    # TODO, fill this in more
+    return True
+
+def hsa_supply_point_type():
+    """
+    The supply point type for HSAs
+    """
+    return SupplyPointType.objects.get(pk=HSA)
+
+def hsa_location_type():
+    """
+    The location type for HSAs
+    """
+    return LocationType.objects.get(slug=HSA)
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -111,3 +130,4 @@ class Messages(object):
     PARTIAL_FILL_HELP = "To partially fill an order type partial [space] [hsa id], for example: 'partial 100101'"
     PARTIAL_FILL_RESPONSE = "Thank you for partially confirming order for %(hsa)s. You approved some of: %(products)s"
     PARTIAL_FILL_NOTICE = "Dear %(hsa)s, your pending is now ready to be partially filled. Not all products were available but some are ready."
+

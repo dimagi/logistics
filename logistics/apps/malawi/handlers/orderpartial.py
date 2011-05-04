@@ -3,7 +3,8 @@
 
 from datetime import datetime
 from logistics.apps.logistics.models import StockRequest
-from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.util import config
+from config import Messages
 from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 
 class OrderStockoutHandler(OrderResponseBaseHandler):

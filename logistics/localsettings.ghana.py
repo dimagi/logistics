@@ -106,5 +106,3 @@ SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 
-CONST = 'logistics.apps.ewsghana.const'
-ROLES = 'logistics.apps.ewsghana.roles'

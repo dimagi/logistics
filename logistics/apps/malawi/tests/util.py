@@ -1,4 +1,5 @@
-from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.util import config
+from config import Messages
 from logistics.apps.logistics.models import SupplyPoint, ContactRole,\
     StockRequest
 from rapidsms.models import Contact

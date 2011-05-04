@@ -127,5 +127,4 @@ SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 
-CONST = 'logistics.apps.malawi.const'
-ROLES = 'logistics.apps.malawi.roles'
+LOGISTICS_CONFIG = 'static.malawi.config'
