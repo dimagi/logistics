@@ -122,14 +122,12 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
         cols = {"date": ("datetime", "Date")}
         for s in stockonhands:
             cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
-        print cols
         table = gviz_api.DataTable(cols)
 
         data_rows = {}
         for r in last_reports:
             if not r.report_date in data_rows: data_rows[r.report_date] = {}
             data_rows[r.report_date][r.product.name] = r.quantity
-        print data_rows
         rows = []
         for d in data_rows.keys():
             q = {"date":d}
