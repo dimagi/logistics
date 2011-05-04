@@ -176,7 +176,7 @@ class TestStockOnHandMalawi(TestScript):
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")
-        im = create_manager(self, "16175551002", "peter", Roles.IMCI_COORDINATOR, "26")
-        dp = create_manager(self, "16175551003", "ruth", Roles.DISTRICT_PHARMACIST, "26")
+        im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
+        dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
         return (hsa, ic, im, dp) 
         
