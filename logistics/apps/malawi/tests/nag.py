@@ -1,13 +1,18 @@
+import logging
 from datetime import datetime, timedelta
+from rapidsms.models import Contact
+from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import NagRecord
+from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.nag import get_non_reporting_hsas, nag_hsas, DAYS_BETWEEN_FIRST_AND_SECOND_WARNING
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
-from rapidsms.models import Contact
-from rapidsms.tests.scripted import TestScript
-import logging
 
 class TestNag(TestScript):
+    
+    def setUp(self):
+        TestScript.setUp(self)
+        load_static_data()
     
     def testGetNonReportingHSAs(self):
         hsa = self._setup_users()

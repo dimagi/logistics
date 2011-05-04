@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 import logging
-import const
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole
-from logistics.apps.logistics.const import Reports
-from logistics.apps.malawi.const import Messages
 from celery.schedules import crontab
 from celery.decorators import periodic_task
 from rapidsms.contrib.messaging.utils import send_message
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
+from config import Messages
 
 DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 2
 DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 2
@@ -68,7 +68,7 @@ def nag_hsas(since):
             except Contact.DoesNotExist:
                 logging.error("Contact does not exist for HSA: %s" % hsa.name)
             try:
-                supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE),
+                supervisor = Contact.objects.get(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE),
                                                  supply_point=hsa.supplied_by)
                 send_message(supervisor.default_connection, Messages.HSA_SUPERVISOR_NAG % {
                             'hsa': contact.name})

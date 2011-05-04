@@ -1,8 +1,8 @@
-from logistics.apps.logistics.models import ContactRole
-from logistics.apps.malawi.const import Messages
-from logistics.apps.logistics.const import Reports
-from logistics.apps.malawi import const
 from rapidsms.models import Contact
+from logistics.apps.logistics.models import ContactRole
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
+from config import Messages
 from logistics.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
 
 class StockOnHandReportHandler(StockReportBaseHandler):
@@ -24,7 +24,7 @@ class StockOnHandReportHandler(StockReportBaseHandler):
             self.respond(Messages.GENERIC_ERROR)
         else:
             try:
-                supervisor = Contact.objects.get(role=ContactRole.objects.get(code=const.Roles.IN_CHARGE), 
+                supervisor = Contact.objects.get(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
                                                  supply_point=self.msg.logistics_contact.supply_point.supplied_by)
                 supervisor.message(Messages.SUPERVISOR_SOH_NOTIFICATION, 
                                    hsa=self.msg.logistics_contact.name,
