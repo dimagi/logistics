@@ -18,7 +18,8 @@ from logistics.apps.logistics.models import Product, ProductReportsHelper, \
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
 from logistics.apps.logistics.models import REGISTER_MESSAGE
 from logistics.apps.logistics.const import Reports
-const = import_module(settings.CONST)
+from logistics.apps.logistics.util import config
+from config import Messages
 
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
@@ -79,10 +80,10 @@ class App(AppBase):
             message.respond(REGISTER_MESSAGE)
             return (False, True)
         if message.logistics_contact.supply_point is None:
-            message.respond(const.Messages.NO_SUPPLY_POINT_MESSAGE)
+            message.respond(Messages.NO_SUPPLY_POINT_MESSAGE)
             return (False, True)
         if not self._clean_message(message.text):
-            message.respond(const.Messages.SOH_HELP_MESSAGE)
+            message.respond(Messages.SOH_HELP_MESSAGE)
             return (False, True)
         return (True, None)
         
