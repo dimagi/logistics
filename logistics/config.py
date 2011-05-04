@@ -1,20 +1,4 @@
-from logistics.apps.logistics.models import SupplyPointType
-from rapidsms.contrib.locations.models import LocationType
-
 HSA = "hsa"
-
-
-def hsa_supply_point_type():
-    """
-    The supply point type for HSAs
-    """
-    return SupplyPointType.objects.get(pk=HSA)
-
-def hsa_location_type():
-    """
-    The location type for HSAs
-    """
-    return LocationType.objects.get(slug=HSA)
 
 class Roles(object):
     """
@@ -45,6 +29,41 @@ class Operations(object):
     REPORT_STOCK = "report_stock"
     ADD_PRODUCT = "add_product"
     REMOVE_PRODUCT = "remove_product"
+
+def has_permissions_to(contact, operation):
+    # one might want to use the responsibilities framework to manage
+    # this but currently it seems strange that we'd have such tight
+    # coupling between app logic and database logic, so it's here
+    from logistics.apps.logistics.models import ContactRole
+    if not contact.is_active:
+        return False
+    if operation == Operations.REPORT_STOCK:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.FILL_ORDER:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    if operation == Operations.MAKE_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.CONFIRM_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.REPORT_FOR_OTHERS:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    # TODO, fill this in more
+    return True
+
+
+def hsa_supply_point_type():
+    """
+    The supply point type for HSAs
+    """
+    from logistics.apps.logistics.models import SupplyPointType
+    return SupplyPointType.objects.get(pk=HSA)
+
+def hsa_location_type():
+    """
+    The location type for HSAs
+    """
+    from rapidsms.contrib.locations.models import LocationType
+    return LocationType.objects.get(slug=HSA)
     
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -72,7 +91,6 @@ class Messages(object):
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products: %(emergency_products)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
-    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
     TRANSFER_RESPONSE = "Thank you %(giver)s. You have transferred to %(receiver)s the following products: %(products)s"
@@ -99,8 +117,10 @@ class Messages(object):
     # product add/remove
     ADD_HELP_MESSAGE = "To add products you supply, send ADD [product codes]."
     REMOVE_HELP_MESSAGE = "To remove products you supply, send REMOVE [product codes]."
-    ADD_SUCCESS_MESSAGE = "Thank you, you now supply: %(products)s"
-    REMOVE_SUCCESS_MESSAGE = "Done. You now supply: %(products)s"
+    ADD_FAILURE_MESSAGE = "You are already supplying: %(products)s. Nothing done."
+    REMOVE_FAILURE_MESSAGE = "You are not currently supplying: %(products)s. Nothing done."
+    ADD_SUCCESS_MESSAGE = "Thank you, you are now supplying: %(products)s"
+    REMOVE_SUCCESS_MESSAGE = "Thank you, you no longer supply: %(products)s"
     UNKNOWN_CODE = "Sorry, no product matches code %(product)s.  Nothing done."
     #nag
     HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
@@ -108,4 +128,8 @@ class Messages(object):
     HSA_NAG_THIRD = "Dear %(hsa)s, you must report your stock on hand.  Your supervisor has been notified. " + SOH_HELP_MESSAGE
     HSA_SUPERVISOR_NAG = "%(hsa)s has failed to report their stock on hand this month."
 
-    
+    # partial order availability
+    PARTIAL_FILL_HELP = "To partially fill an order type partial [space] [hsa id], for example: 'partial 100101'"
+    PARTIAL_FILL_RESPONSE = "Thank you for partially confirming order for %(hsa)s. You approved some of: %(products)s"
+    PARTIAL_FILL_NOTICE = "Dear %(hsa)s, your pending is now ready to be partially filled. Not all products were available but some are ready."
+

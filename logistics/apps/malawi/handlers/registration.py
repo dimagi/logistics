@@ -4,11 +4,12 @@
 from django.utils.translation import ugettext as _
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.malawi import const
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.malawi.const import Messages
 from logistics.apps.malawi.exceptions import IdFormatException
+from logistics.apps.logistics.util import config
+from config import Messages
+from config import Roles
 
 
 class HSARegistrationHandler(RegistrationBaseHandler):
@@ -26,7 +27,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
             return
         
         # default to HSA
-        role = ContactRole.objects.get(code=const.Roles.HSA)
+        role = ContactRole.objects.get(code=Roles.HSA)
         
         def format_id(code, id):
             try:
@@ -51,9 +52,9 @@ class HSARegistrationHandler(RegistrationBaseHandler):
             return
         
         # create a location and supply point for the HSA
-        hsa_loc = Location.objects.create(name=self.contact_name, type=const.hsa_location_type(),
+        hsa_loc = Location.objects.create(name=self.contact_name, type=config.hsa_location_type(),
                                           code=hsa_id, parent=self.supply_point.location)
-        sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=const.hsa_supply_point_type(), 
+        sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=config.hsa_supply_point_type(), 
                                         location=hsa_loc, supplied_by=self.supply_point)
         
         # overwrite the existing contact data if it was already there

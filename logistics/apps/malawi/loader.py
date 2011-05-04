@@ -3,8 +3,8 @@ from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole, Product, ProductType
-from logistics.apps.malawi import const
 from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
 
 class LoaderException(Exception):
     pass
@@ -21,7 +21,7 @@ def init_static_data():
             prod.name = name
             prod.save()
     
-    for code, name in const.Roles.ALL_ROLES.items():
+    for code, name in config.Roles.ALL_ROLES.items():
         role = ContactRole.objects.get_or_create(code=code)[0]
         if role.name != name:
             role.name = name

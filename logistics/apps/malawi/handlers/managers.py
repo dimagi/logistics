@@ -1,9 +1,10 @@
 """Managers register for the system here"""
-from logistics.apps.logistics.models import ContactRole
-from rapidsms.models import Contact
 from django.utils.translation import ugettext as _
+from rapidsms.models import Contact
+from logistics.apps.logistics.models import ContactRole
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
-from logistics.apps.malawi.const import Messages
+from logistics.apps.logistics.util import config
+from config import Messages
 
 class ManagerRegistrationHandler(RegistrationBaseHandler):
     """

@@ -1,6 +1,6 @@
-from logistics.apps.malawi.const import Messages, Operations
-from logistics.apps.malawi.roles import user_can_do
-
+from django.conf import settings
+from logistics.apps.logistics.util import config
+from config import Messages
 
 def logistics_contact_required():
     """
@@ -25,7 +25,7 @@ def logistics_permission_required(operation):
     """
     def wrapper(f):
         def require_role(self, *args, **kwargs):
-            if not user_can_do(self.msg.logistics_contact, operation):
+            if not config.has_permissions_to(self.msg.logistics_contact, operation):
                 self.respond(Messages.UNSUPPORTED_OPERATION)
             else:
                 return f(self, *args, **kwargs)
