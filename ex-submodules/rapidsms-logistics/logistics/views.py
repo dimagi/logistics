@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-import simplejson
 import gviz_api
 
 import settings
@@ -102,12 +101,12 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
             }, context_instance=RequestContext(request)
     )
 
-class JSONDateEncoder(simplejson.JSONEncoder):
+class JSONDateEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             return "Date(%d, %d, %d)" % (obj.year, obj.month, obj.day)
         else:
-            return simplejson.JSONEncoder.default(self, obj)
+            return json.JSONEncoder.default(self, obj)
 
 @geography_context
 def stockonhand_facility(request, facility_code, context={}, template="logistics/stockonhand_facility.html"):
