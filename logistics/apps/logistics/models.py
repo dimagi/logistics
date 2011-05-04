@@ -387,6 +387,7 @@ class StockRequest(models.Model):
         assert(self.is_pending()) # we should only cancel pending requests
         self.status = StockRequestStatus.CANCELED
         self.canceled_for = canceled_for
+        self.amount_received = 0 # if you cancel it, you didn't get it
         self.save()
     
     def sms_format(self):
