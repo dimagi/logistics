@@ -7,11 +7,11 @@ from logistics.apps.logistics.models import SupplyPoint
 register = template.Library()
 
 @register.simple_tag
-def reporting_rates(locations, type=None):
+def reporting_rates(locations, type=None, days=30):
     # with a list of locations - display reporting
     # rates associated with those locations
     if locations:
-        since = datetime.utcnow() - timedelta(days=30)
+        since = datetime.utcnow() - timedelta(days=days)
         base_points = SupplyPoint.objects.filter(location__in=locations)
         if type is not None:
             base_points = base_points.filter(type__code=type)
@@ -23,6 +23,7 @@ def reporting_rates(locations, type=None):
                                      "on_time_facilities": on_time_facilities,
                                      "graph_width": 200,
                                      "graph_height": 200,
+                                     "days": days,
                                      "table_class": "minor_table",
                                      "MEDIA_URL": settings.MEDIA_URL})
     return "" # no data, no report
