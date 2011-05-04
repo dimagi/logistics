@@ -318,8 +318,10 @@ class StockRequestStatus(object):
     CHOICES = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED, RECEIVED, CANCELED] 
     CHOICES_PENDING = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED]
     CHOICES_CLOSED = [RECEIVED, CANCELED]
+    CHOICES_RESPONSE = [APPROVED, STOCKED_OUT, PARTIALLY_STOCKED]
     STATUS_CHOICES = ((val, val) for val in CHOICES)
-
+    RESPONSE_STATUS_CHOICES = ((val, val) for val in CHOICES_RESPONSE)
+    
 class StockRequest(models.Model):
     """
     In some deployments, you make a stock request, but it's not filled
@@ -329,6 +331,9 @@ class StockRequest(models.Model):
     product = models.ForeignKey(Product)
     supply_point = models.ForeignKey("SupplyPoint")
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES)
+    # this second field is added for auditing purposes
+    # the status can change, but once set - this one will not
+    response_status = models.CharField(blank=True, max_length=20, choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
     is_emergency = models.BooleanField(default=False) 
     
     requested_on = models.DateTimeField()
@@ -365,11 +370,14 @@ class StockRequest(models.Model):
     
     def respond(self, status, by, on, amt=None):
         assert(self.is_pending()) # we should only approve pending requests
+        # and only respond with valid response statuses
+        assert(status in StockRequestStatus.CHOICES_RESPONSE) 
         self.responded_by = by
         if amt:
             self.amount_approved = amt
         self.responded_on = on
         self.status = status
+        self.response_status = status
         self.save()
         
     def receive(self, by, amt, on):
