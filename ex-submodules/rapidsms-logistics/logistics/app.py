@@ -185,7 +185,7 @@ class App(AppBase):
         this is what the folks in the field want 
         """
         match = re.search("[0-9]", message.text)
-        if match is not None:
+        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
             message.error("%s is not a recognized commodity code. " % code + 
