@@ -2,6 +2,20 @@
 {% load logistics_extras %}
 {% load i18n %}
 
+{% block javascripts %}
+{{ block.super }}
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+      google.load('visualization', '1', {'packages':['annotatedtimeline']});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        {{ raw_data|safe }}
+        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+        chart.draw(raw_data, {legendPosition:"newRow", displayRangeSelector:false});
+      }
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="module">
         {% include "logistics/partials/accordion_nav.html" %}
@@ -12,6 +26,12 @@
 				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
 				</div>
                 <div id="report-content">
+
+                <div id="chart_div" style="width:500px; height:350px; margin: 20px 0px;">
+
+                </div>
+                <br />
+                <div id="table">
                 <table class="stock">
                     <thead><tr>
                         <th>{% trans "Commodity" %}</th>
@@ -26,7 +46,7 @@
                     {% for stockonhand in stockonhands %}
                         <tr>
                         <td>{{ stockonhand.product.name }}</td>
-                        {% highlight_months stockonhand %}
+                        {% highlight_months stockonhand MEDIA_URL %}
                         <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>
                         <td {% ifequal stockonhand.get_monthly_consumption None %}
                                 class="big_error"
@@ -40,6 +60,7 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                </div>
                 <br/>
                 {% ifequal request.user.get_profile.facility facility %}
                 <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>

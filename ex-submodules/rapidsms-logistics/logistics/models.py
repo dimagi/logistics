@@ -38,6 +38,8 @@ INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
+MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION=10
+
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -106,7 +108,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    base_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -115,36 +117,61 @@ class ProductStock(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
-    def get_monthly_consumption(self):
-        if self.monthly_consumption is not None:
-            return self.monthly_consumption
-        elif self.product.average_monthly_consumption is not None:
-            return self.product.average_monthly_consumption
-        return None
-    
+    @property
+    def monthly_consumption(self):
+        d = self.daily_consumption
+        if d is None:
+            if self.base_monthly_consumption is not None:
+                return self.base_monthly_consumption
+            elif self.product.average_monthly_consumption is not None:
+                return self.product.average_monthly_consumption
+            return None
+
+        return d * 30
+
+    @property
+    def daily_consumption(self):
+        trans = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                                product=self.product).order_by('date')
+        if len(trans) < 2:
+            # not enough data
+            return None
+        quantity = 0
+        days = 0
+        prior = trans[0]
+        for tr in trans[1:]:
+            if tr.quantity < 0: # consumption
+                quantity -= tr.quantity # negative number
+                delta = tr.date - prior.date
+                days += delta.days
+            prior = tr
+        if days < MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
+            return None
+        return quantity / days
+
     @property
     def emergency_reorder_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
         return None
 
     @property
     def reorder_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
         return None
 
     @property
     def maximum_level(self):
-        if self.get_monthly_consumption() is not None:
-            return int(self.get_monthly_consumption()*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+        if self.monthly_consumption is not None:
+            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
         return None
 
     @property
     def months_remaining(self):
-        if self.get_monthly_consumption() is not None and self.get_monthly_consumption() > 0 \
+        if self.monthly_consumption is not None and self.monthly_consumption > 0 \
           and self.quantity is not None:
-            return float(self.quantity) / float(self.get_monthly_consumption())
+            return float(self.quantity) / float(self.monthly_consumption)
         return None
 
     def is_stocked_out(self):
@@ -291,8 +318,10 @@ class StockRequestStatus(object):
     CHOICES = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED, RECEIVED, CANCELED] 
     CHOICES_PENDING = [REQUESTED, APPROVED, STOCKED_OUT, PARTIALLY_STOCKED]
     CHOICES_CLOSED = [RECEIVED, CANCELED]
+    CHOICES_RESPONSE = [APPROVED, STOCKED_OUT, PARTIALLY_STOCKED]
     STATUS_CHOICES = ((val, val) for val in CHOICES)
-
+    RESPONSE_STATUS_CHOICES = ((val, val) for val in CHOICES_RESPONSE)
+    
 class StockRequest(models.Model):
     """
     In some deployments, you make a stock request, but it's not filled
@@ -302,6 +331,9 @@ class StockRequest(models.Model):
     product = models.ForeignKey(Product)
     supply_point = models.ForeignKey("SupplyPoint")
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES)
+    # this second field is added for auditing purposes
+    # the status can change, but once set - this one will not
+    response_status = models.CharField(blank=True, max_length=20, choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
     is_emergency = models.BooleanField(default=False) 
     
     requested_on = models.DateTimeField()
@@ -338,11 +370,14 @@ class StockRequest(models.Model):
     
     def respond(self, status, by, on, amt=None):
         assert(self.is_pending()) # we should only approve pending requests
+        # and only respond with valid response statuses
+        assert(status in StockRequestStatus.CHOICES_RESPONSE) 
         self.responded_by = by
         if amt:
             self.amount_approved = amt
         self.responded_on = on
         self.status = status
+        self.response_status = status
         self.save()
         
     def receive(self, by, amt, on):
@@ -360,6 +395,7 @@ class StockRequest(models.Model):
         assert(self.is_pending()) # we should only cancel pending requests
         self.status = StockRequestStatus.CANCELED
         self.canceled_for = canceled_for
+        self.amount_received = 0 # if you cancel it, you didn't get it
         self.save()
     
     def sms_format(self):
