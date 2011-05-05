@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 from logistics.apps.logistics.models import Product
-from rapidsms.tests.scripted import TestScript
 
 from logistics.apps.malawi.tests.util import create_hsa
+from logistics.apps.malawi.tests.base import MalawiTestBase
 
-class TestAddRemoveProducts(TestScript):
+class TestAddRemoveProducts(MalawiTestBase):
     
     def testAddRemoveProduct(self):
 
