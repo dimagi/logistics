@@ -3,6 +3,7 @@ from logistics.apps.logistics.models import ContactRole
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
+from logistics.apps.malawi.shortcuts import send_soh_responses
 
 class StockOnHandReportHandler(StockReportBaseHandler):
     """
@@ -18,22 +19,5 @@ class StockOnHandReportHandler(StockReportBaseHandler):
         return Reports.SOH
       
     def send_responses(self, stock_report):
-        if stock_report.errors:
-            # TODO: respond better.
-            self.respond(config.Messages.GENERIC_ERROR)
-        else:
-            try:
-                supervisor = Contact.objects.get(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
-                                                 supply_point=self.msg.logistics_contact.supply_point.supplied_by)
-                supervisor.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
-                                   hsa=self.msg.logistics_contact.name,
-                                   products=", ".join(req.sms_format() for req in self.requests),
-                                   hsa_id=self.msg.logistics_contact.supply_point.code)
-                self.respond(config.Messages.SOH_ORDER_CONFIRM,
-                                contact=self.msg.logistics_contact.name)
-            
-            except Contact.DoesNotExist:
-                self.respond(config.Messages.NO_IN_CHARGE,
-                                supply_point=self.msg.logistics_contact.supply_point.supplied_by.name)
-            
+        send_soh_responses(self.msg, stock_report, self.requests)
         

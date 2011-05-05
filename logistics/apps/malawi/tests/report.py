@@ -7,16 +7,6 @@ from logistics.apps.malawi.tests.base import MalawiTestBase
 
 class TestReport(MalawiTestBase):
     
-    def testBadRoles(self):
-        create_hsa(self, "16175551000", "joe")
-        create_manager(self, "16175551234", "charles", role="hsa")
-        a = """
-           16175551234 > report 261601 soh zi 40 la 200 
-           16175551234 < %(bad_role)s
-        """ % {"bad_role": config.Messages.UNSUPPORTED_OPERATION}
-               
-        self.runScript(a)
-    
     def testBadHsaId(self):
         create_manager(self, "16175551234", "charles", role="ic")
         a = """
