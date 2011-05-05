@@ -96,6 +96,11 @@
     width:80px;
 }
 
+td.empty {
+    text-align: center;
+    color: #aaa;
+}
+
 
 /* --- Accordion --- */
 a {

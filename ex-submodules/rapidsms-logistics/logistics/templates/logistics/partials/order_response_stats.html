@@ -8,8 +8,6 @@
 	        <th>Pending Response</th>
 	        <th>Stocked Out</th>
             <th>Approved</th>
-	        <th>Received</th>
-	        <th>Canceled</th>
         </tr>
     </thead>
     <tbody>
@@ -20,8 +18,10 @@
             <td>{{ rowdata.requested }}</td>
             <td>{{ rowdata.stocked_out }}</td>
             <td>{{ rowdata.approved }}</td>
-            <td>{{ rowdata.received }}</td>
-            <td>{{ rowdata.canceled }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="empty">no data</td>
         </tr>
         {% endfor %}
     </tbody>
