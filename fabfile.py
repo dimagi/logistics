@@ -53,7 +53,7 @@ def malawi():
     env.db_cleanup = True
     env.db_name = "sc4ccm"
     env.stop_start = True
-    env.branch = "malawi_model_support"
+    env.branch = "malawi-dev"
     env.hosts = ['sc4ccm@50.56.116.170']
     def malawi_extras():
         run("python manage.py malawi_init")
