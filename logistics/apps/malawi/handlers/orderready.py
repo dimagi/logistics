@@ -4,7 +4,6 @@
 from datetime import datetime
 from logistics.apps.logistics.models import StockRequest
 from logistics.apps.logistics.util import config
-from config import Messages
 from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 
 class OrderReadyHandler(OrderResponseBaseHandler):
@@ -16,7 +15,7 @@ class OrderReadyHandler(OrderResponseBaseHandler):
     keyword = "ready"
 
     def help(self):
-        self.respond(Messages.ORDERREADY_HELP_MESSAGE)
+        self.respond(config.Messages.ORDERREADY_HELP_MESSAGE)
         
     def handle_custom(self, text):
         now = datetime.utcnow()
@@ -25,9 +24,9 @@ class OrderReadyHandler(OrderResponseBaseHandler):
             req.approve(self.msg.logistics_contact, now, req.amount_requested)
         
         products = ", ".join(req.product.sms_code for req in pending_reqs)
-        self.respond(Messages.APPROVAL_RESPONSE, hsa=self.hsa.name,
+        self.respond(config.Messages.APPROVAL_RESPONSE, hsa=self.hsa.name,
                      products=products)
-        self.hsa.message(Messages.APPROVAL_NOTICE, hsa=self.hsa.name, 
+        self.hsa.message(config.Messages.APPROVAL_NOTICE, hsa=self.hsa.name, 
                     products=products)
     
                 

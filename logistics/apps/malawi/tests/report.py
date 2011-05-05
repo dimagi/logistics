@@ -3,9 +3,7 @@ from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus
 from logistics.apps.logistics.util import config
-from config import Messages
 from logistics.apps.malawi import load_static_data
-from logistics.apps.malawi import app as malawi_app
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
 class TestReport(TestScript):
@@ -20,7 +18,7 @@ class TestReport(TestScript):
         a = """
            16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_role)s
-        """ % {"bad_role": Messages.UNSUPPORTED_OPERATION}
+        """ % {"bad_role": config.Messages.UNSUPPORTED_OPERATION}
                
         self.runScript(a)
     
@@ -29,7 +27,7 @@ class TestReport(TestScript):
         a = """
            16175551234 > report 261601 soh zi 40 la 200 
            16175551234 < %(bad_hsa)s
-        """ % {"bad_hsa": Messages.UNKNOWN_HSA % {"hsa_id": 261601}}
+        """ % {"bad_hsa": config.Messages.UNKNOWN_HSA % {"hsa_id": 261601}}
         
         self.runScript(a)
     

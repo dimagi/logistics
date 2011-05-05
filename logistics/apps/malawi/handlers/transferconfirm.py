@@ -4,8 +4,6 @@ from logistics.apps.logistics.models import ProductReportsHelper , StockTransfer
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Operations
 
 class TransferConfirmHandler(KeywordHandler):
     """
@@ -17,12 +15,12 @@ class TransferConfirmHandler(KeywordHandler):
     def help(self):
         self.handle("")
 
-    @logistics_contact_and_permission_required(Operations.CONFIRM_TRANSFER)
+    @logistics_contact_and_permission_required(config.Operations.CONFIRM_TRANSFER)
     def handle(self, text):
         pending = StockTransfer.pending_transfers().filter\
             (receiver=self.msg.logistics_contact.supply_point).all()
         if len(pending) == 0:
-            self.respond(Messages.NO_PENDING_TRANSFERS)
+            self.respond(config.Messages.NO_PENDING_TRANSFERS)
         else:
             # the easiest way to mark these in the database, 
             # is to make a fake stock report
@@ -36,7 +34,7 @@ class TransferConfirmHandler(KeywordHandler):
             now = datetime.utcnow()
             for p in pending:
                 p.confirm(now)
-            self.respond(Messages.CONFIRM_RESPONSE, 
+            self.respond(config.Messages.CONFIRM_RESPONSE, 
                          receiver=self.msg.logistics_contact.name,
                          products=", ".join([p.sms_format() for p in pending]))
             

@@ -4,8 +4,6 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Operations
 from logistics.apps.malawi import util
 
 class ReportRegistrationHandler(KeywordHandler):
@@ -16,10 +14,10 @@ class ReportRegistrationHandler(KeywordHandler):
     keyword = "report"
     
     def help(self):
-        self.respond(_(Messages.REPORT_HELP))
+        self.respond(_(config.Messages.REPORT_HELP))
         
     
-    @logistics_contact_and_permission_required(Operations.REPORT_FOR_OTHERS)
+    @logistics_contact_and_permission_required(config.Operations.REPORT_FOR_OTHERS)
     def handle(self, text):
     
         words = text.split(" ")
@@ -31,9 +29,9 @@ class ReportRegistrationHandler(KeywordHandler):
         report_data = " ".join(words[2:])
         hsa = util.get_hsa(hsa_id)
         if hsa is None:
-            self.respond(Messages.UNKNOWN_HSA, hsa_id=hsa_id)
+            self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         elif keyword not in [Reports.SOH, Reports.REC]:
-            self.respond(Messages.BAD_REPORT_KEYWORD, keyword=hsa_id)
+            self.respond(config.Messages.BAD_REPORT_KEYWORD, keyword=hsa_id)
         else:
             # we've got an hsa, we've got a keyword, let's rock 
             # NOTE: a lot of this logic is copy-pasted from the soh
@@ -53,18 +51,18 @@ class ReportRegistrationHandler(KeywordHandler):
             
             if stock_report.errors:
                 # TODO: respond better.
-                self.respond(Messages.GENERIC_ERROR)
+                self.respond(config.Messages.GENERIC_ERROR)
             else:
                 
                 if keyword == Reports.SOH:
-                    self.respond(Messages.REPORT_SOH_RESPONSE, 
+                    self.respond(config.Messages.REPORT_SOH_RESPONSE, 
                                  hsa=hsa.name,
                                  products=", ".join(req.sms_format() for req in requests),
                                  hsa_id=hsa.supply_point.code)
                 
                 else:
                     assert(keyword == Reports.REC)
-                    self.respond(Messages.REPORT_RECEIPT_RESPONSE, 
+                    self.respond(config.Messages.REPORT_RECEIPT_RESPONSE, 
                                  reporter=self.msg.logistics_contact.name,
                                  hsa=hsa.name,
                                  products=" ".join(stock_report.reported_products()).strip())

@@ -1,8 +1,6 @@
 from datetime import datetime
 from logistics.apps.logistics.models import StockRequest, ContactRole
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Roles
 from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 from rapidsms.models import Contact
 
@@ -15,7 +13,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
     keyword = "os|so|out"
 
     def help(self):
-        self.respond(Messages.STOCKOUT_HELP)
+        self.respond(config.Messages.STOCKOUT_HELP)
         
     def handle_custom(self, text):
         now = datetime.utcnow()
@@ -35,18 +33,18 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             products = ", ".join(req.product.sms_code for req in emergencies)
         else:
             products = ", ".join(req.product.sms_code for req in pending_reqs)
-        self.respond(Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
+        self.respond(config.Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
                      products=products)
-        self.hsa.message(Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)
+        self.hsa.message(config.Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)
         supplier = self.msg.logistics_contact.supply_point.supplied_by
         if supplier is not None:
             supervisors = Contact.objects.filter(supply_point=supplier, 
-                                                 role__in=[ContactRole.objects.get(code=Roles.DISTRICT_PHARMACIST),
-                                                           ContactRole.objects.get(code=Roles.IMCI_COORDINATOR)])
+                                                 role__in=[ContactRole.objects.get(code=config.Roles.DISTRICT_PHARMACIST),
+                                                           ContactRole.objects.get(code=config.Roles.IMCI_COORDINATOR)])
             # note that if there are no supervisors registered, this will silently
             # not send notifications 
             for super in supervisors:
-                super.message(Messages.SUPERVISOR_STOCKOUT_NOTIFICATION, 
+                super.message(config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION, 
                               contact=self.msg.logistics_contact.name,
                               supply_point=self.msg.logistics_contact.supply_point.name,
                               products=products)

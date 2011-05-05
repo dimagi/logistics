@@ -1,13 +1,9 @@
 from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
-from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.models import Product, ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus, StockTransfer,\
     StockTransferStatus
-from logistics.apps.malawi import app as malawi_app
-from rapidsms.models import Contact
 from logistics.apps.logistics.util import config
-from config import Messages
 from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_manager, create_hsa
 
@@ -25,7 +21,7 @@ class TestTransfer(TestScript):
            16175551234 < %(bad_role)s
            16175551235 > give 2616 zi 20
            16175551235 < Cannot find hsa with id 2616. Please double check the id and try again.
-        """ % {"bad_role": Messages.UNSUPPORTED_OPERATION}
+        """ % {"bad_role": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
         
     def testBasicTransfer(self):
@@ -36,7 +32,7 @@ class TestTransfer(TestScript):
            16175551000 < %(no_super)s
            16175551001 > soh zi 10
            16175551001 < %(no_super)s
-        """ % {"no_super": Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
+        """ % {"no_super": config.Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
         self.runScript(a)
         stock_from = ProductStock.objects.get(supply_point=SupplyPoint.objects.get(code="261601"), 
                                               product=Product.by_code("zi"))
@@ -49,7 +45,7 @@ class TestTransfer(TestScript):
            16175551000 > give 261602 zi 20
            16175551000 < %(confirm)s
            16175551001 < Confirm receipt of zi 20 from wendy? Please respond 'confirm'
-        """ % {"confirm": Messages.TRANSFER_RESPONSE % \
+        """ % {"confirm": config.Messages.TRANSFER_RESPONSE % \
                     {"giver": "wendy", "receiver": "steve", "products": "zi 20"}}
         self.runScript(b)
         self.assertEqual(80, ProductStock.objects.get(pk=stock_from.pk).quantity)

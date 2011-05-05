@@ -6,7 +6,6 @@ from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
 from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi import app as malawi_app
 from logistics.apps.logistics.util import config
-from config import Messages
 
 class TestHSARegister(TestScript):
     apps = ([malawi_app.App])
@@ -25,9 +24,9 @@ class TestHSARegister(TestScript):
               8005551212 < %(bad_loc)s
               8005551212 > reg stella 1 2616
               8005551212 < %(confirm)s
-            """ % {'register_message':REGISTER_MESSAGE, 'help_message':Messages.HSA_HELP,
-                   'bad_loc': Messages.UNKNOWN_LOCATION % {"code": "doesntexist"},
-                   "confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {'register_message':REGISTER_MESSAGE, 'help_message':config.Messages.HSA_HELP,
+                   'bad_loc': config.Messages.UNKNOWN_LOCATION % {"code": "doesntexist"},
+                   "confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
                                                                "contact_name": "stella"}}
         self.runScript(a)
@@ -39,7 +38,7 @@ class TestHSARegister(TestScript):
         a = """
               8005551212 > reg john wilkes booth 1 2616
               8005551212 < %(confirm)s
-            """ % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
                                                                "contact_name": "john wilkes booth"}}
         self.runScript(a)
@@ -50,7 +49,7 @@ class TestHSARegister(TestScript):
               8005551212 < %(confirm)s
               8005551213 > reg dupe 1 2616
               8005551213 < Sorry, a location with 261601 already exists. Another HSA may have already registered this ID
-            """ % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
                                                                "contact_name": "stella"}}
         self.runScript(a)
@@ -78,7 +77,7 @@ class TestHSARegister(TestScript):
         a = """
               8005551212 > reg hsa 1 2616
               8005551212 < %(confirm)s
-            """  % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """  % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                 "role": "hsa",
                                                                 "contact_name": "hsa"}}
         
@@ -89,7 +88,7 @@ class TestHSARegister(TestScript):
         b = """
               8005551214 > manage incharge ic 2616
               8005551214 < %(confirm)s
-            """ % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                 "role": "in charge",
                                                                 "contact_name": "incharge"}}
         self.runScript(b)
@@ -99,7 +98,7 @@ class TestHSARegister(TestScript):
         a = """
               8005551214 > manage incharge ic 2616
               8005551214 < %(confirm)s
-            """ % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "in charge",
                                                                "contact_name": "incharge"}}
         self.runScript(a)
@@ -112,8 +111,8 @@ class TestHSARegister(TestScript):
               8005551212 < You are already registered. To change your information you must first text LEAVE
               8005551213 > leave
               8005551213 < %(not_registered)s
-            """ % {"not_registered": Messages.LEAVE_NOT_REGISTERED,
-                   "confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"not_registered": config.Messages.LEAVE_NOT_REGISTERED,
+                   "confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
                                                                "contact_name": "stella"}}
         self.runScript(a)
@@ -122,14 +121,14 @@ class TestHSARegister(TestScript):
         b = """
               8005551212 > leave
               8005551212 < %(left)s
-            """ % {"left": Messages.LEAVE_CONFIRM}
+            """ % {"left": config.Messages.LEAVE_CONFIRM}
         self.runScript(b)
         contact = Contact.objects.get(name="stella")
         self.assertFalse(contact.is_active)
         c = """
               8005551212 > reg stella 1 2616
               8005551212 < %(confirm)s
-            """ % {"confirm": Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
                                                                "contact_name": "stella"}}
         self.runScript(c)
