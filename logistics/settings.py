@@ -197,7 +197,10 @@ try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
         sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
-    from localsettings import *
+        #TODO: will make this generic 
+        from settings_base import *
+    else: 
+        from localsettings import *
 except ImportError:
     pass
 if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):

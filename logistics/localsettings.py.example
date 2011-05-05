@@ -2,5 +2,5 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 # import your deployment specific settings here.
-from logistics.deployments.CHANGEME.localsettings import *
+from logistics.deployments.CHANGEME.settings_base import *
 
