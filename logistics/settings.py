@@ -192,7 +192,11 @@ COUCH_DATABASE_NAME='logistics'
 COUCHDB_APPS=['auditcare',]
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
+#try to see if there's an environmental variable set for local_settings
 try:
+    import sys
+    if os.environ.has_key('LOCAL_SETTINGS'):
+        sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
     from localsettings import *
 except ImportError:
     pass
