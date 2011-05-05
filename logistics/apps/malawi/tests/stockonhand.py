@@ -2,14 +2,11 @@ from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus ,\
     ProductStock
-from logistics.apps.malawi import app as malawi_app
 from rapidsms.models import Contact
 from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Roles
 
 class TestStockOnHandMalawi(TestScript):
     
@@ -22,7 +19,7 @@ class TestStockOnHandMalawi(TestScript):
         a = """
            16175551234 > soh zi 10
            16175551234 < %(no_super)s
-           """ % {"no_super": Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
+           """ % {"no_super": config.Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
         self.runScript(a)
         
     def testBasicSupplyFlow(self):
@@ -33,6 +30,7 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
+            self.assertEqual("", req.response_status)
             self.assertTrue(req.is_pending())
             self.assertFalse(req.is_emergency)
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
@@ -43,16 +41,17 @@ class TestStockOnHandMalawi(TestScript):
            16175551001 > ready 261601
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy", "products": "zi 390, la 705"},
-               "hsa_notice": Messages.APPROVAL_NOTICE % \
-                    {"hsa": "wendy", "products": "zi 390, la 705"}}
+        """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
+                    {"hsa": "wendy", "products": "zi, la"},
+               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"hsa": "wendy", "products": "zi, la"}}
         
 
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.APPROVED, req.status)
+            self.assertEqual(StockRequestStatus.APPROVED, req.response_status)
             self.assertTrue(req.is_pending())
             self.assertEqual(Contact.objects.get(name="sally"), req.responded_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
@@ -70,6 +69,7 @@ class TestStockOnHandMalawi(TestScript):
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(StockRequestStatus.RECEIVED, req.status)
+            self.assertEqual(StockRequestStatus.APPROVED, req.response_status)
             self.assertFalse(req.is_pending())
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
@@ -90,11 +90,11 @@ class TestStockOnHandMalawi(TestScript):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": Messages.STOCKOUT_RESPONSE %\
+        """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "district": Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+               "district": config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
-               "hsa_notice": Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+               "hsa_notice": config.Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
                     
                     
         self.runScript(a)
@@ -102,6 +102,7 @@ class TestStockOnHandMalawi(TestScript):
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.STOCKED_OUT, req.status)
+            self.assertEqual(StockRequestStatus.STOCKED_OUT, req.response_status)
             self.assertTrue(req.is_pending())
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
@@ -115,13 +116,14 @@ class TestStockOnHandMalawi(TestScript):
            16175551000 > eo zi 10 la 500
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
                     
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
+            self.assertEqual("", req.response_status)
             self.assertTrue(req.is_pending())
             if req.product.sms_code == "zi":
                 self.assertTrue(req.is_emergency)
@@ -132,12 +134,49 @@ class TestStockOnHandMalawi(TestScript):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 500)
+    
+    def testEmergencyStockOut(self):
+        self.testEmergencyStockOnHand()
+        # the difference here is that only emergency products are
+        # reported/escalated 
+        a = """
+           16175551001 > os 261601
+           16175551001 < %(confirm)s
+           16175551002 < %(district)s
+           16175551003 < %(district)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
+                    {"reporter": "sally", "products": "zi"},
+               "district": config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
+               "hsa_notice": config.Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+        self.runScript(a)
+        
+    def testEmergencyOrderNoProductsInEmergency(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 400 la 500
+           16175551000 < %(confirm)s
+           16175551001 < wendy needs emergency products: none, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+                    
+        self.runScript(a)
+        
+    def testEmergencyOrderNoProductsNotInEmergency(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 0 la 0
+           16175551000 < %(confirm)s
+           16175551001 < wendy needs emergency products: zi 400, la 720. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+                    
+        self.runScript(a)
         
         
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")
-        im = create_manager(self, "16175551002", "peter", Roles.IMCI_COORDINATOR, "26")
-        dp = create_manager(self, "16175551003", "ruth", Roles.DISTRICT_PHARMACIST, "26")
+        im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
+        dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
         return (hsa, ic, im, dp) 
         

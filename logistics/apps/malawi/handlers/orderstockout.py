@@ -21,11 +21,20 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
         now = datetime.utcnow()
         
         # Currently we just mark these stock requests stocked out.
+        # Note that this has a different meaning for emergency orders
+        # in which case we only confirm the emergency products.
+        # However in the interest of simplicity we won't worry about that (yet?).
         pending_reqs = StockRequest.pending_requests().filter(supply_point=self.hsa.supply_point)
         for req in pending_reqs:
             req.mark_stockout(self.msg.logistics_contact, now)
         
-        products = ", ".join(req.sms_format() for req in pending_reqs)
+        # if there were any emergency orders, only report those as stockouts
+        # this is pretty confusing/hacky
+        emergencies = pending_reqs.filter(is_emergency=True) 
+        if emergencies.count() > 0:
+            products = ", ".join(req.product.sms_code for req in emergencies)
+        else:
+            products = ", ".join(req.product.sms_code for req in pending_reqs)
         self.respond(Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
                      products=products)
         self.hsa.message(Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)

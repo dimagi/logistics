@@ -1,7 +1,5 @@
 from django.db import transaction
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Operations
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.apps.logistics.models import ProductReportsHelper, StockRequest
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
@@ -19,10 +17,10 @@ class StockReportBaseHandler(RecordResponseHandler):
         raise NotImplemented("This method must be overridden")
     
     @transaction.commit_on_success
-    @logistics_contact_and_permission_required(Operations.REPORT_STOCK)
+    @logistics_contact_and_permission_required(config.Operations.REPORT_STOCK)
     def handle(self, text):
         """
-        Check some precondidtions, based on shared assumptions of these handlers.
+        Check some preconditions, based on shared assumptions of these handlers.
         Return true if there is a precondition that wasn't met. If all preconditions
         are met, the variables for facility and name will be set.
         

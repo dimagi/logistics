@@ -1,0 +1,29 @@
+<h2>Order Response Statistics{% if location %} for {{ location.name }}{% endif %}</h2>
+<div>
+<table width="100%">
+    <thead>
+        <tr>
+	        <th>Supply Point</th>
+	        <th>Total Requests</th>
+	        <th>Pending Response</th>
+	        <th>Stocked Out</th>
+            <th>Approved</th>
+	        <th>Received</th>
+	        <th>Canceled</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rowdata in data %}
+        <tr>
+            <td>{{ rowdata.supply_point.name }}</td>
+            <td>{{ rowdata.total }}</td>
+            <td>{{ rowdata.requested }}</td>
+            <td>{{ rowdata.stocked_out }}</td>
+            <td>{{ rowdata.approved }}</td>
+            <td>{{ rowdata.received }}</td>
+            <td>{{ rowdata.canceled }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

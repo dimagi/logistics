@@ -1,124 +1,119 @@
 District CODE,District,CODE,ID in District,Health Centers,HSAs/HC
-26,Machinga,2616,1,Ntaja,23
+26,Machinga,2616,1,Ntaja,28
 26,Machinga,2601,2,Chamba,28
-26,Machinga,2614,3,Ngokwe,16
-26,Machinga,,4,Mangamba,11
-26,Machinga,2612,5,Nainunje,11
-26,Machinga,2604,6,Kawinga,13
-26,Machinga,2613,7,Nayuchi,13
-26,Machinga,2610,8,Namandanje,9
-26,Machinga,2603,9,Gawanani,10
-26,Machinga,2609,10,Mposa,16
-26,Machinga,2608,11,Mpiri,5
-26,Machinga,,12,Ntholowa,3
-26,Machinga,2617,,Nyambi,
-26,Machinga,2615,,Nsanama,
-26,Machinga,2611,,Namanja,
-26,Machinga,2607,,Mbonechera,
-26,Machinga,2602,,Chikweyo,
-3,Nkhatabay,311,1,Liuzi,2
-3,Nkhatabay,308,2,Kachere,3
-3,Nkhatabay,309,3,Kande,4
-3,Nkhatabay,305,4,Chintheche,4
-3,Nkhatabay,302,5,Chesamu,1
-3,Nkhatabay,316,6,Maula,5
-3,Nkhatabay,315,7,Nkhatabay DHO,5
-3,Nkhatabay,313,8,Mpamba,4
-3,Nkhatabay,303,9,Chikwina,3
-3,Nkhatabay,301,10,Bula,3
-3,Nkhatabay,319,11,Usisya,1
-3,Nkhatabay,210,12,Khondowe,1
-3,Nkhatabay,317,13,Ruarwe,1
-3,Nkhatabay,306,14,Chitheka,2
-3,Nkhatabay,314,15,Mzenga,6
-3,Nkhatabay,,16,Nthungwa,2
-3,Nkhatabay,304,,Chilambwe,
-3,Nkhatabay,312,,Lwazi,
-3,Nkhatabay,307,,Chizumulo,
-3,Nkhatabay,318,,Likoma,
-32,Mulanje,3213,1,Mulomba,16
-32,Mulanje,3219,2,Thuchira,11
-32,Mulanje,3201,3,Bondo,10
-32,Mulanje,,4,Lujeri Estate,3
+26,Machinga,2614,3,Ngokwe,18
+26,Machinga,2650,4,Mangamba,13
+26,Machinga,2605,5,DHO,61
+26,Machinga,2651,6,Mlomba,
+26,Machinga,2606,7,Machinga HC,19
+26,Machinga,2612,8,Nainunje,14
+26,Machinga,2604,9,Kawinga,16
+26,Machinga,2613,10,Nayuchi,13
+26,Machinga,2610,11,Namandanje,9
+26,Machinga,2603,12,Gawanani,11
+26,Machinga,2609,13,Mposa,17
+26,Machinga,2608,14,Mpiri,8
+26,Machinga,2652,15,Ntholowa,3
+26,Machinga,2617,16,Nyambi,13
+26,Machinga,2615,17,Nsanama,18
+26,Machinga,2611,18,Namanja,14
+26,Machinga,2607,19,Mbonechera,10
+26,Machinga,2602,20,Chikweyo,22
+26,Machinga,2653,21,Mkwepere,8
+03,Nkhatabay,0311,1,Liuzi,2
+03,Nkhatabay,0308,2,Kachere,3
+03,Nkhatabay,0309,3,Kande,4
+03,Nkhatabay,0305,4,Chintheche,4
+03,Nkhatabay,0302,5,Chesamu,1
+03,Nkhatabay,0316,6,Maula,5
+03,Nkhatabay,0315,7,Nkhatabay DHO,5
+03,Nkhatabay,0313,8,Mpamba,4
+03,Nkhatabay,0303,9,Chikwina,3
+03,Nkhatabay,0301,10,Bula,3
+03,Nkhatabay,0319,11,Usisya,1
+03,Nkhatabay,0310,12,Khondowe,1
+03,Nkhatabay,0317,13,Ruarwe,1
+03,Nkhatabay,0306,14,Chitheka,2
+03,Nkhatabay,0314,15,Mzenga,6
+03,Nkhatabay,0350,16,Nthungwa,2
+03,Nkhatabay,0304,17,Chilambwe,0
+03,Nkhatabay,0312,18,Lwazi,0
+03,Nkhatabay,0307,19,Chizumulo,1
+03,Nkhatabay,0318,20,Likoma,4
+32,Mulanje,3213,1,Mulomba,17
+32,Mulanje,3219,2,Thuchira,12
+32,Mulanje,3201,3,Bondo,11
+32,Mulanje,3250,4,Lujeri Estate,3
 32,Mulanje,3209,5,Mimosa,3
-32,Mulanje,3210,6,Mpala,4
-32,Mulanje,3202,7,Chambe,17
+32,Mulanje,3210,6,Mpala,5
+32,Mulanje,3202,7,Chambe,19
 32,Mulanje,3206,8,Kambenje,10
 32,Mulanje,3205,9,Dzenje,1
-32,Mulanje,3208,10,Milonde,5
-32,Mulanje,3211,11,Mulanje DHO,4
-32,Mulanje,3203,12,Chinyama,5
+32,Mulanje,3208,10,Milonde,6
+32,Mulanje,3211,11,Mulanje DHO,5
+32,Mulanje,3203,12,Chinyama,6
 32,Mulanje,3218,13,Thembe,1
-32,Mulanje,3204,,Chonde,
-32,Mulanje,3207,,Mbiza,
-32,Mulanje,3212,,Mulanje Mission,
-32,Mulanje,3214,,Muloza,
-32,Mulanje,3215,,Namasalima,
-32,Mulanje,3216,,Namphungo,
-32,Mulanje,3217,,Namulenga,
+32,Mulanje,3204,14,Chonde,Not yet trained`
+32,Mulanje,3207,15,Mbiza,Not yet trained
+32,Mulanje,3212,16,Mulanje Mission,Not yet trained
+32,Mulanje,3214,17,Muloza,Not yet trained
+32,Mulanje,3215,18,Namasalima,Not yet trained
+32,Mulanje,3216,19,Namphungo,Not yet trained
+32,Mulanje,3217,20,Namulenga,Not yet trained
 11,Nkhotakota,1104,1,Dwambazi,4
-11,Nkhotakota,,2,Lupachi,3
-11,Nkhotakota,,3,Kasitu ,4
-11,Nkhotakota,1110,4,Ngala ,7
-11,Nkhotakota,1112,5,Nkhunga ,7
-11,Nkhotakota,,6,Dwangwa Cane Growers,1
-11,Nkhotakota,1106,7,Liwaladzi ,5
-11,Nkhotakota,,8,Msenjere ,5
-11,Nkhotakota,1114,9,Katimbira ,5
-11,Nkhotakota,1102,10,Bua ,4
-11,Nkhotakota,1111,11,DHO/ST ,28
+11,Nkhotakota,1150,2,Lupachi,3
+11,Nkhotakota,1151,3,Kasitu,4
+11,Nkhotakota,1110,4,Ngala,7
+11,Nkhotakota,1112,5,Nkhunga,7
+11,Nkhotakota,1152,6,Dwangwa Cane Growers,1
+11,Nkhotakota,1106,7,Liwaladzi,5
+11,Nkhotakota,1153,8,Msenjere,5
+11,Nkhotakota,1114,9,Katimbira,5
+11,Nkhotakota,1102,10,Bua,4
+11,Nkhotakota,1111,11,DHO/ST,28
 11,Nkhotakota,1107,12,Mpamantha,4
-11,Nkhotakota,1103,13,Chididi ,3
-11,Nkhotakota,1105,14,Kapiri ,7
-11,Nkhotakota,1116,15,Malowa ,4
+11,Nkhotakota,1103,13,Chididi,3
+11,Nkhotakota,1105,14,Kapiri,7
+11,Nkhotakota,1116,15,Malowa,4
 11,Nkhotakota,1109,16,Mwansambo,9
-11,Nkhotakota,1101,17,Benga ,6
-11,Nkhotakota,1108,18,Ntosa ,1
-11,Nkhotakota,1113,19,Alinafe ,10
+11,Nkhotakota,1101,17,Benga,6
+11,Nkhotakota,1108,18,Ntosa,1
+11,Nkhotakota,1113,19,Alinafe,10
 34,Nsanje,3403,1,Lurwe,
 34,Nsanje,3408,2,Ndamera,9
 34,Nsanje,3406,3,Mbenje,11
 34,Nsanje,3409,4,Nsanje DH,8
-34,Nsanje,3401,5,Chididi ,3
-34,Nsanje,3413,6,Tengani ,7
-34,Nsanje,3410,7,Nyamithuthu ,2
-34,Nsanje,3417,8,Phokera ,3
-34,Nsanje,3402,9,Kalemba ,7
-34,Nsanje,3412,10,Sorgin ,7
-34,Nsanje,3414,11,Trinity ,6
+34,Nsanje,3401,5,Chididi,3
+34,Nsanje,3413,6,Tengani,7
+34,Nsanje,3410,7,Nyamithuthu,2
+34,Nsanje,3417,8,Phokera,3
+34,Nsanje,3402,9,Kalemba,7
+34,Nsanje,3412,10,Sorgin,7
+34,Nsanje,3414,11,Trinity,6
 34,Nsanje,3405,12,Masenjere,4
-34,Nsanje,3411,13,Sankhulani ,4
-34,Nsanje,3404,14,Makhanga ,2
-34,Nsanje,3407,,Mlolo,
-34,Nsanje,3415,,Ching'oma,
-34,Nsanje,3416,,Mkango,
-34,Nsanje,3418,,Misamvu,
-34,Nsanje,3419,,Kanyimbi,
-34,Nsanje,3420,,Mchacha,
-34,Nsanje,3421,,Kamphata,
-34,Nsanje,3422,,Nkhande,
-10,Kasungu,1005,1,Kaluluma,12
-10,Kasungu,,2,Mpepa,6
+34,Nsanje,3411,13,Sankhulani,4
+34,Nsanje,3404,14,Makhanga,2
+10,Kasungu,1005,1,Kaluluma,7
+10,Kasungu,1017,2,Mpepa/Chisinga,6
 10,Kasungu,1016,3,Wimbe,6
-10,Kasungu,1011,4,Mtunthama,3
-10,Kasungu,,5,Mziza,2
-10,Kasungu,1001,6,Bua ,5
-10,Kasungu,1012,7,Newa ,3
-10,Kasungu,1004,8,Dwangwa ,1
-10,Kasungu,1002,9,Chamwavi ,7
-10,Kasungu,,10,Lodjwa ,2
-10,Kasungu,1009,11,Kawamba ,9
-10,Kasungu,,12,Khola ,4
-10,Kasungu,1010,13,Mkhota ,4
-10,Kasungu,1008,14,Kasungu D.Hospital ,5
-10,Kasungu,1006,15,Kamboni ,3
-10,Kasungu,1007,16,Kapelula ,3
-10,Kasungu,1014,17,Santhe ,2
-10,Kasungu,,18,Gogode ,2
-10,Kasungu,,19,Ofesi ,4
-10,Kasungu,,20,Linyangwa ,2
-10,Kasungu,1003,21,Chulu ,6
-10,Kasungu,1015,22,Simlemba ,6
-10,Kasungu,1013,,Nkhamenya,
-10,Kasungu,1018,,Kasalika,
-10,Kasungu,1017,,Chisinga,
+10,Kasungu,1011,4,Mtunthama,5
+10,Kasungu,1050,5,Mziza,2
+10,Kasungu,1001,6,Bua,3
+10,Kasungu,1012,7,Newa,3
+10,Kasungu,1004,8,Dwangwa,0
+10,Kasungu,1002,9,Chamwavi,7
+10,Kasungu,1051,10,Lodjwa,2
+10,Kasungu,1009,11,Kawamba,9
+10,Kasungu,1052,12,Khola,2
+10,Kasungu,1010,13,Mkhota,3
+10,Kasungu,1008,14,Kasungu D.Hospital,6
+10,Kasungu,1006,15,Kamboni,3
+10,Kasungu,1007,16,Kapelula,6
+10,Kasungu,1014,17,Santhe,6
+10,Kasungu,1053,18,Gogode,2
+10,Kasungu,1054,19,Ofesi,4
+10,Kasungu,1055,20,Linyangwa,4
+10,Kasungu,1003,21,Chulu,8
+10,Kasungu,1015,22,Simlemba,5
+10,Kasungu,1013,23,Nkhamenya,6
+10,Kasungu,1018,24,Kasalika,0

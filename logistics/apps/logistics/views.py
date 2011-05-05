@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+import gviz_api
 
 import settings
 from random import randint
@@ -25,6 +26,7 @@ from logistics.apps.logistics.view_decorators import filter_context, geography_c
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
+import json
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
@@ -99,6 +101,13 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
             }, context_instance=RequestContext(request)
     )
 
+class JSONDateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return "Date(%d, %d, %d)" % (obj.year, obj.month, obj.day)
+        else:
+            return json.JSONEncoder.default(self, obj)
+
 @geography_context
 def stockonhand_facility(request, facility_code, context={}, template="logistics/stockonhand_facility.html"):
     """
@@ -107,8 +116,27 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
     facility = get_object_or_404(SupplyPoint, code=facility_code)
     stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
     last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
+
     if last_reports:
         context['last_reported'] = last_reports[0].report_date
+        cols = {"date": ("datetime", "Date")}
+        for s in stockonhands:
+            cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
+        table = gviz_api.DataTable(cols)
+
+        data_rows = {}
+        for r in last_reports:
+            if not r.report_date in data_rows: data_rows[r.report_date] = {}
+            data_rows[r.report_date][r.product.name] = r.quantity
+        rows = []
+        for d in data_rows.keys():
+            q = {"date":d}
+            q.update(data_rows[d])
+            rows += [q]
+        table.LoadData(rows)
+        context['raw_data'] = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
+                                             order_by="date")
+
     context['stockonhands'] = stockonhands
     context['facility'] = facility
     context["location"] = facility.location
@@ -209,6 +237,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
     children.extend(location.children())
     for child in children:
         row = {}
+        row['location'] = child
         row['is_active'] = child.is_active
         row['name'] = child.name
         row['code'] = child.code

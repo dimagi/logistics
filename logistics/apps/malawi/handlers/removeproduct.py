@@ -1,9 +1,8 @@
+from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
+from django.db import transaction
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, Product, ProductStock
-from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.models import Product, ProductStock
 from logistics.apps.logistics.util import config
-from config import Messages
 
 class RemoveProductHandler(KeywordHandler):
     """
@@ -13,8 +12,10 @@ class RemoveProductHandler(KeywordHandler):
     keyword = "remove"
 
     def help(self):
-        self.respond(Messages.REMOVE_HELP_MESSAGE)
+        self.respond(config.Messages.REMOVE_HELP_MESSAGE)
 
+    @transaction.commit_on_success
+    @logistics_contact_and_permission_required(config.Operations.REMOVE_PRODUCT)
     def handle(self, text):
         words = text.split(" ")
         if not len(words):
@@ -22,17 +23,12 @@ class RemoveProductHandler(KeywordHandler):
         self.hsa = self.msg.logistics_contact.supply_point
         for code in words:
             if not Product.objects.filter(sms_code__iexact=code).exists():
-                self.respond_error(Messages.UNKNOWN_CODE, product=code)
+                self.respond_error(config.Messages.UNKNOWN_CODE, product=code)
                 return
-        found = [Product.objects.get(sms_code__iexact=code) for code in words]
-        not_supplied = []
-        for f in found:
+        for f in [Product.objects.get(sms_code__iexact=code) for code in words]:
             # Check to make sure we're supplying this product.
-            if not self.hsa.supplies_product(f):
-                not_supplied += [f]
-        if len(not_supplied):
-            self.respond_error(Messages.REMOVE_FAILURE_MESSAGE, products=" ".join([x.sms_code for x in not_supplied]))
-        else:
-            for f in found:
+            if self.hsa.supplies_product(f):
                 self.hsa.deactivate_product(f)
-            self.respond(Messages.REMOVE_SUCCESS_MESSAGE, products=" ".join(words))
+        self.respond(config.Messages.REMOVE_SUCCESS_MESSAGE, products=" ".join([ps.product.sms_code for ps
+                                                                                in ProductStock.objects.filter(supply_point=self.hsa,
+                                                                                                     is_active=True)]))

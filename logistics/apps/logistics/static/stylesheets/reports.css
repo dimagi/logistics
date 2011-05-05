@@ -57,6 +57,11 @@
     width:550px
 }
 
+.minor_table{
+    float:right;
+    width:300px
+}
+
 #reporting_chart{
     margin-bottom:10px;
     margin-top:10px;
@@ -81,6 +86,10 @@
 
 .stock {
     width:50%;
+}
+
+.stock td {
+    vertical-align: middle;
 }
 
 .aggregate_stock tbody tr td{

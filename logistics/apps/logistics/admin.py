@@ -45,6 +45,7 @@ class SupplyPointAdmin(admin.ModelAdmin):
 
 class StockRequestAdmin(admin.ModelAdmin):
     model = StockRequest
+    list_display = ('product', 'supply_point', 'status', 'requested_on','amount_requested', 'amount_approved', 'amount_received')
 
 class StockTransactionAdmin(admin.ModelAdmin):
     model = StockTransaction

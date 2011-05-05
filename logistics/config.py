@@ -27,6 +27,8 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+    ADD_PRODUCT = "add_product"
+    REMOVE_PRODUCT = "remove_product"
 
 def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
