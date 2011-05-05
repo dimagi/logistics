@@ -595,6 +595,10 @@ class SupplyPoint(models.Model):
     def label(self):
         return unicode(self)
     
+    @property
+    def is_active(self):
+        return self.active
+    
     def deprecate(self, new_code=None):
         """
         Deprecates this supply point, by changing the id and location id,

@@ -204,13 +204,18 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
 
 def _get_location_children(location, commodity_filter, commoditytype_filter):
     rows = []
-    children = location.children()
+    children = []
+    children.extend(location.facilities())
+    children.extend(location.children())
     for child in children:
         row = {}
         row['is_active'] = child.is_active
         row['name'] = child.name
         row['code'] = child.code
-        row['url'] = reverse('logistics_dashboard', args=[child.code])
+        if isinstance(child, SupplyPoint):
+            row['url'] = reverse('stockonhand_facility', args=[child.code])
+        else:
+            row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 
