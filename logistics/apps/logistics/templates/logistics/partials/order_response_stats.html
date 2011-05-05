@@ -19,6 +19,10 @@
             <td>{{ rowdata.stocked_out }}</td>
             <td>{{ rowdata.approved }}</td>
         </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="empty">no data</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>
