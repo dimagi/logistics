@@ -197,10 +197,7 @@ try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
         sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
-        local_settings = os.path.basename(os.environ['LOCAL_SETTINGS'])
-        __import__(local_settings)
-    else:
-        from localsettings import *
+    from localsettings import *
 except ImportError:
     pass
 if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
