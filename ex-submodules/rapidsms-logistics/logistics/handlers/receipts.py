@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-from datetime import datetime
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE,\
     StockRequest, StockTransfer
-from logistics.apps.logistics.models import REGISTER_MESSAGE
 from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.apps.logistics.util import config
 
 class ReceiptHandler(KeywordHandler):
     """
@@ -46,4 +45,4 @@ class ReceiptHandler(KeywordHandler):
         if supplier is not None:
             StockTransfer.create_from_receipt_report(stock_report, supplier)
 
-        self.respond(_('Thank you, you reported receipts for %(stocks)s.'), stocks=" ".join(stock_report.reported_products()).strip())
+        self.respond(_(config.Messages.RECEIPT_CONFIRM), products=" ".join(stock_report.reported_products()).strip())
