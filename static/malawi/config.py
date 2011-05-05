@@ -49,7 +49,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.CONFIRM_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.REPORT_FOR_OTHERS:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE])
     # TODO, fill this in more
     return True
 

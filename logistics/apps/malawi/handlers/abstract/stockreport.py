@@ -1,8 +1,9 @@
 from django.db import transaction
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from logistics.apps.logistics.models import ProductReportsHelper, StockRequest
+from logistics.apps.logistics.models import StockRequest
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
+from logistics.apps.malawi.shortcuts import create_stock_report
 
 
 class StockReportBaseHandler(RecordResponseHandler):
@@ -28,13 +29,11 @@ class StockReportBaseHandler(RecordResponseHandler):
         """
         # at some point we may want more granular permissions for these
         # operations, but for now we just share the one
-
         self.hsa = self.msg.logistics_contact
         
-        stock_report = ProductReportsHelper(self.hsa.supply_point, 
-                                            self.get_report_type(),  
-                                            self.msg.logger_msg)
-        stock_report.parse(text)
-        stock_report.save()
+        stock_report = create_stock_report(self.get_report_type(),  
+                                           self.hsa.supply_point,
+                                           text, 
+                                           self.msg.logger_msg)
         self.requests = StockRequest.create_from_report(stock_report, self.hsa)
         self.send_responses(stock_report)        

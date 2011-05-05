@@ -31,16 +31,13 @@ class testContactsAndRoles(MalawiTestBase):
         
     def testRolesAndOperations(self):
         create_hsa(self, "5551111", "hsa")
-        create_manager(self, "5551112", "in charge")
+        create_manager(self, "5551112", "charles") # in charge!
+        create_manager(self, "5551113", "pill pusher", "dp")
         
         a = """
                 5551111 > ready 100100
                 5551111 < %(bad_perms)s
                 5551111 > os 100100
-                5551111 < %(bad_perms)s
-                5551111 > report 100101 soh la 200
-                5551111 < %(bad_perms)s
-                5551111 > report 100101 rec la 200
                 5551111 < %(bad_perms)s
                 5551112 > soh la 200
                 5551112 < %(bad_perms)s
@@ -53,5 +50,9 @@ class testContactsAndRoles(MalawiTestBase):
                 5551112 < %(bad_perms)s
                 5551112 > confirm
                 5551112 < %(bad_perms)s
+                5551113 > report 100101 soh la 200
+                5551113 < %(bad_perms)s
+                5551113 > report 100101 rec la 200
+                5551113 < %(bad_perms)s
             """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
