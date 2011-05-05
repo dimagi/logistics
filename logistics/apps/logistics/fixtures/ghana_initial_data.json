@@ -463,50 +463,57 @@
         }
     }, 
     {
+        "pk": "hsa",
+        "model": "logistics.supplypointtype",
+        "fields": {
+            "name": "Health Worker"
+        }
+    },
+    {
         "pk": "hc",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "Health Centre"
         }
     },
     {
         "pk": "c",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "Clinic"
         }
     },
     {
         "pk": "dh",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "District Hospital"
         }
     },
     {
         "pk": "chps",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "CHPS Facility"
         }
     },
     {
         "pk": "da",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "District Administration"
         }
     },
     {
         "pk": "RMS",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "Regional Medical Store"
         }
     },
     {
         "pk": "ph",
-        "model": "logistics.facilitytype",
+        "model": "logistics.supplypointtype",
         "fields": {
             "name": "Psychiatric Hospital"
         }
@@ -1967,7 +1974,7 @@
     },
     {
         "pk": 1,
-        "model": "logistics.facility",
+        "model": "logistics.supplypoint",
         "fields": {
             "code": "garms",
             "name": "Greater Accra Regional Medical Store",
@@ -1981,7 +1988,7 @@
     },
     {
         "pk": 2,
-        "model": "logistics.facility",
+        "model": "logistics.supplypoint",
         "fields": {
             "code": "crms",
             "name": "Central Regional Medical Store",
@@ -1995,7 +2002,7 @@
     },
     {
         "pk": 3,
-        "model": "logistics.facility",
+        "model": "logistics.supplypoint",
         "fields": {
             "code": "wrms",
             "name": "Western Regional Medical Store",
@@ -2007,6 +2014,9 @@
             "type": "RMS"
         }
     },
+    {"pk": 1, "model": "logistics.facility", "fields": {}},
+    {"pk": 2, "model": "logistics.facility", "fields": {}},
+    {"pk": 3, "model": "logistics.facility", "fields": {}},
     {
         "pk": 1,
         "model": "rapidsms.contact",
@@ -2015,7 +2025,7 @@
             "role": 1,
             "name": "In Charge",
             "language": "en-us",
-            "facility": 1
+            "supply_point": 1
         }
     },
     {
@@ -2026,7 +2036,7 @@
             "role": 2,
             "name": "Test User",
             "language": "en-us",
-            "facility": 1
+            "supply_point": 1
         }
     },
     {

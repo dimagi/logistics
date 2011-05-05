@@ -30,17 +30,26 @@ class ProductReportAdmin(admin.ModelAdmin):
 class ProductReportTypeAdmin(admin.ModelAdmin):
     model = ProductReportType
 
-class StockTransactionAdmin(admin.ModelAdmin):
-    model = StockTransaction
-
 class RequisitionReportAdmin(admin.ModelAdmin):
     model = RequisitionReport
     
 class FacilityAdmin(admin.ModelAdmin):
     model = Facility
 
-class FacilityTypeAdmin(admin.ModelAdmin):
-    model = FacilityType
+class SupplyPointTypeAdmin(admin.ModelAdmin):
+    model = SupplyPointType
+
+class SupplyPointAdmin(admin.ModelAdmin):
+    list_display = ("name", "code")
+    model = SupplyPoint
+
+class StockRequestAdmin(admin.ModelAdmin):
+    model = StockRequest
+    list_display = ('product', 'supply_point', 'status', 'requested_on','amount_requested', 'amount_approved', 'amount_received')
+
+class StockTransactionAdmin(admin.ModelAdmin):
+    model = StockTransaction
+
 
 admin.site.register(LogisticsProfile, LogisticsProfileAdmin)
 admin.site.register(Product, ProductAdmin)
@@ -52,6 +61,8 @@ admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(StockTransaction, StockTransactionAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
-admin.site.register(FacilityType, FacilityTypeAdmin)
+admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
+admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(Facility, FacilityAdmin)
+admin.site.register(StockRequest, StockRequestAdmin)
 

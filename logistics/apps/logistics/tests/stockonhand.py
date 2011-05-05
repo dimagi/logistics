@@ -2,15 +2,15 @@ from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 import logistics.apps.logistics.app as logistics_app
 from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductReportsHelper, Facility, FacilityType, Location, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, Facility, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
-
+    fixtures = ["ghana_initial_data.json"] 
     def setUp(self):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
-        facilitytype = FacilityType.objects.get(code='hc')
+        facilitytype = SupplyPointType.objects.get(code='hc')
         rms = Facility.objects.get(code='garms')
         facility, created = Facility.objects.get_or_create(code='dedh',
                                                            name='Dangme East District Hospital',
@@ -18,9 +18,9 @@ class TestStockOnHand (TestScript):
                                                            type=facilitytype, supplied_by=rms)
         mc = Product.objects.get(sms_code='mc')
         lf = Product.objects.get(sms_code='lf')
-        ProductStock(product=mc, facility=facility,
+        ProductStock(product=mc, supply_point=facility,
                      monthly_consumption=8).save()
-        ProductStock(product=lf, facility=facility,
+        ProductStock(product=lf, supply_point=facility,
                      monthly_consumption=5).save()
         facility = Facility(code='tf', name='Test Facility',
                        location=location, active=True,
@@ -29,13 +29,13 @@ class TestStockOnHand (TestScript):
         mc = Product.objects.get(sms_code='mc')
         lf = Product.objects.get(sms_code='lf')
         mg = Product.objects.get(sms_code='mg')
-        self.mc_stock = ProductStock(is_active=True, facility=facility,
+        self.mc_stock = ProductStock(is_active=True, supply_point=facility,
                                     product=mc, monthly_consumption=10)
         self.mc_stock.save()
-        self.lf_stock = ProductStock(is_active=True, facility=facility,
+        self.lf_stock = ProductStock(is_active=True, supply_point=facility,
                                     product=lf, monthly_consumption=10)
         self.lf_stock.save()
-        self.mg_stock = ProductStock(is_active=False, facility=facility,
+        self.mg_stock = ProductStock(is_active=False, supply_point=facility,
                                      product=mg, monthly_consumption=10)
         self.mg_stock.save()
 
@@ -76,7 +76,7 @@ class TestStockOnHand (TestScript):
            16176023315 >
            16176023315 < Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com
            16176023315 > soh
-           16176023315 < Dear stella, thank you for reporting the commodities you have in stock. 
+           16176023315 < To report stock on hand, send SOH [space] [product code] [space] [amount] 
            """
         self.runScript(a)
 
