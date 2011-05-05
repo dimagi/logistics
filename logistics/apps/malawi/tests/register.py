@@ -1,18 +1,11 @@
 from rapidsms.models import Contact
+from logistics.apps.malawi.tests.base import MalawiTestBase
 __author__ = 'ternus'
-from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
     REGISTER_MESSAGE
-from logistics.apps.malawi import load_static_data
-from logistics.apps.malawi import app as malawi_app
 from logistics.apps.logistics.util import config
 
-class TestHSARegister(TestScript):
-    apps = ([malawi_app.App])
-    
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
+class TestHSARegister(MalawiTestBase):
     
     def testRegister(self):
         a = """

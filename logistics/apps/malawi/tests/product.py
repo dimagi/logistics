@@ -2,17 +2,9 @@ from __future__ import absolute_import
 from logistics.apps.logistics.models import Product
 from rapidsms.tests.scripted import TestScript
 
-from logistics.apps.malawi import load_static_data
-from logistics.apps.malawi import app as malawi_app
 from logistics.apps.malawi.tests.util import create_hsa
 
 class TestAddRemoveProducts(TestScript):
-    apps = ([malawi_app.App])
-    fixtures = ["malawi_products.json"]
-
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
     
     def testAddRemoveProduct(self):
 

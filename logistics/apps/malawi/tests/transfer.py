@@ -4,14 +4,10 @@ from logistics.apps.logistics.models import Product, ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus, StockTransfer,\
     StockTransferStatus
 from logistics.apps.logistics.util import config
-from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_manager, create_hsa
+from logistics.apps.malawi.tests.base import MalawiTestBase
 
-class TestTransfer(TestScript):
-    
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
+class TestTransfer(MalawiTestBase):
     
     def testBadRoles(self):
         create_manager(self, "16175551234", "cindy")

@@ -27,6 +27,14 @@ def init_static_data():
             role.name = name
             role.save()
     
+    loc_file = getattr(settings, "STATIC_LOCATIONS")
+    if loc_file:
+        load_locations(loc_file)
+    product_file = getattr(settings, "STATIC_PRODUCTS")
+    if product_file:
+        load_products(product_file)
+    
+    
 def clear_locations():
     Location.objects.all().delete()
     LocationType.objects.all().delete()

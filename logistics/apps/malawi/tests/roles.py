@@ -1,14 +1,9 @@
-from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.util import config
-from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
+from logistics.apps.malawi.tests.base import MalawiTestBase
 
 
-class testContactsAndRoles(TestScript):
-    
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
+class testContactsAndRoles(MalawiTestBase):
     
     def testContactRequired(self):
         a = """
