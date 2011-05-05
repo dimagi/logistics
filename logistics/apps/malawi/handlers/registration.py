@@ -8,9 +8,6 @@ from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHan
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.malawi.exceptions import IdFormatException
 from logistics.apps.logistics.util import config
-from config import Messages
-from config import Roles
-
 
 class HSARegistrationHandler(RegistrationBaseHandler):
     """
@@ -20,14 +17,14 @@ class HSARegistrationHandler(RegistrationBaseHandler):
     keyword = "reg|register"
     
     def help(self):
-        self.respond(Messages.HSA_HELP)
+        self.respond(config.Messages.HSA_HELP)
     
     def handle(self, text):
         if self.handle_preconditions(text):
             return
         
         # default to HSA
-        role = ContactRole.objects.get(code=Roles.HSA)
+        role = ContactRole.objects.get(code=config.Roles.HSA)
         
         def format_id(code, id):
             try:
@@ -67,7 +64,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        self.respond(_(Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+        self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
                      contact_name=contact.name, role=contact.role.name)
         
 

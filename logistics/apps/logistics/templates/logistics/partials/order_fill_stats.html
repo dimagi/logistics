@@ -21,6 +21,10 @@
             <td>{{ rowdata.well_supplied }}</td>
             <td>{{ rowdata.over_supplied }}</td>
         </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="empty">no data</td>
+        </tr>
         {% endfor %}
     </tbody>
 </table>

@@ -1,6 +1,5 @@
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.util import config
-from config import Messages
 from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
 
@@ -31,7 +30,7 @@ class testContactsAndRoles(TestScript):
                 5551212 < %(required)s
                 5551212 > give 100101 la 200
                 5551212 < %(required)s
-            """ % {"required": Messages.REGISTRATION_REQUIRED_MESSAGE}
+            """ % {"required": config.Messages.REGISTRATION_REQUIRED_MESSAGE}
         self.runScript(a)
         
         
@@ -59,5 +58,5 @@ class testContactsAndRoles(TestScript):
                 5551112 < %(bad_perms)s
                 5551112 > confirm
                 5551112 < %(bad_perms)s
-            """ % {"bad_perms": Messages.UNSUPPORTED_OPERATION}
+            """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)

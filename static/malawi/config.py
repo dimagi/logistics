@@ -64,7 +64,7 @@ def hsa_location_type():
     The location type for HSAs
     """
     return LocationType.objects.get(slug=HSA)
-    
+
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     
@@ -79,6 +79,8 @@ class Messages(object):
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
     SOH_ORDER_CONFIRM = "Thank you %(contact)s. The health center has been notified and you will receive a message when products are ready for pick up." 
+    # "rec" keyword (receipts)
+    RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You confirmed ready: %(products)s"

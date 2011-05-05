@@ -4,7 +4,6 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from logistics.apps.logistics.util import config
-from config import Messages
 
 class ManagerRegistrationHandler(RegistrationBaseHandler):
     """
@@ -14,7 +13,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
     keyword = "manage"
      
     def help(self):
-        self.respond(Messages.MANAGER_HELP)
+        self.respond(config.Messages.MANAGER_HELP)
     
     def handle(self, text):
         if self.handle_preconditions(text):
@@ -23,7 +22,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         try:
             role = ContactRole.objects.get(code__iexact=self.extra)
         except ContactRole.DoesNotExist:
-            self.respond(Messages.UNKNOWN_ROLE, role=self.extra,
+            self.respond(config.Messages.UNKNOWN_ROLE, role=self.extra,
                          valid_roles=" ".join(ContactRole.objects.values_list\
                                               ("code", flat=True).order_by("code")))
             return
@@ -37,5 +36,5 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        self.respond(_(Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+        self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
                      contact_name=contact.name, role=contact.role.name)

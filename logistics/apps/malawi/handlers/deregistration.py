@@ -4,7 +4,6 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.util import config
-from config import Messages
 
 class HSADeregistrationHandler(KeywordHandler):
     """
@@ -19,7 +18,7 @@ class HSADeregistrationHandler(KeywordHandler):
         
     def handle(self, text):
         if not hasattr(self.msg,'logistics_contact'):
-            self.respond(Messages.LEAVE_NOT_REGISTERED)
+            self.respond(config.Messages.LEAVE_NOT_REGISTERED)
         else:
             self.msg.logistics_contact.is_active = False
             self.msg.logistics_contact.save()
@@ -27,5 +26,5 @@ class HSADeregistrationHandler(KeywordHandler):
                self.msg.logistics_contact.supply_point.type == config.hsa_supply_point_type():
                 self.msg.logistics_contact.supply_point.deprecate()
             
-            self.respond(Messages.LEAVE_CONFIRM)
+            self.respond(config.Messages.LEAVE_CONFIRM)
         
