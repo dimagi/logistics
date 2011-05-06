@@ -1,14 +1,9 @@
-from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.util import config
-from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
+from logistics.apps.malawi.tests.base import MalawiTestBase
 
 
-class testContactsAndRoles(TestScript):
-    
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
+class testContactsAndRoles(MalawiTestBase):
     
     def testContactRequired(self):
         a = """
@@ -36,16 +31,13 @@ class testContactsAndRoles(TestScript):
         
     def testRolesAndOperations(self):
         create_hsa(self, "5551111", "hsa")
-        create_manager(self, "5551112", "in charge")
+        create_manager(self, "5551112", "charles") # in charge!
+        create_manager(self, "5551113", "pill pusher", "dp")
         
         a = """
                 5551111 > ready 100100
                 5551111 < %(bad_perms)s
                 5551111 > os 100100
-                5551111 < %(bad_perms)s
-                5551111 > report 100101 soh la 200
-                5551111 < %(bad_perms)s
-                5551111 > report 100101 rec la 200
                 5551111 < %(bad_perms)s
                 5551112 > soh la 200
                 5551112 < %(bad_perms)s
@@ -58,5 +50,9 @@ class testContactsAndRoles(TestScript):
                 5551112 < %(bad_perms)s
                 5551112 > confirm
                 5551112 < %(bad_perms)s
+                5551113 > report 100101 soh la 200
+                5551113 < %(bad_perms)s
+                5551113 > report 100101 rec la 200
+                5551113 < %(bad_perms)s
             """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)

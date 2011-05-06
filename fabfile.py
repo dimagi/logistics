@@ -53,11 +53,10 @@ def malawi():
     env.db_cleanup = True
     env.db_name = "sc4ccm"
     env.stop_start = True
-    env.branch = "malawi_model_support"
+    env.branch = "malawi-dev"
     env.hosts = ['sc4ccm@50.56.116.170']
     def malawi_extras():
-        pass
-        #run("python manage.py loaddata malawi_products")
+        run("python manage.py malawi_init")
     env.extras = malawi_extras
 
 def staging():

@@ -1,26 +1,11 @@
 from __future__ import absolute_import
-from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus
 from logistics.apps.logistics.util import config
-from logistics.apps.malawi import load_static_data
 from logistics.apps.malawi.tests.util import create_hsa, create_manager
+from logistics.apps.malawi.tests.base import MalawiTestBase
 
-class TestReport(TestScript):
-    
-    def setUp(self):
-        TestScript.setUp(self)
-        load_static_data()
-    
-    def testBadRoles(self):
-        create_hsa(self, "16175551000", "joe")
-        create_manager(self, "16175551234", "charles", role="hsa")
-        a = """
-           16175551234 > report 261601 soh zi 40 la 200 
-           16175551234 < %(bad_role)s
-        """ % {"bad_role": config.Messages.UNSUPPORTED_OPERATION}
-               
-        self.runScript(a)
+class TestReport(MalawiTestBase):
     
     def testBadHsaId(self):
         create_manager(self, "16175551234", "charles", role="ic")

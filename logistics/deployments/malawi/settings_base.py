@@ -3,7 +3,6 @@
 
 APPS = [
     "logistics.apps.malawi",
-    "logistics.apps.ewsghana",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -109,7 +108,6 @@ TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
 
 import os
-LOGISTICS_AUTOLOAD_DATA = True
 filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "health_centers.csv")
 STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "products.csv")

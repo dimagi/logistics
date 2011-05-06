@@ -192,8 +192,15 @@ COUCH_DATABASE_NAME='logistics'
 COUCHDB_APPS=['auditcare',]
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
+#try to see if there's an environmental variable set for local_settings
 try:
-    from localsettings import *
+    import sys
+    if os.environ.has_key('LOCAL_SETTINGS'):
+        sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
+        #TODO: will make this generic 
+        from settings_base import *
+    else: 
+        from localsettings import *
 except ImportError:
     pass
 if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):

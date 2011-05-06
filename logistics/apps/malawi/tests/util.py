@@ -1,5 +1,4 @@
 from logistics.apps.logistics.util import config
-from config import Messages
 from logistics.apps.logistics.models import SupplyPoint, ContactRole,\
     StockRequest
 from rapidsms.models import Contact
@@ -10,7 +9,7 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
            %(phone)s > register %(name)s %(id)s %(code)s
            %(phone)s < %(confirm)s
         """ % {"phone": phone, "name": name, "id": id, "code": facility_code,
-               "confirm": Messages.REGISTRATION_CONFIRM % \
+               "confirm": config.Messages.REGISTRATION_CONFIRM % \
                     {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
                      "role": "hsa",
                      "contact_name": name}}
@@ -22,7 +21,7 @@ def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
            %(phone)s > manage %(name)s %(role)s %(code)s
            %(phone)s < %(confirm)s
         """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
-               "confirm": Messages.REGISTRATION_CONFIRM % \
+               "confirm": config.Messages.REGISTRATION_CONFIRM % \
                     {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
                      "role": ContactRole.objects.get(code=role).name,
                      "contact_name": name}}
@@ -43,7 +42,7 @@ def report_stock(test_class, hsa, product_string, manager=None, products_back=""
         manager_msg = """
             %(phone)s < %(confirm)s
         """ % {"phone": manager.default_connection.identity,
-               "confirm": Messages.SUPERVISOR_SOH_NOTIFICATION % \
+               "confirm": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
                 {"hsa": hsa.name,
                  "products": products_back,
                  "hsa_id": hsa.supply_point.code}}
@@ -55,7 +54,7 @@ def report_stock(test_class, hsa, product_string, manager=None, products_back=""
            %(manager_msg)s
         """ % {"phone": hsa.default_connection.identity, 
                "products": product_string, 
-               "confirm": Messages.SOH_ORDER_CONFIRM % {"contact": hsa.name},
+               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": hsa.name},
                "manager_msg": manager_msg}
     test_class.runScript(a)
     

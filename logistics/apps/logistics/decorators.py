@@ -1,6 +1,4 @@
-from django.conf import settings
 from logistics.apps.logistics.util import config
-from config import Messages
 
 def logistics_contact_required():
     """
@@ -10,7 +8,7 @@ def logistics_contact_required():
     def wrapper(f):
         def require_logistics_contact(self, *args, **kwargs):
             if not hasattr(self.msg,'logistics_contact'):
-                self.respond(Messages.REGISTRATION_REQUIRED_MESSAGE)
+                self.respond(config.Messages.REGISTRATION_REQUIRED_MESSAGE)
                 # don't proceed with executing f
             else:
                 return f(self, *args, **kwargs)
@@ -26,7 +24,7 @@ def logistics_permission_required(operation):
     def wrapper(f):
         def require_role(self, *args, **kwargs):
             if not config.has_permissions_to(self.msg.logistics_contact, operation):
-                self.respond(Messages.UNSUPPORTED_OPERATION)
+                self.respond(config.Messages.UNSUPPORTED_OPERATION)
             else:
                 return f(self, *args, **kwargs)
         return require_role
