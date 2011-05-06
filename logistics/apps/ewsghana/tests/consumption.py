@@ -6,9 +6,19 @@ from logistics.apps.logistics.models import Location, Facility, SupplyPointType,
 
 class TestConsumption (TestScript):
     apps = ([logistics_app.App])
+    fixtures = ["ghana_initial_data.json"]
 
     def testConsumption(self):
-        sp = SupplyPoint.objects.all()[0]
+        if not SupplyPoint.objects.exists():
+            location = Location.objects.get(code='de')
+            facilitytype = SupplyPointType.objects.get(code='hc')
+            rms = Facility.objects.get(code='garms')
+            sp, created = Facility.objects.get_or_create(code='dedh',
+                                                           name='Dangme East District Hospital',
+                                                           location=location, active=True,
+                                                           type=facilitytype, supplied_by=rms)
+        else:
+            sp = SupplyPoint.objects.all()[0]
         pr = Product.objects.all()[0]
         sp.report_stock(pr, 200)
         ps = ProductStock.objects.get(supply_point=sp,product=pr)
