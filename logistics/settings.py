@@ -103,6 +103,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
+    "logistics.context_processors.custom_settings",
 ]
 
 
@@ -193,6 +194,9 @@ COUCHDB_APPS=['auditcare',]
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
+
+LOGISTICS_EXCEL_EXPORT_ENABLED = True
+ 
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):

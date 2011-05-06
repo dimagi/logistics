@@ -29,7 +29,8 @@ def reporting_rates(locations, type=None, days=30):
                                      "graph_height": 200,
                                      "days": days,
                                      "table_class": "minor_table",
-                                     "MEDIA_URL": settings.MEDIA_URL})
+                                     "MEDIA_URL": settings.MEDIA_URL,
+                                     "excel_export": settings.LOGISTICS_EXCEL_EXPORT_ENABLED })
     return "" # no data, no report
 
 @register.simple_tag
