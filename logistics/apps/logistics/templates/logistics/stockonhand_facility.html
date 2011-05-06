@@ -48,10 +48,10 @@
                         <td>{{ stockonhand.product.name }}</td>
                         {% highlight_months stockonhand MEDIA_URL %}
                         <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>
-                        <td {% ifequal stockonhand.get_monthly_consumption None %}
+                        <td {% ifequal stockonhand.monthly_consumption None %}
                                 class="big_error"
                             {% endifequal %}>
-                            {{ stockonhand.get_monthly_consumption|default_if_none:"not set" }}
+                            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
                         </td>
                         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
                         <td>{{ stockonhand.reorder_level|default_if_none:"unknown" }}</td>
