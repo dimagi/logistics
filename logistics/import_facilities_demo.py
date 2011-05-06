@@ -14,12 +14,12 @@ import csv
 import random
 
 def LoadFacilities(filename):
-    from logistics.apps.logistics.models import Facility, FacilityType, Location
+    from logistics.apps.logistics.models import Facility, SupplyPointType, Location
     reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"')
     errors = 0
     for row in reader:
         region = row[1].strip()
-        rms_type = FacilityType.objects.get(code__icontains='rms')
+        rms_type = SupplyPointType.objects.get(code__icontains='rms')
         try:
             rms = Facility.objects.get(type=rms_type, name__icontains=region)
         except Facility.DoesNotExist:
@@ -48,8 +48,8 @@ def LoadFacilities(filename):
         code = code + postfix
         type = row[4]
         try:
-            facilitytype = FacilityType.objects.get(name__icontains=type)
-        except FacilityType.DoesNotExist:
+            facilitytype = SupplyPointType.objects.get(name__icontains=type)
+        except SupplyPointType.DoesNotExist:
             print "ERROR: Facility type for %s not found" % type
             errors = errors + 1
             continue
@@ -63,7 +63,7 @@ def LoadFacilities(filename):
         else:
             print ("%s already exists" % name).lower()
     print "Success!"
-    print "There were %s errors" % errors
+    print "There were %s errors" % errors   
     
 def LoadProductsIntoFacilities():
     from logistics.apps.logistics.models import Facility, ProductStock, Product
@@ -71,17 +71,17 @@ def LoadProductsIntoFacilities():
     for fac in facilities:
         products = Product.objects.all()
         for product in products:
-            if ProductStock.objects.filter(facility=fac, product=product).count() == 0:
+            if ProductStock.objects.filter(supply_point=fac, product=product).count() == 0:
                 if fac.type.code == 'RMS':
                     # RMS get all products by default active, 100 stock
                     ProductStock(quantity=random.randint(0,310),
-                                 facility=fac,
+                                 supply_point=fac,
                                  product=product,
                                  monthly_consumption=100).save()
                 else:
                     # facilities get all products by default active, 10 stock
                     ProductStock(quantity=random.randint(0,32), 
-                                 facility=fac,
+                                 supply_point=fac,
                                  product=product,
                                  monthly_consumption=10).save()
         print "Loaded products into %(fac)s" % {'fac':fac.name}
