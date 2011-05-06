@@ -198,6 +198,7 @@ COUCHDB_APPS=['auditcare',]
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+DEBUG=True
 
 try:
     import sys
@@ -230,7 +231,6 @@ COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database"
 
 COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
-DEBUG=True
 
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
