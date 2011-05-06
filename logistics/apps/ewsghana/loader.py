@@ -1,16 +1,27 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
-"""
-This script imports facilities into the EWS system from a CSV file of the format
-NUMBER, REGION, DISTRICT, FACILITYNAME, TYPE, TOWN, OWNERSHIP
-
-Known bug: this is not unicode friendly
-
-"""
-
-import sys, os
+import os
 import csv
+import random
+from django.conf import settings
+from rapidsms.contrib.locations.models import LocationType, Location, Point
+from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
+    ProductReportType, ContactRole, Product, ProductType
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
+
+class LoaderException(Exception):
+    pass
+
+def init_static_data(demo=False):
+    """
+    Initialize any data that should be static here
+    """
+    if not hasattr(settings, "STATIC_LOCATIONS"):
+        print "Please define STATIC_LOCATIONS in your settings.py" + \
+              "to a csv list of Facilities."
+        return
+    facilities_file = getattr(settings, "STATIC_LOCATIONS")
+    LoadFacilities(facilities_file)
+    LoadProductsIntoFacilities()
 
 def LoadFacilities(filename):
     from logistics.apps.logistics.models import Facility, SupplyPointType, Location
@@ -64,50 +75,34 @@ def LoadFacilities(filename):
     print "Success!"
     print "There were %s errors" % errors
     
-def LoadProductsIntoFacilities():
+def LoadProductsIntoFacilities(demo=False):
     from logistics.apps.logistics.models import Facility, ProductStock, Product
     facilities = Facility.objects.order_by('type')
+    
+    if demo:
+        RMS_consumption = 100
+        max_RMS_consumption = 310
+        facility_consumption = 10
+        max_facility_consumption = 12
+    else:
+        RMS_consumption = None
+        max_RMS_consumption = 0
+        facility_consumption = None
+        max_facility_consumption = 0
     for fac in facilities:
         products = Product.objects.all()
         for product in products:
             if ProductStock.objects.filter(supply_point=fac, product=product).count() == 0:
                 if fac.type.code == 'RMS':
                     # RMS get all products by default active, 100 stock
-                    ProductStock(quantity=0,
+                    ProductStock(quantity=random.randint(0,max_RMS_consumption),
                                  supply_point=fac,
                                  product=product,
-                                 monthly_consumption=None).save()
+                                 monthly_consumption=RMS_consumption).save()
                 else:
                     # facilities get all products by default active, 10 stock
-                    ProductStock(quantity=0, is_active=False,
+                    ProductStock(quantity=random.randint(0,max_facility_consumption), is_active=demo,
                                  supply_point=fac,
                                  product=product,
-                                 monthly_consumption=None).save()
+                                 monthly_consumption=facility_consumption).save()
         print "Loaded products into %(fac)s" % {'fac':fac.name}
-        
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-try:
-    import settings # Assumed to be one directory up
-except ImportError:
-    sys.stderr.write("Error: Can't find the file 'settings.py' " +
-                     "in the directory containing ../%r." % __file__)
-    sys.exit(1)
-
-if __name__ == "__main__":
-    if len(sys.argv)<2:
-        print "usage: import_facilities input_csv_file"
-        sys.exit(1)
-    filedir = os.path.dirname(__file__)
-    sys.path.append(os.path.join(filedir))
-    sys.path.append(os.path.join(filedir,'..'))
-    sys.path.append(os.path.join(filedir,'..','rapidsms'))
-    sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
-    sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms'))
-    sys.path.append(os.path.join(filedir,'..','rapidsms','lib','rapidsms','contrib'))
-    sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
-    sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
-    sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
-    sys.path.append(os.path.join(filedir,'..','submodules','tablib'))
-    sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
-    LoadFacilities(sys.argv[1])
-    LoadProductsIntoFacilities()
