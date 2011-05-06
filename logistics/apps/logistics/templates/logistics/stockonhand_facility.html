@@ -1,7 +1,6 @@
 {% extends "logistics/reports_base.html" %}
 {% load logistics_extras %}
 {% load i18n %}
-
 {% block javascripts %}
 {{ block.super }}
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
@@ -75,7 +74,8 @@
 	            </div>
             {% else %}<p></p>
                 <div class="error">
-                    {{ facility.name }} has not been configured with the appropriate stock yet. Please contact Focus Region Health Project for assistance.
+                    <p>{{ facility.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
+                    <p>Please contact the system administrator for help.</p>
                 </div>
             {% endif %}
         </div>
