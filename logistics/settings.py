@@ -200,6 +200,20 @@ LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 DEBUG=True
 
+# TODO: come back and clean this up
+NO_LOGIN_REQUIRED_FOR = [
+'password/reset',
+'register',
+'logout',
+'activate',
+]
+
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=100
+AXES_LOGIN_FAILURE_LIMIT=1
+AXES_LOCK_OUT_AT_FAILURE=False
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
@@ -232,16 +246,3 @@ COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database"
 COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
 
-# TODO: come back and clean this up
-NO_LOGIN_REQUIRED_FOR = [
-'password/reset',
-'register',
-'logout',
-'activate',
-]
-
-# AUDITCARE CONFIG
-# users can fail login 10 times, resulting in a 1 hour cooloff period
-AXES_LOGIN_FAILURE_LIMIT=100
-AXES_LOGIN_FAILURE_LIMIT=1
-AXES_LOCK_OUT_AT_FAILURE=False
