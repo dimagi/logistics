@@ -50,7 +50,7 @@ def malawi():
     env.deploy_dir = '/home/sc4ccm/src'
     env.code_dir = _join(env.deploy_dir, 'logistics')
     env.code_cleanup = False
-    env.db_cleanup = True
+    env.db_cleanup = False
     env.db_name = "sc4ccm"
     env.stop_start = True
     env.branch = "malawi-dev"
