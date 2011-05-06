@@ -29,7 +29,7 @@ STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must be registered on EWS " + \
                    "before you can submit a stock report. " + \
-                   "Please contact your district administrator."
+                   "Please contact your DHIO."
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
