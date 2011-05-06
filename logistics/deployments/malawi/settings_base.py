@@ -3,7 +3,6 @@
 
 APPS = [
     "logistics.apps.malawi",
-    "logistics.apps.ewsghana",
 ]
 
 MIDDLEWARE_CLASSES = (
