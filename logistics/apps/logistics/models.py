@@ -129,6 +129,10 @@ class ProductStock(models.Model):
 
         return d * 30
 
+    @monthly_consumption.setter
+    def monthly_consumption(self,value):
+        self.base_monthly_consumption = value
+
     @property
     def daily_consumption(self):
         trans = StockTransaction.objects.filter(supply_point=self.supply_point,
