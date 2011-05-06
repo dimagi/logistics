@@ -73,7 +73,7 @@ class App(AppBase):
         sdp = message.logistics_contact.facility
         if sdp is None:
             message.respond('You are not associated with a facility. ' +
-                            'Please contact your district administrator for assistance.')
+                            'Please contact your DHIO for assistance.')
             return True
 
         try:
