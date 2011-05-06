@@ -196,7 +196,9 @@ COUCHDB_APPS=['auditcare',]
 #try to see if there's an environmental variable set for local_settings
 
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
- 
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):

@@ -120,11 +120,13 @@ LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
+LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
-BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 
 LOGISTICS_CONFIG = 'static.malawi.config'
