@@ -1,1 +1,1 @@
-apps/logistics
+apps/ewsghana
