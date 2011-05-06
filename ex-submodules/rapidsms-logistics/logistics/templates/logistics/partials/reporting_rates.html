@@ -3,9 +3,11 @@
     Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
 </h2>
 {% include "logistics/partials/pie_reporting.html" %}
+{% if excel_export %}
 <div class="toolbar">
     <a href="{% url export_reporting %}" class="add">{% trans "Export to Excel" %}</a>
 </div>
+{% endif %}
 <div id="report-content">
 <table class="{{table_class|default:"major_table"}}">
     <thead><tr>

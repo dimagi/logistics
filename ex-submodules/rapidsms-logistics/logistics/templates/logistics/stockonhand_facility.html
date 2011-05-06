@@ -21,9 +21,11 @@
         <div id="main">
         <h2 id="report-title">Stock for {{ facility.name }}</h2>
         {% if stockonhands %}
+            {% if excel_export %}
 				<div class="toolbar">
 				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
 				</div>
+		    {% endif %}
                 <div id="report-content">
 
                 <div id="chart_div" style="width:500px; height:350px; margin: 20px 0px;">
