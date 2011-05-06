@@ -1,5 +1,5 @@
+{% if commoditytypes|length > 1 %}
 {% load i18n %}
-
 {% block javascripts %}{{ block.super }}
 <script type="text/javascript">
     <!--//--><![CDATA[//><!--
@@ -12,7 +12,6 @@
 </script>
 {% endblock %}
 
-<div  class="filter">Filter by:</div>
 <form id="commoditytype_form" method="GET">
     {%  csrf_token %}
     <input class="product_list" type="radio" name="commoditytype" value="all" 
@@ -24,3 +23,4 @@
     >{{ commoditytype.name }}<br>
     {% endfor %}
 </form>
+{% endif %}

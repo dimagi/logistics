@@ -1,5 +1,5 @@
+{% if commodities|length > 1 %}
 {% load i18n %}
-
 {% block javascripts %}{{ block.super }}
 <script type="text/javascript">
     <!--//--><![CDATA[//><!--
@@ -22,4 +22,6 @@
         {% ifequal commodity_filter commodity.sms_code %}checked{% endifequal %}
     >{{ commodity.name }}<br>
     {% endfor %}
+    
 </form>
+{% endif %}
