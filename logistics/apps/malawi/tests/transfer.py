@@ -42,7 +42,8 @@ class TestTransfer(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551001 < Confirm receipt of zi 20 from wendy? Please respond 'confirm'
         """ % {"confirm": config.Messages.TRANSFER_RESPONSE % \
-                    {"giver": "wendy", "receiver": "steve", "products": "zi 20"}}
+                    {"giver": "wendy", "receiver": "steve", 
+                     "reporter": "wendy", "products": "zi 20"}}
         self.runScript(b)
         self.assertEqual(80, ProductStock.objects.get(pk=stock_from.pk).quantity)
         self.assertEqual(10, ProductStock.objects.get(pk=stock_to.pk).quantity)

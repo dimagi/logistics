@@ -1,5 +1,5 @@
 from logistics.apps.logistics.models import ProductReportsHelper, StockRequest,\
-    ContactRole
+    ContactRole, StockTransfer
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.const import Reports
@@ -7,8 +7,9 @@ from logistics.apps.logistics.decorators import logistics_contact_and_permission
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi import util
 from logistics.apps.malawi.shortcuts import create_stock_report,\
-    send_emergency_responses, send_soh_responses
+    send_emergency_responses, send_soh_responses, send_transfer_responses
 
+SUPPORTED_REPORT_KEYWORDS = [Reports.SOH, Reports.REC, Reports.EMERGENCY_SOH, Reports.GIVE]
 class ReportRegistrationHandler(KeywordHandler):
     """
     Report stock on hand or a receipt for someone else
@@ -18,7 +19,6 @@ class ReportRegistrationHandler(KeywordHandler):
     
     def help(self):
         self.respond(_(config.Messages.REPORT_HELP))
-        
     
     @logistics_contact_and_permission_required(config.Operations.REPORT_FOR_OTHERS)
     def handle(self, text):
@@ -33,7 +33,7 @@ class ReportRegistrationHandler(KeywordHandler):
         self.hsa = util.get_hsa(hsa_id)
         if self.hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
-        elif keyword not in [Reports.SOH, Reports.REC, Reports.EMERGENCY_SOH]:
+        elif keyword not in SUPPORTED_REPORT_KEYWORDS:
             self.respond(config.Messages.BAD_REPORT_KEYWORD, keyword=hsa_id)
         else:
             # we've got an hsa, we've got a keyword, let's rock 
@@ -44,7 +44,7 @@ class ReportRegistrationHandler(KeywordHandler):
                 self._process_emergency_soh()
             elif keyword == Reports.REC:
                 self._process_rec()
-            elif keyword == Reports.GIVE: # not yet possible given the above
+            elif keyword == Reports.GIVE:
                 self._process_give()
             
     def _process_soh(self):
@@ -64,7 +64,7 @@ class ReportRegistrationHandler(KeywordHandler):
                              hsa_id=self.hsa.supply_point.code)
             else:
                 assert(self.msg.logistics_contact.role == ContactRole.objects.get(code=config.Roles.HSA))
-                send_soh_responses(self.msg, stock_report, requests)
+                send_soh_responses(self.msg, self.hsa, stock_report, requests)
                 
     def _process_emergency_soh(self):
         stock_report = create_stock_report(Reports.EMERGENCY_SOH,  
@@ -83,7 +83,7 @@ class ReportRegistrationHandler(KeywordHandler):
                          hsa_id=self.hsa.supply_point.code)
             else:
                 assert(self.msg.logistics_contact.role == ContactRole.objects.get(code=config.Roles.HSA))
-                send_emergency_responses(self.msg, stock_report, requests)
+                send_emergency_responses(self.msg, self.hsa, stock_report, requests)
             
     def _process_rec(self):
         stock_report = create_stock_report(Reports.REC,  
@@ -101,4 +101,19 @@ class ReportRegistrationHandler(KeywordHandler):
                          products=" ".join(stock_report.reported_products()).strip())
 
     def _process_give(self):
-        raise NotImplemented("stop that!")
+        words = self.report_data.split(" ")
+        # TODO: this is too much copy-paste from the transfer handler
+        if len(words) < 3: 
+            return self.help()
+        hsa_id = words[0]
+        remainder = " ".join(words[1:])
+        hsa = util.get_hsa(hsa_id)
+        if hsa is None:
+            self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
+        else:
+            stock_report = create_stock_report(Reports.GIVE,  
+                                               self.hsa.supply_point,
+                                               remainder, 
+                                               self.msg.logger_msg)
+            transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
+            send_transfer_responses(self.msg, stock_report, transfers, self.hsa, hsa)
