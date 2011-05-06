@@ -129,6 +129,10 @@ class ProductStock(models.Model):
 
         return d * 30
 
+    @monthly_consumption.setter
+    def monthly_consumption(self,value):
+        self.base_monthly_consumption = value
+
     @property
     def daily_consumption(self):
         trans = StockTransaction.objects.filter(supply_point=self.supply_point,
@@ -992,8 +996,8 @@ class ProductReportsHelper(object):
             #    raise ValueError("I'm sorry. I cannot calculate low
             #    supply for %(code)s until I know your monthly consumption.
             #    Please contact your DHIO for assistance." % {'code':i})
-            if productstock.get_monthly_consumption() is not None:
-                if self.product_stock[i] <= productstock.get_monthly_consumption()*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
+            if productstock.monthly_consumption is not None:
+                if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
                    self.product_stock[i] != 0:
                     low_supply = "%s %s" % (low_supply, i)
         low_supply = low_supply.strip()
@@ -1007,9 +1011,9 @@ class ProductReportsHelper(object):
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact your DHIO for assistance." % {'code':i})
-            if productstock.get_monthly_consumption() is not None:
-                if self.product_stock[i] >= productstock.get_monthly_consumption()*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
-                   productstock.get_monthly_consumption()>0:
+            if productstock.monthly_consumption is not None:
+                if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
+                   productstock.monthly_consumption>0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
