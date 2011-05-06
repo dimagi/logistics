@@ -1,6 +1,6 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-import logistics.apps.logistics.app as logistics_app
+from logistics.apps.logistics import app as logistics_app
 from logistics.apps.logistics.models import Location, Facility, SupplyPointType
 
 class TestDefaults (TestScript):

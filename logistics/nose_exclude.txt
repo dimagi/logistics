@@ -1,1 +1,1 @@
-apps/ewsghana
+apps/malawi
