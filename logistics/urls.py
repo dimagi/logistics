@@ -25,16 +25,18 @@ urlpatterns = patterns('',
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
-    # 3rd party django app URLs
-    (r'^accounts/', include('registration.urls')),
-
-    # login/logout
+    
+    # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
         kwargs={"template_name": settings.LOGISTICS_LOGIN_TEMPLATE}, 
         name='rapidsms-login'),
     url(r'^accounts/logout/$', django_logout, 
         kwargs={"template_name": settings.LOGISTICS_LOGOUT_TEMPLATE},
         name='rapidsms-logout'),
+    
+    # 3rd party django app URLs
+    (r'^accounts/', include('registration.urls')),
+
     # other app URLS
     #(r'^', include('logistics.apps.web_registration.urls')), # stolen by ewsghana.urls
     (r'^registration/', include('logistics.apps.registration.urls')),
