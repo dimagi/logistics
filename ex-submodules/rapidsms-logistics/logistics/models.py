@@ -1106,5 +1106,5 @@ def overstocked_count(facilities=None, product=None, producttype=None):
 
 def consumption(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-    consumption = stocks.exclude(monthly_consumption=None).aggregate(consumption=Sum('monthly_consumption'))['consumption']
+    consumption = stocks.exclude(base_monthly_consumption=None).aggregate(consumption=Sum('base_monthly_consumption'))['consumption']
     return consumption
