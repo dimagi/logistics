@@ -3,6 +3,8 @@
 
 APPS = [
     "logistics.apps.ewsghana",
+    "django_extensions",
+    "debug_toolbar"
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -13,7 +15,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
+
+INTERNAL_IPS = ('127.0.0.1',)
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
@@ -105,7 +110,6 @@ filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
-LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
