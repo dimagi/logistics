@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import settings
+from django.conf import settings
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
