@@ -11,8 +11,6 @@ from rapidsms.conf import settings
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
-from rapidsms.contrib.scheduler.models import EventSchedule, \
-    set_weekly_event, set_monthly_event
 from logistics.apps.logistics.models import Product, ProductReportsHelper, \
     STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
@@ -24,43 +22,10 @@ from config import Messages
 ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
 class App(AppBase):
-    bootstrapped = False
 
     def start (self):
         """Configure your app in the start phase."""
-        if not self.bootstrapped :
-            self.bootstrapped = True
-            if settings.LOGISTICS_GHANA_HACK_CREATE_SCHEDULES:
-                # set up first soh reminder
-                try:
-                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
-                except EventSchedule.DoesNotExist:
-                    # 2:15 pm on Thursdays
-                    set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
-    
-                # set up second soh reminder
-                try:
-                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
-                except EventSchedule.DoesNotExist:
-                    # 2:15 pm on Mondays
-                    set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
-    
-                # set up third soh reminder
-                try:
-                    EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
-                except EventSchedule.DoesNotExist:
-                    # 2:15 pm on Wednesdays
-                    set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
-                    #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
-                    #                         hours='*', minutes='*', callback_args=None )
-                    #schedule.save()
-
-            # set up rrirv reminder
-            try:
-                EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV")
-            except EventSchedule.DoesNotExist:
-                # 2:15 pm on the 28th
-                set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
+        pass
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
