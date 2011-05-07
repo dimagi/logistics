@@ -21,7 +21,7 @@ def init_static_data(demo=False):
         return
     facilities_file = getattr(settings, "STATIC_LOCATIONS")
     LoadFacilities(facilities_file)
-    LoadProductsIntoFacilities()
+    LoadProductsIntoFacilities(demo)
 
 def LoadFacilities(filename):
     from logistics.apps.logistics.models import Facility, SupplyPointType, Location
@@ -81,9 +81,9 @@ def LoadProductsIntoFacilities(demo=False):
     
     if demo:
         RMS_consumption = 100
-        max_RMS_consumption = 310
+        max_RMS_consumption = 330
         facility_consumption = 10
-        max_facility_consumption = 12
+        max_facility_consumption = 33
     else:
         RMS_consumption = None
         max_RMS_consumption = 0
