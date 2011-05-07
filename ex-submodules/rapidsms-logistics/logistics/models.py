@@ -38,7 +38,6 @@ INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
-MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION=10
 
 
 try:
@@ -149,7 +148,7 @@ class ProductStock(models.Model):
                 delta = tr.date - prior.date
                 days += delta.days
             prior = tr
-        if days < MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
+        if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
             return None
         return quantity / days
 
