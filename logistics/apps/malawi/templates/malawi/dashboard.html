@@ -1,0 +1,19 @@
+{% extends base_template %}
+{% load i18n %}
+{% load webdesign %} 
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}malawi/css/malawi.css" />
+{% endblock %}
+{% block content %}
+<div class="module">
+    <h2>{% trans 'Alerts' %}</h2>
+    <div style="height:200px;overflow:auto;">
+        <ul class="alerts"">
+            {% for dummychar in "abcdefghijkl" %}
+            <li class="alert">{% lorem 20 w random %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+    
+{% endblock %}
