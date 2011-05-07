@@ -57,10 +57,6 @@ BASE_APPS = [
 
 APPS = []
 
-# TODO: move this configuration over to urls.py
-SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
-SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
-
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
 # -------------------------------------------------------------------- #
