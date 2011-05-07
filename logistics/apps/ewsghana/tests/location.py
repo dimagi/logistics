@@ -1,6 +1,6 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-import logistics.apps.logistics.app as logistics_app
+from logistics.apps.logistics import app as logistics_app
 from logistics.apps.logistics.models import ProductReportType, \
     ProductStock, Product, Facility, STOCK_ON_HAND_REPORT_TYPE
 

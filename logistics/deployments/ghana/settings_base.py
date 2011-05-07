@@ -100,6 +100,10 @@ COUNTRY = "ghana"
 TIME_ZONE="Africa/Accra"
 COUNTRY_DIALLING_CODE = 233
 
+import os
+filedir = os.path.dirname(__file__)
+STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
+
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"

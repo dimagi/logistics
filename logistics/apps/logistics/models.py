@@ -33,7 +33,7 @@ STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
 REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
-                   "Please contact your district administrator."
+                   "Please contact your DHIO."
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
@@ -128,6 +128,10 @@ class ProductStock(models.Model):
             return None
 
         return d * 30
+
+    @monthly_consumption.setter
+    def monthly_consumption(self,value):
+        self.base_monthly_consumption = value
 
     @property
     def daily_consumption(self):
@@ -630,6 +634,10 @@ class SupplyPoint(models.Model):
     @property
     def label(self):
         return unicode(self)
+    
+    @property
+    def is_active(self):
+        return self.active
     
     def deprecate(self, new_code=None):
         """
