@@ -1,12 +1,6 @@
-import os
 import csv
 import random
-from django.conf import settings
-from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
-    ProductReportType, ContactRole, Product, ProductType
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from rapidsms.conf import settings
 
 class LoaderException(Exception):
     pass
@@ -22,6 +16,7 @@ def init_static_data(demo=False):
     facilities_file = getattr(settings, "STATIC_LOCATIONS")
     LoadFacilities(facilities_file)
     LoadProductsIntoFacilities(demo)
+    init_reminders()
 
 def LoadFacilities(filename):
     from logistics.apps.logistics.models import Facility, SupplyPointType, Location
@@ -106,3 +101,38 @@ def LoadProductsIntoFacilities(demo=False):
                                  product=product,
                                  monthly_consumption=facility_consumption).save()
         print "Loaded products into %(fac)s" % {'fac':fac.name}
+
+def init_reminders():
+    from rapidsms.contrib.scheduler.models import EventSchedule, \
+        set_weekly_event, set_monthly_event
+
+    # set up first soh reminder
+    try:
+        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
+    except EventSchedule.DoesNotExist:
+        # 2:15 pm on Thursdays
+        set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
+
+    # set up second soh reminder
+    try:
+        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
+    except EventSchedule.DoesNotExist:
+        # 2:15 pm on Mondays
+        set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
+
+    # set up third soh reminder
+    try:
+        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
+    except EventSchedule.DoesNotExist:
+        # 2:15 pm on Wednesdays
+        set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
+        #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
+        #                         hours='*', minutes='*', callback_args=None )
+        #schedule.save()
+
+    # set up rrirv reminder
+    try:
+        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV")
+    except EventSchedule.DoesNotExist:
+        # 2:15 pm on the 28th
+        set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
