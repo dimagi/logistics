@@ -134,8 +134,10 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
             q.update(data_rows[d])
             rows += [q]
         table.LoadData(rows)
-        context['raw_data'] = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
-                                             order_by="date")
+        raw_data = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
+                                  order_by="date")
+        if len(raw_data)>0:
+            context['raw_data'] = raw_data
 
     context['stockonhands'] = stockonhands
     context['facility'] = facility
@@ -264,7 +266,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
     class ProductReportDataset(ModelDataset):
         class Meta:
-            queryset = ProductReport.objects.filter(facility__code=facility_code).order_by('report_date')
+            queryset = ProductReport.objects.filter(supply_point__code=facility_code).order_by('report_date')
     dataset = getattr(ProductReportDataset(), format)
     filename = '%s_%s.%s' % (filename, facility_code, format)
     response = HttpResponse(

@@ -38,7 +38,6 @@ INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
 GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
-MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION=10
 
 
 try:
@@ -70,7 +69,7 @@ class Product(models.Model):
     # be synced up with whatever internal warehousing system is used at the
     # medical facilities later
     product_code = models.CharField(max_length=100, null=True, blank=True)
-    average_monthly_consumption = PositiveIntegerField(null=True)
+    average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     type = models.ForeignKey('ProductType')
 
     def __unicode__(self):
@@ -149,7 +148,7 @@ class ProductStock(models.Model):
                 delta = tr.date - prior.date
                 days += delta.days
             prior = tr
-        if days < MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
+        if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
             return None
         return quantity / days
 
@@ -1106,5 +1105,5 @@ def overstocked_count(facilities=None, product=None, producttype=None):
 
 def consumption(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-    consumption = stocks.exclude(monthly_consumption=None).aggregate(consumption=Sum('monthly_consumption'))['consumption']
+    consumption = stocks.exclude(base_monthly_consumption=None).aggregate(consumption=Sum('base_monthly_consumption'))['consumption']
     return consumption

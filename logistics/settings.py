@@ -213,9 +213,9 @@ AXES_LOCK_OUT_AT_FAILURE=False
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
+        # the LOCAL_SETTINGS environment variable is used by the build server
         sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
-        #TODO: will make this generic 
-        from settings_base import *
+        from settings_test import *
     else: 
         from localsettings import *
 except ImportError:

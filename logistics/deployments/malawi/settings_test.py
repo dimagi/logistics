@@ -2,7 +2,7 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
-    "logistics.apps.ewsghana",
+    "logistics.apps.malawi",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -12,22 +12,29 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    #'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
-    ("ewsghana_reporting",                                  "Usage"),
-    #("input_stock",                                        "Input Stock"),
-    ("ewsghana_scheduled_reports",                          "Configuration"),
-    #("email_reports",                                      "Email Reports"),
-    ("help",                                                "Help"),
+    ("logistics_dashboard",                    "Stock Levels"),
+    ("reporting",                              "Reporting Rates"),
+    #("input_stock",                          "Input Stock"),
+    ("registration",                          "Registration"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
+    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
+    #("rapidsms.contrib.locations.views.locations",          "Map"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    #("ewsghana_reporting",                      "Usage"),
+    #("input_stock",                          "Input Stock"),
+    #("ewsghana_scheduled_reports",                         "Configuration"),
+    #("email_reports",                              "Email Reports"),
+    ("help",                                      "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
     #("rapidsms.contrib.locations.views.locations",         "Map"),
-    #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
+    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
@@ -95,25 +102,27 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
-COUNTRY = "ghana"
-TIME_ZONE="Africa/Accra"
-COUNTRY_DIALLING_CODE = 233
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
+COUNTRY = "malawi"
+TIME_ZONE="Africa/Maputo"
+COUNTRY_DIALLING_CODE = 265
 
 import os
 filedir = os.path.dirname(__file__)
-STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
+STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "health_centers.csv")
+STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "products.csv")
 
-LOGISTICS_AGGRESSIVE_SOH_PARSING = True
-LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
+# change to not make product reports "active" by default
+# should be True for Malawi, False for Ghana
+LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
+LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
+LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
+LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 
-LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
-SITE_TITLE="Early Warning System"
-BASE_TEMPLATE="ewsghana/base.html"
+SITE_TITLE="cStock"
+BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 
-# TODO: move this configuration over to urls.py
-SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
-SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
-
+LOGISTICS_CONFIG = 'static.malawi.config'
