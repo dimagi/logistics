@@ -103,8 +103,8 @@ td.empty {
 
 
 /* --- Accordion --- */
-a {
-    padding:5px;
+#side ul a {
+    padding:.5em .5em .5em 2em;   
 }
 
 #side{
