@@ -3,9 +3,9 @@
 {% load i18n %}
 {% block javascripts %}
 {{ block.super }}
-<script type='text/javascript' src='https://www.google.com/jsapi'></script>
-    <script type='text/javascript'>
-      if (typeof raw_data !== 'undefined') {
+{% if raw_data %}
+		<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+	    <script type='text/javascript'>
 	      google.load('visualization', '1', {'packages':['annotatedtimeline']});
 	      google.setOnLoadCallback(drawChart);
 	      function drawChart() {
@@ -13,8 +13,8 @@
 	        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
 	        chart.draw(raw_data, {legendPosition:"newRow", displayRangeSelector:false});
 	      }
-      }
-    </script>
+	    </script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
