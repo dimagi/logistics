@@ -51,7 +51,6 @@ BASE_APPS = [
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
-    "auditcare",
     "registration",
 ]
 
