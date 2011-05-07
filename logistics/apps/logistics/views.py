@@ -266,7 +266,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
     class ProductReportDataset(ModelDataset):
         class Meta:
-            queryset = ProductReport.objects.filter(facility__code=facility_code).order_by('report_date')
+            queryset = ProductReport.objects.filter(supply_point__code=facility_code).order_by('report_date')
     dataset = getattr(ProductReportDataset(), format)
     filename = '%s_%s.%s' % (filename, facility_code, format)
     response = HttpResponse(
