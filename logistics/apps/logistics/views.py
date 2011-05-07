@@ -134,8 +134,10 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
             q.update(data_rows[d])
             rows += [q]
         table.LoadData(rows)
-        context['raw_data'] = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
-                                             order_by="date")
+        raw_data = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
+                                  order_by="date")
+        if len(raw_data)>0:
+            context['raw_data'] = raw_data
 
     context['stockonhands'] = stockonhands
     context['facility'] = facility
