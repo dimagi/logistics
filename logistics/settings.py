@@ -52,6 +52,7 @@ BASE_APPS = [
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
     "auditcare",
+    "couchlog",
     "registration",
 ]
 
@@ -186,7 +187,7 @@ COUCH_SERVER_ROOT='127.0.0.1:5984'
 COUCH_USERNAME=''
 COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare',]
+COUCHDB_APPS=['auditcare','couchlog']
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings

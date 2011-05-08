@@ -47,6 +47,9 @@ urlpatterns = patterns('',
     (r'^reports/', include('logistics.apps.reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^', include('auditcare.urls')),
+    
+    (r'^couchlog/', include('couchlog.urls')),
+    
 )
 
 if settings.DEBUG:
