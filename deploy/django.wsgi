@@ -15,6 +15,7 @@ sys.path.append(os.path.join(rootpath,'..','submodules','dimagi-utils'))
 sys.path.append(os.path.join(rootpath,'..','submodules','django-tablib'))
 sys.path.append(os.path.join(rootpath,'..','submodules','tablib'))
 sys.path.append(os.path.join(rootpath,'..','submodules','auditcare'))
+sys.path.append(os.path.join(filedir,'..','submodules','couchlog'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
