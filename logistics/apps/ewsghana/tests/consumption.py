@@ -22,12 +22,13 @@ class TestConsumption (TestScript):
         pr = Product.objects.all()[0]
         sp.report_stock(pr, 200)
         ps = ProductStock.objects.get(supply_point=sp,product=pr)
+        ps.use_auto_consumption = True
 
         # Not enough data.
         self.assertEquals(None, ps.daily_consumption)
         self.assertEquals(ps.product.average_monthly_consumption, ps.monthly_consumption) #fallback
 
-        ps.base_monthly_consumption = 999
+        ps.monthly_consumption = 999
 
         st = StockTransaction.objects.get(supply_point=sp,product=pr)
         st.date = st.date - timedelta(days=5)
@@ -36,7 +37,7 @@ class TestConsumption (TestScript):
 
         # 5 days still aren't enough to compute.
         self.assertEquals(None, ps.daily_consumption)
-        self.assertEquals(ps.base_monthly_consumption, ps.base_monthly_consumption)
+        self.assertEquals(ps.monthly_consumption, ps.monthly_consumption)
 
         sta = StockTransaction.objects.filter(supply_point=sp,product=pr)
         for st in sta:
