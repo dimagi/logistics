@@ -39,6 +39,11 @@ def LoadFacilities(filename):
             errors = errors + 1
             continue
         name = row[3].strip()
+        try:
+            print ("%s already exists" % name).lower()
+            continue
+        except Facility.DoesNotExist:
+            pass
         code = "".join([word[0] for word in name.split()])
         code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
         postfix = ''
@@ -87,19 +92,25 @@ def LoadProductsIntoFacilities(demo=False):
     for fac in facilities:
         products = Product.objects.all()
         for product in products:
-            if ProductStock.objects.filter(supply_point=fac, product=product).count() == 0:
-                if fac.type.code == 'RMS':
-                    # RMS get all products by default active, 100 stock
-                    ProductStock(quantity=random.randint(0,max_RMS_consumption),
-                                 supply_point=fac,
-                                 product=product,
-                                 monthly_consumption=RMS_consumption).save()
-                else:
-                    # facilities get all products by default active, 10 stock
-                    ProductStock(quantity=random.randint(0,max_facility_consumption), is_active=demo,
-                                 supply_point=fac,
-                                 product=product,
-                                 monthly_consumption=facility_consumption).save()
+            try:
+                ps = ProductStock.objects.get(supply_point=fac, product=product)
+            except ProductStock.DoesNotExist:
+                # no preexisting product stock, which is fine.
+                pass
+            else:
+                ps.delete()
+            if fac.type.code == 'RMS':
+                # RMS get all products by default active, 100 stock
+                ProductStock(quantity=random.randint(0,max_RMS_consumption),
+                             supply_point=fac,
+                             product=product,
+                             monthly_consumption=RMS_consumption).save()
+            else:
+                # facilities get all products by default active, 10 stock
+                ProductStock(quantity=random.randint(0,max_facility_consumption), is_active=demo,
+                             supply_point=fac,
+                             product=product,
+                             monthly_consumption=facility_consumption).save()
         print "Loaded products into %(fac)s" % {'fac':fac.name}
 
 def init_reminders():
