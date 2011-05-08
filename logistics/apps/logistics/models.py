@@ -891,6 +891,14 @@ class ProductReportsHelper(object):
 
     def save(self):
         stockouts_resolved = []
+        # NOTE: receipts should be processed BEFORE stock levels
+        # (so that after someone reports jd10.3, we record that
+        # we've received 3 jd this past week and the current stock
+        # level is 10)
+        for stock_code in self.product_received:
+            self._record_product_report(self.get_product(stock_code), 
+                                        self.product_received[stock_code], 
+                                        RECEIPT_REPORT_TYPE)
         for stock_code in self.product_stock:
             try:
                 original_quantity = ProductStock.objects.get(supply_point=self.supply_point, product__sms_code=stock_code).quantity
@@ -912,10 +920,6 @@ class ProductReportsHelper(object):
         for stock_code in self.consumption:
             self.supply_point.record_consumption_by_code(stock_code, 
                                                          self.consumption[stock_code])
-        for stock_code in self.product_received:
-            self._record_product_report(self.get_product(stock_code), 
-                                        self.product_received[stock_code], 
-                                        RECEIPT_REPORT_TYPE)
 
     def add_product_consumption(self, product, consumption):
         if isinstance(consumption, basestring) and consumption.isdigit():
