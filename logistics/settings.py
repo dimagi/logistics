@@ -101,6 +101,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
+    "couchlog.context_processors.static_workaround"
 ]
 
 
