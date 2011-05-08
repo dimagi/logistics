@@ -107,8 +107,10 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    base_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
+    manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    use_auto_consumption = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('supply_point', 'product'),)
@@ -118,10 +120,12 @@ class ProductStock(models.Model):
 
     @property
     def monthly_consumption(self):
+        if not self.use_auto_consumption:
+            return self.manual_monthly_consumption
         d = self.daily_consumption
         if d is None:
-            if self.base_monthly_consumption is not None:
-                return self.base_monthly_consumption
+            if self.manual_monthly_consumption is not None:
+                return self.manual_monthly_consumption
             elif self.product.average_monthly_consumption is not None:
                 return self.product.average_monthly_consumption
             return None
@@ -130,7 +134,7 @@ class ProductStock(models.Model):
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):
-        self.base_monthly_consumption = value
+        self.manual_monthly_consumption = value
 
     @property
     def daily_consumption(self):
@@ -1109,5 +1113,6 @@ def overstocked_count(facilities=None, product=None, producttype=None):
 
 def consumption(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-    consumption = stocks.exclude(base_monthly_consumption=None).aggregate(consumption=Sum('base_monthly_consumption'))['consumption']
+    # TOOD: this needs to be fixed to work with auto_monthly_consumption
+    consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
     return consumption
