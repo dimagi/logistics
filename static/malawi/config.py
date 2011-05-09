@@ -54,6 +54,9 @@ def has_permissions_to(contact, operation):
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE])
     if operation == Operations.ADD_USER:
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    if operation == Operations.REMOVE_USER:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+
     # TODO, fill this in more
     return True
 
@@ -139,6 +142,7 @@ class Messages(object):
     # boot user
     BOOT_HELP = "To remove a user from the system, type boot [hsa id]"
     BOOT_RESPONSE = "Done. %(contact)s has been removed from the cStock system."
+    BOOT_ID_NOT_FOUND = "Couldn't find a record for user with id %(id)s. Nothing done."
 
     # Other  Messages (usually for error conditions)
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
