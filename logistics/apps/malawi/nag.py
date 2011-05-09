@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import logging
+import os
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole
@@ -46,7 +47,7 @@ def nag_hsas(since):
     for hsa in hsa_first_warnings:
         try:
             contact = Contact.objects.get(supply_point=hsa)
-            send_message(contact.default_connection, Messages.HSA_NAG_FIRST % {'hsa': contact.name})
+            send_message(contact.default_connection, Messages.HSA_NAG_FIRST % {'hsa': contact.name, 'days': DAYS_BETWEEN_FIRST_AND_SECOND_WARNING})
             NagRecord(supply_point=hsa, warning=1).save()
         except Contact.DoesNotExist:
             logging.error("Contact does not exist for HSA: %s" % hsa.name)
@@ -76,6 +77,14 @@ def nag_hsas(since):
                 logging.error("Supervisor does not exist for HSA: %s" % hsa.name)
 
 
-#@periodic_task(run_every=crontab(hour="*", minute="1", day_of_week="*"))
+@periodic_task(run_every=crontab(hour="*", minute="1", day_of_week="*"))
 def nag_hsas_last_month():
-    return nag_hsas(datetime.utcnow() - timedelta(days=30))
+    return nag_hsas(datetime.utcnow() - timedelta(days=32))
+
+
+@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
+def heartbeat():
+    if os.name == 'posix':
+        f = open('/tmp/sc4ccm-heartbeat', 'w')
+        f.write(str(datetime.now()))
+        f.close()
