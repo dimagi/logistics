@@ -1,8 +1,9 @@
 from datetime import timedelta
+from logistics.apps.logistics.const import Reports
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics import app as logistics_app
-from logistics.apps.logistics.models import Location, Facility, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction
+from logistics.apps.logistics.models import Location, Facility, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
 
 class TestConsumption (TestScript):
     apps = ([logistics_app.App])
@@ -64,5 +65,11 @@ class TestConsumption (TestScript):
         sp.report_stock(pr, 100)
 
         # Reporting higher stock shouldn't change the daily consumption metric.        
+        self.assertEquals(7, ps.daily_consumption)
+
+        npr = ProductReport(product=pr, report_type=ProductReportType.objects.get(code=Reports.REC),
+                            quantity=10000, message=None, supply_point=sp)
+        npr.save()
+        # Make sure receipts don't change the daily consumption
         self.assertEquals(7, ps.daily_consumption)
         
