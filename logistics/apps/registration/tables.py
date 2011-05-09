@@ -28,10 +28,11 @@ def list_commodities(cell):
 
 class ContactTable(Table):
     name     = Column(link=_edit_link)
-    supply_point = Column(value=render_supply_point, name="Supply Point")
-    phone = Column(value=lambda cell: cell.object.phone)
+    supply_point = Column(value=render_supply_point, name="Supply Point",
+                          sortable=False)
+    phone = Column(value=lambda cell: cell.object.phone, sortable=False)
     commodities = Column(name="Responsible For These Commodities", 
-                         value=list_commodities)
+                         value=list_commodities, sortable=False)
 
     class Meta:
         order_by = 'supply_point'

@@ -12,12 +12,17 @@ class MalawiContactTable(Table):
     name     = Column()
     role = Column()
     hsa_id = Column(value=lambda cell: cell.object.hsa_id,
-                    name="HSA Id")
+                    name="HSA Id",
+                    sortable=False)
     supply_point = Column(value=lambda cell: cell.object.associated_supply_point_name,
-                          name="Supply Point")
-    phone = Column(value=lambda cell: cell.object.phone, name="Phone Number")
+                          name="Supply Point",
+                          sortable=False)
+    phone = Column(value=lambda cell: cell.object.phone, 
+                   name="Phone Number",
+                   sortable=False)
     commodities = Column(name="Responsible For These Commodities", 
-                         value=list_commodities)
+                         value=list_commodities,
+                         sortable=False)
 
     class Meta:
         order_by = 'supply_point__code'
