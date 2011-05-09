@@ -198,6 +198,8 @@ LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 DEBUG=True
 
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
+
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
 'password/reset',
