@@ -32,7 +32,7 @@ def _list_commodities(cell):
 
 class ContactTable(Table):
     name     = Column(link=_edit_link)
-    supply_point = Column(value=_any_supply_point)
+    supply_point = Column(value=_any_supply_point, name="Supply Point")
     phone = Column(value=_any_identity)
     commodities = Column(name="Responsible For These Commodities", 
                          value=_list_commodities)
