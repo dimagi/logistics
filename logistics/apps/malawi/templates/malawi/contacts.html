@@ -1,0 +1,8 @@
+{% extends base_template %}
+{% block title %}Contacts - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="module">
+    <h2>All SMS Contacts</h2>
+    {{ contacts_table.as_html }}
+</div>
+{% endblock %}

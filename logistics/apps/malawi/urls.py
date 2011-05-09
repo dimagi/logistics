@@ -8,4 +8,7 @@ urlpatterns = patterns('',
     url(r'^$',
         "logistics.apps.malawi.views.dashboard",
         name="malawi_dashboard"),
+    url(r'^contacts/$',
+        "logistics.apps.malawi.views.contacts",
+        name="malawi_contacts"),
 )

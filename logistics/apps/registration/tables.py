@@ -16,15 +16,11 @@ def _edit_link(cell):
         registration_edit_view,
         args=[cell.row.pk])
 
-def _any_identity(cell):
-    if cell.object.connection_set.count() > 0:
-        return cell.object.connection_set.all()[0].identity
-
-def _any_supply_point(cell):
+def render_supply_point(cell):
     if cell.object.supply_point:
         return cell.object.supply_point.code
 
-def _list_commodities(cell):
+def list_commodities(cell):
     commodities = cell.object.commodities.all()
     if commodities.count() == 0:
         return "None"
@@ -32,10 +28,10 @@ def _list_commodities(cell):
 
 class ContactTable(Table):
     name     = Column(link=_edit_link)
-    supply_point = Column(value=_any_supply_point, name="Supply Point")
-    phone = Column(value=_any_identity)
+    supply_point = Column(value=render_supply_point, name="Supply Point")
+    phone = Column(value=lambda cell: cell.object.phone)
     commodities = Column(name="Responsible For These Commodities", 
-                         value=_list_commodities)
+                         value=list_commodities)
 
     class Meta:
         order_by = 'supply_point'
