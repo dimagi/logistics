@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 import gviz_api
+from logistics.apps.logistics.const import Reports
 
 import settings
 from random import randint
@@ -119,6 +120,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
     if last_reports:
         context['last_reported'] = last_reports[0].report_date
+        last_reports = last_reports.filter(report_type=Reports.SOH)
         cols = {"date": ("datetime", "Date")}
         for s in stockonhands:
             cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
