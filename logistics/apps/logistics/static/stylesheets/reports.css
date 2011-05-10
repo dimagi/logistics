@@ -84,8 +84,23 @@
     margin:3px;
 }
 
+#chart_div {
+    width: 90%;
+    height: 300px;
+    margin:10px 0px;
+}
 .stock {
+    float:left;
     width:50%;
+    margin-right:10px;
+}
+
+.legend {
+    float: right;
+}
+
+.legend-table {
+    margin-left: 10px;
 }
 
 .stock td {
