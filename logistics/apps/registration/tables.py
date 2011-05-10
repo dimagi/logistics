@@ -8,7 +8,7 @@ from djtables import Table, Column
 from rapidsms.models import Contact
 
 
-def _edit_link(cell):
+def contact_edit_link(cell):
     registration_edit_view = 'registration_edit'
     if hasattr(settings,'SMS_REGISTRATION_EDIT'):
         registration_edit_view = settings.SMS_REGISTRATION_EDIT
@@ -27,7 +27,7 @@ def list_commodities(cell):
     return " ".join(commodities.order_by('name').values_list('sms_code', flat=True))
 
 class ContactTable(Table):
-    name     = Column(link=_edit_link)
+    name     = Column(link=contact_edit_link)
     supply_point = Column(value=render_supply_point, name="Supply Point",
                           sortable=False)
     phone = Column(value=lambda cell: cell.object.phone, sortable=False)

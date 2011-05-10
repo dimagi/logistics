@@ -20,22 +20,15 @@ MIDDLEWARE_CLASSES = (
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
+    #("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics_dashboard",                    "Stock Levels"),
-    ("reporting",                              "Reporting Rates"),
-    #("input_stock",                          "Input Stock"),
+    ("logistics.apps.malawi.views.contacts",       "Places & People"),
+    #("reporting",                              "Reporting Rates"),
     ("registration",                          "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",          "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
-    #("ewsghana_reporting",                      "Usage"),
-    #("input_stock",                          "Input Stock"),
-    #("ewsghana_scheduled_reports",                         "Configuration"),
     #("email_reports",                              "Email Reports"),
     #("help",                                      "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",         "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
