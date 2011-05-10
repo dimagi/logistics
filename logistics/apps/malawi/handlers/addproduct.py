@@ -30,7 +30,9 @@ class AddProductHandler(KeywordHandler):
         for f in [Product.objects.get(sms_code__iexact=code) for code in words]:
                 if not ProductStock.objects.filter(supply_point=self.hsa, product=f).exists():
                     ProductStock(supply_point=self.hsa, product=f).save()
+                self.msg.logistics_contact.commodities.add(f)
                 self.hsa.activate_product(f)
+        self.msg.logistics_contact.save()
         self.respond(config.Messages.ADD_SUCCESS_MESSAGE, products=" ".join([ps.product.sms_code for ps
                                                                       in ProductStock.objects.filter(supply_point=self.hsa,
                                                                                                      is_active=True)]))
