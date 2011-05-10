@@ -3,15 +3,15 @@
 <table width="100%">
     <thead>
         <tr>
-	        <th>Supply Point</th>
-	        <th>Total Requests</th>
-	        <th>Pending Response</th>
-	        <th>Stocked Out</th>
-            <th>Approved</th>
+            <th>Supply Point</th>
+            <th>Total Orders Received</th>
+            <th>Order in Process</th>
+            <th>Stocked Out</th>
+            <th>Order Ready / Received</th>
         </tr>
     </thead>
     <tbody>
-        {% for rowdata in data %}
+{% for rowdata in data %}
         <tr>
             <td>{{ rowdata.supply_point.name }}</td>
             <td>{{ rowdata.total }}</td>
@@ -19,11 +19,11 @@
             <td>{{ rowdata.stocked_out }}</td>
             <td>{{ rowdata.approved }}</td>
         </tr>
-        {% empty %}
+{% empty %}
         <tr>
             <td colspan="5" class="empty">no data</td>
         </tr>
-        {% endfor %}
+{% endfor %}
     </tbody>
 </table>
 </div>
