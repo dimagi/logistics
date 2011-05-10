@@ -17,6 +17,8 @@ class TestAddRemoveProducts(MalawiTestBase):
         hsa = create_hsa(self, "16175551234", "stella")
 
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
+        self.assertFalse(Product.objects.get(sms_code="zi") in hsa.commodities.all())
+
 
         a = """
            16175551234 > add quux
@@ -27,6 +29,7 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.runScript(a)
 
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
+        self.assertTrue(Product.objects.get(sms_code="zi") in hsa.commodities.all())
 
         b = """
            16175551234 > add zi de dm
@@ -47,6 +50,9 @@ class TestAddRemoveProducts(MalawiTestBase):
            16175551234 < Done. You now supply: zi dm
            """
         self.runScript(c)
+
+        self.assertFalse(Product.objects.get(sms_code="cm") in hsa.commodities.all())
+        self.assertFalse(Product.objects.get(sms_code="de") in hsa.commodities.all())
 
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="de")))
