@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 from django.db import models
-from django.db.models import Q
-import itertools
 import uuid
 
 class Location(models.Model):
@@ -25,7 +23,6 @@ class Location(models.Model):
         return SupplyPoint.objects.filter(location=self).order_by('name')
 
     def all_facilities(self):
-        from logistics.apps.logistics.models import SupplyPoint
         ret = []
         ret.extend(self.facilities())
         for c in self.children():
