@@ -8,8 +8,15 @@ from logistics.apps.logistics.models import SupplyPoint, StockRequest,\
 from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
+from logistics.context_processors import custom_settings
 register = template.Library()
 
+def _r_2_s_helper(template, dict):
+    extras = {"MEDIA_URL": settings.MEDIA_URL}
+    dict.update(extras)
+    dict.update(custom_settings(None))
+    return render_to_string(template, dict)
+    
 @register.simple_tag
 def reporting_rates(locations, type=None, days=30):
     # with a list of locations - display reporting
@@ -22,15 +29,14 @@ def reporting_rates(locations, type=None, days=30):
         if base_points.count() > 0:
             late_facilities = base_points.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
             on_time_facilities = base_points.filter(last_reported__gte=since).order_by('-last_reported','name')
-            return render_to_string("logistics/partials/reporting_rates.html", 
+            return _r_2_s_helper("logistics/partials/reporting_rates.html", 
                                     {"late_facilities": late_facilities,
                                      "on_time_facilities": on_time_facilities,
                                      "graph_width": 200,
                                      "graph_height": 200,
                                      "days": days,
-                                     "table_class": "minor_table",
-                                     "MEDIA_URL": settings.MEDIA_URL,
-                                     "excel_export": settings.LOGISTICS_EXCEL_EXPORT_ENABLED })
+                                     "table_class": "minor_table" })
+                                     
     return "" # no data, no report
 
 @register.simple_tag
@@ -58,9 +64,9 @@ def order_response_stats(locations, type=None, days=30):
                 for row in by_status:
                     this_sp_data[row["response_status"] if row["response_status"] else "requested"] = row["total"]
                 data.append(this_sp_data)
-            return render_to_string("logistics/partials/order_response_stats.html", 
-                                    {"data": data,
-                                     "MEDIA_URL": settings.MEDIA_URL})
+            return _r_2_s_helper("logistics/partials/order_response_stats.html", 
+                                    {"data": data })
+                                     
             
     return "" # no data, no report
             
@@ -99,7 +105,7 @@ def order_fill_stats(locations, type=None, days=30):
             _update_main_data(main_data, under_supplied, "under_supplied")
             _update_main_data(main_data, well_supplied, "well_supplied")
             _update_main_data(main_data, over_supplied, "over_supplied")
-            return render_to_string("logistics/partials/order_fill_stats.html", 
-                                    {"data": main_data,
-                                     "MEDIA_URL": settings.MEDIA_URL})
+            return _r_2_s_helper("logistics/partials/order_fill_stats.html", 
+                                    {"data": main_data})
+                                     
     return "" # no data, no report
