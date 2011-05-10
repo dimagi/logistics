@@ -1,3 +1,11 @@
+#small-left .col-1 {
+    width: 33%;	
+}
+
+#small-left .col-2 {
+    width: 67%; 
+}
+
 .subnav ul {
 	float: left;
 	padding-top: .2em;

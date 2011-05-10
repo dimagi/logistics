@@ -15,8 +15,19 @@ NOTE: The dashboard is still under construction. This is a temporary placeholder
         </ul>
     </div>
 </div>
-<div class="module">
-    <h2>{% trans 'HSAs' %}</h2>
-    <p>{% lorem 2 %}</p>                
+<div class="two-columns module" id="small-left">
+    <div class="col-1">
+        <div class="module"> 
+        <h2>Reporting Rates (last {{days}} days)</h2>
+        {% include "logistics/partials/pie_reporting.html" %}
+        </div>
+    </div>
+    <div class="col-2">
+        <div class="module">
+	        <h2>{% trans 'Registered HSAs' %}</h2>
+	        {{ hsas_table.as_html }}
+        </div>
+    </div>
+    <div class="clear-hack"></div>
 </div>
 {% endblock %}
