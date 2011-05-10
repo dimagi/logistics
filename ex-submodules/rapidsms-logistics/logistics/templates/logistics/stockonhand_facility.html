@@ -31,10 +31,11 @@
                 <div id="report-content">
                 
                 {% if raw_data %}
-                <div id="chart_div" style="width:500px; height:350px; margin: 20px 0px;"></div>
+                <div id="chart_div"></div>
                 {% endif %}
                 
                 <br />
+                <div id="table-container">
                 <div id="table">
                 <table class="stock">
                     <thead><tr>
@@ -64,6 +65,10 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                </div>
+                <div id="legend">
+                    {% include "logistics/partials/icon_legend.html" %}
+                </div>
                 </div>
                 <br/>
                 {% ifequal request.user.get_profile.facility facility %}
