@@ -52,7 +52,7 @@ except ImportError:
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     location = models.ForeignKey(Location, blank=True, null=True)
-    facility = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    supply_point = models.ForeignKey('SupplyPoint', blank=True, null=True)
 
     def __unicode__(self):
         return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
