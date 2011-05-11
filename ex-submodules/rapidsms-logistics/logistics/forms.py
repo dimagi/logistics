@@ -4,7 +4,7 @@
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from .models import Facility, Product, ProductStock
+from .models import SupplyPoint, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
     commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
@@ -12,7 +12,7 @@ class FacilityForm(forms.ModelForm):
                                                  required=False)
     
     class Meta:
-        model = Facility
+        model = SupplyPoint
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {'commodities': [0,1,2,3]}
@@ -22,7 +22,7 @@ class FacilityForm(forms.ModelForm):
             pss = ProductStock.objects.filter(supply_point=kwargs['instance'], 
                                               is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
-        super(FacilityForm, self).__init__(*args, **kwargs)
+        super(SupplyPoint, self).__init__(*args, **kwargs)
                 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)

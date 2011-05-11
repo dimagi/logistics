@@ -52,7 +52,7 @@ except ImportError:
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     location = models.ForeignKey(Location, blank=True, null=True)
-    facility = models.ForeignKey('Facility', blank=True, null=True)
+    facility = models.ForeignKey('SupplyPoint', blank=True, null=True)
 
     def __unicode__(self):
         return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
@@ -786,12 +786,6 @@ class SupplyPoint(models.Model):
                              {'name':reporter.name,
                              'products':", ".join(stockouts_resolved),
                              'supply_point':self.name})
-
-class Facility(SupplyPoint):
-    """A facility is a type of supply point"""
-    # it currently has no unique functionality, and will probably be deprecated
-    # and removed eventually unless it needs any.
-    pass 
 
 class ProductReportsHelper(object):
     """
