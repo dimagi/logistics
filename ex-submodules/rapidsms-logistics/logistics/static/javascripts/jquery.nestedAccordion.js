@@ -28,7 +28,7 @@ $.fn.accordion = function(options) {
           var $node = $(this);
           if ($node.find(o.next).length || $node.next(o.next).length) {
             if ($node.find('> a').length) {
-                $node.find('> a').addClass("trigger").css('display', "block");
+                //$node.find('> a').addClass("trigger").css('display', "block");
             } else {
                 var anchor = '<a class="trigger" style="display:block" href="#" />'
                 if (o.elToWrap) {
