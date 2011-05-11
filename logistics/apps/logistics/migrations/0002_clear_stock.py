@@ -11,10 +11,19 @@ class Migration(DataMigration):
         db.add_column('locations_location', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
         db.add_column('rapidsms_contact', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
 
+        # Adding field 'ProductStock.manual_monthly_consumption'
+        db.add_column('logistics_productstock', 'manual_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(default=None, null=True, blank=True), keep_default=False)
+        # Adding field 'ProductStock.auto_monthly_consumption'
+        db.add_column('logistics_productstock', 'auto_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(default=None, null=True, blank=True), keep_default=False)
+        # Adding field 'ProductStock.use_auto_consumption'
+        db.add_column('logistics_productstock', 'use_auto_consumption', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
+
+
         # Clean start on everything stock related
         db.clear_table('logistics_productreport')
         db.clear_table('logistics_requisitionreport')
         db.clear_table('logistics_stocktransaction')
+        # we need to persist productstock: specifically, 'consumption'
         db.clear_table('logistics_productstock')
 
         # Adding model 'SupplyPointType'

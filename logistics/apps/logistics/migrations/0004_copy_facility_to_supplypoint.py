@@ -15,10 +15,17 @@ class Migration(SchemaMigration):
                     a.save()
         facility_to_supplypoint(orm.LogisticsProfile.objects.all().order_by('pk'))
         facility_to_supplypoint(orm['rapidsms.contact'].objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.StockTransaction.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.ProductStock.objects.all().order_by('pk'))
+        # we don't need to bother migrating these, since we cleared them back in 0002
+        #facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
+        #facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))
+        #facility_to_supplypoint(orm.StockTransaction.objects.all().order_by('pk'))
+        
+        productstocks = orm.ProductStock.objects.all().order_by('pk')
+        facility_to_supplypoint(productstocks)
+        for a in productstocks:
+            if a.monthly_consumption:
+                a.manual_monthly_consumption = a.monthly_consumption
+                a.save()
 
     def backwards(self, orm):
         raise RuntimeError(
@@ -104,7 +111,6 @@ class Migration(SchemaMigration):
         },
         'logistics.product': {
             'Meta': {'object_name': 'Product'},
-            'average_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -137,7 +143,10 @@ class Migration(SchemaMigration):
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
             'quantity': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
+            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']"}),
+            'manual_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'logistics.producttype': {
             'Meta': {'object_name': 'ProductType'},

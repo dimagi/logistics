@@ -73,15 +73,6 @@ class Migration(SchemaMigration):
         # Deleting field 'ProductStock.monthly_consumption'
         db.delete_column('logistics_productstock', 'monthly_consumption')
 
-        # Adding field 'ProductStock.manual_monthly_consumption'
-        db.add_column('logistics_productstock', 'manual_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(default=None, null=True, blank=True), keep_default=False)
-
-        # Adding field 'ProductStock.auto_monthly_consumption'
-        db.add_column('logistics_productstock', 'auto_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(default=None, null=True, blank=True), keep_default=False)
-
-        # Adding field 'ProductStock.use_auto_consumption'
-        db.add_column('logistics_productstock', 'use_auto_consumption', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
-
         # Adding unique constraint on 'ProductStock', fields ['supply_point', 'product']
         db.create_unique('logistics_productstock', ['supply_point_id', 'product_id'])
 
