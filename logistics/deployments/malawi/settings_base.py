@@ -13,7 +13,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    #'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -43,31 +43,52 @@ RAPIDSMS_TABS = [
 # to configure it. see the documentation in those modules for a list of
 # the valid options for each.
 INSTALLED_BACKENDS = {
-#    "MTN": {
-#        "ENGINE": "rapidsms.backends.gsm",
-#        "PORT": "/dev/ttyUSB0",
-#        "baudrate":115200,
-#        "rtscts": 1
-#    },
-#    "end2end": {
-#        "ENGINE": "rapidsms.backends.http",
-#        "PORT": 8002,
-#        "HOST": localhost,
-#        "gateway_url" : "http://gw1.promessaging.com/sms.php",
-#        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
-#        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
-#    },
-    "smsgh": {
-        "ENGINE": "rapidsms.backends.smsgh_http",
-        "PORT": 8002,
-        "HOST": "localhost",
-        "gateway_url" : "http://localhost",
-        #"gateway_url" : "http://127.0.0.1:8080",
-        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
-        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
+    # zain modem (?)
+    "modem": {
+        "ENGINE": "logistics.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8002,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "zain-modem",
+                           "from": "+265992961466", # will be overridden; set for consistency
+                           "username": "rapidsms",
+                           "password": "CHANGEME"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
+    # tnm smpp (?)
+     "tnm-smpp": {
+        "ENGINE": "logistics.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8003,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "tnm-smpp",
+                           "from": "2222", # not set automatically by SMSC
+                           "username": "rapidsms",
+                           "password": "CHANGEME"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
+    },
+    # tester
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
+    },
+    # tester
+    "message_tester": {
+        "ENGINE": "rapidsms.backends.bucket",
+    },
+    # twilio
+    "twilio": {
+        "ENGINE": "rtwilio.backend",
+        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
+        'config': {
+            'account_sid': 'CHANGEME',
+            'auth_token': 'CHANGEME',
+            'number': '(###) ###-####',
+            'callback': 'http://cstock.dimagi.com/twilio/status-callback/', # optional callback URL
+        }
     },
 }
 
