@@ -22,20 +22,20 @@ class FacilityForm(forms.ModelForm):
             pss = ProductStock.objects.filter(supply_point=kwargs['instance'], 
                                               is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
-        super(SupplyPoint, self).__init__(*args, **kwargs)
+        super(FacilityForm, self).__init__(*args, **kwargs)
                 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)
         if self.cleaned_data['commodities']:
             for commodity in Product.objects.all():
                 if commodity in self.cleaned_data['commodities']:
-                    ps, created = ProductStock.objects.get_or_create(facility=facility, 
+                    ps, created = ProductStock.objects.get_or_create(supply_point=facility, 
                                                                      product=commodity)
                     ps.is_active = True
                     ps.save()
                 else:
                     try:
-                        ps = ProductStock.objects.get(facility=facility, 
+                        ps = ProductStock.objects.get(supply_point=facility, 
                                                       product=commodity)
                     except ProductStock.DoesNotExist:
                         # great
