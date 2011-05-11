@@ -10,11 +10,11 @@ from django.contrib.auth.models import User
 from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import Facility
+from logistics.apps.logistics.models import SupplyPoint
 
 class AdminRegistersUserForm(RegistrationForm): 
     location = forms.ModelChoiceField(Location.objects.all().order_by('name'), required=False)
-    facility = forms.ModelChoiceField(Facility.objects.all().order_by('name'), required=False)
+    facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     
     def __init__(self, *args, **kwargs):
         self.edit_user = None

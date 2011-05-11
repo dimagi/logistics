@@ -19,15 +19,15 @@ def init_static_data(demo=False):
     init_reminders()
 
 def LoadFacilities(filename):
-    from logistics.apps.logistics.models import Facility, SupplyPointType, Location
+    from logistics.apps.logistics.models import SupplyPoint, SupplyPointType, Location
     reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"')
     errors = 0
     for row in reader:
         region = row[1].strip()
         rms_type = SupplyPointType.objects.get(code__icontains='rms')
         try:
-            rms = Facility.objects.get(type=rms_type, name__icontains=region)
-        except Facility.DoesNotExist:
+            rms = SupplyPoint.objects.get(type=rms_type, name__icontains=region)
+        except SupplyPoint.DoesNotExist:
             print "ERROR: rms for %s not found" % region
             errors = errors + 1
             continue
@@ -42,7 +42,7 @@ def LoadFacilities(filename):
         try:
             print ("%s already exists" % name).lower()
             continue
-        except Facility.DoesNotExist:
+        except SupplyPoint.DoesNotExist:
             pass
         code = "".join([word[0] for word in name.split()])
         code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
@@ -50,10 +50,10 @@ def LoadFacilities(filename):
         try:
             count = 0
             while True:
-                Facility.objects.get(code=(code + postfix))
+                SupplyPoint.objects.get(code=(code + postfix))
                 count = count + 1
                 postfix = str(count)
-        except Facility.DoesNotExist:
+        except SupplyPoint.DoesNotExist:
             pass
         code = code + postfix
         type = row[4]
@@ -63,7 +63,7 @@ def LoadFacilities(filename):
             print "ERROR: SupplyPoint type for %s not found" % type
             errors = errors + 1
             continue
-        facility, created = Facility.objects.get_or_create(code=code,
+        facility, created = SupplyPoint.objects.get_or_create(code=code,
                                                            name=name,
                                                            location=location,
                                                            type=facilitytype,
@@ -76,8 +76,8 @@ def LoadFacilities(filename):
     print "There were %s errors" % errors
     
 def LoadProductsIntoFacilities(demo=False):
-    from logistics.apps.logistics.models import Facility, ProductStock, Product
-    facilities = Facility.objects.order_by('type')
+    from logistics.apps.logistics.models import SupplyPoint, ProductStock, Product
+    facilities = SupplyPoint.objects.order_by('type')
     
     if demo:
         RMS_consumption = 100

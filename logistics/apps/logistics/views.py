@@ -18,7 +18,7 @@ from django.utils.translation import ugettext as _
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import Facility, ProductStock, \
+from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
     SupplyPoint
@@ -281,10 +281,10 @@ def export_stockonhand(request, facility_code, format='xls', filename='stockonha
 def facility(req, pk=None, template="logistics/config.html"):
     facility = None
     form = None
-    klass = "Facility"
+    klass = "SupplyPoint"
     if pk is not None:
         facility = get_object_or_404(
-            Facility, pk=pk)
+            SupplyPoint, pk=pk)
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
             facility.delete()
@@ -301,7 +301,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         form = FacilityForm(instance=facility)
     return render_to_response(
         template, {
-            "table": FacilityTable(Facility.objects.all(), request=req),
+            "table": FacilityTable(SupplyPoint.objects.all(), request=req),
             "form": form,
             "object": facility,
             "klass": klass,

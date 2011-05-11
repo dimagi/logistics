@@ -1,6 +1,7 @@
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import Location, Facility, SupplyPointType 
+from logistics.apps.logistics.models import Location, SupplyPointType 
 from logistics.apps.ewsghana.handlers.registration import HELP_MESSAGE
+from logistics.apps.logistics.models import SupplyPoint as Facility
 
 class TestRegister(TestScript):
     fixtures = ["ghana_initial_data.json"] 
