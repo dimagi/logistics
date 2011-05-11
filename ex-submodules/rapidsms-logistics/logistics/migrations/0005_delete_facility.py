@@ -7,6 +7,21 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # 1 LogisticsProfile
+        db.delete_column('logistics_logisticsprofile', 'facility_id')
+        # 2 rapidsms.Contact
+        db.delete_column('rapidsms_contact', 'facility_id')
+        # 3 productreport
+        db.delete_column('logistics_productreport', 'facility_id')
+        # 4 requisition report
+        db.delete_column('logistics_requisitionreport', 'facility_id')
+        # 5 stocktransaction
+        db.delete_column('logistics_stocktransaction', 'facility_id')
+        # 6 productstock
+        db.delete_column('logistics_productstock', 'facility_id')
+
+        db.delete_table('logistics_facility')
+        db.delete_table('logistics_facilitytype')
 
         # Adding model 'StockRequest'
         db.create_table('logistics_stockrequest', (

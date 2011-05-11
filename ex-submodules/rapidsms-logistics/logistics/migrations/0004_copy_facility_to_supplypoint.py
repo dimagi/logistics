@@ -7,57 +7,18 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for a in orm.LogisticsProfile.objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-
-        for a in orm['rapidsms.Contact'].objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-        
-        for a in orm.ProductReport.objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-
-        for a in orm.RequisitionReport.objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-
-        for a in orm.StockTransaction.objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-
-        for a in orm.ProductStock.objects.all().order_by('pk'):
-            if a.facility:
-                sp = orm.SupplyPoint.objects.get(pk=a.facility.pk)
-                a.supply_point = sp
-                a.save()
-
-        # 1 LogisticsProfile
-        db.delete_column('logistics_logisticsprofile', 'facility_id')
-        # 2 rapidsms.Contact
-        db.delete_column('rapidsms_contact', 'facility_id')
-        # 3 productreport
-        db.delete_column('logistics_productreport', 'facility_id')
-        # 4 requisition report
-        db.delete_column('logistics_requisitionreport', 'facility_id')
-        # 5 stocktransaction
-        db.delete_column('logistics_stocktransaction', 'facility_id')
-        # 6 productstock
-        db.delete_column('logistics_productstock', 'facility_id')
-
-        db.delete_table('logistics_facility')
-        db.delete_table('logistics_facilitytype')
+        def facility_to_supplypoint(queryset):
+            for a in queryset:
+                if a.facility_id:
+                    sp = orm.SupplyPoint.objects.get(pk=a.facility_id)
+                    a.supply_point = sp
+                    a.save()
+        facility_to_supplypoint(orm.LogisticsProfile.objects.all().order_by('pk'))
+        facility_to_supplypoint(orm['rapidsms.contact'].objects.all().order_by('pk'))
+        facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
+        facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))
+        facility_to_supplypoint(orm.StockTransaction.objects.all().order_by('pk'))
+        facility_to_supplypoint(orm.ProductStock.objects.all().order_by('pk'))
 
     def backwards(self, orm):
         raise RuntimeError(
@@ -136,6 +97,7 @@ class Migration(SchemaMigration):
         'logistics.logisticsprofile': {
             'Meta': {'object_name': 'LogisticsProfile'},
             'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
@@ -169,16 +131,13 @@ class Migration(SchemaMigration):
         },
         'logistics.productstock': {
             'Meta': {'unique_together': "(('supply_point', 'product'),)", 'object_name': 'ProductStock'},
-            'auto_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'days_stocked_out': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'manual_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
             'quantity': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
-            'use_auto_consumption': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
         },
         'logistics.producttype': {
             'Meta': {'object_name': 'ProductType'},
@@ -258,7 +217,8 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'needs_reminders': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ContactRole']", 'null': 'True', 'blank': 'True'}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'})
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
+            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'})
         }
     }
 

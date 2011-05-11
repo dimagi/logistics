@@ -9,6 +9,7 @@ class Migration(DataMigration):
     def forwards(self, orm):
         # Adding field 'ProductStock.use_auto_consumption'
         db.add_column('locations_location', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
+        db.add_column('rapidsms_contact', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
 
         # Clean start on everything stock related
         db.clear_table('logistics_productreport')
