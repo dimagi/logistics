@@ -41,8 +41,8 @@ def landing_page(request):
     except LogisticsProfile.DoesNotExist:
         pass
     
-    if prof and prof.facility:
-        return stockonhand_facility(request, request.user.get_profile().facility.code)
+    if prof and prof.supply_point:
+        return stockonhand_facility(request, request.user.get_profile().supply_point.code)
     elif prof and prof.location:
         return aggregate(request, request.user.get_profile().location.code)
     return dashboard(request)
