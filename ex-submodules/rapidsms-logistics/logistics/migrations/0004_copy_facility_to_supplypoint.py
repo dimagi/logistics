@@ -16,9 +16,9 @@ class Migration(SchemaMigration):
         facility_to_supplypoint(orm.LogisticsProfile.objects.all().order_by('pk'))
         facility_to_supplypoint(orm['rapidsms.contact'].objects.all().order_by('pk'))
         # we don't need to bother migrating these, since we cleared them back in 0002
-        facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm.StockTransaction.objects.all().order_by('pk'))
+        #facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
+        #facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))
+        #facility_to_supplypoint(orm.StockTransaction.objects.all().order_by('pk'))
         
         productstocks = orm.ProductStock.objects.all().order_by('pk')
         facility_to_supplypoint(productstocks)
