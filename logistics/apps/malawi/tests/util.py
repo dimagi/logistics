@@ -38,7 +38,7 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
     Reports stock. 
     """
     
-    stock_report = ProductReportsHelper(Reports.SOH)
+    stock_report = ProductReportsHelper(SupplyPoint(), Reports.SOH)
     stock_report.parse(product_string)
     product_list = " ".join(stock_report.reported_products()).strip()
     manager_msgs = []
