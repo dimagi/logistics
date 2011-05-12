@@ -114,3 +114,7 @@ SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 
+# TODO: move this configuration over to urls.py
+SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
+SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
+

@@ -11,6 +11,7 @@
         <div id="main">
             <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
             <div class="right">
+                <div  class="filter">Filter by:</div>
                 {% include "logistics/partials/commoditytype_filter.html" %}
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
@@ -20,9 +21,8 @@
                 <th scope="col"></th>
                 <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
                 <th scope="col" class="emergency stock_col">Emergency</th>
-                <th scope="col" class="low_supply stock_col">{% trans "Re-Order" %}</th>
-                <th scope="col" class="good_supply stock_col">{% trans "Good Stock" %}</th>
-                <th scope="col" class="overstock stock_col">{% trans "Over" %}</th>
+                <th scope="col" class="good_supply stock_col">{% trans "Adequate Stock" %}</th>
+                <th scope="col" class="overstock stock_col">{% trans "Overstock" %}</th>
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
                 {% if commodity_filter %}<th scope="col" >{% trans "AMC" %}</th>{% endif %}
             </tr></thead>
@@ -33,8 +33,7 @@
                 <td><a href="{{ row.url }}">{{ row.name }}</a></td>
                 <td> {{ row.stockout_count }} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
                 <td> {{ row.emergency_stock_count }} {% ifnotequal row.emergency_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
-                <td> {{ row.low_stock_count }} {% ifnotequal row.low_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/warning.png" title="Low supply">{% endifnotequal %}</td>
-                <td> {{ row.good_supply_count }} {% ifnotequal row.good_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Good supply">{% endifnotequal %}</td>
+                <td> {{ row.adequate_supply_count }} {% ifnotequal row.adequate_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Adequate supply">{% endifnotequal %}</td>
                 <td> {{ row.overstocked_count }} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
                 {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}

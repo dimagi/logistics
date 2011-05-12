@@ -51,14 +51,11 @@ BASE_APPS = [
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
+    "couchlog",
     "registration",
 ]
 
 APPS = []
-
-# TODO: move this configuration over to urls.py
-SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
-SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -102,6 +99,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
+    "logistics.context_processors.custom_settings",
+    "couchlog.context_processors.static_workaround"
 ]
 
 
@@ -188,10 +187,32 @@ COUCH_SERVER_ROOT='127.0.0.1:5984'
 COUCH_USERNAME=''
 COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare',]
+COUCHDB_APPS=['auditcare','couchlog']
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
+
+LOGISTICS_EXCEL_EXPORT_ENABLED = True
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+DEBUG=True
+
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
+
+# TODO: come back and clean this up
+NO_LOGIN_REQUIRED_FOR = [
+'password/reset',
+'register',
+'logout',
+'activate',
+]
+
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=100
+AXES_LOGIN_FAILURE_LIMIT=1
+AXES_LOCK_OUT_AT_FAILURE=False
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
@@ -222,16 +243,6 @@ COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
 COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
 
 COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
-
-DEBUG=True
-
-# TODO: come back and clean this up
-NO_LOGIN_REQUIRED_FOR = [
-'password/reset',
-'register',
-'logout',
-'activate',
-]
 
 # AUDITCARE CONFIG
 # users can fail login 10 times, resulting in a 1 hour cooloff period

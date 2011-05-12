@@ -19,5 +19,5 @@ class StockOnHandReportHandler(StockReportBaseHandler):
         return Reports.SOH
       
     def send_responses(self, stock_report):
-        send_soh_responses(self.msg, stock_report, self.requests)
+        send_soh_responses(self.msg, self.msg.logistics_contact, stock_report, self.requests)
         

@@ -1,0 +1,33 @@
+{% load i18n %}
+<table class="{{table_class|default:'major_table'}}">
+    <thead><tr>
+        <th width=70%>Non-Reporting {% if malawi_hack %}HSAs{% else %}Supply Points{% endif %}</th>
+        <th>Last Message Received</th>
+    </thead></tr><tbody>
+        {% if late_facilities %}
+        {% for late_facility in late_facilities %}
+            <tr>
+            <td>{{ late_facility.name }}</td>
+            <td>{{ late_facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
+        {% endfor %}
+        {% else %}
+            <tr><td colspan="2">No {% if malawi_hack %}HSAs{% else %}Supply Points{% endif %} reported late</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+<table class="{{table_class|default:'major_table'}}">
+    <thead><tr>
+        <th width=70%>On-Time {% if malawi_hack %}HSAs{% else %}Supply Points{% endif %}</th>
+        <th>Last Message Received</th>
+    </thead></tr><tbody>
+        {% if on_time_facilities %}
+        {% for on_time_facility in on_time_facilities %}
+            <tr>
+            <td>{{ on_time_facility.name }}</td>
+            <td>{{ on_time_facility.last_reported|date:"M d, h:i A"|default:"never" }}</td></tr>
+        {% endfor %}
+        {% else %}
+            <tr><td colspan="2">{%  trans "No facilities reported on time" %}</td></tr>
+        {% endif %}
+    </tbody>
+</table>

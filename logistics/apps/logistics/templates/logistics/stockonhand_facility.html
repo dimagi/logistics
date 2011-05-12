@@ -23,16 +23,19 @@
         <div id="main">
         <h2 id="report-title">Stock for {{ facility.name }}</h2>
         {% if stockonhands %}
+            {% if excel_export %}
 				<div class="toolbar">
 				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
 				</div>
+		    {% endif %}
                 <div id="report-content">
                 
                 {% if raw_data %}
-                <div id="chart_div" style="width:500px; height:350px; margin: 20px 0px;"></div>
+                <div id="chart_div"></div>
                 {% endif %}
                 
                 <br />
+                <div id="table-container">
                 <div id="table">
                 <table class="stock">
                     <thead><tr>
@@ -63,6 +66,10 @@
                     </tbody>
                 </table>
                 </div>
+                <div id="legend">
+                    {% include "logistics/partials/icon_legend.html" %}
+                </div>
+                </div>
                 <br/>
                 {% ifequal request.user.get_profile.facility facility %}
                 <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
@@ -77,7 +84,8 @@
 	            </div>
             {% else %}<p></p>
                 <div class="error">
-                    {{ facility.name }} has not been configured with the appropriate stock yet. Please contact Focus Region Health Project for assistance.
+                    <p>{{ facility.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
+                    <p>Please contact the system administrator for help.</p>
                 </div>
             {% endif %}
         </div>

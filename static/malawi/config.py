@@ -33,6 +33,8 @@ class Operations(object):
     REPORT_STOCK = "report_stock"
     ADD_PRODUCT = "add_product"
     REMOVE_PRODUCT = "remove_product"
+    ADD_USER = "add_user"
+    REMOVE_USER = "remove_user"
 
 def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
@@ -50,6 +52,11 @@ def has_permissions_to(contact, operation):
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.REPORT_FOR_OTHERS:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE])
+    if operation == Operations.ADD_USER:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    if operation == Operations.REMOVE_USER:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+
     # TODO, fill this in more
     return True
 
@@ -73,7 +80,7 @@ class Messages(object):
     
     # "manage" keyword (manger registration)
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage [first name] [last name] [role] [facility]. Example: 'manage john smith ic 1001'"
-    
+
     # "leave" keyword 
     LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
     LEAVE_CONFIRM = "You have successfully left the cStock system. Goodbye!"
@@ -104,7 +111,7 @@ class Messages(object):
     
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
-    TRANSFER_RESPONSE = "Thank you %(giver)s. You have transferred to %(receiver)s the following products: %(products)s"
+    TRANSFER_RESPONSE = "Thank you %(reporter)s. You have reported a transfer from %(giver)s to %(receiver)s of the following products: %(products)s"
     TRANSFER_CONFIRM = "Confirm receipt of %(products)s from %(giver)s? Please respond 'confirm'"
     
     # "confirm" keyword
@@ -112,7 +119,7 @@ class Messages(object):
     CONFIRM_RESPONSE = "Thank you %(receiver)s. You have confirmed receipt of the following products: %(products)s"
     
     # "report" keyword (report for others)
-    REPORT_HELP = "To report stock for someone else, type report [hsa id] soh [prod code] [amount]. To report receipts, type report [hsa id] rec [prod code] [amount]"
+    REPORT_HELP = "To report for someone else, type report [hsa id] [keyword] and the remainder of the report message. Valid keywords are: soh, rec, eo, give."
     BAD_REPORT_KEYWORD = "Sorry, %(keyword)s is not a valid keyword. Must be 'rec' or 'soh'"
     REPORT_SOH_RESPONSE = "%(hsa)s needs the following products: %(products)s. Type 'report %(hsa_id)s rec [prod code] [amount]' to report receipts for the HSA."
     REPORT_RECEIPT_RESPONSE = "Thank you %(reporter)s. You reported the following receipts for %(hsa)s: %(products)s"
@@ -124,12 +131,19 @@ class Messages(object):
     REMOVE_SUCCESS_MESSAGE = "Done. You now supply: %(products)s"
     UNKNOWN_CODE = "Sorry, no product matches code %(product)s.  Nothing done."
     
-    #nag
-    HSA_NAG_FIRST = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
-    HSA_NAG_SECOND = "Dear %(hsa)s, you must report your stock on hand. " + SOH_HELP_MESSAGE
+    # nag
+    HSA_NAG_FIRST= "Dear %(hsa)s, your stock on hand report is due in %(days)d days. " + SOH_HELP_MESSAGE
+    HSA_NAG_SECOND = "Dear %(hsa)s, you have not reported your stock on hand this month. " + SOH_HELP_MESSAGE
     HSA_NAG_THIRD = "Dear %(hsa)s, you must report your stock on hand.  Your supervisor has been notified. " + SOH_HELP_MESSAGE
     HSA_SUPERVISOR_NAG = "%(hsa)s has failed to report their stock on hand this month."
-    
+
+    # create user
+
+    # boot user
+    BOOT_HELP = "To remove a user from the system, type boot [hsa id]"
+    BOOT_RESPONSE = "Done. %(contact)s has been removed from the cStock system."
+    BOOT_ID_NOT_FOUND = "Couldn't find a record for user with id %(id)s. Nothing done."
+
     # Other  Messages (usually for error conditions)
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
     UNKNOWN_LOCATION = "Sorry, can't find the facility with CODE %(code)s. Please double check the facility code and try again."
@@ -141,5 +155,4 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
-    
-    
+

@@ -8,7 +8,7 @@ from djtables import Table, Column
 from rapidsms.models import Contact
 
 
-def _edit_link(cell):
+def contact_edit_link(cell):
     registration_edit_view = 'registration_edit'
     if hasattr(settings,'SMS_REGISTRATION_EDIT'):
         registration_edit_view = settings.SMS_REGISTRATION_EDIT
@@ -16,26 +16,23 @@ def _edit_link(cell):
         registration_edit_view,
         args=[cell.row.pk])
 
-def _any_identity(cell):
-    if cell.object.connection_set.count() > 0:
-        return cell.object.connection_set.all()[0].identity
-
-def _any_supply_point(cell):
+def render_supply_point(cell):
     if cell.object.supply_point:
         return cell.object.supply_point.code
 
-def _list_commodities(cell):
+def list_commodities(cell):
     commodities = cell.object.commodities.all()
     if commodities.count() == 0:
         return "None"
     return " ".join(commodities.order_by('name').values_list('sms_code', flat=True))
 
 class ContactTable(Table):
-    name     = Column(link=_edit_link)
-    supply_point = Column(value=_any_supply_point)
-    phone = Column(value=_any_identity)
+    name     = Column(link=contact_edit_link)
+    supply_point = Column(value=render_supply_point, name="Supply Point",
+                          sortable=False)
+    phone = Column(value=lambda cell: cell.object.phone, sortable=False)
     commodities = Column(name="Responsible For These Commodities", 
-                         value=_list_commodities)
+                         value=list_commodities, sortable=False)
 
     class Meta:
         order_by = 'supply_point'

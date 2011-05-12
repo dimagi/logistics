@@ -7,6 +7,8 @@ from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi import util
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
+from logistics.apps.malawi.shortcuts import create_stock_report,\
+    send_transfer_responses
 
 class TransferHandler(KeywordHandler):
     """
@@ -21,26 +23,18 @@ class TransferHandler(KeywordHandler):
     @logistics_contact_and_permission_required(config.Operations.MAKE_TRANSFER)
     def handle(self, text):
         words = text.split(" ")
+        # need at least a keyword and 1 product + amount
+        if len(words) < 3: 
+            return self.help()
         hsa_id = words[0]
+        remainder = " ".join(words[1:])
         hsa = util.get_hsa(hsa_id)
         if hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:
-            # deduct from the sender, add to the receiver.
-            stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
-                                                Reports.GIVE, self.msg.logger_msg)
-            stock_report.parse(text)
-            stock_report.save()
-            if stock_report.errors:
-                # TODO: respond better.
-                self.respond(config.Messages.GENERIC_ERROR)
-            else:
-                transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
-                self.respond(config.Messages.TRANSFER_RESPONSE, 
-                             giver=self.msg.logistics_contact.name,
-                             receiver=hsa.name,
-                             products=stock_report.all())
-                hsa.message(config.Messages.TRANSFER_CONFIRM, 
-                            giver=self.msg.logistics_contact.name,
-                            products=stock_report.all())
-                
+            stock_report = create_stock_report(Reports.GIVE,  
+                                               self.msg.logistics_contact.supply_point,
+                                               remainder, 
+                                               self.msg.logger_msg)
+            transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
+            send_transfer_responses(self.msg, stock_report, transfers, self.msg.logistics_contact, hsa)

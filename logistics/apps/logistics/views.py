@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 import gviz_api
+from logistics.apps.logistics.const import Reports
 
 import settings
 from random import randint
@@ -21,7 +22,7 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
-    SupplyPoint
+    SupplyPoint, ProductReportType
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
@@ -119,6 +120,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
     if last_reports:
         context['last_reported'] = last_reports[0].report_date
+        last_reports = last_reports.filter(report_type=ProductReportType.objects.get(code=Reports.SOH))
         cols = {"date": ("datetime", "Date")}
         for s in stockonhands:
             cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
@@ -255,6 +257,7 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
                                                      producttype=commoditytype_filter)
         row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
+        row['adequate_supply_count'] = row['low_stock_count'] + row['good_supply_count']  
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         if commodity_filter is not None:

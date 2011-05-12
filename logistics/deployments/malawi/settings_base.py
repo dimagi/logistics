@@ -3,6 +3,7 @@
 
 APPS = [
     "auditcare",
+    "django.contrib.webdesign",
     "logistics.apps.malawi",
 ]
 
@@ -13,29 +14,22 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    #'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
+    ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics_dashboard",                    "Stock Levels"),
-    ("reporting",                              "Reporting Rates"),
-    #("input_stock",                          "Input Stock"),
+    ("logistics.apps.malawi.views.contacts",       "Places & People"),
+    #("reporting",                              "Reporting Rates"),
     ("registration",                          "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    #("rapidsms.contrib.messaging.views.messaging",          "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",          "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
-    #("ewsghana_reporting",                      "Usage"),
-    #("input_stock",                          "Input Stock"),
-    #("ewsghana_scheduled_reports",                         "Configuration"),
     #("email_reports",                              "Email Reports"),
-    ("help",                                      "Help"),
+    #("help",                                      "Help"),
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",         "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
 
@@ -50,31 +44,52 @@ RAPIDSMS_TABS = [
 # to configure it. see the documentation in those modules for a list of
 # the valid options for each.
 INSTALLED_BACKENDS = {
-#    "MTN": {
-#        "ENGINE": "rapidsms.backends.gsm",
-#        "PORT": "/dev/ttyUSB0",
-#        "baudrate":115200,
-#        "rtscts": 1
-#    },
-#    "end2end": {
-#        "ENGINE": "rapidsms.backends.http",
-#        "PORT": 8002,
-#        "HOST": localhost,
-#        "gateway_url" : "http://gw1.promessaging.com/sms.php",
-#        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
-#        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
-#    },
-    "smsgh": {
-        "ENGINE": "rapidsms.backends.smsgh_http",
-        "PORT": 8002,
-        "HOST": "localhost",
-        "gateway_url" : "http://localhost",
-        #"gateway_url" : "http://127.0.0.1:8080",
-        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
-        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
+    # zain modem (?)
+    "modem": {
+        "ENGINE": "logistics.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8002,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "zain-modem",
+                           "from": "+265992961466", # will be overridden; set for consistency
+                           "username": "rapidsms",
+                           "password": "CHANGEME"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
+    # tnm smpp (?)
+     "tnm-smpp": {
+        "ENGINE": "logistics.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8003,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "tnm-smpp",
+                           "from": "2222", # not set automatically by SMSC
+                           "username": "rapidsms",
+                           "password": "CHANGEME"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
+    },
+    # tester
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
+    },
+    # tester
+    "message_tester": {
+        "ENGINE": "rapidsms.backends.bucket",
+    },
+    # twilio
+    "twilio": {
+        "ENGINE": "rtwilio.backend",
+        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
+        'config': {
+            'account_sid': 'CHANGEME',
+            'auth_token': 'CHANGEME',
+            'number': '(###) ###-####',
+            'callback': 'http://cstock.dimagi.com/twilio/status-callback/', # optional callback URL
+        }
     },
 }
 
@@ -119,11 +134,15 @@ LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
 LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
+LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
+LOGISTICS_EXCEL_EXPORT_ENABLED = False
+LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
-LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
+LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
-BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 
 LOGISTICS_CONFIG = 'static.malawi.config'
