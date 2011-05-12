@@ -312,7 +312,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         }, context_instance=RequestContext(req)
     )
 
-@permission_required('logistics.add_commodity')
+@permission_required('logistics.add_product')
 @transaction.commit_on_success
 def commodity(req, pk=None, template="logistics/config.html"):
     form = None
