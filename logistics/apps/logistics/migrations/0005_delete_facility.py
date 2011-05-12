@@ -68,7 +68,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('logistics', ['StockTransfer'])
 
         # Adding field 'Product.average_monthly_consumption'
-        db.add_column('logistics_product', 'average_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True), keep_default=False)
+        db.add_column('logistics_product', 'average_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True, default=None), keep_default=False)
 
         # Deleting field 'ProductStock.monthly_consumption'
         db.delete_column('logistics_productstock', 'monthly_consumption')
