@@ -29,6 +29,13 @@ def send_transfer_responses(msg, stock_report, transfers, giver, to):
                    giver=giver.name,
                    products=stock_report.all())
     
+def _respond_empty(msg, contact, stock_report, supervisors):
+    for super in supervisors:
+        super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
+                      hsa=contact.name)
+    msg.respond(config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO,
+                products=" ".join(stock_report.reported_products()).strip(),
+                contact=contact.name)
 
 def send_soh_responses(msg, contact, stock_report, requests):
     if stock_report.errors:
@@ -40,18 +47,23 @@ def send_soh_responses(msg, contact, stock_report, requests):
                 (code__in=[config.Roles.IN_CHARGE, 
                            config.Roles.HSA_SUPERVISOR]), 
                            supply_point=contact.supply_point.supplied_by)
-        for super in supervisors:
-            super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
-                          hsa=contact.name,
-                          products=", ".join(req.sms_format() for req in requests),
-                          hsa_id=contact.supply_point.code)
-        if supervisors.count() > 0:
-            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        products=" ".join(stock_report.reported_products()).strip())
-        else:
-            msg.respond(config.Messages.NO_IN_CHARGE,
-                        supply_point=contact.supply_point.supplied_by.name)
         
+        if not requests:
+            _respond_empty(msg, contact, stock_report, supervisors)
+        else:
+            for super in supervisors:
+                super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
+                              hsa=contact.name,
+                              products=", ".join(req.sms_format() for req in requests),
+                              hsa_id=contact.supply_point.code)
+            if supervisors.count() > 0:
+                
+                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+                            products=" ".join(stock_report.reported_products()).strip())
+            else:
+                msg.respond(config.Messages.NO_IN_CHARGE,
+                            supply_point=contact.supply_point.supplied_by.name)
+            
     
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:

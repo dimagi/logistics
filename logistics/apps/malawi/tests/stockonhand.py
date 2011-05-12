@@ -74,6 +74,19 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 400)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
         
+    def testNothingToFill(self):
+        self._setup_users()[0:3]
+        a = """
+            16175551000 > soh zi 2000 la 5000
+            16175551000 < %(response)s
+            16175551001 < %(super)s
+        """ % {"response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % \
+               {"contact": "wendy", "products": "zi la"},
+               "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % \
+               {"hsa": "wendy"}}
+        self.runScript(a)
+        self.assertEqual(0, StockRequest.objects.count())
+        
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
         

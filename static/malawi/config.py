@@ -91,7 +91,9 @@ class Messages(object):
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
+    SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to filled. You do not need to do anything."
     SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will get a message when products are ready." 
+    SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
     
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
