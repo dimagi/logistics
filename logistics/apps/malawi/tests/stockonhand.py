@@ -18,8 +18,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
         
     def testBasicSupplyFlow(self):
-        hsa, ic = self._setup_users()[0:2]
-        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 390, la 705")
         
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -77,7 +77,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
         
-        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 390, la 705")
         
         a = """
            16175551001 > os 261601
@@ -171,7 +171,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")
+        sh = create_manager(self, "16175551004", "robert", config.Roles.HSA_SUPERVISOR)
         im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
         dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
-        return (hsa, ic, im, dp) 
+        return (hsa, ic, sh, im, dp) 
         

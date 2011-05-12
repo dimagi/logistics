@@ -35,8 +35,11 @@ def send_soh_responses(msg, contact, stock_report, requests):
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        supervisors = Contact.objects.filter(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
-                                             supply_point=contact.supply_point.supplied_by)
+        supervisors = Contact.objects.filter\
+            (role__in=ContactRole.objects.filter\
+                (code__in=[config.Roles.IN_CHARGE, 
+                           config.Roles.HSA_SUPERVISOR]), 
+                           supply_point=contact.supply_point.supplied_by)
         for super in supervisors:
             super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
                           hsa=contact.name,

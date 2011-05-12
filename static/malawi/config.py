@@ -9,17 +9,15 @@ class Roles(object):
     Roles go here
     """
     HSA = HSA
-    SENIOR_HSA = "sh"
+    HSA_SUPERVISOR = "sh"
     IN_CHARGE = "ic"
-    CLUSTER_SUPERVISOR = "cs"
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
     ALL_ROLES = {
         HSA: "hsa",
-        SENIOR_HSA: "senior hsa",
+        HSA_SUPERVISOR: "hsa supervisor",
         IN_CHARGE: "in charge",
-        CLUSTER_SUPERVISOR: "cluster supervisor",
         DISTRICT_SUPERVISOR: "district supervisor",
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
@@ -45,7 +43,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.REPORT_STOCK:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.FILL_ORDER:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     if operation == Operations.MAKE_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.CONFIRM_TRANSFER:
