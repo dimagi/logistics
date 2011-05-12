@@ -150,7 +150,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
 @geography_context
 @filter_context
-def district(request, location_code, context={}, template="logistics/aggregate.html"):
+def stockonhand_facilities(request, location_code, context={}, template="logistics/aggregate.html"):
     """
     The district view is unusual. When we do not receive a filter by individual product,
     we show the aggregate report. When we do receive a filter by individual product, we show
@@ -158,7 +158,7 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
     """
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location=location)
+    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location__parent_id=location.pk)
     commodity_filter = None
     commoditytype_filter = None
     if request.method == "POST" or request.method == "GET":
@@ -201,6 +201,9 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
     # a stock on hand request. Otherwise treat it like an aggregate.
     if location.children().count() == 0 and location.facilities().count() == 1:
         return stockonhand_facility(request, location_code)
+    if 'commodity' in request.REQUEST and \
+      Location.objects.filter(parent_id=location.pk).count() > 1:
+        return stockonhand_facilities(request, location_code, context=context)
     return aggregate(request, location_code )
 
 @geography_context
