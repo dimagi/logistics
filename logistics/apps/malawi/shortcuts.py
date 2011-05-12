@@ -47,7 +47,7 @@ def send_soh_responses(msg, contact, stock_report, requests):
                           hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
             msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        contact=msg.logistics_contact.name)
+                        products=" ".join(stock_report.reported_products()).strip())
         else:
             msg.respond(config.Messages.NO_IN_CHARGE,
                         supply_point=contact.supply_point.supplied_by.name)
@@ -78,7 +78,7 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                                    hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
             msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        contact=msg.logistics_contact.name)
+                        products=" ".join(stock_report.reported_products()).strip())
         else:
             # TODO: this message should probably be cleaned up
             msg.respond(config.Messages.NO_IN_CHARGE,

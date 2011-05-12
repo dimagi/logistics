@@ -1,7 +1,8 @@
 from logistics.apps.logistics.util import config
 from logistics.apps.logistics.models import SupplyPoint, ContactRole,\
-    StockRequest
+    StockRequest, ProductReportsHelper
 from rapidsms.models import Contact
+from logistics.apps.logistics.const import Reports
 
 
 def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
@@ -36,6 +37,10 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
     """
     Reports stock. 
     """
+    
+    stock_report = ProductReportsHelper(Reports.SOH)
+    stock_report.parse(product_string)
+    product_list = " ".join(stock_report.reported_products()).strip()
     manager_msgs = []
     if managers:
         
@@ -54,7 +59,7 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
            %(manager_msgs)s
         """ % {"phone": hsa.default_connection.identity, 
                "products": product_string, 
-               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": hsa.name},
+               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"products": product_list},
                "manager_msgs": "".join(manager_msgs)}
     test_class.runScript(a)
     

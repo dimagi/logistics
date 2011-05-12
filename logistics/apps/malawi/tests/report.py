@@ -66,7 +66,7 @@ class TestReport(MalawiTestBase):
            16175551000 < %(response)s
            16175551234 < %(super)s
         """ % {"response": config.Messages.SOH_ORDER_CONFIRM % \
-               {"contact": "joe"},
+               {"contact": "joe", "products": "zi la"},
                "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
                {"hsa": "phoneless", "products": "zi 360, la 520",
                 "hsa_id": "261602"}}
@@ -90,7 +90,7 @@ class TestReport(MalawiTestBase):
            16175551000 < %(response)s
            16175551234 < %(super)s
         """ % {"response": config.Messages.SOH_ORDER_CONFIRM % \
-               {"contact": "joe"},
+               {"contact": "joe", "products": "zi la"},
                "super": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % \
                {"hsa": "phoneless", "emergency_products": "zi 360",
                 "normal_products": "la 520",

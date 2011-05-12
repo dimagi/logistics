@@ -111,7 +111,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 10 la 500
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -153,7 +153,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 400 la 500
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: none, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         
@@ -163,7 +163,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 400, la 720. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         
