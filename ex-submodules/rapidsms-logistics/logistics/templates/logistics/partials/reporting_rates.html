@@ -3,40 +3,11 @@
     Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
 </h2>
 {% include "logistics/partials/pie_reporting.html" %}
+{% if excel_export %}
 <div class="toolbar">
     <a href="{% url export_reporting %}" class="add">{% trans "Export to Excel" %}</a>
 </div>
+{% endif %}
 <div id="report-content">
-<table class="{{table_class|default:"major_table"}}">
-    <thead><tr>
-        <th width=70%>NON-REPORTING FACILITIES</th>
-        <th>Last Message Received</th>
-    </thead></tr><tbody>
-        {% if late_facilities %}
-        {% for late_facility in late_facilities %}
-            <tr>
-            <td>{{ late_facility.name }}</td>
-            <td>{{ late_facility.last_reported|date:"M d, h:m A"|default:"never" }}</td></tr>
-        {% endfor %}
-        {% else %}
-            <tr><td colspan="2">{%  trans "No facilities reported late" %}</td></tr>
-        {% endif %}
-    </tbody>
-</table>
-<table class="{{table_class|default:"major_table"}}">
-    <thead><tr>
-        <th width=70%>On-Time Facilities</th>
-        <th>Last Message Received</th>
-    </thead></tr><tbody>
-        {% if on_time_facilities %}
-        {% for on_time_facility in on_time_facilities %}
-            <tr>
-            <td>{{ on_time_facility.name }}</td>
-            <td>{{ on_time_facility.last_reported|date:"M d, h:i A"|default:"never" }}</td></tr>
-        {% endfor %}
-        {% else %}
-            <tr><td colspan="2">{%  trans "No facilities reported on time" %}</td></tr>
-        {% endif %}
-    </tbody>
-</table>
+{% include "logistics/partials/table_reporting.html" %}
 </div>
