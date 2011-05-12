@@ -27,6 +27,7 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+    REPORT_RECEIPT = "report_receipt"
     ADD_PRODUCT = "add_product"
     REMOVE_PRODUCT = "remove_product"
 

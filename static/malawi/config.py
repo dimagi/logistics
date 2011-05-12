@@ -29,6 +29,7 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+    REPORT_RECEIPT = "report_receipt"
     ADD_PRODUCT = "add_product"
     REMOVE_PRODUCT = "remove_product"
     ADD_USER = "add_user"
@@ -41,6 +42,10 @@ def has_permissions_to(contact, operation):
     if not contact.is_active:
         return False
     if operation == Operations.REPORT_STOCK:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.REPORT_RECEIPT:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.FILL_ORDER:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
