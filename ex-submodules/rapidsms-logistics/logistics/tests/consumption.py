@@ -2,12 +2,10 @@ from datetime import timedelta
 from logistics.apps.logistics.const import Reports
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics import app as logistics_app
 from logistics.apps.logistics.models import Location, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
 from logistics.apps.logistics.models import SupplyPoint as Facility
 
 class TestConsumption (TestScript):
-    apps = ([logistics_app.App])
     fixtures = ["ghana_initial_data.json"]
 
     def testConsumption(self):
