@@ -1,96 +1,29 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        # 1 LogisticsProfile
-        db.delete_column('logistics_logisticsprofile', 'facility_id')
-        # 2 rapidsms.Contact
-        db.delete_column('rapidsms_contact', 'facility_id')
-        # 3 productreport
-        db.delete_column('logistics_productreport', 'facility_id')
-        # 4 requisition report
-        db.delete_column('logistics_requisitionreport', 'facility_id')
-        # 5 stocktransaction
-        db.delete_column('logistics_stocktransaction', 'facility_id')
-        # 6 productstock
-        db.delete_column('logistics_productstock', 'facility_id')
-
-        db.delete_table('logistics_facility')
-        db.delete_table('logistics_facilitytype')
-
-        # Adding model 'StockRequest'
-        db.create_table('logistics_stockrequest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Product'])),
-            ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=20)),
-            ('response_status', self.gf('django.db.models.fields.CharField')(max_length=20, blank=True)),
-            ('is_emergency', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('requested_on', self.gf('django.db.models.fields.DateTimeField')()),
-            ('responded_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('received_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('requested_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='requested_by', null=True, to=orm['rapidsms.Contact'])),
-            ('responded_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='responded_by', null=True, to=orm['rapidsms.Contact'])),
-            ('received_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='received_by', null=True, to=orm['rapidsms.Contact'])),
-            ('amount_requested', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('amount_approved', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('amount_received', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('canceled_for', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.StockRequest'], null=True)),
-        ))
-        db.send_create_signal('logistics', ['StockRequest'])
-
-        # Adding model 'NagRecord'
-        db.create_table('logistics_nagrecord', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
-            ('report_date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.utcnow)),
-            ('warning', self.gf('django.db.models.fields.IntegerField')(default=1)),
-        ))
-        db.send_create_signal('logistics', ['NagRecord'])
-
-        # Adding model 'StockTransfer'
-        db.create_table('logistics_stocktransfer', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('giver', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='giver', null=True, to=orm['logistics.SupplyPoint'])),
-            ('giver_unknown', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
-            ('receiver', self.gf('django.db.models.fields.related.ForeignKey')(related_name='receiver', to=orm['logistics.SupplyPoint'])),
-            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Product'])),
-            ('amount', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=10)),
-            ('initiated_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('closed_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('logistics', ['StockTransfer'])
-
-        # Adding field 'Product.average_monthly_consumption'
-        db.add_column('logistics_product', 'average_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True), keep_default=False)
-
-        # Deleting field 'ProductStock.monthly_consumption'
-        db.delete_column('logistics_productstock', 'monthly_consumption')
-
-        # Adding unique constraint on 'ProductStock', fields ['supply_point', 'product']
-        db.create_unique('logistics_productstock', ['supply_point_id', 'product_id'])
+        # create/load static types    
+        country_type = orm['locations.LocationType'].objects.get_or_create(slug="country", name="country")[0]
+        facility_type = orm['locations.LocationType'].objects.get_or_create(slug="facility", name="facility")[0]
+        for f in orm.SupplyPoint.objects.all().order_by('pk'):
+            parent = f.location
+            l = orm['locations.Location'](name = f.name, 
+                                          parent_id = parent.pk, 
+                                          parent_type = orm['contenttypes.ContentType'].objects.get(name='location'), 
+                                          is_active = True, 
+                                          code = f.code, 
+                                          type = facility_type)
+            l.save()
+            f.location = l
+            f.save()
 
     def backwards(self, orm):
-        # Removing unique constraint on 'ProductStock', fields ['supply_point', 'product']
-        db.delete_unique('logistics_productstock', ['supply_point_id', 'product_id'])
-
-        # Deleting model 'StockRequest'
-        db.delete_table('logistics_stockrequest')
-
-        # Deleting model 'NagRecord'
-        db.delete_table('logistics_nagrecord')
-
-        # Deleting model 'StockTransfer'
-        db.delete_table('logistics_stocktransfer')
-
-        # Adding field 'ProductStock.monthly_consumption'
-        db.add_column('logistics_productstock', 'monthly_consumption', self.gf('django.db.models.fields.IntegerField')(default=None, null=True, blank=True), keep_default=False)
+        raise RuntimeError("Cannot reverse this migration.")
 
     models = {
         'auth.group': {
@@ -158,15 +91,11 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'responsibilities': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['logistics.Responsibility']", 'null': 'True', 'blank': 'True'})
         },
-        'logistics.facility': {
-            'Meta': {'object_name': 'Facility', '_ormbases': ['logistics.SupplyPoint']},
-            'supplypoint_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['logistics.SupplyPoint']", 'unique': 'True', 'primary_key': 'True'})
-        },
         'logistics.logisticsprofile': {
             'Meta': {'object_name': 'LogisticsProfile'},
-            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
         },
         'logistics.nagrecord': {
