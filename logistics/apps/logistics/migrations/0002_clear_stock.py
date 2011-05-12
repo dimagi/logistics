@@ -18,7 +18,6 @@ class Migration(DataMigration):
         # Adding field 'ProductStock.use_auto_consumption'
         db.add_column('logistics_productstock', 'use_auto_consumption', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
-
         # Clean start on everything stock related
         db.clear_table('logistics_productreport')
         db.clear_table('logistics_requisitionreport')
