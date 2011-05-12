@@ -758,14 +758,14 @@ class SupplyPoint(models.Model):
         return ps.is_active
 
     def activate_product(self, product):
-        ps = ProductStock.objects.get(supply_point=self, product=product)
-        if ps.is_active == False:
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if not ps.is_active:
             ps.is_active = True
             ps.save()
 
     def deactivate_product(self, product):
-        ps = ProductStock.objects.get(supply_point=self, product=product)
-        if ps.is_active == True:
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if ps.is_active:
             ps.is_active = False
             ps.save()
 
