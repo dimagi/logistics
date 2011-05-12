@@ -9,8 +9,9 @@ class Migration(DataMigration):
     def forwards(self, orm):
         # create/load static types    
         country_type = orm['locations.LocationType'].objects.get_or_create(slug="country", name="country")[0]
+        district_type = orm['locations.LocationType'].objects.get_or_create(slug="district", name="district")[0]
         facility_type = orm['locations.LocationType'].objects.get_or_create(slug="facility", name="facility")[0]
-        for f in orm.SupplyPoint.objects.all().order_by('pk'):
+        for f in orm.SupplyPoint.objects.all().exclude(location__type=district_type).order_by('pk'):
             parent = f.location
             l = orm['locations.Location'](name = f.name, 
                                           parent_id = parent.pk, 

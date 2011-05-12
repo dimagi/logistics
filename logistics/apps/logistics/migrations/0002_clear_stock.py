@@ -23,7 +23,7 @@ class Migration(DataMigration):
         db.clear_table('logistics_requisitionreport')
         db.clear_table('logistics_stocktransaction')
         # we need to persist productstock: specifically, 'consumption'
-        db.clear_table('logistics_productstock')
+        # db.clear_table('logistics_productstock')
 
         # Adding model 'SupplyPointType'
         db.create_table('logistics_supplypointtype', (
