@@ -194,6 +194,7 @@ COUCHDB_APPS=['auditcare','couchlog']
 #try to see if there's an environmental variable set for local_settings
 
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
+LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 DEBUG=True

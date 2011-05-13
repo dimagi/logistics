@@ -129,6 +129,7 @@ STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(o
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
+LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
 LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2

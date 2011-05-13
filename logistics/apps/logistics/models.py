@@ -155,7 +155,11 @@ class ProductStock(models.Model):
 
     @property
     def emergency_reorder_level(self):
-        if self.monthly_consumption is not None:
+        # if you use static levels you only get the product's data or nothing
+        if settings.LOGISTICS_USE_STATIC_EMERGENCY_LEVELS:
+            return self.product.emergency_order_level
+        
+        elif self.monthly_consumption is not None:
             return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
         return None
 
