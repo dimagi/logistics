@@ -19,7 +19,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         
     def testBasicSupplyFlow(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 390, la 705")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
         
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -57,7 +57,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 15)
         
         c = """
-           16175551000 > rec zi 390 la 705
+           16175551000 > rec zi 190 la 345
            16175551000 < Thank you, you reported receipts for zi la.
         """
         self.runScript(c)
@@ -71,8 +71,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
             self.assertTrue(req.received_on > req.responded_on > req.requested_on)
         
         # stocks should now be updated
-        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 400)
-        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)
+        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 360)
         
     def testNothingToFill(self):
         self._setup_users()[0:3]
@@ -90,7 +90,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
         
-        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 390, la 705")
+        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 190, la 345")
         
         a = """
            16175551001 > os 261601
@@ -121,9 +121,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testEmergencyStockOnHand(self):
         self._setup_users()
         a = """
-           16175551000 > eo zi 10 la 500
+           16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
+           16175551001 < wendy needs emergency products: zi 190, and additionally: la 60. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
@@ -141,7 +141,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
-        self.assertEqual(la.quantity, 500)
+        self.assertEqual(la.quantity, 300)
     
     def testEmergencyStockOut(self):
         self.testEmergencyStockOnHand()
@@ -163,9 +163,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testEmergencyOrderNoProductsInEmergency(self):
         self._setup_users()
         a = """
-           16175551000 > eo zi 400 la 500
+           16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: none, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
+           16175551001 < wendy needs emergency products: none, and additionally: la 160. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
@@ -175,7 +175,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 400, la 720. Respond 'ready 261601' or 'os 261601'
+           16175551001 < wendy needs emergency products: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
