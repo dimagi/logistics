@@ -70,6 +70,7 @@ class Product(models.Model):
     # medical facilities later
     product_code = models.CharField(max_length=100, null=True, blank=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
+    emergency_order_level = PositiveIntegerField(null=True, blank=True)
     type = models.ForeignKey('ProductType')
 
     def __unicode__(self):
