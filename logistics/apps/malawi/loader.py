@@ -49,6 +49,12 @@ def load_products(file_path, log_to_console=True):
     if not os.path.exists(file_path):
         raise LoaderException("Invalid file path: %s." % file_path)
     
+    def _int_or_nothing(val):
+        try:
+            return int(val)
+        except ValueError:
+            return None
+        
     csv_file = open(file_path, 'r')
     try:
         count = 0
@@ -68,7 +74,8 @@ def load_products(file_path, log_to_console=True):
             product.name = name
             product.description = name # todo
             product.type = type
-            product.average_monthly_consumption = int(monthly_consumption) if monthly_consumption else None
+            product.average_monthly_consumption = _int_or_nothing(monthly_consumption)
+            product.emergency_order_level = _int_or_nothing(eop_quant)
             product.save()
             
             count += 1
