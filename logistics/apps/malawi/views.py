@@ -1,10 +1,11 @@
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable
+from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
+    MalawiProductTable
 from logistics.apps.registration.tables import ContactTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.apps.logistics.models import SupplyPoint, Product
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 
@@ -34,6 +35,13 @@ def contacts(request):
     return render_to_response("malawi/contacts.html",
         {
             "contacts_table": MalawiContactTable(Contact.objects, request=request)
+        }, context_instance=RequestContext(request)
+    )
+    
+def products(request):
+    return render_to_response("malawi/products.html",
+        {
+            "product_table": MalawiProductTable(Product.objects, request=request)
         }, context_instance=RequestContext(request)
     )
     

@@ -14,4 +14,7 @@ urlpatterns = patterns('',
     url(r'^contacts/$',
         "logistics.apps.malawi.views.contacts",
         name="malawi_contacts"),
+    url(r'^products/$',
+        "logistics.apps.malawi.views.products",
+        name="malawi_products"),
 )

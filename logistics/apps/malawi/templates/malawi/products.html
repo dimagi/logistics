@@ -1,0 +1,8 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Products - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h2>All Products</h2>
+    {{ product_table.as_html }}
+</div>
+{% endblock %}

@@ -35,3 +35,13 @@ class MalawiLocationTable(Table):
     
     class Meta:
         order_by = 'type'
+
+class MalawiProductTable(Table):
+    name = Column()
+    sms_code = Column()
+    average_monthly_consumption = Column()
+    emergency_order_level = Column()
+    type = Column()
+    
+    class Meta:
+        order_by = 'name'
