@@ -54,9 +54,10 @@ def load_products(file_path, log_to_console=True):
         count = 0
         for line in csv_file:
             # leave out first line
-            if "monthly consumption" in line.lower():
+            if "product name" in line.lower():
                 continue
-            name, code, monthly_consumption, typename, form, eop_quant = line.split(",")
+            #Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,
+            name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats = line.strip().split(",")
             #create/load type
             type = ProductType.objects.get_or_create(name=typename, code=typename.lower())[0]
             

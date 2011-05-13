@@ -1,21 +1,21 @@
-Product Name,Code,Average Monthly Consumption,Family,Formulation,EOP Quantity
-LA 1 x 6,LA,360,CCM,Tablet,36
-LA 2 x 6,LB,720,CCM,Tablet,72
-Paracetamol 500mg,PA,500,CCM,Tablet,36
-ORS,OR,50,CCM,Sachet,12
-Cotrimoxazole 480mg,CO,500,CCM,Tablet,60
-Zinc 20mg,ZI,200,CCM,Tablet,60
-Tetracycline Eye Ointment,TE,,CCM,Tube,6
-DMPA,DM,,CCM,Vial,6
-Combined Low Oestegen,CL,,CCM,Cycle,6
-Progestogen only,PO,,CCM,Cycle,6
-Condom-Male,CM,,CCM,Piece,100
-Condom-Female,CF,,CCM,Piece,100
-Determine HIV,DE,,CCM,Test,6
-Unigold,UN,,CCM,Test,6
-Bioline,BI,,CCM,Test,6
-Gloves,GL,,CCM,Piece,20
-Cotton Wool,CW,,CCM,Piece,1
-Pills' bags,PB,,CCM,Piece,20
-Surgical spirit,SS,,CCM,1 ltr bottle,1
-Lancets,LC,,CCM,Piece,1000
+Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month
+LA 1 x 6,LA,6,180,CCM,Tablet,36,30
+LA 2 x 6,LB,12,96,CCM,Tablet,48,4
+Paracetamol 500mg,PA,6,240,CCM,Tablet,36,40
+ORS,OR,2,20,CCM,Sachet,12,10
+Cotrimoxazole 480mg,CO,10,220,CCM,Tablet,60,22
+Zinc 20mg,ZI,10,100,CCM,Tablet,60,10
+Tetracycline Eye Ointment,TE,1,2,CCM,Tube,n/a,2
+DMPA,DM,1,,CCM,Vial,6,
+Combined Low Oestrogen,CL,,,CCM,Cycle,n/a,
+Progestogen only,PO,,,CCM,Cycle,n/a,
+Condom-Male,CM,,100,CCM,Piece,20,
+Condom-Female,CF,,100,CCM,Piece,20,
+Determine HIV,DE,,30,CCM,Test,6,
+Unigold,UN,,30,CCM,Test,6,
+Bioline,BI,,,CCM,Test,n/a,
+Gloves,GL,,,CCM,Piece,n/a,
+Cotton Wool,CW,,,CCM,Piece,n/a,
+Pills' bags,PB,,,CCM,Piece,n/a,
+Surgical spirit,SS,,,CCM,1 ltr bottle,n/a,
+Lancets,LC,,,CCM,Piece,n/a,
