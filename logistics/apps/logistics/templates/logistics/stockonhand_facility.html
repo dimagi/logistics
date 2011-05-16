@@ -19,19 +19,28 @@
 
 {% block content %}
     <div class="module">
+        <div class="topbar noprint">
+        <div class="topbar-left">
         {% include "logistics/partials/accordion_nav.html" %}
+        </div>
+        <div class="topbar-right">
+                <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+            </div>
+        </div>
         <div id="main">
+
         <h2 id="report-title">Stock for {{ facility.name }}</h2>
+
         {% if stockonhands %}
             {% if excel_export %}
-				<div class="toolbar">
+				<div class="toolbar noprint">
 				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
 				</div>
 		    {% endif %}
                 <div id="report-content">
-                
+
                 {% if raw_data %}
-                <div id="chart_div"></div>
+                <div id="chart_div" class="noprint"></div>
                 {% endif %}
                 
                 <br />
@@ -72,10 +81,10 @@
                 </div>
                 <br/>
                 {% ifequal request.user.get_profile.facility facility %}
-                <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
                 {% else %}
 	                {% if request.user.is_superuser %}
-	                <a href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+	                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
 	                {% endif %}
                 {% endifequal %}
                 {% if last_reported %}
