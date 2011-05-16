@@ -11,7 +11,7 @@
 	      function drawChart() {
 	        {{ raw_data|safe }}
 	        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
-	        chart.draw(raw_data, {legendPosition:"newRow", displayRangeSelector:false});
+	        chart.draw(raw_data, {legendPosition:"newRow", displayRangeSelector:false, wmode:"transparent"});
 	      }
 	    </script>
 {% endif %}
