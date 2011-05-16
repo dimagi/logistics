@@ -102,11 +102,9 @@ def generate_report(hsa, date=datetime.utcnow()):
 
 
 def generate_activity(hsa):
-    for i in xrange(1, randint(1, MAX_REPORTS_PER_HSA)):
-        dates = datetime.utcnow() - timedelta(days=randint(3,DAYS_OF_DATA))
-
-
-        generate_report(hsa, datetime.utcnow()-)
+    dates = [datetime.utcnow() - timedelta(days=randint(3,DAYS_OF_DATA)) for d in xrange(1,randint(1, MAX_REPORTS_PER_HSA))]
+    for d in dates:
+        generate_report(hsa, d)
 
 def generate():
     hsas = generate_hsas()
