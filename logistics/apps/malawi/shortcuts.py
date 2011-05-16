@@ -1,4 +1,5 @@
-from logistics.apps.logistics.models import ProductReportsHelper, ContactRole
+from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
+    StockRequest, StockRequestStatus
 from logistics.apps.logistics.util import config
 from rapidsms.models import Contact
 
@@ -54,10 +55,12 @@ def send_soh_responses(msg, contact, stock_report, requests):
             for super in supervisors:
                 super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
                               hsa=contact.name,
-                              products=", ".join(req.sms_format() for req in requests),
+                              products=", ".join(req.sms_format() for req in \
+                                                 StockRequest.objects.filter(\
+                                                    supply_point=stock_report.supply_point,
+                                                    status=StockRequestStatus.REQUESTED)),
                               hsa_id=contact.supply_point.code)
             if supervisors.count() > 0:
-                
                 msg.respond(config.Messages.SOH_ORDER_CONFIRM,
                             products=" ".join(stock_report.reported_products()).strip())
             else:

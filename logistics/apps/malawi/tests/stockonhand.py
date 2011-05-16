@@ -74,6 +74,30 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 360)
         
+    def testAppendStockOnHand(self):
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, StockRequest.objects.count())
+        report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "la 345, lb 172, zi 195")
+        self.assertEqual(4, StockRequest.objects.count())
+        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
+        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        b = """
+           16175551001 > ready 261601
+           16175551001 < %(confirm)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
+                    {"hsa": "wendy", "products": "la, lb, zi"},
+               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"hsa": "wendy", "products": "la, lb, zi"}}
+        self.runScript(b)
+        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
+        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        
+
+        
+        
+        
     def testNothingToFill(self):
         self._setup_users()[0:3]
         a = """
