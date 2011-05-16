@@ -202,11 +202,26 @@ a.trigger.open {
 
 #locationselect {
     display:block;
-    padding: 5px;
+    padding:8px;
     padding-left: 20px;
     cursor: pointer;
     background-image: url(../images/plus.png);
     background-position: 1px 50%;
     background-repeat: no-repeat;
 
+}
+
+.topbar {
+    display:block;
+    height:1em;
+}
+
+.topbar-left {
+    float:left;
+    /*padding:8px;*/
+}
+
+.topbar-right {
+    float:right;
+    padding:8px;
 }
