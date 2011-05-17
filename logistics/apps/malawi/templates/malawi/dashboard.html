@@ -1,19 +1,14 @@
 {% extends base_template %}
 {% load i18n %}
 {% load webdesign %} 
+{% load alerts_tags %} 
 {% block content %}
 <div class="warning">
 NOTE: The dashboard is still under construction. This is a temporary placeholder
 </div>
 <div class="module">
     <h2>{% trans 'Alerts' %}</h2>
-    <div class="scrollable" style="height:200px;overflow:auto;">
-        <ul class="alerts">
-            {% for dummychar in "abcdefghijkl" %}
-            <li class="alert error">{% lorem 20 w random %}</li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% alerts %}
 </div>
 <div class="two-columns module" id="small-left">
     <div class="col-1">

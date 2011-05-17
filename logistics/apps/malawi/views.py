@@ -15,6 +15,7 @@ def dashboard(request, days=30):
     base_facilites = SupplyPoint.objects.filter(type__code="hsa")
     late_facilities = base_facilites.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
     on_time_facilities = base_facilites.filter(last_reported__gte=since).order_by('-last_reported','name')
+    
     return render_to_response("malawi/dashboard.html", 
                               {"late_facilities": late_facilities,
                                "on_time_facilities": on_time_facilities,

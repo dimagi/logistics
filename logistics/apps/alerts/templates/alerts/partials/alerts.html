@@ -1,0 +1,7 @@
+<div id="alertpane" class="scrollable">
+    <ul class="alerts">
+{% for alert in alerts %}
+        <li class="alert error">{% if alert.url %}<a href="{{ alert.url }}">{% endif %}{{ alert.text }}{% if alert.url %}</a>{% endif %}</li>
+{% endfor %}
+    </ul>
+</div>

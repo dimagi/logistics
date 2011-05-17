@@ -32,6 +32,10 @@
     border: 1px solid #aaa;
 }
 	
+#alertpane {
+    height:200px;
+    overflow:auto;	
+}
 ul.alerts {
 	list-style-type: none;
     margin: 0em;
@@ -48,3 +52,4 @@ li.alert {
 .error {background:#FBE3E4;color:#8a1f11;border-color:#FBC2C4;}
 .notice, .warning {background:#FFF6BF;color:#514721;border-color:#FFD324;}
 .success {background:#E6EFC2;color:#264409;border-color:#C6D880;}
+

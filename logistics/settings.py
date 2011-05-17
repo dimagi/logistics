@@ -45,6 +45,7 @@ BASE_APPS = [
     "rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
+    "logistics.apps.alerts",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
@@ -197,6 +198,8 @@ LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
+
 DEBUG=True
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
