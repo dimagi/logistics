@@ -147,4 +147,7 @@ BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 
 LOGISTICS_CONFIG = 'static.malawi.config'
 
-LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
+LOGISTICS_ALERT_GENERATORS = [
+    #'logistics.apps.alerts.alerts.empty', 
+    'logistics.apps.malawi.alerts.late_reporting_receipt'
+]
