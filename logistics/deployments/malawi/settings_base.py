@@ -149,5 +149,6 @@ LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
     #'logistics.apps.alerts.alerts.empty', 
-    'logistics.apps.malawi.alerts.late_reporting_receipt'
+    'logistics.apps.malawi.alerts.late_reporting_receipt',
+    'logistics.apps.malawi.alerts.hsas_no_supervision'
 ]

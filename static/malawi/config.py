@@ -22,6 +22,8 @@ class Roles(object):
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
     }
+    SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
+    
 
 class Operations(object):
     FILL_ORDER = "fill"
