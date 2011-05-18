@@ -9,6 +9,7 @@ from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
+from logistics.apps.logistics.views import get_location_children
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
@@ -17,6 +18,14 @@ def _r_2_s_helper(template, dict):
     dict.update(custom_settings(None))
     return render_to_string(template, dict)
     
+@register.simple_tag
+def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
+    context = { "location": location, 
+                "commodity_filter": commodity_filter,
+                "commoditytype_filter": commoditytype_filter }
+    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter)
+    return _r_2_s_helper("logistics/partials/aggregate_table.html", context)
+
 @register.simple_tag
 def reporting_rates(locations, type=None, days=30):
     # with a list of locations - display reporting
