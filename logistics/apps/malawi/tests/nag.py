@@ -55,7 +55,6 @@ class TestNag(MalawiTestBase):
         self.assertEqual(0, len(get_non_reporting_hsas(last_month)))
         self.assertEqual(1, len(get_non_reporting_hsas(datetime.utcnow())))
 
-
     def _setup_users(self):
         create_manager(self, "16175551001", "sally")
         return create_hsa(self, "16175551000", "wendy")

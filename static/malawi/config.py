@@ -149,6 +149,12 @@ class Messages(object):
     HSA_NAG_THIRD = "Dear %(hsa)s, you must report your stock on hand.  Your supervisor has been notified. " + SOH_HELP_MESSAGE
     HSA_SUPERVISOR_NAG = "%(hsa)s has failed to report their stock on hand this month."
 
+    HSA_RECEIPT_NAG_FIRST = "Dear %(hsa)s, please pick up your products. If you've already done so, text 'rec [code] [amount] [code] [amount]...''"
+    HSA_RECEIPT_NAG_SECOND = "Dear %(hsa)s, you must confirm receipt of your products. Please do so immediately. Your supervisor has been notified."
+    HSA_RECEIPT_NAG_THIRD = "Dear %(hsa)s, you have still not confirmed receipt of your products. Your supervisor has been notified."
+    HSA_RECEIPT_SUPERVISOR_NAG = "%(hsa)s has a fulfilled stock request they have not yet picked up."
+
+
     # create user
 
     # boot user
