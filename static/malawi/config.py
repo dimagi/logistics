@@ -99,7 +99,7 @@ class Messages(object):
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
     SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
-    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will get a message when products are ready." 
+    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready." 
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
     
     # "rec" keyword (receipts)
@@ -112,9 +112,9 @@ class Messages(object):
     
     # "OS" keyword
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
-    STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. The health center and district office have been notified."
-    STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. Please work with the in-charge to resolve this issue in a timely manner."
-    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s."
+    STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
+    STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. The HSA supervisor will work with District to resolve this issue in a timely manner."
+    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s. Please work with the HSA Supervisor to resolve this issue."
     
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
