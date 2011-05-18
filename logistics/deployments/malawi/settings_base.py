@@ -23,6 +23,7 @@ RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics_dashboard",                    "Stock Levels"),
     ("logistics.apps.malawi.views.contacts",       "Management"),
+    ("logistics.apps.malawi.views.hsas",       "HSAs"),
     #("reporting",                              "Reporting Rates"),
     ("registration",                          "Registration"),
     #("email_reports",                              "Email Reports"),

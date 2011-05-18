@@ -1,7 +1,7 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
-    MalawiProductTable
+    MalawiProductTable, HSATable
 from logistics.apps.registration.tables import ContactTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
@@ -45,4 +45,41 @@ def products(request):
             "product_table": MalawiProductTable(Product.objects, request=request)
         }, context_instance=RequestContext(request)
     )
+
+def hsas(request):
+    location = None
+    hsas = Contact.objects.filter(role__code="hsa")
+    code = request.GET.get("place", None)
+    
+    if code:
+        location = Location.objects.get(code=code)
+        # support up to 3 levels of parentage. this covers
+        # hsa->facility-> district, which is all we allow you to select
+        hsas = hsas.filter(Q(supply_point__location=location) | \
+                           Q(supply_point__supplied_by__location=location) | \
+                           Q(supply_point__supplied_by__supplied_by__location=location))
+    
+    districts = Location.objects.filter(type__slug="district").order_by("id")
+    facilities = Location.objects.filter(type__slug="facility").order_by("parent_id")
+    
+    hsa_table = HSATable(hsas, request=request)
+    return render_to_response("malawi/hsas.html",
+        {
+            "hsas": hsas,
+            "hsa_table": hsa_table,
+            "location": location,
+            "districts": districts,
+            "facilities": facilities
+        }, context_instance=RequestContext(request)
+    )
+    
+def hsa(request, pk):
+    hsa = get_object_or_404(Contact, pk=pk)
+    return render_to_response("malawi/single_hsa.html",
+        {
+            "hsa": hsa
+        }, context_instance=RequestContext(request)
+    )
+    
+    
     

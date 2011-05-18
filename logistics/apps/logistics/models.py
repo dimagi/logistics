@@ -717,7 +717,11 @@ class SupplyPoint(models.Model):
         return good_supply_count(facilities=[self], 
                                  product=product, 
                                  producttype=producttype)
-
+    
+    def adequate_stock_count(self, product=None, producttype=None):
+        return self.good_supply_count(product, producttype) + \
+               self.low_stock_count(product, producttype)
+    
     def overstocked_count(self, product=None, producttype=None):
         return overstocked_count(facilities=[self], 
                                  product=product, 
