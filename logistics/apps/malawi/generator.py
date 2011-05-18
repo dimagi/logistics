@@ -31,6 +31,7 @@ def create_hsa(parent, name=None, number=None, role=None):
     c = Contact()
     c.name = name if name else "%s_%d" % (choice(names), randint(100,999))
     c.role = role if role else ContactRole.objects.get(code=malawi_config.Roles.HSA)
+    c.is_active = True
 
     # Create the backend.
     if settings.DEFAULT_BACKEND:
@@ -48,6 +49,9 @@ def create_hsa(parent, name=None, number=None, role=None):
     sp.location = parent.location
     sp.code = hsa_code
     sp.save()
+
+    c.supply_point = sp
+    c.save()
 
     # Supply some products.
     products = sample(list(Product.objects.all()), randint(1, MAX_PRODUCTS_PER_HSA))
