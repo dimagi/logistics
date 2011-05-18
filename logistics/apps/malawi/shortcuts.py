@@ -44,10 +44,8 @@ def send_soh_responses(msg, contact, stock_report, requests):
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
         supervisors = Contact.objects.filter\
-            (role__in=ContactRole.objects.filter\
-                (code__in=[config.Roles.IN_CHARGE, 
-                           config.Roles.HSA_SUPERVISOR]), 
-                           supply_point=contact.supply_point.supplied_by)
+            (role__code__in=config.Roles.SUPERVISOR_ROLES, 
+             supply_point=contact.supply_point.supplied_by)
         
         if not requests:
             _respond_empty(msg, contact, stock_report, supervisors)
