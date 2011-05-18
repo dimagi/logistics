@@ -176,7 +176,7 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
             context['stockonhands'] = stockonhands.filter(product__type=type).order_by('supply_point__name')
-    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
+    context['rows'] = get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -217,24 +217,28 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
         # We support GETs so that folks can share this report as a url
         if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
             commodity_filter = request.REQUEST['commodity']
-            context['commodity_filter'] = commodity_filter
             commodity = Product.objects.get(sms_code=commodity_filter)
-            context['commoditytype_filter'] = commodity.type.code
+            commoditytype_filter = commodity.type.code
         elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
             commoditytype_filter = request.REQUEST['commoditytype']
-            context['commoditytype_filter'] = commoditytype_filter
             type = ProductType.objects.get(code=commoditytype_filter)
             context['commodities'] = context['commodities'].filter(type=type)
+    
+    context['commodity_filter'] = commodity_filter
+    context['commoditytype_filter'] = commoditytype_filter
+    
+    # default to the whole country
     if location_code is None:
         location_code = settings.COUNTRY
+    
+    
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
-def _get_location_children(location, commodity_filter, commoditytype_filter):
+def get_location_children(location, commodity_filter, commoditytype_filter):
     rows = []
     children = []
     children.extend(location.facilities())
