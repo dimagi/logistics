@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-import gviz_api
 from logistics.apps.logistics.const import Reports
 
 import settings
@@ -22,12 +21,13 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import Facility, ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
-    SupplyPoint, ProductReportType
+    SupplyPoint, ProductReportType, StockTransaction
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
 import json
+from logistics.apps.logistics.charts import stocklevel_plot
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
@@ -117,29 +117,10 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
     facility = get_object_or_404(SupplyPoint, code=facility_code)
     stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
     last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
-
-    if last_reports:
+    transactions = StockTransaction.objects.filter(supply_point=facility)
+    if transactions:
         context['last_reported'] = last_reports[0].report_date
-        last_reports = last_reports.filter(report_type=ProductReportType.objects.get(code=Reports.SOH))
-        cols = {"date": ("datetime", "Date")}
-        for s in stockonhands:
-            cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
-        table = gviz_api.DataTable(cols)
-
-        data_rows = {}
-        for r in last_reports:
-            if not r.report_date in data_rows: data_rows[r.report_date] = {}
-            data_rows[r.report_date][r.product.name] = r.quantity
-        rows = []
-        for d in data_rows.keys():
-            q = {"date":d}
-            q.update(data_rows[d])
-            rows += [q]
-        table.LoadData(rows)
-        raw_data = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
-                                  order_by="date")
-        if len(raw_data)>0:
-            context['raw_data'] = raw_data
+        context['chart_data'] = stocklevel_plot(transactions)
 
     context['stockonhands'] = stockonhands
     context['facility'] = facility
