@@ -22,8 +22,10 @@ class Roles(object):
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
     }
+    UNIQUE = [IN_CHARGE, HSA_SUPERVISOR, DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST]
+    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR]
+    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST]
     SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
-    
 
 class Operations(object):
     FILL_ORDER = "fill"
@@ -86,6 +88,8 @@ class Messages(object):
 
     # "manage" keyword (manger registration)
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage [first name] [last name] [role] [facility]. Example: 'manage john smith ic 1001'"
+    ROLE_ALREADY_FILLED = "Sorry, there is already a user filling the %(role)s role."
+    ROLE_WRONG_LEVEL = "Sorry, you cannot register as %(role)s on the %(level)s level."
 
     # "leave" keyword 
     LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
