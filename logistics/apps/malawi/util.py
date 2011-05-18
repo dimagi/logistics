@@ -18,3 +18,10 @@ def get_hsa(hsa_id):
     except Contact.MultipleObjectsReturned:
         # this is weird, shouldn't be possible, but who knows.
         raise MultipleHSAException("More than one HSA found with id %s" % hsa_id)
+    
+def get_supervisors(supply_point):
+    """
+    Get all supervisors at a particular facility
+    """
+    return supply_point.active_contact_set.filter\
+                (role__code__in=config.Roles.SUPERVISOR_ROLES)

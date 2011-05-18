@@ -636,6 +636,10 @@ class SupplyPoint(models.Model):
         return self.name
 
     @property
+    def active_contact_set(self):
+        return self.contact_set.filter(is_active=True)
+    
+    @property
     def label(self):
         return unicode(self)
     

@@ -2,6 +2,7 @@ from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
     StockRequest, StockRequestStatus
 from logistics.apps.logistics.util import config
 from rapidsms.models import Contact
+from logistics.apps.malawi.util import get_supervisors
 
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None):
@@ -43,9 +44,7 @@ def send_soh_responses(msg, contact, stock_report, requests):
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        supervisors = Contact.objects.filter\
-            (role__code__in=config.Roles.SUPERVISOR_ROLES, 
-             supply_point=contact.supply_point.supplied_by)
+        supervisors = get_supervisors(contact.supply_point.supplied_by)
         
         if not requests:
             _respond_empty(msg, contact, stock_report, supervisors)
@@ -71,8 +70,7 @@ def send_emergency_responses(msg, contact, stock_report, requests):
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        supervisors = Contact.objects.filter(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
-                                             supply_point=contact.supply_point.supplied_by)
+        supervisors = get_supervisors(contact.supply_point.supplied_by)
         
         emergency_products = [req for req in requests if req.is_emergency == True]
         emergency_product_string = ", ".join(req.sms_format() for req in emergency_products) if emergency_products else "none"
