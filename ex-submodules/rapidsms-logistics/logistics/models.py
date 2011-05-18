@@ -577,6 +577,7 @@ class NagRecord(models.Model):
     supply_point = models.ForeignKey("SupplyPoint")
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)
+    nag_type = models.CharField(max_length=30)
 
     class Meta:
         ordering = ('-report_date',)
