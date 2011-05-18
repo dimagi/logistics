@@ -23,10 +23,7 @@ class OrderReadyHandler(OrderResponseBaseHandler):
         for req in pending_reqs:
             req.approve(self.msg.logistics_contact, now, req.amount_requested)
         
-        products = ", ".join(req.product.sms_code for req in pending_reqs)
-        self.respond(config.Messages.APPROVAL_RESPONSE, hsa=self.hsa.name,
-                     products=products)
-        self.hsa.message(config.Messages.APPROVAL_NOTICE, hsa=self.hsa.name, 
-                    products=products)
+        self.respond(config.Messages.APPROVAL_RESPONSE, hsa=self.hsa.name)
+        self.hsa.message(config.Messages.APPROVAL_NOTICE, hsa=self.hsa.name)
     
                 

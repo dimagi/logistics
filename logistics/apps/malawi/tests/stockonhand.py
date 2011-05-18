@@ -37,9 +37,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy", "products": "zi, la"},
+                    {"hsa": "wendy"},
                "hsa_notice": config.Messages.APPROVAL_NOTICE % \
-                    {"hsa": "wendy", "products": "zi, la"}}
+                    {"hsa": "wendy"}}
         
 
         self.runScript(b)
@@ -87,9 +87,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy", "products": "la, lb, zi"},
+                    {"hsa": "wendy"},
                "hsa_notice": config.Messages.APPROVAL_NOTICE % \
-                    {"hsa": "wendy", "products": "la, lb, zi"}}
+                    {"hsa": "wendy"}}
         self.runScript(b)
         self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
         self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
