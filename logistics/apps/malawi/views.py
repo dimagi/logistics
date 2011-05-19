@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
-    MalawiProductTable, HSATable
+    MalawiProductTable, HSATable, StockRequestTable
 from logistics.apps.registration.tables import ContactTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
@@ -83,10 +83,12 @@ def hsa(request, pk):
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
     chart_data = stocklevel_plot(transactions) 
     
+    stockrequest_table = StockRequestTable(hsa.supply_point.stockrequest_set, request)
     return render_to_response("malawi/single_hsa.html",
         {
             "hsa": hsa,
-            "chart_data": chart_data
+            "chart_data": chart_data,
+            "stockrequest_table": stockrequest_table 
         }, context_instance=RequestContext(request)
     )
     

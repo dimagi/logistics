@@ -73,3 +73,19 @@ class MalawiProductTable(Table):
     
     class Meta:
         order_by = 'name'
+
+class StockRequestTable(Table):
+    product = Column()
+    status = Column()
+    amount_requested = Column()
+    amount_received = Column()
+    
+    requested_on = DateColumn()
+    responded_on = DateColumn()
+    received_on = DateColumn()
+
+    is_emergency = Column()
+    
+    class Meta:
+        order_by = '-requested_on'
+
