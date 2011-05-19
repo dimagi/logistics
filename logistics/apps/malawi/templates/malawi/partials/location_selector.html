@@ -8,7 +8,7 @@
         {% endfor %}
     </optgroup>
     {% for facility in facilities %}
-        {% ifchanged clinic.parent.id %}
+        {% ifchanged facility.parent.id %}
 	        {% if not forloop.first %}</optgroup>{% endif %}
 	        <optgroup label="Facilities in {{ facility.parent.name }}">
 	        {% endifchanged %}
@@ -17,6 +17,7 @@
     {% endfor %}
 </select>
 {% comment %}
+{################### todo add dates ################}
 &nbsp;
 <label for="startdate">Start Month: </label><input type="text" id="startdate" name="startdate" class="date-picker" value="{{request.dates.startdate_param}}">
 &nbsp;
