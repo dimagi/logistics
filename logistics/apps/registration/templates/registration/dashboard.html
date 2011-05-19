@@ -34,6 +34,7 @@
 		</div>
 	</form>
 </div>
+{% if bulk_form %}
 <div class="module collapsed">
         <h2>Bulk Registration</h2>
 	<form action="" method="post" enctype="multipart/form-data">
@@ -45,4 +46,5 @@
 		</div>
 	</form>
 </div>
+{% endif %}
 {% endblock %}
