@@ -15,10 +15,26 @@
 {% block content %}
 <div class="module">
     <h2>Stock for {{ hsa.name }}</h2>
-    {% if chart_data %}
-        <div id="chart_div" class="noprint"></div>
+    {% if hsa.supply_point.productstock_set.count %}
+	    {% if chart_data %}
+	        <div id="chart_div" class="noprint"></div>
+	    {% endif %}
+	    {% stockonhand_table hsa.supply_point %}
+    {% else %}
+	    <div class="error">
+	        <p>{{ hsa.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
+	        <p>Please contact the system administrator for help.</p>
+	    </div>
     {% endif %}
-    {% stockonhand_table hsa.supply_point %}
-                                
+    <div class="two-columns toppadded">
+    <div class="col-1">
+        <h2>Recent Messages</h2>
+        {% recent_messages hsa %}
+    </div>
+    <div class="col-2">
+        <h2>Recent Stock Transactions</h2>
+        {% recent_orders hsa %}
+    </div>
+    </div>
 </div>
 {% endblock %}
