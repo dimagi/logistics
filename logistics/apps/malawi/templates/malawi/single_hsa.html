@@ -1,20 +1,24 @@
 {% extends base_template %}
+
+{% load logistics_report_tags %}
+
 {% block title %}HSA Summary for {{ hsa.name}} - {{ block.super }}{% endblock %}
 {% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
 {% block javascripts %}
 {{ block.super }}
 {% include "logistics/googlecharts/stock_chart_js.html" %}
 {% endblock %}
+
 {% block content %}
 <div class="module">
     <h2>Stock for {{ hsa.name }}</h2>
     {% if chart_data %}
         <div id="chart_div" class="noprint"></div>
     {% endif %}
-            
-                
-    
+    {% stockonhand_table hsa.supply_point %}
+                                
 </div>
 {% endblock %}

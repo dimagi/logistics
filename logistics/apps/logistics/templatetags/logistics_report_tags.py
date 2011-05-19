@@ -118,3 +118,8 @@ def order_fill_stats(locations, type=None, days=30):
                                     {"data": main_data})
                                      
     return "" # no data, no report
+
+@register.simple_tag
+def stockonhand_table(supply_point):
+    return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
+                         {"stockonhands": supply_point.productstock_set.all()})

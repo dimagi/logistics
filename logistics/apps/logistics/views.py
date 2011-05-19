@@ -115,14 +115,12 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
      this view currently only shows the current stock on hand for a given facility
     """
     facility = get_object_or_404(SupplyPoint, code=facility_code)
-    stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
     last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
     transactions = StockTransaction.objects.filter(supply_point=facility)
     if transactions:
         context['last_reported'] = last_reports[0].report_date
         context['chart_data'] = stocklevel_plot(transactions)
 
-    context['stockonhands'] = stockonhands
     context['facility'] = facility
     context["location"] = facility.location
     return render_to_response(

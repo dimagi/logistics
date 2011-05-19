@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load logistics_extras %}
+<table class="stock">
+    <thead><tr>
+        <th>{% trans "Commodity" %}</th>
+        <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+        <th class="stock_col">{% trans "Current Stock" %}</th>
+        <th class="stock_col">{% trans "Monthly Consumption" %}</th>
+        <th class="stock_col">{% trans "Emergency Level" %}</th>
+        <th class="stock_col">{% trans "Reorder Level" %}</th>
+        <th class="stock_col">{% trans "Maximum Level" %}</th>
+    </tr></thead>
+    <tbody>
+    {% for stockonhand in stockonhands %}
+        <tr>
+        <td>{{ stockonhand.product.name }}</td>
+        {% highlight_months stockonhand MEDIA_URL %}
+        <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>
+        <td {% ifequal stockonhand.monthly_consumption None %}
+                class="big_error"
+            {% endifequal %}>
+            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+        </td>
+        <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
+        <td>{{ stockonhand.reorder_level|default_if_none:"unknown" }}</td>
+        <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
