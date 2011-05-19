@@ -1,5 +1,8 @@
 *{ margin:0; padding:0; } /* reset */
 
+.toppadded {
+    padding-top: 10px;	
+}
 #submenu {
 	font-weight: bold;
 	margin-left: 1em;

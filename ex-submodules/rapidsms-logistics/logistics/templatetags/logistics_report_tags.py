@@ -10,6 +10,8 @@ from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
 from logistics.apps.logistics.views import get_location_children
+from rapidsms.contrib.messagelog.models import Message
+from logistics.apps.logistics.tables import ShortMessageTable
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
@@ -123,3 +125,12 @@ def order_fill_stats(locations, type=None, days=30):
 def stockonhand_table(supply_point):
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
                          {"stockonhands": supply_point.productstock_set.all()})
+    
+@register.simple_tag
+def recent_messages(contact, limit=5):
+    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
+
+@register.simple_tag
+def recent_orders(contact, limit=5):
+    return "todo y'all"
+    
