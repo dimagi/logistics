@@ -8,20 +8,24 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
+from logistics.apps.malawi.util import get_districts, get_facilities
+from logistics.apps.logistics.decorators import place_in_request
 
-
+@place_in_request()
 def dashboard(request, days=30):
     since  = datetime.utcnow() - timedelta(days=days)
     base_facilites = SupplyPoint.objects.filter(type__code="hsa")
     late_facilities = base_facilites.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
     on_time_facilities = base_facilites.filter(last_reported__gte=since).order_by('-last_reported','name')
-    
+    districts = get_districts().order_by("code")
     return render_to_response("malawi/dashboard.html", 
                               {"late_facilities": late_facilities,
                                "on_time_facilities": on_time_facilities,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
+                               "districts": districts,
+                               "location": request.location,
                                "days": days}, 
                               context_instance=RequestContext(request))
 
@@ -46,28 +50,27 @@ def products(request):
         }, context_instance=RequestContext(request)
     )
 
+@place_in_request()
 def hsas(request):
-    location = None
     hsas = Contact.objects.filter(role__code="hsa")
-    code = request.GET.get("place", None)
     
-    if code:
-        location = Location.objects.get(code=code)
+    if request.location:
         # support up to 3 levels of parentage. this covers
         # hsa->facility-> district, which is all we allow you to select
-        hsas = hsas.filter(Q(supply_point__location=location) | \
-                           Q(supply_point__supplied_by__location=location) | \
-                           Q(supply_point__supplied_by__supplied_by__location=location))
+        hsas = hsas.filter(Q(supply_point__location=request.location) | \
+                           Q(supply_point__supplied_by__location=request.location) | \
+                           Q(supply_point__supplied_by__supplied_by__location=request.location))
     
-    districts = Location.objects.filter(type__slug="district").order_by("id")
-    facilities = Location.objects.filter(type__slug="facility").order_by("parent_id")
+    
+    districts = get_districts().order_by("id")
+    facilities = get_facilities().order_by("parent_id")
     
     hsa_table = HSATable(hsas, request=request)
     return render_to_response("malawi/hsas.html",
         {
             "hsas": hsas,
             "hsa_table": hsa_table,
-            "location": location,
+            "location": request.location,
             "districts": districts,
             "facilities": facilities
         }, context_instance=RequestContext(request)
