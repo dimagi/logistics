@@ -1,8 +1,20 @@
 {% extends base_template %}
 {% block title %}HSA Summary for {{ hsa.name}} - {{ block.super }}{% endblock %}
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+{% endblock %}
+{% block javascripts %}
+{{ block.super }}
+{% include "logistics/googlecharts/stock_chart_js.html" %}
+{% endblock %}
 {% block content %}
 <div class="module">
-    <h2>Summary for {{ hsa.name }}</h2>
+    <h2>Stock for {{ hsa.name }}</h2>
+    {% if chart_data %}
+        <div id="chart_div" class="noprint"></div>
+    {% endif %}
+            
+                
     
 </div>
 {% endblock %}

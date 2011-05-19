@@ -5,11 +5,13 @@ from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable
 from logistics.apps.registration.tables import ContactTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import SupplyPoint, Product
+from logistics.apps.logistics.models import SupplyPoint, Product,\
+    StockTransaction
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.apps.malawi.util import get_districts, get_facilities
 from logistics.apps.logistics.decorators import place_in_request
+from logistics.apps.logistics.charts import stocklevel_plot
 
 @place_in_request()
 def dashboard(request, days=30):
@@ -78,9 +80,13 @@ def hsas(request):
     
 def hsa(request, pk):
     hsa = get_object_or_404(Contact, pk=pk)
+    transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
+    chart_data = stocklevel_plot(transactions) 
+    
     return render_to_response("malawi/single_hsa.html",
         {
-            "hsa": hsa
+            "hsa": hsa,
+            "chart_data": chart_data
         }, context_instance=RequestContext(request)
     )
     
