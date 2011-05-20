@@ -179,8 +179,8 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
     # if the location has no children, and 1 supply point treat it like
     # a stock on hand request. Otherwise treat it like an aggregate.
     if location.children().count() == 0 and location.facilities().count() == 1:
-        return stockonhand_facility(request, location_code)
-    return aggregate(request, location_code )
+        return stockonhand_facility(request, location_code, context=context)
+    return aggregate(request, location_code, context=context)
 
 @geography_context
 @filter_context
@@ -190,21 +190,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
-    commodity_filter = None
-    commoditytype_filter = None
-    if request.method == "POST" or request.method == "GET":
-        # We support GETs so that folks can share this report as a url
-        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
-            commodity_filter = request.REQUEST['commodity']
-            commodity = Product.objects.get(sms_code=commodity_filter)
-            commoditytype_filter = commodity.type.code
-        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
-            commoditytype_filter = request.REQUEST['commoditytype']
-            type = ProductType.objects.get(code=commoditytype_filter)
-            context['commodities'] = context['commodities'].filter(type=type)
-    
-    context['commodity_filter'] = commodity_filter
-    context['commoditytype_filter'] = commoditytype_filter
     
     # default to the whole country
     if location_code is None:
