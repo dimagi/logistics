@@ -12,6 +12,7 @@ from logistics.context_processors import custom_settings
 from logistics.apps.logistics.views import get_location_children
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.tables import ShortMessageTable
+from django.core.urlresolvers import reverse
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
@@ -27,6 +28,57 @@ def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
                 "commoditytype_filter": commoditytype_filter }
     context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter)
     return _r_2_s_helper("logistics/partials/aggregate_table.html", context)
+
+@register.simple_tag
+def flat_table(location, commodity_filter=None, commoditytype_filter=None):
+    
+    class SupplyPointRow():
+        
+        def __init__(self, supply_point, commodity_filter, commoditytype_filter):
+            self.supply_point = supply_point
+            self.commodity_filter = commodity_filter
+            self.commoditytype_filter = commoditytype_filter
+            self._cached_stock = {}
+            
+        @property
+        def is_active(self):
+            return self.supply_point.location.is_active
+        
+        @property
+        def name(self):
+            return self.supply_point.name
+        
+        @property 
+        def code(self):
+            return self.supply_point.code
+        
+        @property
+        def url(self):
+            return reverse("malawi_hsa", args=[self.supply_point.contact_set.all()[0].pk])
+
+        def _call_stock_count(self, name):
+            if name in self._cached_stock:
+                return self._cached_stock[name]
+            val = getattr(self.supply_point, name)(self.commodity_filter, self.commoditytype_filter)
+            self._cached_stock[name] = val
+            return val
+        
+        def stockout_count(self): return self._call_stock_count("stockout_count")
+        def emergency_stock_count(self): return self._call_stock_count("emergency_stock_count")
+        def adequate_supply_count(self): return self._call_stock_count("adequate_supply_count")
+        def overstocked_count(self): return self._call_stock_count("overstocked_count")
+        
+        @property
+        def consumption(self): 
+            if self.commodity_filter is not None:
+                return self.supply_point.consumption(product=self.commodity_filter,
+                                                     producttype=self.commoditytype_filter)
+            
+        
+    rows = [SupplyPointRow(SupplyPoint.objects.get(location=child), commodity_filter, commoditytype_filter)\
+            for child in location.children()]
+    return _r_2_s_helper("logistics/partials/aggregate_table.html", {"rows": rows})
+
 
 @register.simple_tag
 def reporting_rates(locations, type=None, days=30):

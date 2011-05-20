@@ -210,6 +210,12 @@ class ProductStock(models.Model):
                 return True
         return False
 
+    def is_in_adequate_supply(self):
+        if self.maximum_level is not None and self.emergency_reorder_level is not None:
+            if self.quantity > self.emergency_reorder_level and self.quantity < self.maximum_level:
+                return True
+        return False
+
     def is_overstocked(self):
         if self.maximum_level is not None:
             if self.quantity > self.maximum_level:
@@ -719,9 +725,10 @@ class SupplyPoint(models.Model):
                                  product=product, 
                                  producttype=producttype)
     
-    def adequate_stock_count(self, product=None, producttype=None):
-        return self.good_supply_count(product, producttype) + \
-               self.low_stock_count(product, producttype)
+    def adequate_supply_count(self, product=None, producttype=None):
+        return adequate_supply_count(facilities=[self], 
+                                     product=product, 
+                                     producttype=producttype)
     
     def overstocked_count(self, product=None, producttype=None):
         return overstocked_count(facilities=[self], 
@@ -1112,6 +1119,16 @@ def good_supply_count(facilities=None, product=None, producttype=None):
         if stock.is_in_good_supply():
             good_supply_count = good_supply_count + 1
     return good_supply_count
+
+def adequate_supply_count(facilities=None, product=None, producttype=None):
+    """ This indicates all stock between emergency and full levels
+    """
+    supply_count = 0
+    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_in_adequate_supply():
+            supply_count = supply_count + 1
+    return supply_count
 
 def overstocked_count(facilities=None, product=None, producttype=None):
     overstock_count = 0
