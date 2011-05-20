@@ -103,7 +103,7 @@ def nag_hsas_rec(since):
              'code': Reports.REC,
              'message': Messages.HSA_RECEIPT_NAG_SECOND,
              'flag_supervisor': True,
-             'supervisor_message': Messages.HSA_RECEIPT_SUPERVISOR_NAG}
+             'supervisor_message': Messages.HSA_RECEIPT_SUPERVISOR_NAG},
              {'hsas': hsa_third_warnings,
              'number': 3,
              'days': REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING,
