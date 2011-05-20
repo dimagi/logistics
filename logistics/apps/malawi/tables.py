@@ -44,14 +44,14 @@ class HSATable(Table):
                          value=lambda cell: cell.object.supply_point.emergency_stock_count(),
                          sortable=False)
     ok = Column(name="Products in adequate supply",
-                         value=lambda cell: cell.object.supply_point.adequate_stock_count(),
+                         value=lambda cell: cell.object.supply_point.adequate_supply_count(),
                          sortable=False)
     overstocked = Column(name="Products overstocked",
                          value=lambda cell: cell.object.supply_point.overstocked_count(),
                          sortable=False)
     last_seen = Column(name="Last message",
-                         value=lambda cell: cell.object.last_message.date.strftime("%b-%d-%Y") if cell.object.last_message else "n/a",
-                         sortable=False)
+                       value=lambda cell: cell.object.last_message.date.strftime("%b-%d-%Y") if cell.object.last_message else "n/a",
+                       sortable=False)
     
     class Meta:
         order_by = 'supply_point__code'
@@ -89,3 +89,14 @@ class StockRequestTable(Table):
     class Meta:
         order_by = '-requested_on'
 
+class FacilityTable(Table):
+    
+    name = Column(link=lambda cell: reverse("malawi_facility", args=[cell.object.code]))
+    code = Column()
+    district = Column(value=lambda cell: cell.object.parent.name,
+                      sortable=False)
+    hsas = Column(name="Active HSAs", 
+                  value=lambda cell: len(cell.object.children()),
+                  sortable=False)
+    class Meta:
+        order_by = 'code'

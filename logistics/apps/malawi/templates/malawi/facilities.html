@@ -1,0 +1,9 @@
+{% extends base_template %}
+{% block title %}Facilities - {{ block.super }}{% endblock %}
+{% block content %}
+{% include "malawi/partials/location_selector.html" %}
+<div class="module">
+    <h2>All Facilities</h2>
+    {{ facilities_table.as_html }}
+</div>
+{% endblock %}

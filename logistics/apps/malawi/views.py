@@ -1,8 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
-    MalawiProductTable, HSATable, StockRequestTable
-from logistics.apps.registration.tables import ContactTable
+    MalawiProductTable, HSATable, StockRequestTable, FacilityTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product,\
@@ -12,6 +11,9 @@ from django.db.models.query_utils import Q
 from logistics.apps.malawi.util import get_districts, get_facilities
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from logistics.apps.logistics.view_decorators import filter_context
 
 @place_in_request()
 def dashboard(request, days=30):
@@ -92,5 +94,32 @@ def hsa(request, pk):
         }, context_instance=RequestContext(request)
     )
     
+@place_in_request()
+def facilities(request):
+    facilities = get_facilities().order_by("parent_id", "code")
     
+    if request.location:
+        if request.location.type.slug == "district":
+            display_facilities = facilities.filter(parent_id=request.location.id)
+        else:
+            assert(request.location.type.slug == "facility")
+            return HttpResponseRedirect(reverse("malawi_facility", args=[request.location.code]))
+    else:
+        display_facilities = facilities
+    
+    return render_to_response("malawi/facilities.html",
+        {
+            "location": request.location,
+            "facilities": facilities,
+            "facilities_table": FacilityTable(display_facilities, request=request),
+            "districts": get_districts().order_by("id")
+        }, context_instance=RequestContext(request))
+    
+@filter_context
+def facility(request, code, context={}):
+    facility = get_object_or_404(SupplyPoint, code=code)
+
+    context["location"] = facility.location
+    return render_to_response("malawi/single_facility.html",
+        context, context_instance=RequestContext(request))
     

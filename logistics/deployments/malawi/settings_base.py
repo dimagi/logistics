@@ -22,6 +22,7 @@ MIDDLEWARE_CLASSES = (
 RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics_dashboard",                    "Stock Levels"),
+    ("logistics.apps.malawi.views.facilities",       "Facilities"),
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
     ("logistics.apps.malawi.views.contacts",       "Management"),
     ("registration",                          "Registration"),
