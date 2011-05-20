@@ -54,7 +54,7 @@ def flat_table(location, commodity_filter=None, commoditytype_filter=None):
         
         @property
         def url(self):
-            return reverse("malawi_hsa", args=[self.supply_point.contact_set.all()[0].pk])
+            return reverse("malawi_hsa", args=[self.supply_point.code])
 
         def _call_stock_count(self, name):
             if name in self._cached_stock:

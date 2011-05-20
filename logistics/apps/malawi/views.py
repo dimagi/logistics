@@ -80,8 +80,8 @@ def hsas(request):
         }, context_instance=RequestContext(request)
     )
     
-def hsa(request, pk):
-    hsa = get_object_or_404(Contact, pk=pk)
+def hsa(request, code):
+    hsa = get_object_or_404(Contact, supply_point__code=code)
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
     chart_data = stocklevel_plot(transactions) 
     

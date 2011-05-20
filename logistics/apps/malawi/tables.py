@@ -32,7 +32,7 @@ class MalawiContactTable(Table):
 class HSATable(Table):
     facility = Column(value=lambda cell: cell.object.supply_point.supplied_by,
                       sortable=False)
-    name     = Column(link=lambda cell: reverse("malawi_hsa", args=[cell.object.pk]))
+    name     = Column(link=lambda cell: reverse("malawi_hsa", args=[cell.object.supply_point.code]))
     id = Column(value=lambda cell: cell.object.hsa_id,
                 sortable=False)
     commodities = Column(name="Responsible For These Commodities", 
