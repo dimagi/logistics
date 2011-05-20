@@ -5,8 +5,8 @@ from django.template.loader import render_to_string
 register = template.Library()
 
 @register.simple_tag
-def alerts():
-    alerts = itertools.chain(*(f() for f in get_alert_functions()))
+def alerts(request):
+    alerts = itertools.chain(*(f(request) for f in get_alert_functions()))
     return render_to_string("alerts/partials/alerts.html",
                             {"alerts": alerts})
     

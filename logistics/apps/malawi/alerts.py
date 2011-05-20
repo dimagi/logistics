@@ -5,7 +5,8 @@ from logistics.apps.logistics.models import StockRequest, SupplyPoint,\
 from django.db.models.aggregates import Max
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.util import config
-
+from logistics.apps.logistics.decorators import place_in_request
+from logistics.apps.malawi.util import get_facility_supply_points
 
 class LateReportingAlert(Alert):
     
@@ -28,7 +29,7 @@ class LateReportingAlert(Alert):
         return self._last_responded
     
     
-def late_reporting_receipt():
+def late_reporting_receipt(request):
     """
     7 days after the "order ready" has been sent to the HSA
     if there is still no reported receipt an alert shows up.
@@ -42,14 +43,18 @@ def late_reporting_receipt():
               for val in bad_reqs]
     return alerts
 
-def hsas_no_supervision():
+@place_in_request()
+def hsas_no_supervision(request):
     """
     HSAs working out of facilities that don't have any registered
     in charges or managers.
     """
+    base_facilitities = get_facility_supply_points()
+    if request.location:
+        base_facilitities = SupplyPoint.objects.filter(location__parent_id=request.location.pk)
     hsas = SupplyPoint.objects.filter(type=SupplyPointType.objects.get(code="hsa"))
     facilities_with_hsas = set(hsas.values_list("supplied_by", flat=True))
-    orphaned_facilities = SupplyPoint.objects.exclude\
+    orphaned_facilities = base_facilitities.exclude\
         (contact__role__code__in=config.Roles.SUPERVISOR_ROLES)
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
     return [Alert("No in charge or supervisor is registered for %s but there are HSAs there." % fac, _supply_point_url(fac)) \

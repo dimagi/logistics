@@ -32,3 +32,6 @@ def get_districts():
 
 def get_facilities():
     return Location.objects.filter(type__slug="facility")
+
+def get_facility_supply_points():
+    return SupplyPoint.objects.filter(type__code="hf")

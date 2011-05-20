@@ -1,6 +1,6 @@
 from logistics.apps.alerts import Alert
 
-def empty():
+def empty(request):
     """
     Example method for adding alerts to your application. This one
     just returns a single empty alert.
