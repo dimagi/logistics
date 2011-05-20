@@ -5,31 +5,75 @@ from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product,\
-    StockTransaction
+    StockTransaction, ProductReport
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
-from logistics.apps.malawi.util import get_districts, get_facilities
+from logistics.apps.malawi.util import get_districts, get_facilities,\
+    get_facility_supply_points
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
+from logistics.apps.logistics.const import Reports
 
 @place_in_request()
 def dashboard(request, days=30):
     since  = datetime.utcnow() - timedelta(days=days)
     base_facilites = SupplyPoint.objects.filter(type__code="hsa")
-    late_facilities = base_facilites.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
-    on_time_facilities = base_facilites.filter(last_reported__gte=since).order_by('-last_reported','name')
-    districts = get_districts().order_by("code")
+    
+    # district filter
+    if request.location:
+        valid_facilities = get_facilities().filter(parent_id=request.location.pk)
+        base_facilites = base_facilites.filter(location__parent_id__in=[f.pk for f in valid_facilities])
+    
+    # reporting info
+    late_hsas = base_facilites.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
+    on_time_hsas = base_facilites.filter(last_reported__gte=since).order_by('-last_reported','name')
+    
+    # fully reporting / non reporting
+    full = partial = unconfigured = 0
+    for hsa_sp in on_time_hsas.all():
+        hsa = Contact.objects.get(supply_point=hsa_sp)
+        found_reports = ProductReport.objects.filter(supply_point=hsa_sp, 
+                                                     report_type__code=Reports.SOH,
+                                                     report_date__gte=since)
+        found_products = set(found_reports.values_list("product", flat=True))
+        needed_products = set([c.pk for c in hsa.commodities.all()])
+        if needed_products:
+            if needed_products - found_products:
+                partial = partial + 1 
+            else:
+                full = full + 1
+        else:
+            unconfigured = unconfigured + 1
+    graph_data = [
+        {"display": "Fully Reported",
+         "value": full,
+         "color": "green",
+         "description": "%s in last %s days" % ("Fully reported", days)
+        },
+        {"display": "Partially Reported",
+         "value": partial,
+         "color": "purple",
+         "description": "%s in last %s days" % ("Partially reported", days)
+        },
+        {"display": "Unconfigured",
+         "value": unconfigured,
+         "color": "red",
+         "description": "Unconfigured for stock information"
+        }
+    ]     
+
     return render_to_response("malawi/dashboard.html", 
-                              {"late_facilities": late_facilities,
-                               "on_time_facilities": on_time_facilities,
+                              {"late_facilities": late_hsas,
+                               "on_time_facilities": on_time_hsas,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
-                               "districts": districts,
+                               "districts": get_districts().order_by("code"),
                                "location": request.location,
+                               "reporting_details": graph_data,
                                "days": days}, 
                               context_instance=RequestContext(request))
 

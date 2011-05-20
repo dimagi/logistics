@@ -2,6 +2,12 @@
 {% load i18n %}
 {% load webdesign %} 
 {% load alerts_tags %} 
+
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+{% endblock %}
+
 {% block content %}
 <div class="warning">
 NOTE: The dashboard is still under construction. This is a temporary placeholder
@@ -11,7 +17,7 @@ NOTE: The dashboard is still under construction. This is a temporary placeholder
     <h2>{% trans 'Alerts' %}</h2>
     {% alerts request %}
 </div>
-<div class="two-columns module" id="small-left">
+<div class="two-columns toppadded">
     <div class="col-1">
         <div class="module"> 
         <h2>Reporting Rates (last {{days}} days)</h2>
@@ -20,8 +26,10 @@ NOTE: The dashboard is still under construction. This is a temporary placeholder
     </div>
     <div class="col-2">
         <div class="module">
-	        <h2>{% trans 'Registered HSAs' %}</h2>
-	        {{ hsas_table.as_html }}
+        <h2>Reporting Details (last {{days}} days)</h2>
+        {% with reporting_details as chart_data %}{% with "breakdown_chart" as chartdiv %}{% with "breakdown_hover" as hoverdiv %}
+        {% include "malawi/partials/pie_reporting_generic.html" %}
+        {% endwith %}{% endwith %}{% endwith %}
         </div>
     </div>
     <div class="clear-hack"></div>
