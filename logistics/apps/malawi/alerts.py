@@ -13,7 +13,7 @@ class LateReportingAlert(Alert):
     def __init__(self, supply_point, last_responded):
         self._supply_point = supply_point
         self._last_responded = last_responded
-        super(LateReportingAlert, self).__init__(self._get_text(), _supply_point_url(supply_point))
+        super(LateReportingAlert, self).__init__(self._get_text(), _hsa_url(supply_point))
     
     def _get_text(self):
         return "%(person)s got an 'order ready' alert on %(date)s but has still not reported a receipt." % \
@@ -57,11 +57,14 @@ def hsas_no_supervision(request):
     orphaned_facilities = base_facilitities.exclude\
         (contact__role__code__in=config.Roles.SUPERVISOR_ROLES)
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
-    return [Alert("No in charge or supervisor is registered for %s but there are HSAs there." % fac, _supply_point_url(fac)) \
+    return [Alert("No in charge or supervisor is registered for %s but there are HSAs there." % fac, _facility_url(fac)) \
             for fac in orphaned_facilities_with_hsas]
     
     
-def _supply_point_url(supply_point):
-    return reverse("logistics_dashboard", args=[supply_point.code])
+def _facility_url(supply_point):
+    return reverse("malawi_facility", args=[supply_point.code])
+
+def _hsa_url(supply_point):
+    return reverse("malawi_hsa", args=[supply_point.code])
 
 
