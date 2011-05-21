@@ -16,6 +16,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
 from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.reports import ReportingBreakdown
 
 @place_in_request()
 def dashboard(request, days=30):
@@ -28,52 +29,14 @@ def dashboard(request, days=30):
         base_facilites = base_facilites.filter(location__parent_id__in=[f.pk for f in valid_facilities])
     
     # reporting info
-    late_hsas = base_facilites.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
-    on_time_hsas = base_facilites.filter(last_reported__gte=since).order_by('-last_reported','name')
-    
-    # fully reporting / non reporting
-    full = partial = unconfigured = 0
-    for hsa_sp in on_time_hsas.all():
-        hsa = Contact.objects.get(supply_point=hsa_sp)
-        found_reports = ProductReport.objects.filter(supply_point=hsa_sp, 
-                                                     report_type__code=Reports.SOH,
-                                                     report_date__gte=since)
-        found_products = set(found_reports.values_list("product", flat=True))
-        needed_products = set([c.pk for c in hsa.commodities.all()])
-        if needed_products:
-            if needed_products - found_products:
-                partial = partial + 1 
-            else:
-                full = full + 1
-        else:
-            unconfigured = unconfigured + 1
-    graph_data = [
-        {"display": "Fully Reported",
-         "value": full,
-         "color": "green",
-         "description": "%s in last %s days" % ("Fully reported", days)
-        },
-        {"display": "Partially Reported",
-         "value": partial,
-         "color": "purple",
-         "description": "%s in last %s days" % ("Partially reported", days)
-        },
-        {"display": "Unconfigured",
-         "value": unconfigured,
-         "color": "red",
-         "description": "Unconfigured for stock information"
-        }
-    ]     
-
+    report = ReportingBreakdown(base_facilites)
     return render_to_response("malawi/dashboard.html", 
-                              {"late_facilities": late_hsas,
-                               "on_time_facilities": on_time_hsas,
+                              {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "districts": get_districts().order_by("code"),
                                "location": request.location,
-                               "reporting_details": graph_data,
                                "days": days}, 
                               context_instance=RequestContext(request))
 

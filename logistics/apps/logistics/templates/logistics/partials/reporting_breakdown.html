@@ -1,0 +1,17 @@
+{% load i18n %}
+<h2>
+    Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
+</h2>
+{% include "logistics/partials/pie_reporting.html" %}
+<div>
+{% include "logistics/partials/table_reporting.html" %}
+</div>
+<h2>
+    Reporting Breakdown {% if facility %}for {{ facility.name }}{% endif %}
+</h2>
+    {% with reporting_details as chart_data %}{% with "breakdown_chart" as chartdiv %}{% with "breakdown_hover" as hoverdiv %}
+    {% include "logistics/partials/pie_reporting_generic.html" %}
+    {% endwith %}{% endwith %}{% endwith %}
+<div>
+{% include "logistics/partials/table_reporting.html" %}
+</div>

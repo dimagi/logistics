@@ -102,6 +102,31 @@ def reporting_rates(locations, type=None, days=30):
                                      
     return "" # no data, no report
 
+
+@register.simple_tag
+def reporting_breakdown(locations, type=None, days=30):
+    # with a list of locations - display reporting
+    # rates associated with those locations
+    if locations:
+        since = datetime.utcnow() - timedelta(days=days)
+        base_points = SupplyPoint.objects.filter(location__in=locations)
+        if type is not None:
+            base_points = base_points.filter(type__code=type)
+        if base_points.count() > 0:
+            late_facilities = base_points.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
+            on_time_facilities = base_points.filter(last_reported__gte=since).order_by('-last_reported','name')
+            return _r_2_s_helper("logistics/partials/reporting_rates.html", 
+                                    {"late_facilities": late_facilities,
+                                     "on_time_facilities": on_time_facilities,
+                                     "graph_width": 200,
+                                     "graph_height": 200,
+                                     "days": days,
+                                     "table_class": "minor_table" })
+                                     
+    return "" # no data, no report
+
+
+
 @register.simple_tag
 def order_response_stats(locations, type=None, days=30):
     """
