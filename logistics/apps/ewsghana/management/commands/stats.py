@@ -24,3 +24,4 @@ class Command(BaseCommand):
         print "RequisitionReports %s" % RequisitionReport.objects.all().count()
         print "StockTransactions %s" % StockTransaction.objects.all().count()
         print "Messages %s" % Message.objects.all().count()
+        print "Consumptions %s" % ProductStock.objects.exclude(manual_monthly_consumption=None).count()

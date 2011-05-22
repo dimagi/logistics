@@ -20,7 +20,7 @@
             <thead><tr>
                 <th scope="col"></th>
                 <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
-                <th scope="col" class="emergency stock_col">Emergency</th>
+                <th scope="col" class="emergency stock_col">Low Stock</th>
                 <th scope="col" class="good_supply stock_col">{% trans "Adequate Stock" %}</th>
                 <th scope="col" class="overstock stock_col">{% trans "Overstock" %}</th>
                 <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
@@ -43,12 +43,6 @@
 
             </tr></tbody>
             </table>
-
-            <p class="smallnote">
-                Note: these numbers represent the total number of stockouts
-                across all commodities in the region indicated. The above table also does
-                not reflect commodities for which the monthly consumption is unknown. 
-            </p>
             </div>
             {% load logistics_report_tags %}
             <div style="clear:right; padding-top:3em;">

@@ -13,6 +13,7 @@ class FacilityForm(forms.ModelForm):
     
     class Meta:
         model = SupplyPoint
+        exclude = ("last_reported", )
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {'commodities': [0,1,2,3]}

@@ -55,7 +55,7 @@ class LogisticsProfile(models.Model):
     supply_point = models.ForeignKey('SupplyPoint', blank=True, null=True)
 
     def __unicode__(self):
-        return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
+        return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
 post_save.connect(create_user_profile, sender=User)
 

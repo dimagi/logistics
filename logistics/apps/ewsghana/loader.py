@@ -240,6 +240,7 @@ def init_reminders():
         set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
 
 def _get_or_create_region_rms(region_name, region):
+    # DELIVER ONLY
     from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
     rms_type = SupplyPointType.objects.get(code='RMS')
     created = False
@@ -254,6 +255,8 @@ def _get_or_create_region_rms(region_name, region):
         created = True
         print "RMS for %s not found" % region_name
         rms = None
+    # this is the DELIVER-specific part
+    _load_DELIVER_products_into_facility(rms, 0, None)
     return rms, created
 
 def _get_or_create_region(region_name, parent):
