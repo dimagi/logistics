@@ -127,7 +127,8 @@ class Migration(SchemaMigration):
             'quantity': ('django.db.models.fields.IntegerField', [], {}),
             'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
             'report_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ProductReportType']"}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
+            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']"})
         },
         'logistics.productreporttype': {
             'Meta': {'object_name': 'ProductReportType'},
