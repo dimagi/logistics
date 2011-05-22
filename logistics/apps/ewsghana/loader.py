@@ -37,6 +37,8 @@ def AddFacilities(filename):
     regions = 0
     districts = 0
     locations = 0
+    rmses = 0
+    facilities = 0
     for row in reader:
         region_name = row[1].strip()
         district_name = row[2].strip()
@@ -44,7 +46,9 @@ def AddFacilities(filename):
         region, region_created = _get_or_create_region(region_name, country)
         if region_created:
             regions = regions + 1
-        rms = _get_region_rms(region_name)
+        rms, rms_created = _get_or_create_region_rms(region_name, region)
+        if rms_created:
+            rmses = rmses + 1
         district, district_created = _get_or_create_district(district_name, region)
         if district_created:
             districts = districts + 1
@@ -60,26 +64,34 @@ def AddFacilities(filename):
             errors = errors + 1
             continue
         try:
-            SupplyPoint.objects.get(code=facility_code)
+            SupplyPoint.objects.get(name=facility_name)
         except SupplyPoint.DoesNotExist:
             pass
         else:
-            raise Exception("Facility %s already exists. Why?" % facility_name)
+            print "ERROR: Facility %s already exists. Why?" % facility_name
+            errors = errors + 1
+            continue
         facility, created = SupplyPoint.objects.get_or_create(code=facility_code,
                                                               name=facility_name,
                                                               location=facility_location,
                                                               type=facility_type,
                                                               supplied_by=rms)
         if created:
+            facilities = facilities + 1
             print ("%s created" % facility_name.lower())
         else:
             print ("%s already exists" % facility_name).lower()
+        if facilities != locations:
+            print "what's going on??? %s" % facility_location.name 
         _load_DELIVER_products_into_facility(facility, 0, None)
     print "Success!"
     print "There were %s errors" % errors    
     print "%s regions created" % regions
+    print "%s rms's created" % rmses
     print "%s districts created" % districts
     print "%s locations created" % locations
+    print "%s facilities created" % facilities
+    
     
 def _load_DELIVER_products_into_facility(fac, max_facility_consumption, facility_consumption):
     from logistics.apps.logistics.models import Product, ProductStock   
@@ -98,7 +110,8 @@ def _load_DELIVER_products_into_facility(fac, max_facility_consumption, facility
         ProductStock(quantity=None, is_active=True, 
                      supply_point=fac,
                      product=product,
-                     monthly_consumption=facility_consumption).save()
+                     monthly_consumption=facility_consumption, 
+                     use_auto_consumption=False).save()
     print "Products loaded into %s" % fac.name
     
 def LoadFacilities(filename):
@@ -226,15 +239,22 @@ def init_reminders():
         # 2:15 pm on the 28th
         set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
 
-def _get_region_rms(region_name):
+def _get_or_create_region_rms(region_name, region):
     from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
     rms_type = SupplyPointType.objects.get(code='RMS')
+    created = False
     try:
         rms = SupplyPoint.objects.get(type=rms_type, name__icontains=region_name)
     except SupplyPoint.DoesNotExist:
+        rms_name = region_name.strip() + " Regional Medical Store"
+        rms = SupplyPoint.objects.create(code=_generate_facility_code(rms_name), 
+                                         name=rms_name, 
+                                         type=rms_type, 
+                                         location=region)
+        created = True
         print "RMS for %s not found" % region_name
         rms = None
-    return rms
+    return rms, created
 
 def _get_or_create_region(region_name, parent):
     from logistics.apps.logistics.models import Location
