@@ -1,0 +1,8 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Contacts - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h2>All Places</h2>
+    {{ location_table.as_html }}
+</div>
+{% endblock %}

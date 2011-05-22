@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-import settings
+from django.conf import settings
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
@@ -28,8 +28,11 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
-        connection = get_object_or_404(Connection,contact=contact)
-
+        try:
+            connection = Connection.objects.get(contact=contact)
+        except Connection.DoesNotExist:
+            connection = None
+            
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
             contact.delete()
@@ -82,7 +85,9 @@ def registration(req, pk=None, template="registration/dashboard.html"):
         template, {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
-            "bulk_form": bulk_form,
+            # no one is using or has tested the bulk form in logistics
+            # so we remove it for now
+            # "bulk_form": bulk_form,
             "contact": contact,
             "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)

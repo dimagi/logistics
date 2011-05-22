@@ -8,7 +8,6 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import Facility
 from logistics.apps.web_registration.forms import AdminRegistersUserForm
 
 PROGRAM_ADMIN_GROUP_NAME = 'program_admin'

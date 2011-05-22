@@ -1,0 +1,11 @@
+{% if geography.is_active %}
+{% load geonav_tags %}
+<li {% ifequal geography.name location.name %}id="current"{% endifequal %}>
+    <a href="{% url logistics_dashboard geography.code %}">{{ geography.name }}</a>
+	<ul>
+	{% for region in geography.children %}
+	    {% render_nav region location %}
+	{% endfor %} 
+	</ul>   
+</li>
+{% endif %}

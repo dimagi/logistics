@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.views import login as django_login
+from django.contrib.auth.views import logout as django_logout
 
 admin.autodiscover()
 
@@ -11,7 +13,7 @@ urlpatterns = patterns('',
     # RapidSMS core URLs
     #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
-    url(r'^/?$', 'logistics.apps.logistics.views.dashboard',
+    url(r'^/?$', 'logistics.apps.logistics.views.landing_page',
         name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
@@ -19,11 +21,21 @@ urlpatterns = patterns('',
     (r'^export/', include('rapidsms.contrib.export.urls')),
     (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
-    (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
-    (r'^', include('logistics.apps.ewsghana.urls.login_logout')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
+    # i guess having both of these is ok for now
+    (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
+    (r'^malawi/', include('logistics.apps.malawi.urls')),
+    
+    # login/logout. this is order dependent
+    url(r'^accounts/login/$', django_login, 
+        kwargs={"template_name": settings.LOGISTICS_LOGIN_TEMPLATE}, 
+        name='rapidsms-login'),
+    url(r'^accounts/logout/$', django_logout, 
+        kwargs={"template_name": settings.LOGISTICS_LOGOUT_TEMPLATE},
+        name='rapidsms-logout'),
+    
     # 3rd party django app URLs
     (r'^accounts/', include('registration.urls')),
 
@@ -35,6 +47,9 @@ urlpatterns = patterns('',
     (r'^reports/', include('logistics.apps.reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^', include('auditcare.urls')),
+    
+    (r'^couchlog/', include('couchlog.urls')),
+    
 )
 
 if settings.DEBUG:

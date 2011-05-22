@@ -57,6 +57,11 @@
     width:550px
 }
 
+.minor_table{
+    float:right;
+    width:300px
+}
+
 #reporting_chart{
     margin-bottom:10px;
     margin-top:10px;
@@ -79,18 +84,42 @@
     margin:3px;
 }
 
+#chart_div {
+    width: 90%;
+    height: 300px;
+    margin:10px 0px;
+}
 .stock {
+    float:left;
     width:50%;
+    margin-right:10px;
+}
+
+.legend {
+    float: right;
+}
+
+.legend-table {
+    margin-left: 10px;
+}
+
+.stock td {
+    vertical-align: middle;
 }
 
 .aggregate_stock tbody tr td{
     width:80px;
 }
 
+td.empty {
+    text-align: center;
+    color: #aaa;
+}
+
 
 /* --- Accordion --- */
-a {
-    padding:5px;
+#side ul a {
+    padding:.5em .5em .5em 2em;   
 }
 
 #side{

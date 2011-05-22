@@ -1,0 +1,53 @@
+{% extends "logistics/reports_base.html" %}
+{% load i18n %}
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+
+{% block content %}
+    <div class="module">
+        {% include "logistics/partials/accordion_nav.html" %}
+        <div id="main">
+        	<div id="report-subnav"><a href="{% url aggregate location.code %}">Aggregate View</a> * Facilities By Product View</div>
+            <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
+            <div class="right">
+                <div  class="filter">Select a Commodity</div>
+            	{% commodity_filter commodities 0 %}
+            </div>
+            <div>
+                <table class="stock">
+                    <thead><tr>
+                        <th>{{ selected_commodity.name }} </th>
+                        <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+                        <th class="stock_col">{% trans "Current Stock" %}</th>
+                        <th class="stock_col">{% trans "Monthly Consump." %}</th>
+                        <th class="stock_col">{% trans "Emerg. Level" %}</th>
+                        <th class="stock_col">{% trans "Reorder Level" %}</th>
+                        <th class="stock_col">{% trans "Max Level" %}</th>
+                    </tr></thead>
+                    <tbody>
+                    {% for stockonhand in rows %}
+		                {% if stockonhand.is_active %}
+                        <tr>
+                        <td><a href="{% url stockonhand_facility stockonhand.supply_point.code %}">
+                            {{ stockonhand.supply_point.name }}
+                            </a>
+                        </td>
+                            {% highlight_months stockonhand MEDIA_URL %}
+                        <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
+                        <td {% ifequal stockonhand.monthly_consumption None %}
+                                class="big_error"
+                            {% endifequal %}>
+                            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+                        </td>
+                        <td>{{ stockonhand.emergency_reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
+                        <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
+                        </tr>
+		                {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <br/>
+    </div>
+{% endblock %}

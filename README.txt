@@ -10,6 +10,7 @@ You can install all of the above by running:
 > sudo apt-get install git-core postgresql python-psycopg2 couchdb
 
 Install Django 1.2. Don't use apt-get on Lucid, it'll give you 1.1
+Install pip >=0.6.3. Don't use apt-get on Lucid, it'll give you 0.3.1
 
 DB SETUP
 * Change authentication method from ident to MD5 in /etc/postgresql/8.4/main/pg_hba.conf 

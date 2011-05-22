@@ -9,7 +9,7 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
-INSTALLED_APPS = [
+BASE_APPS = [
 
     # the essentials.
     "django_nose",
@@ -48,44 +48,14 @@ INSTALLED_APPS = [
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
-    "logistics.apps.ewsghana",
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
-    "auditcare",
+    "couchlog",
     "registration",
 ]
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
-)
-
-
-# this rapidsms-specific setting defines which views are linked by the
-# tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
-# to add it here, also, to expose it in the rapidsms ui.
-RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
-    ("ewsghana_reporting",  				    "Usage"),
-    #("input_stock",      				    "Input Stock"),
-    ("ewsghana_scheduled_reports", 	                    "Configuration"),
-    #("email_reports",      			            "Email Reports"),
-    ("help",      			                    "Help"),
-    #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
-    #("rapidsms.contrib.locations.views.locations",         "Map"),
-    #("rapidsms.contrib.scheduler.views.index",              "Event Scheduler"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
-]
-
-# TODO: move this configuration over to urls.py
-SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
-SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
+APPS = []
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -129,6 +99,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
+    "logistics.context_processors.custom_settings",
+    "couchlog.context_processors.static_workaround"
 ]
 
 
@@ -147,6 +119,7 @@ TEST_EXCLUDED_APPS = [
     "rapidsms",
     "rapidsms.contrib.ajax",
     "rapidsms.contrib.httptester",
+    "djcelery"
 ]
 
 # the project-level url patterns
@@ -192,14 +165,10 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 CARROT_BACKEND = "django"
 
 DEFAULT_BACKEND = 'smsgh'
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
 INTL_DIALLING_CODE = "+"
-COUNTRY_DIALLING_CODE = 233
 DOMESTIC_DIALLING_CODE = 0
-COUNTRY = "ghana"
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
-TIME_ZONE="Africa/Accra"
 
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
@@ -214,41 +183,21 @@ EMAIL_HOST_USER='name@dimagi.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
-# This section should go at the BOTTOM of settings.py
-# import local settings if we find them
-try:
-    from localsettings import *
-except ImportError:
-    pass
-if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
-    DATABASES = TESTING_DATABASES
-    for db_name in DATABASES:
-        DATABASES[db_name]['TEST_NAME'] = os.path.join(
-            tempfile.gettempdir(),
-            "%s.rapidsms.test.sqlite3" % db_name)
-
-
 COUCH_SERVER_ROOT='127.0.0.1:5984'
 COUCH_USERNAME=''
 COUCH_PASSWORD=''
 COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare',]
-def get_server_url(server_root, username, password):
-    if username and password:
-        return "http://%(user)s:%(pass)s@%(server)s" % \
-            {"user": username,
-             "pass": password, "server": server_root } 
-    else:
-        return "http://%(server)s" % {"server": server_root }
-COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
-COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
+COUCHDB_APPS=['auditcare','couchlog']
+# This section should go at the BOTTOM of settings.py
+# import local settings if we find them
+#try to see if there's an environmental variable set for local_settings
 
-COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in [
-        'auditcare',
-    ]
-]
-
+LOGISTICS_EXCEL_EXPORT_ENABLED = True
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 DEBUG=True
+
+RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
@@ -264,8 +213,43 @@ AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 
-LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
-LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
-SITE_TITLE="Early Warning System"
-BASE_TEMPLATE="ewsghana/base.html"
-BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+try:
+    import sys
+    if os.environ.has_key('LOCAL_SETTINGS'):
+        # the LOCAL_SETTINGS environment variable is used by the build server
+        sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
+        from settings_test import *
+    else: 
+        from localsettings import *
+except ImportError:
+    pass
+if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
+    DATABASES = TESTING_DATABASES
+    for db_name in DATABASES:
+        DATABASES[db_name]['TEST_NAME'] = os.path.join(
+            tempfile.gettempdir(),
+            "%s.rapidsms.test.sqlite3" % db_name)
+
+INSTALLED_APPS = BASE_APPS + APPS
+
+def get_server_url(server_root, username, password):
+    if username and password:
+        return "http://%(user)s:%(pass)s@%(server)s" % \
+            {"user": username,
+             "pass": password, "server": server_root } 
+    else:
+        return "http://%(server)s" % {"server": server_root }
+COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
+COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
+
+COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
+
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=100
+AXES_LOGIN_FAILURE_LIMIT=1
+AXES_LOCK_OUT_AT_FAILURE=False
+
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'logistics.migrations',
+}
