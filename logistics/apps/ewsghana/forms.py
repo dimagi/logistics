@@ -15,8 +15,8 @@ def _get_program_admin_group():
     return Group.objects.get(name=PROGRAM_ADMIN_GROUP_NAME)
 
 class EWSGhanaWebRegistrationForm(AdminRegistersUserForm): 
-    is_program_admin = forms.BooleanField(label='User is a health administrator', initial=False, required=False)
-    is_IT_admin = forms.BooleanField(label='User is an IT administrator', initial=False, required=False)
+    is_program_admin = forms.BooleanField(label='User is a DHIO', initial=False, required=False)
+    is_IT_admin = forms.BooleanField(label='User is an IT administrator (e.g. programmer)', initial=False, required=False)
     
     def __init__(self, *args, **kwargs):
         self.edit_user = None
