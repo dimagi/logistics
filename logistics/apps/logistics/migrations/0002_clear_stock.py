@@ -19,9 +19,11 @@ class Migration(DataMigration):
         db.add_column('logistics_productstock', 'use_auto_consumption', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
         # Clean start on everything stock related
-        db.clear_table('logistics_productreport')
         db.clear_table('logistics_requisitionreport')
         db.clear_table('logistics_stocktransaction')
+        # Turns out we should NOT clear product reports, so that we don't send out
+        #   nagging reminders after the upgrade
+        # db.clear_table('logistics_productreport')
         # we need to persist productstock: specifically, 'consumption'
         # db.clear_table('logistics_productstock')
 
