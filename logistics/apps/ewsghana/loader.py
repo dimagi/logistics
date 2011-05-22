@@ -254,7 +254,6 @@ def _get_or_create_region_rms(region_name, region):
                                          location=region)
         created = True
         print "RMS for %s not found" % region_name
-        rms = None
     # this is the DELIVER-specific part
     _load_DELIVER_products_into_facility(rms, 0, None)
     return rms, created
