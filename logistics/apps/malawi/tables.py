@@ -97,7 +97,7 @@ class HSAStockRequestTable(Table):
     # so it's all copied here.
     supply_point = Column()
     product = Column()
-    status = Column()
+    is_emergency = Column()
     #amount_requested = Column()
     #amount_received = Column()
     
@@ -105,7 +105,7 @@ class HSAStockRequestTable(Table):
     responded_on = DateColumn()
     received_on = DateColumn()
 
-    is_emergency = Column()
+    status = Column()
     
     class Meta:
         order_by = '-requested_on'
