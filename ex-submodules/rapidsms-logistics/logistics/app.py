@@ -153,11 +153,14 @@ class App(AppBase):
         if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
-            message.error("%s is not a recognized commodity code. " % code + 
-                          "Please contact your DHIO for assistance." )
-        elif settings.DEFAULT_RESPONSE is not None:
+            if code:
+                message.error("%s is not a recognized commodity code. " % code + 
+                              "Please contact your DHIO for assistance." )
+                return
+        if settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
                           project_name=settings.PROJECT_NAME)
+            return
 
     def cleanup (self, message):
         """Perform any clean up after all handlers have run in the

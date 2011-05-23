@@ -30,6 +30,12 @@ class Help(KeywordHandler):
         else:
             try:
                 p = Product.objects.get(sms_code=topic)
-                self.respond("%s is the commodity code for %s" % (topic, p.name))
+                msg = "%s is the commodity code for %s" % (topic, p.name)
+                if p.units:
+                    msg = msg + " (%s)" % p.units
+                if p.description:
+                    if p.description not in p.name:
+                        msg = msg + " %s" % p.description
+                self.respond(msg)
             except Product.DoesNotExist:
                 self.respond(HELP_TEXT)
