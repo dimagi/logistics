@@ -5,6 +5,7 @@
     {{ block.super }}
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
 {% endblock %} 
 
 {% block stylesheets %}{{ block.super }}
@@ -32,6 +33,10 @@
         </div>
         <div style="clear:right; padding-top:3em;">
         {% reporting_breakdown location.children "hsa" %}
+        </div>
+        <div class="clear:both; toppadded">
+        <h2>Product Availability Summary</h2>
+            {% product_availability_summary location %}
         </div>
         <div style="clear:both;">
         {% order_fill_stats location.children "hsa" %}
