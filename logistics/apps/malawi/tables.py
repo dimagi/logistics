@@ -89,7 +89,7 @@ class StockRequestTable(Table):
     class Meta:
         order_by = '-requested_on'
 
-class HSAStockRequestTable(object):
+class HSAStockRequestTable(Table):
     """
     Same as above but includes a column for the HSA
     """
