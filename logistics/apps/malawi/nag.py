@@ -10,6 +10,7 @@ from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 from static.malawi.config import Messages
+from logistics.apps.malawi.util import hsa_supply_points_below
 
 DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 2
 DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 2
@@ -17,11 +18,11 @@ REC_DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 4
 
 
-def get_non_reporting_hsas(since, report_code=Reports.SOH):
+def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
     """
     Get all HSAs who haven't reported since a passed in date
     """
-    hsas = set(SupplyPoint.objects.filter(type=SupplyPointType.objects.get(code='hsa')))
+    hsas = set(hsa_supply_points_below(location))
     reporters = set(x.supply_point for x in \
                     ProductReport.objects.filter(report_type=ProductReportType.objects.get(code=report_code),
                                                  report_date__range = [since,

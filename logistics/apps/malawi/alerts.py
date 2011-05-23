@@ -2,13 +2,14 @@ from datetime import datetime, timedelta
 from django.db.models.expressions import F
 from logistics.apps.alerts import Alert
 from logistics.apps.logistics.models import StockRequest, SupplyPoint,\
-    SupplyPointType, _filtered_stock, ProductStock
+    SupplyPointType, _filtered_stock, ProductStock, StockRequestStatus
 from django.db.models.aggregates import Max
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.util import config
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.malawi.nag import get_non_reporting_hsas
-from logistics.apps.malawi.util import get_facility_supply_points, hsas_below
+from logistics.apps.malawi.util import get_facility_supply_points, hsas_below,\
+    hsa_supply_points_below, facility_supply_points_below
 
 class ProductStockAlert(Alert):
 
@@ -28,45 +29,49 @@ class ProductStockAlert(Alert):
 
     @property
     def product(self):
-        return self.product
+        return self._product
 
+@place_in_request()
 def health_center_stockout(request):
+    sps = facility_supply_points_below(request.location)
     return [ProductStockAlert(stock.supply_point, stock.product) for stock in \
-            ProductStock.objects.filter(is_active=True, supply_point__in=SupplyPoint.objects.filter(type__name="health facility")).filter(quantity=0)]
+            ProductStock.objects.filter(is_active=True, supply_point__in=sps).filter(quantity=0)]
 
 class HealthCenterUnableResupplyStockoutAlert(ProductStockAlert):
 
     def _get_text(self):
-        return "%(hsa)s is stocked out of %(product)s and %(parent)s has inadequate supply." % \
+        return "%(hsa)s is stocked out of %(product)s and %(parent)s cannot fill order." % \
                 {"hsa": self.supply_point.name,
                  "parent": self.supply_point.supplied_by.name,
                  "product": self.product}
 
+@place_in_request()
 def health_center_unable_resupply_stockout(request):
     r = []
-    for s in  StockRequest.pending_requests().all():
-        if s.supply_point.supplied_by.type.name == "health facility" and \
-           s.supply_point.supplied_by.stock(s.product) < s.amount_requested and \
-           s.supply_point.stock(s.product) == 0:
-                r += [HealthCenterUnableResupplyStockoutAlert(s.supply_point, s.product)]
+    hsas = hsa_supply_points_below(request.location)
+    for s in StockRequest.pending_requests().filter(supply_point__in=hsas,
+                                                    status=StockRequestStatus.STOCKED_OUT):
+        if s.supply_point.stock(s.product) == 0:
+            r += [HealthCenterUnableResupplyStockoutAlert(s.supply_point, s.product)]
     return r
 
 class HealthCenterUnableResupplyEmergencyAlert(ProductStockAlert):
 
     def _get_text(self):
-        return "%(hsa)s has an emergency order of %(product)s and %(parent)s has inadequate supply." % \
+        return "%(hsa)s has an emergency order of %(product)s and %(parent)s cannot fill order." % \
                 {"hsa": self.supply_point.name,
                  "parent": self.supply_point.supplied_by.name,
                  "product": self.product}
 
+@place_in_request()
 def health_center_unable_resupply_emergency(request):
-    r = []
-    for s in  StockRequest.pending_requests().filter(is_emergency=True):
-        if s.supply_point.supplied_by.type.name == "health facility" and \
-           s.supply_point.supplied_by.stock(s.product) < s.amount_requested:
-            r += [HealthCenterUnableResupplyEmergencyAlert(s.supply_point, s.product)]
-    return r
-
+    hsas = hsa_supply_points_below(request.location)
+    return [HealthCenterUnableResupplyEmergencyAlert(s.supply_point, s.product)\
+            for s in StockRequest.pending_requests()\
+                            .filter(is_emergency=True,
+                                    status=StockRequestStatus.STOCKED_OUT,
+                                    supply_point__in=hsas)]
+    
 
 class NonReportingHSAAlert(Alert):
     def __init__(self, hsa):
@@ -80,8 +85,10 @@ class NonReportingHSAAlert(Alert):
     def hsa(self):
         return self._hsa
 
+@place_in_request()
 def non_reporting_hsas(request):
-    return [NonReportingHSAAlert(hsa) for hsa in get_non_reporting_hsas(datetime.utcnow() - timedelta(days=32))]
+    return [NonReportingHSAAlert(hsa) for hsa in get_non_reporting_hsas(datetime.utcnow() - timedelta(days=32),
+                                                                        location=request.location)]
 
 class HSABelowEmergencyQuantityAlert(ProductStockAlert):
     def _get_text(self):
@@ -89,13 +96,15 @@ class HSABelowEmergencyQuantityAlert(ProductStockAlert):
                 {"hsa": self.supply_point.name,
                  "product": self.product.name}
 
-
+@place_in_request()
 def hsa_below_emergency_quantity(request):
     '''
     This query finds HSA/product pairs where the product is below emergency level but there are no pending requests.
     '''
+    hsas = hsa_supply_points_below(request.location)
     return [HSABelowEmergencyQuantityAlert(p.supply_point, p.product) for p in ProductStock.objects.filter(
             is_active=True,
+            supply_point__in=hsas,
             quantity__lte = F('product__emergency_order_level')).exclude(
                     supply_point__in=[r.supply_point for r in StockRequest.pending_requests()])]
 
@@ -121,7 +130,7 @@ class LateReportingAlert(Alert):
         return self._last_responded
 
 
-@place_in_request()    
+@place_in_request()
 def late_reporting_receipt(request):
     """
     7 days after the "order ready" has been sent to the HSA
@@ -129,10 +138,11 @@ def late_reporting_receipt(request):
     """
     # this means that there is a stock request with 
     # status of "ready" that hasn't been modified in > 7 days
-    hsas = hsas_below(request.location)
+    hsas = hsa_supply_points_below(request.location)
     
     since = datetime.utcnow() - timedelta(days=7)
-    bad_reqs = StockRequest.objects.filter(received_on=None, responded_on__lte=since, requested_by__in=hsas)\
+    bad_reqs = StockRequest.objects.filter(received_on=None, responded_on__lte=since, 
+                                           supply_point__in=hsas)\
                     .values('supply_point').annotate(last_response=Max('responded_on'))
     alerts = [LateReportingAlert(SupplyPoint.objects.get(pk=val["supply_point"]), val["last_response"]) \
               for val in bad_reqs]
