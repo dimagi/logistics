@@ -76,15 +76,15 @@ class MalawiProductTable(Table):
 
 class StockRequestTable(Table):
     product = Column()
-    status = Column()
+    is_emergency = Column()
     #amount_requested = Column()
     #amount_received = Column()
     
     requested_on = DateColumn()
     responded_on = DateColumn()
     received_on = DateColumn()
-
-    is_emergency = Column()
+    status = Column()
+    
     
     class Meta:
         order_by = '-requested_on'
