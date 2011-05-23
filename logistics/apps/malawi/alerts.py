@@ -79,7 +79,7 @@ class NonReportingHSAAlert(Alert):
         super(NonReportingHSAAlert, self).__init__(self._get_text(), _hsa_url(self.hsa))
 
     def _get_text(self):
-        return "%(hsa)s has not reported in in the last month." % {'hsa': self.hsa.name}
+        return "%(hsa)s has not reported in the last month." % {'hsa': self.hsa.name}
 
     @property
     def hsa(self):
