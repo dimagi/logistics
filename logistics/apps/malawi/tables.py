@@ -89,11 +89,27 @@ class StockRequestTable(Table):
     class Meta:
         order_by = '-requested_on'
 
-class HSAStockRequestTable(StockRequestTable):
+class HSAStockRequestTable(object):
     """
     Same as above but includes a column for the HSA
     """
+    # for some reason inheritance doesn't work with djtables
+    # so it's all copied here.
     supply_point = Column()
+    product = Column()
+    status = Column()
+    #amount_requested = Column()
+    #amount_received = Column()
+    
+    requested_on = DateColumn()
+    responded_on = DateColumn()
+    received_on = DateColumn()
+
+    is_emergency = Column()
+    
+    class Meta:
+        order_by = '-requested_on'
+
     
 class FacilityTable(Table):
     
