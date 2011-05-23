@@ -552,11 +552,11 @@ class StockTransaction(models.Model):
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
         elif pr.report_type.code == Reports.REC:
-            st.ending_balance = st.beginning_balance + pr.quantity
+            st.ending_balance = st.beginning_balance
             st.quantity = pr.quantity
         elif pr.report_type.code == Reports.GIVE:
+            st.ending_balance = st.beginning_balance
             st.quantity = -pr.quantity
-            st.ending_balance = st.beginning_balance - pr.quantity
         else:
             err_msg = "UNDEFINED BEHAVIOUR FOR UNKNOWN REPORT TYPE %s" % pr.report_type.code
             logging.error(err_msg)
