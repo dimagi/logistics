@@ -1,7 +1,8 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
-    MalawiProductTable, HSATable, StockRequestTable, FacilityTable
+    MalawiProductTable, HSATable, StockRequestTable, FacilityTable,\
+    HSAStockRequestTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product,\
@@ -128,7 +129,7 @@ def facility(request, code, context={}):
 
     context["location"] = facility.location
     
-    context["stockrequest_table"] = StockRequestTable\
+    context["stockrequest_table"] = HSAStockRequestTable\
         (StockRequest.objects.filter(supply_point__supplied_by=facility)\
                              .exclude(status=StockRequestStatus.CANCELED), request)
     
