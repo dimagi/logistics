@@ -982,6 +982,9 @@ class ProductReportsHelper(object):
         
     def received(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
+
+    def nonzero_received(self):
+        return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items() if int(val) > 0)
         
     def stockouts(self):
         # slightly different syntax than above, since there's no point in 
