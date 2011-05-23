@@ -26,4 +26,9 @@ class OrderReadyHandler(OrderResponseBaseHandler):
         self.respond(config.Messages.APPROVAL_RESPONSE, hsa=self.hsa.name)
         self.hsa.message(config.Messages.APPROVAL_NOTICE, hsa=self.hsa.name)
     
-                
+        # this is really hacky, but set the SoH to non-zero for the reported products
+        # so that they show no longer stocked out in things like alerts
+        for req in pending_reqs:
+            if self.msg.logistics_contact.supply_point.stock(req.product) == 0:
+                self.msg.logistics_contact.supply_point.update_stock(req.product, 1)
+        

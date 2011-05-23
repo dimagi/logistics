@@ -1,5 +1,6 @@
 from datetime import datetime
-from logistics.apps.logistics.models import StockRequest, ContactRole
+from logistics.apps.logistics.models import StockRequest, ContactRole,\
+    ProductStock
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 from rapidsms.models import Contact
@@ -30,12 +31,18 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
         # this is pretty confusing/hacky
         emergencies = pending_reqs.filter(is_emergency=True) 
         if emergencies.count() > 0:
-            products = ", ".join(req.product.sms_code for req in emergencies)
+            reqs = emergencies
         else:
-            products = ", ".join(req.product.sms_code for req in pending_reqs)
+            reqs = pending_reqs
         self.respond(config.Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
-                     products=products)
+                     products=", ".join(req.product.sms_code for req in reqs))
         self.hsa.message(config.Messages.STOCKOUT_NOTICE, hsa=self.hsa.name)
+        
+        # this is pretty hacky, but set the SoH to 0 for the stocked out products
+        # so that they show properly in things like alerts
+        for req in reqs:
+            self.msg.logistics_contact.supply_point.update_stock(req.product, 0)
+        
         supplier = self.msg.logistics_contact.supply_point.supplied_by
         if supplier is not None:
             supervisors = Contact.objects.filter(supply_point=supplier, 
@@ -47,5 +54,5 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
                 super.message(config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION, 
                               contact=self.msg.logistics_contact.name,
                               supply_point=self.msg.logistics_contact.supply_point.name,
-                              products=products)
+                              products=", ".join(req.product.sms_code for req in reqs))
             
