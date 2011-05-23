@@ -176,4 +176,5 @@ class Messages(object):
 
 class Alerts(object):
     
-    HSA_NO_PRODUCTS =  "%(hsa)s is registered but is not associated with any products"
+    HSA_NO_PRODUCTS = "%(hsa)s is registered but is not associated with any products"
+    FACILITY_NO_SUPERVISOR = "No HSA supervisor or in-charge is registered for %(facility)s but there are HSAs registered there."

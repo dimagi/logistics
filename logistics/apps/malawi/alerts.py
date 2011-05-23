@@ -161,7 +161,7 @@ def hsas_no_supervision(request):
     orphaned_facilities = base_facilitities.exclude\
         (contact__role__code__in=config.Roles.SUPERVISOR_ROLES)
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
-    return [Alert("No in charge or supervisor is registered for %s but there are HSAs there." % fac, _facility_url(fac)) \
+    return [Alert(config.Alerts.FACILITY_NO_SUPERVISOR % {"facilility": fac}, _facility_url(fac)) \
             for fac in orphaned_facilities_with_hsas]
 
 @place_in_request()
