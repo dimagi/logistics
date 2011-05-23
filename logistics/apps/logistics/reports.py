@@ -86,9 +86,9 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Partially Reporting HSAs", ReportingTable(self.partial)),
-                TableData("Fully Reporting HSAs", ReportingTable(self.full)),
-                TableData("HSAs not configured for stock", ReportingTable(self.unconfigured))]
+        return [TableData("Incomplete Reports", ReportingTable(self.partial)),
+                TableData("Complete Reports", ReportingTable(self.full)),
+                TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))]
         
     _on_time_chart = None
     def on_time_chart(self):
