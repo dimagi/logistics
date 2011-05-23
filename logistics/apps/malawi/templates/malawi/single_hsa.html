@@ -30,6 +30,14 @@
         <h2>Order Response Times</h2>
         {{ stockrequest_table.as_html }}
     </div>
+    <div class="toppadded">
+        <h2>HSA Details</h2>
+            <table class="summary">
+                <tr><td class="prompt">Facility: </td><td><a href="{% url malawi_facility hsa.supply_point.code %}">{{ hsa.supply_point.supplied_by }}</a></td></tr>
+                <tr><td class="prompt">Phone Number: </td><td>{{ hsa.phone }}</td></tr>
+                <tr><td class="prompt">Products: </td><td>{% if hsa.commodities.count %}{{ hsa.commodities.all|join:", " }}{% else %}<span class="inline-error">none configured</span>{% endif %}</td></tr>
+            </table>
+    </div>
 {% if debug %}    
     <div class="two-columns toppadded">
 	    <div class="col-1">
