@@ -21,8 +21,7 @@ MIDDLEWARE_CLASSES = (
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics_dashboard",                    "Stock Levels"),
-    ("logistics.apps.malawi.views.facilities",       "Facilities"),
+    ("logistics.apps.malawi.views.facilities",       "Stock Levels"),
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
     ("logistics.apps.malawi.views.contacts",       "Management"),
     ("registration",                          "Registration"),
@@ -127,6 +126,7 @@ STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(o
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
+LOGISTICS_LANDING_PAGE_VIEW = "malawi_dashboard"
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1

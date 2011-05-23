@@ -35,6 +35,10 @@ def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
 def landing_page(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
+    
+    if settings.LOGISTICS_LANDING_PAGE_VIEW:
+        return HttpResponseRedirect(reverse(settings.LOGISTICS_LANDING_PAGE_VIEW))
+    
     prof = None 
     try:
         if not request.user.is_anonymous():
