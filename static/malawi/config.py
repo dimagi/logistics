@@ -173,3 +173,7 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     
+
+class Alerts(object):
+    
+    HSA_NO_PRODUCTS =  "%(hsa)s is registered but is not associated with any products"

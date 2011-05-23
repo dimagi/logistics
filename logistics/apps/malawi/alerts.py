@@ -154,9 +154,8 @@ def hsas_no_supervision(request):
     HSAs working out of facilities that don't have any registered
     in charges or managers.
     """
-    base_facilitities = get_facility_supply_points()
-    if request.location:
-        base_facilitities = SupplyPoint.objects.filter(location__parent_id=request.location.pk)
+    base_facilitities = facility_supply_points_below(request.location)
+    
     hsas = SupplyPoint.objects.filter(type=SupplyPointType.objects.get(code="hsa"))
     facilities_with_hsas = set(hsas.values_list("supplied_by", flat=True))
     orphaned_facilities = base_facilitities.exclude\
@@ -164,7 +163,12 @@ def hsas_no_supervision(request):
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
     return [Alert("No in charge or supervisor is registered for %s but there are HSAs there." % fac, _facility_url(fac)) \
             for fac in orphaned_facilities_with_hsas]
-    
+
+@place_in_request()
+def hsas_no_products(request):
+    hsas = hsas_below(request.location)
+    return [Alert(config.Alerts.HSA_NO_PRODUCTS % {"hsa": hsa.name}, _hsa_url(hsa.supply_point)) \
+                  for hsa in hsas.all() if hsa.commodities.count() == 0]
     
 def _facility_url(supply_point):
     return reverse("malawi_facility", args=[supply_point.code])

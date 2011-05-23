@@ -147,6 +147,7 @@ LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
     'logistics.apps.malawi.alerts.hsas_no_supervision',
+    'logistics.apps.malawi.alerts.hsas_no_products',
     'logistics.apps.malawi.alerts.late_reporting_receipt',
     'logistics.apps.malawi.alerts.non_reporting_hsas',
     'logistics.apps.malawi.alerts.health_center_stockout',
