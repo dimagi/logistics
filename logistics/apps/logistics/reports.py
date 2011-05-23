@@ -5,6 +5,7 @@ from logistics.apps.logistics.models import ProductReport, Product, ProductStock
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.tables import ReportingTable
 import json
+from django.core.urlresolvers import reverse
 
 class PieChartData(object):
     
@@ -206,3 +207,60 @@ class ProductAvailabilitySummary(object):
                                "ticks": json.dumps(products)}
                 
         return self._flot_data
+
+class SupplyPointRow():
+        
+    def __init__(self, supply_point, commodity_filter, commoditytype_filter):
+        self.supply_point = supply_point
+        self.commodity_filter = commodity_filter
+        self.commoditytype_filter = commoditytype_filter
+        self._cached_stock = {}
+        
+    @property
+    def is_active(self):
+        return self.supply_point.location.is_active
+    
+    @property
+    def name(self):
+        return self.supply_point.name
+    
+    @property 
+    def code(self):
+        return self.supply_point.code
+    
+    @property
+    def url(self):
+        raise NotImplementedError()
+        
+    def _call_stock_count(self, name):
+        if name in self._cached_stock:
+            return self._cached_stock[name]
+        val = getattr(self.supply_point, name)(self.commodity_filter, self.commoditytype_filter)
+        self._cached_stock[name] = val
+        return val
+    
+    def stockout_count(self): return self._call_stock_count("stockout_count")
+    def emergency_stock_count(self): return self._call_stock_count("emergency_stock_count")
+    def adequate_supply_count(self): return self._call_stock_count("adequate_supply_count")
+    def overstocked_count(self): return self._call_stock_count("overstocked_count")
+    
+    @property
+    def consumption(self): 
+        if self.commodity_filter is not None:
+            return self.supply_point.consumption(product=self.commodity_filter,
+                                                 producttype=self.commoditytype_filter)
+        
+    
+
+class HSASupplyPointRow(SupplyPointRow):
+    
+    @property
+    def url(self):
+        return reverse("malawi_hsa", args=[self.supply_point.code])
+
+
+class FacilitySupplyPointRow(SupplyPointRow):
+    
+    @property
+    def url(self):
+        return reverse("malawi_facility", args=[self.supply_point.code])

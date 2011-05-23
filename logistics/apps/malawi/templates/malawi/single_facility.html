@@ -24,10 +24,10 @@
             {% include "logistics/partials/commodity_filter.html" %}
         </div>
         <div id="report-content">
-{% flat_table location commodity_filter commoditytype_filter %}
+{% hsa_aggregate_table location commodity_filter commoditytype_filter %}
         <p class="smallnote">
             Note: these numbers represent the total number of stockouts
-            across all commodities in the region indicated. The above table also does
+            across all commodities and HSAs in the facility indicated. The above table also does
             not reflect commodities for which the monthly consumption is unknown. 
         </p>
         </div>

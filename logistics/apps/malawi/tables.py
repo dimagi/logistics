@@ -122,3 +122,14 @@ class FacilityTable(Table):
                   sortable=False)
     class Meta:
         order_by = 'code'
+
+class DistrictTable(Table):
+    
+    name = Column(link=lambda cell: "%s?place=%s" % (reverse("malawi_facilities"), cell.object.code))
+    code = Column()
+    facilities = Column(name="Number of Facilities", 
+                  value=lambda cell: len(cell.object.children()),
+                  sortable=False)
+    
+    class Meta:
+        order_by = 'code'

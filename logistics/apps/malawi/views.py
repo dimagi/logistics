@@ -1,15 +1,15 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable,\
-    MalawiProductTable, HSATable, StockRequestTable, FacilityTable,\
-    HSAStockRequestTable
+from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
+    MalawiProductTable, HSATable, StockRequestTable, FacilityTable, \
+    HSAStockRequestTable, DistrictTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import SupplyPoint, Product,\
+from logistics.apps.logistics.models import SupplyPoint, Product, \
     StockTransaction, ProductReport, StockRequestStatus, StockRequest
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
-from logistics.apps.malawi.util import get_districts, get_facilities,\
+from logistics.apps.malawi.util import get_districts, get_facilities, \
     get_facility_supply_points, hsas_below
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
@@ -30,14 +30,14 @@ def dashboard(request, days=30):
     
     # reporting info
     report = ReportingBreakdown(base_facilites, days)
-    return render_to_response("malawi/dashboard.html", 
+    return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "districts": get_districts().order_by("code"),
                                "location": request.location,
-                               "days": days}, 
+                               "days": days},
                               context_instance=RequestContext(request))
 
 def places(request):
@@ -99,19 +99,18 @@ def facilities(request):
     
     if request.location:
         if request.location.type.slug == "district":
-            display_facilities = facilities.filter(parent_id=request.location.id)
+            table = None # nothing to do, handled by aggregate
         else:
             assert(request.location.type.slug == "facility")
             return HttpResponseRedirect(reverse("malawi_facility", args=[request.location.code]))
     else:
-        display_facilities = facilities
-    
+        table = DistrictTable(get_districts(), request=request)
     return render_to_response("malawi/facilities.html",
         {
             "location": request.location,
             "facilities": facilities,
-            "facilities_table": FacilityTable(display_facilities, request=request),
-            "districts": get_districts().order_by("id")
+            "table": table,
+            "districts": get_districts().order_by("code")
         }, context_instance=RequestContext(request))
     
 @filter_context
