@@ -5,7 +5,7 @@ from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product,\
-    StockTransaction, ProductReport
+    StockTransaction, ProductReport, StockRequestStatus, StockRequest
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.apps.malawi.util import get_districts, get_facilities,\
@@ -91,7 +91,8 @@ def hsa(request, code):
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
     chart_data = stocklevel_plot(transactions) 
     
-    stockrequest_table = StockRequestTable(hsa.supply_point.stockrequest_set, request)
+    stockrequest_table = StockRequestTable(hsa.supply_point.stockrequest_set\
+                                           .exclude(status=StockRequestStatus.CANCELED), request)
     return render_to_response("malawi/single_hsa.html",
         {
             "hsa": hsa,
@@ -126,6 +127,11 @@ def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
 
     context["location"] = facility.location
+    
+    context["stockrequest_table"] = StockRequestTable\
+        (StockRequest.objects.filter(supply_point__supplied_by=facility)\
+                             .exclude(status=StockRequestStatus.CANCELED), request)
+    
     return render_to_response("malawi/single_facility.html",
         context, context_instance=RequestContext(request))
     

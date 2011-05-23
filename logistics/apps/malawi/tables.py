@@ -77,8 +77,8 @@ class MalawiProductTable(Table):
 class StockRequestTable(Table):
     product = Column()
     status = Column()
-    amount_requested = Column()
-    amount_received = Column()
+    #amount_requested = Column()
+    #amount_received = Column()
     
     requested_on = DateColumn()
     responded_on = DateColumn()
@@ -89,6 +89,12 @@ class StockRequestTable(Table):
     class Meta:
         order_by = '-requested_on'
 
+class HSAStockRequestTable(StockRequestTable):
+    """
+    Same as above but includes a column for the HSA
+    """
+    supply_point = Column()
+    
 class FacilityTable(Table):
     
     name = Column(link=lambda cell: reverse("malawi_facility", args=[cell.object.code]))
