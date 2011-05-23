@@ -20,7 +20,6 @@ from logistics.apps.logistics.reports import ReportingBreakdown
 
 @place_in_request()
 def dashboard(request, days=30):
-    since  = datetime.utcnow() - timedelta(days=days)
     base_facilites = SupplyPoint.objects.filter(type__code="hsa")
     
     # district filter
@@ -29,7 +28,7 @@ def dashboard(request, days=30):
         base_facilites = base_facilites.filter(location__parent_id__in=[f.pk for f in valid_facilities])
     
     # reporting info
-    report = ReportingBreakdown(base_facilites)
+    report = ReportingBreakdown(base_facilites, days)
     return render_to_response("malawi/dashboard.html", 
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),

@@ -1,4 +1,12 @@
 {% extends "logistics/reports_base.html" %}
+
+{% block javascripts %}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
+    {{ block.super }}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+{% endblock %} 
+
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
@@ -23,7 +31,7 @@
         </p>
         </div>
         <div style="clear:right; padding-top:3em;">
-        {% reporting_rates location.children "hsa" %}
+        {% reporting_breakdown location.children "hsa" %}
         </div>
         <div style="clear:both;">
         {% order_fill_stats location.children "hsa" %}

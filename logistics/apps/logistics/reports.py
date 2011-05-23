@@ -3,14 +3,21 @@ from django.db.models.query_utils import Q
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport
 from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.tables import ReportingTable
 
-class PieChartData():
+class PieChartData(object):
     
     def __init__(self, title, data):
         self.title = title
         self.data = data
         
-class ReportingBreakdown():
+class TableData(object):
+    
+    def __init__(self, title, table):
+        self.title = title
+        self.table = table
+
+class ReportingBreakdown(object):
     """
     Given a query set of supply points, get an object for displaying reporting
     information.
@@ -76,6 +83,11 @@ class ReportingBreakdown():
             self._breakdown_chart = PieChartData("Reporting Details (last %s days)" % self.days, graph_data)
         return self._breakdown_chart
         
+    def breakdown_groups(self):
+        return [TableData("Partially Reporting HSAs", ReportingTable(self.partial)),
+                TableData("Fully Reporting HSAs", ReportingTable(self.full)),
+                TableData("HSAs not configured for stock", ReportingTable(self.unconfigured))]
+        
     _on_time_chart = None
     def on_time_chart(self):
         if self._on_time_chart is None:
@@ -94,4 +106,7 @@ class ReportingBreakdown():
             self._on_time_chart = PieChartData("Reporting Rates (last %s days)" % self.days, graph_data)
         return self._on_time_chart
         
-    
+    def on_time_groups(self):
+        return [TableData("Non-Reporting HSAs", ReportingTable(self.late)),
+                TableData("On-Time HSAs", ReportingTable(self.on_time))]
+        

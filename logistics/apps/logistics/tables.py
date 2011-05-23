@@ -44,3 +44,15 @@ class ShortMessageTable(Table):
     text = Column(css_class="message", sortable=False)
 
     
+class ReportingTable(Table):
+    name = Column(sortable=False)
+    last_reported = DateColumn(name="Last Reported on",
+                               value=lambda cell: cell.object.last_reported \
+                                    if cell.object.last_reported else "never",
+                               format="M d, h:m A", 
+                               sortable=False,
+                               css_class="tabledate")
+    
+    class Meta:
+        order_by = '-last_reported'
+
