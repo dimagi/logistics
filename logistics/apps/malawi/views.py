@@ -1,23 +1,20 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
-    MalawiProductTable, HSATable, StockRequestTable, FacilityTable, \
+    MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
-    StockTransaction, ProductReport, StockRequestStatus, StockRequest
-from datetime import datetime, timedelta
-from django.db.models.query_utils import Q
-from logistics.apps.malawi.util import get_districts, get_facilities, \
-    get_facility_supply_points, hsas_below
+    StockTransaction, StockRequestStatus, StockRequest
+from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
-from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.reports import ReportingBreakdown
+from logistics.apps.logistics.util import config
 
 @place_in_request()
 def dashboard(request, days=30):
@@ -118,10 +115,13 @@ def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
 
     context["location"] = facility.location
+    facility.location.supervisors = facility.contact_set.filter(role__code=config.Roles.HSA_SUPERVISOR)
+    facility.location.in_charges = facility.contact_set.filter(role__code=config.Roles.IN_CHARGE)
     
     context["stockrequest_table"] = HSAStockRequestTable\
         (StockRequest.objects.filter(supply_point__supplied_by=facility)\
                              .exclude(status=StockRequestStatus.CANCELED), request)
+    
     
     return render_to_response("malawi/single_facility.html",
         context, context_instance=RequestContext(request))

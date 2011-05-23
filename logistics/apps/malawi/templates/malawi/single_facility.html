@@ -45,5 +45,14 @@
         <h2>Order Response Times</h2>
             {{ stockrequest_table.as_html }}
         </div>
+        <div class="toppadded">
+        <h2>Facility Details</h2>
+            <table class="summary">
+                <tr><td class="prompt">District: </td><td><a href="{% url malawi_facilities %}?place={{ location.parent.code }}">{{ location.parent }}</a></td></tr>
+                <tr><td class="prompt">HSA Supervisor: </td><td>{% if location.supervisors.count %}{{ location.supervisors|join:", " }}{% else %}<span class="inline-error">none configured</span>{% endif %}</td></tr>
+                <tr><td class="prompt">In Charge: </td><td>{% if location.in_charges.count %}{{ location.in_charges|join:", " }}{% else %}<span class="inline-error">none configured</span>{% endif %}</td></tr>
+            </table>
+        </div>
+        
     </div>
 {% endblock %}
