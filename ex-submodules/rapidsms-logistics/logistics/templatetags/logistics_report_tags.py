@@ -13,6 +13,7 @@ from logistics.apps.logistics.views import get_location_children
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.tables import ShortMessageTable
 from django.core.urlresolvers import reverse
+from logistics.apps.logistics.reports import ReportingBreakdown
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
@@ -113,15 +114,13 @@ def reporting_breakdown(locations, type=None, days=30):
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            late_facilities = base_points.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
-            on_time_facilities = base_points.filter(last_reported__gte=since).order_by('-last_reported','name')
-            return _r_2_s_helper("logistics/partials/reporting_rates.html", 
-                                    {"late_facilities": late_facilities,
-                                     "on_time_facilities": on_time_facilities,
-                                     "graph_width": 200,
-                                     "graph_height": 200,
-                                     "days": days,
-                                     "table_class": "minor_table" })
+            report = ReportingBreakdown(base_points, days)
+            return _r_2_s_helper("logistics/partials/reporting_breakdown.html", 
+                                 {"report": report,
+                                  "graph_width": 200,
+                                  "graph_height": 200,
+                                  "days": days,
+                                  "table_class": "minor_table" })
                                      
     return "" # no data, no report
 
