@@ -30,15 +30,17 @@
         <h2>Order Response Times</h2>
         {{ stockrequest_table.as_html }}
     </div>
+{% if debug %}    
     <div class="two-columns toppadded">
 	    <div class="col-1">
 	        <h2>Recent Messages</h2>
 	        {% recent_messages hsa %}
 	    </div>
 	    <div class="col-2">
-	        <h2>What goes here?</h2>
-	        Hopefully something better than this.
+	        <h2>Contact  Information</h2>
+	        TODO
 	    </div>
     </div>
+{% endif %}
 </div>
 {% endblock %}
