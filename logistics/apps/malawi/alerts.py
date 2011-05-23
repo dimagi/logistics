@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from logistics.apps.logistics.util import config
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.malawi.nag import get_non_reporting_hsas
-from logistics.apps.malawi.util import get_facility_supply_points
+from logistics.apps.malawi.util import get_facility_supply_points, hsas_below
 
 class ProductStockAlert(Alert):
 
@@ -120,7 +120,8 @@ class LateReportingAlert(Alert):
     def last_responded(self):
         return self._last_responded
 
-    
+
+@place_in_request()    
 def late_reporting_receipt(request):
     """
     7 days after the "order ready" has been sent to the HSA
@@ -128,8 +129,10 @@ def late_reporting_receipt(request):
     """
     # this means that there is a stock request with 
     # status of "ready" that hasn't been modified in > 7 days
+    hsas = hsas_below(request.location)
+    
     since = datetime.utcnow() - timedelta(days=7)
-    bad_reqs = StockRequest.objects.filter(received_on=None, responded_on__lte=since)\
+    bad_reqs = StockRequest.objects.filter(received_on=None, responded_on__lte=since, requested_by__in=hsas)\
                     .values('supply_point').annotate(last_response=Max('responded_on'))
     alerts = [LateReportingAlert(SupplyPoint.objects.get(pk=val["supply_point"]), val["last_response"]) \
               for val in bad_reqs]
