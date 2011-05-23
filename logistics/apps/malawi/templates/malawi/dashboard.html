@@ -1,13 +1,16 @@
 {% extends base_template %}
+
 {% load i18n %}
 {% load webdesign %} 
-{% load alerts_tags %} 
+{% load alerts_tags %}
+{% load logistics_report_tags %}
 
 {% block javascripts %}
     <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
     {{ block.super }}
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
 {% endblock %} 
 
 {% block stylesheets %}{{ block.super }}
@@ -42,5 +45,9 @@ NOTE: The dashboard is still under construction.
         </div>
     </div>
     <div class="clear-hack"></div>
+</div>
+<div class="module toppadded">
+    <h2>Product Availability Summary</h2>
+    {% product_availability_summary location %}
 </div>
 {% endblock %}

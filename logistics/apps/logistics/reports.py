@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ProductReport
+from logistics.apps.logistics.models import ProductReport, Product, ProductStock
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.tables import ReportingTable
+import json
 
 class PieChartData(object):
     
@@ -109,4 +110,99 @@ class ReportingBreakdown(object):
     def on_time_groups(self):
         return [TableData("Non-Reporting HSAs", ReportingTable(self.late)),
                 TableData("On-Time HSAs", ReportingTable(self.on_time))]
+
+class ProductAvailabilitySummary(object):
+    
+    def __init__(self, contacts, width=900, height=300):
+        """
+        contacts should be a query set of contacts that you care about
+        the product availability for.
         
+        This currently assumes a 1:1 ratio of contact to supply points
+        """
+        self._width = width
+        self._height = height
+        
+        products = Product.objects.all()
+        data = []
+        for p in products:
+            supplying = contacts.filter(commodities=p)
+            if supplying:
+                total = supplying.count()
+                supplying_sps = supplying.values_list("supply_point", flat=True)
+                stocks = ProductStock.objects.filter(product=p, supply_point__pk__in=supplying_sps)
+                with_stock = stocks.filter(quantity__gt=0).count()
+                without_stock = stocks.filter(quantity=0).count()
+                without_data = total - with_stock - without_stock
+                data.append({"product": p,
+                             "total": total,
+                             "with_stock": with_stock,
+                             "without_stock": without_stock,
+                             "without_data": without_data})
+                             
+        self.data = data
+        
+    @property
+    def max_value(self):
+        return max([d["total"] for d in self.data]) if self.data else 0
+    
+    @property
+    def width(self):
+        return self._width
+    @property
+    def height(self):
+        return self._height
+    
+    @property
+    def yaxistitle(self):
+        # TODO - can customize this if necessary
+        return "Number of HSAs"
+    
+    @property
+    def xaxistitle(self):
+        # TODO - can customize this if necessary
+        return "Products"
+        
+    @property
+    def div(self):
+        # TODO - can customize this if necessary
+        return "product_availability_summary_plot_placeholder"
+        
+    @property
+    def legenddiv(self):
+        # TODO - can customize this if necessary
+        return "product_availability_summary_legend"
+        
+    _flot_data = None
+    @property
+    def flot_data(self):
+        if self._flot_data is None:
+            with_stock = []
+            without_stock = []
+            without_data = []
+            products = []
+            for i, product_summary in enumerate(self.data):
+                index = i + 1
+                with_stock.append([index, product_summary["with_stock"]])
+                without_stock.append([index, product_summary["without_stock"]])
+                without_data.append([index, product_summary["without_data"]])
+                products.append([index, product_summary["product"].sms_code])
+
+            bar_data = [{"data" : without_stock,
+                         "label": "Stocked out", 
+                         "bars": { "show" : "true" },
+                         "color": "red"  
+                        },
+                        {"data" : with_stock,
+                         "label": "Not Stocked out", 
+                         "bars": { "show" : "true" }, 
+                         "color": "green"  
+                        },
+                        {"data" : without_data,
+                         "label": "No Stock Data", 
+                         "bars": { "show" : "true" }, 
+                        }]
+            self._flot_data = {"data": json.dumps(bar_data), 
+                               "ticks": json.dumps(products)}
+                
+        return self._flot_data

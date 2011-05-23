@@ -4,7 +4,7 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.apps.logistics.models import SupplyPoint, StockRequest,\
-    StockRequestStatus, Product
+    StockRequestStatus, Product, ProductStock
 from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
@@ -13,7 +13,9 @@ from logistics.apps.logistics.views import get_location_children
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.tables import ShortMessageTable
 from django.core.urlresolvers import reverse
-from logistics.apps.logistics.reports import ReportingBreakdown
+from logistics.apps.logistics.reports import ReportingBreakdown,\
+    ProductAvailabilitySummary
+from logistics.apps.malawi.util import hsas_below
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
@@ -206,3 +208,15 @@ def stockonhand_table(supply_point):
 def recent_messages(contact, limit=5):
     return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
 
+@register.simple_tag
+def product_availability_summary(location):
+    if not location:
+        pass # TODO: probably want to disable this if things get slow
+        #return '<p class="notice">To view the product availability summary, first select a district.</p>'
+    
+    hsas = hsas_below(location)
+    summary = ProductAvailabilitySummary(hsas)
+    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+                         {"summary": summary})
+
+    

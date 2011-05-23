@@ -10,7 +10,7 @@ from logistics.apps.logistics.models import SupplyPoint, Product,\
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.apps.malawi.util import get_districts, get_facilities,\
-    get_facility_supply_points
+    get_facility_supply_points, hsas_below
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
@@ -63,16 +63,7 @@ def products(request):
 
 @place_in_request()
 def hsas(request):
-    hsas = Contact.objects.filter(role__code="hsa")
-    
-    if request.location:
-        # support up to 3 levels of parentage. this covers
-        # hsa->facility-> district, which is all we allow you to select
-        hsas = hsas.filter(Q(supply_point__location=request.location) | \
-                           Q(supply_point__supplied_by__location=request.location) | \
-                           Q(supply_point__supplied_by__supplied_by__location=request.location))
-    
-    
+    hsas = hsas_below(request.location)
     districts = get_districts().order_by("id")
     facilities = get_facilities().order_by("parent_id")
     

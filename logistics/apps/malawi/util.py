@@ -3,6 +3,7 @@ from logistics.apps.logistics.models import SupplyPoint
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.exceptions import MultipleHSAException
 from rapidsms.contrib.locations.models import Location
+from django.db.models.query_utils import Q
 
 
 def get_hsa(hsa_id):
@@ -19,6 +20,21 @@ def get_hsa(hsa_id):
     except Contact.MultipleObjectsReturned:
         # this is weird, shouldn't be possible, but who knows.
         raise MultipleHSAException("More than one HSA found with id %s" % hsa_id)
+
+def hsas_below(location):
+    """
+    Given an optional location, return all HSAs below that location.
+    """
+    hsas = Contact.objects.filter(role__code="hsa")
+    if location:
+        # support up to 3 levels of parentage. this covers
+        # hsa->facility-> district, which is all we allow you to select
+        
+        hsas = hsas.filter(Q(supply_point__location=location) | \
+                           Q(supply_point__supplied_by__location=location) | \
+                           Q(supply_point__supplied_by__supplied_by__location=location))
+    return hsas
+    
     
 def get_supervisors(supply_point):
     """
