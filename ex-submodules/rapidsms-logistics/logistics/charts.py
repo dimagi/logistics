@@ -7,13 +7,15 @@ def stocklevel_plot(transactions):
     products = set(transactions.values_list("product__sms_code", flat=True))
     cols = {"date": ("datetime", "Date")}
     for p in products:
-        cols[Product.objects.get(sms_code=p).name] = ('number', p)#, {'type': 'string', 'label': "title_"+s.sms_code}]
+        if p.average_monthly_consumption:
+            cols[Product.objects.get(sms_code=p).name] = ('number', p)#, {'type': 'string', 'label': "title_"+s.sms_code}]
     table = gviz_api.DataTable(cols)
 
     data_rows = {}
     for t in transactions:
+        if not t.product.average_monthly_consumption: continue
         if not t.date in data_rows: data_rows[t.date] = {}
-        data_rows[t.date][t.product.name] = t.ending_balance
+        data_rows[t.date][t.product.name] = float(t.ending_balance) / float(t.product.average_monthly_consumption)
         
     rows = []
     for d in data_rows.keys():
