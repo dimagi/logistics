@@ -7,11 +7,15 @@
     <div class="module">
         {% include "logistics/partials/accordion_nav.html" %}
         <div id="main">
-        	<div id="report-subnav"><a href="{% url aggregate location.code %}">Aggregate View</a> * Facilities By Product View</div>
             <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
             <div class="right">
+            	<strong>
+            	<a href="{% url aggregate location.code %}">
+            		Return to Aggregate View
+            		(view ALL commodities) </a>
+            	</strong><p></p>
                 <div  class="filter">Select a Commodity</div>
-            	{% commodity_filter commodities 0 %}
+                {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div>
                 <table class="stock">
@@ -25,7 +29,7 @@
                         <th class="stock_col">{% trans "Max Level" %}</th>
                     </tr></thead>
                     <tbody>
-                    {% for stockonhand in rows %}
+                    {% for stockonhand in stockonhands %}
 		                {% if stockonhand.is_active %}
                         <tr>
                         <td><a href="{% url stockonhand_facility stockonhand.supply_point.code %}">
@@ -47,6 +51,11 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if not stockonhands %}
+                <div class="smallnote">
+               	None of the facilities in {{location.name}} {{location.type}} stock {{ selected_commodity.name }}
+               	</div>
+                {% endif %}
             </div>
         <br/>
     </div>
