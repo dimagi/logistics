@@ -19,7 +19,8 @@
 	    {% if chart_data %}
 	        <div id="chart_div" class="noprint"></div>
 	    {% endif %}
-	    {% stockonhand_table hsa.supply_point %}
+    <h2>Current Stock Levels</h2>
+        {% stockonhand_table hsa.supply_point %}
     {% else %}
 	    <div class="error">
 	        <p>{{ hsa.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
