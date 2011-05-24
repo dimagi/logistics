@@ -92,7 +92,7 @@ def non_reporting_hsas(request):
 
 class HSABelowEmergencyQuantityAlert(ProductStockAlert):
     def _get_text(self):
-        return "%(hsa)s was restocked but remains below emergency quantity of %(product)s." % \
+        return "%(hsa)s was resupplied but remains below emergency quantity of %(product)s." % \
                 {"hsa": self.supply_point.name,
                  "product": self.product.name}
 
@@ -119,7 +119,7 @@ class LateReportingAlert(Alert):
         super(LateReportingAlert, self).__init__(self._get_text(), _hsa_url(supply_point))
     
     def _get_text(self):
-        return "%(person)s got an 'order ready' alert on %(date)s but has still not reported a receipt." % \
+        return "%(person)s got an 'order ready' message on %(date)s but has still not reported a receipt." % \
                 {"person": self.supply_point.name,
                  "date": self.last_responded.strftime('%d-%B-%Y')}
     
