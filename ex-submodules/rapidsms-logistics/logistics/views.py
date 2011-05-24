@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -150,33 +150,24 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
 @geography_context
 @filter_context
-def district(request, location_code, context={}, template="logistics/aggregate.html"):
+def facilities_by_product(request, location_code, context={}, template="logistics/by_product.html"):
     """
     The district view is unusual. When we do not receive a filter by individual product,
     we show the aggregate report. When we do receive a filter by individual product, we show
     the 'by product' report. Let's see how this goes. 
     """
+    if 'commodity' in request.REQUEST:
+        commodity_filter = request.REQUEST['commodity']
+        context['commodity_filter'] = commodity_filter
+        commodity = get_object_or_404(Product, sms_code=commodity_filter)
+        context['selected_commodity'] = commodity
+    else:
+        raise HttpResponse('Must specify "commodity"')
     location = get_object_or_404(Location, code=location_code)
+    stockonhands = ProductStock.objects.filter(Q(supply_point__location=location)|Q(supply_point__location__parent_id=location.pk))
+    context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location=location)
-    commodity_filter = None
-    commoditytype_filter = None
-    if request.method == "POST" or request.method == "GET":
-        # We support GETs so that folks can share this report as a url
-        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
-            commodity_filter = request.REQUEST['commodity']
-            context['commodity_filter'] = commodity_filter
-            commodity = Product.objects.get(sms_code=commodity_filter)
-            context['commoditytype_filter'] = commodity.type.code
-            template="logistics/stockonhand_district.html"
-            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
-        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
-            commoditytype_filter = request.REQUEST['commoditytype']
-            context['commoditytype_filter'] = commoditytype_filter
-            type = ProductType.objects.get(code=commoditytype_filter)
-            context['commodities'] = context['commodities'].filter(type=type)
-            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('supply_point__name')
-    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
+    context['hide_product_link'] = True
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -229,16 +220,24 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
         location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
+    context['default_commodity'] = Product.objects.order_by('name')[0]
     context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
+    context['facility_count'] = location.child_facilities().count()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
+def _get_location_facilities(location, commodity_filter, commoditytype_filter):
+    return _get_rows_from_children(location.facilities(), commodity_filter, commoditytype_filter)
+def _get_location_child_facilities(location, commodity_filter, commoditytype_filter):
+    return _get_rows_from_children(location.child_facilities(), commodity_filter, commoditytype_filter)
 def _get_location_children(location, commodity_filter, commoditytype_filter):
-    rows = []
     children = []
     children.extend(location.facilities())
     children.extend(location.children())
+    return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
+def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
+    rows = []
     for child in children:
         row = {}
         row['location'] = child

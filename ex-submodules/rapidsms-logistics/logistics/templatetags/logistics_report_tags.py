@@ -109,3 +109,15 @@ def order_fill_stats(locations, type=None, days=30):
                                     {"data": main_data})
                                      
     return "" # no data, no report
+
+@register.simple_tag
+def commodity_filter(commodities, can_select_all=True):
+    return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
+                                                                         "can_select_all": can_select_all})
+
+@register.simple_tag
+def commodity_code_to_name(code):
+    try:
+        return Product.objects.get(sms_code=code).name
+    except Product.DoesNotExist:
+        return "Unknown Commodity"

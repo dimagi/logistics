@@ -12,6 +12,8 @@
 .smallnote {
     font-size: 0.9em;
     font-style:italic;
+	clear:left; 
+	padding-top:2em
 }
 
 .note {
