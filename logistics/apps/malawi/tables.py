@@ -8,6 +8,8 @@ from djtables.column import DateColumn
 from logistics.apps.registration.tables import list_commodities,\
     contact_edit_link
 from django.core.urlresolvers import reverse
+from django.template.defaultfilters import yesno
+from logistics.apps.logistics.models import StockRequestStatus
 
 
 class MalawiContactTable(Table):
@@ -74,16 +76,34 @@ class MalawiProductTable(Table):
     class Meta:
         order_by = 'name'
 
+class EmergencyColumn(Column):
+    def __init__(self):
+        super(EmergencyColumn, self).__init__(name="Is Emergency?",
+                                              sortable=False,
+                                              value=lambda cell: yesno(cell.object.is_emergency))
+        
+def status_display(status):
+    if status == StockRequestStatus.APPROVED:
+        return "order ready"
+    else: 
+        return status.replace("_", " ")
+
+class StatusColumn(Column):
+    def __init__(self):
+        super(StatusColumn, self).__init__(name="Status",
+                                           sortable=False,
+                                           value=lambda cell: status_display(cell.object.status))
+        
 class StockRequestTable(Table):
     product = Column()
-    is_emergency = Column()
+    is_emergency = EmergencyColumn()
     #amount_requested = Column()
     #amount_received = Column()
     
     requested_on = DateColumn()
     responded_on = DateColumn()
     received_on = DateColumn()
-    status = Column()
+    status = StatusColumn()
     
     
     class Meta:
@@ -97,7 +117,7 @@ class HSAStockRequestTable(Table):
     # so it's all copied here.
     supply_point = Column()
     product = Column()
-    is_emergency = Column()
+    is_emergency = EmergencyColumn()
     #amount_requested = Column()
     #amount_received = Column()
     
@@ -105,7 +125,7 @@ class HSAStockRequestTable(Table):
     responded_on = DateColumn()
     received_on = DateColumn()
 
-    status = Column()
+    status = StatusColumn()
     
     class Meta:
         order_by = '-requested_on'
