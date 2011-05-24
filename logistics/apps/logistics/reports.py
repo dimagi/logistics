@@ -6,6 +6,7 @@ from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.tables import ReportingTable
 import json
 from django.core.urlresolvers import reverse
+import logistics.apps.logistics.models as logistics_models
 
 class PieChartData(object):
     
@@ -230,12 +231,26 @@ class SupplyPointRow():
     
     @property
     def url(self):
+        """
+        A url for this object.
+        
+        Must be overridden.
+        """
+        raise NotImplementedError()
+        
+    @property
+    def facility_list(self):
+        """
+        The list of facilities to include in the stock counts for this object
+        
+        Must be overridden.
+        """
         raise NotImplementedError()
         
     def _call_stock_count(self, name):
         if name in self._cached_stock:
             return self._cached_stock[name]
-        val = getattr(self.supply_point, name)(self.commodity_filter, self.commoditytype_filter)
+        val = getattr(logistics_models, name)(self.facility_list, self.commodity_filter, self.commoditytype_filter)
         self._cached_stock[name] = val
         return val
     
@@ -258,9 +273,20 @@ class HSASupplyPointRow(SupplyPointRow):
     def url(self):
         return reverse("malawi_hsa", args=[self.supply_point.code])
 
+    @property
+    def facility_list(self):
+        # just talk about ourselves
+        return [self.supply_point]
+    
 
 class FacilitySupplyPointRow(SupplyPointRow):
     
     @property
     def url(self):
         return reverse("malawi_facility", args=[self.supply_point.code])
+
+    @property
+    def facility_list(self):
+        # aggregate over all children
+        return self.supply_point.location.all_child_facilities()
+    
