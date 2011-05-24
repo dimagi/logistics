@@ -96,17 +96,19 @@ class HSABelowEmergencyQuantityAlert(ProductStockAlert):
                 {"hsa": self.supply_point.name,
                  "product": self.product.name}
 
-@place_in_request()
+#@place_in_request()
 def hsa_below_emergency_quantity(request):
     '''
     This query finds HSA/product pairs where the product is below emergency level but there are no pending requests.
     '''
-    hsas = hsa_supply_points_below(request.location)
-    return [HSABelowEmergencyQuantityAlert(p.supply_point, p.product) for p in ProductStock.objects.filter(
-            is_active=True,
-            supply_point__in=hsas,
-            quantity__lte = F('product__emergency_order_level')).exclude(
-                    supply_point__in=[r.supply_point for r in StockRequest.pending_requests()])]
+    #hsas = hsa_supply_points_below(request.location)
+    r = []
+    for p in ProductStock.objects.filter(is_active=True,
+    #        supply_point__in=hsas,
+            quantity__lte = F('product__emergency_order_level')):
+        if not p.supply_point in [z.supply_point for z in StockRequest.pending_requests().filter(product=p.product)]:
+            r += [HSABelowEmergencyQuantityAlert(p.supply_point, p.product)]
+    return r
 
 
 class LateReportingAlert(Alert):
