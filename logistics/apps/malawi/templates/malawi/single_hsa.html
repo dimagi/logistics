@@ -14,7 +14,7 @@
 
 {% block content %}
 <div class="module">
-    <h2>Stock for {{ hsa.name }}</h2>
+    <h2>Historical Stock Levels for {{ hsa.name }}</h2>
     {% if hsa.supply_point.productstock_set.count %}
 	    {% if chart_data %}
 	        <div id="chart_div" class="noprint"></div>
