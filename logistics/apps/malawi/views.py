@@ -115,8 +115,8 @@ def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
 
     context["location"] = facility.location
-    facility.location.supervisors = facility.contact_set.filter(role__code=config.Roles.HSA_SUPERVISOR)
-    facility.location.in_charges = facility.contact_set.filter(role__code=config.Roles.IN_CHARGE)
+    facility.location.supervisors = facility.contact_set.filter(is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
+    facility.location.in_charges = facility.contact_set.filter(is_active=True, role__code=config.Roles.IN_CHARGE)
     
     context["stockrequest_table"] = HSAStockRequestTable\
         (StockRequest.objects.filter(supply_point__supplied_by=facility)\
