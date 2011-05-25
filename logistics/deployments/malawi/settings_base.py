@@ -21,7 +21,7 @@ MIDDLEWARE_CLASSES = (
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics.apps.malawi.views.facilities",       "Stock Levels"),
+    ("logistics.apps.malawi.views.facilities",       "Facilities"),
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
     ("logistics.apps.malawi.views.contacts",       "Management"),
     ("registration",                          "Registration"),
