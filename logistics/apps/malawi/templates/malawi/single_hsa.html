@@ -1,6 +1,7 @@
 {% extends base_template %}
 
 {% load logistics_report_tags %}
+{% load malawi_tags %}
 
 {% block title %}HSA Summary for {{ hsa.name}} - {{ block.super }}{% endblock %}
 {% block stylesheets %}{{ block.super }}
@@ -13,6 +14,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="breadcrumbs">
+    {% breadcrumbs hsa.supply_point.location %}
+</div>
 <div class="module">
     <h2>Historical Months of Stock Levels for {{ hsa.name }}</h2>
     {% if hsa.supply_point.productstock_set.count %}
@@ -34,7 +38,7 @@
     <div class="toppadded">
         <h2>HSA Details</h2>
             <table class="summary">
-                <tr><td class="prompt">Facility: </td><td><a href="{% url malawi_facility hsa.supply_point.supplied_by.code %}">{{ hsa.supply_point.supplied_by }}</a></td></tr>
+                <tr><td class="prompt">Facility: </td><td><a href="{% place_url hsa.supply_point.supplied_by.location %}">{{ hsa.supply_point.supplied_by }}</a></td></tr>
                 <tr><td class="prompt">Phone Number: </td><td>{{ hsa.phone }}</td></tr>
                 <tr><td class="prompt">Products: </td><td>{% if hsa.commodities.count %}{{ hsa.commodities.all|join:", " }}{% else %}<span class="inline-error">none configured</span>{% endif %}</td></tr>
             </table>

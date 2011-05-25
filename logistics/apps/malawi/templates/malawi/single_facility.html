@@ -14,8 +14,14 @@
 
 {% load i18n %}
 {% load logistics_report_tags %}
+{% load malawi_tags %}
 
 {% block content %}
+
+<div class="breadcrumbs">
+    {% breadcrumbs location %}
+</div>
+
     <div class="module">
         <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
         <div class="right">
@@ -48,7 +54,7 @@
         <div class="toppadded">
         <h2>Facility Contacts</h2>
             <table class="summary">
-                <tr><td class="prompt">District: </td><td><a href="{% url malawi_facilities %}?place={{ location.parent.code }}">{{ location.parent }}</a></td></tr>
+                <tr><td class="prompt">District: </td><td><a href="{% place_url location.parent %}">{{ location.parent }}</a></td></tr>
                 <tr><td class="prompt">HSA Supervisor: </td><td>{% for super in location.supervisors.all %}{% if not forloop.first %}, {% endif %}{{ super.name }} ({{ super.phone|default:"No phone information" }}){% empty %}<span class="inline-error">none configured</span>{% endfor %}</td></tr>
                 <tr><td class="prompt">In Charge: </td><td>{% for super in location.in_charges.all %}{% if not forloop.first %}, {% endif %}{{ super.name }} ({{ super.phone|default:"No phone information" }}){% empty %}<span class="inline-error">none configured</span>{% endfor %}</td></tr>
             </table>

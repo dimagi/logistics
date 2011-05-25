@@ -67,3 +67,7 @@ td.prompt {
 .tabledate {
     width: 15em;
 }
+
+.breadcrumbs {
+    font-size: 1.5em;
+}
