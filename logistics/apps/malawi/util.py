@@ -61,10 +61,10 @@ def get_supervisors(supply_point):
                 (role__code__in=config.Roles.SUPERVISOR_ROLES)
 
 def get_districts():
-    return Location.objects.filter(type__slug="district")
+    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
 
 def get_facilities():
-    return Location.objects.filter(type__slug="facility")
+    return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
 
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
@@ -78,4 +78,4 @@ def facility_supply_points_below(location):
 
 
 def get_facility_supply_points():
-    return SupplyPoint.objects.filter(type__code="hf")
+    return SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.FACILITY)

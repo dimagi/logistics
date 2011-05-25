@@ -39,6 +39,23 @@ class Operations(object):
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
 
+class SupplyPointCodes(object):
+    """
+    These correspond to SupplyPointType.code
+    """
+    DISTRICT = "d"
+    FACILITY = "hf"
+    HSA = "hsa"
+
+class LocationCodes(object):
+    """
+    These correspond to LocationType.code
+    """
+    COUNTRY = "country"
+    DISTRICT = "district"
+    FACILITY = "facility"
+    HSA = "hsa"
+    
 def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
     # this but currently it seems strange that we'd have such tight
