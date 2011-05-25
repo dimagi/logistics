@@ -70,18 +70,18 @@ class ReportingBreakdown(object):
                 {"display": "Fully Reported",
                  "value": len(self.full),
                  "color": "green",
-                 "description": "%s in last %s days" % ("Fully reported", self.days)
+                 "description": "(%s) %s in last %s days" % (len(self.full), "Fully reported", self.days)
                 },
                 {"display": "Partially Reported",
                  "value": len(self.partial),
                  "color": "purple",
-                 "description": "%s in last %s days" % ("Partially reported", self.days)
+                 "description": "(%s) %s in last %s days" % (len(self.partial), "Partially reported", self.days)
                 },
-                {"display": "Unconfigured",
-                 "value": len(self.unconfigured),
-                 "color": "red",
-                 "description": "Unconfigured for stock information"
-                }
+#                {"display": "Unconfigured",
+#                 "value": len(self.unconfigured),
+#                 "color": "red",
+#                 "description": "Unconfigured for stock information"
+#                }
             ]     
             self._breakdown_chart = PieChartData("Reporting Details (last %s days)" % self.days, graph_data)
         return self._breakdown_chart
@@ -98,12 +98,12 @@ class ReportingBreakdown(object):
                 {"display": "On Time",
                  "value": len(self.on_time),
                  "color": "green",
-                 "description": "On Time in last %s days" % (self.days)
+                 "description": "(%s) On Time in last %s days" % (len(self.on_time), self.days)
                 },
                 {"display": "Late",
                  "value": len(self.late),
                  "color": "red",
-                 "description": "Late in last %s days" % (self.days)
+                 "description": "(%s) Late in last %s days" % (len(self.late), self.days)
                 }
             ]     
             self._on_time_chart = PieChartData("Reporting Rates (last %s days)" % self.days, graph_data)
