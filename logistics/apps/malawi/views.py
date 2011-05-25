@@ -77,6 +77,8 @@ def hsas(request):
     
 def hsa(request, code):
     hsa = get_object_or_404(Contact, supply_point__code=code)
+    assert(hsa.supply_point.type.code == config.SupplyPointCodes.HSA)
+    
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
     chart_data = stocklevel_plot(transactions) 
     
@@ -113,7 +115,7 @@ def facilities(request):
 @filter_context
 def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
-
+    assert(facility.type.code == config.SupplyPointCodes.FACILITY)
     context["location"] = facility.location
     facility.location.supervisors = facility.contact_set.filter(is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
     facility.location.in_charges = facility.contact_set.filter(is_active=True, role__code=config.Roles.IN_CHARGE)
