@@ -8,18 +8,23 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
     StockTransaction, StockRequestStatus, StockRequest
 from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below
-from logistics.apps.logistics.decorators import place_in_request
+from logistics.apps.logistics.decorators import place_in_request,\
+    datespan_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
 from logistics.apps.logistics.reports import ReportingBreakdown
 from logistics.apps.logistics.util import config
+from django.contrib import messages
 
 @place_in_request()
+@datespan_in_request()
 def dashboard(request, days=30):
-    base_facilites = SupplyPoint.objects.filter(type__code="hsa")
+    if not request.datespan.is_valid():
+        messages.error(request, request.dates.get_validation_reason())
     
+    base_facilites = SupplyPoint.objects.filter(type__code="hsa")
     # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
@@ -113,6 +118,7 @@ def facilities(request):
         }, context_instance=RequestContext(request))
     
 @filter_context
+@datespan_in_request()
 def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
     assert(facility.type.code == config.SupplyPointCodes.FACILITY)

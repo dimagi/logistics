@@ -8,9 +8,13 @@
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
-{% block javascripts %}
-{{ block.super }}
+
+{% block javascripts %}{{ block.super }}
 {% include "logistics/googlecharts/stock_chart_js.html" %}
+{% endblock %}
+
+{% block imports %}
+    {% include "imports/jquery-ui.html" %}
 {% endblock %}
 
 {% block content %}

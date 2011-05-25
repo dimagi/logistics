@@ -1,4 +1,3 @@
-<form method="get" style="padding-bottom: 20px;">
 <label for="place" id="place_label">Site: </label> 
 <select name="place" id="place">
     <option value="" {% if not location %}selected{% endif %}>Select a site</option>
@@ -9,19 +8,10 @@
     </optgroup>
     {% for facility in facilities %}
         {% ifchanged facility.parent.id %}
-	        {% if not forloop.first %}</optgroup>{% endif %}
-	        <optgroup label="Facilities in {{ facility.parent.name }}">
-	        {% endifchanged %}
+            {% if not forloop.first %}</optgroup>{% endif %}
+            <optgroup label="Facilities in {{ facility.parent.name }}">
+            {% endifchanged %}
         <option value="{{ facility.code }}" {% if facility.pk == location.pk %}selected{% endif %}>{{ facility.name }} ({{ facility.code }})</option>
         {% if forloop.last %}</optgroup>{% endif %}
     {% endfor %}
 </select>
-{% comment %}
-{################### todo add dates ################}
-&nbsp;
-<label for="startdate">Start Month: </label><input type="text" id="startdate" name="startdate" class="date-picker" value="{{request.dates.startdate_param}}">
-&nbsp;
-<label for="enddate">End Month: </label><input type="text" id="enddate" name="enddate" class="date-picker" value="{{request.dates.enddate_param}}">
-{% endcomment %}
-<input type="submit" value="Go!" />
-</form>
