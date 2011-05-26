@@ -2,6 +2,7 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
+    "auditcare",
     "django.contrib.webdesign",
     "logistics.apps.malawi",
 ]
@@ -136,6 +137,7 @@ LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
 LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
+LOGISTICS_USE_AUTO_CONSUMPTION = True
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"

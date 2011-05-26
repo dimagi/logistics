@@ -4,7 +4,7 @@
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from .models import Facility, Product, ProductStock
+from .models import SupplyPoint, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
     commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
@@ -12,7 +12,8 @@ class FacilityForm(forms.ModelForm):
                                                  required=False)
     
     class Meta:
-        model = Facility
+        model = SupplyPoint
+        exclude = ("last_reported", )
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {'commodities': [0,1,2,3]}
@@ -29,13 +30,13 @@ class FacilityForm(forms.ModelForm):
         if self.cleaned_data['commodities']:
             for commodity in Product.objects.all():
                 if commodity in self.cleaned_data['commodities']:
-                    ps, created = ProductStock.objects.get_or_create(facility=facility, 
+                    ps, created = ProductStock.objects.get_or_create(supply_point=facility, 
                                                                      product=commodity)
                     ps.is_active = True
                     ps.save()
                 else:
                     try:
-                        ps = ProductStock.objects.get(facility=facility, 
+                        ps = ProductStock.objects.get(supply_point=facility, 
                                                       product=commodity)
                     except ProductStock.DoesNotExist:
                         # great

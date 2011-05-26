@@ -2,7 +2,7 @@ from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics import app as logistics_app
 from logistics.apps.logistics.models import Product, ProductStock, \
-    ProductReportsHelper, Facility, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE
+    ProductReportsHelper, SupplyPoint, SupplyPointType, Location, STOCK_ON_HAND_REPORT_TYPE
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
@@ -11,8 +11,8 @@ class TestStockOnHand (TestScript):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
         facilitytype = SupplyPointType.objects.get(code='hc')
-        rms = Facility.objects.get(code='garms')
-        facility, created = Facility.objects.get_or_create(code='dedh',
+        rms = SupplyPoint.objects.get(code='garms')
+        facility, created = SupplyPoint.objects.get_or_create(code='dedh',
                                                            name='Dangme East District Hospital',
                                                            location=location, active=True,
                                                            type=facilitytype, supplied_by=rms)
@@ -22,7 +22,7 @@ class TestStockOnHand (TestScript):
                      monthly_consumption=8).save()
         ProductStock(product=lf, supply_point=facility,
                      monthly_consumption=5).save()
-        facility = Facility(code='tf', name='Test Facility',
+        facility = SupplyPoint(code='tf', name='Test Facility',
                        location=location, active=True,
                        type=facilitytype, supplied_by=rms)
         facility.save()
@@ -41,7 +41,7 @@ class TestStockOnHand (TestScript):
 
 
     def testProductReportsHelper(self):
-        sdp = Facility()
+        sdp = SupplyPoint()
         m = Message()
         p = ProductReportsHelper(sdp, STOCK_ON_HAND_REPORT_TYPE, m)
         p.add_product_stock('lf',10, save=False)

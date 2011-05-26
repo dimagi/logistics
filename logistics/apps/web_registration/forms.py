@@ -10,11 +10,11 @@ from django.contrib.auth.models import User
 from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import Facility
+from logistics.apps.logistics.models import SupplyPoint
 
 class AdminRegistersUserForm(RegistrationForm): 
     location = forms.ModelChoiceField(Location.objects.all().order_by('name'), required=False)
-    facility = forms.ModelChoiceField(Facility.objects.all().order_by('name'), required=False)
+    facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     
     def __init__(self, *args, **kwargs):
         self.edit_user = None
@@ -28,8 +28,8 @@ class AdminRegistersUserForm(RegistrationForm):
             profile = self.edit_user.get_profile()
             if profile.location is not None:
                 initial['location'] = profile.location.pk
-            if profile.facility is not None:
-                initial['facility'] = profile.facility.pk
+            if profile.supply_point is not None:
+                initial['facility'] = profile.supply_point.pk
             kwargs['initial'] = initial
         if 'user' in kwargs:
             kwargs.pop('user')
@@ -73,7 +73,7 @@ class AdminRegistersUserForm(RegistrationForm):
         if 'location' in self.cleaned_data or 'facility' in self.cleaned_data:
             profile = user.get_profile()
             profile.location = self.cleaned_data['location']
-            profile.facility = self.cleaned_data['facility']
+            profile.supply_point = self.cleaned_data['facility']
             profile.save()
         return user
 
