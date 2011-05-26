@@ -4,7 +4,7 @@ from logistics.apps.logistics.const import Reports
 
 
 def stocklevel_plot(transactions):
-    products = set(transactions.values_list("product__sms_code", flat=True))
+    products = transactions.values_list("product__sms_code", flat=True).distinct()
     cols = {"date": ("datetime", "Date")}
     for p in products:
         product = Product.objects.get(sms_code=p)

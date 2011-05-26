@@ -509,8 +509,7 @@ class ProductReport(models.Model):
 
     class Meta:
         verbose_name = "Product Report"
-        ordering = ('-report_date',)
-
+        
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
 
@@ -535,7 +534,6 @@ class StockTransaction(models.Model):
     
     class Meta:
         verbose_name = "Stock Transaction"
-        ordering = ('-date',)
 
     def __unicode__(self):
         return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
@@ -576,17 +574,13 @@ class RequisitionReport(models.Model):
     report_date = models.DateTimeField(default=datetime.utcnow)
     message = models.ForeignKey(Message)
 
-    class Meta:
-        ordering = ('-report_date',)
-
+    
 class NagRecord(models.Model):
     supply_point = models.ForeignKey("SupplyPoint")
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)
     nag_type = models.CharField(max_length=30)
 
-    class Meta:
-        ordering = ('-report_date',)
     
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
