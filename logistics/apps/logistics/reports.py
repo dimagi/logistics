@@ -12,10 +12,15 @@ class Colors(object):
     RED = "red"
     GREEN = "green"
     PURPLE = "#8b198b"
-    MEDIUM_PURPLE = "#a460a4"
     LIGHT_RED = "#ff9899"
     LIGHT_GREEN = "#9acc99"
     LIGHT_PURPLE = "#bf7ebe"
+    LIGHT_YELLOW = "#fff6cf"
+    MEDIUM_PURPLE = "#a460a4"
+    MEDIUM_YELLOW = "#efde7f"
+    DARK_RED = "#a30808"
+    WHITE = "#ffffff"
+    BLACK = "#000000"
     
 class PieChartData(object):
     
@@ -201,17 +206,19 @@ class ProductAvailabilitySummary(object):
 
             bar_data = [{"data" : without_stock,
                          "label": "Stocked out", 
-                         "bars": { "show" : "true" },
-                         "color": Colors.RED
+                         "bars": { "show" : "true", "fillColor": Colors.RED },
+                         "color": Colors.DARK_RED,
                         },
                         {"data" : with_stock,
                          "label": "Not Stocked out", 
-                         "bars": { "show" : "true" }, 
-                         "color": Colors.LIGHT_GREEN
+                         "bars": { "show" : "true", "fillColor": Colors.LIGHT_GREEN }, 
+                         "color": Colors.GREEN,
+                         
                         },
                         {"data" : without_data,
                          "label": "No Stock Data", 
-                         "bars": { "show" : "true" }, 
+                         "bars": { "show" : "true", "fillColor": Colors.LIGHT_YELLOW },
+                         "color": Colors.MEDIUM_YELLOW,
                         }]
             self._flot_data = {"data": json.dumps(bar_data), 
                                "ticks": json.dumps(products)}
