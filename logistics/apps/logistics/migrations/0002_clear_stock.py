@@ -5,12 +5,11 @@ from south.v2 import DataMigration
 from django.db import models
 
 class Migration(DataMigration):
+    depends_on = (
+        ("rapidsms", "0001_initial"),
+    )
 
     def forwards(self, orm):
-        # Adding field 'ProductStock.use_auto_consumption'
-        db.add_column('locations_location', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
-        db.add_column('rapidsms_contact', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
-
         # Adding field 'ProductStock.manual_monthly_consumption'
         db.add_column('logistics_productstock', 'manual_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(default=None, null=True, blank=True), keep_default=False)
         # Adding field 'ProductStock.auto_monthly_consumption'
