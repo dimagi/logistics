@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
 from django.http import HttpRequest
-from logistics.apps.logistics.util import config
+from logistics.apps.logistics.util import config, DateSpan
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.reports import DateSpan
 
 def logistics_contact_required():
     """
@@ -67,6 +66,7 @@ def datespan_in_request(from_param="from", to_param="to", format_string="%m/%d/%
     Wraps a request with dates based on url params or defaults and
     Checks date validity.
     """
+    
     # this is loosely modeled after example number 4 of decorator
     # usage here: http://www.python.org/dev/peps/pep-0318/
     def get_dates(f):
