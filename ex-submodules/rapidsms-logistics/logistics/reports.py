@@ -8,6 +8,15 @@ import json
 from django.core.urlresolvers import reverse
 import logistics.apps.logistics.models as logistics_models
 
+class Colors(object):
+    RED = "red"
+    GREEN = "green"
+    PURPLE = "#8b198b"
+    MEDIUM_PURPLE = "#a460a4"
+    LIGHT_RED = "#ff9899"
+    LIGHT_GREEN = "#9acc99"
+    LIGHT_PURPLE = "#bf7ebe"
+    
 class PieChartData(object):
     
     def __init__(self, title, data):
@@ -69,12 +78,12 @@ class ReportingBreakdown(object):
             graph_data = [
                 {"display": "Fully Reported",
                  "value": len(self.full),
-                 "color": "green",
+                 "color": Colors.LIGHT_GREEN,
                  "description": "(%s) %s in last %s days" % (len(self.full), "Fully reported", self.days)
                 },
                 {"display": "Partially Reported",
                  "value": len(self.partial),
-                 "color": "purple",
+                 "color": Colors.MEDIUM_PURPLE,
                  "description": "(%s) %s in last %s days" % (len(self.partial), "Partially reported", self.days)
                 },
 #                {"display": "Unconfigured",
@@ -97,12 +106,12 @@ class ReportingBreakdown(object):
             graph_data = [
                 {"display": "On Time",
                  "value": len(self.on_time),
-                 "color": "green",
+                 "color": Colors.LIGHT_GREEN,
                  "description": "(%s) On Time in last %s days" % (len(self.on_time), self.days)
                 },
                 {"display": "Late",
                  "value": len(self.late),
-                 "color": "red",
+                 "color": Colors.RED,
                  "description": "(%s) Late in last %s days" % (len(self.late), self.days)
                 }
             ]     
@@ -193,12 +202,12 @@ class ProductAvailabilitySummary(object):
             bar_data = [{"data" : without_stock,
                          "label": "Stocked out", 
                          "bars": { "show" : "true" },
-                         "color": "red"  
+                         "color": Colors.RED
                         },
                         {"data" : with_stock,
                          "label": "Not Stocked out", 
                          "bars": { "show" : "true" }, 
-                         "color": "green"  
+                         "color": Colors.LIGHT_GREEN
                         },
                         {"data" : without_data,
                          "label": "No Stock Data", 
