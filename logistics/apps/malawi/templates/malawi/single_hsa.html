@@ -18,15 +18,24 @@
 {% endblock %}
 
 {% block content %}
-<div class="breadcrumbs">
-    {% breadcrumbs hsa.supply_point.location %}
-</div>
+
+<span class="noprint">
+    <div class="topbar-right">
+        <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+    </div>
+	<div class="breadcrumbs">
+	    {% breadcrumbs hsa.supply_point.location %}
+	</div>
+</span>
+
 <div class="module">
+    <span class="noprint">
     <h2>Historical Months of Stock Levels for {{ hsa.name }}</h2>
     {% if hsa.supply_point.productstock_set.count %}
 	    {% if chart_data %}
-	        <div id="chart_div" class="noprint"></div>
+	        <div id="chart_div"></div>
 	    {% endif %}
+    </span>
     <h2>Current Stock Levels</h2>
         {% stockonhand_table hsa.supply_point %}
     {% else %}
