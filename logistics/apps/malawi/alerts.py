@@ -159,7 +159,7 @@ def hsas_no_supervision(request):
     base_facilitities = facility_supply_points_below(request.location)
     
     hsas = SupplyPoint.objects.filter(type=SupplyPointType.objects.get(code="hsa"))
-    facilities_with_hsas = set(hsas.values_list("supplied_by", flat=True))
+    facilities_with_hsas = hsas.values_list("supplied_by", flat=True).distinct()
     orphaned_facilities = base_facilitities.exclude\
         (contact__role__code__in=config.Roles.SUPERVISOR_ROLES)
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
