@@ -1,4 +1,5 @@
 {% extends "logistics/reports_base.html" %}
+{% load logistics_report_tags %}
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
@@ -17,12 +18,7 @@
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div id="report-content">
-{% aggregate_table location commodity_filter commoditytype_filter %}
-            <p class="smallnote">
-                Note: these numbers represent the total number of stockouts
-                across all commodities in the region indicated. The above table also does
-                not reflect commodities for which the monthly consumption is unknown. 
-            </p>
+                {% aggregate_table location commodity_filter commoditytype_filter %}
             </div>
         </div>
     </div>

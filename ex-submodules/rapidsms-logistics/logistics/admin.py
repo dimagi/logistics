@@ -33,9 +33,6 @@ class ProductReportTypeAdmin(admin.ModelAdmin):
 class RequisitionReportAdmin(admin.ModelAdmin):
     model = RequisitionReport
     
-class FacilityAdmin(admin.ModelAdmin):
-    model = Facility
-
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
@@ -63,6 +60,5 @@ admin.site.register(ContactRole, ContactRoleAdmin)
 admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
-admin.site.register(Facility, FacilityAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 

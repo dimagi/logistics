@@ -1,6 +1,7 @@
 {% extends "logistics/reports_base.html" %}
 {% load i18n %}
 {% load logistics_extras %}
+{% load logistics_report_tags %}
 
 {% block content %}
     <div class="module">
@@ -8,7 +9,12 @@
         <div id="main">
             <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
             <div class="right">
-                {% include "logistics/partials/commoditytype_filter.html" %}
+            	<strong>
+            	<a href="{% url aggregate location.code %}">
+            		Return to Aggregate View
+            		(view ALL commodities) </a>
+            	</strong><p></p>
+                <div  class="filter">Select a Commodity</div>
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div>
@@ -24,12 +30,13 @@
                     </tr></thead>
                     <tbody>
                     {% for stockonhand in stockonhands %}
+		                {% if stockonhand.is_active %}
                         <tr>
-                        <td><a href="{% url stockonhand_facility stockonhand.facility.code %}">
-                            {{ stockonhand.facility.name }}
+                        <td><a href="{% url stockonhand_facility stockonhand.supply_point.code %}">
+                            {{ stockonhand.supply_point.name }}
                             </a>
                         </td>
-                            {% highlight_months stockonhand %}
+                            {% highlight_months stockonhand MEDIA_URL %}
                         <td>{{ stockonhand.quantity|default_if_none:"n/a" }}</td>
                         <td {% ifequal stockonhand.monthly_consumption None %}
                                 class="big_error"
@@ -40,9 +47,15 @@
                         <td>{{ stockonhand.reorder_level|default_if_none:"n/a" }}</td>
                         <td>{{ stockonhand.maximum_level|default_if_none:"n/a" }}</td>
                         </tr>
+		                {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
+                {% if not stockonhands %}
+                <div class="smallnote">
+               	None of the facilities in {{location.name}} {{location.type}} stock {{ selected_commodity.name }}
+               	</div>
+                {% endif %}
             </div>
         <br/>
     </div>

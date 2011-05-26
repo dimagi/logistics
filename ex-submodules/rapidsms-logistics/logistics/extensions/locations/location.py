@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from django.db import models
+from django.db.models import Q
 import uuid
 
 class Location(models.Model):
@@ -22,6 +23,10 @@ class Location(models.Model):
         from logistics.apps.logistics.models import SupplyPoint
         return SupplyPoint.objects.filter(location=self).order_by('name')
 
+    def child_facilities(self):
+        from logistics.apps.logistics.models import SupplyPoint
+        return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk)).order_by('name')
+    
     def all_facilities(self):
         ret = []
         ret.extend(self.facilities())
