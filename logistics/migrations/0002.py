@@ -1,95 +1,28 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
     depends_on = (
-        ("logistics", "0001_initial"),
+        ("logistics", "0002_clear_stock"),
     )
 
     def forwards(self, orm):
-        
-        # Adding model 'Backend'
-        db.create_table('rapidsms_backend', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=20)),
-        ))
-        db.send_create_signal('rapidsms', ['Backend'])
-
-        # Adding model 'App'
-        db.create_table('rapidsms_app', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('module', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100)),
-            ('active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('rapidsms', ['App'])
-
-        # Adding model 'Contact'
-        db.create_table('rapidsms_contact', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('language', self.gf('django.db.models.fields.CharField')(max_length=6, blank=True)),
-            ('role', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.ContactRole'], null=True, blank=True)),
-            ('facility', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Facility'], null=True, blank=True)),
-            ('needs_reminders', self.gf('django.db.models.fields.BooleanField')(default=True)),
-        ))
-        db.send_create_signal('rapidsms', ['Contact'])
-
-        # Adding M2M table for field commodities on 'Contact'
-        db.create_table('rapidsms_contact_commodities', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('contact', models.ForeignKey(orm['rapidsms.contact'], null=False)),
-            ('product', models.ForeignKey(orm['logistics.product'], null=False))
-        ))
-        db.create_unique('rapidsms_contact_commodities', ['contact_id', 'product_id'])
-
-        # Adding model 'Connection'
-        db.create_table('rapidsms_connection', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('backend', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rapidsms.Backend'])),
-            ('identity', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('contact', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['rapidsms.Contact'], null=True, blank=True)),
-        ))
-        db.send_create_signal('rapidsms', ['Connection'])
-
-        # Adding unique constraint on 'Connection', fields ['backend', 'identity']
-        db.create_unique('rapidsms_connection', ['backend_id', 'identity'])
-
-        # Adding model 'DeliveryReport'
-        db.create_table('rapidsms_deliveryreport', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('action', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('report_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('number', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('report', self.gf('django.db.models.fields.CharField')(max_length=255)),
-        ))
-        db.send_create_signal('rapidsms', ['DeliveryReport'])
-
+        db.add_column('rapidsms_contact', 'is_active', self.gf('django.db.models.fields.BooleanField')(default=True))
+        db.add_column('rapidsms_contact', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=None, null=True, blank=True, to=orm['logistics.SupplyPoint']), keep_default=False)
+        def facility_to_supplypoint(queryset):
+            for a in queryset:
+                if a.facility_id:
+                    sp = orm.SupplyPoint.objects.get(pk=a.facility_id)
+                    a.supply_point = sp
+                    a.save()
+        facility_to_supplypoint(orm['rapidsms.contact'].objects.all().order_by('pk'))
+        db.delete_column('rapidsms_contact', 'facility_id')
 
     def backwards(self, orm):
-        
-        # Removing unique constraint on 'Connection', fields ['backend', 'identity']
-        db.delete_unique('rapidsms_connection', ['backend_id', 'identity'])
-
-        # Deleting model 'Backend'
-        db.delete_table('rapidsms_backend')
-
-        # Deleting model 'App'
-        db.delete_table('rapidsms_app')
-
-        # Deleting model 'Contact'
-        db.delete_table('rapidsms_contact')
-
-        # Removing M2M table for field commodities on 'Contact'
-        db.delete_table('rapidsms_contact_commodities')
-
-        # Deleting model 'Connection'
-        db.delete_table('rapidsms_connection')
-
-        # Deleting model 'DeliveryReport'
-        db.delete_table('rapidsms_deliveryreport')
+        raise RuntimeError("Cannot reverse this migration.")        
 
 
     models = {
@@ -104,6 +37,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Location'},
             'code': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'parent_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'parent_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),
@@ -128,26 +62,11 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'responsibilities': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['logistics.Responsibility']", 'null': 'True', 'blank': 'True'})
         },
-        'logistics.facility': {
-            'Meta': {'object_name': 'Facility'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
-            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'last_reported': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
-            'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'supplied_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'}),
-            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.FacilityType']"})
-        },
-        'logistics.facilitytype': {
-            'Meta': {'object_name': 'FacilityType'},
-            'code': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50', 'primary_key': 'True', 'db_index': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
         'logistics.product': {
             'Meta': {'object_name': 'Product'},
+            'average_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'equivalents': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['logistics.Product']", 'symmetrical': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'product_code': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
@@ -166,6 +85,23 @@ class Migration(SchemaMigration):
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
+        },
+        'logistics.supplypoint': {
+            'Meta': {'object_name': 'SupplyPoint'},
+            'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
+            'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_reported': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'supplied_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPointType']"})
+        },
+        'logistics.supplypointtype': {
+            'Meta': {'object_name': 'SupplyPointType'},
+            'code': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50', 'primary_key': 'True', 'db_index': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'rapidsms.app': {
             'Meta': {'object_name': 'App'},
@@ -188,12 +124,13 @@ class Migration(SchemaMigration):
         'rapidsms.contact': {
             'Meta': {'object_name': 'Contact'},
             'commodities': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'reported_by'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['logistics.Product']"}),
-            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'language': ('django.db.models.fields.CharField', [], {'max_length': '6', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'needs_reminders': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ContactRole']", 'null': 'True', 'blank': 'True'})
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ContactRole']", 'null': 'True', 'blank': 'True'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'})
         },
         'rapidsms.deliveryreport': {
             'Meta': {'object_name': 'DeliveryReport'},
