@@ -8,7 +8,7 @@
 
 {% block title %}Facilities - {{ block.super }}{% endblock %}
 {% block content %}
-{% include "malawi/partials/location_selector.html" %}
+{% include "malawi/partials/selector_form.html" %}
 <div class="module">
     {% if location %}
     <h2>Facilities in {{ location.name }}</h2>
