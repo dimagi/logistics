@@ -30,7 +30,7 @@ class ContactForm(forms.ModelForm):
 
     class Meta:
         model = Contact
-        exclude = ("user",)
+        exclude = ("user", )
 
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
@@ -136,6 +136,10 @@ class IntlSMSContactForm(ContactForm):
                                     {'intl':idc})
 
 class CommoditiesContactForm(IntlSMSContactForm):
+    class Meta:
+        model = Contact
+        exclude = ("user", "language")
+    
     @transaction.commit_on_success
     def save(self, commit=True):
         model = super(CommoditiesContactForm, self).save(commit=False)

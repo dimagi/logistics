@@ -8,7 +8,6 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import Facility
 from logistics.apps.web_registration.forms import AdminRegistersUserForm
 
 PROGRAM_ADMIN_GROUP_NAME = 'program_admin'
@@ -16,8 +15,8 @@ def _get_program_admin_group():
     return Group.objects.get(name=PROGRAM_ADMIN_GROUP_NAME)
 
 class EWSGhanaWebRegistrationForm(AdminRegistersUserForm): 
-    is_program_admin = forms.BooleanField(label='User is a health administrator', initial=False, required=False)
-    is_IT_admin = forms.BooleanField(label='User is an IT administrator', initial=False, required=False)
+    is_program_admin = forms.BooleanField(label='User is a DHIO', initial=False, required=False)
+    is_IT_admin = forms.BooleanField(label='User is an IT administrator (e.g. programmer)', initial=False, required=False)
     
     def __init__(self, *args, **kwargs):
         self.edit_user = None

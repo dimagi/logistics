@@ -6,10 +6,10 @@
 {% if perms.logistics %}
     <a href="{% url ewsghana_scheduled_reports %}">MY EMAIL REPORTS</a> * 
     <a href="{% url ewsghana_sms_registration %}">SMS USERS</a> * 
-    <a href="{% url admin_web_registration %}">WEB USERS</a> * 
-    <a href="{% url facility_view %}">FACILITIES</a>
+    <a href="{% url admin_web_registration %}">WEB USERS</a>
 	{% if request.user.is_superuser %} * 
-	    <a href="{% url commodity_view %}">COMMODITIES</a>
+    <a href="{% url facility_view %}">FACILITIES</a> * 
+    <a href="{% url commodity_view %}">COMMODITIES</a>
 	{% endif %}
 {% endif %}	
 </div>

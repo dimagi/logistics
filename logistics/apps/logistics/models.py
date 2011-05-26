@@ -52,10 +52,10 @@ except ImportError:
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     location = models.ForeignKey(Location, blank=True, null=True)
-    facility = models.ForeignKey('Facility', blank=True, null=True)
+    supply_point = models.ForeignKey('SupplyPoint', blank=True, null=True)
 
     def __unicode__(self):
-        return "%s (%s, %s)" % (self.user.username, self.location, self.facility)
+        return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
 post_save.connect(create_user_profile, sender=User)
 
@@ -108,8 +108,10 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey('Product')
     days_stocked_out = models.IntegerField(default=0)
-    base_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     last_modified = models.DateTimeField(auto_now=True)
+    manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+    use_auto_consumption = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('supply_point', 'product'),)
@@ -119,10 +121,12 @@ class ProductStock(models.Model):
 
     @property
     def monthly_consumption(self):
+        if not self.use_auto_consumption:
+            return self.manual_monthly_consumption
         d = self.daily_consumption
         if d is None:
-            if self.base_monthly_consumption is not None:
-                return self.base_monthly_consumption
+            if self.manual_monthly_consumption is not None:
+                return self.manual_monthly_consumption
             elif self.product.average_monthly_consumption is not None:
                 return self.product.average_monthly_consumption
             return None
@@ -131,7 +135,7 @@ class ProductStock(models.Model):
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):
-        self.base_monthly_consumption = value
+        self.manual_monthly_consumption = value
 
     @property
     def daily_consumption(self):
@@ -802,12 +806,6 @@ class SupplyPoint(models.Model):
                              'products':", ".join(stockouts_resolved),
                              'supply_point':self.name})
 
-class Facility(SupplyPoint):
-    """A facility is a type of supply point"""
-    # it currently has no unique functionality, and will probably be deprecated
-    # and removed eventually unless it needs any.
-    pass 
-
 class ProductReportsHelper(object):
     """
     The following is a helper class (doesn't touch the db) which takes in aggregate
@@ -910,6 +908,14 @@ class ProductReportsHelper(object):
 
     def save(self):
         stockouts_resolved = []
+        # NOTE: receipts should be processed BEFORE stock levels
+        # (so that after someone reports jd10.3, we record that
+        # we've received 3 jd this past week and the current stock
+        # level is 10)
+        for stock_code in self.product_received:
+            self._record_product_report(self.get_product(stock_code), 
+                                        self.product_received[stock_code], 
+                                        RECEIPT_REPORT_TYPE)
         for stock_code in self.product_stock:
             try:
                 original_quantity = ProductStock.objects.get(supply_point=self.supply_point, product__sms_code=stock_code).quantity
@@ -931,10 +937,6 @@ class ProductReportsHelper(object):
         for stock_code in self.consumption:
             self.supply_point.record_consumption_by_code(stock_code, 
                                                          self.consumption[stock_code])
-        for stock_code in self.product_received:
-            self._record_product_report(self.get_product(stock_code), 
-                                        self.product_received[stock_code], 
-                                        RECEIPT_REPORT_TYPE)
 
     def add_product_consumption(self, product, consumption):
         if isinstance(consumption, basestring) and consumption.isdigit():
@@ -999,6 +1001,9 @@ class ProductReportsHelper(object):
         
     def received(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
+
+    def nonzero_received(self):
+        return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items() if int(val) > 0)
         
     def stockouts(self):
         # slightly different syntax than above, since there's no point in 
@@ -1134,5 +1139,6 @@ def overstocked_count(facilities=None, product=None, producttype=None):
 
 def consumption(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-    consumption = stocks.exclude(base_monthly_consumption=None).aggregate(consumption=Sum('base_monthly_consumption'))['consumption']
+    # TOOD: this needs to be fixed to work with auto_monthly_consumption
+    consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
     return consumption

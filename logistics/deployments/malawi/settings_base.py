@@ -2,6 +2,7 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
+    "auditcare",
     "django.contrib.webdesign",
     "logistics.apps.malawi",
 ]
