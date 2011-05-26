@@ -14,7 +14,8 @@ from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.tables import ShortMessageTable
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.reports import ReportingBreakdown,\
-    ProductAvailabilitySummary, HSASupplyPointRow, FacilitySupplyPointRow
+    ProductAvailabilitySummary, HSASupplyPointRow, FacilitySupplyPointRow,\
+    DateSpan
 from logistics.apps.malawi.util import hsas_below
 register = template.Library()
 
@@ -71,21 +72,20 @@ def reporting_rates(locations, type=None, days=30):
 
 
 @register.simple_tag
-def reporting_breakdown(locations, type=None, days=30):
+def reporting_breakdown(locations, type=None, datespan=None):
     # with a list of locations - display reporting
     # rates associated with those locations
     if locations:
-        since = datetime.utcnow() - timedelta(days=days)
         base_points = SupplyPoint.objects.filter(location__in=locations)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, days)
+            report = ReportingBreakdown(base_points, datespan)
             return _r_2_s_helper("logistics/partials/reporting_breakdown.html", 
                                  {"report": report,
                                   "graph_width": 200,
                                   "graph_height": 200,
-                                  "days": days,
+                                  "datespan": datespan,
                                   "table_class": "minor_table" })
                                      
     return "" # no data, no report
@@ -124,20 +124,23 @@ def order_response_stats(locations, type=None, days=30):
     return "" # no data, no report
             
 @register.simple_tag
-def order_fill_stats(locations, type=None, days=30):
+def order_fill_stats(locations, type=None, datespan=None):
     """
     With a list of locations - display reporting
     rates associated with those locations.
     This method only looks at closed orders
     """
     if locations:
-        since = datetime.utcnow() - timedelta(days=days)
+        if datespan == None:
+            # default to last 30 days
+            datespan = DateSpan.since(30)
         base_points = SupplyPoint.objects.filter(location__in=locations)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
             base_reqs = StockRequest.objects.filter(supply_point__in=base_points, 
-                                                    requested_on__gte=since, 
+                                                    requested_on__gte=datespan.startdate, 
+                                                    requested_on__lte=datespan.enddate, 
                                                     status__in=StockRequestStatus.CHOICES_CLOSED)
             totals = base_reqs.values('product').annotate(total=Count('pk'))
             stocked_out = base_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
@@ -159,7 +162,8 @@ def order_fill_stats(locations, type=None, days=30):
             _update_main_data(main_data, well_supplied, "well_supplied")
             _update_main_data(main_data, over_supplied, "over_supplied")
             return _r_2_s_helper("logistics/partials/order_fill_stats.html", 
-                                    {"data": main_data})
+                                    {"data": main_data,
+                                     "datespan": datespan})
                                      
     return "" # no data, no report
 

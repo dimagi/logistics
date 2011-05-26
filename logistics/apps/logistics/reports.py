@@ -1,13 +1,67 @@
-from datetime import datetime, timedelta
-from django.db.models.query_utils import Q
+from datetime import datetime, timedelta, time
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ProductReport, Product, ProductStock
+from logistics.apps.logistics.models import ProductReport, Product, ProductStock,\
+    SupplyPoint
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.tables import ReportingTable
 import json
 from django.core.urlresolvers import reverse
 import logistics.apps.logistics.models as logistics_models
 
+DEFAULT_DATE_FORMAT = "%m/%d/%Y"
+    
+class DateSpan(object):
+    """
+    A useful class for representing a date span
+    """
+    
+    def __init__(self, startdate, enddate, format=DEFAULT_DATE_FORMAT, 
+                 display_format=None):
+        self.startdate = startdate
+        self.enddate = enddate
+        self.format = format
+        self.display_format = format if display_format is None else display_format
+    
+    @property
+    def startdate_param(self):
+        if self.startdate:
+            return self.startdate.strftime(self.format)
+    
+    @property
+    def enddate_param(self):
+        if self.enddate:
+            return self.enddate.strftime(self.format)
+        
+    
+    def is_valid(self):
+        # this is a bit backwards but keeps the logic in one place
+        return not bool(self.get_validation_reason())
+    
+    def get_validation_reason(self):
+        if self.startdate is None or self.enddate is None:
+            return "You have to specify both dates!"
+        else:
+            if self.enddate < self.startdate:
+                return "You can't have an end date of %s after start date of %s" % (self.enddate, self.startdate)
+        return ""
+    
+    def __str__(self):
+        # if the end date is today or tomorrow, use "last N days syntax"  
+        today = datetime.combine(datetime.today(), time())
+        day_after_tomorrow = today + timedelta (days=2)
+        if today <= self.enddate < day_after_tomorrow:
+            return "last %s days" % (self.enddate - self.startdate).days 
+        return "%s to %s" % (self.startdate.strftime(self.display_format), 
+                             self.enddate.strftime(self.display_format))
+        
+    @classmethod
+    def since(cls, days, format=DEFAULT_DATE_FORMAT, display_format=None):
+        tomorrow = datetime.utcnow() + timedelta(days=1)
+        end = datetime(tomorrow.year, tomorrow.month, tomorrow.day)
+        start = end - timedelta(days=days)
+        return DateSpan(start, end, format, display_format)
+                    
+    
 class Colors(object):
     RED = "red"
     GREEN = "green"
@@ -40,27 +94,49 @@ class ReportingBreakdown(object):
     information.
     """
     
-    def __init__(self, supply_points, days=30):
+    def __init__(self, supply_points, datespan=None, include_late=False, 
+                 days_for_late = 5):
         self.supply_points = supply_points
-        self.days = days
         
-        since  = datetime.utcnow() - timedelta(days=days)
-    
-        late = supply_points.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
-        on_time = supply_points.filter(last_reported__gte=since).order_by('-last_reported','name')
+        if datespan == None:
+            datespan = DateSpan.since(30)
+        self.datespan = datespan
+        
+        self.include_late = include_late
+        self.days_for_late = days_for_late
+        date_for_late = datespan.startdate + timedelta(days=days_for_late)
+        
+        reports_in_range = ProductReport.objects.filter\
+            (report_type__code=Reports.SOH,
+             report_date__gte=datespan.startdate,
+             report_date__lte=datespan.enddate,
+             supply_point__in=supply_points)
+        
+        reported_in_range = reports_in_range.values_list\
+            ("supply_point", flat=True).distinct()
+        
+        reported_on_time_in_range = reports_in_range.filter\
+            (report_date__lte=date_for_late).values_list\
+            ("supply_point", flat=True).distinct()
+        
+        non_reporting = supply_points.exclude(pk__in=reported_in_range)
+        reported = SupplyPoint.objects.filter(pk__in=reported_in_range)
+        reported_late = reported.exclude(pk__in=reported_on_time_in_range)
+        reported_on_time = SupplyPoint.objects.filter\
+            (pk__in=reported_on_time_in_range)
+        
         
         # fully reporting / non reporting
         full = []
         partial = []
         unconfigured = []
-        for sp in on_time.all():
+        for sp in reported.all():
+            
             # makes an assumption of 1 contact per SP.
             # will need to be revisited
             contact = Contact.objects.get(supply_point=sp)
-            found_reports = ProductReport.objects.filter(supply_point=sp, 
-                                                         report_type__code=Reports.SOH,
-                                                         report_date__gte=since)
-            found_products = set(found_reports.values_list("product", flat=True))
+            found_reports = reports_in_range.filter(supply_point=sp)
+            found_products = set(found_reports.values_list("product", flat=True).distinct())
             needed_products = set([c.pk for c in contact.commodities.all()])
             if needed_products:
                 if needed_products - found_products:
@@ -73,9 +149,22 @@ class ReportingBreakdown(object):
         self.full = full
         self.partial = partial
         self.unconfigured = unconfigured
-        self.late = late
-        self.on_time = on_time
         
+        self.non_reporting = non_reporting
+        self.reported = reported
+        self.reported_on_time = reported_on_time
+        self.reported_late = reported_late
+        
+    @property
+    def on_time(self):
+        """
+        If we care about whether someone reported late versus
+        at all, then treat this differently. 
+        """
+        if self.include_late:
+            return self.reported_on_time    
+        else:
+            return self.reported
         
     _breakdown_chart = None
     def breakdown_chart(self):
@@ -84,12 +173,14 @@ class ReportingBreakdown(object):
                 {"display": "Fully Reported",
                  "value": len(self.full),
                  "color": Colors.LIGHT_GREEN,
-                 "description": "(%s) %s in last %s days" % (len(self.full), "Fully reported", self.days)
+                 "description": "(%s) %s in %s" % \
+                    (len(self.full), "Fully reported", self.datespan)
                 },
                 {"display": "Partially Reported",
                  "value": len(self.partial),
                  "color": Colors.MEDIUM_PURPLE,
-                 "description": "(%s) %s in last %s days" % (len(self.partial), "Partially reported", self.days)
+                 "description": "(%s) %s in %s" % \
+                    (len(self.partial), "Partially reported", self.datespan)
                 },
 #                {"display": "Unconfigured",
 #                 "value": len(self.unconfigured),
@@ -97,7 +188,7 @@ class ReportingBreakdown(object):
 #                 "description": "Unconfigured for stock information"
 #                }
             ]     
-            self._breakdown_chart = PieChartData("Reporting Details (last %s days)" % self.days, graph_data)
+            self._breakdown_chart = PieChartData("Reporting Details (%s)" % self.datespan, graph_data)
         return self._breakdown_chart
         
     def breakdown_groups(self):
@@ -112,20 +203,27 @@ class ReportingBreakdown(object):
                 {"display": "On Time",
                  "value": len(self.on_time),
                  "color": Colors.LIGHT_GREEN,
-                 "description": "(%s) On Time in last %s days" % (len(self.on_time), self.days)
+                 "description": "(%s) On Time (%s)" % \
+                    (len(self.on_time), self.datespan)
                 },
-                {"display": "Late",
-                 "value": len(self.late),
+                {"display": "Non Reporting",
+                 "value": len(self.non_reporting),
                  "color": Colors.RED,
-                 "description": "(%s) Late in last %s days" % (len(self.late), self.days)
+                 "description": "(%s) Non-Reporting (%s)" % \
+                    (len(self.non_reporting), self.datespan)
                 }
             ]     
-            self._on_time_chart = PieChartData("Reporting Rates (last %s days)" % self.days, graph_data)
+            self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
         return self._on_time_chart
         
     def on_time_groups(self):
-        return [TableData("Non-Reporting HSAs", ReportingTable(self.late)),
-                TableData("On-Time HSAs", ReportingTable(self.on_time))]
+        if self.include_late:
+            [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
+             TableData("Late HSAs", ReportingTable(self.late)),
+             TableData("On-Time HSAs", ReportingTable(self.on_time))]
+        else:
+            return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
+                    TableData("On-Time HSAs", ReportingTable(self.on_time))]
 
 class ProductAvailabilitySummary(object):
     
@@ -305,4 +403,3 @@ class FacilitySupplyPointRow(SupplyPointRow):
     def facility_list(self):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
-    

@@ -14,15 +14,12 @@ from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
-from logistics.apps.logistics.reports import ReportingBreakdown
+from logistics.apps.logistics.reports import ReportingBreakdown, DateSpan
 from logistics.apps.logistics.util import config
 from django.contrib import messages
 
 @place_in_request()
-@datespan_in_request()
-def dashboard(request, days=30):
-    if not request.datespan.is_valid():
-        messages.error(request, request.dates.get_validation_reason())
+def dashboard(request):
     
     base_facilites = SupplyPoint.objects.filter(type__code="hsa")
     # district filter
@@ -31,15 +28,15 @@ def dashboard(request, days=30):
         base_facilites = base_facilites.filter(location__parent_id__in=[f.pk for f in valid_facilities])
     
     # reporting info
-    report = ReportingBreakdown(base_facilites, days)
+    report = ReportingBreakdown(base_facilites, DateSpan.since(30))
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "districts": get_districts().order_by("code"),
-                               "location": request.location,
-                               "days": days},
+                               "location": request.location},
+                               
                               context_instance=RequestContext(request))
 
 def places(request):
@@ -123,11 +120,15 @@ def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
     assert(facility.type.code == config.SupplyPointCodes.FACILITY)
     context["location"] = facility.location
-    facility.location.supervisors = facility.contact_set.filter(is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
-    facility.location.in_charges = facility.contact_set.filter(is_active=True, role__code=config.Roles.IN_CHARGE)
+    facility.location.supervisors = facility.contact_set.filter\
+        (is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
+    facility.location.in_charges = facility.contact_set.filter\
+        (is_active=True, role__code=config.Roles.IN_CHARGE)
     
     context["stockrequest_table"] = HSAStockRequestTable\
-        (StockRequest.objects.filter(supply_point__supplied_by=facility)\
+        (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                     requested_on__gte=request.datespan.startdate, 
+                                     requested_on__lte=request.datespan.enddate)\
                              .exclude(status=StockRequestStatus.CANCELED), request)
     
     

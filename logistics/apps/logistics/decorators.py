@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from django.http import HttpRequest
 from logistics.apps.logistics.util import config
 from rapidsms.contrib.locations.models import Location
+from logistics.apps.logistics.reports import DateSpan
 
 def logistics_contact_required():
     """
@@ -61,42 +62,6 @@ def place_in_request(param="place"):
     return wrapper
 
 
-class DateSpan(object):
-    """
-    A useful class for representing a date span
-    """
-    
-    def __init__(self, startdate, enddate, format):
-        self.startdate = startdate
-        self.enddate = enddate
-        self.format = format
-    
-    @property
-    def startdate_param(self):
-        if self.startdate:
-            return self.startdate.strftime(self.format)
-    
-    @property
-    def enddate_param(self):
-        if self.enddate:
-            return self.enddate.strftime(self.format)
-        
-    
-    def is_valid(self):
-        # this is a bit backwards but keeps the logic in one place
-        return not bool(self.get_validation_reason())
-    
-    def get_validation_reason(self):
-        if self.startdate is None or self.enddate is None:
-            return "You have to specify both dates!"
-        else:
-            if self.enddate < self.startdate:
-                return "You can't have an end date of %s after start date of %s" % (self.enddate, self.startdate)
-        return ""
-    
-    def __str__(self):
-        return "%s > %s" % (self.startdate, self.enddate)
-    
 def datespan_in_request(from_param="from", to_param="to", format_string="%m/%d/%Y"):
     """
     Wraps a request with dates based on url params or defaults and
@@ -129,10 +94,7 @@ def datespan_in_request(from_param="from", to_param="to", format_string="%m/%d/%
                     req.datespan = DateSpan(startdate, enddate, format_string)
                 else:        
                     # default to the last 30 days
-                    tomorrow = datetime.utcnow() + timedelta(days=1)
-                    end = datetime(tomorrow.year, tomorrow.month, tomorrow.day)
-                    start = end - timedelta(days=30)
-                    req.datespan = DateSpan(start, end, format_string)
+                    req.datespan = DateSpan.since(30)
                     
             return f(*args, **kwargs) 
         if hasattr(f, "func_name"):

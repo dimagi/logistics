@@ -14,6 +14,7 @@
 
 {% block imports %}
     {% include "imports/jquery-ui.html" %}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
 {% endblock %}
 
 {% load i18n %}
@@ -30,9 +31,8 @@
 	<div class="breadcrumbs">
 	    {% breadcrumbs location %}
 	</div>
-{% comment %}
+	<h4>Change report dates:</h4>
 	{% include "malawi/partials/selector_form.html" %}
-{% endcomment %}
 </span>
 
     <div class="module">
@@ -53,17 +53,17 @@
         </p>
         </div>
         <div style="clear:right; padding-top:3em;">
-        {% reporting_breakdown location.children "hsa" %}
+        {% reporting_breakdown location.children "hsa" request.datespan %}
         </div>
         <div class="clear:both; toppadded">
         <h2>Product Availability Summary</h2>
             {% product_availability_summary location %}
         </div>
         <div style="clear:both;">
-        {% order_fill_stats location.children "hsa" %}
+        {% order_fill_stats location.children "hsa" request.datespan %}
         </div>
         <div class="toppadded fullwidth">
-        <h2>Order Response Times</h2>
+        <h2>Order Response Times ({{ request.datespan }})</h2>
             {{ stockrequest_table.as_html }}
         </div>
         <div class="toppadded">
