@@ -111,7 +111,7 @@ class ProductStock(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
-    use_auto_consumption = models.BooleanField(default=False)
+    use_auto_consumption = models.BooleanField(default=settings.LOGISTICS_USE_AUTO_CONSUMPTION)
 
     class Meta:
         unique_together = (('supply_point', 'product'),)
@@ -121,17 +121,22 @@ class ProductStock(models.Model):
 
     @property
     def monthly_consumption(self):
-        if not self.use_auto_consumption:
-            return self.manual_monthly_consumption
-        d = self.daily_consumption
-        if d is None:
+        def _manual_consumption():
             if self.manual_monthly_consumption is not None:
                 return self.manual_monthly_consumption
             elif self.product.average_monthly_consumption is not None:
                 return self.product.average_monthly_consumption
             return None
+        
+        if not self.use_auto_consumption:
+            return _manual_consumption()
+        
+        else:
+            d = self.daily_consumption
+            if d is None:
+                return _manual_consumption()
 
-        return d * 30
+            return d * 30
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):

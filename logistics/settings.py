@@ -199,6 +199,7 @@ LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
+LOGISTICS_USE_AUTO_CONSUMPTION = False
 
 DEBUG=True
 
