@@ -33,8 +33,6 @@ class Migration(SchemaMigration):
         # 1 LogisticsProfile
         db.add_column('logistics_logisticsprofile', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=None, blank=True, null=True, to=orm['logistics.SupplyPoint']), keep_default=False)
         # 2 rapidsms.Contact
-        db.add_column('rapidsms_contact', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=None, null=True, blank=True, to=orm['logistics.SupplyPoint']), keep_default=False)
-        # 3 productreport
         db.add_column('logistics_productreport', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['logistics.SupplyPoint']), keep_default=False)
         # 4 requisition report
         db.add_column('logistics_requisitionreport', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['logistics.SupplyPoint']), keep_default=False)
