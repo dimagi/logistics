@@ -22,19 +22,26 @@
 
 {% block content %}
 
-<div class="breadcrumbs">
-    {% breadcrumbs location %}
-</div>
-
-{% include "malawi/partials/selector_form.html" %}
+<span class="noprint">
+	<div class="topbar-right">
+	    <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+	</div>
+	        
+	<div class="breadcrumbs">
+	    {% breadcrumbs location %}
+	</div>
+	{% include "malawi/partials/selector_form.html" %}
+</span>
 
     <div class="module">
         <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
+<span class="noprint">
         <div class="right">
             <div class="filter">Filter by:</div>
             {% include "logistics/partials/commoditytype_filter.html" %}
             {% include "logistics/partials/commodity_filter.html" %}
         </div>
+</span>
         <div id="report-content">
 {% hsa_aggregate_table location commodity_filter commoditytype_filter %}
         <p class="smallnote">
