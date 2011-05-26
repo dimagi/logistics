@@ -10,13 +10,14 @@ from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.malawi.nag import get_non_reporting_hsas
 from logistics.apps.malawi.util import get_facility_supply_points, hsas_below,\
     hsa_supply_points_below, facility_supply_points_below
+from logistics.apps.malawi.templatetags.malawi_tags import place_url
 
 class ProductStockAlert(Alert):
 
     def __init__(self, supply_point, product ):
         self._supply_point = supply_point
         self._product = product
-        super(ProductStockAlert, self).__init__(self._get_text(), _hsa_url(supply_point))
+        super(ProductStockAlert, self).__init__(self._get_text(), place_url(supply_point.location))
 
     def _get_text(self):
         return "%(place)s is stocked out of %(product)s." % \
