@@ -12,11 +12,10 @@ from logistics.context_processors import custom_settings
 from logistics.apps.logistics.views import get_location_children
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.logistics.tables import ShortMessageTable
-from django.core.urlresolvers import reverse
 from logistics.apps.logistics.reports import ReportingBreakdown,\
-    ProductAvailabilitySummary, HSASupplyPointRow, FacilitySupplyPointRow,\
-    DateSpan
+    ProductAvailabilitySummary, HSASupplyPointRow, FacilitySupplyPointRow
 from logistics.apps.malawi.util import hsas_below
+from logistics.apps.logistics.util import DateSpan
 register = template.Library()
 
 def _r_2_s_helper(template, dict):

@@ -14,8 +14,8 @@ from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
-from logistics.apps.logistics.reports import ReportingBreakdown, DateSpan
-from logistics.apps.logistics.util import config
+from logistics.apps.logistics.reports import ReportingBreakdown
+from logistics.apps.logistics.util import config, DateSpan
 from django.contrib import messages
 
 @place_in_request()
