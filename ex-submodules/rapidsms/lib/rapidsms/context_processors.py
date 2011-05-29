@@ -3,10 +3,13 @@ import warnings
 def logo(request):
     try:
         logo_right_url = settings.LOGO_RIGHT_URL
+    except AttributeError:
+        warnings.warn("No LOGO_RIGHT_URL specified in settings! rapidsms.context_processors.logo")
+        logo_right_url = ""
+    try:
         logo_left_url = settings.LOGO_LEFT_URL
     except AttributeError:
-        warnings.warn("No LOGO_LEFT_URL and/or LOGO_RIGHT_URL specified in settings! rapidsms.context_processors.logo")
-        logo_right_url = ""
+        warnings.warn("No LOGO_LEFT_URL specified in settings! rapidsms.context_processors.logo")
         logo_left_url = ""
     try:
         site_title = settings.SITE_TITLE
