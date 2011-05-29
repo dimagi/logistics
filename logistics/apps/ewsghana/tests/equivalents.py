@@ -17,14 +17,14 @@ class TestEquivalents(TestScript):
             """
         self.runScript(a)
 
-    def ftestEquivalentStockout(self):
+    def testEquivalentStockout(self):
         a = """
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov0 ml1
-              123 < Dear stella, the following items are stocked out: ov. Please place an order now.
+              123 < Dear stella, the following items are stocked out: ov. the following items need to be reordered: ml. Please place an order now.
               123 > ov1 ml0
-              123 < Dear stella, the following items are stocked out: ml. Please place an order now.
+              123 < Dear stella, the following items are stocked out: ml. the following items need to be reordered: ov. Please place an order now.
               123 > ov0 ml20
               123 < Dear stella, thank you for reporting the commodities you have in stock.
               123 > ov20 ml0
@@ -32,7 +32,7 @@ class TestEquivalents(TestScript):
             """
         self.runScript(a)
 
-    def ftestEquivalentLowSupply(self):
+    def testEquivalentLowSupply(self):
         a = """
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
