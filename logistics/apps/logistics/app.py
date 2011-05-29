@@ -81,13 +81,13 @@ class App(AppBase):
         over_supply = stock_report.over_supply()
         received = stock_report.nonzero_received()
         missing_product_list = stock_report.missing_products()
-        if stock_report.has_stockout:
+        if stockouts:
             response = response + 'the following items are stocked out: %(stockouts)s. '
             super_response = "stockouts %(stockouts)s; "
         if low_supply:
             response = response + 'the following items need to be reordered: %(low_supply)s. '
             super_response = super_response + "below reorder level %(low_supply)s; "
-        if stock_report.has_stockout or low_supply:
+        if stockouts or low_supply:
             response = response + 'Please place an order now. '
         if missing_product_list:
             if not response:
