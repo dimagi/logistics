@@ -206,6 +206,7 @@ NO_LOGIN_REQUIRED_FOR = [
 'register',
 'logout',
 'activate',
+'help',
 ]
 
 # AUDITCARE CONFIG
