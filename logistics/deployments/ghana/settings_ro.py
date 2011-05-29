@@ -2,7 +2,6 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
-    "auditcare",
     "logistics.apps.ewsghana",
 ]
 
@@ -89,6 +88,18 @@ TESTING_DATABASES= {
     }
 }
 
+# email settings used for sending out email reports
+EMAIL_LOGIN="rowena.shadow@gmail.com"
+EMAIL_PASSWORD="frustr"
+EMAIL_SMTP_HOST="smtp.gmail.com"
+EMAIL_SMTP_PORT=587
+ACCOUNT_ACTIVATION_DAYS=30
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_PASSWORD='frustr'
+EMAIL_HOST_USER='rowena.shadow@gmail.com'
+EMAIL_PORT=587
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
@@ -109,6 +120,7 @@ LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_RIGHT_URL=""
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
