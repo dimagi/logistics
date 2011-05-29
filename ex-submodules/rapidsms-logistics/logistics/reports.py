@@ -17,6 +17,7 @@ class Colors(object):
     LIGHT_GREEN = "#9acc99"
     LIGHT_PURPLE = "#bf7ebe"
     LIGHT_YELLOW = "#fff6cf"
+    MEDIUM_GREEN = "#7aaa7a"
     MEDIUM_PURPLE = "#a460a4"
     MEDIUM_YELLOW = "#efde7f"
     DARK_RED = "#a30808"
@@ -251,18 +252,18 @@ class ProductAvailabilitySummary(object):
 
             bar_data = [{"data" : without_stock,
                          "label": "Stocked out", 
-                         "bars": { "show" : "true", "fillColor": Colors.RED },
+                         "bars": { "show" : "true"},
                          "color": Colors.DARK_RED,
                         },
                         {"data" : with_stock,
                          "label": "Not Stocked out", 
-                         "bars": { "show" : "true", "fillColor": Colors.LIGHT_GREEN }, 
-                         "color": Colors.GREEN,
+                         "bars": { "show" : "true"}, 
+                         "color": Colors.MEDIUM_GREEN,
                          
                         },
                         {"data" : without_data,
                          "label": "No Stock Data", 
-                         "bars": { "show" : "true", "fillColor": Colors.LIGHT_YELLOW },
+                         "bars": { "show" : "true"},
                          "color": Colors.MEDIUM_YELLOW,
                         }]
             self._flot_data = {"data": json.dumps(bar_data), 
