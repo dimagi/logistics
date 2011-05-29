@@ -49,14 +49,21 @@ def load_products(file_path, log_to_console=True):
     if not os.path.exists(file_path):
         raise LoaderException("Invalid file path: %s." % file_path)
     
+    def _int_or_nothing(val):
+        try:
+            return int(val)
+        except ValueError:
+            return None
+        
     csv_file = open(file_path, 'r')
     try:
         count = 0
         for line in csv_file:
             # leave out first line
-            if "monthly consumption" in line.lower():
+            if "product name" in line.lower():
                 continue
-            name, code, monthly_consumption, typename, form, eop_quant = line.split(",")
+            #Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,
+            name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats = line.strip().split(",")
             #create/load type
             type = ProductType.objects.get_or_create(name=typename, code=typename.lower())[0]
             
@@ -67,7 +74,8 @@ def load_products(file_path, log_to_console=True):
             product.name = name
             product.description = name # todo
             product.type = type
-            product.average_monthly_consumption = int(monthly_consumption) if monthly_consumption else None
+            product.average_monthly_consumption = _int_or_nothing(monthly_consumption)
+            product.emergency_order_level = _int_or_nothing(eop_quant)
             product.save()
             
             count += 1
@@ -84,16 +92,16 @@ def load_locations(file_path, log_to_console=True):
         raise LoaderException("Invalid file path: %s." % file_path)
     
     # create/load static types    
-    country_type = LocationType.objects.get_or_create(slug="country", name="country")[0]
-    district_type = LocationType.objects.get_or_create(slug="district", name="district")[0]
-    facility_type = LocationType.objects.get_or_create(slug="facility", name="facility")[0]
-    hsa_type = LocationType.objects.get_or_create(slug="hsa", name="hsa")[0]
+    country_type = LocationType.objects.get_or_create(slug=config.LocationCodes.COUNTRY, name=config.LocationCodes.COUNTRY)[0]
+    district_type = LocationType.objects.get_or_create(slug=config.LocationCodes.DISTRICT, name=config.LocationCodes.DISTRICT)[0]
+    facility_type = LocationType.objects.get_or_create(slug=config.LocationCodes.FACILITY, name=config.LocationCodes.FACILITY)[0]
+    hsa_type = LocationType.objects.get_or_create(slug=config.LocationCodes.HSA, name=config.LocationCodes.HSA)[0]
     country = Location.objects.get_or_create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)[0]
     
-    district_sp_type = SupplyPointType.objects.get_or_create(name="district", code="d")[0]
-    fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code="hf")[0]
+    district_sp_type = SupplyPointType.objects.get_or_create(name="district", code=config.SupplyPointCodes.DISTRICT)[0]
+    fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code=config.SupplyPointCodes.FACILITY)[0]
     # we don't use this anywhere in the loader, but make sure to create it
-    hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code="hsa")[0]
+    hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code=config.SupplyPointCodes.HSA)[0]
     
     csv_file = open(file_path, 'r')
     try:

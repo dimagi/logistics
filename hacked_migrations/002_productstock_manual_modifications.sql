@@ -1,0 +1,4 @@
+ALTER TABLE logistics_productstock ADD COLUMN manual_monthly_consumption integer;
+ALTER TABLE logistics_productstock ADD COLUMN auto_monthly_consumption integer;
+ALTER TABLE logistics_productstock ADD COLUMN use_auto_consumption boolean;
+ALTER TABLE logistics_productstock DROP COLUMN base_monthly_consumption;

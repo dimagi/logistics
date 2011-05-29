@@ -1,0 +1,29 @@
+{% load i18n %}
+<table class="stock" width=100%>
+<thead><tr>
+    <th scope="col"></th>
+    <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
+    <th scope="col" class="emergency stock_col">Emergency</th>
+    <th scope="col" class="good_supply stock_col">{% trans "Adequate Stock" %}</th>
+    <th scope="col" class="overstock stock_col">{% trans "Overstock" %}</th>
+    <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
+    {% if commodity_filter %}<th scope="col" >{% trans "AMC" %}</th>{% endif %}
+</tr></thead>
+<tbody>
+{% for row in rows %}
+    {% if row.is_active %}
+    <tr>
+    <td><a href="{{ row.url }}">{{ row.name }}</a></td>
+    <td> {{ row.stockout_count }} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
+    <td> {{ row.emergency_stock_count }} {% ifnotequal row.emergency_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
+    <td> {{ row.adequate_supply_count }} {% ifnotequal row.adequate_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Adequate supply">{% endifnotequal %}</td>
+    <td> {{ row.overstocked_count }} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
+    <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
+    {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
+    </tr>
+    {% endif %}
+{% endfor %}
+
+</tr></tbody>
+</table>
+

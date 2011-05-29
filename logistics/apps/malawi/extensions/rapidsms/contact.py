@@ -26,7 +26,10 @@ class MalawiContactExtension(models.Model):
     
     @property
     def associated_supply_point_name(self):
-        return self.associated_supply_point.name
+        if self.associated_supply_point:
+            return self.associated_supply_point.name
+        else:
+            return ""
     
     @property
     def hsa_id(self):

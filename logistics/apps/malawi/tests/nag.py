@@ -16,7 +16,7 @@ class TestNag(MalawiTestBase):
         self.assertEqual(1, len(get_non_reporting_hsas(last_month)))
         
         report_stock(self, hsa, "zi 10 la 15", 
-                     Contact.objects.get(name="sally"), "zi 390, la 705")
+                     [Contact.objects.get(name="sally")], "zi 190, la 345")
         
         self.assertEqual(0, len(get_non_reporting_hsas(last_month)))
         self.assertEqual(1, len(get_non_reporting_hsas(datetime.utcnow())))
@@ -50,11 +50,10 @@ class TestNag(MalawiTestBase):
         self.assertEqual(2, nagRecord.warning)
 
         report_stock(self, hsa, "zi 10 la 15", 
-                     Contact.objects.get(name="sally"), "zi 390, la 705")
+                     [Contact.objects.get(name="sally")], "zi 190, la 345")
         
         self.assertEqual(0, len(get_non_reporting_hsas(last_month)))
         self.assertEqual(1, len(get_non_reporting_hsas(datetime.utcnow())))
-
 
     def _setup_users(self):
         create_manager(self, "16175551001", "sally")

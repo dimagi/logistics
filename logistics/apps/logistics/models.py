@@ -70,6 +70,7 @@ class Product(models.Model):
     # medical facilities later
     product_code = models.CharField(max_length=100, null=True, blank=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
+    emergency_order_level = PositiveIntegerField(null=True, blank=True)
     type = models.ForeignKey('ProductType')
     equivalents = models.ManyToManyField('self', null=True, blank=True)
     
@@ -111,7 +112,7 @@ class ProductStock(models.Model):
     last_modified = models.DateTimeField(auto_now=True)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
-    use_auto_consumption = models.BooleanField(default=False)
+    use_auto_consumption = models.BooleanField(default=settings.LOGISTICS_USE_AUTO_CONSUMPTION)
 
     class Meta:
         unique_together = (('supply_point', 'product'),)
@@ -121,17 +122,22 @@ class ProductStock(models.Model):
 
     @property
     def monthly_consumption(self):
-        if not self.use_auto_consumption:
-            return self.manual_monthly_consumption
-        d = self.daily_consumption
-        if d is None:
+        def _manual_consumption():
             if self.manual_monthly_consumption is not None:
                 return self.manual_monthly_consumption
             elif self.product.average_monthly_consumption is not None:
                 return self.product.average_monthly_consumption
             return None
+        
+        if not self.use_auto_consumption:
+            return _manual_consumption()
+        
+        else:
+            d = self.daily_consumption
+            if d is None:
+                return _manual_consumption()
 
-        return d * 30
+            return d * 30
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):
@@ -159,7 +165,11 @@ class ProductStock(models.Model):
 
     @property
     def emergency_reorder_level(self):
-        if self.monthly_consumption is not None:
+        # if you use static levels you only get the product's data or nothing
+        if settings.LOGISTICS_USE_STATIC_EMERGENCY_LEVELS:
+            return self.product.emergency_order_level
+        
+        elif self.monthly_consumption is not None:
             return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
         return None
 
@@ -219,6 +229,12 @@ class ProductStock(models.Model):
     def is_in_good_supply(self):
         if self.maximum_level is not None and self.reorder_level is not None:
             if self.quantity > self.reorder_level and self.quantity < self.maximum_level:
+                return True
+        return False
+
+    def is_in_adequate_supply(self):
+        if self.maximum_level is not None and self.emergency_reorder_level is not None:
+            if self.quantity > self.emergency_reorder_level and self.quantity < self.maximum_level:
                 return True
         return False
 
@@ -515,8 +531,7 @@ class ProductReport(models.Model):
 
     class Meta:
         verbose_name = "Product Report"
-        ordering = ('-report_date',)
-
+        
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
 
@@ -541,7 +556,6 @@ class StockTransaction(models.Model):
     
     class Meta:
         verbose_name = "Stock Transaction"
-        ordering = ('-date',)
 
     def __unicode__(self):
         return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
@@ -582,16 +596,13 @@ class RequisitionReport(models.Model):
     report_date = models.DateTimeField(default=datetime.utcnow)
     message = models.ForeignKey(Message)
 
-    class Meta:
-        ordering = ('-report_date',)
-
+    
 class NagRecord(models.Model):
     supply_point = models.ForeignKey("SupplyPoint")
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)
+    nag_type = models.CharField(max_length=30)
 
-    class Meta:
-        ordering = ('-report_date',)
     
 class Responsibility(models.Model):
     """ e.g. 'reports stock on hand', 'orders new stock' """
@@ -653,6 +664,14 @@ class SupplyPoint(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def active_contact_set(self):
+        return self.contact_set.filter(is_active=True)
+    
+    @property
+    def active_objects(self):
+        return self.objects.filter(active=True)
+    
     @property
     def label(self):
         return unicode(self)
@@ -727,7 +746,12 @@ class SupplyPoint(models.Model):
         return good_supply_count(facilities=[self], 
                                  product=product, 
                                  producttype=producttype)
-
+    
+    def adequate_supply_count(self, product=None, producttype=None):
+        return adequate_supply_count(facilities=[self], 
+                                     product=product, 
+                                     producttype=producttype)
+    
     def overstocked_count(self, product=None, producttype=None):
         return overstocked_count(facilities=[self], 
                                  product=product, 
@@ -781,14 +805,14 @@ class SupplyPoint(models.Model):
         return ps.is_active
 
     def activate_product(self, product):
-        ps = ProductStock.objects.get(supply_point=self, product=product)
-        if ps.is_active == False:
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if not ps.is_active:
             ps.is_active = True
             ps.save()
 
     def deactivate_product(self, product):
-        ps = ProductStock.objects.get(supply_point=self, product=product)
-        if ps.is_active == True:
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if ps.is_active:
             ps.is_active = False
             ps.save()
 
@@ -1172,6 +1196,16 @@ def good_supply_count(facilities=None, product=None, producttype=None):
         if stock.is_in_good_supply():
             good_supply_count = good_supply_count + 1
     return good_supply_count
+
+def adequate_supply_count(facilities=None, product=None, producttype=None):
+    """ This indicates all stock between emergency and full levels
+    """
+    supply_count = 0
+    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_in_adequate_supply():
+            supply_count = supply_count + 1
+    return supply_count
 
 def overstocked_count(facilities=None, product=None, producttype=None):
     overstock_count = 0

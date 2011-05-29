@@ -32,6 +32,10 @@
     border: 1px solid #aaa;
 }
 	
+#alertpane {
+    height:200px;
+    overflow:auto;	
+}
 ul.alerts {
 	list-style-type: none;
     margin: 0em;
@@ -44,7 +48,32 @@ li.alert {
     margin: 1em;
 }
 
+td.prompt {
+    text-align: right;	
+}
+.inline-error {
+    color:red; font-weight:bold;	
+}
+
 .error, .notice, .warning, .success {padding:.8em;margin-bottom:1em;border:2px solid #ddd;}
 .error {background:#FBE3E4;color:#8a1f11;border-color:#FBC2C4;}
 .notice, .warning {background:#FFF6BF;color:#514721;border-color:#FFD324;}
 .success {background:#E6EFC2;color:#264409;border-color:#C6D880;}
+
+.fullwidth table {
+    width: 100%;
+}
+
+.tabledate {
+    width: 15em;
+}
+
+.breadcrumbs {
+    font-size: 1.5em;
+    margin-bottom: 1em;
+}
+
+#selector {
+    margin-top: 1em;
+    padding: 1em;
+}

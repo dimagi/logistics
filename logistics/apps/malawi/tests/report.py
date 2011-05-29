@@ -21,7 +21,7 @@ class TestReport(MalawiTestBase):
         create_hsa(self, "16175551000", "joe")
         a = """
            16175551234 > report 261601 soh zi 40 la 200 
-           16175551234 < joe needs the following products: zi 360, la 520. Type 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
+           16175551234 < joe needs the following products: zi 160, la 160. Type 'report 261601 rec [prod code] [amount]' to report receipts for the HSA.
         """ 
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code=261601)
@@ -33,12 +33,12 @@ class TestReport(MalawiTestBase):
             self.assertEqual(StockRequestStatus.REQUESTED, req.status)
             self.assertTrue(req.is_pending())
         b = """
-           16175551234 > report 261601 rec zi 360 la 520
+           16175551234 > report 261601 rec zi 160 la 160
            16175551234 < Thank you charles. You reported the following receipts for joe: zi la
         """ 
         self.runScript(b)
-        self.assertEqual(400, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="zi").quantity)
-        self.assertEqual(720, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="la").quantity)
+        self.assertEqual(200, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="zi").quantity)
+        self.assertEqual(360, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="la").quantity)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(hsa_sp, req.supply_point)
@@ -66,9 +66,9 @@ class TestReport(MalawiTestBase):
            16175551000 < %(response)s
            16175551234 < %(super)s
         """ % {"response": config.Messages.SOH_ORDER_CONFIRM % \
-               {"contact": "joe"},
+               {"contact": "joe", "products": "zi la"},
                "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
-               {"hsa": "phoneless", "products": "zi 360, la 520",
+               {"hsa": "phoneless", "products": "zi 160, la 160",
                 "hsa_id": "261602"}}
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code="261602")
@@ -90,10 +90,10 @@ class TestReport(MalawiTestBase):
            16175551000 < %(response)s
            16175551234 < %(super)s
         """ % {"response": config.Messages.SOH_ORDER_CONFIRM % \
-               {"contact": "joe"},
+               {"contact": "joe", "products": "zi la"},
                "super": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % \
-               {"hsa": "phoneless", "emergency_products": "zi 360",
-                "normal_products": "la 520",
+               {"hsa": "phoneless", "emergency_products": "zi 160",
+                "normal_products": "la 160",
                 "hsa_id": "261602"}}
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code="261602")
