@@ -106,6 +106,7 @@ filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"

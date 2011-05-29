@@ -107,6 +107,7 @@ STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
