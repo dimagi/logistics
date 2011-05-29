@@ -85,7 +85,9 @@ def registration(req, pk=None, template="registration/dashboard.html"):
         template, {
             "contacts_table": ContactTable(Contact.objects.all(), request=req),
             "contact_form": contact_form,
-            "bulk_form": bulk_form,
+            # no one is using or has tested the bulk form in logistics
+            # so we remove it for now
+            # "bulk_form": bulk_form,
             "contact": contact,
             "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)

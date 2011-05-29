@@ -79,7 +79,7 @@ class App(AppBase):
         stockouts = stock_report.stockouts()
         low_supply = stock_report.low_supply()
         over_supply = stock_report.over_supply()
-        received = stock_report.received_products()
+        received = stock_report.nonzero_received()
         missing_product_list = stock_report.missing_products()
         if stock_report.has_stockout:
             response = response + 'the following items are stocked out: %(stockouts)s. '
@@ -109,7 +109,7 @@ class App(AppBase):
                     'stockouts': stockouts,
                     'missing_stock': ', '.join(missing_product_list),
                     'stocks': stock_report.all(),
-                    'received': stock_report.received(),
+                    'received': received,
                     'overstocked': over_supply,
                     'name': stock_report.message.contact.name,
                     'supply_point': stock_report.supply_point.name }
@@ -153,11 +153,14 @@ class App(AppBase):
         if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
-            message.error("%s is not a recognized commodity code. " % code + 
-                          "Please contact your DHIO for assistance." )
-        elif settings.DEFAULT_RESPONSE is not None:
+            if code:
+                message.error("%s is not a recognized commodity code. " % code + 
+                              "Please contact your DHIO for assistance." )
+                return
+        if settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
                           project_name=settings.PROJECT_NAME)
+            return
 
     def cleanup (self, message):
         """Perform any clean up after all handlers have run in the

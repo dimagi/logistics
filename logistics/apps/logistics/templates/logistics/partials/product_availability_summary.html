@@ -1,0 +1,32 @@
+{% load i18n %}
+{% block javascripts %}
+    {{ block.super }}
+    <script language="javascript">
+    $(document).ready(function() {
+        // Bar chart
+        bar_options = {                     
+           series: {
+             stack: 0,
+             lines: { show: false, steps: false },
+             bars: { show: true, barWidth: 0.75, align: 'center' }
+           },
+           xaxis: { 
+                   ticks: {{ summary.flot_data.ticks|safe }}
+                  }, 
+           legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: 3},
+           yaxis: {max: {{ summary.max_value }},
+                   tickDecimals: 0 },
+           grid: {show: true,
+                  tickColor: 'gray',
+                  backgroundColor: '#FFFFFF',
+                  hoverable: false,
+                  autoHighlight:false}
+        };
+        $.plot($("#{{ summary.div }}"), {{ summary.flot_data.data|safe }}, bar_options);    
+    });
+	</script>
+{% endblock %}
+<div id="{{ summary.legenddiv }}" style="width:100%"></div>
+<p>{{ summary.yaxistitle }}</p>
+<div id="{{ summary.div }}" style="width:{{ summary.width }}px; height:{{ summary.height }}px" ></div>
+<p style="text-align:center; width:100%;">{{ summary.xaxistitle }}</p>

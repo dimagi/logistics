@@ -2014,9 +2014,6 @@
             "type": "RMS"
         }
     },
-    {"pk": 1, "model": "logistics.facility", "fields": {}},
-    {"pk": 2, "model": "logistics.facility", "fields": {}},
-    {"pk": 3, "model": "logistics.facility", "fields": {}},
     {
         "pk": 1,
         "model": "rapidsms.contact",

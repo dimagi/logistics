@@ -57,7 +57,7 @@ class CreateUserHandler(RecordResponseHandler):
         if Location.objects.filter(code=hsa_id).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
-        if SupplyPoint.objects.filter(code=hsa_id).exists():
+        if SupplyPoint.objects.filter(code=hsa_id, contact__is_active=True).exists():
             self.respond("Sorry, a supply point with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
         

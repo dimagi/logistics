@@ -5,15 +5,35 @@ def filter_context(func):
     """
     add commodities and commoditytypes to context
     """
-    def _new_func(*args, **kwargs):
+    def _new_func(request, *args, **kwargs):
         context = {}
+        
+        # add commodities 
         context['commodities'] = Product.objects.all().order_by('name')
         context['commoditytypes'] = ProductType.objects.all().order_by('name')
+        
+        commodity_filter = None
+        commoditytype_filter = None
+    
+        # add/set filters
+        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
+            commodity_filter = request.REQUEST['commodity']
+            commodity = Product.objects.get(sms_code=commodity_filter)
+            commoditytype_filter = commodity.type.code
+        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
+            commoditytype_filter = request.REQUEST['commoditytype']
+            type = ProductType.objects.get(code=commoditytype_filter)
+            context['commodities'] = context['commodities'].filter(type=type)
+        
+        context['commodity_filter'] = commodity_filter
+        context['commoditytype_filter'] = commoditytype_filter
+
         if 'context' in kwargs:
             kwargs['context'].update(context)
         else:
             kwargs['context'] = context
-        return func(*args, **kwargs)
+        
+        return func(request, *args, **kwargs)
     return _new_func
 
 def geography_context(func):

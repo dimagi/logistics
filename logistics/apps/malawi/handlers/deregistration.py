@@ -5,10 +5,9 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 from logistics.apps.logistics.util import config
 
-class HSADeregistrationHandler(KeywordHandler):
+class DeregistrationHandler(KeywordHandler):
     """
-    Allow remote users to set their preferred language, by updating the
-    ``language`` field of the Contact associated with their connection.
+    Leave the system with "leave"
     """
 
     keyword = "leave"

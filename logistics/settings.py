@@ -45,13 +45,13 @@ BASE_APPS = [
     "rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
+    "logistics.apps.alerts",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
-    "auditcare",
     "couchlog",
     "registration",
 ]
@@ -193,9 +193,14 @@ COUCHDB_APPS=['auditcare','couchlog']
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
 
+LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
+LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
+LOGISTICS_USE_AUTO_CONSUMPTION = False
+
 DEBUG=True
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
@@ -246,4 +251,12 @@ COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database"
 
 COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 
+# AUDITCARE CONFIG
+# users can fail login 10 times, resulting in a 1 hour cooloff period
+AXES_LOGIN_FAILURE_LIMIT=100
+AXES_LOGIN_FAILURE_LIMIT=1
+AXES_LOCK_OUT_AT_FAILURE=False
 
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'logistics.migrations',
+}

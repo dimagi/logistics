@@ -1,9 +1,38 @@
 from __future__ import absolute_import
-from logistics.apps.logistics.models import Product
+from logistics.apps.logistics.models import Product, SupplyPoint, ProductStock
 
 from logistics.apps.malawi.tests.util import create_hsa
 from logistics.apps.malawi.tests.base import MalawiTestBase
+from django.conf import settings
 
+class TestProductLevels(MalawiTestBase):
+    
+    def testEmergencyLevels(self):
+        csv_file = open(settings.STATIC_PRODUCTS, 'r')
+        try:
+            count = 0
+            expected_count = Product.objects.exclude(emergency_order_level=None).count()
+            static_sp = SupplyPoint.objects.all()[0]
+            self.assertTrue(expected_count > 0) # make sure we wil check something
+            for line in csv_file:
+                # leave out first line
+                if "product name" in line.lower():
+                    continue
+                #Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,
+                name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats = line.strip().split(",")
+                try:
+                    eo = int(eop_quant)
+                    product = Product.objects.get(sms_code__iexact=code)
+                    self.assertEqual(eo, product.emergency_order_level)
+                    ps = ProductStock.objects.create(supply_point=static_sp, product=product)
+                    self.assertEqual(ps.emergency_reorder_level, eo)
+                    count = count + 1
+                except ValueError:
+                    pass
+            self.assertEqual(count, expected_count) # make sure we checked enough
+        finally:
+            csv_file.close()
+    
 class TestAddRemoveProducts(MalawiTestBase):
     
     def testAddRemoveProduct(self):

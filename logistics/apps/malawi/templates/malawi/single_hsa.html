@@ -1,0 +1,72 @@
+{% extends base_template %}
+
+{% load logistics_report_tags %}
+{% load malawi_tags %}
+
+{% block title %}HSA Summary for {{ hsa.name}} - {{ block.super }}{% endblock %}
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+{% include "logistics/googlecharts/stock_chart_js.html" %}
+{% endblock %}
+
+{% block imports %}
+    {% include "imports/jquery-ui.html" %}
+{% endblock %}
+
+{% block content %}
+
+<span class="noprint">
+    <div class="topbar-right">
+        <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+    </div>
+	<div class="breadcrumbs">
+	    {% breadcrumbs hsa.supply_point.location %}
+	</div>
+</span>
+
+<div class="module">
+    <span class="noprint">
+    <h2>Historical Months of Stock Levels for {{ hsa.name }}</h2>
+    {% if hsa.supply_point.productstock_set.count %}
+	    {% if chart_data %}
+	        <div id="chart_div"></div>
+	    {% endif %}
+    </span>
+    <h2>Current Stock Levels</h2>
+        {% stockonhand_table hsa.supply_point %}
+    {% else %}
+	    <div class="error">
+	        <p>{{ hsa.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
+	        <p>Please contact the system administrator for help.</p>
+	    </div>
+    {% endif %}
+    <div class="toppadded">
+        <h2>Order Response Times</h2>
+        {{ stockrequest_table.as_html }}
+    </div>
+    <div class="toppadded">
+        <h2>HSA Details</h2>
+            <table class="summary">
+                <tr><td class="prompt">Facility: </td><td><a href="{% place_url hsa.supply_point.supplied_by.location %}">{{ hsa.supply_point.supplied_by }}</a></td></tr>
+                <tr><td class="prompt">Phone Number: </td><td>{{ hsa.phone }}</td></tr>
+                <tr><td class="prompt">Products: </td><td>{% if hsa.commodities.count %}{{ hsa.commodities.all|join:", " }}{% else %}<span class="inline-error">none configured</span>{% endif %}</td></tr>
+            </table>
+    </div>
+{% if debug %}    
+    <div class="two-columns toppadded">
+	    <div class="col-1">
+	        <h2>Recent Messages</h2>
+	        {% recent_messages hsa %}
+	    </div>
+	    <div class="col-2">
+	        <h2>Contact  Information</h2>
+	        TODO
+	    </div>
+    </div>
+{% endif %}
+</div>
+{% endblock %}
