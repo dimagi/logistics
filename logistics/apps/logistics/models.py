@@ -642,7 +642,12 @@ class SupplyPoint(models.Model):
     # i know in practice facilities are supplied by a variety of sources
     # but this relationship will only be used to enforce the idealized ordering/
     # supply relationsihp, so having a single ForeignKey mapping is sufficient
+    # also, we can't rely on the locations hierarchy to indicate the supplying facility
+    # since some countries have district medical stores and some don't
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    # indicates whether this facility gets alerts from sub-facilities
+    # (used in schedule.py)
+    is_supervising_facility = models.BooleanField(default=True, help_text='Is this facility responsible for the supervision of other facilities in its region?')
 
     def __unicode__(self):
         return self.name
