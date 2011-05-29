@@ -1030,12 +1030,12 @@ class ProductReportsHelper(object):
                 stock = low_supply[ls]
                 equivalents = stock.product.equivalents.all()
                 for e in equivalents:
-                    if e.sms_code in self.product_stock:
-                        ps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
-                        if ps.is_above_low_supply():
-                            # if we wanted to support multiple equivalents, we could do a recurisve search here
-                            dupes.append(ls)
-        return " ".join('%s' % (key) for key, val in low_supply.items() if val == 0 and key not in dupes)
+                    ps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
+                    if ps.is_above_low_supply():
+                        # if we wanted to support multiple equivalents, we could do a recurisve search here
+                        dupes.append(ls)
+        ret = " ".join('%s' % (key) for key, val in low_supply.items() if key not in dupes)
+        return ret
 
     def over_supply(self):
         over_supply = ""
