@@ -35,6 +35,13 @@ class Location(models.Model):
            
         return sorted(list(set(ret)), key=lambda sp: sp.name)
         
+    def all_child_facilities(self):
+        ret = []
+        for c in self.children():
+            ret.extend(c.all_facilities())
+           
+        return sorted(list(set(ret)), key=lambda sp: sp.name)
+        
 
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None):

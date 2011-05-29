@@ -5,6 +5,7 @@
 import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
+from djtables.column import DateColumn
 
 def _edit_link(cell):
     return reverse(
@@ -36,3 +37,22 @@ class CommodityTable(Table):
 
     class Meta:
         order_by = 'name'
+
+class ShortMessageTable(Table):
+
+    date = DateColumn(format="H:i d/m/Y", sortable=False)
+    text = Column(css_class="message", sortable=False)
+
+    
+class ReportingTable(Table):
+    name = Column(sortable=False)
+    last_reported = DateColumn(name="Last Reported on",
+                               value=lambda cell: cell.object.last_reported \
+                                    if cell.object.last_reported else "never",
+                               format="M d, h:m A", 
+                               sortable=False,
+                               css_class="tabledate")
+    
+    class Meta:
+        order_by = '-last_reported'
+
