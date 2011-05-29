@@ -1,9 +1,12 @@
 {% extends base_template %}
 {% block title %}HSAs - {{ block.super }}{% endblock %}
 {% block content %}
-{% include "malawi/partials/location_selector.html" %}
+
+{% include "malawi/partials/selector_form.html" %}
+
 <div class="module">
     <h2>All HSAs</h2>
     {{ hsa_table.as_html }}
 </div>
+
 {% endblock %}
