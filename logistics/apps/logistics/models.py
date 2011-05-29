@@ -705,7 +705,7 @@ class SupplyPoint(models.Model):
         return emergency_stock_count(facilities=[self], 
                                      product=product, 
                                      producttype=producttype)
-
+        
     def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
@@ -1095,6 +1095,9 @@ def _filtered_stock(product, producttype):
 
 def stockout_count(facilities=None, product=None, producttype=None):
     results = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity=0)#.select_related('product','product__equivalent_to')
+    return results.count()
+    """
+    Note: this code is untested&unused for now, until we get better requirements definitions from ghana
     if not getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
         return results.count()
     stockouts = []
@@ -1106,6 +1109,7 @@ def stockout_count(facilities=None, product=None, producttype=None):
                 if not eps.is_above_low_supply():
                     stockouts.append(result)
     return len(stockouts)
+    """
 
 def emergency_stock_count(facilities=None, product=None, producttype=None):
     """ This indicates all stock below reorder levels,
@@ -1115,6 +1119,9 @@ def emergency_stock_count(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
     for stock in stocks:
         if stock.is_below_emergency_level():
+            """
+            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
+
             if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
                 # check for equivalents
                 if stock.product.equivalents.count()>0:
@@ -1123,6 +1130,7 @@ def emergency_stock_count(facilities=None, product=None, producttype=None):
                         if eps.is_above_low_supply():
                             # if we wanted to support multiple equivalents, we could do a recurisve search here
                             continue
+            """
             emergency_stock = emergency_stock + 1
     return emergency_stock
 
@@ -1134,6 +1142,8 @@ def low_stock_count(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
     for stock in stocks:
         if stock.is_below_low_supply_but_above_emergency_level():
+            """
+            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
             if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
                 # check for equivalents
                 if stock.product.equivalents.count()>0:
@@ -1142,6 +1152,7 @@ def low_stock_count(facilities=None, product=None, producttype=None):
                         if eps.is_above_low_supply():
                             # if we wanted to support multiple equivalents, we could do a recurisve search here
                             continue
+            """
             low_stock_count = low_stock_count + 1
     return low_stock_count
 
