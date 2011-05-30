@@ -62,7 +62,7 @@ class TestAddRemoveProducts(MalawiTestBase):
 
         b = """
            16175551234 > add zi de dm
-           16175551234 < Thank you, you now supply: zi de dm
+           16175551234 < Thank you, you now supply: de dm zi
         """
         self.runScript(b)
 
@@ -74,9 +74,9 @@ class TestAddRemoveProducts(MalawiTestBase):
 
         c = """
            16175551234 > remove cm
-           16175551234 < Done. You now supply: zi de dm
+           16175551234 < Done. You now supply: de dm zi
            16175551234 > remove de
-           16175551234 < Done. You now supply: zi dm
+           16175551234 < Done. You now supply: dm zi
            """
         self.runScript(c)
 

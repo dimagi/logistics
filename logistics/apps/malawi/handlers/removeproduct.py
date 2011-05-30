@@ -34,4 +34,4 @@ class RemoveProductHandler(KeywordHandler):
                 self.msg.logistics_contact.save()
         self.respond(config.Messages.REMOVE_SUCCESS_MESSAGE, products=" ".join\
                         (self.msg.logistics_contact.commodities.values_list\
-                            ("sms_code", flat=True)))
+                            ("sms_code", flat=True).order_by("sms_code")))
