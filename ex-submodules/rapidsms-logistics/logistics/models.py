@@ -31,11 +31,16 @@ STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
 REPORTEE_RESPONSIBILITY = 'reportee'
 STOCK_ON_HAND_REPORT_TYPE = 'soh'
 RECEIPT_REPORT_TYPE = 'rec'
+SUPERVISOR_TITLE = 'DHIO'
 REGISTER_MESSAGE = "You must registered on EWS " + \
                    "before you can submit a stock report. " + \
-                   "Please contact your DHIO."
+                   "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
 INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
-GET_HELP_MESSAGE = " Please contact your DHIO for assistance."
+NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
+                             "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
+NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
+                            "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
 DISTRICT_TYPE = 'district'
 CHPS_TYPE = 'chps'
 
@@ -876,11 +881,11 @@ class ProductReportsHelper(object):
             return
         match = re.search("[0-9]",string)
         if not match:
-            raise ValueError("Stock report should contain quantity of stock on hand. " + \
-                             "Please contact your DHIO for assistance.")
+            raise ValueError(NO_QUANTITY_ERROR)
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
+        valid = False
         while True:
             try:
                 while commodity is None or not commodity.isalpha():
@@ -889,6 +894,7 @@ class ProductReportsHelper(object):
                 while not count.isdigit():
                     count = an_iter.next()
                 self.add_product_stock(commodity, count)
+                valid=True
                 token_a = an_iter.next()
                 if not token_a.isalnum():
                     token_b = an_iter.next()
@@ -898,17 +904,22 @@ class ProductReportsHelper(object):
                         # if digit, then the user is reporting receipts
                         self.add_product_receipt(commodity, token_b)
                         commodity = None
+                        valid = True
                     else:
                         # if alpha, user is reporting soh, so loop
                         commodity = token_b
+                        valid=True
                 else:
                     commodity = token_a
+                    valid = True
             except ValueError, e:
                 self.errors.append(e)
                 commodity = None
                 continue
             except StopIteration:
                 break
+        if not valid:
+            raise ValueError(NO_CODE_ERROR)
         return
 
     def save(self):
