@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus ,\
-    ProductStock
+    ProductStock, NO_CODE_ERROR, NO_QUANTITY_ERROR
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.tests.base import MalawiTestBase
+
 
 class TestStockOnHandMalawi(MalawiTestBase):
     
@@ -110,7 +111,21 @@ class TestStockOnHandMalawi(MalawiTestBase):
                {"hsa": "wendy"}}
         self.runScript(a)
         self.assertEqual(0, StockRequest.objects.count())
-        
+
+    def testBadSubmissions(self):
+        return True
+        hsa = create_hsa(self, "16175551000", "wendy")
+        a = """
+            16175551000 > soh zi
+            16175551000 < %(no_number)s
+            16175551000 > soh 1
+            16175551000 < %(no_code)s
+        """ % {'no_number': NO_QUANTITY_ERROR,
+               'no_code': NO_CODE_ERROR}
+        self.runScript(a)
+        self.assertEqual(0, StockRequest.objects.count())
+
+
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
         
