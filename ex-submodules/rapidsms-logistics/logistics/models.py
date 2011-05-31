@@ -77,7 +77,8 @@ class Product(models.Model):
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
     type = models.ForeignKey('ProductType')
-
+    equivalents = models.ManyToManyField('self', null=True, blank=True)
+    
     def __unicode__(self):
         return self.name
 
@@ -215,6 +216,18 @@ class ProductStock(models.Model):
     def is_below_low_supply_but_above_emergency_level(self):
         if self.reorder_level is not None and self.emergency_reorder_level is not None:
             if self.quantity <= self.reorder_level and self.quantity> self.emergency_reorder_level:
+                return True
+        return False
+
+    def is_below_low_supply(self):
+        if self.reorder_level is not None:
+            if self.quantity <= self.reorder_level and self.quantity > 0:
+                return True
+        return False
+
+    def is_above_low_supply(self):
+        if self.reorder_level is not None:
+            if self.quantity > self.reorder_level:
                 return True
         return False
 
@@ -642,10 +655,16 @@ class SupplyPoint(models.Model):
     code = models.CharField(max_length=100, unique=True)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
     location = models.ForeignKey(Location)
-    # i know in practice facilities are supplied by a variety of sources
-    # but this relationship will only be used to enforce the idealized ordering/
-    # supply relationsihp, so having a single ForeignKey mapping is sufficient
+    # we can't rely on the locations hierarchy to indicate the supplying facility
+    # since some countries have district medical stores and some don't
+    # note also that the supplying facility is often not the same as the 
+    # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    # indicates whether this facility should get alerts from sub-facilities
+    # (sub-facilities being defined as facilities in locations which are
+    # direct children of this facility's location)
+    # (this feature not implemented yet)
+    is_supervising_facility = models.BooleanField(default=True, help_text='Is this facility responsible for the supervision of other facilities in its region?')
 
     def __unicode__(self):
         return self.name
@@ -716,7 +735,7 @@ class SupplyPoint(models.Model):
         return emergency_stock_count(facilities=[self], 
                                      product=product, 
                                      producttype=producttype)
-
+        
     def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
@@ -832,7 +851,6 @@ class ProductReportsHelper(object):
             raise UnknownFacilityCodeError("Unknown Facility.")
         self.supply_point = sdp
         self.message = message
-        self.has_stockout = False
         self.report_type = report_type
         self.errors = []
 
@@ -982,8 +1000,6 @@ class ProductReportsHelper(object):
         self.product_stock[product_code] = stock
         if consumption is not None:
             self.consumption[product_code] = consumption
-        if stock == 0:
-            self.has_stockout = True
 
     def _record_product_report(self, product, quantity, report_type):
         report_type = ProductReportType.objects.get(code=report_type)
@@ -1024,23 +1040,43 @@ class ProductReportsHelper(object):
     def stockouts(self):
         # slightly different syntax than above, since there's no point in 
         # reporting stock levels for stocks which we know are at level '0'
-        return " ".join('%s' % (key) for key, val in self.product_stock.items() if val == 0)
+        stockouts = {}
+        for key, val in self.product_stock.items():
+            if val == 0:
+                stockouts[key] = val
+        # remove equivalents
+        dupes = []
+        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
+            for key in stockouts:
+                prod = Product.objects.get(sms_code=key)#.select_related('equivalent_to')
+                if prod.equivalents.count()>0:
+                    for e in prod.equivalents.all():
+                        if e.sms_code in self.product_stock:
+                            ps = ProductStock.objects.get(product=e, supply_point=self.supply_point)
+                            if ps.is_above_low_supply(): 
+                                # if we wanted to support multiple equivalents, we could do a recurisve search here
+                                dupes.append(key)
+        return " ".join('%s' % (key) for key, val in stockouts.items() if val == 0 and key not in dupes)
         
-
     def low_supply(self):
-        low_supply = ""
+        low_supply = {}
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(supply_point=self.supply_point).get(product__sms_code__icontains=i)
-            #if productstock.monthly_consumption == 0:
-            #    raise ValueError("I'm sorry. I cannot calculate low
-            #    supply for %(code)s until I know your monthly consumption.
-            #    Please contact your DHIO for assistance." % {'code':i})
-            if productstock.monthly_consumption is not None:
-                if self.product_stock[i] <= productstock.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS and \
-                   self.product_stock[i] != 0:
-                    low_supply = "%s %s" % (low_supply, i)
-        low_supply = low_supply.strip()
-        return low_supply
+            productstock = ProductStock.objects.filter(supply_point=self.supply_point).get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
+            if productstock.is_below_low_supply():
+                low_supply[i] = productstock
+        # strip equivalents
+        dupes = []
+        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
+            for ls in low_supply:
+                stock = low_supply[ls]
+                equivalents = stock.product.equivalents.all()
+                for e in equivalents:
+                    ps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
+                    if ps.is_above_low_supply():
+                        # if we wanted to support multiple equivalents, we could do a recurisve search here
+                        dupes.append(ls)
+        ret = " ".join('%s' % (key) for key, val in low_supply.items() if key not in dupes)
+        return ret
 
     def over_supply(self):
         over_supply = ""
@@ -1099,8 +1135,22 @@ def _filtered_stock(product, producttype):
     return results
 
 def stockout_count(facilities=None, product=None, producttype=None):
-    results = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity=0)
+    results = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity=0)#.select_related('product','product__equivalent_to')
     return results.count()
+    """
+    Note: this code is untested&unused for now, until we get better requirements definitions from ghana
+    if not getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
+        return results.count()
+    stockouts = []
+    for result in results:
+        if result.product.equivalents.count()>0:
+            equivalents = result.product.equivalents.all()
+            for equivalent in equivalents:
+                eps = ProductStock.objects.filter(supply_point=result.supply_point,product=equivalent)
+                if not eps.is_above_low_supply():
+                    stockouts.append(result)
+    return len(stockouts)
+    """
 
 def emergency_stock_count(facilities=None, product=None, producttype=None):
     """ This indicates all stock below reorder levels,
@@ -1110,6 +1160,18 @@ def emergency_stock_count(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
     for stock in stocks:
         if stock.is_below_emergency_level():
+            """
+            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
+
+            if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
+                # check for equivalents
+                if stock.product.equivalents.count()>0:
+                    for equivalent in stock.product.equivalents.all():
+                        eps = ProductStock.objects.get(product=equivalent, supply_point=stock.supply_point)
+                        if eps.is_above_low_supply():
+                            # if we wanted to support multiple equivalents, we could do a recurisve search here
+                            continue
+            """
             emergency_stock = emergency_stock + 1
     return emergency_stock
 
@@ -1121,6 +1183,17 @@ def low_stock_count(facilities=None, product=None, producttype=None):
     stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
     for stock in stocks:
         if stock.is_below_low_supply_but_above_emergency_level():
+            """
+            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
+            if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
+                # check for equivalents
+                if stock.product.equivalents.count()>0:
+                    for e in stock.product.equivalents.all():
+                        eps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
+                        if eps.is_above_low_supply():
+                            # if we wanted to support multiple equivalents, we could do a recurisve search here
+                            continue
+            """
             low_stock_count = low_stock_count + 1
     return low_stock_count
 
