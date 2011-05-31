@@ -54,14 +54,6 @@ except ImportError:
                       "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
                       "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
 
-class LogisticsProfile(models.Model):
-    user = models.ForeignKey(User, unique=True)
-    location = models.ForeignKey(Location, blank=True, null=True)
-    supply_point = models.ForeignKey('SupplyPoint', blank=True, null=True)
-
-    def __unicode__(self):
-        return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
-
 post_save.connect(create_user_profile, sender=User)
 
 class Product(models.Model):
@@ -127,7 +119,7 @@ class SupplyPoint(models.Model):
     # since some countries have district medical stores and some don't
     # note also that the supplying facility is often not the same as the 
     # supervising facility
-    supplied_by = models.ForeignKey(SupplyPoint, blank=True, null=True)
+    supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
     # indicates whether this facility should get alerts from sub-facilities
     # (sub-facilities being defined as facilities in locations which are
     # direct children of this facility's location)
@@ -302,6 +294,14 @@ class SupplyPoint(models.Model):
                              {'name':reporter.name,
                              'products':", ".join(stockouts_resolved),
                              'supply_point':self.name})
+
+class LogisticsProfile(models.Model):
+    user = models.ForeignKey(User, unique=True)
+    location = models.ForeignKey(Location, blank=True, null=True)
+    supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
+
+    def __unicode__(self):
+        return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
 
 class ProductStock(models.Model):
