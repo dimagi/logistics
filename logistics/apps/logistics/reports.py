@@ -118,17 +118,17 @@ class ReportingBreakdown(object):
     def breakdown_chart(self):
         if self._breakdown_chart is None:
             graph_data = [
-                {"display": "Fully Reported",
+                {"display": "Complete Reports",
                  "value": len(self.full),
                  "color": Colors.LIGHT_GREEN,
                  "description": "(%s) %s in %s" % \
-                    (len(self.full), "Fully reported", self.datespan)
+                    (len(self.full), "Complete Reports", self.datespan)
                 },
-                {"display": "Partially Reported",
+                {"display": "Incomplete Reports",
                  "value": len(self.partial),
                  "color": Colors.MEDIUM_PURPLE,
                  "description": "(%s) %s in %s" % \
-                    (len(self.partial), "Partially reported", self.datespan)
+                    (len(self.partial), "Incomplete Reports", self.datespan)
                 },
 #                {"display": "Unconfigured",
 #                 "value": len(self.unconfigured),
@@ -142,7 +142,8 @@ class ReportingBreakdown(object):
     def breakdown_groups(self):
         return [TableData("Incomplete Reports", ReportingTable(self.partial)),
                 TableData("Complete Reports", ReportingTable(self.full)),
-                TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))]
+                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))
+                ]
         
     _on_time_chart = None
     def on_time_chart(self):
