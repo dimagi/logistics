@@ -1,0 +1,11 @@
+<div class="content">
+    <h3>{{ sp.name }}</h3>
+    <table>
+        <tr>
+            <td>Stocked out: </td><td>{{ sp.products_stocked_out|join:", "|default:"no data" }}</td>
+        </tr>
+        <tr>
+            <td>With stock: </td><td>{{ sp.products_with_stock|join:", "|default:"no data" }}</td>
+        </tr>
+    </table>
+</div>

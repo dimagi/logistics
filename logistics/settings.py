@@ -49,6 +49,7 @@ BASE_APPS = [
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
+    "logistics.apps.maps",
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
@@ -200,6 +201,9 @@ LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
 LOGISTICS_USE_AUTO_CONSUMPTION = False
+
+MAP_DEFAULT_LATITUDE  = 40.726111
+MAP_DEFAULT_LONGITUDE = -73.981389
 
 DEBUG=True
 
