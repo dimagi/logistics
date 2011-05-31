@@ -25,8 +25,16 @@
 
 {% block content %}
 
+<span class="noprint">
+    <div class="topbar-right">
+        <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+    </div>
+<div style="clear:both;">
 {% include "malawi/partials/selector_form.html" %}
-<div class="module">
+</div>
+</span>
+
+<div class="module noprint">
     <h2>{% trans 'Alerts' %}</h2>
     {% alerts request %}
 </div>
