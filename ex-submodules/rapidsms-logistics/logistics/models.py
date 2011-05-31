@@ -138,6 +138,19 @@ class SupplyPoint(models.Model):
         return self.objects.filter(active=True)
     
     @property
+    def products_stocked_out(self):
+        return Product.objects.filter(pk__in=\
+                    self.productstock_set.filter\
+                        (quantity=0).values_list("product", flat=True))
+    
+    @property
+    def products_with_stock(self):
+        return Product.objects.filter(pk__in=\
+                    self.productstock_set.filter\
+                        (quantity__gt=0).values_list("product", flat=True))
+        
+    
+    @property
     def label(self):
         return unicode(self)
     
