@@ -118,13 +118,13 @@ class ReportingBreakdown(object):
     def breakdown_chart(self):
         if self._breakdown_chart is None:
             graph_data = [
-                {"display": "Complete Reports",
+                {"display": "Comp. Reports",
                  "value": len(self.full),
                  "color": Colors.LIGHT_GREEN,
                  "description": "(%s) %s in %s" % \
                     (len(self.full), "Complete Reports", self.datespan)
                 },
-                {"display": "Incomplete Reports",
+                {"display": "Inc. Reports",
                  "value": len(self.partial),
                  "color": Colors.MEDIUM_PURPLE,
                  "description": "(%s) %s in %s" % \
