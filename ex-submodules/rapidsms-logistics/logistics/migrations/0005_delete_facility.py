@@ -16,6 +16,7 @@ class Migration(SchemaMigration):
         # 5 stocktransaction
         db.delete_column('logistics_stocktransaction', 'facility_id')
         # 6 productstock
+        db.delete_unique('logistics_productstock', ['facility_id', 'product_id'])
         db.delete_column('logistics_productstock', 'facility_id')
 
         db.delete_table('logistics_facility')
