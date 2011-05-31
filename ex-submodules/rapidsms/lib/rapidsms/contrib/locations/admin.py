@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.contrib import admin
-from models import Location, LocationType
+from models import Location, LocationType, Point
 
 class LocationAdmin(admin.ModelAdmin):
     model = Location
@@ -10,6 +10,7 @@ class LocationAdmin(admin.ModelAdmin):
 class LocationTypeAdmin(admin.ModelAdmin):
     model = LocationType
 
+admin.site.register(Point)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(LocationType, LocationTypeAdmin)
 
