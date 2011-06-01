@@ -7,7 +7,7 @@ from logistics.apps.logistics.tables import ReportingTable
 import json
 from django.core.urlresolvers import reverse
 import logistics.apps.logistics.models as logistics_models
-from logistics.apps.logistics.util import DateSpan
+from dimagi.utils.dates import DateSpan
 
 class Colors(object):
     RED = "red"
