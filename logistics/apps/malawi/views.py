@@ -8,15 +8,15 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
     StockTransaction, StockRequestStatus, StockRequest
 from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below
-from logistics.apps.logistics.decorators import place_in_request,\
-    datespan_in_request
+from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
 from logistics.apps.logistics.reports import ReportingBreakdown
-from logistics.apps.logistics.util import config, DateSpan
-from django.contrib import messages
+from logistics.apps.logistics.util import config
+from dimagi.utils.dates import DateSpan
+from dimagi.utils.decorators.datespan import datespan_in_request
 
 @place_in_request()
 def dashboard(request):

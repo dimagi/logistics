@@ -15,7 +15,7 @@ from logistics.apps.logistics.tables import ShortMessageTable
 from logistics.apps.logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, HSASupplyPointRow, FacilitySupplyPointRow
 from logistics.apps.malawi.util import hsas_below
-from logistics.apps.logistics.util import DateSpan
+from dimagi.utils.dates import DateSpan
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
