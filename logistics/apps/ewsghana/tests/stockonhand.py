@@ -189,7 +189,7 @@ class TestStockOnHand (TestScript):
            16176023315 > soh lf 0 badcode 10
            16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO for assistance.
            16176023315 > soh badcode 10
-           16176023315 < Unrecognized commodity codes: badcode. Please contact your DHIO for assistance.
+           16176023315 < badcode is not a recognized commodity code. Please contact your DHIO for assistance.
            16176023315 > soh lf 10 m20
            16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO for assistance.
            16176023315 > ad50 -0 as65-0 al25-0 qu0-0 sp0-0 rd0-0
