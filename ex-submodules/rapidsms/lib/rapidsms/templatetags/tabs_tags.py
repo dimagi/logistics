@@ -3,23 +3,21 @@
 
 
 import re
-import types
-import threading
-from functools import wraps
 from django import template
 from django.conf import settings
-from django.core.urlresolvers import get_resolver, reverse, RegexURLPattern
-from django.utils.importlib import import_module
+from django.core.urlresolvers import reverse
 from django.template import Variable
 
 register = template.Library()
 
 
 class Tab(object):
-    def __init__(self, view, caption=None):
+    
+    def __init__(self, view, caption=None, permission=None):
         self._caption = caption
         self._view = view
-
+        self._permission = permission
+    
     def _auto_caption(self):
         func_name = self._view.split('.')[-1]       # my_view
         return func_name.replace("_", " ").title()  # My View
@@ -45,6 +43,10 @@ class Tab(object):
         slug = re.sub(r'\W', '', slug) # remove any remaining non-word chars
         return slug
 
+    def has_permission(self, user):
+        if self._permission:    return user.has_perm(self._permission)
+        else:                   return True
+
 
 # adapted from ubernostrum's django-template-utils. it didn't seem
 # substantial enough to add a dependency, so i've just pasted it.
@@ -52,7 +54,7 @@ class TabsNode(template.Node):
     def __init__(self, tabs, varname):
         self.tabs = tabs
         self.varname = varname
-
+        
     def render(self, context):
         # try to find a request variable, but don't blow up entirely if we don't find it
         # (this no blow up property is mostly used during testing)
@@ -62,7 +64,9 @@ class TabsNode(template.Node):
             return ""
 
         for tab in self.tabs:
-            tab.is_active = tab.url == request.get_full_path()
+            tab.is_active = request.get_full_path().startswith(tab.url)
+            tab.visible = tab.has_permission(request.user)                    
+        
         context[self.varname] = self.tabs
         return ""
 
@@ -78,6 +82,15 @@ def get_tabs(parser, token):
 
     Example::
         {% get_tabs as tabs %}
+        
+    Looks for a RAPIDSMS_TABS value in settings.py formatted like:
+    
+    RAPIDSMS_TABS = [
+        ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
+        ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    ]
+    
+    The third value in the tuple (permission required) is optional.
     """
 
     args = token.contents.split()
@@ -92,5 +105,5 @@ def get_tabs(parser, token):
             'The second argument to the {%% %s %%} tag must be "as"' %
             (tag_name))
 
-    tabs = [Tab(view, caption) for view, caption in settings.RAPIDSMS_TABS]
+    tabs = [Tab(*tab_args) for tab_args in settings.RAPIDSMS_TABS]
     return TabsNode(tabs, str(args[1]))
