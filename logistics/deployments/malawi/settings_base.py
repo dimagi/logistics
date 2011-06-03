@@ -26,8 +26,8 @@ RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
     ("logistics.apps.malawi.views.contacts",       "Management"),
     ("registration",                          "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's
