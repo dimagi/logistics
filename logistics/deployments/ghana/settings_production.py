@@ -30,6 +30,7 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.locations.views.locations",         "Map"),
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    ("maps_dashboard",                                      "Maps"),
 ]
 
 # for postgresql:
@@ -108,9 +109,9 @@ EMAIL_USE_TLS=True
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
-LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
@@ -118,4 +119,9 @@ BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 # TODO: move this configuration over to urls.py
 SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
 SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
+
+# some random place in the middle of ghana
+MAP_DEFAULT_LATITUDE  = 6.55
+MAP_DEFAULT_LONGITUDE = -1.2166667
+
 
