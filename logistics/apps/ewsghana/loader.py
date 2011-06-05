@@ -214,13 +214,17 @@ def init_reminders():
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Thursdays
         set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
-
+        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.first_soh_reminder",
+        #                             minutes='*')
+        
     # set up second soh reminder
     try:
         EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Mondays
         set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
+        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.second_soh_reminder", 
+        #                             minutes='*')
 
     # set up third soh reminder
     try:
@@ -228,9 +232,9 @@ def init_reminders():
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Wednesdays
         set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
-        #schedule = EventSchedule(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
-        #                         hours='*', minutes='*', callback_args=None )
-        #schedule.save()
+        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
+        #                             minutes='*')
+        
 
     # set up rrirv reminder
     try:
@@ -238,6 +242,9 @@ def init_reminders():
     except EventSchedule.DoesNotExist:
         # 2:15 pm on the 28th
         set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
+        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV", 
+        #                             minutes='*')
+        
 
 def _get_or_create_region_rms(region_name, region):
     # DELIVER ONLY
