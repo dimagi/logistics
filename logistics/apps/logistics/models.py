@@ -1113,7 +1113,8 @@ class ProductReportsHelper(object):
         to this stockreport helper
         """
         all_products = []
-        date_check = datetime.utcnow() + relativedelta(days=-7)
+        num_days = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT
+        date_check = datetime.utcnow() + relativedelta(days=-num_days)
         reporter = self.message.contact
         missing_products = Product.objects.filter(Q(reported_by=reporter),
                                                   ~Q(productreport__report_date__gt=date_check,

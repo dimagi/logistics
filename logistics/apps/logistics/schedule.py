@@ -48,7 +48,7 @@ def third_soh_to_super (router):
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
         latest_reports = ProductReport.objects.filter(supply_point=reporter.supply_point).order_by('-report_date')
-        five_days_ago = datetime.now() + relativedelta(days=-7)
+        five_days_ago = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
         if not latest_reports or latest_reports[0].report_date < five_days_ago:
             supers = Contact.objects.filter(supply_point=reporter.supply_point)
             supers = supers.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
