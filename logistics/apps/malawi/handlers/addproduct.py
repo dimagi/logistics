@@ -33,6 +33,6 @@ class AddProductHandler(KeywordHandler):
                 self.msg.logistics_contact.commodities.add(f)
                 self.hsa.activate_product(f)
         self.msg.logistics_contact.save()
-        self.respond(config.Messages.ADD_SUCCESS_MESSAGE, products=" ".join([ps.product.sms_code for ps
-                                                                      in ProductStock.objects.filter(supply_point=self.hsa,
-                                                                                                     is_active=True)]))
+        self.respond(config.Messages.ADD_SUCCESS_MESSAGE, products=" ".join\
+                        (self.msg.logistics_contact.commodities.values_list\
+                            ("sms_code", flat=True).order_by("sms_code")))

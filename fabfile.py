@@ -57,6 +57,7 @@ def malawi():
     env.hosts = ['sc4ccm@50.56.116.170']
     def malawi_extras():
         run("python manage.py malawi_init")
+        run("python manage.py loaddata ../deploy/malawi/initial_data.json")
     env.extras = malawi_extras
 
 def staging():

@@ -1,7 +1,8 @@
 from logistics.apps.logistics.util import config
 from logistics.apps.logistics.models import SupplyPoint, ContactRole,\
-    StockRequest
+    StockRequest, ProductReportsHelper
 from rapidsms.models import Contact
+from logistics.apps.logistics.const import Reports
 
 
 def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
@@ -32,29 +33,33 @@ def _get_resupply_amounts(hsa):
     return [req.sms_format() for req in StockRequest.pending_requests().filter(supply_point=hsa.supply_point)]
     
     
-def report_stock(test_class, hsa, product_string, manager=None, products_back=""):
+def report_stock(test_class, hsa, product_string, managers=None, products_back=""):
     """
     Reports stock. 
     """
     
-    if manager:
-        "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
-        manager_msg = """
-            %(phone)s < %(confirm)s
-        """ % {"phone": manager.default_connection.identity,
-               "confirm": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
-                {"hsa": hsa.name,
-                 "products": products_back,
-                 "hsa_id": hsa.supply_point.code}}
-    else: 
-        manager_msg = ""
+    stock_report = ProductReportsHelper(SupplyPoint(), Reports.SOH)
+    stock_report.parse(product_string)
+    product_list = " ".join(stock_report.reported_products()).strip()
+    manager_msgs = []
+    if managers:
+        
+        for manager in managers:
+            "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
+            manager_msgs.append("""
+                %(phone)s < %(confirm)s
+            """ % {"phone": manager.default_connection.identity,
+                   "confirm": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
+                    {"hsa": hsa.name,
+                     "products": products_back,
+                     "hsa_id": hsa.supply_point.code}})
     a = """
            %(phone)s > soh %(products)s
            %(phone)s < %(confirm)s
-           %(manager_msg)s
+           %(manager_msgs)s
         """ % {"phone": hsa.default_connection.identity, 
                "products": product_string, 
-               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": hsa.name},
-               "manager_msg": manager_msg}
+               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"products": product_list},
+               "manager_msgs": "".join(manager_msgs)}
     test_class.runScript(a)
     

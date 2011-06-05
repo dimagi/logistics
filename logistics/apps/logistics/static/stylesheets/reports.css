@@ -1,3 +1,8 @@
+*{ margin:0; padding:0; } /* reset */
+
+.toppadded {
+    padding-top: 10px;	
+}
 #submenu {
 	font-weight: bold;
 	margin-left: 1em;
@@ -68,9 +73,10 @@
 }
 
 #main{
-  float:right;
-  display:inline;
-  width:73%;
+/*  float:right;*/
+/*  width:73%; */
+/*  setting this display to inline mucks up all the rapidsms toolbars */
+/*  display:inline; */
   padding-bottom:1.3em;
   position:relative;
   overflow:hidden
@@ -85,9 +91,10 @@
 }
 
 #chart_div {
-    width: 90%;
+    width: 97%;
     height: 300px;
     margin:10px 0px;
+    margin-bottom: 25px;
 }
 .stock {
     float:left;
@@ -119,29 +126,35 @@ td.empty {
 
 /* --- Accordion --- */
 #side ul a {
-    padding:.5em .5em .5em 2em;   
+    /*padding:.5em .5em .5em 2em;   */
 }
 
 #side{
   float:left;
   display:inline;
   width:240px;
-  padding-bottom:1.3em;
-  position:relative;
+  /*padding-bottom:1.3em;*/
+  position:absolute;
   overflow:hidden;
+  -moz-box-shadow: 4px 4px 8px #AAA;
+  box-shadow: 4px 4px 8px #AAA;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  z-index:999;
 }
 
 #side a.active{
     font-weight:700;
     color:#f72;
-    text-decoration:none}
+    text-decoration:none;
 }
 
+
 #side a {
-    display:block;
+    /*display:block;*/
     border-width:0 0 1px;
     border-color:#445;
-    color:#f0f0f0
+    /*color:#f0f0f0*/
 }
 
 #side a:hover, #side a:active, #side a:focus {
@@ -149,7 +162,6 @@ td.empty {
 }
 
 .accordion {
-    margin:0 10px 5px 0px;
     padding:10px 15px 20px 10px;
     background-color: #F0F3FF;
 }
@@ -157,14 +169,14 @@ td.empty {
 .accordion li {
     display:block;
     list-style-type:none;
-    padding: 0;
+    padding:5px;
     margin: 0;
     overflow:hidden;
 }
 
 .accordion li a {
     color: #1c3482;
-    border-bottom:0.1em solid #cccccc;
+    /*border-bottom:0.1em solid #cccccc;*/
 }
 
 #side ul.accordion ul {
@@ -172,17 +184,56 @@ td.empty {
     padding:0 0 0 2em;
 }
 
-a.trigger {
+.navspan {
     display:block;
-    padding-left:20px;
+}
+
+a.trigger {
+    /*display:block;*/
+    padding-left:10px;
+    padding-right:5px;
+    cursor:pointer;
     background-image: url(../images/plus.png);
     background-repeat: no-repeat;
-    background-position: 1px 50%;
+    /*background-position: 1px 50%;*/
 }
 
 a.trigger.open {
-    display:block;
+    /*display:block;*/
     background-image: url(../images/minus.png);
-    background-color:#e7e7e7;
+    /*background-color:#e7e7e7;*/
+}
+
+
+#locationselect {
+    display:block;
+    padding:8px;
+    padding-left: 20px;
+    cursor: pointer;
+    background-image: url(../images/plus.png);
+    background-position: 1px 50%;
+    background-repeat: no-repeat;
+    background-color: #E0E3EF;
+    color: #333;
+    width: 10em;
+    font-weight: bold;
+	-moz-box-shadow: 4px 4px 8px #AAA;
+	box-shadow: 4px 4px 8px #AAA;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	z-index:999;
+}
+
+.topbar {
+    display:block;
+}
+
+.topbar-left {
+    float:left;
+}
+
+.topbar-right {
+    float:right;
+    padding:8px;
 }
 

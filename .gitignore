@@ -8,3 +8,4 @@
 *~
 logistics/localsettings.py
 logistics/logistics.log
+logistics/apps/malawi/tests/testscripts/*

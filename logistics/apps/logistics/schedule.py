@@ -29,41 +29,41 @@ def first_soh_reminder (router):
     reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
         response = STOCK_ON_HAND_REMINDER % {'name':reporter.name}
-        OutgoingMessage(reporter.default_connection, response).send()
+        send_message(reporter, response)
 
 def second_soh_reminder (router):
     """monday follow-up"""
     logging.info("running second soh reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
-        latest_reports = ProductReport.objects.filter(facility=reporter.facility).order_by('-report_date')
+        latest_reports = ProductReport.objects.filter(supply_point=reporter.supply_point).order_by('-report_date')
         # TODO get this to vary alongside scheduled time
         five_days_ago = datetime.now() + relativedelta(days=-5)
         if not latest_reports or latest_reports[0].report_date < five_days_ago:
             response = SECOND_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
-            OutgoingMessage(reporter.default_connection, response).send()
+            send_message(reporter, response)
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
     reporters = Contact.objects.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
-        latest_reports = ProductReport.objects.filter(facility=reporter.facility).order_by('-report_date')
-        five_days_ago = datetime.now() + relativedelta(days=-7)
+        latest_reports = ProductReport.objects.filter(supply_point=reporter.supply_point).order_by('-report_date')
+        five_days_ago = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
         if not latest_reports or latest_reports[0].report_date < five_days_ago:
-            supers = Contact.objects.filter(facility=reporter.facility)
+            supers = Contact.objects.filter(supply_point=reporter.supply_point)
             supers = supers.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
             for super in supers:
                 response = THIRD_STOCK_ON_HAND_REMINDER % {'name':super.name}
-                OutgoingMessage(super.default_connection, response).send()
-            # custom code it so that the supervisor of the facility supplying the CHPS
+                send_message(super, response)
+            # custom code it so that the supervisor of the supply_point supplying the CHPS
             # gets the escalation message. we cannot reuse these reminders for tz.
-            if reporter.facility.type.code == CHPS_TYPE:
-                super_supers = Contact.objects.filter(facility=reporter.facility.supplied_by)
+            if reporter.supply_point.type.code == CHPS_TYPE:
+                super_supers = Contact.objects.filter(supply_point=reporter.supply_point.supplied_by)
                 super_supers = super_supers.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
                 for super_super in super_supers:
                     response = THIRD_CHPS_STOCK_ON_HAND_REMINDER % {'name':super_super.name, 
-                                                                    'facility':reporter.facility }
-                    OutgoingMessage(super_super.default_connection, response).send()
+                                                                    'facility':reporter.supply_point }
+                    send_message(super_super, response)
                 
         
 def reminder_to_submit_RRIRV(router):
@@ -73,5 +73,9 @@ def reminder_to_submit_RRIRV(router):
     reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
         response = RRIRV_REMINDER % {'name':reporter.name}
-        OutgoingMessage(reporter.default_connection, response).send()
+        send_message(reporter, response)
 
+def send_message(contact, message):
+    if contact.default_connection:
+        OutgoingMessage(contact.default_connection, message).send()
+    

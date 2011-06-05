@@ -1,6 +1,8 @@
-from logistics.apps.logistics.models import ProductReportsHelper, ContactRole
+from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
+    StockRequest, StockRequestStatus
 from logistics.apps.logistics.util import config
 from rapidsms.models import Contact
+from logistics.apps.malawi.util import get_supervisors
 
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None):
@@ -29,34 +31,46 @@ def send_transfer_responses(msg, stock_report, transfers, giver, to):
                    giver=giver.name,
                    products=stock_report.all())
     
+def _respond_empty(msg, contact, stock_report, supervisors):
+    for super in supervisors:
+        super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
+                      hsa=contact.name)
+    msg.respond(config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO,
+                products=" ".join(stock_report.reported_products()).strip(),
+                contact=contact.name)
 
 def send_soh_responses(msg, contact, stock_report, requests):
     if stock_report.errors:
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        supervisors = Contact.objects.filter(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
-                                             supply_point=contact.supply_point.supplied_by)
-        for super in supervisors:
-            super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
-                          hsa=contact.name,
-                          products=", ".join(req.sms_format() for req in requests),
-                          hsa_id=contact.supply_point.code)
-        if supervisors.count() > 0:
-            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        contact=msg.logistics_contact.name)
-        else:
-            msg.respond(config.Messages.NO_IN_CHARGE,
-                        supply_point=contact.supply_point.supplied_by.name)
+        supervisors = get_supervisors(contact.supply_point.supplied_by)
         
+        if not requests:
+            _respond_empty(msg, contact, stock_report, supervisors)
+        else:
+            for super in supervisors:
+                super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
+                              hsa=contact.name,
+                              products=", ".join(req.sms_format() for req in \
+                                                 StockRequest.objects.filter(\
+                                                    supply_point=stock_report.supply_point,
+                                                    status=StockRequestStatus.REQUESTED)),
+                              hsa_id=contact.supply_point.code)
+            if supervisors.count() > 0:
+                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+                            products=" ".join(stock_report.reported_products()).strip())
+            else:
+                msg.respond(config.Messages.NO_IN_CHARGE,
+                            supply_point=contact.supply_point.supplied_by.name)
+            
     
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        supervisors = Contact.objects.filter(role=ContactRole.objects.get(code=config.Roles.IN_CHARGE), 
-                                             supply_point=contact.supply_point.supplied_by)
+        supervisors = get_supervisors(contact.supply_point.supplied_by)
         
         emergency_products = [req for req in requests if req.is_emergency == True]
         emergency_product_string = ", ".join(req.sms_format() for req in emergency_products) if emergency_products else "none"
@@ -75,7 +89,7 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                                    hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
             msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        contact=msg.logistics_contact.name)
+                        products=" ".join(stock_report.reported_products()).strip())
         else:
             # TODO: this message should probably be cleaned up
             msg.respond(config.Messages.NO_IN_CHARGE,

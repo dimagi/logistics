@@ -22,13 +22,10 @@ MIDDLEWARE_CLASSES = (
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics_dashboard",                    "Stock Levels"),
-    ("logistics.apps.malawi.views.contacts",       "Places & People"),
-    #("reporting",                              "Reporting Rates"),
+    ("logistics.apps.malawi.views.facilities",       "Facilities"),
+    ("logistics.apps.malawi.views.hsas",       "HSAs"),
+    ("logistics.apps.malawi.views.contacts",       "Management"),
     ("registration",                          "Registration"),
-    #("email_reports",                              "Email Reports"),
-    #("help",                                      "Help"),
-    #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
 ]
@@ -130,6 +127,8 @@ STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(o
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
+LOGISTICS_LANDING_PAGE_VIEW = "malawi_dashboard"
+LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
 LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
@@ -138,6 +137,7 @@ LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
 LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
+LOGISTICS_USE_AUTO_CONSUMPTION = True
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
@@ -146,3 +146,14 @@ BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 
 LOGISTICS_CONFIG = 'static.malawi.config'
+
+LOGISTICS_ALERT_GENERATORS = [
+    'logistics.apps.malawi.alerts.hsas_no_supervision',
+    'logistics.apps.malawi.alerts.hsas_no_products',
+    'logistics.apps.malawi.alerts.late_reporting_receipt',
+    'logistics.apps.malawi.alerts.non_reporting_hsas',
+    'logistics.apps.malawi.alerts.health_center_stockout',
+    'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
+    'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
+    'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
+]

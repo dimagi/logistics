@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-import gviz_api
 from logistics.apps.logistics.const import Reports
 
 import settings
@@ -12,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -22,12 +21,13 @@ from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
     get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
-    SupplyPoint, ProductReportType
+    SupplyPoint, ProductReportType, StockTransaction
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
 import json
+from logistics.apps.logistics.charts import stocklevel_plot
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
@@ -35,6 +35,10 @@ def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
 def landing_page(request):
     if 'MSIE' in request.META['HTTP_USER_AGENT']:
         return no_ie_allowed(request)
+    
+    if settings.LOGISTICS_LANDING_PAGE_VIEW:
+        return HttpResponseRedirect(reverse(settings.LOGISTICS_LANDING_PAGE_VIEW))
+    
     prof = None 
     try:
         if not request.user.is_anonymous():
@@ -115,33 +119,12 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
      this view currently only shows the current stock on hand for a given facility
     """
     facility = get_object_or_404(SupplyPoint, code=facility_code)
-    stockonhands = ProductStock.objects.filter(supply_point=facility).order_by('product')
     last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
-
-    if last_reports:
+    transactions = StockTransaction.objects.filter(supply_point=facility)
+    if transactions:
         context['last_reported'] = last_reports[0].report_date
-        last_reports = last_reports.filter(report_type=ProductReportType.objects.get(code=Reports.SOH))
-        cols = {"date": ("datetime", "Date")}
-        for s in stockonhands:
-            cols[s.product.name] = ('number', s.product.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
-        table = gviz_api.DataTable(cols)
+        context['chart_data'] = stocklevel_plot(transactions)
 
-        data_rows = {}
-        for r in last_reports:
-            if not r.report_date in data_rows: data_rows[r.report_date] = {}
-            data_rows[r.report_date][r.product.name] = r.quantity
-        rows = []
-        for d in data_rows.keys():
-            q = {"date":d}
-            q.update(data_rows[d])
-            rows += [q]
-        table.LoadData(rows)
-        raw_data = table.ToJSCode("raw_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
-                                  order_by="date")
-        if len(raw_data)>0:
-            context['raw_data'] = raw_data
-
-    context['stockonhands'] = stockonhands
     context['facility'] = facility
     context["location"] = facility.location
     return render_to_response(
@@ -150,33 +133,24 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
 @geography_context
 @filter_context
-def district(request, location_code, context={}, template="logistics/aggregate.html"):
+def facilities_by_product(request, location_code, context={}, template="logistics/by_product.html"):
     """
     The district view is unusual. When we do not receive a filter by individual product,
     we show the aggregate report. When we do receive a filter by individual product, we show
     the 'by product' report. Let's see how this goes. 
     """
+    if 'commodity' in request.REQUEST:
+        commodity_filter = request.REQUEST['commodity']
+        context['commodity_filter'] = commodity_filter
+        commodity = get_object_or_404(Product, sms_code=commodity_filter)
+        context['selected_commodity'] = commodity
+    else:
+        raise HttpResponse('Must specify "commodity"')
     location = get_object_or_404(Location, code=location_code)
+    stockonhands = ProductStock.objects.filter(Q(supply_point__location=location)|Q(supply_point__location__parent_id=location.pk))
+    context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
     context['location'] = location
-    context['stockonhands'] = stockonhands = ProductStock.objects.filter(supply_point__location=location)
-    commodity_filter = None
-    commoditytype_filter = None
-    if request.method == "POST" or request.method == "GET":
-        # We support GETs so that folks can share this report as a url
-        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
-            commodity_filter = request.REQUEST['commodity']
-            context['commodity_filter'] = commodity_filter
-            commodity = Product.objects.get(sms_code=commodity_filter)
-            context['commoditytype_filter'] = commodity.type.code
-            template="logistics/stockonhand_district.html"
-            context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
-        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
-            commoditytype_filter = request.REQUEST['commoditytype']
-            context['commoditytype_filter'] = commoditytype_filter
-            type = ProductType.objects.get(code=commoditytype_filter)
-            context['commodities'] = context['commodities'].filter(type=type)
-            context['stockonhands'] = stockonhands.filter(product__type=type).order_by('supply_point__name')
-    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
+    context['hide_product_link'] = True
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -184,9 +158,9 @@ def district(request, location_code, context={}, template="logistics/aggregate.h
 @geography_context
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
-    seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
+    deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=deadline) | Q(last_reported=None)).order_by('-last_reported','name')
+    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=deadline).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -200,8 +174,8 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
     # if the location has no children, and 1 supply point treat it like
     # a stock on hand request. Otherwise treat it like an aggregate.
     if location.children().count() == 0 and location.facilities().count() == 1:
-        return stockonhand_facility(request, location_code)
-    return aggregate(request, location_code )
+        return stockonhand_facility(request, location_code, context=context)
+    return aggregate(request, location_code, context=context)
 
 @geography_context
 @filter_context
@@ -211,34 +185,27 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
-    commodity_filter = None
-    commoditytype_filter = None
-    if request.method == "POST" or request.method == "GET":
-        # We support GETs so that folks can share this report as a url
-        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
-            commodity_filter = request.REQUEST['commodity']
-            context['commodity_filter'] = commodity_filter
-            commodity = Product.objects.get(sms_code=commodity_filter)
-            context['commoditytype_filter'] = commodity.type.code
-        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
-            commoditytype_filter = request.REQUEST['commoditytype']
-            context['commoditytype_filter'] = commoditytype_filter
-            type = ProductType.objects.get(code=commoditytype_filter)
-            context['commodities'] = context['commodities'].filter(type=type)
+    
+    # default to the whole country
     if location_code is None:
         location_code = settings.COUNTRY
+    
+    
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    context['rows'] =_get_location_children(location, commodity_filter, commoditytype_filter)
+    context['default_commodity'] = Product.objects.order_by('name')[0]
+    context['facility_count'] = location.child_facilities().count()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
 
-def _get_location_children(location, commodity_filter, commoditytype_filter):
+def _get_location_facilities(location, commodity_filter, commoditytype_filter):
+    return _get_rows_from_children(location.facilities(), commodity_filter, commoditytype_filter)
+def _get_location_child_facilities(location, commodity_filter, commoditytype_filter):
+    return _get_rows_from_children(location.child_facilities(), commodity_filter, commoditytype_filter)
+
+def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
     rows = []
-    children = []
-    children.extend(location.facilities())
-    children.extend(location.children())
     for child in children:
         row = {}
         row['location'] = child
@@ -265,6 +232,12 @@ def _get_location_children(location, commodity_filter, commoditytype_filter):
                                                    producttype=commoditytype_filter)
         rows.append(row)
     return rows
+
+def get_location_children(location, commodity_filter, commoditytype_filter):
+    children = []
+    children.extend(location.facilities())
+    children.extend(location.children())
+    return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
 
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
     class ProductReportDataset(ModelDataset):

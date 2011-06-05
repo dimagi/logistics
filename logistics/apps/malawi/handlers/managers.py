@@ -1,7 +1,7 @@
 """Managers register for the system here"""
 from django.utils.translation import ugettext as _
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole
+from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from logistics.apps.logistics.util import config
 
@@ -25,6 +25,15 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
             self.respond(config.Messages.UNKNOWN_ROLE, role=self.extra,
                          valid_roles=" ".join(ContactRole.objects.values_list\
                                               ("code", flat=True).order_by("code")))
+            return
+        if self.supply_point.location.type.name != 'district' and role.code in config.Roles.DISTRICT_ONLY:
+            self.respond(config.Messages.ROLE_WRONG_LEVEL, role=ContactRole.objects.get(code=self.extra).name, level=self.supply_point.location.type.name)
+            return
+        if self.supply_point.location.type.name != 'facility' and role.code in config.Roles.FACILITY_ONLY:
+            self.respond(config.Messages.ROLE_WRONG_LEVEL, role=ContactRole.objects.get(code=self.extra).name, level=self.supply_point.location.type.name)
+            return
+        if role.code in config.Roles.UNIQUE and Contact.objects.filter(role=role, supply_point=self.supply_point).exists():
+            self.respond(config.Messages.ROLE_ALREADY_FILLED, role=ContactRole.objects.get(code=self.extra).name)
             return
         # overwrite the existing contact data if it was already there
         # we know at least they were not active since we checked above

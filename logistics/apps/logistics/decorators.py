@@ -1,4 +1,5 @@
 from logistics.apps.logistics.util import config
+from rapidsms.contrib.locations.models import Location
 
 def logistics_contact_required():
     """
@@ -39,3 +40,20 @@ def logistics_contact_and_permission_required(operation):
         return logistics_contact_required()(logistics_permission_required(operation)(f)) # yikes
     return both
     
+def place_in_request(param="place"):
+    """
+    Expects a parameter in the request, and if found, will
+    populate request.location with an instance of that 
+    place, by code.
+    """
+    def wrapper(f):
+        def put_place_on_request(request, *args, **kwargs):
+            code = request.GET.get(param, None)
+            if code:
+                request.location = Location.objects.get(code=code)
+            else:
+                request.location = None
+            request.select_location = True # used in the templates
+            return f(request, *args, **kwargs)
+        return put_place_on_request
+    return wrapper

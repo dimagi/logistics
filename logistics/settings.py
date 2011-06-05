@@ -36,18 +36,20 @@ BASE_APPS = [
     
     # the rapidsms contrib apps.
     #"rapidsms.contrib.default",
-    "rapidsms.contrib.export",
+    #"rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "rapidsms.contrib.scheduler",
-    "rapidsms.contrib.echo",
+    #"rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
+    "logistics.apps.alerts",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
+    "logistics.apps.maps",
     "logistics.apps.reports",
     "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
@@ -192,9 +194,19 @@ COUCHDB_APPS=['auditcare','couchlog']
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
 
+LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
+LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
+LOGISTICS_USE_AUTO_CONSUMPTION = False
+LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
+LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
+
+MAP_DEFAULT_LATITUDE  = 40.726111
+MAP_DEFAULT_LONGITUDE = -73.981389
+
 DEBUG=True
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
@@ -205,6 +217,7 @@ NO_LOGIN_REQUIRED_FOR = [
 'register',
 'logout',
 'activate',
+'help',
 ]
 
 # AUDITCARE CONFIG

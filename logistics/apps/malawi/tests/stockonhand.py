@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus ,\
-    ProductStock
+    ProductStock, NO_CODE_ERROR, NO_QUANTITY_ERROR
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi.tests.base import MalawiTestBase
+
 
 class TestStockOnHandMalawi(MalawiTestBase):
     
@@ -18,8 +19,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
         
     def testBasicSupplyFlow(self):
-        hsa, ic = self._setup_users()[0:2]
-        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
         
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -37,9 +38,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy", "products": "zi, la"},
+                    {"hsa": "wendy"},
                "hsa_notice": config.Messages.APPROVAL_NOTICE % \
-                    {"hsa": "wendy", "products": "zi, la"}}
+                    {"hsa": "wendy"}}
         
 
         self.runScript(b)
@@ -57,7 +58,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 15)
         
         c = """
-           16175551000 > rec zi 390 la 705
+           16175551000 > rec zi 190 la 345
            16175551000 < Thank you, you reported receipts for zi la.
         """
         self.runScript(c)
@@ -71,13 +72,64 @@ class TestStockOnHandMalawi(MalawiTestBase):
             self.assertTrue(req.received_on > req.responded_on > req.requested_on)
         
         # stocks should now be updated
-        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 400)
-        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 720)
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)
+        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 360)
         
+    def testAppendStockOnHand(self):
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, StockRequest.objects.count())
+        report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "la 345, lb 172, zi 195")
+        self.assertEqual(4, StockRequest.objects.count())
+        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
+        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        b = """
+           16175551001 > ready 261601
+           16175551001 < %(confirm)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
+                    {"hsa": "wendy"},
+               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"hsa": "wendy"}}
+        self.runScript(b)
+        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
+        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        
+
+        
+        
+        
+    def testNothingToFill(self):
+        self._setup_users()[0:3]
+        a = """
+            16175551000 > soh zi 2000 la 5000
+            16175551000 < %(response)s
+            16175551001 < %(super)s
+        """ % {"response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % \
+               {"contact": "wendy", "products": "zi la"},
+               "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % \
+               {"hsa": "wendy"}}
+        self.runScript(a)
+        self.assertEqual(0, StockRequest.objects.count())
+
+    def testBadSubmissions(self):
+        return True
+        hsa = create_hsa(self, "16175551000", "wendy")
+        a = """
+            16175551000 > soh zi
+            16175551000 < %(no_number)s
+            16175551000 > soh 1
+            16175551000 < %(no_code)s
+        """ % {'no_number': NO_QUANTITY_ERROR,
+               'no_code': NO_CODE_ERROR}
+        self.runScript(a)
+        self.assertEqual(0, StockRequest.objects.count())
+
+
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
         
-        report_stock(self, hsa, "zi 10 la 15", ic, "zi 390, la 705")
+        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 190, la 345")
         
         a = """
            16175551001 > os 261601
@@ -108,10 +160,10 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testEmergencyStockOnHand(self):
         self._setup_users()
         a = """
-           16175551000 > eo zi 10 la 500
+           16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 390, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+           16175551001 < wendy needs emergency products: zi 190, and additionally: la 60. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -128,7 +180,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
-        self.assertEqual(la.quantity, 500)
+        self.assertEqual(la.quantity, 300)
     
     def testEmergencyStockOut(self):
         self.testEmergencyStockOnHand()
@@ -150,10 +202,10 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testEmergencyOrderNoProductsInEmergency(self):
         self._setup_users()
         a = """
-           16175551000 > eo zi 400 la 500
+           16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: none, and additionally: la 220. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+           16175551001 < wendy needs emergency products: none, and additionally: la 160. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         
@@ -162,8 +214,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 400, la 720. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy"}}
+           16175551001 < wendy needs emergency products: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
                     
         self.runScript(a)
         
@@ -171,7 +223,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")
+        sh = create_manager(self, "16175551004", "robert", config.Roles.HSA_SUPERVISOR)
         im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
         dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
-        return (hsa, ic, im, dp) 
+        return (hsa, ic, sh, im, dp) 
         

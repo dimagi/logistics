@@ -1,5 +1,7 @@
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.base import MalawiTestBase
+from logistics.apps.malawi.tests.util import create_manager, create_hsa,\
+    report_stock
 __author__ = 'ternus'
 from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
     REGISTER_MESSAGE
@@ -128,3 +130,22 @@ class TestHSARegister(MalawiTestBase):
         contact = Contact.objects.get(name="stella")
         self.assertTrue(contact.is_active)
     
+    def testManagerLeave(self):
+        hsa = create_hsa(self, "555555", "somehsa")
+        ic = create_manager(self, "666666", "somemanager")
+        super = create_manager(self, "777777", "somesuper", config.Roles.HSA_SUPERVISOR)
+        report_stock(self, hsa, "zi 10 la 15", [ic, super], "zi 190, la 345")
+        b = """
+              666666 > leave
+              666666 < %(left)s
+            """ % {"left": config.Messages.LEAVE_CONFIRM}
+        self.runScript(b)
+        failed = False
+        try:
+            report_stock(self, hsa, "zi 10 la 15", [ic, super], "zi 190, la 345")
+        except Exception:
+            # this is expected
+            failed = True
+        if not failed:
+            self.fail("Reporting stock should not have notified the supervisor")
+        report_stock(self, hsa, "zi 10 la 15", [super], "zi 190, la 345")

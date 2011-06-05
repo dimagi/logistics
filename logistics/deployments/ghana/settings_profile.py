@@ -110,10 +110,13 @@ filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
-LOGO_RIGHT_URL="/static/ewsghana/images/jsi_logo.png"
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+
+MAP_DEFAULT_LATITUDE  = 6.55
+MAP_DEFAULT_LONGITUDE = -1.2166667
 

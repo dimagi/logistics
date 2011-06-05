@@ -9,21 +9,23 @@ class Roles(object):
     Roles go here
     """
     HSA = HSA
-    SENIOR_HSA = "sh"
+    HSA_SUPERVISOR = "sh"
     IN_CHARGE = "ic"
-    CLUSTER_SUPERVISOR = "cs"
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
     ALL_ROLES = {
         HSA: "hsa",
-        SENIOR_HSA: "senior hsa",
+        HSA_SUPERVISOR: "hsa supervisor",
         IN_CHARGE: "in charge",
-        CLUSTER_SUPERVISOR: "cluster supervisor",
         DISTRICT_SUPERVISOR: "district supervisor",
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
     }
+    UNIQUE = [IN_CHARGE, HSA_SUPERVISOR, DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
+    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR]
+    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
+    SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
 
 class Operations(object):
     FILL_ORDER = "fill"
@@ -31,11 +33,29 @@ class Operations(object):
     CONFIRM_TRANSFER = "confirm"
     REPORT_FOR_OTHERS = "report"
     REPORT_STOCK = "report_stock"
+    REPORT_RECEIPT = "report_receipt"
     ADD_PRODUCT = "add_product"
     REMOVE_PRODUCT = "remove_product"
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
 
+class SupplyPointCodes(object):
+    """
+    These correspond to SupplyPointType.code
+    """
+    DISTRICT = "d"
+    FACILITY = "hf"
+    HSA = "hsa"
+
+class LocationCodes(object):
+    """
+    These correspond to LocationType.code
+    """
+    COUNTRY = "country"
+    DISTRICT = "district"
+    FACILITY = "facility"
+    HSA = "hsa"
+    
 def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
     # this but currently it seems strange that we'd have such tight
@@ -44,8 +64,12 @@ def has_permissions_to(contact, operation):
         return False
     if operation == Operations.REPORT_STOCK:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation == Operations.REPORT_RECEIPT:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+    if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
+        return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.FILL_ORDER:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     if operation == Operations.MAKE_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.CONFIRM_TRANSFER:
@@ -77,9 +101,12 @@ class Messages(object):
     
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
-    
+    REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
+
     # "manage" keyword (manger registration)
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage [first name] [last name] [role] [facility]. Example: 'manage john smith ic 1001'"
+    ROLE_ALREADY_FILLED = "Sorry, there is already a user filling the %(role)s role."
+    ROLE_WRONG_LEVEL = "Sorry, you cannot register as %(role)s on the %(level)s level."
 
     # "leave" keyword 
     LEAVE_NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
@@ -88,21 +115,23 @@ class Messages(object):
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
-    SOH_ORDER_CONFIRM = "Thank you %(contact)s. The health center has been notified and you will receive a message when products are ready for pick up." 
+    SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
+    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready." 
+    SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
     
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
-    APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You confirmed ready: %(products)s"
-    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. The following products are ready: %(products)s"
+    APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s."
+    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up."
     
     # "OS" keyword
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
-    STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. The health center and district office have been notified."
-    STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. Please work with the in-charge to resolve this issue in a timely manner."
-    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s."
+    STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
+    STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. The HSA supervisor will work with District to resolve this issue in a timely manner."
+    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s. Please work with the HSA Supervisor to resolve this issue."
     
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
@@ -137,6 +166,12 @@ class Messages(object):
     HSA_NAG_THIRD = "Dear %(hsa)s, you must report your stock on hand.  Your supervisor has been notified. " + SOH_HELP_MESSAGE
     HSA_SUPERVISOR_NAG = "%(hsa)s has failed to report their stock on hand this month."
 
+    HSA_RECEIPT_NAG_FIRST = "Dear %(hsa)s, please pick up your products. If you've already done so, text 'rec [code] [amount] [code] [amount]...''"
+    HSA_RECEIPT_NAG_SECOND = "Dear %(hsa)s, you must confirm receipt of your products. Please do so immediately. Your supervisor has been notified."
+    HSA_RECEIPT_NAG_THIRD = "Dear %(hsa)s, you have still not confirmed receipt of your products. Your supervisor has been notified."
+    HSA_RECEIPT_SUPERVISOR_NAG = "%(hsa)s has a fulfilled stock request they have not yet picked up."
+
+
     # create user
 
     # boot user
@@ -154,5 +189,9 @@ class Messages(object):
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
-    REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
+    
 
+class Alerts(object):
+    
+    HSA_NO_PRODUCTS = "%(hsa)s is registered but is not associated with any products"
+    FACILITY_NO_SUPERVISOR = "No HSA supervisor or in-charge is registered for %(facility)s but there are HSAs registered there."

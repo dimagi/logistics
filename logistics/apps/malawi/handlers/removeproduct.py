@@ -32,6 +32,6 @@ class RemoveProductHandler(KeywordHandler):
             if f in self.msg.logistics_contact.commodities.all():
                 self.msg.logistics_contact.commodities.remove(f)
                 self.msg.logistics_contact.save()
-        self.respond(config.Messages.REMOVE_SUCCESS_MESSAGE, products=" ".join([ps.product.sms_code for ps
-                                                                                in ProductStock.objects.filter(supply_point=self.hsa,
-                                                                                                     is_active=True)]))
+        self.respond(config.Messages.REMOVE_SUCCESS_MESSAGE, products=" ".join\
+                        (self.msg.logistics_contact.commodities.values_list\
+                            ("sms_code", flat=True).order_by("sms_code")))
