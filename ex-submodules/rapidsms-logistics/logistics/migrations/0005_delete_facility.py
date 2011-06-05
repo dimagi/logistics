@@ -9,8 +9,6 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # 1 LogisticsProfile
         db.delete_column('logistics_logisticsprofile', 'facility_id')
-        # 2 rapidsms.Contact
-        db.delete_column('rapidsms_contact', 'facility_id')
         # 3 productreport
         db.delete_column('logistics_productreport', 'facility_id')
         # 4 requisition report
@@ -18,6 +16,7 @@ class Migration(SchemaMigration):
         # 5 stocktransaction
         db.delete_column('logistics_stocktransaction', 'facility_id')
         # 6 productstock
+        db.delete_unique('logistics_productstock', ['facility_id', 'product_id'])
         db.delete_column('logistics_productstock', 'facility_id')
 
         db.delete_table('logistics_facility')

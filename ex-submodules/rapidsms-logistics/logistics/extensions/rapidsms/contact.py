@@ -27,3 +27,8 @@ class Contact(models.Model):
         else:
             return " "
 
+    
+    @property
+    def last_message(self):
+        if self.message_set.count() > 0:
+            return self.message_set.order_by("-date")[0]

@@ -1,9 +1,11 @@
 {% extends "logistics/reports_base.html" %}
+{% load logistics_report_tags %}
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
 
 {% load i18n %}
+{% load logistics_report_tags %}
 
 {% block content %}
     <div class="module">
@@ -16,43 +18,7 @@
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div id="report-content">
-            <table class="stock" width=100%>
-            <thead><tr>
-                <th scope="col"></th>
-                <th scope="col" class="stockout stock_col">{% trans "Stockout" %}</th>
-                <th scope="col" class="emergency stock_col">Low Stock</th>
-                <th scope="col" class="good_supply stock_col">{% trans "Adequate Stock" %}</th>
-                <th scope="col" class="overstock stock_col">{% trans "Overstock" %}</th>
-                <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
-                {% if commodity_filter %}<th scope="col" >{% trans "AMC" %}</th>{% endif %}
-            </tr></thead>
-            <tbody>
-            {% for row in rows %}
-                {% if row.is_active %}
-                <tr>
-                <td><a href="{{ row.url }}">{{ row.name }}</a></td>
-                <td> {{ row.stockout_count }} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
-                <td> {{ row.emergency_stock_count }} {% ifnotequal row.emergency_stock_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
-                <td> {{ row.adequate_supply_count }} {% ifnotequal row.adequate_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Adequate supply">{% endifnotequal %}</td>
-                <td> {{ row.overstocked_count }} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
-                <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
-                {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"?" }}</td>{% endif %}
-                </tr>
-                {% endif %}
-            {% endfor %}
-
-            </tr></tbody>
-            </table>
-            </div>
-            {% load logistics_report_tags %}
-            <div style="clear:right; padding-top:3em;">
-            {% reporting_rates location.children "hsa" %}
-            </div>
-            <div style="clear:both;">
-            {% order_fill_stats location.children "hsa" %}
-            </div>
-            <div style="clear:both; padding-top:3em;">
-            {% order_response_stats location.children "hsa" %}
+                {% aggregate_table location commodity_filter commoditytype_filter %}
             </div>
         </div>
     </div>

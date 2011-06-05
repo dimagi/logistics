@@ -66,7 +66,7 @@ class App(AppBase):
         kwargs['err'] = ", ".join(unicode(e) for e in stock_report.errors if not isinstance(e, UnknownCommodityCodeError))
         bad_codes = ", ".join(unicode(e) for e in stock_report.errors if isinstance(e, UnknownCommodityCodeError))
         kwargs['err'] = kwargs['err'] + "Unrecognized commodity codes: %(bad_codes)s." % {'bad_codes':bad_codes}
-        error_message = (error_message + GET_HELP_MESSAGE).strip()
+        error_message = ("{0} {1}".format(error_message, GET_HELP_MESSAGE)).strip()
         message.respond(error_message, **kwargs)
     
     def _get_responses(self, stock_report):
@@ -81,13 +81,13 @@ class App(AppBase):
         over_supply = stock_report.over_supply()
         received = stock_report.nonzero_received()
         missing_product_list = stock_report.missing_products()
-        if stock_report.has_stockout:
+        if stockouts:
             response = response + 'the following items are stocked out: %(stockouts)s. '
             super_response = "stockouts %(stockouts)s; "
         if low_supply:
             response = response + 'the following items need to be reordered: %(low_supply)s. '
             super_response = super_response + "below reorder level %(low_supply)s; "
-        if stock_report.has_stockout or low_supply:
+        if stockouts or low_supply:
             response = response + 'Please place an order now. '
         if missing_product_list:
             if not response:
@@ -153,11 +153,14 @@ class App(AppBase):
         if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
-            message.error("%s is not a recognized commodity code. " % code + 
-                          "Please contact your DHIO for assistance." )
-        elif settings.DEFAULT_RESPONSE is not None:
+            if code:
+                message.error("%s is not a recognized commodity code. " % code + 
+                              "Please contact your DHIO for assistance." )
+                return
+        if settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
                           project_name=settings.PROJECT_NAME)
+            return
 
     def cleanup (self, message):
         """Perform any clean up after all handlers have run in the

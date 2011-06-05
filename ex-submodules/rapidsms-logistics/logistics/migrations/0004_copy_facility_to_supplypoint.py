@@ -5,7 +5,9 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
-
+    
+    no_dry_run = True
+    
     def forwards(self, orm):
         def facility_to_supplypoint(queryset):
             for a in queryset:
@@ -14,7 +16,6 @@ class Migration(SchemaMigration):
                     a.supply_point = sp
                     a.save()
         facility_to_supplypoint(orm.LogisticsProfile.objects.all().order_by('pk'))
-        facility_to_supplypoint(orm['rapidsms.contact'].objects.all().order_by('pk'))
         # we don't need to bother migrating these, since we cleared them back in 0002
         facility_to_supplypoint(orm.ProductReport.objects.all().order_by('pk'))
         facility_to_supplypoint(orm.RequisitionReport.objects.all().order_by('pk'))

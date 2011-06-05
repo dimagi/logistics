@@ -5,7 +5,8 @@ from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import ProductReportsHelper, RECEIPT_REPORT_TYPE,\
     StockRequest, StockTransfer
-from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.apps.logistics.decorators import logistics_contact_required,\
+    logistics_contact_and_permission_required
 from logistics.apps.logistics.util import config
 
 class ReceiptHandler(KeywordHandler):
@@ -18,7 +19,7 @@ class ReceiptHandler(KeywordHandler):
     def help(self):
         self.respond(_("Please send in information about your receipts in the format 'rec <product> <amount> <product> <amount>...'"))
 
-    @logistics_contact_required()
+    @logistics_contact_and_permission_required(config.Operations.REPORT_RECEIPT)
     def handle(self, text):
         # at the end of your receipt message you can write:
         # 'from xxx' to indicate the source of the supplies.

@@ -14,14 +14,16 @@
 
 <form id="commodity_form" method="GET">
     {%  csrf_token %}
-    <input class="product_list" type="radio" name="commodity" value="all"
-        {% if not commodity_filter %}checked{% endif %}
-    >{% trans "All" %}<br>
     {% for commodity in commodities %}
     <input class="product_list" type="radio" name="commodity" value="{{ commodity.sms_code }}"
         {% ifequal commodity_filter commodity.sms_code %}checked{% endifequal %}
-    >{{ commodity.name }}<br>
+    >{{ commodity.name }} 
+    {% if location and facility_count > 0 %}
+        <a href="{% url by_product location.code %}?commodity={{commodity.sms_code}}">
+            <img src="{{ MEDIA_URL }}logistics/images/magnifier.png"></img>
+        </a>
+    {% endif %}
+    <br>
     {% endfor %}
-    
 </form>
 {% endif %}

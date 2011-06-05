@@ -7,34 +7,33 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for type in orm.FacilityType.objects.all().order_by('pk'):
-            spt = orm.SupplyPointType(pk=type.pk, code=type.code, name=type.name)
-            spt.save()
-
-        for facility in orm.Facility.objects.all().order_by('pk'):
-            type = orm.SupplyPointType.objects.get(code = facility.type.code)
-            sp = orm.SupplyPoint(pk = facility.pk, 
-                                 name = facility.name,
-                                 active = facility.active,
-                                 type = type,
-                                 created_at = facility.created_at,
-                                 code = facility.code, 
-                                 last_reported = facility.last_reported,
-                                 location = facility.location,
-                                 # will this work?
-                                 supplied_by = None)
-            sp.save()
-        for facility in orm.Facility.objects.all().order_by('pk'):
-            sp = orm.SupplyPoint.objects.get(pk = facility.pk)
-            if facility.supplied_by:
-                sp.supplied_by = orm.SupplyPoint.objects.get(pk = facility.supplied_by.pk)
-            sp.save()
+        if not db.dry_run:
+            for type in orm.FacilityType.objects.all().order_by('pk'):
+                spt = orm.SupplyPointType(pk=type.pk, code=type.code, name=type.name)
+                spt.save()
+    
+            for facility in orm.Facility.objects.all().order_by('pk'):
+                type = orm.SupplyPointType.objects.get(code = facility.type.code)
+                sp = orm.SupplyPoint(pk = facility.pk, 
+                                     name = facility.name,
+                                     active = facility.active,
+                                     type = type,
+                                     created_at = facility.created_at,
+                                     code = facility.code, 
+                                     last_reported = facility.last_reported,
+                                     location = facility.location,
+                                     # will this work?
+                                     supplied_by = None)
+                sp.save()
+            for facility in orm.Facility.objects.all().order_by('pk'):
+                sp = orm.SupplyPoint.objects.get(pk = facility.pk)
+                if facility.supplied_by:
+                    sp.supplied_by = orm.SupplyPoint.objects.get(pk = facility.supplied_by.pk)
+                sp.save()
         
         # 1 LogisticsProfile
         db.add_column('logistics_logisticsprofile', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=None, blank=True, null=True, to=orm['logistics.SupplyPoint']), keep_default=False)
         # 2 rapidsms.Contact
-        db.add_column('rapidsms_contact', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=None, null=True, blank=True, to=orm['logistics.SupplyPoint']), keep_default=False)
-        # 3 productreport
         db.add_column('logistics_productreport', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['logistics.SupplyPoint']), keep_default=False)
         # 4 requisition report
         db.add_column('logistics_requisitionreport', 'supply_point', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['logistics.SupplyPoint']), keep_default=False)

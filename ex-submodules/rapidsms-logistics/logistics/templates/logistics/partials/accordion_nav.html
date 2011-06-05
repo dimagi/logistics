@@ -7,7 +7,7 @@
     $(function() {
       $("#side").accordion({
           initShow : "#current",
-          event: 'hover'
+          event: 'click'
       });
       $("html").removeClass("js");
     });
@@ -15,8 +15,8 @@
 </script>
 {% endblock %}
 {% load geonav_tags %}
-<div id="side">
+<div><span id="locationselect" class="noprint" onclick="$('#side').animate({height:'toggle'},350);">Select Location</span></div>
+<div id="side" style="display:none;" class="noprint">
     <ul class="accordion">
         {% render_nav geography location %}
-    </ul> 
-</div>
+    </ul></div>
