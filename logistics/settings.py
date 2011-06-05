@@ -36,13 +36,13 @@ BASE_APPS = [
     
     # the rapidsms contrib apps.
     #"rapidsms.contrib.default",
-    "rapidsms.contrib.export",
+    #"rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "rapidsms.contrib.scheduler",
-    "rapidsms.contrib.echo",
+    #"rapidsms.contrib.echo",
     #"rapidsms.contrib.stringcleaning",
     #"rapidsms.contrib.registration",
     "logistics.apps.alerts",
