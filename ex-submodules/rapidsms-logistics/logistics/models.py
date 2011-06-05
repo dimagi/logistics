@@ -802,7 +802,7 @@ class StockTransaction(models.Model):
         st = cls(product_report=pr, supply_point=pr.supply_point, 
                  product=pr.product)
 
-        
+    
         st.beginning_balance = beginning_balance
         if pr.report_type.code == Reports.SOH or pr.report_type.code == Reports.EMERGENCY_SOH:
             st.ending_balance = pr.quantity
@@ -818,6 +818,14 @@ class StockTransaction(models.Model):
             logging.error(err_msg)
             raise ValueError(err_msg)
         return st
+    
+    def get_consumption(self):
+        try:
+            ps = ProductStock.objects.get(product=self.product, 
+                                          supply_point=self.supply_point)
+        except ProductStock.DoesNotExist:
+            return self.product.average_monthly_consumption
+        return ps.monthly_consumption
 
 class RequisitionReport(models.Model):
     supply_point = models.ForeignKey(SupplyPoint)
@@ -1093,7 +1101,7 @@ class ProductReportsHelper(object):
                 stock = low_supply[ls]
                 equivalents = stock.product.equivalents.all()
                 for e in equivalents:
-                    ps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
+                    ps, created = ProductStock.objects.get_or_create(product=e, supply_point=stock.supply_point)
                     if ps.is_above_low_supply():
                         # if we wanted to support multiple equivalents, we could do a recurisve search here
                         dupes.append(ls)
