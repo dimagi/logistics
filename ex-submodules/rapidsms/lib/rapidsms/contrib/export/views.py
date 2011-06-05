@@ -7,7 +7,7 @@ import datetime
 from subprocess import Popen, PIPE
 from django.conf import settings
 from django import http
-
+from django.http import HttpResponse
 
 def database(req):
     """
@@ -29,8 +29,8 @@ def database(req):
         return HttpResponse(
             "Sorry, %s databases are not supported yet." %\
                 (settings.DATABASE_ENGINE),
-            content_type="text/plain",
-            status=500)
+                 content_type="text/plain",
+                 status=500)
 
     # execute the dump command, and wait for it to terminate
     proc = Popen([cmd], shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
