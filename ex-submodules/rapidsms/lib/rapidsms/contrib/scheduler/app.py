@@ -24,6 +24,7 @@ http://code.google.com/p/django-cron/ - run_every x seconds
 various solutions using linux cron + os.setupenviron
 """
 
+import sys, traceback
 import time
 import threading
 from datetime import datetime, timedelta
@@ -111,8 +112,11 @@ class SchedulerThread (threading.Thread):
                                 schedule.deactivate()
                 except Exception, e:
                     # Don't prevent exceptions from killing the thread
-                    self._router.error("Problem in scheduler for: %s. %s" % (schedule,
-                                                                             e.message))
+                    exc_type, exc_value, exc_traceback = sys.exc_info()
+                    stacktrace = traceback.extract_tb(exc_traceback)
+                    self._router.error("Problem in scheduler for: %s. %s\n\nTRACEBACK: %s" % (schedule,
+                                                                                              e.message, 
+                                                                                              stacktrace))
                     
             if self._speedup is not None: # debugging/testing only!
                 now = now + self._speedup
