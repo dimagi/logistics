@@ -5,6 +5,7 @@
 
 import json
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.db import models
 from dimagi.utils.django.email import send_HTML_email
 from dimagi.utils.mixins import UnicodeMixIn
@@ -27,7 +28,13 @@ class ReportSubscription(models.Model, UnicodeMixIn):
     def send_to_user(self, user):
         report = SCHEDULABLE_REPORTS[self.report]
         body = report.get_response(user, self.view_args)
-        send_HTML_email(report.title, user.email, 
+        title = report.title
+        try:
+            name = Site.objects.get().name
+            title = "{0} ({1})".format(report.title, name)
+        except Site.DoesNotExist:
+            pass
+        send_HTML_email(title, user.email, 
                         html2text(body), body)
 
     @property

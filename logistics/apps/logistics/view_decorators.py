@@ -16,14 +16,15 @@ def filter_context(func):
         commoditytype_filter = None
     
         # add/set filters
-        if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
-            commodity_filter = request.REQUEST['commodity']
-            commodity = Product.objects.get(sms_code=commodity_filter)
-            commoditytype_filter = commodity.type.code
-        elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
-            commoditytype_filter = request.REQUEST['commoditytype']
-            type = ProductType.objects.get(code=commoditytype_filter)
-            context['commodities'] = context['commodities'].filter(type=type)
+        if hasattr(request,'REQUEST'):
+            if 'commodity' in request.REQUEST and request.REQUEST['commodity'] != 'all':
+                commodity_filter = request.REQUEST['commodity']
+                commodity = Product.objects.get(sms_code=commodity_filter)
+                commoditytype_filter = commodity.type.code
+            elif 'commoditytype' in request.REQUEST and request.REQUEST['commoditytype'] != 'all':
+                commoditytype_filter = request.REQUEST['commoditytype']
+                type = ProductType.objects.get(code=commoditytype_filter)
+                context['commodities'] = context['commodities'].filter(type=type)
         
         context['commodity_filter'] = commodity_filter
         context['commoditytype_filter'] = commoditytype_filter

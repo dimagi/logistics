@@ -23,9 +23,10 @@ def stocklevel_plot(transactions):
         q = {"date":d}
         q.update(data_rows[d])
         rows += [q]
+    if not rows:
+        return None
     table.LoadData(rows)
     chart_data = table.ToJSCode("chart_data", columns_order=["date"] + [x for x in cols.keys() if x != "date"],
                                 order_by="date")
-    
     return chart_data
         
