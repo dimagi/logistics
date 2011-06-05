@@ -73,9 +73,10 @@
 }
 
 #main{
-  /*float:right;*/
-  display:inline;
+/*  float:right;*/
 /*  width:73%; */
+/*  setting this display to inline mucks up all the rapidsms toolbars */
+/*  display:inline; */
   padding-bottom:1.3em;
   position:relative;
   overflow:hidden
@@ -225,15 +226,14 @@ a.trigger.open {
 
 .topbar {
     display:block;
-    height:1em;
 }
 
 .topbar-left {
     float:left;
-    /*padding:8px;*/
 }
 
 .topbar-right {
     float:right;
     padding:8px;
 }
+
