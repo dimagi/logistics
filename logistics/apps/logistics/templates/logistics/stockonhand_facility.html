@@ -12,15 +12,16 @@
 {% block content %}
     <div class="module">
         <div class="topbar noprint">
-        <div class="topbar-left">
         {% include "logistics/partials/accordion_nav.html" %}
         </div>
-        <div class="topbar-right">
-                <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
-        </div>
-        </div>
+        {% if not excel_export %}
+	        <!-- only room for one toprighttoolbar in this town... -->
+	        <div class="toolbar noprint">
+	        	<a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+	        </div>
+        {% endif %}
+        
         <div id="main">
-
         <h2 id="report-title">Stock for {{ facility.name }}</h2>
 
         {% if facility.productstock_set.count %}
