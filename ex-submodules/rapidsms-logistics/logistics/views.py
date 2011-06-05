@@ -158,9 +158,9 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 @geography_context
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
-    seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
+    deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=deadline) | Q(last_reported=None)).order_by('-last_reported','name')
+    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=deadline).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
