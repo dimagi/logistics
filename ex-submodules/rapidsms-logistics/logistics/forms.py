@@ -62,6 +62,10 @@ class FacilityForm(forms.ModelForm):
                                                             code=facility.code)
             facility.location.point = point
             facility.location.save()
+        elif not self.cleaned_data['latitude'] and not self.cleaned_data['longitude']:
+            if facility.location.point is not None:
+                facility.location.point = None
+                facility.location.save()
         return facility
     
 class CommodityForm(forms.ModelForm):
