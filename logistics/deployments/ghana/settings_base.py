@@ -118,3 +118,8 @@ BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 SMS_REGISTRATION_VIEW='ewsghana_sms_registration'
 SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 
+# some random place in the middle of ghana
+MAP_DEFAULT_LATITUDE  = 6.55
+MAP_DEFAULT_LONGITUDE = -1.2166667
+
+

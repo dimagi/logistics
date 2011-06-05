@@ -117,3 +117,6 @@ SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
 
+MAP_DEFAULT_LATITUDE  = 6.55
+MAP_DEFAULT_LONGITUDE = -1.2166667
+
