@@ -308,6 +308,14 @@ class SupplyPoint(models.Model):
                              'products':", ".join(stockouts_resolved),
                              'supply_point':self.name})
 
+    def data_unavailable(self):
+        # hm, not sure what interval should be considered 'data unavailable'?
+        # for now, we'll make it a setting
+        deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE)
+        if self.last_reported is None or self.last_reported < deadline:
+            return True
+        return False
+
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     location = models.ForeignKey(Location, blank=True, null=True)
