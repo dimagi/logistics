@@ -56,10 +56,10 @@
 
 				{% get_tabs as tabs %}
 
-				<ul id="tabs">{% for tab in tabs %}
+				<ul id="tabs">{% for tab in tabs %}{% if tab.visible %}
 					<li class="app-{{ tab.caption_slug }}{% if tab.is_active %} active{% endif %}">
 						<a href="{{ tab.url }}"><span>{{ tab.caption }}</span></a>
-					</li>{% endfor %}
+					</li>{% endif %}{% endfor %}
 				</ul>
 
 				{% block page_tabs %}
