@@ -4,12 +4,15 @@
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext as _
+from rapidsms.contrib.locations.models import Point
 from .models import SupplyPoint, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
     commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
                                                  help_text='Select only commodities actively stocked by this facility', 
                                                  required=False)
+    latitude = forms.DecimalField(required=False)
+    longitude = forms.DecimalField(required=False)
     
     class Meta:
         model = SupplyPoint
@@ -17,12 +20,16 @@ class FacilityForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {'commodities': [0,1,2,3]}
-        if 'instance' in kwargs:
+        if 'instance' in kwargs and kwargs['instance']:
+            initial_sp = kwargs['instance']
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
-            pss = ProductStock.objects.filter(supply_point=kwargs['instance'], 
+            pss = ProductStock.objects.filter(supply_point=initial_sp, 
                                               is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
+            if initial_sp.location and initial_sp.location.point:
+                kwargs['initial']['latitude'] = initial_sp.location.point.latitude
+                kwargs['initial']['longitude'] = initial_sp.location.point.longitude
         super(FacilityForm, self).__init__(*args, **kwargs)
                 
     def save(self, *args, **kwargs):
@@ -46,6 +53,15 @@ class FacilityForm(forms.ModelForm):
                         # but we mark it as inactive
                         ps.is_active = False
                         ps.save()
+        if self.cleaned_data['latitude'] and self.cleaned_data['longitude']:
+            lat = self.cleaned_data['latitude']
+            lon = self.cleaned_data['longitude']
+            point, created = Point.objects.get_or_create(latitude=lat, longitude=lon)
+            if facility.location is None:
+                facility.location = Location.objects.create(name=facility.name, 
+                                                            code=facility.code)
+            facility.location.point = point
+            facility.location.save()
         return facility
     
 class CommodityForm(forms.ModelForm):
