@@ -1,11 +1,18 @@
 <div class="content">
-    <h3>{{ sp.name }}</h3>
+    <h3 class="popup_title">{{ sp.name }}</h3>
+    
+	<span class="label">Last reported on </span>:<p/>
+		<i>&raquo;&nbsp;{{ sp.last_reported|date:"M d, h:i A"|default:"never" }}</i><p/>
     <table>
+    	<thead>
+    		<th>Product</th>
+    		<th>Quantity</th>
+    	</thead>
+    	{% for stock in productstocks %}
         <tr>
-            <td>Stocked out: </td><td>{{ sp.products_stocked_out|join:", "|default:"no data" }}</td>
+            <td>{{stock.product.name}}</td>
+            <td>{{stock.quantity|default_if_none:"no data" }}</td>
         </tr>
-        <tr>
-            <td>With stock: </td><td>{{ sp.products_with_stock|join:", "|default:"no data" }}</td>
-        </tr>
+        {% endfor %}
     </table>
 </div>

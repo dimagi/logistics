@@ -50,13 +50,16 @@
 {% endblock %}
 
 {% block stylesheets %}{{ block.super }}
-<style type="text/css">
-	  #map_canvas { width: 100%; height: 50em;}
-</style>
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}maps/stylesheets/maps.css" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 {% endblock %}
 
 {% block content %}
     <h2>Map</h2>
+    <div id="map_legend">
+    	<span><img src="{{MEDIA_URL}}logistics/images/stockout.png"></img>&nbsp;</span>All Stockouts
+    	<span><img src="{{MEDIA_URL}}logistics/images/warning.png">&nbsp;</span>Some Stockouts
+    	<span><img src="{{MEDIA_URL}}logistics/images/goodstock.png">&nbsp;</span>No Stockouts
+    	<span><img src="{{MEDIA_URL}}logistics/images/no_data.png">&nbsp;</span>No Data</div>
     <div id="map_canvas"></div>
 {% endblock %}

@@ -10,22 +10,24 @@ def get_map_icon(supply_point, request):
     Get a custom map icon based on the supply points stock information.
     Used in maps.
     """
-    # arbitrary categorization
-    # if no stock info, blank
-    # if >= 50% products with stock good
-    # if < 50% products with stock, bad
-    count = supply_point.productstock_set.count() 
-    if count == 0:
+    if supply_point.data_unavailable():
         icon = "no_data.png"
-    elif supply_point.productstock_set.filter(quantity__gt=0).count() >= \
+    elif supply_point.productstock_set.filter(quantity__gt=0).count() <= \
          supply_point.productstock_set.filter(quantity=0).count():
-        icon = "good.png"
+        # if less in stock then out of stock, display warning
+        icon = "stockout.png"
+    elif supply_point.productstock_set.filter(quantity=0).count() > 0:
+        # if there are *any* stockouts, display a warning
+        icon = "warning.png"
     else:
-        icon = "bad.png"
-    return "%s%s%s" % (settings.MEDIA_URL, "maps/icons/", icon) 
-                     
+        # if everything is good, display good
+        icon = "goodstock.png"
+    return "%s%s%s" % (settings.MEDIA_URL, "logistics/images/", icon) 
+
 @register.simple_tag
 def get_map_popup(supply_point, request):
     return render_to_string("maps/partials/supply_point_popup.html", 
-                            {"sp": supply_point}).replace("\n", "")
+                            {"sp": supply_point, 
+                             "productstocks": supply_point.productstock_set.all().order_by('product__name')}
+                            ).replace("\n", "")
     
