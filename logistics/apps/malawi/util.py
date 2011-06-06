@@ -75,6 +75,19 @@ def get_ept_districts():
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
 
+def group_for_location(location):
+    ''' This is specific for the Malawi case, separating HSAs into groups by district. '''
+    if location.type.slug == config.LocationCodes.DISTRICT:
+        for key in config.Groups.GROUPS:
+            if location.name in config.Groups.GROUPS[key]:
+                return key
+    elif location.type.slug == config.LocationCodes.COUNTRY:
+        return None # No country-level groups yet
+    elif location.parent:
+        return group_for_location(location.parent)
+    else:
+        return None
+
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
     if location:

@@ -30,7 +30,7 @@ class TestNag(MalawiTestBase):
         last_month = datetime.utcnow() - timedelta(days=30)
         self.assertEqual(1, len(get_non_reporting_hsas(last_month)))
 
-        nag_hsas(last_month)
+        nag_hsas()
 
         self.assertEqual(1, len(NagRecord.objects.all()))
         nagRecord = NagRecord.objects.all()[0]
@@ -42,7 +42,7 @@ class TestNag(MalawiTestBase):
         NagRecord(supply_point=hsa, warning=1,
                   report_date=datetime.utcnow()-timedelta(days=DAYS_BETWEEN_FIRST_AND_SECOND_WARNING + 1)).save()
 
-        nag_hsas(last_month)
+        nag_hsas()
 
         self.assertEqual(1, len(NagRecord.objects.all()))
         nagRecord = NagRecord.objects.all()[0]

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 import os
+from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole, StockRequest, StockRequestStatus
@@ -8,14 +9,17 @@ from celery.schedules import crontab
 from celery.decorators import periodic_task
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics import config
 from static.malawi.config import Messages
 from logistics.apps.malawi.util import hsa_supply_points_below
 
-DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 2
+DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 2
+DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING = 2
 REC_DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 4
+
+EPT_REPORTING_DAY = 5
 
 
 def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
@@ -29,12 +33,12 @@ def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
                                                                        datetime.utcnow()]))
     return hsas - reporters
 
-def nag_hsas_soh(since):
+def nag_hsas_soh(since, location=None):
     """
     Send non-reporting HSAs a predefined nag message.  Notify their supervisor if they've been
     sufficiently delinquent.
     """
-    hsas = get_non_reporting_hsas(since, Reports.SOH)
+    hsas = get_non_reporting_hsas(since, Reports.SOH, location)
     hsa_first_warnings = hsas - set(x.supply_point for x in NagRecord.objects.filter(report_date__range = [since,
                                                                                datetime.utcnow()],
                                                                                 nag_type=Reports.SOH))
@@ -47,6 +51,11 @@ def nag_hsas_soh(since):
                 NagRecord.objects.filter(report_date__range = [since,
                                                                datetime.utcnow()-timedelta(days=DAYS_BETWEEN_SECOND_AND_THIRD_WARNING)],
                                          warning = 2,
+                                         nag_type=Reports.SOH))
+    hsa_fourth_warnings = hsas.intersection(x.supply_point for x in \
+                NagRecord.objects.filter(report_date__range = [since,
+                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING)],
+                                         warning = 3,
                                          nag_type=Reports.SOH))
     warnings = [
             {'hsas': hsa_first_warnings,
@@ -66,6 +75,13 @@ def nag_hsas_soh(since):
              'days': DAYS_BETWEEN_SECOND_AND_THIRD_WARNING,
              'code': Reports.SOH,
              'message': Messages.HSA_NAG_THIRD,
+             'flag_supervisor': True,
+             'supervisor_message': Messages.HSA_SUPERVISOR_NAG},
+            {'hsas': hsa_fourth_warnings,
+             'number': 4,
+             'days': DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING,
+             'code': Reports.SOH,
+             'message': Messages.HSA_NAG_THIRD, # Same messages
              'flag_supervisor': True,
              'supervisor_message': Messages.HSA_SUPERVISOR_NAG}
             ]
@@ -134,14 +150,30 @@ def send_nag_messages(warnings):
                     logging.error("Supervisor does not exist for HSA: %s" % hsa.name)
 
 
-def nag_hsas(since):
+def nag_hsas_ept():
+    since = datetime.utcnow() - timedelta(days=28)
+    locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
+    for l in locs:
+        nag_hsas_soh(since, l)
     nag_hsas_rec(since)
-    nag_hsas_soh(since)
+
+def nag_hsas_em():
+    since = datetime.utcnow().replace(day=EPT_REPORTING_DAY)
+    if since > datetime.utcnow():
+        try:
+            since.replace(month=datetime.utcnow().month - 1) # wraparound?
+        except ValueError:
+            since.replace(year=datetime.utcnow().year - 1, month=12)
+    print since
+    locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
+    for l in locs:
+        nag_hsas_soh(since, l)
+    nag_hsas_rec(since)
 
 @periodic_task(run_every=crontab(hour="*", minute="1", day_of_week="*"))
-def nag_hsas_last_month():
-    return nag_hsas(datetime.utcnow() - timedelta(days=32))
-
+def nag_hsas():
+    nag_hsas_ept()
+    nag_hsas_em()
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def heartbeat():

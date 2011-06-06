@@ -65,7 +65,13 @@ def hsa_location_type():
     """
     from rapidsms.contrib.locations.models import LocationType
     return LocationType.objects.get(slug=HSA)
-    
+
+class Groups(object):
+    EPT = "ept"
+    EM = "em"
+    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu"),
+              EPT: ("Machinga", "Nkhatabay", "Mulanje")}
+
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     

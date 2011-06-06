@@ -7,7 +7,7 @@ from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
     StockTransaction, StockRequestStatus, StockRequest
-from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below
+from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect
@@ -25,14 +25,15 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 @place_in_request()
 def dashboard(request):
     
-    base_facilites = SupplyPoint.objects.filter(type__code="hsa")
+    base_facilities = SupplyPoint.objects.filter(type__code="hsa")
+    group = None
     # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
-        base_facilites = base_facilites.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-    
+        base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
+        group = group_for_location(request.location)
     # reporting info
-    report = ReportingBreakdown(base_facilites, DateSpan.since(30))
+    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = (group == config.Groups.EM))
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
