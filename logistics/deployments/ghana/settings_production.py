@@ -1,6 +1,10 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+ADMINS = (('Rowena','rluk+ewsghana-admin@dimagi.com'), )
+MANAGERS = (('Rowena','rluk+ewsghana-manager@dimagi.com'), )
+SEND_BROKEN_LINK_EMAILS = True
+
 APPS = [
     "auditcare",
     "logistics.apps.ewsghana",
@@ -53,7 +57,7 @@ TESTING_DATABASES= {
 
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
-LOG_LEVEL   = "DEBUG"
+LOG_LEVEL   = "ERROR"
 LOG_FILE    = "/opt/logistics_project/log/router.logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
@@ -124,4 +128,5 @@ SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 MAP_DEFAULT_LATITUDE  = 6.55
 MAP_DEFAULT_LONGITUDE = -1.2166667
 
-
+DEBUG=False
+TEMPLATE_DEBUG=False

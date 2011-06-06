@@ -19,5 +19,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','tablib'))
 sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
 sys.path.append(os.path.join(filedir,'..','submodules','couchlog'))
 
+import log
+
 if __name__ == "__main__":
     execute_manager(settings)
