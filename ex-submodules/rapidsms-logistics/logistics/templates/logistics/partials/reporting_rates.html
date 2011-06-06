@@ -1,6 +1,13 @@
 {% load i18n %}
 <h2 id="report-title">
-    Reporting Rates {% if facility %}for {{ facility.name }}{% endif %}
+    Reporting Rates 
+    {% if facility %}
+    	for {{ facility.name }}
+   	{% else %}
+   		{% if location %}
+   		for {{ location.name }}
+   		{% endif %}
+    {% endif %}
 </h2>
 {% include "logistics/partials/pie_reporting.html" %}
 {% if excel_export %}
