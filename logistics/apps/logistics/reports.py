@@ -161,14 +161,23 @@ class ReportingBreakdown(object):
                  "description": "(%s) Non-Reporting (%s)" % \
                     (len(self.non_reporting), self.datespan)
                 }
-            ]     
+            ]
+            if self.include_late:
+                graph_data += [
+                        {"display": "Late Reporting",
+                         "value": len(self.reported_late),
+                         "color": Colors.MEDIUM_YELLOW,
+                         "description": "(%s) Late (%s)" % \
+                            (len(self.reported_late), self.datespan)
+                        }
+                ]
             self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
         return self._on_time_chart
         
     def on_time_groups(self):
         if self.include_late:
             [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-             TableData("Late HSAs", ReportingTable(self.late)),
+             TableData("Late HSAs", ReportingTable(self.reported_late)),
              TableData("On-Time HSAs", ReportingTable(self.on_time))]
         else:
             return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
