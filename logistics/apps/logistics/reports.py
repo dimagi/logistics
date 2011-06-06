@@ -43,7 +43,7 @@ class ReportingBreakdown(object):
     """
     
     def __init__(self, supply_points, datespan=None, include_late=False, 
-                 days_for_late = 5):
+                 days_for_late=5):
         self.supply_points = supply_points
         
         if datespan == None:
