@@ -14,6 +14,9 @@
 
 <form id="commodity_form" method="GET">
     {%  csrf_token %}
+    <input class="product_list" type="radio" name="commodity" value="all"
+        {% if not commoditytype_filter %}checked{% endif %}
+    >{% trans "All" %}<br>
     {% for commodity in commodities %}
     <input class="product_list" type="radio" name="commodity" value="{{ commodity.sms_code }}"
         {% ifequal commodity_filter commodity.sms_code %}checked{% endifequal %}
