@@ -33,7 +33,7 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.messaging.views.messaging",         "Messaging"),
     #("rapidsms.contrib.locations.views.locations",         "Map"),
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    #("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
 ]
 
