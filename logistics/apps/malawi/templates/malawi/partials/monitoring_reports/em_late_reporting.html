@@ -1,0 +1,40 @@
+{% load math_tags %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ reports|length }}" >EM</th>
+            <th>EM Total</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>% HSAs who reported late in past 30 days</td>
+{% for r in reports.values %}
+            <td>{% percent r.late r.total %}</td>
+{% endfor %}
+            <td>{% percent totals.late totals.total %}</td>
+        </tr>
+        <tr>
+            <td>% HSAs who reported on time in past 30 days</td>
+{% for r in reports.values %}
+            <td>{% percent r.on_time r.total %}</td>
+{% endfor %}            
+            <td>{% percent totals.on_time totals.total %}</td>
+        </tr>
+        <tr>
+            <td>% HSAs who did not report in past 30 days</td>
+{% for r in reports.values %}
+            <td>{% percent r.non_reporting r.total %}</td>
+{% endfor %}
+            <td>{% percent totals.non_reporting totals.total %}</td>
+        </tr>
+    </tbody>
+</table>

@@ -17,6 +17,8 @@ from logistics.apps.logistics.reports import ReportingBreakdown
 from logistics.apps.logistics.util import config
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
+from django.contrib.auth.decorators import permission_required
+from logistics.apps.malawi.reports import MONITORING_REPORTS, ReportInstance
 
 @place_in_request()
 def dashboard(request):
@@ -134,4 +136,18 @@ def facility(request, code, context={}):
     
     return render_to_response("malawi/single_facility.html",
         context, context_instance=RequestContext(request))
+    
+@permission_required("is_superuser")
+def monitoring(request):
+    return render_to_response("malawi/monitoring_home.html", {"reports": MONITORING_REPORTS},
+                              context_instance=RequestContext(request))
+    
+@permission_required("is_superuser")
+@datespan_in_request()
+def monitoring_report(request, report_slug):
+    report_def = MONITORING_REPORTS[report_slug]
+    instance = ReportInstance(report_def, request.datespan)
+    return render_to_response("malawi/monitoring_report.html", 
+                              {"report": instance},
+                              context_instance=RequestContext(request))
     
