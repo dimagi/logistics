@@ -14,6 +14,10 @@ class Location(models.Model):
     
     class Meta:
         abstract = True
+        
+    def peers(self):
+        from rapidsms.contrib.locations.models import Location
+        return Location.objects.filter(parent_id=self.parent_id).order_by('name')
 
     def children(self):
         from rapidsms.contrib.locations.models import Location
