@@ -5,7 +5,7 @@ register = template.Library()
 @register.simple_tag
 def divide(a, b):
     if b and b != 0:
-        return a/b
+        return float(a)/float(b)
     return "NaN"
         
 @register.simple_tag
@@ -16,5 +16,5 @@ def multiply(a, b):
 def percent(a, b):
     d = divide(a, b)
     if d != "NaN":
-        return "%s %%" % (d * 100)
+        return "%.1f %%" % (d * 100)
     return d    
