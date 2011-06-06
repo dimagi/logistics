@@ -16,21 +16,21 @@
     </thead>
     <tbody>
         <tr>
-            <td>% HSAs who reported late in past 30 days</td>
+            <td>% HSAs who reported late in period</td>
 {% for r in reports.values %}
     {% percent_cell r.late r.total %}
 {% endfor %}
     {% percent_cell totals.late totals.total %}
         </tr>
         <tr>
-            <td>% HSAs who reported on time in past 30 days</td>
+            <td>% HSAs who reported on time in period</td>
 {% for r in reports.values %}
     {% percent_cell r.on_time r.total %}
 {% endfor %}            
     {% percent_cell totals.on_time totals.total %}
         </tr>
         <tr>
-            <td>% HSAs who did not report in past 30 days</td>
+            <td>% HSAs who did not report in period</td>
 {% for r in reports.values %}
     {% percent_cell r.non_reporting r.total %}
 {% endfor %}            
