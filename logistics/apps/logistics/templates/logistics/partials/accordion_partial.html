@@ -1,7 +1,9 @@
 {% if geography.is_active %}
 {% load geonav_tags %}
 <li {% ifequal geography.name location.name %}id="current"{% endifequal %}>
-    <span class="navspan">{% if geography.children %}<a class="trigger">&nbsp;</a>{% endif %}<a href="{% url logistics_dashboard geography.code %}">{{ geography.name }}</a></span>
+    <span class="navspan">{% if geography.children %}<a class="trigger">&nbsp;</a>{% endif %}
+    	<a href="{% url logistics_dashboard geography.code %}">{{ geography.name }}</a>
+    </span>
 	<ul>
 	{% for region in geography.children %}
 	    {% render_nav region location %}

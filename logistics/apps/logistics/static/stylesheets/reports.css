@@ -7,6 +7,10 @@
 	font-weight: bold;
 	margin-left: 1em;
 	margin-top: 1em;
+	display: block;	
+	float: clear;
+	text-align: right;
+	padding-right: 2em;
 }
 
 .filter {
@@ -237,3 +241,6 @@ a.trigger.open {
     padding:8px;
 }
 
+.breadcrumb {
+	font-weight: bold;
+}
