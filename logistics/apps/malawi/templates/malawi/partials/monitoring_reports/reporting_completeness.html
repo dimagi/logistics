@@ -1,0 +1,35 @@
+{% load logistics_extras %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ em_reports|length }}" >EM</th>
+            <th colspan="{{ ept_reports|length }}" >EPT</th>
+            <th colspan="2">Totals</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in em_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+{% for d in ept_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th>EM</th>
+            <th>EPT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>% HSAs that fully reported (all products were reported)</td>
+{% for r in em_reports.values %}
+    {% percent_cell r.fully_reporting r.total %}
+{% endfor %}
+{% for r in ept_reports.values %}
+    {% percent_cell r.fully_reporting r.total %}
+{% endfor %}
+    {% percent_cell em_totals.fully_reporting em_totals.total %}
+    {% percent_cell ept_totals.fully_reporting ept_totals.total %}
+        </tr>
+    </tbody>
+</table>

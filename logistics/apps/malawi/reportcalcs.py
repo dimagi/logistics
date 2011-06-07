@@ -16,6 +16,33 @@ def _update_dict(totals, to_add):
     for k, v in to_add.items():
         totals[k] += v
 
+def _district_breakdown(datespan):
+    """
+    Breakdown of reporting information, by group and district
+    """
+    em = get_em_districts()
+    ept = get_ept_districts()
+    em_reports = SortedDict()
+    ept_reports = SortedDict()
+    em_totals = defaultdict(lambda: 0)
+    ept_totals = defaultdict(lambda: 0)
+    for d in em:
+        bd = ReportingBreakdown(hsa_supply_points_below(d), 
+                                datespan)
+        em_reports[d] = _to_totals(bd)
+        _update_dict(em_totals, em_reports[d])
+    
+    for d in ept:
+        bd = ReportingBreakdown(hsa_supply_points_below(d), 
+                                datespan)
+        ept_reports[d] = _to_totals(bd)
+        _update_dict(ept_totals, ept_reports[d])
+    
+    return {"em_reports": em_reports,
+            "ept_reports": ept_reports,
+            "em_totals": em_totals,
+            "ept_totals": ept_totals}
+    
 def _to_totals(bd):
     """
     Convert a ReportingBreakdown object into totals for tabular viewing
@@ -23,6 +50,9 @@ def _to_totals(bd):
     return {"late": len(bd.reported_late), 
             "on_time": len(bd.on_time),
             "non_reporting": len(bd.non_reporting),
+            "fully_reporting": len(bd.full),
+            "partially_reporting": len(bd.partial),
+            "unconfigured": len(bd.unconfigured),
             "total": len(bd.supply_points)}
 
 def em_late_reporting(instance):
@@ -46,34 +76,13 @@ def hsas_reporting(instance):
     """
     HSAs who reported at least once, by District and group
     """
-    em = get_em_districts()
-    ept = get_ept_districts()
-    em_reports = SortedDict()
-    ept_reports = SortedDict()
-    em_totals = defaultdict(lambda: 0)
-    ept_totals = defaultdict(lambda: 0)
-    for d in em:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                instance.datespan)
-        em_reports[d] = _to_totals(bd)
-        _update_dict(em_totals, em_reports[d])
-    
-    for d in ept:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                instance.datespan)
-        ept_reports[d] = _to_totals(bd)
-        _update_dict(ept_totals, ept_reports[d])
-    
-    return _common_report(instance, {"em_reports": em_reports,
-                                     "ept_reports": ept_reports,
-                                     "em_totals": em_totals,
-                                     "ept_totals": ept_totals}) 
+    return _common_report(instance, _district_breakdown(instance.datespan)) 
 
 def reporting_completeness(instance):
     """
     HSA orders that are complete, by District  and group
     """
-    return _common_report(instance, {}) 
+    return _common_report(instance, _district_breakdown(instance.datespan)) 
 
 def fully_stocked_hsas(instance):
     """
