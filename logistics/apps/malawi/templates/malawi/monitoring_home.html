@@ -1,8 +1,11 @@
 {% extends base_template %}
 {% block content %}
-<ul>
+<h2>Monitoring and Evaluation Reports</h2>
+<ul style="padding: 0; margin: 0">
 {% for rep in reports %}
-    <li style="padding-top: 1em; list-style-type: none;"><a href="{{ rep.url }}">{{ rep.description }}</a></li>
+    <li style="margin-left: 0; padding-top: 1em; list-style-type: none;"><a href="{{ rep.url }}">{{ rep.description }}
+    {% if not rep.is_implemented %} <span style="color:red; font-weight:bold">(not yet implemented)</span>{% endif %}
+    </a></li>
 {% endfor %}
 </ul>
 {% endblock %}

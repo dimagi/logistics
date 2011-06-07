@@ -1,4 +1,6 @@
 from django.core.urlresolvers import reverse
+from django.template.loader import get_template
+from django.template import TemplateDoesNotExist
 
 class ReportDefinition(object):
     """
@@ -51,6 +53,21 @@ class ReportDefinition(object):
         import logistics.apps.malawi.reportcalcs as reportcalcs
         return getattr(reportcalcs, self.slug)
     
+    @property
+    def is_implemented(self):
+        """
+        Whether this report is implemented yet
+        """
+        # HACK! Don't say we're implemented until we have a template.
+        try:
+            get_template(self.template)
+            print "true!"
+            return True
+        except TemplateDoesNotExist:
+            print "false!"
+            return False
+    
+        
 class ReportInstance(object):
     """
     An instance of a report. Right now consists only of a pairing of 
