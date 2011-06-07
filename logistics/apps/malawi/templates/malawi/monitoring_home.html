@@ -1,7 +1,7 @@
 {% extends base_template %}
 {% block content %}
 <ul>
-{% for rep in reports.values %}
+{% for rep in reports %}
     <li style="padding-top: 1em; list-style-type: none;"><a href="{{ rep.url }}">{{ rep.description }}</a></li>
 {% endfor %}
 </ul>
