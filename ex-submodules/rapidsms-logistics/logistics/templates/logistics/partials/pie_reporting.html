@@ -7,8 +7,8 @@
     <script language="javascript">
         $(document).ready(function() {
             var data = [
-                { label: "{% trans 'On Time' %}",  data: {{ on_time_facilities.count }}, color: "green"},
-                { label: "{% blocktrans %}Late{% endblocktrans %}",  data: {{ late_facilities.count }}, color: "red" },
+                { label: "{% trans 'On Time' %}",  data: {{ on_time_facilities|length }}, color: "green"},
+                { label: "{% blocktrans %}Late{% endblocktrans %}",  data: {{ late_facilities|length }}, color: "red" },
             ]
             function pieHover(event, pos, obj)
             {
