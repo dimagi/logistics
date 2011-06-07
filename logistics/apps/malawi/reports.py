@@ -61,10 +61,8 @@ class ReportDefinition(object):
         # HACK! Don't say we're implemented until we have a template.
         try:
             get_template(self.template)
-            print "true!"
             return True
         except TemplateDoesNotExist:
-            print "false!"
             return False
     
         
