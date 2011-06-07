@@ -17,6 +17,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
+from django.views.decorators.http import require_POST
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
@@ -156,14 +157,30 @@ def facilities_by_product(request, location_code, context={}, template="logistic
     )
 
 @geography_context
+@filter_context
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
+    if location_code is None:
+        location_code = settings.COUNTRY
+    location = get_object_or_404(Location, code=location_code)
+    context['location'] = location
     deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=deadline) | Q(last_reported=None)).order_by('-last_reported','name')
     context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=deadline).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
+
+@require_POST
+def navigate(request):
+    location_code = settings.COUNTRY
+    destination = "logistics_dashboard"
+    if 'location' in request.REQUEST: 
+        location_code = request.REQUEST['location']
+    if 'destination_url' in request.REQUEST: 
+        destination = request.REQUEST['destination_url']
+    return HttpResponseRedirect(
+        reverse(destination, args=(location_code, )))
 
 @geography_context
 @filter_context
@@ -189,8 +206,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     # default to the whole country
     if location_code is None:
         location_code = settings.COUNTRY
-    
-    
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     context['default_commodity'] = Product.objects.order_by('name')[0]
