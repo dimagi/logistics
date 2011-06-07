@@ -243,5 +243,13 @@ a.trigger.open {
 
 .breadcrumb {
 	font-weight: bold;
-	padding: 0.5em;
+	padding-top: 0em;
+	padding-bottom: 0.5em;
+	border-style: none;
+}
+
+#topnav {
+	border-style: none;
+	display: inline-block;
+	float: left;
 }

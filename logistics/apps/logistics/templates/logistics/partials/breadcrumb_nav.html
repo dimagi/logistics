@@ -12,10 +12,13 @@
 </script>
 {% endblock %}
 
-<form id="location_form" method="POST" class="breadcrumb" action="{% url navigate %}">
+<div id="topnav">
+<form style="border-style:none;" id="location_form" method="POST" action="{% url navigate %}">
 	{% csrf_token %}
 	{% render_bread_nav location %}
 	<input type="hidden" name="destination_url" id="destination_url" value="reporting" />
 	<input type="hidden" name="location" id="location" value="" />
-	<input type="submit" value="Go" />
 </form>
+</div>
+
+<div style="clear:both"></div>

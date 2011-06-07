@@ -1,0 +1,32 @@
+{% load geonav_tags %}
+{% block javascripts %}{{block.super}}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $("#zoom_select").change(function(event) {
+            $("#zoom_form > #location").val(event.currentTarget.value);
+            $("#zoom_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+{% endblock %}
+
+{% if location.children %}
+    <form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
+	    ->&nbsp;
+	    <select id="zoom_select" name="zoom_select">
+	        <option selected disabled>-----------</option>
+	           {% for child in location.children %}
+	               <option value="{{child.code}}">
+	                   {{ child.name }}
+	               </option>
+	           {% endfor %}
+	    </select>
+	    <input type="hidden" name="destination_url" id="destination_url" value="reporting" />
+	    <input type="hidden" name="location" id="location" value="" />
+	    {% csrf_token %}
+    </form>
+{% endif %}
+
+<div style="clear:both"></div>
