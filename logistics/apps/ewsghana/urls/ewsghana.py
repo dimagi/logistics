@@ -22,6 +22,8 @@ urlpatterns = patterns('',
         name="ewsghana_message_log"),
     url(r'^reporting/?$', 'logistics.apps.ewsghana.views.reporting', 
         name="ewsghana_reporting"),
+    url(r'^(?P<location_code>[\w-]+)/reporting$', 'logistics.apps.ewsghana.views.reporting', 
+        name="ewsghana_reporting"),
     
     # sms user register
     url(r'^registration/sms/?$', logistics_registration, 

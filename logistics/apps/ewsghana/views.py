@@ -19,7 +19,8 @@ from logistics.apps.web_registration.views import admin_does_all
 @geography_context
 def reporting(request, location_code=None, context={}, template="ewsghana/reporting.html"):
     return logistics_reporting(request=request, location_code=location_code, 
-                               context=context, template=template)
+                               context=context, template=template, 
+                               destination_url="ewsghana_reporting")
     
 def message_log(request, template="ewsghana/messagelog.html"):
     return rapidsms_message_log(request, template)

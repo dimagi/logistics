@@ -158,15 +158,26 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 
 @geography_context
 @filter_context
-def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
+def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
+              destination_url="reporting"):
     """ which facilities have reported on time and which haven't """
     if location_code is None:
         location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=deadline) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=deadline).order_by('-last_reported','name')
+    # should probably move this to sql queries
+    facilities = location.all_facilities()
+    late_facilities = []
+    on_time_facilities = []
+    for facility in facilities:
+        if facility.last_reported is None or facility.last_reported <= deadline:
+            late_facilities.append(facility)
+        else:
+            on_time_facilities.append(facility)
+    context['late_facilities'] = late_facilities
+    context['on_time_facilities'] = on_time_facilities
+    context['destination_url'] = destination_url
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
