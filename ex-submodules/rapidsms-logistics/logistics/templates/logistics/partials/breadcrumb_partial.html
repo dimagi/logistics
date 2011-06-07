@@ -1,12 +1,12 @@
 {% load geonav_tags %}
 
 {% if location.parent %}
-	{% render_bread_nav location.parent %}
+	<span class="breadcrumb">{% render_bread_nav location.parent %}</span>
 	-> 
 {% endif %}
 
 {% ifequal location.peers.count 1 %}
-	<span class='breadcrumb'>{{ location.name }}</span>
+	<span class="breadcrumb">{{ location.name }}</span>
 {% else %}
 	<select class="location_select" name="location_select">
 		{% for peer in location.peers %}
