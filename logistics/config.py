@@ -136,3 +136,16 @@ class Messages(object):
     PARTIAL_FILL_RESPONSE = "Thank you for partially confirming order for %(hsa)s. You approved some of: %(products)s"
     PARTIAL_FILL_NOTICE = "Dear %(hsa)s, your pending is now ready to be partially filled. Not all products were available but some are ready."
 
+    # messages originally in logistics.models.py
+    SUPERVISOR_TITLE = 'your supervisor'
+    GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+    NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
+                                "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+    NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
+                                 "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
+    NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
+    REGISTER_MESSAGE = "You must be registered on this system " + \
+                       "before you can submit a stock report. " + \
+                       "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
+    SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
+

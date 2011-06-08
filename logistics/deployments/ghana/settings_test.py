@@ -107,6 +107,7 @@ STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
+LOGISTICS_CONFIG = 'static.ghana.config'
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 SITE_TITLE="Early Warning System"

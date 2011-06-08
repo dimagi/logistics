@@ -1,6 +1,5 @@
 from __future__ import absolute_import
-from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus ,\
-    ProductStock, NO_CODE_ERROR, NO_QUANTITY_ERROR
+from logistics.apps.logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
@@ -120,8 +119,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
             16175551000 < %(no_number)s
             16175551000 > soh 1
             16175551000 < %(no_code)s
-        """ % {'no_number': NO_QUANTITY_ERROR,
-               'no_code': NO_CODE_ERROR}
+        """ % {'no_number': config.Messages.NO_QUANTITY_ERROR,
+               'no_code': config.Messages.NO_CODE_ERROR}
         self.runScript(a)
         self.assertEqual(0, StockRequest.objects.count())
 

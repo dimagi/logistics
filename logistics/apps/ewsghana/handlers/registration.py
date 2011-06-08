@@ -5,7 +5,8 @@ from django.utils.translation import ugettext as _
 from rapidsms.conf import settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, SupplyPoint, REGISTER_MESSAGE
+from logistics.apps.logistics.models import ContactRole, SupplyPoint
+from logistics.apps.logistics.util import config
 
 HELP_MESSAGE = "Sorry, I didn't understand. To register, send register <name> <facility code>. Example: register john dwdh'"
 class RegistrationHandler(KeywordHandler):

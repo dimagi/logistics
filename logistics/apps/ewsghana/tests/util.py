@@ -1,15 +1,17 @@
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.logistics.models import SupplyPointType, \
     ProductReportType, SupplyPoint, Product, ProductStock, \
-    ProductType, STOCK_ON_HAND_REPORT_TYPE
+    ProductType
 from rapidsms.contrib.locations.models import Location
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
 
 def load_test_data():
     try:
-        pr = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
+        pr = ProductReportType.objects.get(code=Reports.SOH)
     except ProductReportType.DoesNotExist:
-        pr = ProductReportType.objects.create(code=STOCK_ON_HAND_REPORT_TYPE, 
-                                              name=STOCK_ON_HAND_REPORT_TYPE)
+        pr = ProductReportType.objects.create(code=Reports.SOH, 
+                                              name=Reports.SOH)
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 

@@ -24,26 +24,8 @@ from logistics.apps.logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.util import config
 #import logistics.apps.logistics.log
-
-
-STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
-REPORTEE_RESPONSIBILITY = 'reportee'
-STOCK_ON_HAND_REPORT_TYPE = 'soh'
-RECEIPT_REPORT_TYPE = 'rec'
-SUPERVISOR_TITLE = 'DHIO'
-REGISTER_MESSAGE = "You must registered on EWS " + \
-                   "before you can submit a stock report. " + \
-                   "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
-INVALID_CODE_MESSAGE = "%(code)s is/are not part of our commodity codes. "
-NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
-                             "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
-NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
-                            "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
-GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
-DISTRICT_TYPE = 'district'
-CHPS_TYPE = 'chps'
-
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -247,17 +229,17 @@ class SupplyPoint(models.Model):
         return npr
 
     def report_stock(self, product, quantity, message=None):
-        report_type = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
+        report_type = ProductReportType.objects.get(code=Reports.SOH)
         return self.report(product, report_type, quantity)
 
     def reporters(self):
         reporters = Contact.objects.filter(supply_point=self)
-        reporters = reporters.filter(role__responsibilities__code=STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
         return reporters
 
     def reportees(self):
         reporters = Contact.objects.filter(supply_point=self)
-        reporters = reporters.filter(role__responsibilities__code=REPORTEE_RESPONSIBILITY).distinct()
+        reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
     def children(self):
@@ -792,7 +774,7 @@ class StockTransaction(models.Model):
     @classmethod
     def from_product_report(cls, pr, beginning_balance):
         # no need to generate transaction if it's just a report of 0 receipts
-        if pr.report_type.code == RECEIPT_REPORT_TYPE and \
+        if pr.report_type.code == Reports.REC and \
           pr.quantity == 0:
             return None
         # also no need to generate transaction if it's a soh which is the same as before
@@ -929,7 +911,7 @@ class ProductReportsHelper(object):
             return
         match = re.search("[0-9]",string)
         if not match:
-            raise ValueError(NO_QUANTITY_ERROR)
+            raise ValueError(config.Messages.NO_QUANTITY_ERROR)
         string = self._clean_string(string)
         an_iter = self._getTokens(string)
         commodity = None
@@ -967,7 +949,7 @@ class ProductReportsHelper(object):
             except StopIteration:
                 break
         if not valid:
-            raise ValueError(NO_CODE_ERROR)
+            raise ValueError(config.Messages.NO_CODE_ERROR)
         return
 
     def save(self):
@@ -979,7 +961,7 @@ class ProductReportsHelper(object):
         for stock_code in self.product_received:
             self._record_product_report(self.get_product(stock_code), 
                                         self.product_received[stock_code], 
-                                        RECEIPT_REPORT_TYPE)
+                                        Reports.REC)
         for stock_code in self.product_stock:
             try:
                 original_quantity = ProductStock.objects.get(supply_point=self.supply_point, product__sms_code=stock_code).quantity
@@ -1037,10 +1019,10 @@ class ProductReportsHelper(object):
                                  quantity=quantity, message=self.message)
 
     def _record_product_stock(self, product_code, quantity):
-        self._record_product_report(product_code, quantity, STOCK_ON_HAND_REPORT_TYPE)
+        self._record_product_report(product_code, quantity, Reports.SOH)
 
     def _record_product_receipt(self, product, quantity):
-        self._record_product_report(product, quantity, RECEIPT_REPORT_TYPE)
+        self._record_product_report(product, quantity, Reports.REC)
 
     def add_product_receipt(self, product_code, quantity, save=False):
         if isinstance(quantity, basestring) and quantity.isdigit():

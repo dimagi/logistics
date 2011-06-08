@@ -3,9 +3,8 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
-from logistics.apps.logistics.models import REGISTER_MESSAGE
-from logistics.apps.logistics.models import ProductReport, ProductStock, \
-    REPORTEE_RESPONSIBILITY
+from logistics.apps.logistics.models import ProductReport, ProductStock
+from logistics.apps.logistics.util import config
 
 class Stop(KeywordHandler):
     """
@@ -19,9 +18,9 @@ class Stop(KeywordHandler):
 
     def handle(self, text):
         if self.msg.contact is None:
-            self.respond(REGISTER_MESSAGE)
+            self.respond(config.Messages.REGISTER_MESSAGE)
             return
-        if REPORTEE_RESPONSIBILITY in self.msg.contact.role.responsibilities.values_list('code', flat=True):
+        if config.Responsibilities.REPORTEE_RESPONSIBILITY in self.msg.contact.role.responsibilities.values_list('code', flat=True):
             # if a super, show last report from your facility
             reports = ProductReport.objects.filter(facility=self.msg.contact.facility)
             if not reports:

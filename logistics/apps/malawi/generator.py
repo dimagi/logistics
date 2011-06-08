@@ -1,9 +1,10 @@
+from random import choice, randint, sample, normalvariate
 from datetime import timedelta, datetime
 from djappsettings import settings
-from logistics.apps.logistics.models import get_geography, ContactRole, SupplyPoint, Product, ProductStock, ProductReport, STOCK_ON_HAND_REPORT_TYPE, ProductReportType, RECEIPT_REPORT_TYPE, SupplyPointType
-from random import choice, randint, sample, normalvariate
-from logistics.apps.logistics.util import config
+from logistics.apps.logistics.models import get_geography, ContactRole, \
+    SupplyPoint, Product, ProductStock, ProductReport, ProductReportType, SupplyPointType
 from static.malawi import config as malawi_config
+from logistics.apps.logistics.util import config
 from logistics.config import hsa_supply_point_type
 from rapidsms.models import Backend, Connection, Contact
 

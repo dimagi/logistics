@@ -3,7 +3,7 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
-from logistics.apps.logistics.models import REGISTER_MESSAGE
+from logistics.apps.logistics.util import config
 
 class Stop(KeywordHandler):
     """
@@ -14,7 +14,7 @@ class Stop(KeywordHandler):
     
     def help(self):
         if self.msg.contact is None:
-            self.respond(REGISTER_MESSAGE)
+            self.respond(config.Messages.REGISTER_MESSAGE)
             return
         self.respond(_("You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."))
         self.msg.logistics_contact.needs_reminders = False

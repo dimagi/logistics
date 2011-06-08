@@ -2,8 +2,7 @@ from logistics.apps.malawi.tests.register import TestHSARegister
 from rapidsms.models import Contact
 from logistics.apps.malawi.tests.base import MalawiTestBase
 __author__ = 'ternus'
-from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
-    REGISTER_MESSAGE
+from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole
 from logistics.apps.logistics.util import config
 
 class TestBootUser(MalawiTestBase):
