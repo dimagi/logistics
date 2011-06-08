@@ -11,15 +11,10 @@ from rapidsms.conf import settings
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
-from logistics.apps.logistics.models import Product, ProductReportsHelper, \
-    STOCK_ON_HAND_REPORT_TYPE, GET_HELP_MESSAGE
+from logistics.apps.logistics.models import Product, ProductReportsHelper
 from logistics.apps.logistics.errors import UnknownCommodityCodeError
-from logistics.apps.logistics.models import REGISTER_MESSAGE
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
-from config import Messages
-
-ERR_MSG = _("Please send your stock on hand in the format 'soh <product> <amount> <product> <amount>'")
 
 class App(AppBase):
 
@@ -42,13 +37,13 @@ class App(AppBase):
         if not self._should_handle(message):
             return (False, False)
         if not hasattr(message,'logistics_contact'):
-            message.respond(REGISTER_MESSAGE)
+            message.respond(config.Messages.REGISTER_MESSAGE)
             return (False, True)
         if message.logistics_contact.supply_point is None:
-            message.respond(Messages.NO_SUPPLY_POINT_MESSAGE)
+            message.respond(config.Messages.NO_SUPPLY_POINT_MESSAGE)
             return (False, True)
         if not self._clean_message(message.text):
-            message.respond(Messages.SOH_HELP_MESSAGE)
+            message.respond(config.Messages.SOH_HELP_MESSAGE)
             return (False, True)
         return (True, None)
         
@@ -66,7 +61,7 @@ class App(AppBase):
         kwargs['err'] = ", ".join(unicode(e) for e in stock_report.errors if not isinstance(e, UnknownCommodityCodeError))
         bad_codes = ", ".join(unicode(e) for e in stock_report.errors if isinstance(e, UnknownCommodityCodeError))
         kwargs['err'] = kwargs['err'] + "Unrecognized commodity codes: %(bad_codes)s." % {'bad_codes':bad_codes}
-        error_message = ("{0} {1}".format(error_message, GET_HELP_MESSAGE)).strip()
+        error_message = ("{0} {1}".format(error_message, config.Messages.GET_HELP_MESSAGE)).strip()
         message.respond(error_message, **kwargs)
     
     def _get_responses(self, stock_report):
@@ -133,7 +128,7 @@ class App(AppBase):
         try:
             message.text = self._clean_message(message.text)
             stock_report = ProductReportsHelper(message.logistics_contact.supply_point, 
-                                                STOCK_ON_HAND_REPORT_TYPE, message.logger_msg)
+                                                Reports.SOH, message.logger_msg)
             stock_report.parse(message.text)
             stock_report.save()
             self._send_responses(message, stock_report)

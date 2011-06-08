@@ -21,7 +21,7 @@ from django.views.decorators.http import require_POST
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, STOCK_ON_HAND_REPORT_TYPE, DISTRICT_TYPE, LogisticsProfile,\
+    get_geography, LogisticsProfile,\
     SupplyPoint, ProductReportType, StockTransaction
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from .models import Product
@@ -29,6 +29,7 @@ from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
 import json
 from logistics.apps.logistics.charts import stocklevel_plot
+from logistics.apps.logistics.util import config
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
@@ -63,7 +64,7 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
         # single message
-        prh = ProductReportsHelper(rms, STOCK_ON_HAND_REPORT_TYPE)
+        prh = ProductReportsHelper(rms, Reports.SOH)
         for stock in productstocks:
             try:
                 if stock.product.sms_code in request.POST:
