@@ -43,14 +43,13 @@ RAPIDSMS_TABS = [
 # to configure it. see the documentation in those modules for a list of
 # the valid options for each.
 INSTALLED_BACKENDS = {
-    # zain modem (?)
-    "modem": {
+    "airtel-smpp": {
         "ENGINE": "logistics.backends.kannel",
         "host": "127.0.0.1",
         "port": 8002,
         "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
-        "sendsms_params": {"smsc": "zain-modem",
-                           "from": "+265992961466", # will be overridden; set for consistency
+        "sendsms_params": {"smsc": "airtel-smpp",
+                           "from": "56543", # not set automatically by SMSC
                            "username": "rapidsms",
                            "password": "CHANGEME"}, # set password in localsettings.py
         "coding": 0,
