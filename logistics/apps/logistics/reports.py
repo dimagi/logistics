@@ -82,7 +82,10 @@ class ReportingBreakdown(object):
             
             # makes an assumption of 1 contact per SP.
             # will need to be revisited
-            contact = Contact.objects.get(supply_point=sp)
+            try:
+                contact = Contact.objects.get(supply_point=sp)
+            except Contact.DoesNotExist:
+                continue
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
             needed_products = set([c.pk for c in contact.commodities.all()])
