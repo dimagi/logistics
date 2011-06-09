@@ -139,6 +139,7 @@ LOGISTICS_EXCEL_EXPORT_ENABLED = False
 LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
+LOGISTICS_APPROVAL_REQUIRED = True
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"

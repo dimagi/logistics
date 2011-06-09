@@ -42,6 +42,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.supply_point = self.supply_point
         contact.role = role
         contact.is_active = True
+        contact.is_approved = True # Bypass approval process for higher-ups
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()

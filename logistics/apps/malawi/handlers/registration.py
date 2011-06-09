@@ -2,12 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
+from logistics import settings
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.malawi.exceptions import IdFormatException
 from logistics.apps.logistics.util import config
+from static.malawi.config import Roles
 
 class HSARegistrationHandler(RegistrationBaseHandler):
     """
@@ -61,10 +63,25 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         contact.supply_point = sp
         contact.role = role
         contact.is_active = True
+        if not settings.LOGISTICS_APPROVAL_REQUIRED:
+            contact.is_approved = True
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
-                     contact_name=contact.name, role=contact.role.name)
+
+        if settings.LOGISTICS_APPROVAL_REQUIRED:
+            try:
+                sh = Contact.objects.get(supply_point__location = self.supply_point.location,
+                                         role=ContactRole.objects.get(code=Roles.HSA_SUPERVISOR))
+                sh.message(config.Messages.APPROVAL_REQUEST, hsa=contact.name, code=hsa_id)
+                self.respond(_(config.Messages.APPROVAL_WAITING), hsa=contact.name)
+            except Contact.DoesNotExist:
+                # If there's no HSA supervisor registered, we silently approve them.  Oh well.
+                contact.is_approved = True
+                self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+                            contact_name=contact.name, role=contact.role.name)
+        else:
+            self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+                        contact_name=contact.name, role=contact.role.name)
         
 

@@ -38,6 +38,7 @@ class Operations(object):
     REMOVE_PRODUCT = "remove_product"
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
+    APPROVE_USER = "approve_user"
 
 class SupplyPointCodes(object):
     """
@@ -80,7 +81,8 @@ def has_permissions_to(contact, operation):
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
     if operation == Operations.REMOVE_USER:
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
-
+    if operation == Operations.APPROVE_USER:
+        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     # TODO, fill this in more
     return True
 
@@ -185,6 +187,14 @@ class Messages(object):
     BOOT_HELP = "To remove a user from the system, type boot [hsa id]"
     BOOT_RESPONSE = "Done. %(contact)s has been removed from the cStock system."
     BOOT_ID_NOT_FOUND = "Couldn't find a record for user with id %(id)s. Nothing done."
+
+    # approve user
+
+    APPROVAL_WAITING = "Thank you for submitting your registration request, %(hsa)s. You will receive a message when your supervisor has approved your request."
+    APPROVAL_REQUIRED = "You must be approved by your supervisor before doing that."
+    APPROVAL_REQUEST = "%(hsa)s wants to register for the cStock system.  To approve them, text 'approve %(code)s'."
+    APPROVAL_SUPERVISOR = "Successfully approved registration for %(hsa)s."
+    APPROVAL_HSA = "Congratulations, your registration has been approved. Welcome to the cStock system, %(hsa)s."
 
     # Other  Messages (usually for error conditions)
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
