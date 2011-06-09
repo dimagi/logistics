@@ -1,5 +1,7 @@
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
+from urllib import urlencode
+from urllib2 import urlopen
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
@@ -157,3 +159,10 @@ def monitoring_report(request, report_slug):
 
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
+
+@permission_required("is_superuser")
+def status(request):
+    #TODO Put these settings in localsettings, probably
+    f = urlopen('http://localhost:13000/status?password=CHANGEME')
+    r = f.read()
+    return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
