@@ -24,6 +24,7 @@ RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics.apps.malawi.views.facilities",       "Facilities"),
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
+    ("logistics.apps.malawi.views.help",       "Help"),
     ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
     ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),

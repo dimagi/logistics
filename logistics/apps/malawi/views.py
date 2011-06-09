@@ -154,4 +154,6 @@ def monitoring_report(request, report_slug):
     return render_to_response("malawi/monitoring_report.html", 
                               {"report": instance},
                               context_instance=RequestContext(request))
-    
+
+def help(request):
+    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
