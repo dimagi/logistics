@@ -2,6 +2,7 @@
 from django.utils.translation import ugettext as _
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
 from logistics.apps.malawi.util import get_hsa
+from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
@@ -34,6 +35,7 @@ class ApprovalHandler(RegistrationBaseHandler):
         contact.is_approved = True
         contact.save()
 
-        contact.message(config.Messages.APPROVAL_HSA, hsa=contact.name)
+#        contact.message(config.Messages.APPROVAL_HSA, hsa=contact.name)
+        send_message(contact, config.Messages.APPROVAL_HSA % {'hsa': contact.name})
         self.respond(config.Messages.APPROVAL_SUPERVISOR, hsa=contact.name)
 
