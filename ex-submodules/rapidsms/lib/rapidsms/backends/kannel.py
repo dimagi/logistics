@@ -116,3 +116,4 @@ class KannelBackend(RapidHttpBacked):
             return
         self.info('SENT')
         self.debug('response body: %s' % response.read())
+        return True
