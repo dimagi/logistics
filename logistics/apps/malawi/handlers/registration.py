@@ -3,7 +3,6 @@
 
 from django.utils.translation import ugettext as _
 from logistics import settings
-from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
 from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
@@ -74,8 +73,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
             try:
                 sh = Contact.objects.get(supply_point__location = self.supply_point.location,
                                          role=ContactRole.objects.get(code=Roles.HSA_SUPERVISOR))
-#                sh.message(config.Messages.APPROVAL_REQUEST, hsa=contact.name, code=hsa_id)
-                send_message(sh, config.Messages.APPROVAL_REQUEST % {'hsa': contact.name, 'code': hsa_id})
+                sh.message(config.Messages.APPROVAL_REQUEST, hsa=contact.name, code=hsa_id)
                 self.respond(_(config.Messages.APPROVAL_WAITING), hsa=contact.name)
             except Contact.DoesNotExist:
                 # If there's no HSA supervisor registered, we silently approve them.  Oh well.
