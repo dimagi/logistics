@@ -57,10 +57,6 @@ class testContactsAndRoles(MalawiTestBase):
                 5551112 < %(bad_perms)s
                 5551112 > confirm
                 5551112 < %(bad_perms)s
-                5551113 > report 100101 soh la 200
-                5551113 < %(bad_perms)s
-                5551113 > report 100101 rec la 200
-                5551113 < %(bad_perms)s
             """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
 
