@@ -140,6 +140,7 @@ LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
