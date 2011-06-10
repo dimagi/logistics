@@ -49,7 +49,7 @@ max-messages = 0
 get-url = http://127.0.0.1:8081/?id=%p&text=%a&charset=%C&coding=%c
 """
 
-from rapidsms.backends.http import RapidHttpBacked
+from rapidsms.backends.http import 
 
 import copy
 import urllib
@@ -57,8 +57,9 @@ import urllib2
 from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseBadRequest
+from rapidsms.backends.http import RapidHttpBackend
 
-class KannelBackend(RapidHttpBacked):
+class KannelBackend(RapidHttpBackend):
     """
     Backend for use with the Kannel SMS Gateway.
     """
