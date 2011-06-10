@@ -43,7 +43,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
             self.respond(str(e))
             return
         
-        if Location.objects.filter(code=hsa_id).exists():
+        if Location.objects.filter(code=hsa_id, is_active=True).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
         if SupplyPoint.objects.filter(code=hsa_id, contact__is_active=True).exists():
@@ -51,10 +51,18 @@ class HSARegistrationHandler(RegistrationBaseHandler):
             return
         
         # create a location and supply point for the HSA
-        hsa_loc = Location.objects.create(name=self.contact_name, type=config.hsa_location_type(),
-                                          code=hsa_id, parent=self.supply_point.location)
-        sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=config.hsa_supply_point_type(), 
-                                        location=hsa_loc, supplied_by=self.supply_point)
+        if SupplyPoint.objects.filter(code=hsa_id, type=config.hsa_supply_point_type(), active=False).exists():
+            # We have a previously deactivated HSA.  Reassociate.
+            sp = SupplyPoint.objects.get(code=hsa_id, type=config.hsa_supply_point_type(), active=False)
+            sp.active = True
+            sp.save()
+            sp.location.is_active=True
+            sp.location.save()
+        else:
+            hsa_loc = Location.objects.create(name=self.contact_name, type=config.hsa_location_type(),
+                                              code=hsa_id, parent=self.supply_point.location)
+            sp = SupplyPoint.objects.create(name=self.contact_name, code=hsa_id, type=config.hsa_supply_point_type(),
+                                            location=hsa_loc, supplied_by=self.supply_point)
         
         # overwrite the existing contact data if it was already there
         # we know at least they were not active since we checked above
