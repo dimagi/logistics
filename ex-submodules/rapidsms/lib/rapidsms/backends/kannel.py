@@ -49,7 +49,6 @@ max-messages = 0
 get-url = http://127.0.0.1:8081/?id=%p&text=%a&charset=%C&coding=%c
 """
 
-from rapidsms.backends.http import 
 
 import copy
 import urllib
