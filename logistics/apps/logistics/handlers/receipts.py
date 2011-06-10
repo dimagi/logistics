@@ -45,5 +45,7 @@ class ReceiptHandler(KeywordHandler):
         # fill in transfers, if there were any
         if supplier is not None:
             StockTransfer.create_from_receipt_report(stock_report, supplier)
-
-        self.respond(_(config.Messages.RECEIPT_CONFIRM), products=" ".join(stock_report.reported_products()).strip())
+            self.respond(_(config.Messages.RECEIPT_FROM_CONFIRM), products=" ".join(stock_report.reported_products()).strip(),
+                         supplier=supplier)
+        else:
+            self.respond(_(config.Messages.RECEIPT_CONFIRM), products=" ".join(stock_report.reported_products()).strip())

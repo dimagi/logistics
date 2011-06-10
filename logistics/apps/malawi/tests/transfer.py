@@ -70,7 +70,7 @@ class TestTransfer(MalawiTestBase):
         create_hsa(self, "16175551001", "steve", id="2")
         a = """
            16175551000 > rec zi 100 la 250 from 261602
-           16175551000 < Thank you, you reported receipts for zi la.
+           16175551000 < Thank you, you reported receipts for zi la from 261602.
         """
         self.runScript(a)
         self.assertEqual(2, StockTransfer.objects.count())
@@ -88,7 +88,7 @@ class TestTransfer(MalawiTestBase):
         create_hsa(self, "16175551000", "wendy")
         a = """
            16175551000 > rec zi 100 la 250 from someone random
-           16175551000 < Thank you, you reported receipts for zi la.
+           16175551000 < Thank you, you reported receipts for zi la from someone random.
         """
         self.runScript(a)
         self.assertEqual(2, StockTransfer.objects.count())
