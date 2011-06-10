@@ -92,7 +92,7 @@ class KannelBackend(RapidHttpBackend):
         if charset and not isinstance(sms, unicode):
             sms = sms.decode(charset)
         try:
-            msg = super(RapidHttpBacked, self).message(sender, sms, now)
+            msg = super(RapidHttpBackend, self).message(sender, sms, now)
         except:
             self.exception('failed to create message in RapidSMS')
             raise
