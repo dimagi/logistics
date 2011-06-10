@@ -5,7 +5,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
 
-    url(r'^$',
+    url(r'^dashboard/$',
         "logistics.apps.malawi.views.dashboard",
         name="malawi_dashboard"),
     url(r'^places/$',
