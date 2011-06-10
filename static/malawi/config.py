@@ -76,7 +76,8 @@ def has_permissions_to(contact, operation):
     if operation == Operations.CONFIRM_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.REPORT_FOR_OTHERS:
-        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE])
+        return True
+#        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE, Roles.HSA_SUPERVISOR])
     if operation == Operations.ADD_USER:
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
     if operation == Operations.REMOVE_USER:
