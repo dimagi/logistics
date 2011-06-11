@@ -128,6 +128,8 @@ class Messages(object):
     SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
     SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready." 
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
+    SOH_ORDER_STOCKOUT = "Thank you %(contact)s.  You have reported stockouts for %(products)s.  The health center and district office have been notified."
+    SOH_ORDER_STOCKOUT_SUPERVISOR = "%(contact)s has reported a stockout. At least the following products are affected: %(products)s."
     
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'

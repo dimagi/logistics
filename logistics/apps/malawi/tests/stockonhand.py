@@ -219,7 +219,18 @@ class TestStockOnHandMalawi(MalawiTestBase):
                     
         self.runScript(a)
         
-        
+    def testSOHStockout(self):
+        self._setup_users()
+        a = """
+           16175551000 > soh zi 0 co 10 la 0
+           16175551000 < %(stockout)s
+           16175551001 < %(supervisor)s
+        """ % {"stockout": config.Messages.SOH_ORDER_STOCKOUT % {"contact": "wendy", "products": "zi la"},
+               "supervisor": config.Messages.SOH_ORDER_STOCKOUT_SUPERVISOR % {"contact": "wendy", "products": "zi la"}}
+        self.runScript(a)
+
+
+
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")
