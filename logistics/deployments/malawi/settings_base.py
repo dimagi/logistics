@@ -8,7 +8,6 @@ APPS = [
 ]
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -16,23 +15,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 )
-
-# Note that this cache stuff should be silently ignored if memcached isn't
-# installed or running.
-
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/' # Django 1.2
-CACHES = { # Django 1.3
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-    }
-}
-CACHE_MIDDLEWARE_ALIAS='default'
-CACHE_MIDDLEWARE_SECONDS=300 # Five minutes
-CACHE_MIDDLEWARE_KEY_PREFIX='cstock'
-
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
