@@ -98,7 +98,7 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                                    emergency_products=emergency_product_string,
                                    hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
-            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+            msg.respond(config.Messages.EMERGENCY_SOH,
                         products=" ".join(stock_report.reported_products()).strip())
         else:
             # TODO: this message should probably be cleaned up
