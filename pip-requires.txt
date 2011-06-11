@@ -15,3 +15,4 @@ django-registration
 couchdbkit>=0.5.4
 supervisor
 twilio
+python-memcached
