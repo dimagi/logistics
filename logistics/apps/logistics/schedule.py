@@ -49,15 +49,16 @@ def third_soh_to_super (router):
             for super in supers:
                 response = config.Messages.THIRD_STOCK_ON_HAND_REMINDER % {'name':super.name}
                 send_message(super, response)
-            # custom code it so that the supervisor of the supply_point supplying the CHPS
-            # gets the escalation message. we cannot reuse these reminders for tz.
-            if reporter.supply_point.type.code == config.SupplyPointCodes.CHPS:
-                super_supers = Contact.objects.filter(supply_point=reporter.supply_point.supplied_by)
-                super_supers = super_supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
-                for super_super in super_supers:
-                    response = config.Messages.THIRD_CHPS_STOCK_ON_HAND_REMINDER % {'name':super_super.name, 
-                                                                    'facility':reporter.supply_point }
-                    send_message(super_super, response)
+            if reporter.supply_point is not None:
+                # custom code it so that the supervisor of the supply_point supplying the CHPS
+                # gets the escalation message. we cannot reuse these reminders for tz.
+                if reporter.supply_point.type.code == config.SupplyPointCodes.CHPS:
+                    super_supers = Contact.objects.filter(supply_point=reporter.supply_point.supplied_by)
+                    super_supers = super_supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
+                    for super_super in super_supers:
+                        response = config.Messages.THIRD_CHPS_STOCK_ON_HAND_REMINDER % {'name':super_super.name, 
+                                                                        'facility':reporter.supply_point }
+                        send_message(super_super, response)
                 
         
 def reminder_to_submit_RRIRV(router):
