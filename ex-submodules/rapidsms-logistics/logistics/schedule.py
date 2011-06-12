@@ -11,6 +11,7 @@ from logistics.apps.logistics.models import Contact, \
     STOCK_ON_HAND_RESPONSIBILITY, REPORTEE_RESPONSIBILITY, \
     ProductReport, CHPS_TYPE
 from django.utils.translation import ugettext as _
+from rapidsms.conf import settings
 
 ######################
 # Callback Functions #
