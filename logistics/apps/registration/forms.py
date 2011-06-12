@@ -145,22 +145,6 @@ class CommoditiesContactForm(IntlSMSContactForm):
         model = super(CommoditiesContactForm, self).save(commit=False)
         if commit:
             model.save()
-            conn = model.default_connection
-            if not conn:
-                if settings.DEFAULT_BACKEND:
-                    backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
-                else:
-                    backend = Backend.objects.all()[0]
-                try:
-                    conn = Connection.objects.get(backend=backend, identity=self.cleaned_data['phone'])
-                except Connection.DoesNotExist:
-                    # good, it doesn't exist already
-                    conn = Connection(backend=backend,
-                                      contact=model)
-                else: 
-                    # this connection already exists. just steal it. 
-                    conn.contact = model
-            conn.identity = self.cleaned_data['phone']
-            conn.save()
+            model.default_connection = self.cleaned_data['phone']
             self.save_m2m()
         return model
