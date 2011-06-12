@@ -255,7 +255,8 @@ class SupplyPoint(models.Model):
             reportees = reportees.exclude(pk__in=[e.pk for e in exclude])
         for reportee in reportees:
             kwargs['admin_name'] = reportee.name
-            reportee.message(report % kwargs)
+            if reportee.default_connection:
+                reportee.message(report % kwargs)
 
     def supplies_product(self, product):
         try:

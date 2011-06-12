@@ -10,6 +10,7 @@ from rapidsms.messages.outgoing import OutgoingMessage
 from logistics.apps.logistics.models import Contact, ProductReport
 from django.utils.translation import ugettext as _
 from logistics.apps.logistics.util import config
+from rapidsms.conf import settings
 
 ######################
 # Callback Functions #
