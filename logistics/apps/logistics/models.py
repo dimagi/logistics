@@ -285,11 +285,12 @@ class SupplyPoint(models.Model):
             if exclude:
                 reporters = reporters.exclude(pk__in=[e.pk for e in exclude])
             for reporter in reporters:
-                send_message(reporter.default_connection,
-                            "Dear %(name)s, %(supply_point)s has resolved the following stockouts: %(products)s " %
-                             {'name':reporter.name,
-                             'products':", ".join(stockouts_resolved),
-                             'supply_point':self.name})
+                if reporter.default_connection is not None:
+                    send_message(reporter.default_connection,
+                                "Dear %(name)s, %(supply_point)s has resolved the following stockouts: %(products)s " %
+                                 {'name':reporter.name,
+                                 'products':", ".join(stockouts_resolved),
+                                 'supply_point':self.name})
 
     def data_unavailable(self):
         # hm, not sure what interval should be considered 'data unavailable'?
