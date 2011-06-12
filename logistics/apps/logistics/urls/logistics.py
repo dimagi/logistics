@@ -47,7 +47,7 @@ urlpatterns = patterns('',
     url(r'^(?P<facility_code>\w+)/stockonhand/export/xls$', 
         'logistics.apps.logistics.views.export_stockonhand',  
         name="export_stock"),
-    url(r'^/navigate$', 
+    url(r'^navigate$', 
         'logistics.apps.logistics.views.navigate',  
         name="navigate"),
 )
