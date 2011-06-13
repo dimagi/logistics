@@ -75,7 +75,8 @@ class ReportingBreakdown(object):
 
         requests_in_range = StockRequest.objects.filter(\
             requested_on__gte=datespan.startdate,
-            requested_on__lte=datespan.enddate
+            requested_on__lte=datespan.enddate,
+            supply_point__in=supply_points
         )
 
         emergency_requests = requests_in_range.filter(is_emergency=True)
@@ -132,6 +133,7 @@ class ReportingBreakdown(object):
                 no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
         self.stockouts = stockouts
+        self.emergency = emergency_requesters
         self.stockouts_emergency = set(stockouts).intersection(set(emergency_requesters))
         self.stockouts_p = stockouts_p
         self.no_stockouts_pct_p = no_stockouts_pct_p
