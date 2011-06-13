@@ -10,7 +10,6 @@ from collections import defaultdict
 def _common_report(instance, context):
     try:
         r = render_to_string(instance.definition.template, context)
-        print r
         return r
     except TemplateDoesNotExist:
         return render_to_string("malawi/partials/monitoring_reports/not_found.html", context)
