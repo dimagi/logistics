@@ -8,8 +8,10 @@ from django.utils.datastructures import SortedDict
 from collections import defaultdict
 
 def _common_report(instance, context):
-    try: 
-        return render_to_string(instance.definition.template, context)
+    try:
+        r = render_to_string(instance.definition.template, context)
+        print r
+        return r
     except TemplateDoesNotExist:
         return render_to_string("malawi/partials/monitoring_reports/not_found.html", context)
 
@@ -30,8 +32,20 @@ def _district_breakdown(datespan):
     ept_reports = SortedDict()
     em_totals = defaultdict(lambda: 0)
     ept_totals = defaultdict(lambda: 0)
-    em_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}, 'req_times':[]})
-    ept_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}, 'req_times':[]})
+    em_totals.update({'no_stockouts_pct_p':{},
+                      'no_stockouts_p':{},
+                      'totals_p':{},
+                      'discrepancies_p': {},
+                      'discrepancies_pct_p': {},
+                      'filled_orders_p': {},
+                      'req_times':[]})
+    ept_totals.update({'no_stockouts_pct_p':{},
+                       'no_stockouts_p':{},
+                       'totals_p':{},
+                       'discrepancies_p': {},
+                       'discrepancies_pct_p': {},
+                       'filled_orders_p': {},
+                       'req_times':[]})
 
     for d in em:
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
@@ -41,7 +55,10 @@ def _district_breakdown(datespan):
         em_totals['req_times'] += bd.req_times
         em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
         em_reports[d]['avg_req_time'] = bd.avg_req_time
+        em_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(em_totals['discrepancies_p'], bd.discrepancies_p)
+        _update_dict(em_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
     for d in ept:
@@ -51,9 +68,12 @@ def _district_breakdown(datespan):
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
         ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        ept_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         ept_reports[d]['avg_req_time'] = bd.avg_req_time
         ept_reports[d]['totals_p'] = bd.totals_p
         _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(ept_totals['discrepancies_p'], bd.discrepancies_p)
+        _update_dict(ept_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(ept_totals['totals_p'], bd.totals_p)
 
 
@@ -63,8 +83,12 @@ def _district_breakdown(datespan):
     for p in em_totals['no_stockouts_p']:
         em_totals['no_stockouts_pct_p'][p] = calc_percentage(em_totals['no_stockouts_p'][p], em_totals['totals_p'][p])
 
-    print em_totals['req_times'], ept_totals['req_times']
+    for p in ept_totals['discrepancies_p']:
+        ept_totals['discrepancies_pct_p'][p] = calc_percentage(ept_totals['discrepancies_p'][p], ept_totals['filled_orders_p'][p])
 
+    for p in em_totals['discrepancies_p']:
+        em_totals['discrepancies_pct_p'][p] = calc_percentage(em_totals['discrepancies_p'][p], em_totals['filled_orders_p'][p])
+ 
     if len(em_totals['req_times']):
         em_totals['req_times'] = timedelta(seconds=sum(em_totals['req_times'])/len(em_totals['req_times']))
     else:
@@ -73,7 +97,6 @@ def _district_breakdown(datespan):
         ept_totals['req_times'] = timedelta(seconds=sum(ept_totals['req_times'])/len(ept_totals['req_times']))
     else:
         ept_totals['req_times'] = None
-
 
     return {"em_reports": em_reports,
             "ept_reports": ept_reports,
@@ -163,7 +186,10 @@ def order_discrepancies(instance):
     """
     HSA orders with discrepancy between order and receipt by product, by District and group
     """
-    return _common_report(instance, {}) 
+    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+    d = _district_breakdown(instance.datespan)
+    d['product_codes'] = product_codes
+    return _common_report(instance, d)
 
 def order_messages(instance):
     """
