@@ -76,6 +76,7 @@ def _to_totals(bd):
             "partially_reporting": len(bd.partial),
             "unconfigured": len(bd.unconfigured),
             "stockouts": len(bd.stockouts),
+            "stockouts_emergency": len(bd.stockouts_emergency),
             "total": len(bd.supply_points)}
 
 def em_late_reporting(instance):
@@ -140,7 +141,7 @@ def emergency_orders(instance):
     """
     Emergency orders reported by HSAs, by District and group
     """
-    return _common_report(instance, {}) 
+    return _common_report(instance, _district_breakdown(instance.datespan))
 
 def order_discrepancies(instance):
     """

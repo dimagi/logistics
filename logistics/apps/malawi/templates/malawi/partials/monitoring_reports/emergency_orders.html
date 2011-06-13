@@ -1,0 +1,35 @@
+{% load logistics_extras %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ em_reports|length }}" >EM</th>
+            <th colspan="{{ ept_reports|length }}" >EPT</th>
+            <th colspan="2">Totals</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in em_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+{% for d in ept_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th>EM</th>
+            <th>EPT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>% HSAs with any stockout who placed an emergency order</td>
+{% for r in em_reports.values %}
+    {% percent_cell r.stockouts_emergency r.stockouts %}
+{% endfor %}
+{% for r in ept_reports.values %}
+    {% percent_cell r.stockouts_emergency r.stockouts %}
+{% endfor %}
+    {% percent_cell em_totals.stockouts_emergency em_totals.stockouts %}
+    {% percent_cell ept_totals.stockouts_emergency ept_totals.stockouts %}
+        </tr>
+    </tbody>
+</table>
