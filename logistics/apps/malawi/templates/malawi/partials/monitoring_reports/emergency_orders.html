@@ -31,5 +31,16 @@
     {% percent_cell em_totals.stockouts_emergency em_totals.stockouts %}
     {% percent_cell ept_totals.stockouts_emergency ept_totals.stockouts %}
         </tr>
+            <tr>
+            <td>% HSAs who placed any emergency orders</td>
+{% for r in em_reports.values %}
+    {% percent_cell r.emergency r.total %}
+{% endfor %}
+{% for r in ept_reports.values %}
+    {% percent_cell r.emergency r.total %}
+{% endfor %}
+    {% percent_cell em_totals.emergency em_totals.total %}
+    {% percent_cell ept_totals.emergency ept_totals.total %}
+        </tr>
     </tbody>
 </table>

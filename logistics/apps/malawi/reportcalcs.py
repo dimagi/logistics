@@ -76,6 +76,7 @@ def _to_totals(bd):
             "partially_reporting": len(bd.partial),
             "unconfigured": len(bd.unconfigured),
             "stockouts": len(bd.stockouts),
+            "emergency": len(bd.emergency),
             "stockouts_emergency": len(bd.stockouts_emergency),
             "total": len(bd.supply_points)}
 
