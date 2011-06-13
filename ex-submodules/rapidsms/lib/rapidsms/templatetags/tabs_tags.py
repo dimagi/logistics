@@ -64,7 +64,13 @@ class TabsNode(template.Node):
             return ""
 
         for tab in self.tabs:
-            tab.is_active = request.get_full_path().startswith(tab.url)
+            if tab.url != '/':
+                # Keep tab active if the url is a sub-directoy of the current tab
+                tab.is_active = request.get_full_path().startswith(tab.url)
+            else:
+                # Make a small exception for the server root since all
+                # urls are below the server root
+                tab.is_active = tab.url == request.get_full_path()                
             tab.visible = tab.has_permission(request.user)                    
         
         context[self.varname] = self.tabs
