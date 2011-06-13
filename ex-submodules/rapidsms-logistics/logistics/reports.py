@@ -78,6 +78,11 @@ class ReportingBreakdown(object):
         full = []
         partial = []
         unconfigured = []
+        stockouts = []
+        no_stockouts = []
+        no_stockouts_p = {}
+        stockouts_p = {}
+        totals_p = {}
         for sp in reported.all():
             
             # makes an assumption of 1 contact per SP.
@@ -96,7 +101,33 @@ class ReportingBreakdown(object):
                     full.append(sp)
             else:
                 unconfigured.append(sp)
+            prods = Product.objects.filter(pk__in=list(found_products))
+            for p in prods:
+                if not p.code in stockouts_p: stockouts_p[p.sms_code] = 0
+                if not p.code in no_stockouts_p: no_stockouts_p[p.sms_code] = 0
+                if not p.code in totals_p: totals_p[p.sms_code] = 0
+                if found_reports.filter(product=p, quantity=0):
+                    stockouts_p[p.sms_code] += 1
+                else:
+                    no_stockouts_p[p.sms_code] += 1
+                totals_p[p.sms_code] += 1
+
+            if found_reports.filter(quantity=0):
+                stockouts.append(sp)
+            else:
+                no_stockouts.append(sp)
+
+        no_stockouts_pct_p = {}
         
+        for key in no_stockouts_p:
+            if totals_p[key] > 0:
+                no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
+
+        self.stockouts = stockouts
+        self.stockouts_p = stockouts_p
+        self.no_stockouts_pct_p = no_stockouts_pct_p
+        self.no_stockouts_p = no_stockouts_p
+        self.totals_p = totals_p
         self.full = full
         self.partial = partial
         self.unconfigured = unconfigured
@@ -364,3 +395,8 @@ class FacilitySupplyPointRow(SupplyPointRow):
     def facility_list(self):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
+
+def calc_percentage(a,b):
+    if not (a and b):
+        return 0 # Don't return ugly NaN
+    return int((float(a) / float(b)) * 100.0)
