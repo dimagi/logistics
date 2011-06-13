@@ -98,10 +98,7 @@ class ReportingBreakdown(object):
             nd = {}
             for d in dict:
                 nd[_p[d]] = dict[d]
-            print nd
             return nd
-
-        print _p
 
         self.discrepancies_p = {}
         self.discrepancies_pct_p = {}
@@ -121,7 +118,6 @@ class ReportingBreakdown(object):
             secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
             self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
             self.req_times = secs
-            print secs
 
         # fully reporting / non reporting
         full = []
@@ -187,8 +183,7 @@ class ReportingBreakdown(object):
         self.reported = reported
         self.reported_on_time = reported_on_time
         self.reported_late = reported_late
-        print "init done"
-        
+
     @property
     def on_time(self):
         """
