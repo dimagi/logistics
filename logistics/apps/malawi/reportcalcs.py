@@ -1,6 +1,6 @@
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from logistics.apps.logistics.reports import ReportingBreakdown
+from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
 from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts
 from django.utils.datastructures import SortedDict
@@ -14,7 +14,10 @@ def _common_report(instance, context):
 
 def _update_dict(totals, to_add):
     for k, v in to_add.items():
-        totals[k] += v
+        if k in totals:
+            totals[k] += v
+        else:
+            totals[k] = v
 
 def _district_breakdown(datespan):
     """
@@ -26,18 +29,37 @@ def _district_breakdown(datespan):
     ept_reports = SortedDict()
     em_totals = defaultdict(lambda: 0)
     ept_totals = defaultdict(lambda: 0)
+    em_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}})
+    ept_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}})
+
     for d in em:
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 datespan)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
-    
+#        em_reports[d]['stockouts_p'] = bd.stockouts_p
+        em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(em_totals['totals_p'], bd.totals_p)
+
     for d in ept:
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 datespan)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
-    
+        ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        ept_reports[d]['totals_p'] = bd.totals_p
+        _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(ept_totals['totals_p'], bd.totals_p)
+
+
+    for p in ept_totals['no_stockouts_p']:
+        ept_totals['no_stockouts_pct_p'][p] = calc_percentage(ept_totals['no_stockouts_p'][p], ept_totals['totals_p'][p])
+        
+    for p in em_totals['no_stockouts_p']:
+        em_totals['no_stockouts_pct_p'][p] = calc_percentage(em_totals['no_stockouts_p'][p], em_totals['totals_p'][p])
+
+
     return {"em_reports": em_reports,
             "ept_reports": ept_reports,
             "em_totals": em_totals,
@@ -53,6 +75,7 @@ def _to_totals(bd):
             "fully_reporting": len(bd.full),
             "partially_reporting": len(bd.partial),
             "unconfigured": len(bd.unconfigured),
+            "stockouts": len(bd.stockouts),
             "total": len(bd.supply_points)}
 
 def em_late_reporting(instance):
@@ -88,7 +111,12 @@ def fully_stocked_hsas(instance):
     """
     No stock outs reported in past 30 days by HSAs by product, by District and group
     """
-    return _common_report(instance, {}) 
+    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+    d = _district_breakdown(instance.datespan)
+    d['product_codes'] = product_codes
+
+    return _common_report(instance, d)
+
 
 def fully_stocked_facilities(instance):
     """
