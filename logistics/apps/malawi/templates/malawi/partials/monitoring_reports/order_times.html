@@ -1,0 +1,36 @@
+{% load logistics_extras %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ em_reports|length }}" >EM</th>
+            <th colspan="{{ ept_reports|length }}" >EPT</th>
+            <th colspan="2">Totals</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in em_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+{% for d in ept_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th>EM</th>
+            <th>EPT</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Average time between order and receipt</td>
+{% for r in em_reports.values %}
+        <td>{{ r.avg_req_time }}</td>
+{% endfor %}
+{% for r in ept_reports.values %}
+    <td>{{ r.avg_req_time }}</td>
+    {% endfor %}
+    <td>{{ em_totals.req_times }}</td>
+    <td>{{ ept_totals.req_times }}</td>
+
+        </tr>
+    </tbody>
+</table>

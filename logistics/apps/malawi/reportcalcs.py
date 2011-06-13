@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
 from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
@@ -29,16 +30,17 @@ def _district_breakdown(datespan):
     ept_reports = SortedDict()
     em_totals = defaultdict(lambda: 0)
     ept_totals = defaultdict(lambda: 0)
-    em_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}})
-    ept_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}})
+    em_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}, 'req_times':[]})
+    ept_totals.update({'no_stockouts_pct_p':{}, 'no_stockouts_p':{}, 'totals_p':{}, 'req_times':[]})
 
     for d in em:
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 datespan)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
-#        em_reports[d]['stockouts_p'] = bd.stockouts_p
+        em_totals['req_times'] += bd.req_times
         em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        em_reports[d]['avg_req_time'] = bd.avg_req_time
         _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
@@ -47,7 +49,9 @@ def _district_breakdown(datespan):
                                 datespan)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
+        ept_totals['req_times'] += bd.req_times
         ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        ept_reports[d]['avg_req_time'] = bd.avg_req_time
         ept_reports[d]['totals_p'] = bd.totals_p
         _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(ept_totals['totals_p'], bd.totals_p)
@@ -58,6 +62,17 @@ def _district_breakdown(datespan):
         
     for p in em_totals['no_stockouts_p']:
         em_totals['no_stockouts_pct_p'][p] = calc_percentage(em_totals['no_stockouts_p'][p], em_totals['totals_p'][p])
+
+    print em_totals['req_times'], ept_totals['req_times']
+
+    if len(em_totals['req_times']):
+        em_totals['req_times'] = timedelta(seconds=sum(em_totals['req_times'])/len(em_totals['req_times']))
+    else:
+        em_totals['req_times'] = None
+    if len(ept_totals['req_times']):
+        ept_totals['req_times'] = timedelta(seconds=sum(ept_totals['req_times'])/len(ept_totals['req_times']))
+    else:
+        ept_totals['req_times'] = None
 
 
     return {"em_reports": em_reports,
@@ -160,7 +175,7 @@ def order_times(instance):
     """
     Time between HSA order and receipt, by District and group (hours)
     """
-    return _common_report(instance, {}) 
+    return _common_report(instance, _district_breakdown(instance.datespan))
 
 def hsas_with_stock(instance):
     """
