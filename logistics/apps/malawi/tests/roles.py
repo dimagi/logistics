@@ -63,18 +63,18 @@ class testContactsAndRoles(MalawiTestBase):
     def testRolePermissions(self):
 
         a = """
-                5552222 > manage foo bar dp 2616
+                5552222 > manage foo bar ds 2616
                 5552222 < %(bad_level)s
-                5552222 > manage foo bar dp 26
+                5552222 > manage foo bar ds 26
                 5552222 < %(confirm)s
-                5552223 > manage second guy dp 26
+                5552223 > manage second guy ds 26
                 5552223 < %(duplicate)s
-            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'district pharmacist',
+            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'district supervisor',
                                                                     'level': 'facility'},
                    "confirm": config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'foo bar',
-                                                                      'role': 'district pharmacist',
+                                                                      'role': 'district supervisor',
                                                                       'sp_name':'Machinga'},
-                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'district pharmacist'}}
+                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'district supervisor'}}
         self.runScript(a)
 
         a = """
