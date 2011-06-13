@@ -82,7 +82,16 @@ class ReportingBreakdown(object):
         emergency_requests = requests_in_range.filter(is_emergency=True)
 
         emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
-        
+
+        filled_requests = requests_in_range.exclude(received_on=None)
+        self.avg_req_time = None
+        self.req_times = []
+        if filled_requests:
+            secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
+            self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
+            self.req_times = secs
+            print secs
+
         # fully reporting / non reporting
         full = []
         partial = []
