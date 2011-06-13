@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.db.models.expressions import F
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, Product, ProductStock,\
     SupplyPoint, StockRequest
@@ -73,7 +74,7 @@ class ReportingBreakdown(object):
         reported_on_time = SupplyPoint.objects.filter\
             (pk__in=reported_on_time_in_range)
 
-        requests_in_range = StockRequest.objects.filter(\
+        requests_in_range = StockRequest.objects.select_related().filter(\
             requested_on__gte=datespan.startdate,
             requested_on__lte=datespan.enddate,
             supply_point__in=supply_points
@@ -84,6 +85,36 @@ class ReportingBreakdown(object):
         emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
 
         filled_requests = requests_in_range.exclude(received_on=None)
+        discrepancies = filled_requests.exclude(amount_requested=F('amount_received'))
+        discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
+        orders_list = filled_requests.values_list("product", flat=True)
+
+
+        # We could save a lot of time here if the primary key for Product were its sms_code.
+        # Unfortunately, it isn't, so we have to remap keys->codes.
+        _p = {}
+        for p in Product.objects.filter(pk__in=orders_list.distinct()): _p[p.pk] = p.sms_code
+        def _map_codes(dict):
+            nd = {}
+            for d in dict:
+                nd[_p[d]] = dict[d]
+            print nd
+            return nd
+
+        print _p
+
+        self.discrepancies_p = {}
+        self.discrepancies_pct_p = {}
+        self.filled_orders_p = {}
+        for product in orders_list.distinct():
+            self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+            self.filled_orders_p[product] = len([x for x in orders_list if x is product])
+            self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
+
+        self.discrepancies_p = _map_codes(self.discrepancies_p)
+        self.discrepancies_pct_p = _map_codes(self.discrepancies_pct_p)
+        self.filled_orders_p = _map_codes(self.filled_orders_p)
+            
         self.avg_req_time = None
         self.req_times = []
         if filled_requests:
@@ -156,6 +187,7 @@ class ReportingBreakdown(object):
         self.reported = reported
         self.reported_on_time = reported_on_time
         self.reported_late = reported_late
+        print "init done"
         
     @property
     def on_time(self):
