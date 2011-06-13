@@ -1,7 +1,7 @@
 from datetime import timedelta
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, Product, ProductStock,\
-    SupplyPoint
+    SupplyPoint, StockRequest
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.tables import ReportingTable
 import json
@@ -72,7 +72,15 @@ class ReportingBreakdown(object):
         reported_late = reported.exclude(pk__in=reported_on_time_in_range)
         reported_on_time = SupplyPoint.objects.filter\
             (pk__in=reported_on_time_in_range)
-        
+
+        requests_in_range = StockRequest.objects.filter(\
+            requested_on__gte=datespan.startdate,
+            requested_on__lte=datespan.enddate
+        )
+
+        emergency_requests = requests_in_range.filter(is_emergency=True)
+
+        emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
         
         # fully reporting / non reporting
         full = []
@@ -113,9 +121,9 @@ class ReportingBreakdown(object):
                 totals_p[p.sms_code] += 1
 
             if found_reports.filter(quantity=0):
-                stockouts.append(sp)
+                stockouts.append(sp.pk)
             else:
-                no_stockouts.append(sp)
+                no_stockouts.append(sp.pk)
 
         no_stockouts_pct_p = {}
         
@@ -124,6 +132,7 @@ class ReportingBreakdown(object):
                 no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
         self.stockouts = stockouts
+        self.stockouts_emergency = set(stockouts).intersection(set(emergency_requesters))
         self.stockouts_p = stockouts_p
         self.no_stockouts_pct_p = no_stockouts_pct_p
         self.no_stockouts_p = no_stockouts_p
