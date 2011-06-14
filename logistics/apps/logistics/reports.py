@@ -110,7 +110,6 @@ class ReportingBreakdown(object):
 
             z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
             self.discrepancies_tot_p[product] = sum(z)
-            print product, self.discrepancies_tot_p[product], z
             if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
             self.filled_orders_p[product] = len([x for x in orders_list if x is product])
             self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
