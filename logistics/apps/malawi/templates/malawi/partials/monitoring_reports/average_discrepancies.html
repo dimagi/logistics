@@ -25,7 +25,7 @@
     <tbody>
     {% for p in product_codes %}
         <tr>
-            <td>% orders of {% commodity_code_to_name p %} with discrepancies</td>
+            <td>Average discrepancy in orders of {% commodity_code_to_name p %}</td>
         {% for r in em_reports.values %}
             <td
             {% if p in r.discrepancies_avg_p %}
