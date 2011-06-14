@@ -84,7 +84,7 @@ class ReportingBreakdown(object):
 
         emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
 
-        filled_requests = requests_in_range.exclude(received_on=None)
+        filled_requests = requests_in_range.exclude(received_on=None).exclude(status='canceled')
         discrepancies = filled_requests.exclude(amount_requested=F('amount_received'))
         discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
         orders_list = filled_requests.values_list("product", flat=True)
@@ -101,16 +101,26 @@ class ReportingBreakdown(object):
             return nd
 
         self.discrepancies_p = {}
+        self.discrepancies_tot_p = {}
         self.discrepancies_pct_p = {}
+        self.discrepancies_avg_p = {}
         self.filled_orders_p = {}
         for product in orders_list.distinct():
             self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+
+            z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
+            self.discrepancies_tot_p[product] = sum(z)
+            print product, self.discrepancies_tot_p[product], z
+            if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
             self.filled_orders_p[product] = len([x for x in orders_list if x is product])
             self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
 
         self.discrepancies_p = _map_codes(self.discrepancies_p)
+        self.discrepancies_tot_p = _map_codes(self.discrepancies_tot_p)
         self.discrepancies_pct_p = _map_codes(self.discrepancies_pct_p)
+        self.discrepancies_avg_p = _map_codes(self.discrepancies_avg_p)
         self.filled_orders_p = _map_codes(self.filled_orders_p)
+
             
         self.avg_req_time = None
         self.req_times = []

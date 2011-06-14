@@ -35,7 +35,9 @@ def _district_breakdown(datespan):
                       'no_stockouts_p':{},
                       'totals_p':{},
                       'discrepancies_p': {},
+                      'discrepancies_tot_p': {},
                       'discrepancies_pct_p': {},
+                      'discrepancies_avg_p': {},
                       'filled_orders_p': {},
                       'req_times':[]})
     ept_totals.update({'no_stockouts_pct_p':{},
@@ -43,6 +45,8 @@ def _district_breakdown(datespan):
                        'totals_p':{},
                        'discrepancies_p': {},
                        'discrepancies_pct_p': {},
+                       'discrepancies_tot_p': {},
+                       'discrepancies_avg_p': {},
                        'filled_orders_p': {},
                        'req_times':[]})
 
@@ -55,8 +59,12 @@ def _district_breakdown(datespan):
         em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
         em_reports[d]['avg_req_time'] = bd.avg_req_time
         em_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
+        em_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
+        em_reports[d]['discrepancies_tot_p'] = bd.discrepancies_tot_p
+        em_reports[d]['discrepancies_p'] = bd.discrepancies_p
         _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(em_totals['discrepancies_p'], bd.discrepancies_p)
+        _update_dict(em_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
         _update_dict(em_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
@@ -68,10 +76,13 @@ def _district_breakdown(datespan):
         ept_totals['req_times'] += bd.req_times
         ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
         ept_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
+        ept_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
+        ept_reports[d]['discrepancies_tot_p'] = bd.discrepancies_tot_p
+        ept_reports[d]['discrepancies_p'] = bd.discrepancies_p
         ept_reports[d]['avg_req_time'] = bd.avg_req_time
-        ept_reports[d]['totals_p'] = bd.totals_p
         _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(ept_totals['discrepancies_p'], bd.discrepancies_p)
+        _update_dict(ept_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
         _update_dict(ept_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(ept_totals['totals_p'], bd.totals_p)
 
@@ -84,10 +95,12 @@ def _district_breakdown(datespan):
 
     for p in ept_totals['discrepancies_p']:
         ept_totals['discrepancies_pct_p'][p] = calc_percentage(ept_totals['discrepancies_p'][p], ept_totals['filled_orders_p'][p])
+        if ept_totals['discrepancies_p'][p]: ept_totals['discrepancies_avg_p'][p] = float(ept_totals['discrepancies_tot_p'][p]) / ept_totals['discrepancies_p'][p]
 
     for p in em_totals['discrepancies_p']:
         em_totals['discrepancies_pct_p'][p] = calc_percentage(em_totals['discrepancies_p'][p], em_totals['filled_orders_p'][p])
- 
+        if em_totals['discrepancies_p'][p]: em_totals['discrepancies_avg_p'][p] = float(em_totals['discrepancies_tot_p'][p]) / em_totals['discrepancies_p'][p]
+
     if len(em_totals['req_times']):
         em_totals['req_times'] = timedelta(seconds=sum(em_totals['req_times'])/len(em_totals['req_times']))
     else:
@@ -212,4 +225,7 @@ def average_discrepancies(instance):
     """
     Average discrepancy  between order and receipt per product, by District
     """
-    return _common_report(instance, {}) 
+    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+    d = _district_breakdown(instance.datespan)
+    d['product_codes'] = product_codes
+    return _common_report(instance, d)
