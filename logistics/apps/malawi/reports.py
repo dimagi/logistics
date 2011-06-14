@@ -96,4 +96,6 @@ REPORT_SLUGS = ["em_late_reporting",
                 "order_times",
                 "hsas_with_stock",
                 "average_discrepancies"]
+
+REPORTS_CURRENT = ["hsas_with_stock"]
     

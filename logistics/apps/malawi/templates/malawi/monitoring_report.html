@@ -23,11 +23,13 @@
         <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
     </div>
 <div style="clear:both;">
+    {% if request.datespan != "current" %}
 {% include "malawi/partials/selector_form.html" %}
+    {% endif %}
 </div>
 </span>
 <div class="module">
-<h2>{{ report.definition.description }} ({{ request.datespan }})</h2>
+<h2>{{ report.definition.description }} {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>
 <div class="toppadded">
 {{ report.get_report_body|safe }}
 </div>

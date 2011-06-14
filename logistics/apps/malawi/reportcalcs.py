@@ -1,11 +1,15 @@
 from datetime import timedelta
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
+from logistics.apps.logistics.models import ProductStock
 from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
 from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
+
+PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+
 
 def _common_report(instance, context):
     try:
@@ -163,9 +167,8 @@ def fully_stocked_hsas(instance):
     """
     No stock outs reported in past 30 days by HSAs by product, by District and group
     """
-    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
     d = _district_breakdown(instance.datespan)
-    d['product_codes'] = product_codes
+    d['product_codes'] = PRODUCT_CODES
 
     return _common_report(instance, d)
 
@@ -198,9 +201,8 @@ def order_discrepancies(instance):
     """
     HSA orders with discrepancy between order and receipt by product, by District and group
     """
-    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
     d = _district_breakdown(instance.datespan)
-    d['product_codes'] = product_codes
+    d['product_codes'] = PRODUCT_CODES
     return _common_report(instance, d)
 
 def order_messages(instance):
@@ -219,7 +221,35 @@ def hsas_with_stock(instance):
     """
     HSA with adequate stock, by District and group
     """
-    return _common_report(instance, {}) 
+    ps = ProductStock.objects.select_related().filter(quantity__gt=0, product__sms_code__in=PRODUCT_CODES)
+    em = get_em_districts()
+    ept = get_ept_districts()
+    em_reports = {}
+    ept_reports = {}
+    em_totals = {}
+    ept_totals = {}
+
+    # There is just no good way to do this.  The performance here is going to suck and there's no way around it.
+    for p in PRODUCT_CODES:
+        em_totals[p] = 0
+        ept_totals[p] = 0
+    for d in em:
+        em_reports[d] = {}
+        for p in PRODUCT_CODES:
+            em_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            em_totals[p] += em_reports[d][p]
+    for d in ept:
+        ept_reports[d] = {}
+        for p in PRODUCT_CODES:
+            ept_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            ept_totals[p] += ept_reports[d][p]
+
+    instance.datespan = None
+    return _common_report(instance, {'product_codes': PRODUCT_CODES,
+                                     'em_reports':em_reports,
+                                     'ept_reports':ept_reports,
+                                     'em_totals':em_totals,
+                                     'ept_totals':ept_totals})
 
 def average_discrepancies(instance):
     """
