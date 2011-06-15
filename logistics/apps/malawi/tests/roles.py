@@ -60,34 +60,36 @@ class testContactsAndRoles(MalawiTestBase):
             """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
 
-    def testRolePermissions(self):
+# Removed; we're not using unique roles anymore.
 
-        a = """
-                5552222 > manage foo bar ds 2616
-                5552222 < %(bad_level)s
-                5552222 > manage foo bar ds 26
-                5552222 < %(confirm)s
-                5552223 > manage second guy ds 26
-                5552223 < %(duplicate)s
-            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'district supervisor',
-                                                                    'level': 'facility'},
-                   "confirm": config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'foo bar',
-                                                                      'role': 'district supervisor',
-                                                                      'sp_name':'Machinga'},
-                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'district supervisor'}}
-        self.runScript(a)
-
-        a = """
-                5553333 > manage baz quux ic 26
-                5553333 < %(bad_level)s
-                5553333 > manage baz quux ic 2616
-                5553333 < %(confirm)s
-                5552223 > manage second guy ic 2616
-                5552223 < %(duplicate)s
-            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'in charge',
-                                                                    'level': 'district'},
-                   "confirm": config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'baz quux',
-                                                                      'role': 'in charge',
-                                                                      'sp_name':'Ntaja'},
-                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'in charge'}}
-        self.runScript(a)
+#    def testRolePermissions(self):
+#
+#        a = """
+#                5552222 > manage foo bar ds 2616
+#                5552222 < %(bad_level)s
+#                5552222 > manage foo bar ds 26
+#                5552222 < %(confirm)s
+#                5552223 > manage second guy ds 26
+#                5552223 < %(duplicate)s
+#            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'district supervisor',
+#                                                                    'level': 'facility'},
+#                   "confirm": config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'foo bar',
+#                                                                      'role': 'district supervisor',
+#                                                                      'sp_name':'Machinga'},
+#                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'district supervisor'}}
+#        self.runScript(a)
+#
+#        a = """
+#                5553333 > manage baz quux ic 26
+#                5553333 < %(bad_level)s
+#                5553333 > manage baz quux ic 2616
+#                5553333 < %(confirm)s
+#                5552223 > manage second guy ic 2616
+#                5552223 < %(duplicate)s
+#            """ % {"bad_level": config.Messages.ROLE_WRONG_LEVEL % {'role': 'in charge',
+#                                                                    'level': 'district'},
+#                   "confirm": config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'baz quux',
+#                                                                      'role': 'in charge',
+#                                                                      'sp_name':'Ntaja'},
+#                   "duplicate": config.Messages.ROLE_ALREADY_FILLED % {'role': 'in charge'}}
+#        self.runScript(a)
