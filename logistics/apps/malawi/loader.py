@@ -9,7 +9,7 @@ from logistics.apps.logistics.util import config
 class LoaderException(Exception):
     pass
 
-def init_static_data():
+def init_static_data(log_to_console=False):
     """
     Initialize any data that should be static here
     """
@@ -29,10 +29,10 @@ def init_static_data():
     
     loc_file = getattr(settings, "STATIC_LOCATIONS")
     if loc_file:
-        load_locations(loc_file)
+        load_locations(loc_file, log_to_console=log_to_console)
     product_file = getattr(settings, "STATIC_PRODUCTS")
     if product_file:
-        load_products(product_file)
+        load_products(product_file, log_to_console=log_to_console)
     
     
 def clear_locations():
