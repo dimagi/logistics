@@ -12,7 +12,8 @@ class Contact(models.Model):
                                          related_name="reported_by",
                                          blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    
+    is_approved = models.BooleanField(default=False)
+
     class Meta:
         abstract = True
         verbose_name = "Logistics Contact"

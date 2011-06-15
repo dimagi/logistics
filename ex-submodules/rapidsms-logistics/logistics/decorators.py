@@ -1,3 +1,4 @@
+from logistics import settings
 from logistics.apps.logistics.util import config
 from rapidsms.contrib.locations.models import Location
 
@@ -11,6 +12,8 @@ def logistics_contact_required():
             if not hasattr(self.msg,'logistics_contact'):
                 self.respond(config.Messages.REGISTRATION_REQUIRED_MESSAGE)
                 # don't proceed with executing f
+            elif settings.LOGISTICS_APPROVAL_REQUIRED and not self.msg.logistics_contact.is_approved:
+                self.respond(config.Messages.APPROVAL_REQUIRED)
             else:
                 return f(self, *args, **kwargs)
         return require_logistics_contact
