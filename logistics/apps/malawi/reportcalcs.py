@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from logistics.apps.logistics.models import ProductStock
+from logistics.apps.logistics.models import ProductStock, StockRequest
 from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
 from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts
@@ -209,7 +209,50 @@ def order_messages(instance):
     """
     List of order messages sent by cStock to HC, by HC, by time period
     """
-    return _common_report(instance, {}) 
+
+    # Unfortunately there's no good way to determine what StockRequests were part of the same order.  We fudge it
+    # by checking to see if their submission times are identical down to the nanosecond.
+    sr = StockRequest.objects.select_related().filter(requested_on__gt=instance.datespan.startdate,
+                                                      requested_on__lt=instance.datespan.enddate)
+    if instance.location:
+        sr = sr.filter(supply_point__in=hsa_supply_points_below(instance.location))
+    rows = []
+    for r in sr.values_list('requested_on', flat=True).distinct().order_by('requested_on'):
+        srf = sr.filter(requested_on=r)
+        if not srf.exists(): continue # This should never happen, but just checking...
+        if len(srf.values_list('supply_point', flat=True).distinct()) != 1:
+            # This should never happen but we check for it nonetheless and apply a stupid fix.
+            # TODO: Maybe do something reasonable here?
+            srf = srf.filter(supply_point=srf[0].supply_point)
+        row = {'hsa': srf[0].supply_point.name,
+               'hsa_id': srf[0].supply_point.code,
+               'requested_on': r,
+               'received_on': None,
+               'products': {},
+               'product_statuses': {},
+               'status': ""}
+        count = 0
+        statuses = set()
+        for p in PRODUCT_CODES:
+            if srf.filter(product__sms_code=p).exists():
+                count += 1
+                g = srf.get(product__sms_code=p)
+                s = g.status if g.status != 'canceled' else 'superseded'
+                if not s in row['status']:
+                    if row['status']:
+                        row['status'] += ", <span class='order-%s'>%s</span>" % (s,s.replace('_', ' '))
+                    else: row['status'] = "<span class='order-%s'>%s</span>" % (s,s.replace('_', ' '))
+                if g.status == 'received': row['received_on'] = g.received_on # We assume all portions of an order are picked up at the same time.
+                row['products'][p] = g.amount_requested
+                row['product_statuses'][p] = g.status
+            else:
+                row['products'][p] = "<span class='n-a'>n/a</span>"
+        if not row['status']:
+            row['status'] = "<span class='n-a'>n/a</span>"
+        if count:
+            rows.append(row)
+    return _common_report(instance, {'product_codes': PRODUCT_CODES,
+                                     'rows': rows})
 
 def order_times(instance):
     """

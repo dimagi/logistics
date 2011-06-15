@@ -57,19 +57,6 @@ INSTALLED_BACKENDS = {
         "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
     # tnm smpp (?)
-     "tnm-smpp": {
-        "ENGINE": "logistics.backends.kannel",
-        "host": "127.0.0.1",
-        "port": 8003,
-        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
-        "sendsms_params": {"smsc": "tnm-smpp",
-                           "from": "2222", # not set automatically by SMSC
-                           "username": "rapidsms",
-                           "password": "CHANGEME"}, # set password in localsettings.py
-        "coding": 0,
-        "charset": "ascii",
-        "encode_errors": "ignore", # strip out unknown (unicode) characters
-    },
     # tester
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",

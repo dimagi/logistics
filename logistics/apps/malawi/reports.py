@@ -73,9 +73,10 @@ class ReportInstance(object):
     run the report on.
     """
     
-    def __init__(self, definition, datespan):
+    def __init__(self, definition, datespan, location=None):
         self.definition = definition
         self.datespan = datespan
+        self.location = location
     
     def get_report_body(self):
         """
@@ -98,4 +99,6 @@ REPORT_SLUGS = ["em_late_reporting",
                 "average_discrepancies"]
 
 REPORTS_CURRENT = ["hsas_with_stock"]
+
+REPORTS_LOCATION = ["order_messages"]
     

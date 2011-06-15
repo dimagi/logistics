@@ -21,7 +21,7 @@ from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 from django.contrib.auth.decorators import permission_required
 from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
-    REPORT_SLUGS, REPORTS_CURRENT
+    REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
 
 @place_in_request()
@@ -152,10 +152,25 @@ def monitoring(request):
 @datespan_in_request()
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
-    instance = ReportInstance(report_def, request.datespan)
     if report_slug in REPORTS_CURRENT: request.datespan = "current"
+    if report_slug in REPORTS_LOCATION:
+        request.select_location=True
+        code = request.GET.get("place", None)
+        if code:
+            request.location = Location.objects.get(code=code)
+        else:
+            request.location = None
+        location = request.location
+        instance = ReportInstance(report_def, request.datespan, request.location)
+        facilities = get_facilities().order_by("parent_id", "code")
+    else:
+        instance = ReportInstance(report_def, request.datespan)
+        facilities = None
+        location = None
     return render_to_response("malawi/monitoring_report.html",
-                              {"report": instance},
+                              {"report": instance,
+                               "facilities": facilities,
+                               "location": location},
                               context_instance=RequestContext(request))
 
 def help(request):
