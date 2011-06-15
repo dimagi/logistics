@@ -54,12 +54,15 @@ class ReportingBreakdown(object):
         self.include_late = include_late
         self.days_for_late = days_for_late
         date_for_late = datespan.startdate + timedelta(days=days_for_late)
-        
+
+        if supply_points.filter(active=False).exists(): self.supply_points = self.supply_points.filter(active=True)
+
         reports_in_range = ProductReport.objects.filter\
             (report_type__code=Reports.SOH,
              report_date__gte=datespan.startdate,
              report_date__lte=datespan.enddate,
-             supply_point__in=supply_points)
+             supply_point__in=supply_points,
+             supply_point__active=True)
         
         reported_in_range = reports_in_range.values_list\
             ("supply_point", flat=True).distinct()
@@ -69,10 +72,10 @@ class ReportingBreakdown(object):
             ("supply_point", flat=True).distinct()
         
         non_reporting = supply_points.exclude(pk__in=reported_in_range)
-        reported = SupplyPoint.objects.filter(pk__in=reported_in_range)
+        reported = SupplyPoint.objects.filter(pk__in=reported_in_range, active=True)
         reported_late = reported.exclude(pk__in=reported_on_time_in_range)
         reported_on_time = SupplyPoint.objects.filter\
-            (pk__in=reported_on_time_in_range)
+            (pk__in=reported_on_time_in_range, active=True)
 
         requests_in_range = StockRequest.objects.select_related().filter(\
             requested_on__gte=datespan.startdate,

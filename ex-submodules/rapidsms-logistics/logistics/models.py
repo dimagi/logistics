@@ -265,7 +265,7 @@ class SupplyPoint(models.Model):
         For all intents and purses, at this time, the 'children' of a facility wrt site navigation
         are the same as the 'children' with respect to stock supply
         """
-        return SupplyPoint.objects.filter(supplied_by=self).order_by('name')
+        return SupplyPoint.objects.filter(supplied_by=self, active=True).order_by('name')
 
     def report_to_supervisor(self, report, kwargs, exclude=None):
         reportees = self.reportees()
@@ -296,7 +296,7 @@ class SupplyPoint(models.Model):
 
     def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
         """ stockouts_resolved is a dictionary of code to product """
-        to_notify = SupplyPoint.objects.filter(supplied_by=self).distinct()
+        to_notify = SupplyPoint.objects.filter(supplied_by=self, active=True).distinct()
         for fac in to_notify:
             reporters = fac.reporters()
             if exclude:
@@ -546,7 +546,7 @@ class StockTransfer(models.Model):
         # either we use an official supplier code, or store the 
         # "unknown" value as text
         try:
-            sp = SupplyPoint.objects.get(code=supplier)
+            sp = SupplyPoint.objects.get(code=supplier, active=True)
             sp_unknown = ""
         except SupplyPoint.DoesNotExist:
             sp = None
