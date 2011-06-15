@@ -213,7 +213,8 @@ def order_messages(instance):
     # Unfortunately there's no good way to determine what StockRequests were part of the same order.  We fudge it
     # by checking to see if their submission times are identical down to the nanosecond.
     sr = StockRequest.objects.select_related().filter(requested_on__gt=instance.datespan.startdate,
-                                                      requested_on__lt=instance.datespan.enddate)
+                                                      requested_on__lt=instance.datespan.enddate,
+                                                      supply_point__is_active=True)
     if instance.location:
         sr = sr.filter(supply_point__in=hsa_supply_points_below(instance.location))
     rows = []
