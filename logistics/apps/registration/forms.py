@@ -35,6 +35,7 @@ class ContactForm(forms.ModelForm):
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
         self.fields['role'].label = _("Role")
+        self.fields['supply_point'].label = _("Supply Point")
         self.fields['name'].label = _("Name")
         self.fields['phone'].label = _("Phone")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
@@ -145,6 +146,9 @@ class CommoditiesContactForm(IntlSMSContactForm):
         model = super(CommoditiesContactForm, self).save(commit=False)
         if commit:
             model.save()
+            if model.supply_point:
+                model.supply_point.active = model.is_active
+                model.supply_point.save()
             conn = model.default_connection
             if not conn:
                 if settings.DEFAULT_BACKEND:

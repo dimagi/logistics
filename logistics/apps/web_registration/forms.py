@@ -98,6 +98,9 @@ class AdminRegistersUserFormActiveAdmin(AdminRegistersUserForm):
         user = super(AdminRegistersUserFormActiveAdmin, self).save(profile_callback)
         user.is_staff = False # Can never log into admin site
         user.is_active = self.cleaned_data['is_active']
+        if user.supply_point:
+            user.supply_point.active = user.is_active # deactivate supply point if user is deactivated and vice versa
+            user.supply_point.save()
         user.is_superuser = self.cleaned_data['is_admin']   
         user.save()
         return user
