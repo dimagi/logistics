@@ -162,7 +162,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 190, and additionally: la 60. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
+        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -204,7 +204,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: none, and additionally: la 160. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
+        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
         
@@ -214,11 +214,20 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
            16175551001 < wendy needs emergency products: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % {"contact": "wendy", "products": "zi la"}}
+        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
         
-        
+    def testSOHStockout(self):
+        self._setup_users()
+        a = """
+           16175551000 > soh zi 0 co 10 la 0
+           16175551000 < %(stockout)s
+           16175551001 < %(supervisor)s
+        """ % {"stockout": config.Messages.SOH_ORDER_STOCKOUT % {"contact": "wendy", "products": "zi la"},
+               "supervisor": config.Messages.SOH_ORDER_STOCKOUT_SUPERVISOR % {"contact": "wendy", "products": "zi la"}}
+        self.runScript(a)
+
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy")
         ic = create_manager(self, "16175551001", "sally")

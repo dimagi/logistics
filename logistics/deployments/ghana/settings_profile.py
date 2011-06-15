@@ -2,6 +2,7 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
+    "rapidsms.contrib.scheduler",
     "logistics.apps.ewsghana",
     "django_extensions",
     "debug_toolbar"

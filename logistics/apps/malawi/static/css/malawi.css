@@ -77,3 +77,33 @@ td.prompt {
     margin-top: 1em;
     padding: 1em;
 }
+
+.order-received {
+    color:green;
+}
+.order-requested {
+    color: #b8860b;
+}
+.order-canceled {
+    color: #666;
+    font-style:italic;
+}
+.order-superseded {
+    color: #666;
+    font-style:italic;
+}
+.order-stocked_out {
+    color:red;
+    font-weight:bold;
+}
+.order-partially_stocked {
+    color:darkorange;
+    font-weight:bold;
+}
+.order-approved {
+    color:blue;
+}
+
+.n-a {
+    color:#d3d3d3;
+}

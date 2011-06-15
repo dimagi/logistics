@@ -63,8 +63,30 @@ def get_supervisors(supply_point):
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
 
+def get_em_districts():
+    # TODO, better abstraction of this
+    return get_districts().filter(name__in=["Nkhotakota", "Nsanje", "Kasungu"])
+    
+def get_ept_districts():
+    # TODO, better abstraction of this
+    return get_districts().filter(name__in=["Machinga", "Nkhatabay", "Mulanje"])
+
+
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
+
+def group_for_location(location):
+    ''' This is specific for the Malawi case, separating HSAs into groups by district. '''
+    if location.type.slug == config.LocationCodes.DISTRICT:
+        for key in config.Groups.GROUPS:
+            if location.name in config.Groups.GROUPS[key]:
+                return key
+    elif location.type.slug == config.LocationCodes.COUNTRY:
+        return None # No country-level groups yet
+    elif location.parent:
+        return group_for_location(location.parent)
+    else:
+        return None
 
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()

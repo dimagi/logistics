@@ -1,5 +1,5 @@
 from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
-    StockRequest, StockRequestStatus
+    StockRequest, StockRequestStatus, ProductStock
 from logistics.apps.logistics.util import config
 from rapidsms.models import Contact
 from logistics.apps.malawi.util import get_supervisors
@@ -49,22 +49,32 @@ def send_soh_responses(msg, contact, stock_report, requests):
         if not requests:
             _respond_empty(msg, contact, stock_report, supervisors)
         else:
-            for super in supervisors:
-                super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION, 
-                              hsa=contact.name,
-                              products=", ".join(req.sms_format() for req in \
-                                                 StockRequest.objects.filter(\
-                                                    supply_point=stock_report.supply_point,
-                                                    status=StockRequestStatus.REQUESTED)),
-                              hsa_id=contact.supply_point.code)
-            if supervisors.count() > 0:
-                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                            products=" ".join(stock_report.reported_products()).strip())
-            else:
+            if supervisors.count() == 0:
                 msg.respond(config.Messages.NO_IN_CHARGE,
                             supply_point=contact.supply_point.supplied_by.name)
-            
-    
+                return
+
+            if stock_report.stockouts():
+                for super in supervisors:
+                    super.message(config.Messages.SOH_ORDER_STOCKOUT_SUPERVISOR,
+                                contact=contact.name,
+                                products=stock_report.stockouts())
+                msg.respond(config.Messages.SOH_ORDER_STOCKOUT,
+                            contact = contact.name,
+                            products=stock_report.stockouts())
+            else:
+                for super in supervisors:
+                    super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION,
+                                  hsa=contact.name,
+                                  products=", ".join(req.sms_format() for req in \
+                                                     StockRequest.objects.filter(\
+                                                        supply_point=stock_report.supply_point,
+                                                        status=StockRequestStatus.REQUESTED)),
+                                  hsa_id=contact.supply_point.code)
+                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+                            products=" ".join(stock_report.reported_products()).strip())
+
+
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:
         # TODO: respond better.
@@ -88,7 +98,7 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                                    emergency_products=emergency_product_string,
                                    hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
-            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+            msg.respond(config.Messages.EMERGENCY_SOH,
                         products=" ".join(stock_report.reported_products()).strip())
         else:
             # TODO: this message should probably be cleaned up

@@ -6,6 +6,7 @@ MANAGERS = (('Rowena','rluk+ewsghana-manager@dimagi.com'), )
 SEND_BROKEN_LINK_EMAILS = True
 
 APPS = [
+    "rapidsms.contrib.scheduler",
     "auditcare",
     "logistics.apps.ewsghana",
 ]

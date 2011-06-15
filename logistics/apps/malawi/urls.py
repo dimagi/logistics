@@ -5,7 +5,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
 
-    url(r'^$',
+    url(r'^dashboard/$',
         "logistics.apps.malawi.views.dashboard",
         name="malawi_dashboard"),
     url(r'^places/$',
@@ -20,6 +20,12 @@ urlpatterns = patterns('',
     url(r'^hsa/(?P<code>\d+)/$',
         "logistics.apps.malawi.views.hsa",
         name="malawi_hsa"),
+    url(r'^help/$',
+        "logistics.apps.malawi.views.help",
+        name="malawi_help"),
+    url(r'^status/$',
+        "logistics.apps.malawi.views.status",
+        name="malawi_status"),
     url(r'^facilities/$',
         "logistics.apps.malawi.views.facilities",
         name="malawi_facilities"),
@@ -29,4 +35,14 @@ urlpatterns = patterns('',
     url(r'^products/$',
         "logistics.apps.malawi.views.products",
         name="malawi_products"),
-)
+    url(r'^monitoring/$',
+        "logistics.apps.malawi.views.monitoring",
+        name="malawi_monitoring"),
+    url("^monitoring/(?P<report_slug>[\w_]+)/$", 
+        "logistics.apps.malawi.views.monitoring_report",
+        name="malawi_monitoring_report")
+) 
+
+
+
+

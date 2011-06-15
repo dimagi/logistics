@@ -22,7 +22,7 @@ class Roles(object):
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
     }
-    UNIQUE = [IN_CHARGE, HSA_SUPERVISOR, DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
+    UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
     FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR]
     DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
     SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
@@ -38,6 +38,7 @@ class Operations(object):
     REMOVE_PRODUCT = "remove_product"
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
+    APPROVE_USER = "approve_user"
 
 class SupplyPointCodes(object):
     """
@@ -75,12 +76,14 @@ def has_permissions_to(contact, operation):
     if operation == Operations.CONFIRM_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.REPORT_FOR_OTHERS:
-        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE])
+        return True
+#        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE, Roles.HSA_SUPERVISOR])
     if operation == Operations.ADD_USER:
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
     if operation == Operations.REMOVE_USER:
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
-
+    if operation == Operations.APPROVE_USER:
+        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     # TODO, fill this in more
     return True
 
@@ -95,6 +98,13 @@ def hsa_location_type():
     The location type for HSAs
     """
     return LocationType.objects.get(slug=HSA)
+
+class Groups(object):
+    EPT = "ept"
+    EM = "em"
+    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu"),
+              EPT: ("Machinga", "Nkhatabay", "Mulanje")}
+
 
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
@@ -118,9 +128,12 @@ class Messages(object):
     SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
     SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready." 
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
+    SOH_ORDER_STOCKOUT = "Thank you %(contact)s.  You have reported stockouts for %(products)s.  The health center has been notified."
+    SOH_ORDER_STOCKOUT_SUPERVISOR = "%(contact)s has reported a stockout. At least the following products are affected: %(products)s."
     
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
+    RECEIPT_FROM_CONFIRM = 'Thank you, you reported receipts for %(products)s from %(supplier)s.'
     
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
@@ -131,10 +144,11 @@ class Messages(object):
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
     STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. The HSA supervisor will work with District to resolve this issue in a timely manner."
-    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s. At least the following products are affected: %(products)s. Please work with the HSA Supervisor to resolve this issue."
+    SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s for at least these products: %(products)s. Work with the HSA Supervisor to resolve this issue."
     
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
+    EMERGENCY_SOH = "We have received your emergency order for %(products)s and the health center has been notified. You will be notified when your products are available to pick up."
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products: %(emergency_products)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     
@@ -178,6 +192,14 @@ class Messages(object):
     BOOT_HELP = "To remove a user from the system, type boot [hsa id]"
     BOOT_RESPONSE = "Done. %(contact)s has been removed from the cStock system."
     BOOT_ID_NOT_FOUND = "Couldn't find a record for user with id %(id)s. Nothing done."
+
+    # approve user
+
+    APPROVAL_WAITING = "Thank you for submitting your registration request, %(hsa)s. You will receive a message when your supervisor has approved your request."
+    APPROVAL_REQUIRED = "You must be approved by your supervisor before doing that."
+    APPROVAL_REQUEST = "%(hsa)s wants to register for the cStock system.  To approve them, text 'approve %(code)s'."
+    APPROVAL_SUPERVISOR = "Successfully approved registration for %(hsa)s."
+    APPROVAL_HSA = "Congratulations, your registration has been approved. Welcome to the cStock system, %(hsa)s."
 
     # Other  Messages (usually for error conditions)
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"

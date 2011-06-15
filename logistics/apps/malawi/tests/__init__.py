@@ -1,4 +1,5 @@
 import unittest
+from logistics.apps.malawi.tests.approval import *
 from logistics.apps.malawi.tests.boot import *
 from logistics.apps.malawi.tests.createuser import *
 from logistics.apps.malawi.tests.nag import *

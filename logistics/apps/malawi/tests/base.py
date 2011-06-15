@@ -1,3 +1,4 @@
+from logistics import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.apps.malawi import loader
 from rapidsms.contrib.messagelog.models import Message
@@ -42,5 +43,5 @@ class MalawiTestBase(OutputtingTestScript):
     def setUp(self):
         super(MalawiTestBase, self).setUp()
         loader.init_static_data()
-        
+        settings.LOGISTICS_APPROVAL_REQUIRED = False
     

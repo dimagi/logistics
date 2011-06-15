@@ -65,7 +65,13 @@ def hsa_location_type():
     """
     from rapidsms.contrib.locations.models import LocationType
     return LocationType.objects.get(slug=HSA)
-    
+
+class Groups(object):
+    EPT = "ept"
+    EM = "em"
+    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu"),
+              EPT: ("Machinga", "Nkhatabay", "Mulanje")}
+
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     
@@ -82,6 +88,7 @@ class Messages(object):
     SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will get a message when products are ready." 
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
+    RECEIPT_FROM_CONFIRM = 'Thank you, you reported receipts for %(products)s from %(supplier)s.'
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s. You confirmed ready: %(products)s"

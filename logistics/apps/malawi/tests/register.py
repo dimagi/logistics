@@ -112,6 +112,8 @@ class TestHSARegister(MalawiTestBase):
         self.runScript(a)
         contact = Contact.objects.get(name="stella")
         self.assertTrue(contact.is_active)
+        spi = contact.supply_point.id
+
         b = """
               8005551212 > leave
               8005551212 < %(left)s
@@ -128,7 +130,47 @@ class TestHSARegister(MalawiTestBase):
         self.runScript(c)
         contact = Contact.objects.get(name="stella")
         self.assertTrue(contact.is_active)
-    
+        self.assertEqual(contact.supply_point.id, spi)
+
+
+    def testQuit(self):
+        a = """
+              8005551212 > reg stella 1 2616
+              8005551212 < %(confirm)s
+              8005551212 > reg stella 1 2616
+              8005551212 < You are already registered. To change your information you must first text LEAVE
+              8005551213 > quit
+              8005551213 < %(not_registered)s
+            """ % {"not_registered": config.Messages.LEAVE_NOT_REGISTERED,
+                   "confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+                                                               "role": "hsa",
+                                                               "contact_name": "stella"}}
+        self.runScript(a)
+        contact = Contact.objects.get(name="stella")
+        self.assertTrue(contact.is_active)
+        spi = contact.supply_point.id
+        spn = contact.supply_point.code
+        b = """
+              8005551212 > quit
+              8005551212 < %(left)s
+            """ % {"left": config.Messages.LEAVE_CONFIRM}
+        self.runScript(b)
+        contact = Contact.objects.get(name="stella")
+        self.assertFalse(contact.is_active)
+        self.assertFalse(SupplyPoint.objects.get(id=spi).active)
+        self.assertNotEqual(SupplyPoint.objects.get(id=spi).code, spn)
+        
+        c = """
+              8005551212 > reg stella 1 2616
+              8005551212 < %(confirm)s
+            """ % {"confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
+                                                               "role": "hsa",
+                                                               "contact_name": "stella"}}
+        self.runScript(c)
+        contact = Contact.objects.get(name="stella")
+        self.assertTrue(contact.is_active)
+        self.assertNotEqual(contact.supply_point.id, spi)
+
     def testManagerLeave(self):
         hsa = create_hsa(self, "555555", "somehsa")
         ic = create_manager(self, "666666", "somemanager")

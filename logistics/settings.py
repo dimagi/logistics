@@ -42,16 +42,12 @@ BASE_APPS = [
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "rapidsms.contrib.scheduler",
-    #"rapidsms.contrib.echo",
-    #"rapidsms.contrib.stringcleaning",
-    #"rapidsms.contrib.registration",
     "logistics.apps.alerts",
     "logistics.apps.registration",
     "logistics.apps.web_registration",
     "logistics.apps.logistics",
     "logistics.apps.maps",
     "logistics.apps.reports",
-    "logistics.apps.smsgh",
     #"django_cpserver", # pip install django-cpserver
     "couchlog",
     "registration",
@@ -203,6 +199,7 @@ LOGISTICS_ALERT_GENERATORS = ['logistics.apps.alerts.alerts.empty']
 LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
 LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
+LOGISTICS_APPROVAL_REQUIRED = False
 
 MAP_DEFAULT_LATITUDE  = 40.726111
 MAP_DEFAULT_LONGITUDE = -73.981389

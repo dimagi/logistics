@@ -89,8 +89,8 @@ class TestReport(MalawiTestBase):
            16175551000 > report 261602 eo zi 40 la 200 
            16175551000 < %(response)s
            16175551234 < %(super)s
-        """ % {"response": config.Messages.SOH_ORDER_CONFIRM % \
-               {"contact": "joe", "products": "zi la"},
+        """ % {"response": config.Messages.EMERGENCY_SOH % \
+               {"products": "zi la"},
                "super": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % \
                {"hsa": "phoneless", "emergency_products": "zi 160",
                 "normal_products": "la 160",

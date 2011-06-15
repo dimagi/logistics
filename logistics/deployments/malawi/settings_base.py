@@ -24,10 +24,12 @@ RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
     ("logistics.apps.malawi.views.facilities",       "Facilities"),
     ("logistics.apps.malawi.views.hsas",       "HSAs"),
-    ("logistics.apps.malawi.views.contacts",       "Management"),
-    ("registration",                          "Registration"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    ("logistics.apps.malawi.views.help",       "Help"),
+    ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
+    ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
+    ("registration",                          "Registration", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's
@@ -41,14 +43,13 @@ RAPIDSMS_TABS = [
 # to configure it. see the documentation in those modules for a list of
 # the valid options for each.
 INSTALLED_BACKENDS = {
-    # zain modem (?)
-    "modem": {
+    "airtel-smpp": {
         "ENGINE": "logistics.backends.kannel",
         "host": "127.0.0.1",
         "port": 8002,
         "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
-        "sendsms_params": {"smsc": "zain-modem",
-                           "from": "+265992961466", # will be overridden; set for consistency
+        "sendsms_params": {"smsc": "airtel-smpp",
+                           "from": "56543", # not set automatically by SMSC
                            "username": "rapidsms",
                            "password": "CHANGEME"}, # set password in localsettings.py
         "coding": 0,
@@ -56,19 +57,6 @@ INSTALLED_BACKENDS = {
         "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
     # tnm smpp (?)
-     "tnm-smpp": {
-        "ENGINE": "logistics.backends.kannel",
-        "host": "127.0.0.1",
-        "port": 8003,
-        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
-        "sendsms_params": {"smsc": "tnm-smpp",
-                           "from": "2222", # not set automatically by SMSC
-                           "username": "rapidsms",
-                           "password": "CHANGEME"}, # set password in localsettings.py
-        "coding": 0,
-        "charset": "ascii",
-        "encode_errors": "ignore", # strip out unknown (unicode) characters
-    },
     # tester
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
@@ -138,6 +126,8 @@ LOGISTICS_EXCEL_EXPORT_ENABLED = False
 LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
+LOGISTICS_APPROVAL_REQUIRED = True
+LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
 LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"

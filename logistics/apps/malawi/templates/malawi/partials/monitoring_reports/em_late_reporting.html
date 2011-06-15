@@ -1,0 +1,40 @@
+{% load logistics_extras %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ reports|length }}" >EM</th>
+            <th>EM Total</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>% HSAs who reported late in period</td>
+{% for r in reports.values %}
+    {% percent_cell r.late r.total %}
+{% endfor %}
+    {% percent_cell totals.late totals.total %}
+        </tr>
+        <tr>
+            <td>% HSAs who reported on time in period</td>
+{% for r in reports.values %}
+    {% percent_cell r.on_time r.total %}
+{% endfor %}            
+    {% percent_cell totals.on_time totals.total %}
+        </tr>
+        <tr>
+            <td>% HSAs who did not report in period</td>
+{% for r in reports.values %}
+    {% percent_cell r.non_reporting r.total %}
+{% endfor %}            
+    {% percent_cell totals.non_reporting totals.total %}
+        </tr>
+    </tbody>
+</table>

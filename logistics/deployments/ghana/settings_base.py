@@ -3,7 +3,9 @@
 
 APPS = [
     "auditcare",
+    "rapidsms.contrib.scheduler",
     "logistics.apps.ewsghana",
+    "logistics.apps.smsgh",
 ]
 
 MIDDLEWARE_CLASSES = (

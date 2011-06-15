@@ -32,7 +32,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         if self.supply_point.location.type.name != 'facility' and role.code in config.Roles.FACILITY_ONLY:
             self.respond(config.Messages.ROLE_WRONG_LEVEL, role=ContactRole.objects.get(code=self.extra).name, level=self.supply_point.location.type.name)
             return
-        if role.code in config.Roles.UNIQUE and Contact.objects.filter(role=role, supply_point=self.supply_point).exists():
+        if role.code in config.Roles.UNIQUE and Contact.objects.filter(role=role, supply_point=self.supply_point, is_active=True).exists():
             self.respond(config.Messages.ROLE_ALREADY_FILLED, role=ContactRole.objects.get(code=self.extra).name)
             return
         # overwrite the existing contact data if it was already there
@@ -42,6 +42,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.supply_point = self.supply_point
         contact.role = role
         contact.is_active = True
+        contact.is_approved = True # Bypass approval process for higher-ups
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
