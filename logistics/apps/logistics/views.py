@@ -159,8 +159,8 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html"):
     """ which facilities have reported on time and which haven't """
     seven_days_ago = datetime.now() + relativedelta(days=-7)
-    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None)).order_by('-last_reported','name')
-    context['on_time_facilities'] = SupplyPoint.objects.filter(last_reported__gte=seven_days_ago).order_by('-last_reported','name')
+    context['late_facilities'] = SupplyPoint.objects.filter(Q(last_reported__lt=seven_days_ago) | Q(last_reported=None), active=True).order_by('-last_reported','name')
+    context['on_time_facilities'] = SupplyPoint.objects.filter(active=True, last_reported__gte=seven_days_ago).order_by('-last_reported','name')
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -277,7 +277,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         form = FacilityForm(instance=facility)
     return render_to_response(
         template, {
-            "table": FacilityTable(SupplyPoint.objects.all(), request=req),
+            "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
             "klass": klass,

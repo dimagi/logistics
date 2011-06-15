@@ -27,7 +27,7 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 @place_in_request()
 def dashboard(request):
     
-    base_facilities = SupplyPoint.objects.filter(type__code="hsa")
+    base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
     group = None
     # district filter
     if request.location:

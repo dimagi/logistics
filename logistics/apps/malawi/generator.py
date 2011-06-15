@@ -91,7 +91,7 @@ def create_hsa(parent, name=None, number=None, role=None):
         return None
 
 def generate_hsas():
-    sps = SupplyPoint.objects.filter(type=SupplyPointType.objects.get(code="hf"))
+    sps = SupplyPoint.objects.filter(active=True, type=SupplyPointType.objects.get(code="hf"))
     created = []
     sps = [sp for sp in sps if not sp.children()]
     for sp in sps:
