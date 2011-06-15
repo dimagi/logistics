@@ -214,7 +214,7 @@ def order_messages(instance):
     # by checking to see if their submission times are identical down to the nanosecond.
     sr = StockRequest.objects.select_related().filter(requested_on__gt=instance.datespan.startdate,
                                                       requested_on__lt=instance.datespan.enddate,
-                                                      supply_point__is_active=True)
+                                                      supply_point__active=True)
     if instance.location:
         sr = sr.filter(supply_point__in=hsa_supply_points_below(instance.location))
     rows = []
