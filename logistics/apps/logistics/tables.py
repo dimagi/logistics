@@ -7,21 +7,22 @@ from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
 
-def _edit_link(cell):
+def _edit_facility_link(cell):
     return reverse(
         'facility_edit',
         args=[cell.row.pk])
 def _location(cell):
     return cell.object.location
-
 class FacilityTable(Table):
-    name = Column(link=_edit_link)
+    name = Column(link=_edit_facility_link)
     location = Column(value=_location)
 
     class Meta:
         order_by = 'location'
+        per_page = 30
 
-def _edit_link(cell):
+
+def _edit_commodity_link(cell):
     return reverse(
         'commodity_edit',
         args=[cell.row.pk])
@@ -29,9 +30,8 @@ def _code(cell):
     return cell.object.sms_code
 def _type(cell):
     return cell.object.type
-
 class CommodityTable(Table):
-    name = Column(link=_edit_link)
+    name = Column(link=_edit_commodity_link)
     sms_code = Column(value=_code)
     type = Column(value=_type)
 
