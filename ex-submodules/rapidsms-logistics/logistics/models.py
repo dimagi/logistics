@@ -240,15 +240,19 @@ class SupplyPoint(models.Model):
                            product=product, 
                            producttype=producttype)
 
-    def report(self, product, report_type, quantity, message=None):
-        npr = ProductReport(product=product, report_type=report_type, 
-                            quantity=quantity, message=message, supply_point=self)
+    def report(self, product, report_type, quantity, message=None, date=None):
+        if date:
+            npr = ProductReport(product=product, report_type=report_type,
+                                quantity=quantity, message=message, supply_point=self, report_date=date)
+        else:
+            npr = ProductReport(product=product, report_type=report_type,
+                                quantity=quantity, message=message, supply_point=self)
         npr.save()
         return npr
 
-    def report_stock(self, product, quantity, message=None):
+    def report_stock(self, product, quantity, message=None, date=None):
         report_type = ProductReportType.objects.get(code=STOCK_ON_HAND_REPORT_TYPE)
-        return self.report(product, report_type, quantity)
+        return self.report(product, report_type, quantity, message=message, date=date)
 
     def reporters(self):
         reporters = Contact.objects.filter(supply_point=self)
