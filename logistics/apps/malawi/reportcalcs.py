@@ -8,7 +8,7 @@ from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
 
-PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb', 'dm'] # Amox?
 
 
 def _common_report(instance, context):
