@@ -162,7 +162,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 190, and additionally: la 60. Respond 'ready 261601' or 'os 261601'
+           16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
@@ -204,7 +204,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: none, and additionally: la 160. Respond 'ready 261601' or 'os 261601'
+           16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
