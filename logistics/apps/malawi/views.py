@@ -182,3 +182,22 @@ def status(request):
     f = urlopen('http://localhost:13000/status?password=CHANGEME')
     r = f.read()
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
+
+def _sort_date(x,y):
+    if x['registered'] < y['registered']: return -1
+    if x['registered'] > y['registered']: return 1
+    return 0
+
+@permission_required("is_superuser")
+def airtel_numbers(request):
+    airtelcontacts = Contact.objects.select_related().filter(connection__backend__name='airtel-smpp')
+    users = []
+    for a in airtelcontacts:
+        d = {
+            'name': a.name,
+            'phone': a.phone,
+            'registered': a.message_set.all().order_by('-date')[0].date
+        }
+        users.append(d)
+    users.sort(cmp=_sort_date, reverse=True)
+    return render_to_response("malawi/airtel.html", {'users':users}, context_instance=RequestContext(request))
