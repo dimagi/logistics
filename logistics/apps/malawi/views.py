@@ -1,18 +1,22 @@
+from datetime import datetime, date
+from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from urllib import urlencode
 from urllib2 import urlopen
+from django.views.decorators.csrf import csrf_exempt
+import logging
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
-    StockTransaction, StockRequestStatus, StockRequest
+    StockTransaction, StockRequestStatus, StockRequest, ProductReport
 from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
 from logistics.apps.logistics.reports import ReportingBreakdown
@@ -23,6 +27,10 @@ from django.contrib.auth.decorators import permission_required
 from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
+from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
+from submodules.dimagi
+from submodules.dimagi
+from submodules.dimagi
 
 @place_in_request()
 def dashboard(request):
@@ -201,3 +209,37 @@ def airtel_numbers(request):
         users.append(d)
     users.sort(cmp=_sort_date, reverse=True)
     return render_to_response("malawi/airtel.html", {'users':users}, context_instance=RequestContext(request))
+
+@csrf_exempt
+def scmgr_receiver(request):
+    if request.method != 'POST':
+        return HttpResponse("You must submit POST data to this url.")
+    data = request.POST.get('data', None)
+    result = json.simplejson.loads(data)
+    processed = 0
+    for r in result:
+        try:
+            facility = SupplyPoint.objects.get(code=HEALTH_FACILITY_MAP[r[3]])
+            pc = PRODUCT_CODE_MAP[r[6]].lower()
+            product = Product.objects.get(sms_code=pc)
+            date = datetime(year=r[4][0],month=r[4][1], day=1)
+            if ProductReport.objects.filter(supply_point=facility, product=product, report_date=date).exists():
+                # Server sent us some data we already have.  This means they should stop sending it.
+                return HttpResponse('cStock SCMgr data fully updated.')
+            quantity = r[0]
+            is_stocked_out = r[2]
+            if not quantity and not is_stocked_out:
+                # If stock quantity is 0, but stockout not indicated, this line wasn't filled in.
+                continue
+            facility.report_stock(product, quantity, date=date)
+            logging.info("SCMgr: Processed stock report %s %s %s %s" % (facility,product,quantity,date))
+            processed += 1
+        except (KeyError, SupplyPoint.DoesNotExist, Product.DoesNotExist) as e:
+            # Server sent us some data we don't care about.  Keep on truckin'.
+            continue
+    if result:
+        ret = "Processed %d entries." % processed
+        return HttpResponse(ret, status=201) # Keep sending us stuff if you have more to send.
+    else:
+        ret = "Got no data -- ending update."
+        return HttpResponse(ret)
