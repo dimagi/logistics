@@ -28,9 +28,6 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
-from submodules.dimagi
-from submodules.dimagi
-from submodules.dimagi
 
 @place_in_request()
 def dashboard(request):
