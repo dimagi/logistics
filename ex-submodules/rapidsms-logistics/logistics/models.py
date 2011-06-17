@@ -140,6 +140,21 @@ class SupplyPoint(models.Model):
     def is_active(self):
         return self.active
     
+    def commodities_stocked(self):
+        reporters = Contact.objects.filter(supply_point=self).filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY)
+        commodities = []
+        for r in reporters:
+            commodities.extend([c for c in r.commodities.all()])
+        if commodities:
+            return " ".join([c.code for c in set(commodities)])
+        return None
+    
+    def product_stocks(self):
+        return ProductStock.objects.filter(supply_point=self)
+    
+    def contacts(self):
+        return Contact.objects.filter(supply_point=self)
+    
     def deprecate(self, new_code=None):
         """
         Deprecates this supply point, by changing the id and location id,
