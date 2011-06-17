@@ -1,14 +1,15 @@
+import json
 from datetime import timedelta
+from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ProductReport, Product, ProductStock,\
-    SupplyPoint, StockRequest
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.tables import ReportingTable
-import json
-from django.core.urlresolvers import reverse
-import logistics.apps.logistics.models as logistics_models
 from dimagi.utils.dates import DateSpan
+from logistics.apps.logistics.const import Reports
+from logistics.apps.logistics.models import ProductReport, \
+    Product, ProductStock, SupplyPoint, StockRequest
+from logistics.apps.logistics.tables import ReportingTable
+import logistics.apps.logistics.models as logistics_models
+from logistics.apps.logistics.util import config
 
 class Colors(object):
     RED = "red"
@@ -139,15 +140,9 @@ class ReportingBreakdown(object):
         totals_p = {}
         for sp in reported.all():
             
-            # makes an assumption of 1 contact per SP.
-            # will need to be revisited
-            try:
-                contact = Contact.objects.get(supply_point=sp)
-            except Contact.DoesNotExist:
-                continue
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
-            needed_products = set([c.pk for c in contact.commodities.all()])
+            needed_products = set([c.pk for c in sp.commodities_stocked()])
             if needed_products:
                 if needed_products - found_products:
                     partial.append(sp)
@@ -274,7 +269,7 @@ class ReportingBreakdown(object):
                     TableData("On-Time HSAs", ReportingTable(self.on_time))]
 
 class ProductAvailabilitySummary(object):
-    
+
     def __init__(self, contacts, width=900, height=300):
         """
         contacts should be a query set of contacts that you care about
@@ -301,7 +296,6 @@ class ProductAvailabilitySummary(object):
                              "with_stock": with_stock,
                              "without_stock": without_stock,
                              "without_data": without_data})
-                             
         self.data = data
         
     @property
@@ -318,7 +312,7 @@ class ProductAvailabilitySummary(object):
     @property
     def yaxistitle(self):
         # TODO - can customize this if necessary
-        return "Number of HSAs"
+        return config.Messages.NUMBER_OF_SUPPLY_POINTS
     
     @property
     def xaxistitle(self):
@@ -370,6 +364,33 @@ class ProductAvailabilitySummary(object):
                                "ticks": json.dumps(products)}
                 
         return self._flot_data
+
+class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
+    
+    def __init__(self, facilities, width=900, height=300):
+        """
+        facilities should be a query set of facilities that you care about
+        the product availability for.
+        """
+        self._width = width
+        self._height = height
+        
+        products = Product.objects.all()
+        data = []
+        for p in products:
+            supplying_facilities = facilities.filter(contact__commodities=p)
+            if supplying_facilities:
+                total = supplying_facilities.count()
+                stocks = ProductStock.objects.filter(product=p, supply_point__in=supplying_facilities)
+                with_stock = stocks.filter(quantity__gt=0).count()
+                without_stock = stocks.filter(quantity=0).count()
+                without_data = total - with_stock - without_stock
+                data.append({"product": p,
+                             "total": total,
+                             "with_stock": with_stock,
+                             "without_stock": without_stock,
+                             "without_data": without_data})
+        self.data = data
 
 class SupplyPointRow():
         

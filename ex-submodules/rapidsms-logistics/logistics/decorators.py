@@ -43,6 +43,15 @@ def logistics_contact_and_permission_required(operation):
         return logistics_contact_required()(logistics_permission_required(operation)(f)) # yikes
     return both
     
+def return_if_place_not_set():
+    def wrapper(f):
+        def _return_if_place_not_set(request, *args, **kwargs):
+            if not request.location:
+                return None
+            return f(request, *args, **kwargs)
+        return _return_if_place_not_set
+    return wrapper
+    
 def place_in_request(param="place"):
     """
     Expects a parameter in the request, and if found, will

@@ -50,4 +50,7 @@ urlpatterns = patterns('',
     url(r'^navigate$', 
         'logistics.apps.logistics.views.navigate',  
         name="navigate"),
+    url(r'^district_dashboard', 
+        'logistics.apps.logistics.views.district_dashboard',  
+        name="district_dashboard"),
 )

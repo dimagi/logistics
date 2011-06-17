@@ -2,11 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from logistics.apps.logistics.const import Reports
 
-import settings
-from random import randint
+import json
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.db.models import Q
@@ -18,18 +16,23 @@ from django.utils.translation import ugettext as _
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from django.views.decorators.http import require_POST
+from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
+from dimagi.utils.dates import DateSpan
+from auditcare.views import auditAll
+from registration.views import register as django_register
+from logistics.apps.logistics.charts import stocklevel_plot
+from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.models import ProductStock, \
-    ProductReportsHelper, Product, ProductType, ProductReport, \
-    get_geography, LogisticsProfile,\
-    SupplyPoint, ProductReportType, StockTransaction
+    ProductReportsHelper, ProductReport, LogisticsProfile,\
+    SupplyPoint, StockTransaction
+from logistics.apps.logistics.util import config, get_reporting_and_nonreporting_facilities
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
+from logistics.apps.logistics.reports import ReportingBreakdown
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable
-import json
-from logistics.apps.logistics.charts import stocklevel_plot
-from logistics.apps.logistics.util import config
+
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
@@ -168,14 +171,7 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
     context['location'] = location
     deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     # should probably move this to sql queries
-    facilities = location.all_facilities()
-    late_facilities = []
-    on_time_facilities = []
-    for facility in facilities:
-        if facility.last_reported is None or facility.last_reported <= deadline:
-            late_facilities.append(facility)
-        else:
-            on_time_facilities.append(facility)
+    on_time_facilities, late_facilities = get_reporting_and_nonreporting_facilities(deadline, location)
     context['late_facilities'] = late_facilities
     context['on_time_facilities'] = on_time_facilities
     context['destination_url'] = destination_url
@@ -344,3 +340,29 @@ def commodity(req, pk=None, template="logistics/config.html"):
             "klass_view": reverse('commodity_view')
         }, context_instance=RequestContext(req)
     )
+
+def get_facilities():
+    return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
+
+def get_districts():
+    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
+
+@place_in_request()
+def district_dashboard(request, template="logistics/district_dashboard.html"):
+    districts = get_districts()
+    if request.location is None:
+        # pick a random location to start
+        location_code = settings.COUNTRY
+        request.location = get_object_or_404(Location, code=location_code)
+        facilities = SupplyPoint.objects.all()
+        #request.location = districts[0]
+    else:
+        facilities = request.location.child_facilities()
+    report = ReportingBreakdown(facilities, DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT))
+    return render_to_response(template,
+                              {"reporting_data": report,
+                               "graph_width": 200,
+                               "graph_height": 200,
+                               "districts": districts.order_by("code"),
+                               "location": request.location},
+                              context_instance=RequestContext(request))
