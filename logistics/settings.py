@@ -62,7 +62,7 @@ APPS = []
 # debug mode is turned on as default, since rapidsms is under heavy
 # development at the moment, and full stack traces are very useful
 # when reporting bugs. don't forget to turn this off in production.
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 
 # after login (which is handled by django.contrib.auth), redirect to the
@@ -201,7 +201,7 @@ LOGISTICS_APPROVAL_REQUIRED = False
 MAP_DEFAULT_LATITUDE  = 40.726111
 MAP_DEFAULT_LONGITUDE = -73.981389
 
-DEBUG=True
+DEBUG=False
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
