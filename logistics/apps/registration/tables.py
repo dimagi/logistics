@@ -36,3 +36,4 @@ class ContactTable(Table):
 
     class Meta:
         order_by = 'supply_point'
+        per_page = 30

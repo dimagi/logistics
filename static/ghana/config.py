@@ -22,19 +22,6 @@ class Responsibilities(object):
     STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
     REPORTEE_RESPONSIBILITY = 'reportee'
 
-    IN_CHARGE = "incharge"
-    PHARMACIST = "pharmacist"
-    NURSE = "nurse"
-    LABORATORY_STAFF = "lab"
-    OTHER = "other"
-    ALL_ROLES = {
-        IN_CHARGE: "In Charge",
-        PHARMACIST: "Pharmacist",
-        NURSE: "Nurse",
-        LABORATORY_STAFF: "Laboratory Staff",
-        OTHER: "Other"
-    }
-
 class Operations(object):
     FILL_ORDER = "fill"
     MAKE_TRANSFER = "transfer"

@@ -8,7 +8,8 @@
     <a href="{% url ewsghana_sms_registration %}">SMS USERS</a> * 
     <a href="{% url admin_web_registration %}">WEB USERS</a>
 	{% if request.user.is_superuser %} * 
-    <a href="{% url facility_view %}">FACILITIES</a> * 
+    <a href="{% url facility_view %}">ADD FACILITIES</a> * 
+    <a href="{% url facilities_list %}">LIST FACILITIES</a> * 
     <a href="{% url commodity_view %}">COMMODITIES</a>
 	{% endif %}
 {% endif %}	
