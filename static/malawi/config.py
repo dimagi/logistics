@@ -224,6 +224,10 @@ class Messages(object):
                        "before you can submit a stock report. " + \
                        "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
+    
+    # reports
+    NUMBER_OF_SUPPLY_POINTS = "Number of HSAs"
+
 
 class Alerts(object):
     

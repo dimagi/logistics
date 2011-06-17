@@ -140,14 +140,14 @@ class SupplyPoint(models.Model):
     def is_active(self):
         return self.active
     
+    def are_consumptions_set(self):
+        consumption_count = ProductStock.objects.filter(supply_point=self).filter(manual_monthly_consumption=None).count()
+        if consumption_count > 0:
+            return False
+        return True
+        
     def commodities_stocked(self):
-        reporters = Contact.objects.filter(supply_point=self).filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY)
-        commodities = []
-        for r in reporters:
-            commodities.extend([c for c in r.commodities.all()])
-        if commodities:
-            return " ".join([c.code for c in set(commodities)])
-        return None
+        return Product.objects.filter(reported_by__supply_point=self).distinct()
     
     def product_stocks(self):
         return ProductStock.objects.filter(supply_point=self)

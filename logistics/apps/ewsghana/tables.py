@@ -14,8 +14,8 @@ def _facility_view(cell):
 def _facility_type(cell):
     return cell.object.type
 def _consumption(cell):
-    consumption_count = ProductStock.objects.filter(supply_point=cell.object).filter(manual_monthly_consumption=None).count()
-    if consumption_count > 0:
+    are_consumptions_set = cell.object.are_consumptions_set()
+    if are_consumptions_set:
         return "INCOMPLETE"
     return "Complete"
 def _supervisor(cell):
@@ -29,7 +29,10 @@ def _reporters(cell):
         return ", ".join([r.name for r in reporters])
     return "None"
 def _commodities_stocked(cell):
-    return cell.object.commodities_stocked()
+    commodities = cell.object.commodities_stocked()
+    if commodities:
+        return " ".join([c.code for c in set(commodities)])
+    return None
 class FacilityDetailTable(FacilityTable):
     name = Column(link=_facility_view)
     location = Column(value=_location)

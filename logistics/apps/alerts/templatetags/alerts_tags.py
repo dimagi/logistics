@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.simple_tag
 def alerts(request):
-    alerts = itertools.chain(*(f(request) for f in get_alert_functions()))
+    alerts = itertools.chain(*(f(request) for f in get_alert_functions() if f(request) is not None))
     return render_to_string("alerts/partials/alerts.html",
                             {"alerts": alerts})
     

@@ -109,5 +109,8 @@ class Messages(object):
     THIRD_CHPS_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, %(facility)s has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
     RRIRV_REMINDER = "Dear %(name)s, have you submitted your stock requisition this month? Please reply 'yes' or 'no'"
 
+    # reports
+    NUMBER_OF_SUPPLY_POINTS = "Number of Facilities"
+
 class Alerts(object):
     pass
