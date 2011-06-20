@@ -222,11 +222,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
         template, context, context_instance=RequestContext(request)
     )
 
-def _get_location_facilities(location, commodity_filter, commoditytype_filter):
-    return _get_rows_from_children(location.facilities(), commodity_filter, commoditytype_filter)
-def _get_location_child_facilities(location, commodity_filter, commoditytype_filter):
-    return _get_rows_from_children(location.child_facilities(), commodity_filter, commoditytype_filter)
-
 def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
     rows = []
     for child in children:
@@ -357,7 +352,7 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
         facilities = SupplyPoint.objects.all()
         #request.location = districts[0]
     else:
-        facilities = request.location.child_facilities()
+        facilities = request.location.all_child_facilities()
     report = ReportingBreakdown(facilities, 
                                 DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT), 
                                 days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
