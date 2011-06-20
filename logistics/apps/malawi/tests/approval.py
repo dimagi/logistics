@@ -5,8 +5,7 @@ from logistics.apps.malawi.tests.base import MalawiTestBase
 from logistics.apps.malawi.tests.util import create_manager, create_hsa,\
     report_stock
 __author__ = 'ternus'
-from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole,\
-    REGISTER_MESSAGE
+from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole
 from logistics.apps.logistics.util import config
 
 class TestApproval(MalawiTestBase):
@@ -66,7 +65,7 @@ class TestApproval(MalawiTestBase):
               8005551212 < %(bad_loc)s
               8005551212 > reg stella 1 2616
               8005551212 < %(confirm)s
-            """ % {'register_message':REGISTER_MESSAGE, 'help_message':config.Messages.HSA_HELP,
+            """ % {'register_message':config.Messages.REGISTER_MESSAGE, 'help_message':config.Messages.HSA_HELP,
                    'bad_loc': config.Messages.UNKNOWN_LOCATION % {"code": "doesntexist"},
                    "confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
                                                                "role": "hsa",
