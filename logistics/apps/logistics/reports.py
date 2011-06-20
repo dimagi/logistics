@@ -2,6 +2,9 @@ import json
 from datetime import timedelta
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
+from django.db.models import Q, Sum
+from django.utils.importlib import import_module
+from rapidsms.conf import settings
 from rapidsms.models import Contact
 from dimagi.utils.dates import DateSpan
 from logistics.apps.logistics.const import Reports
@@ -9,7 +12,13 @@ from logistics.apps.logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest
 from logistics.apps.logistics.tables import ReportingTable
 import logistics.apps.logistics.models as logistics_models
+from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
+
+if hasattr(settings,'LOGISTICS_CONFIG'):
+    config = import_module(settings.LOGISTICS_CONFIG)
+else:
+    import config
 
 class Colors(object):
     RED = "red"
@@ -477,3 +486,14 @@ def calc_percentage(a,b):
     if not (a and b):
         return 0 # Don't return ugly NaN
     return int((float(a) / float(b)) * 100.0)
+
+def get_reporting_and_nonreporting_facilities(deadline, location):
+    """
+    Get all HSAs who haven't reported since a passed in date
+    """
+    if location is None:
+        return None, None
+    facilities = location.all_facilities()
+    on_time_facilities = facilities.filter(last_reported__gte=deadline)
+    late_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline))
+    return on_time_facilities, late_facilities
