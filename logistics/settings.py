@@ -221,6 +221,10 @@ AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 
+
+COUCHLOG_BLUEPRINT_HOME = "%s%s" % (MEDIA_URL, "logistics/stylesheets/blueprint/")
+COUCHLOG_DATATABLES_LOC = "%s%s" % (MEDIA_URL, "logistics/javascripts/jquery.dataTables.min.js")
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
