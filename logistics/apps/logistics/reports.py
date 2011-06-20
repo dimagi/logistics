@@ -378,7 +378,7 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
         products = Product.objects.all()
         data = []
         for p in products:
-            supplying_facilities = facilities.filter(contact__commodities=p)
+            supplying_facilities = facilities.filter(contact__commodities=p).distinct()
             if supplying_facilities:
                 total = supplying_facilities.count()
                 stocks = ProductStock.objects.filter(product=p, supply_point__in=supplying_facilities)
