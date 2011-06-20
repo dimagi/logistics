@@ -13,7 +13,7 @@ from dimagi.utils.decorators.datespan import datespan_in_request
 from auditcare.views import auditAll
 from registration.views import register as django_register
 from logistics.apps.logistics.models import SupplyPoint
-from logistics.apps.logistics.view_decorators import geography_context
+from logistics.apps.logistics.view_decorators import geography_context, location_context
 from logistics.apps.logistics.views import reporting as logistics_reporting
 from logistics.apps.reports.views import email_reports as logistics_email_reports
 from logistics.apps.web_registration.forms import AdminRegistersUserForm
@@ -49,9 +49,12 @@ def web_registration(request, template_name="registration/registration_form.html
 def email_reports(request, context={}, template="ewsghana/email_reports.html"):
     return logistics_email_reports(request, context, template)
 
-def facilities_list(request, context={}, template="ewsghana/facilities_list.html"):
-    facilities = SupplyPoint.objects.exclude(type__code=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
+@location_context
+def facilities_list(request, location_code=None, context={}, template="ewsghana/facilities_list.html"):
+    facilities = context['location'].all_facilities()
+    #facilities = facilities.exclude(type__code=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
     context ['table'] = FacilityDetailTable(facilities, request=request)
+    context['destination_url'] = "facilities_list"
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )

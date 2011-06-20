@@ -35,7 +35,6 @@ def _commodities_stocked(cell):
     return None
 class FacilityDetailTable(FacilityTable):
     name = Column(link=_facility_view)
-    location = Column(value=_location)
     type = Column(value=_facility_type)
     supervisor = Column(value=_supervisor)
     consumption = Column(value=_consumption)
