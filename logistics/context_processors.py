@@ -5,4 +5,4 @@ def custom_settings(request):
             "%s_hack" % settings.COUNTRY: True}
 
 def google_analytics(request):
-    return {"GOOGLE_ANALYTICS_ID": settings.GOOGLE_ANALYTICS_ID}
+    return {"GOOGLE_ANALYTICS_ID": getattr(settings, 'GOOGLE_ANALYTICS_ID', None)}
