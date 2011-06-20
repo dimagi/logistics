@@ -20,7 +20,7 @@ class ConsumptionNotSet(Alert):
 @place_in_request()
 @return_if_place_not_set()
 def consumption_not_set(request):
-    facilities = request.location.child_facilities()
+    facilities = request.location.all_child_facilities()
     if not facilities:
         return None
     return [ConsumptionNotSet(facility) for facility in facilities \
@@ -43,7 +43,7 @@ class FacilitiesWithoutInChargeAlert(Alert):
 @place_in_request()
 @return_if_place_not_set()
 def facilities_without_incharge(request):
-    facilities = request.location.child_facilities()
+    facilities = request.location.all_child_facilities()
     # totally ghana-specific
     facilities = facilities.exclude(type=config.SupplyPointCodes.CHPS)\
                                          .exclude(type=config.SupplyPointCodes.CLINIC)
@@ -68,7 +68,7 @@ class ContactWithoutPhoneAlert(Alert):
 @place_in_request()
 @return_if_place_not_set()
 def contact_without_phone(request):
-    facilities = request.location.child_facilities()
+    facilities = request.location.all_child_facilities()
     contacts = Contact.objects.filter(supply_point__in=facilities).distinct()
     if not contacts:
         return None

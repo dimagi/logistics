@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q, Sum
 from django.utils.importlib import import_module
 from logistics.apps.logistics.const import Reports
 
@@ -11,14 +12,9 @@ def get_reporting_and_nonreporting_facilities(deadline, location):
     """
     Get all HSAs who haven't reported since a passed in date
     """
-    late_facilities = []
-    on_time_facilities = []
     if location is None:
         return None, None
     facilities = location.all_facilities()
-    for facility in facilities:
-        if facility.last_reported is None or facility.last_reported <= deadline:
-            late_facilities.append(facility)
-        else:
-            on_time_facilities.append(facility)
+    on_time_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline))
+    late_facilities = facilities.filter(last_reported__gte=deadline)
     return on_time_facilities, late_facilities

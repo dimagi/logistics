@@ -36,7 +36,7 @@ class FacilitiesWithoutRemindersAlert(Alert):
 @place_in_request()
 @return_if_place_not_set()
 def facilities_without_reminders(request):
-    facilities = request.location.child_facilities()
+    facilities = request.location.all_child_facilities()
     if not facilities:
         return None
     return [FacilitiesWithoutRemindersAlert(facility) for facility in facilities \
@@ -56,7 +56,7 @@ class FacilitiesWithoutReportersAlert(Alert):
 @place_in_request()
 @return_if_place_not_set()
 def facilities_without_reporters(request):
-    facilities = request.location.child_facilities()
+    facilities = request.location.all_child_facilities()
     if not facilities:
         return None
     return [FacilitiesWithoutReportersAlert(facility) for facility in facilities \
