@@ -358,7 +358,9 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
         #request.location = districts[0]
     else:
         facilities = request.location.child_facilities()
-    report = ReportingBreakdown(facilities, DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT))
+    report = ReportingBreakdown(facilities, 
+                                DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT), 
+                                days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     return render_to_response(template,
                               {"reporting_data": report,
                                "graph_width": 200,
