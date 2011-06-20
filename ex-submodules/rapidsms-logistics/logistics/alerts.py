@@ -27,7 +27,8 @@ class FacilitiesWithoutRemindersAlert(Alert):
     def __init__(self, supply_point ):
         self._supply_point = supply_point
         super(FacilitiesWithoutRemindersAlert, self).__init__(self._get_text(), 
-                                                              reverse("facilities_list"))
+                                                              reverse("facility_detail", 
+                                                                      args=(supply_point.code, )))
 
     def _get_text(self):
         return "%(place)s has no reminders configured." % \
