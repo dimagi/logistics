@@ -132,6 +132,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
 
     context['facility'] = facility
     context["location"] = facility.location
+    context["destination_url"] = "aggregate"
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
