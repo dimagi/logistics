@@ -9,6 +9,7 @@ APPS = [
     "auditcare",
     "rapidsms.contrib.scheduler",
     "logistics.apps.ewsghana",
+    "logistics.apps.smsgh",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -57,7 +58,7 @@ TESTING_DATABASES= {
     }
 }
 
-DJANGO_LOG_FILE = "logistics.django.log"
+DJANGO_LOG_FILE = "/opt/logistics_projects/log/logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "ERROR"
 LOG_FILE    = "/opt/logistics_project/log/router.logistics.log"
@@ -117,6 +118,8 @@ LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
+
+AUDITCARE_LOG_ERRORS = False
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
