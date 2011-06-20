@@ -27,7 +27,8 @@ def hsas_below(location):
     
     This method returns Contacts
     """
-    hsas = Contact.objects.filter(role__code="hsa", is_active=True)
+    hsas = Contact.objects.filter(role__code="hsa", is_active=True, 
+                                  supply_point__active=True) 
     if location:
         # support up to 3 levels of parentage. this covers
         # hsa->facility-> district, which is all we allow you to select
