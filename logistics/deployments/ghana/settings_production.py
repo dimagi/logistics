@@ -7,7 +7,6 @@ SEND_BROKEN_LINK_EMAILS = True
 
 APPS = [
     "auditcare",
-    "rapidsms.contrib.scheduler",
     "logistics.apps.ewsghana",
     "logistics.apps.smsgh",
 ]
