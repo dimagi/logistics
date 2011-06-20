@@ -24,6 +24,7 @@ MIDDLEWARE_CLASSES = (
 RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
+    ("district_dashboard",                                  "District Dashboard"),
     #("input_stock",                                        "Input Stock"),
     ("ewsghana_scheduled_reports",                          "Configuration"),
     #("email_reports",                                      "Email Reports"),
@@ -114,6 +115,7 @@ LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
+LOGO_RIGHT_URL=""
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
 BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
@@ -128,10 +130,11 @@ MAP_DEFAULT_LONGITUDE = -1.2166667
 
 LOGISTICS_ALERT_GENERATORS = [
     'logistics.apps.logistics.alerts.non_reporting_facilities',
-    'logistics.apps.logistics.alerts.facilities_without_reminders',
     'logistics.apps.logistics.alerts.facilities_without_reporters',
-    'logistics.apps.ewsghana.alerts.consumption_not_set',
     'logistics.apps.ewsghana.alerts.facilities_without_incharge',
+    'logistics.apps.ewsghana.alerts.consumption_not_set',
+    'logistics.apps.logistics.alerts.facilities_without_reminders',
     'logistics.apps.ewsghana.alerts.contact_without_phone',
 ]
 
+DEFAULT_BACKEND='message_tester'
