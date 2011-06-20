@@ -26,7 +26,7 @@ from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.models import ProductStock, \
     ProductReportsHelper, ProductReport, LogisticsProfile,\
     SupplyPoint, StockTransaction
-from logistics.apps.logistics.util import config, 
+from logistics.apps.logistics.util import config
 from logistics.apps.logistics.view_decorators import filter_context, geography_context
 from logistics.apps.logistics.reports import ReportingBreakdown
 from logistics.apps.logistics.reports import get_reporting_and_nonreporting_facilities
