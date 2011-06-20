@@ -191,7 +191,7 @@ def product_availability_summary(location):
 def product_availability_summary_by_facility(location):
     if not location:
         pass
-    summary = ProductAvailabilitySummaryByFacility(location.child_facilities())
+    summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities())
     return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
     

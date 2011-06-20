@@ -32,21 +32,18 @@ class Location(models.Model):
         return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk)).order_by('name')
     
     def all_facilities(self):
-        ret = []
-        ret.extend(self.facilities())
+        ret = self.facilities()
         for c in self.children():
-            ret.extend(c.all_facilities())
-           
-        return sorted(list(set(ret)), key=lambda sp: sp.name)
-        
+            ret = ret | c.all_facilities()
+        return ret
+    
     def all_child_facilities(self):
-        ret = []
+        from logistics.apps.logistics.models import SupplyPoint
+        ret = SupplyPoint.objects.none()
         for c in self.children():
-            ret.extend(c.all_facilities())
-           
-        return sorted(list(set(ret)), key=lambda sp: sp.name)
+            ret = ret | c.all_facilities()
+        return ret
         
-
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None):
         from logistics.apps.logistics.models import stockout_count
