@@ -9,7 +9,8 @@
 
 {% block content %}
     <div class="module">
-        {% include "logistics/partials/accordion_nav.html" %}
+        {% include "logistics/partials/breadcrumb_nav.html" %}
+        {% include "logistics/partials/breadcrumb_forward.html" %}
         <div id="main">
             <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
             <div class="right">

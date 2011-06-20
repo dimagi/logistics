@@ -156,6 +156,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
     context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
     context['location'] = location
     context['hide_product_link'] = True
+    context['destination_url'] = "aggregate"
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -218,6 +219,7 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     context['location'] = location
     context['default_commodity'] = Product.objects.order_by('name')[0]
     context['facility_count'] = location.child_facilities().count()
+    context['destination_url'] = 'aggregate'
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
