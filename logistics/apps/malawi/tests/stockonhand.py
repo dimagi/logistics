@@ -96,11 +96,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
         
 
-        
-        
-        
     def testNothingToFill(self):
-        self._setup_users()[0:3]
+        self._setup_users()
         a = """
             16175551000 > soh zi 2000 la 5000
             16175551000 < %(response)s
@@ -223,10 +220,15 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self._setup_users()
         a = """
            16175551000 > soh zi 0 co 10 la 0
-           16175551000 < %(stockout)s
+           16175551000 < %(confirm)s
            16175551001 < %(supervisor)s
-        """ % {"stockout": config.Messages.SOH_ORDER_STOCKOUT % {"contact": "wendy", "products": "zi la"},
-               "supervisor": config.Messages.SOH_ORDER_STOCKOUT_SUPERVISOR % {"contact": "wendy", "products": "zi la"}}
+           16175551004 < %(supervisor)s
+        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % \
+                    {"contact": "wendy", "products": "co zi la"},
+               "supervisor": config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS % \
+                    {"hsa": "wendy", "products": "co 430, zi 200, la 360",
+                     "stockedout_products": "zi la",
+                     "hsa_id": "261601"}}
         self.runScript(a)
 
     def _setup_users(self):
