@@ -159,13 +159,20 @@ class TestScript (TransactionTestCase, LoggerMixin):
         self.assertTrue(len(msgs) != 0, "Message was ignored.\n"
                         "Message: '%s'\nExpecting: '%s'" %
                         (last_msg, txt))
+        errors = []
         for i, msg in enumerate(msgs):
             try:
                 self._checkAgainstMessage(num, txt, last_msg, msg)
                 return i
-            except AssertionError:
+            except AssertionError, e:
+                errors.append(e)
                 # only raise this up if we've exhausted all our candidates
-                if i == len(msgs) - 1: raise 
+                if i == len(msgs) - 1: 
+                    template = "No match for expected message! " \
+                               "Individual errors are:\n%(errors)s" 
+                    raise AssertionError(template %\
+                                         {"num": num, "txt": txt, 
+                                          "errors": "\n".join(str(e) for e in errors)})
                     
     def runParsedScript (self, cmds):
         self.startRouter()
