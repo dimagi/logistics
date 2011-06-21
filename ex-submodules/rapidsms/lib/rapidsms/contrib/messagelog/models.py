@@ -61,5 +61,5 @@ class Message(models.Model):
         if len(self.text) < 60: str = self.text
         else: str = "%s..." % (self.text[0:57])
 
-        to_from = (self.direction == "I") and "to" or "from"
+        to_from = (self.direction == "I") and "from" or "to"
         return "%s (%s %s)" % (str, to_from, self.who)
