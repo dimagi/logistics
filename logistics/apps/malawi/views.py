@@ -40,7 +40,7 @@ def dashboard(request):
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
         group = group_for_location(request.location)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False)#(group == config.Groups.EM))
+    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False, MNE=False)#(group == config.Groups.EM))
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),

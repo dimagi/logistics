@@ -55,8 +55,8 @@ def _district_breakdown(datespan):
                        'req_times':[]})
 
     for d in em:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                datespan)
+        bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                datespan, MNE=True)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
         em_totals['req_times'] += bd.req_times
@@ -73,8 +73,9 @@ def _district_breakdown(datespan):
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
     for d in ept:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                datespan)
+        bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                datespan,
+                                MNE=True)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
