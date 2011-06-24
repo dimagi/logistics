@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from urllib import urlencode
 from urllib2 import urlopen
+from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
@@ -29,6 +30,7 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 
+@cache_page()
 @place_in_request()
 def dashboard(request):
     
@@ -152,7 +154,7 @@ def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
-    
+@cache_page()
 @permission_required("is_superuser")
 @datespan_in_request()
 def monitoring_report(request, report_slug):
