@@ -14,7 +14,7 @@ from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
-from rapidsms.models import Contact
+from rapidsms.models import Contact, ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
@@ -85,7 +85,7 @@ class SupplyPointType(models.Model):
     def __unicode__(self):
         return self.name
 
-class SupplyPoint(models.Model):
+class SupplyPointBase(models.Model):
     """
     Somewhere that maintains and distributes products. 
     e.g. health centers, hsa's, or regional warehouses.
@@ -107,6 +107,9 @@ class SupplyPoint(models.Model):
     # direct children of this facility's location)
     # (this feature not implemented yet)
     is_supervising_facility = models.BooleanField(default=True, help_text='Is this facility responsible for the supervision of other facilities in its region?')
+
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         return self.name
@@ -314,6 +317,10 @@ class SupplyPoint(models.Model):
         if self.last_reported is None or self.last_reported < deadline:
             return True
         return False
+
+class SupplyPoint(SupplyPointBase):
+    __metaclass__ = ExtensibleModelBase
+
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
