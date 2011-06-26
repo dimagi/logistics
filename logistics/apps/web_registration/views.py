@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-import sys, settings
+import sys
 from datetime import datetime
+from rapidsms.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -15,12 +16,21 @@ from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
 from .forms import AdminRegistersUserForm
 
-@permission_required('auth.add_user')
 @transaction.commit_on_success
-def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, 
+def my_web_registration(request, Form=AdminRegistersUserForm, 
+                        template='web_registration/admin_registration.html', 
+                        success_url='admin_web_registration_complete'):
+    context = {}
+    context['hide_delete'] = True
+    return admin_does_all(request, request.user.pk, Form, context, template, success_url)
+
+@transaction.commit_on_success
+def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, context={}, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
-    context = {}
+    if not request.user.has_perm('auth.add_user') and pk != request.user.pk:
+        # view is only available to non-admin users if all they do is edit themselves
+        return HttpResponseRedirect(settings.LOGIN_URL)
     user = None
     if pk is not None:
         user = get_object_or_404(User, pk=pk)
@@ -30,7 +40,7 @@ def admin_does_all(request, pk=None, Form=AdminRegistersUserForm,
         if request.POST["submit"] == "Delete Contact":
             user.delete()
             return HttpResponseRedirect(
-                reverse('admin_web_registration'))
+                reverse(success_url))
         form = Form(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
@@ -47,7 +57,7 @@ def admin_does_all(request, pk=None, Form=AdminRegistersUserForm,
                                           vals, 
                                           context_instance = RequestContext(request))
             else:
-                return HttpResponseRedirect( reverse('admin_web_registration'))
+                return HttpResponseRedirect( reverse(success_url))
     context['form'] = form
     context['users'] = User.objects.all().order_by('username')
     return render_to_response(template, context, 
