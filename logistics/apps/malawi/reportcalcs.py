@@ -300,7 +300,7 @@ def average_discrepancies(instance):
     """
     Average discrepancy  between order and receipt per product, by District
     """
-    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+    product_codes = PRODUCT_CODES 
     d = _district_breakdown(instance.datespan)
     d['product_codes'] = product_codes
     return _common_report(instance, d)
