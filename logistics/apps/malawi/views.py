@@ -45,7 +45,8 @@ def dashboard(request):
     report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False, MNE=False)#(group == config.Groups.EM))
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
-                               "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
+                               "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
+                                                                                       role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "districts": get_districts().order_by("code"),

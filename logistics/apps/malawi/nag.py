@@ -143,7 +143,8 @@ def send_nag_messages(warnings):
                 logging.error("Contact does not exist for HSA: %s" % hsa.name)
             if w["flag_supervisor"]:
                 try:
-                    supervisor = Contact.objects.get(role=ContactRole.objects.get(code=config.Roles.HSA_SUPERVISOR),
+                    supervisor = Contact.objects.get(is_active=True,
+                                                     role=ContactRole.objects.get(code=config.Roles.HSA_SUPERVISOR),
                                                      supply_point=hsa.supplied_by)
                     send_message(supervisor.default_connection, w["supervisor_message"] % { 'hsa': contact.name})
                 except Contact.DoesNotExist:
