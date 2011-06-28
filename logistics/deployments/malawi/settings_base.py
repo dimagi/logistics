@@ -147,3 +147,5 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
+
+DATABASE_ENGINE = "mysql"
