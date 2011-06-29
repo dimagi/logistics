@@ -13,6 +13,6 @@ def nag_hsas():
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def heartbeat():
-    f = open(settings.CELERY_HEARTBEAT_FILE, 'w')
-    f.write(str(datetime.now()))
-    f.close()
+    with open(settings.CELERY_HEARTBEAT_FILE, 'w') as f:
+        f.write(str(datetime.now()))
+    

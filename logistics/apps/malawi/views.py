@@ -188,10 +188,10 @@ def help(request):
 @permission_required("is_superuser")
 def status(request):
     #TODO Put these settings in localsettings, probably
-    with urlopen(settings.KANNEL_URL) as f:
-        r = f.read()
+    f = urlopen(settings.KANNEL_URL)
+    r = f.read()
     with open(settings.CELERY_HEARTBEAT_FILE) as f:
-        r = "%s\n%s" % (r, f.read())
+        r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
         
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
 
