@@ -29,6 +29,7 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
+from django.conf import settings
 
 @cache_page()
 @place_in_request()
@@ -187,8 +188,11 @@ def help(request):
 @permission_required("is_superuser")
 def status(request):
     #TODO Put these settings in localsettings, probably
-    f = urlopen('http://localhost:13000/status?password=CHANGEME')
-    r = f.read()
+    with urlopen(settings.KANNEL_URL) as f:
+        r = f.read()
+    with open(settings.CELERY_HEARTBEAT_FILE) as f:
+        r = "%s\n%s" % (r, f.read())
+        
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
 
 def _sort_date(x,y):

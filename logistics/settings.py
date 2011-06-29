@@ -160,6 +160,10 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 
 # celery
 CARROT_BACKEND = "django"
+CELERY_HEARTBEAT_FILE = '/tmp/sc4ccm-heartbeat'
+
+# kannel
+KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
 
 DEFAULT_BACKEND = 'smsgh'
 INTL_DIALLING_CODE = "+"

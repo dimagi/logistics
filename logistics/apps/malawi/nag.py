@@ -165,20 +165,8 @@ def nag_hsas_em():
             since.replace(month=datetime.utcnow().month - 1) # wraparound?
         except ValueError:
             since.replace(year=datetime.utcnow().year - 1, month=12)
-    print since
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
     for l in locs:
         nag_hsas_soh(since, l)
     nag_hsas_rec(since)
 
-@periodic_task(run_every=crontab(hour="*", minute="1", day_of_week="*"))
-def nag_hsas():
-    nag_hsas_ept()
-    nag_hsas_em()
-
-@periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
-def heartbeat():
-    if os.name == 'posix':
-        f = open('/tmp/sc4ccm-heartbeat', 'w')
-        f.write(str(datetime.now()))
-        f.close()
