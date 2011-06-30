@@ -19,8 +19,8 @@ DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING = 2
 REC_DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 4
 
-EPT_REPORTING_DAY = 5
-
+EM_REPORTING_DAY = 1 # First of the month
+WARNING_DAYS = 2 # Advance warning days before report is officially late
 
 def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
     """
@@ -60,7 +60,7 @@ def nag_hsas_soh(since, location=None):
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
-             'days': 0,
+             'days': WARNING_DAYS,
              'code': Reports.SOH,
              'message': Messages.HSA_NAG_FIRST,
              'flag_supervisor' : False},
@@ -152,14 +152,14 @@ def send_nag_messages(warnings):
 
 
 def nag_hsas_ept():
-    since = datetime.utcnow() - timedelta(days=28)
-    locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
+    since = datetime.utcnow() - timedelta(days=30-WARNING_DAYS)
+    locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EPT]]
     for l in locs:
         nag_hsas_soh(since, l)
     nag_hsas_rec(since)
 
 def nag_hsas_em():
-    since = datetime.utcnow().replace(day=EPT_REPORTING_DAY)
+    since = datetime.utcnow().replace(day=EM_REPORTING_DAY) - timedelta(days=WARNING_DAYS)
     if since > datetime.utcnow():
         try:
             since.replace(month=datetime.utcnow().month - 1) # wraparound?
