@@ -13,8 +13,8 @@ def get_hsa(hsa_id):
     # in the future we should do some massaging of this code as well
     # to catch things like o's -> 0's and such.
     try:
-        sp = SupplyPoint.objects.get(code=hsa_id, type=config.hsa_supply_point_type())
-        return Contact.objects.get(supply_point=sp)
+        sp = SupplyPoint.objects.get(active=True, code=hsa_id, type=config.hsa_supply_point_type())
+        return Contact.objects.get(is_active=True, supply_point=sp)
     except (SupplyPoint.DoesNotExist, Contact.DoesNotExist):
         return None
     except Contact.MultipleObjectsReturned:
@@ -27,7 +27,8 @@ def hsas_below(location):
     
     This method returns Contacts
     """
-    hsas = Contact.objects.filter(role__code="hsa", is_active=True)
+    hsas = Contact.objects.filter(role__code="hsa", is_active=True, 
+                                  supply_point__active=True) 
     if location:
         # support up to 3 levels of parentage. this covers
         # hsa->facility-> district, which is all we allow you to select
@@ -58,7 +59,7 @@ def get_supervisors(supply_point):
     Get all supervisors at a particular facility
     """
     return supply_point.active_contact_set.filter\
-                (role__code__in=config.Roles.SUPERVISOR_ROLES)
+                (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
 
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)

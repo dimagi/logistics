@@ -8,7 +8,7 @@ from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
 
-PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb', 'dm', 'pa'] # Amox?
 
 
 def _common_report(instance, context):
@@ -55,8 +55,8 @@ def _district_breakdown(datespan):
                        'req_times':[]})
 
     for d in em:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                datespan)
+        bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                datespan, MNE=True)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
         em_totals['req_times'] += bd.req_times
@@ -73,8 +73,9 @@ def _district_breakdown(datespan):
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
     for d in ept:
-        bd = ReportingBreakdown(hsa_supply_points_below(d), 
-                                datespan)
+        bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                datespan,
+                                MNE=True)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
@@ -299,7 +300,7 @@ def average_discrepancies(instance):
     """
     Average discrepancy  between order and receipt per product, by District
     """
-    product_codes = ['co', 'or', 'zi', 'la', 'lb'] #Depo? Amox?
+    product_codes = PRODUCT_CODES 
     d = _district_breakdown(instance.datespan)
     d['product_codes'] = product_codes
     return _common_report(instance, d)

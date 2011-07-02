@@ -97,14 +97,12 @@ class StatusColumn(Column):
 class StockRequestTable(Table):
     product = Column()
     is_emergency = EmergencyColumn()
-    #amount_requested = Column()
-    #amount_received = Column()
-    
+    amount_requested = Column()
+    amount_received = Column()
     requested_on = DateColumn()
     responded_on = DateColumn()
     received_on = DateColumn()
     status = StatusColumn()
-    
     
     class Meta:
         order_by = '-requested_on'

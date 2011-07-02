@@ -128,10 +128,9 @@ class Messages(object):
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
     SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
-    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready." 
-    SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."  
-    SOH_ORDER_STOCKOUT = "Thank you %(contact)s.  You have reported stockouts for %(products)s.  The health center has been notified."
-    SOH_ORDER_STOCKOUT_SUPERVISOR = "%(contact)s has reported a stockout. At least the following products are affected: %(products)s."
+    SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS = "%(hsa)s needs products: %(products)s. Some products are stocked out: %(stockedout_products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
+    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready."
+    SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."          
     
     # "rec" keyword (receipts)
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
@@ -151,7 +150,7 @@ class Messages(object):
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
     EMERGENCY_SOH = "We have received your emergency order for %(products)s and the health center has been notified. You will be notified when your products are available to pick up."
-    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products: %(emergency_products)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
+    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products %(emergency_products)s, also %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     
     # "Give" keyword (hsa to hsa transfers)

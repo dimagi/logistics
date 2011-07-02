@@ -299,7 +299,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         form = FacilityForm(instance=facility)
     return render_to_response(
         template, {
-            "table": FacilityTable(SupplyPoint.objects.all(), request=req),
+            "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
             "klass": klass,

@@ -54,7 +54,7 @@ def reporting_rates(locations, type=None, days=30):
     # rates associated with those locations
     if locations:
         since = datetime.utcnow() - timedelta(days=days)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -76,7 +76,7 @@ def reporting_breakdown(locations, type=None, datespan=None):
     # with a list of locations - display reporting
     # rates associated with those locations
     if locations:
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -101,7 +101,7 @@ def order_response_stats(locations, type=None, days=30):
     """
     if locations:
         since = datetime.utcnow() - timedelta(days=days)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -134,7 +134,7 @@ def order_fill_stats(locations, type=None, datespan=None):
         if datespan == None:
             # default to last 30 days
             datespan = DateSpan.since(30)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
