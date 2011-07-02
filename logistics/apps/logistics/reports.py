@@ -190,9 +190,9 @@ class ReportingBreakdown(object):
             self.no_stockouts_pct_p = no_stockouts_pct_p
             self.no_stockouts_p = no_stockouts_p
             self.totals_p = totals_p
-            self.full = full
-            self.partial = partial
-            self.unconfigured = unconfigured
+        self.full = full
+        self.partial = partial
+        self.unconfigured = unconfigured
         
         self.non_reporting = non_reporting
         self.reported = reported
