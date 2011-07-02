@@ -18,7 +18,7 @@ def contact_edit_link(cell):
 
 def render_supply_point(cell):
     if cell.object.supply_point:
-        return cell.object.supply_point.code
+        return cell.object.supply_point.name
 
 def list_commodities(cell):
     commodities = cell.object.commodities.all()
@@ -31,8 +31,6 @@ class ContactTable(Table):
     supply_point = Column(value=render_supply_point, name="Supply Point",
                           sortable=False)
     phone = Column(value=lambda cell: cell.object.phone, sortable=False)
-    commodities = Column(name="Responsible For These Commodities", 
-                         value=list_commodities, sortable=False)
 
     class Meta:
         order_by = 'supply_point'
