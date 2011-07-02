@@ -240,9 +240,7 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
             row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
-        row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
-        row['low_stock_count'] = child.low_stock_count(product=commodity_filter, 
+        row['emergency_plus_low'] = child.emergency_plus_low(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)

@@ -63,6 +63,13 @@ class Location(models.Model):
         from logistics.apps.logistics.models import low_stock_count
         return low_stock_count(self.all_facilities(), product, producttype)
 
+    def emergency_plus_low(self, product=None, producttype=None):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        from logistics.apps.logistics.models import emergency_plus_low
+        return emergency_plus_low(self.all_facilities(), product, producttype)
+
     def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
