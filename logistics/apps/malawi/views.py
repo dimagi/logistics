@@ -31,7 +31,7 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
-@cache_page()
+@cache_page(60 * 15)
 @place_in_request()
 def dashboard(request):
     
@@ -156,7 +156,7 @@ def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
-@cache_page()
+@cache_page(60 * 15)
 @permission_required("is_superuser")
 @datespan_in_request()
 def monitoring_report(request, report_slug):
