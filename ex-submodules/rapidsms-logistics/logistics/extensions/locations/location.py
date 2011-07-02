@@ -25,11 +25,11 @@ class Location(models.Model):
 
     def facilities(self):
         from logistics.apps.logistics.models import SupplyPoint
-        return SupplyPoint.objects.filter(location=self).order_by('name')
+        return SupplyPoint.objects.filter(location=self, active=True).order_by('name')
 
     def child_facilities(self):
         from logistics.apps.logistics.models import SupplyPoint
-        return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk)).order_by('name')
+        return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk), active=True).order_by('name')
     
     def all_facilities(self):
         ret = self.facilities()
