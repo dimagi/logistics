@@ -102,6 +102,9 @@ class Messages(object):
                        "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     
+    REQ_SUBMITTED = "Thank you for confirming you have submitted your requisition this month."
+    REQ_NOT_SUBMITTED = "Please submit your requisition form as soon as possible."
+
     # scheduled reminders
     STOCK_ON_HAND_REMINDER = 'Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.'
     SECOND_STOCK_ON_HAND_REMINDER = 'Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.'

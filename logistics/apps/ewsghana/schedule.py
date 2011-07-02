@@ -60,7 +60,6 @@ def reminder_to_submit_RRIRV(router):
     """ the 30th of each month, verify that they've submitted RRIRV """
     logging.info("running RRIRV reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
-    reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
         response = config.Messages.RRIRV_REMINDER % {'name':reporter.name}
         send_message_safe(reporter, response)
