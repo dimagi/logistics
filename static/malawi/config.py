@@ -228,7 +228,11 @@ class Messages(object):
     
     # reports
     NUMBER_OF_SUPPLY_POINTS = "Number of HSAs"
-
+    
+    # response to 'help'
+    HELP_TEXT = "Text 'help stock' for help on the format of stock reports; " + \
+                "'help codes' for a list of commodity codes; " + \
+                "'help start' or 'help stop' to start and stop reminders."
 
 class Alerts(object):
     
