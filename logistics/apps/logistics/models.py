@@ -217,6 +217,14 @@ class SupplyPointBase(models.Model):
                                product=product, 
                                producttype=producttype)
 
+    def emergency_plus_low(self, product=None, producttype=None):
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        return emergency_plus_low(facilities=[self], 
+                                  product=product, 
+                                  producttype=producttype)
+        
     def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
@@ -1237,6 +1245,17 @@ def low_stock_count(facilities=None, product=None, producttype=None):
             """
             low_stock_count = low_stock_count + 1
     return low_stock_count
+
+def emergency_plus_low(facilities=None, product=None, producttype=None):
+    """ This indicates all stock below reorder levels,
+        including all stock below emergency supply levels
+    """
+    count = 0
+    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
+    for stock in stocks:
+        if stock.is_below_low_supply():
+            count = count + 1
+    return count
 
 def good_supply_count(facilities=None, product=None, producttype=None):
     """ This indicates all stock below reorder levels,
