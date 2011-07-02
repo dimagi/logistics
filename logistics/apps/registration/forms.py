@@ -35,7 +35,6 @@ class ContactForm(forms.ModelForm):
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
         self.fields['role'].label = _("Role")
-        self.fields['supply_point'].label = _("Supply Point")
         self.fields['name'].label = _("Name")
         self.fields['phone'].label = _("Phone")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
