@@ -1,5 +1,6 @@
 """ Utility that turns django views into emailable html reports """
 
+from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from logistics.apps.reports.schedule.parsers import ReportParser
@@ -27,4 +28,7 @@ class ReportSchedule(object):
         self._processor.preprocess(request, user=user)
         response = self._view_func(request, **view_args)
         parser = ReportParser(response.content)
-        return render_to_string("reports/report_email.html", { "report_body": parser.get_html()})
+        site = Site.objects.get()
+        return render_to_string("reports/report_email.html", 
+                                { "report_body": parser.get_html(), 
+                                  "site": site })
