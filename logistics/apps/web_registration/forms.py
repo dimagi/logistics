@@ -7,6 +7,7 @@ since the 3rd party register app didn't use ModelForm properly
 from datetime import datetime
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
@@ -15,6 +16,10 @@ from logistics.apps.logistics.models import SupplyPoint
 class AdminRegistersUserForm(RegistrationForm): 
     location = forms.ModelChoiceField(Location.objects.all().order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
+                                label=_(u'password'), required=False)
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
+                                label=_(u'password (again)'), required=False)
     
     def __init__(self, *args, **kwargs):
         self.edit_user = None
@@ -49,6 +54,16 @@ class AdminRegistersUserForm(RegistrationForm):
             raise forms.ValidationError(_(u'Please enter a username containing only letters and numbers.'))
         return self.cleaned_data['username']
 
+    def clean(self):
+        """
+        Verifiy that new users are created with passwords
+        For existing users, we don't need to supply a password
+        
+        """
+        if self.edit_user is None and len(self.cleaned_data['password1']) == 0:
+            raise forms.ValidationError(_(u'You must supply a password when creating a user'))
+        return super(AdminRegistersUserForm, self).clean()
+
     def save(self, profile_callback=None):
         if self.edit_user is None:
             # creates user and profile object
@@ -64,7 +79,8 @@ class AdminRegistersUserForm(RegistrationForm):
         else:
             # skips creating and just updates the relevant fields
             self.edit_user.username = self.cleaned_data['username']
-            self.edit_user.set_password(self.cleaned_data['password1'])
+            if len(self.cleaned_data['password1']) > 0:
+                self.edit_user.set_password(self.cleaned_data['password1'])
             self.edit_user.email = self.cleaned_data['email']
             user = self.edit_user
         user.is_active = True
