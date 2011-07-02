@@ -246,7 +246,6 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
                                                      producttype=commoditytype_filter)
         row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
-        row['adequate_supply_count'] = row['low_stock_count'] + row['good_supply_count']  
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         if commodity_filter is not None:
