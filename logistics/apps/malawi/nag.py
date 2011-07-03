@@ -10,7 +10,7 @@ from celery.decorators import periodic_task
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.apps.logistics.const import Reports
 from logistics import config
-from static.malawi.config import Messages
+from static.malawi.config import Messages, Roles
 from logistics.apps.malawi.util import hsa_supply_points_below
 
 DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
@@ -141,10 +141,11 @@ def send_nag_messages(warnings):
                 NagRecord(supply_point=hsa, warning=w["number"],nag_type=w['code']).save()
             except Contact.DoesNotExist:
                 logging.error("Contact does not exist for HSA: %s" % hsa.name)
+                continue
             if w["flag_supervisor"]:
                 try:
                     supervisor = Contact.objects.get(is_active=True,
-                                                     role=ContactRole.objects.get(code=config.Roles.HSA_SUPERVISOR),
+                                                     role=ContactRole.objects.get(code=Roles.HSA_SUPERVISOR),
                                                      supply_point=hsa.supplied_by)
                     send_message(supervisor.default_connection, w["supervisor_message"] % { 'hsa': contact.name})
                 except Contact.DoesNotExist:
