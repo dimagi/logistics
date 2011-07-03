@@ -170,10 +170,11 @@ def order_fill_stats(locations, type=None, datespan=None):
 @register.simple_tag
 def stockonhand_table(supply_point):
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
-                         {"stockonhands": supply_point.productstock_set.all()})
+                         {"stockonhands": supply_point.productstock_set.all().order_by('product__name')})
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
+    # shouldn't this be ordered by something?
     return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
 
 @register.simple_tag
