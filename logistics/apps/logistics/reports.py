@@ -54,22 +54,25 @@ class ReportingBreakdown(object):
     """
     
     def __init__(self, supply_points, datespan=None, include_late=False, 
-                 days_for_late=5):
+                 days_for_late=5, MNE=False):
         self.supply_points = supply_points
         
-        if datespan == None:
+        if not datespan:
             datespan = DateSpan.since(30)
         self.datespan = datespan
         
         self.include_late = include_late
         self.days_for_late = days_for_late
         date_for_late = datespan.startdate + timedelta(days=days_for_late)
-        
+
+        if supply_points.filter(active=False).exists(): self.supply_points = self.supply_points.filter(active=True)
+
         reports_in_range = ProductReport.objects.filter\
             (report_type__code=Reports.SOH,
              report_date__gte=datespan.startdate,
              report_date__lte=datespan.enddate,
-             supply_point__in=supply_points)
+             supply_point__in=supply_points,
+             supply_point__active=True)
         
         reported_in_range = reports_in_range.values_list\
             ("supply_point", flat=True).distinct()
@@ -79,10 +82,10 @@ class ReportingBreakdown(object):
             ("supply_point", flat=True).distinct()
         
         non_reporting = supply_points.exclude(pk__in=reported_in_range)
-        reported = SupplyPoint.objects.filter(pk__in=reported_in_range)
+        reported = SupplyPoint.objects.filter(pk__in=reported_in_range, active=True)
         reported_late = reported.exclude(pk__in=reported_on_time_in_range)
         reported_on_time = SupplyPoint.objects.filter\
-            (pk__in=reported_on_time_in_range)
+            (pk__in=reported_on_time_in_range, active=True)
 
         requests_in_range = StockRequest.objects.select_related().filter(\
             requested_on__gte=datespan.startdate,
@@ -90,53 +93,54 @@ class ReportingBreakdown(object):
             supply_point__in=supply_points
         )
 
-        emergency_requests = requests_in_range.filter(is_emergency=True)
+        if MNE:
+            emergency_requests = requests_in_range.filter(is_emergency=True)
 
-        emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
+            emergency_requesters = emergency_requests.values_list("supply_point", flat=True).distinct()
 
-        filled_requests = requests_in_range.exclude(received_on=None).exclude(status='canceled')
-        discrepancies = filled_requests.exclude(amount_requested=F('amount_received'))
-        discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
-        orders_list = filled_requests.values_list("product", flat=True)
+            filled_requests = requests_in_range.exclude(received_on=None).exclude(status='canceled')
+            discrepancies = filled_requests.exclude(amount_requested=F('amount_received'))
+            discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
+            orders_list = filled_requests.values_list("product", flat=True)
 
 
-        # We could save a lot of time here if the primary key for Product were its sms_code.
-        # Unfortunately, it isn't, so we have to remap keys->codes.
-        _p = {}
-        for p in Product.objects.filter(pk__in=orders_list.distinct()): _p[p.pk] = p.sms_code
-        def _map_codes(dict):
-            nd = {}
-            for d in dict:
-                nd[_p[d]] = dict[d]
-            return nd
+            # We could save a lot of time here if the primary key for Product were its sms_code.
+            # Unfortunately, it isn't, so we have to remap keys->codes.
+            _p = {}
+            for p in Product.objects.filter(pk__in=orders_list.distinct()): _p[p.pk] = p.sms_code
+            def _map_codes(dict):
+                nd = {}
+                for d in dict:
+                    nd[_p[d]] = dict[d]
+                return nd
 
-        self.discrepancies_p = {}
-        self.discrepancies_tot_p = {}
-        self.discrepancies_pct_p = {}
-        self.discrepancies_avg_p = {}
-        self.filled_orders_p = {}
-        for product in orders_list.distinct():
-            self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+            self.discrepancies_p = {}
+            self.discrepancies_tot_p = {}
+            self.discrepancies_pct_p = {}
+            self.discrepancies_avg_p = {}
+            self.filled_orders_p = {}
+            for product in orders_list.distinct():
+                self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
 
-            z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
-            self.discrepancies_tot_p[product] = sum(z)
-            if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
-            self.filled_orders_p[product] = len([x for x in orders_list if x is product])
-            self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
+                z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
+                self.discrepancies_tot_p[product] = sum(z)
+                if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                self.filled_orders_p[product] = len([x for x in orders_list if x is product])
+                self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
 
-        self.discrepancies_p = _map_codes(self.discrepancies_p)
-        self.discrepancies_tot_p = _map_codes(self.discrepancies_tot_p)
-        self.discrepancies_pct_p = _map_codes(self.discrepancies_pct_p)
-        self.discrepancies_avg_p = _map_codes(self.discrepancies_avg_p)
-        self.filled_orders_p = _map_codes(self.filled_orders_p)
+            self.discrepancies_p = _map_codes(self.discrepancies_p)
+            self.discrepancies_tot_p = _map_codes(self.discrepancies_tot_p)
+            self.discrepancies_pct_p = _map_codes(self.discrepancies_pct_p)
+            self.discrepancies_avg_p = _map_codes(self.discrepancies_avg_p)
+            self.filled_orders_p = _map_codes(self.filled_orders_p)
 
-            
-        self.avg_req_time = None
-        self.req_times = []
-        if filled_requests:
-            secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
-            self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
-            self.req_times = secs
+
+            self.avg_req_time = None
+            self.req_times = []
+            if filled_requests:
+                secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
+                self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
+                self.req_times = secs
 
         # fully reporting / non reporting
         full = []
@@ -159,35 +163,37 @@ class ReportingBreakdown(object):
                     full.append(sp)
             else:
                 unconfigured.append(sp)
-            prods = Product.objects.filter(pk__in=list(found_products))
-            for p in prods:
-                if not p.code in stockouts_p: stockouts_p[p.sms_code] = 0
-                if not p.code in no_stockouts_p: no_stockouts_p[p.sms_code] = 0
-                if not p.code in totals_p: totals_p[p.sms_code] = 0
-                if found_reports.filter(product=p, quantity=0):
-                    stockouts_p[p.sms_code] += 1
+            if MNE:
+                prods = Product.objects.filter(pk__in=list(found_products))
+                for p in prods:
+                    if not p.code in stockouts_p: stockouts_p[p.sms_code] = 0
+                    if not p.code in no_stockouts_p: no_stockouts_p[p.sms_code] = 0
+                    if not p.code in totals_p: totals_p[p.sms_code] = 0
+                    if found_reports.filter(product=p, quantity=0):
+                        stockouts_p[p.sms_code] += 1
+                    else:
+                        no_stockouts_p[p.sms_code] += 1
+                    totals_p[p.sms_code] += 1
+
+                if found_reports.filter(quantity=0):
+                    stockouts.append(sp.pk)
                 else:
-                    no_stockouts_p[p.sms_code] += 1
-                totals_p[p.sms_code] += 1
+                    no_stockouts.append(sp.pk)
+        if MNE:
+            no_stockouts_pct_p = {}
 
-            if found_reports.filter(quantity=0):
-                stockouts.append(sp.pk)
-            else:
-                no_stockouts.append(sp.pk)
+            for key in no_stockouts_p:
+                if totals_p[key] > 0:
+                    no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
-        no_stockouts_pct_p = {}
-        
-        for key in no_stockouts_p:
-            if totals_p[key] > 0:
-                no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
-        self.stockouts = stockouts
-        self.emergency = emergency_requesters
-        self.stockouts_emergency = set(stockouts).intersection(set(emergency_requesters))
-        self.stockouts_p = stockouts_p
-        self.no_stockouts_pct_p = no_stockouts_pct_p
-        self.no_stockouts_p = no_stockouts_p
-        self.totals_p = totals_p
+            self.stockouts = stockouts
+            self.emergency = emergency_requesters
+            self.stockouts_emergency = set(stockouts).intersection(set(emergency_requesters))
+            self.stockouts_p = stockouts_p
+            self.no_stockouts_pct_p = no_stockouts_pct_p
+            self.no_stockouts_p = no_stockouts_p
+            self.totals_p = totals_p
         self.full = full
         self.partial = partial
         self.unconfigured = unconfigured
@@ -494,6 +500,6 @@ def get_reporting_and_nonreporting_facilities(deadline, location):
     if location is None:
         return None, None
     facilities = location.all_facilities()
-    on_time_facilities = facilities.filter(last_reported__gte=deadline)
-    late_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline))
+    on_time_facilities = facilities.filter(last_reported__gte=deadline, active=True)
+    late_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline), active=True)
     return on_time_facilities, late_facilities

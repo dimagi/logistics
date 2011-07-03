@@ -8,4 +8,4 @@ class Command(BaseCommand):
     help = "Initialize static data for malawi"
 
     def handle(self, *args, **options):
-        loader.init_static_data()
+        loader.init_static_data(log_to_console=True)

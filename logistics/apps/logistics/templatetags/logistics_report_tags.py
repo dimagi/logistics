@@ -54,7 +54,7 @@ def reporting_rates(locations, type=None, days=30):
     # rates associated with those locations
     if locations:
         since = datetime.utcnow() - timedelta(days=days)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -76,7 +76,7 @@ def reporting_breakdown(locations, type=None, datespan=None):
     # with a list of locations - display reporting
     # rates associated with those locations
     if locations:
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -101,7 +101,7 @@ def order_response_stats(locations, type=None, days=30):
     """
     if locations:
         since = datetime.utcnow() - timedelta(days=days)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -134,7 +134,7 @@ def order_fill_stats(locations, type=None, datespan=None):
         if datespan == None:
             # default to last 30 days
             datespan = DateSpan.since(30)
-        base_points = SupplyPoint.objects.filter(location__in=locations)
+        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
@@ -170,10 +170,11 @@ def order_fill_stats(locations, type=None, datespan=None):
 @register.simple_tag
 def stockonhand_table(supply_point):
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
-                         {"stockonhands": supply_point.productstock_set.all()})
+                         {"stockonhands": supply_point.productstock_set.all().order_by('product__name')})
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
+    # shouldn't this be ordered by something?
     return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
 
 @register.simple_tag

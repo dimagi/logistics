@@ -54,26 +54,30 @@ def send_soh_responses(msg, contact, stock_report, requests):
                             supply_point=contact.supply_point.supplied_by.name)
                 return
 
+            
+            orders = ", ".join(req.sms_format() for req in \
+                               StockRequest.objects.filter\
+                                    (supply_point=stock_report.supply_point,
+                                     status=StockRequestStatus.REQUESTED))
+                
             if stock_report.stockouts():
+                stocked_out = stock_report.stockouts()
                 for super in supervisors:
-                    super.message(config.Messages.SOH_ORDER_STOCKOUT_SUPERVISOR,
-                                contact=contact.name,
-                                products=stock_report.stockouts())
-                msg.respond(config.Messages.SOH_ORDER_STOCKOUT,
-                            contact = contact.name,
-                            products=stock_report.stockouts())
+                    super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS,
+                                  hsa=contact.name,
+                                  products=orders,
+                                  stockedout_products=stocked_out,
+                                  hsa_id=contact.supply_point.code)
+                
             else:
                 for super in supervisors:
                     super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION,
                                   hsa=contact.name,
-                                  products=", ".join(req.sms_format() for req in \
-                                                     StockRequest.objects.filter(\
-                                                        supply_point=stock_report.supply_point,
-                                                        status=StockRequestStatus.REQUESTED)),
+                                  products=orders,
                                   hsa_id=contact.supply_point.code)
-                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                            products=" ".join(stock_report.reported_products()).strip())
 
+            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+                        products=" ".join(stock_report.reported_products()).strip())
 
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:

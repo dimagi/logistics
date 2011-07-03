@@ -6,7 +6,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from rapidsms.contrib.messagelog.models import Message
 from logistics.apps.registration.views import registration as logistics_registration
-from logistics.apps.web_registration.views import admin_does_all
+from logistics.apps.web_registration.views import my_web_registration
 from logistics.apps.logistics import views as logistics_views
 from logistics.apps.ewsghana.forms import EWSGhanaWebRegistrationForm
 from logistics.apps.ewsghana.views import register_web_user
@@ -40,19 +40,24 @@ urlpatterns = patterns('',
     url(r'^register/web/admin/?$', register_web_user, 
         {'Form':EWSGhanaWebRegistrationForm, 
          'template':'ewsghana/web_registration.html', 
-         'success_url': 'ewsghana_admin_web_registration_complete'},     
+         'success_url': 'admin_web_registration'},     
        name='admin_web_registration'),
+    # modify my account
+    url(r'^register/web/me/?$',  my_web_registration,
+        {'template':'ewsghana/my_web_registration.html', 
+         'success_url': 'my_web_registration'}, 
+        name='my_web_registration'),
     # edit existing web user
     url(r'^register/web/(?P<pk>\d+)/edit/?$', register_web_user,
         {'Form':EWSGhanaWebRegistrationForm, 
          'template':'ewsghana/web_registration.html', 
-         'success_url': 'ewsghana_admin_web_registration_complete'}, 
+         'success_url': 'admin_web_registration'}, 
         name='admin_web_registration_edit'),
     # web user registration done
     url(r'^register/web/admin/complete(?:/(?P<caller>\w+))?(?:/(?P<account>\w+))?/$',
        direct_to_template,
        { 'template': 'web_registration/admin_registration_complete.html' },
-       name='admin_web_registration_complete'),
+       name='ewsghana_admin_web_registration_complete'),
 
     url(r'^facility?$',
        logistics_views.facility, 

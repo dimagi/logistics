@@ -63,7 +63,7 @@ APPS = []
 # debug mode is turned on as default, since rapidsms is under heavy
 # development at the moment, and full stack traces are very useful
 # when reporting bugs. don't forget to turn this off in production.
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 
 # after login (which is handled by django.contrib.auth), redirect to the
@@ -162,6 +162,10 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 
 # celery
 CARROT_BACKEND = "django"
+CELERY_HEARTBEAT_FILE = '/tmp/sc4ccm-heartbeat'
+
+# kannel
+KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
 
 DEFAULT_BACKEND = 'smsgh'
 INTL_DIALLING_CODE = "+"
@@ -205,7 +209,7 @@ LOGISTICS_APPROVAL_REQUIRED = False
 MAP_DEFAULT_LATITUDE  = 40.726111
 MAP_DEFAULT_LONGITUDE = -73.981389
 
-DEBUG=True
+DEBUG=False
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
@@ -216,6 +220,7 @@ NO_LOGIN_REQUIRED_FOR = [
 'logout',
 'activate',
 'help',
+'scmgr'
 ]
 
 # AUDITCARE CONFIG
@@ -223,6 +228,10 @@ NO_LOGIN_REQUIRED_FOR = [
 AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
+
+
+COUCHLOG_BLUEPRINT_HOME = "%s%s" % (MEDIA_URL, "logistics/stylesheets/blueprint/")
+COUCHLOG_DATATABLES_LOC = "%s%s" % (MEDIA_URL, "logistics/javascripts/jquery.dataTables.min.js")
 
 try:
     import sys
@@ -260,6 +269,7 @@ COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
 AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
+AUDITCARE_LOG_ERRORS = False
 
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'logistics.migrations',

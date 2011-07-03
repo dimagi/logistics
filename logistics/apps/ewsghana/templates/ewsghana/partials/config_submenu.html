@@ -12,6 +12,9 @@
     <a href="{% url facilities_list %}">LIST FACILITIES</a> * 
     <a href="{% url commodity_view %}">COMMODITIES</a>
 	{% endif %}
+{% else %}	
+    <a href="{% url ewsghana_scheduled_reports %}">MY EMAIL REPORTS</a> * 
+    <a href="{% url my_web_registration %}">MY ACCOUNT</a>
 {% endif %}	
 </div>
 

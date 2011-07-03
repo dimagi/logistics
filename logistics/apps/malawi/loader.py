@@ -9,7 +9,7 @@ from logistics.apps.logistics.util import config
 class LoaderException(Exception):
     pass
 
-def init_static_data():
+def init_static_data(log_to_console=False):
     """
     Initialize any data that should be static here
     """
@@ -29,10 +29,10 @@ def init_static_data():
     
     loc_file = getattr(settings, "STATIC_LOCATIONS")
     if loc_file:
-        load_locations(loc_file)
+        load_locations(loc_file, log_to_console=log_to_console)
     product_file = getattr(settings, "STATIC_PRODUCTS")
     if product_file:
-        load_products(product_file)
+        load_products(product_file, log_to_console=log_to_console)
     
     
 def clear_locations():
@@ -96,7 +96,7 @@ def load_locations(file_path, log_to_console=True):
     district_type = LocationType.objects.get_or_create(slug=config.LocationCodes.DISTRICT, name=config.LocationCodes.DISTRICT)[0]
     facility_type = LocationType.objects.get_or_create(slug=config.LocationCodes.FACILITY, name=config.LocationCodes.FACILITY)[0]
     hsa_type = LocationType.objects.get_or_create(slug=config.LocationCodes.HSA, name=config.LocationCodes.HSA)[0]
-    country = Location.objects.get_or_create(name=settings.COUNTRY, type=country_type, code=settings.COUNTRY)[0]
+    country = Location.objects.get_or_create(name=settings.COUNTRY[0].upper()+settings.COUNTRY[1:], type=country_type, code=settings.COUNTRY)[0]
     
     district_sp_type = SupplyPointType.objects.get_or_create(name="district", code=config.SupplyPointCodes.DISTRICT)[0]
     fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code=config.SupplyPointCodes.FACILITY)[0]

@@ -63,7 +63,7 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
     rms = get_object_or_404(SupplyPoint, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product')]
+    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product__name')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
@@ -240,13 +240,10 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
             row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
-        row['emergency_stock_count'] = child.emergency_stock_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
-        row['low_stock_count'] = child.low_stock_count(product=commodity_filter, 
+        row['emergency_plus_low'] = child.emergency_plus_low(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
-        row['adequate_supply_count'] = row['low_stock_count'] + row['good_supply_count']  
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter)
         if commodity_filter is not None:
@@ -299,7 +296,7 @@ def facility(req, pk=None, template="logistics/config.html"):
         form = FacilityForm(instance=facility)
     return render_to_response(
         template, {
-            "table": FacilityTable(SupplyPoint.objects.all(), request=req),
+            "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
             "klass": klass,

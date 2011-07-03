@@ -34,10 +34,14 @@ class EWSGhanaWebRegistrationForm(AdminRegistersUserForm):
     def save(self, profile_callback=None):
         user = super(EWSGhanaWebRegistrationForm, self).save(profile_callback)
         user.is_staff = False # Can never log into admin site
+        pag = _get_program_admin_group()
         if self.cleaned_data['is_program_admin']:
-            user.groups.add(_get_program_admin_group())
+            user.groups.add(pag)
+        elif pag in user.groups.all():
+            user.groups.remove(pag)
         if self.cleaned_data['is_IT_admin']:
             user.is_superuser = True
+        else:
+            user.is_superuser = False
         user.save()
         return user
-

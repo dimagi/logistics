@@ -13,4 +13,8 @@
 </head>
 <body>
     {{ report_body|safe }}
+    
+    <p>
+    To manage your email reports, or to unsubscribe, go to <a href="http://{{ site.name }}{% url email_reports %}">http://{{ site.name }}{% url email_reports %}</a>
+    </p>
 </body>

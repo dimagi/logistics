@@ -40,7 +40,9 @@ def register_web_user(request, pk=None, Form=AdminRegistersUserForm,
     # non-admin users only get to see the default 'create user' settings
     if not request.user.is_superuser:
         Form = AdminRegistersUserForm
-    return admin_does_all(request, pk, Form, template, success_url)
+    return admin_does_all(request, pk, Form, 
+                          template=template, 
+                          success_url=success_url)
 
 """ Configuration-Related Views """
 def web_registration(request, template_name="registration/registration_form.html"):

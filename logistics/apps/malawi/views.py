@@ -1,18 +1,23 @@
+from datetime import datetime, date
+from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from urllib import urlencode
 from urllib2 import urlopen
+from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+import logging
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint, Product, \
-    StockTransaction, StockRequestStatus, StockRequest
+    StockTransaction, StockRequestStatus, StockRequest, ProductReport
 from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
 from logistics.apps.logistics.decorators import place_in_request
 from logistics.apps.logistics.charts import stocklevel_plot
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from logistics.apps.logistics.view_decorators import filter_context
 from logistics.apps.logistics.reports import ReportingBreakdown
@@ -23,11 +28,14 @@ from django.contrib.auth.decorators import permission_required
 from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
+from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
+from django.conf import settings
 
+@cache_page(60 * 15)
 @place_in_request()
 def dashboard(request):
     
-    base_facilities = SupplyPoint.objects.filter(type__code="hsa")
+    base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
     group = None
     # district filter
     if request.location:
@@ -35,10 +43,11 @@ def dashboard(request):
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
         group = group_for_location(request.location)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = (group == config.Groups.EM))
+    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False, MNE=False)#(group == config.Groups.EM))
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
-                               "hsas_table": MalawiContactTable(Contact.objects.filter(role__code="hsa"), request=request),
+                               "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
+                                                                                       role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "districts": get_districts().order_by("code"),
@@ -147,7 +156,7 @@ def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
-    
+@cache_page(60 * 15)
 @permission_required("is_superuser")
 @datespan_in_request()
 def monitoring_report(request, report_slug):
@@ -179,6 +188,62 @@ def help(request):
 @permission_required("is_superuser")
 def status(request):
     #TODO Put these settings in localsettings, probably
-    f = urlopen('http://localhost:13000/status?password=CHANGEME')
+    f = urlopen(settings.KANNEL_URL)
     r = f.read()
+    with open(settings.CELERY_HEARTBEAT_FILE) as f:
+        r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
+        
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
+
+def _sort_date(x,y):
+    if x['registered'] < y['registered']: return -1
+    if x['registered'] > y['registered']: return 1
+    return 0
+
+@permission_required("is_superuser")
+def airtel_numbers(request):
+    airtelcontacts = Contact.objects.select_related().filter(connection__backend__name='airtel-smpp')
+    users = []
+    for a in airtelcontacts:
+        d = {
+            'name': a.name,
+            'phone': a.phone,
+            'registered': a.message_set.all().order_by('-date')[0].date
+        }
+        users.append(d)
+    users.sort(cmp=_sort_date, reverse=True)
+    return render_to_response("malawi/airtel.html", {'users':users}, context_instance=RequestContext(request))
+
+@csrf_exempt
+def scmgr_receiver(request):
+    if request.method != 'POST':
+        return HttpResponse("You must submit POST data to this url.")
+    data = request.POST.get('data', None)
+    result = json.simplejson.loads(data)
+    processed = 0
+    for r in result:
+        try:
+            facility = SupplyPoint.objects.get(code=HEALTH_FACILITY_MAP[r[3]])
+            pc = PRODUCT_CODE_MAP[r[6]].lower()
+            product = Product.objects.get(sms_code=pc)
+            date = datetime(year=r[4][0],month=r[4][1], day=1)
+            if ProductReport.objects.filter(supply_point=facility, product=product, report_date=date).exists():
+                # Server sent us some data we already have.  This means they should stop sending it.
+                return HttpResponse('cStock SCMgr data fully updated.')
+            quantity = r[0]
+            is_stocked_out = r[2]
+            if not quantity and not is_stocked_out:
+                # If stock quantity is 0, but stockout not indicated, this line wasn't filled in.
+                continue
+            facility.report_stock(product, quantity, date=date)
+            logging.info("SCMgr: Processed stock report %s %s %s %s" % (facility,product,quantity,date))
+            processed += 1
+        except (KeyError, SupplyPoint.DoesNotExist, Product.DoesNotExist) as e:
+            # Server sent us some data we don't care about.  Keep on truckin'.
+            continue
+    if result:
+        ret = "Processed %d entries." % processed
+        return HttpResponse(ret, status=201) # Keep sending us stuff if you have more to send.
+    else:
+        ret = "Got no data -- ending update."
+        return HttpResponse(ret)

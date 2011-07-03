@@ -4,17 +4,13 @@
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.apps.logistics.models import Product
-
-HELP_TEXT = "Text 'help stock' for help on the format of stock reports; " + \
-            "'help codes' for a list of commodity codes; " + \
-            "'help start' or 'help stop' to start and stop reminders."
+from logistics.apps.logistics.util import config
 
 class Help(KeywordHandler):
     keyword = "help"
 
-
     def help(self):
-        self.respond(HELP_TEXT)
+        self.respond(config.Messages.HELP_TEXT)
 
     def handle(self, text):
         topic = text.strip().lower()
@@ -38,4 +34,4 @@ class Help(KeywordHandler):
                         msg = msg + " %s" % p.description
                 self.respond(msg)
             except Product.DoesNotExist:
-                self.respond(HELP_TEXT)
+                self.respond(config.Messages.HELP_TEXT)
