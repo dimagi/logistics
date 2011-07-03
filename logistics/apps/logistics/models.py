@@ -102,11 +102,6 @@ class SupplyPointBase(models.Model):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
-    # indicates whether this facility should get alerts from sub-facilities
-    # (sub-facilities being defined as facilities in locations which are
-    # direct children of this facility's location)
-    # (this feature not implemented yet)
-    is_supervising_facility = models.BooleanField(default=True, help_text='Is this facility responsible for the supervision of other facilities in its region?')
 
     class Meta:
         abstract = True
