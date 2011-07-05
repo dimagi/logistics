@@ -58,23 +58,23 @@ def nag_hsas_soh(since, location=None):
     now = datetime.utcnow()
     
     # only send nags if we're past the nag period
-    if now < since + timedelta(days=WARNING_DAYS):
+    if now > since + timedelta(days=WARNING_DAYS):
         # everyone who didn't report - people who have gotten at least 1 nag in the period
         hsa_first_warnings = hsas - set(x.supply_point for x in nags_in_range)
         
-    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING):
+    if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING):
         # everyone who hasn't gotten a nag level 2 or higher
         hsa_second_warnings = hsas.intersection(x.supply_point for x in \
                                                 nags_in_range.exclude(warning__gte=2))
                     
-    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
+    if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
                                DAYS_BETWEEN_SECOND_AND_THIRD_WARNING):
         # everyone who hasn't gotten a nag level 3 or higher,
         # minus the folks only getting level 2
         hsa_third_warnings = hsas.intersection(x.supply_point for x in \
                                                nags_in_range.exclude(warning__gte=3)) \
                                 - hsa_second_warnings
-    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
+    if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
                                DAYS_BETWEEN_SECOND_AND_THIRD_WARNING + DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING):
         
         # everyone who hasn't gotten a nag level 4 or higher,
