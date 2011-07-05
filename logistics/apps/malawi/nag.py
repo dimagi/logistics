@@ -19,6 +19,8 @@ REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 4
 EM_REPORTING_DAY = 1 # First of the month
 WARNING_DAYS = 2 # Advance warning days before report is officially late
 
+MIN_NAG_INTERVAL = 24 # The minimum time between nags, to avoid spam in edge/bug/logic change cases
+
 def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
     """
     Get all HSAs who haven't reported since a passed in date
@@ -150,7 +152,16 @@ def nag_hsas_rec(since):
 def send_nag_messages(warnings):
     for w in warnings:
         for hsa in w["hsas"]:
+            
+            previous_nags = NagRecord.objects.filter(supply_point=hsa, nag_type=w['code'])\
+                                .order_by('-report_date')
+            if previous_nags:
+                # don't nag anyone we've nagged for the same reason in the last 24 hours
+                last_nag_date = previous_nags[0].report_date
+                if datetime.utcnow() - last_nag_date < timedelta(hours=MIN_NAG_INTERVAL):
+                    continue 
             try:
+                
                 contact = Contact.objects.get(supply_point=hsa)
                 send_message(contact.default_connection, w["message"] % {'hsa': contact.name, 'days': w['days']})
                 NagRecord(supply_point=hsa, warning=w["number"],nag_type=w['code']).save()
@@ -158,14 +169,11 @@ def send_nag_messages(warnings):
                 logging.error("Contact does not exist for HSA: %s" % hsa.name)
                 continue
             if w["flag_supervisor"]:
-                try:
-                    supervisor = Contact.objects.get(is_active=True,
-                                                     role=ContactRole.objects.get(code=config.Roles.HSA_SUPERVISOR),
-                                                     supply_point=hsa.supplied_by)
+                for supervisor in Contact.objects.filter(is_active=True,
+                                                         role=ContactRole.objects.get(code=config.Roles.HSA_SUPERVISOR),
+                                                         supply_point=hsa.supplied_by):
                     send_message(supervisor.default_connection, w["supervisor_message"] % { 'hsa': contact.name})
-                except Contact.DoesNotExist:
-                    logging.error("Supervisor does not exist for HSA: %s" % hsa.name)
-
+                
 
 def nag_hsas_ept():
     # For the EPT group, nag them so that they report at least every 30 days
