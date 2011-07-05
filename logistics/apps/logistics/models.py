@@ -823,6 +823,10 @@ class RequisitionReport(models.Model):
 
     
 class NagRecord(models.Model):
+    """
+    A record of a Nag going out, so we don't send the same nag
+    multiple times.
+    """
     supply_point = models.ForeignKey(SupplyPoint)
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)

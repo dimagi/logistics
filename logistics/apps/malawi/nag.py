@@ -25,35 +25,53 @@ def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
     """
     hsas = set(hsa_supply_points_below(location))
     reporters = set(x.supply_point for x in \
-                    ProductReport.objects.filter(report_type=ProductReportType.objects.get(code=report_code),
-                                                 report_date__range = [since,
-                                                                       datetime.utcnow()]))
+                    ProductReport.objects.filter(report_type__code=report_code,
+                                                 report_date__range=[since,
+                                                                     datetime.utcnow()]))
     return hsas - reporters
 
 def nag_hsas_soh(since, location=None):
     """
-    Send non-reporting HSAs a predefined nag message.  Notify their supervisor if they've been
-    sufficiently delinquent.
+    Send non-reporting HSAs a predefined nag message.  
+    Notify their supervisor if they've been sufficiently delinquent.
     """
+    # everyone who didn't report
     hsas = get_non_reporting_hsas(since, Reports.SOH, location)
-    hsa_first_warnings = hsas - set(x.supply_point for x in NagRecord.objects.filter(report_date__range = [since,
-                                                                               datetime.utcnow()],
-                                                                                nag_type=Reports.SOH))
-    hsa_second_warnings = hsas.intersection(x.supply_point for x in \
-                NagRecord.objects.filter(report_date__range = [since,
-                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_FIRST_AND_SECOND_WARNING)],
-                                         warning = 1,
-                                         nag_type=Reports.SOH))
-    hsa_third_warnings = hsas.intersection(x.supply_point for x in \
-                NagRecord.objects.filter(report_date__range = [since,
-                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_SECOND_AND_THIRD_WARNING)],
-                                         warning = 2,
-                                         nag_type=Reports.SOH))
-    hsa_fourth_warnings = hsas.intersection(x.supply_point for x in \
-                NagRecord.objects.filter(report_date__range = [since,
-                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING)],
-                                         warning = 3,
-                                         nag_type=Reports.SOH))
+    
+    nags_in_range = NagRecord.objects.filter\
+                        (report_date__range=[since, datetime.utcnow()],
+                         nag_type=Reports.SOH)
+    
+    # empty init
+    hsa_first_warnings = hsa_second_warnings = hsa_third_warnings = hsa_fourth_warnings = set(())
+    now = datetime.utcnow()
+    
+    # only send nags if we're past the nag period
+    if now < since + timedelta(days=WARNING_DAYS):
+        # everyone who didn't report - people who have gotten at least 1 nag in the period
+        hsa_first_warnings = hsas - set(x.supply_point for x in nags_in_range)
+        
+    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING):
+        # everyone who hasn't gotten a nag level 2 or higher
+        hsa_second_warnings = hsas.intersection(x.supply_point for x in \
+                                                nags_in_range.exclude(warning__gte=2))
+                    
+    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
+                               DAYS_BETWEEN_SECOND_AND_THIRD_WARNING):
+        # everyone who hasn't gotten a nag level 3 or higher,
+        # minus the folks only getting level 2
+        hsa_third_warnings = hsas.intersection(x.supply_point for x in \
+                                               nags_in_range.exclude(warning__gte=3)) \
+                                - hsa_second_warnings
+    if now < since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
+                               DAYS_BETWEEN_SECOND_AND_THIRD_WARNING + DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING):
+        
+        # everyone who hasn't gotten a nag level 4 or higher,
+        # minus the folks only getting levels 2 or 3
+        hsa_fourth_warnings = hsas.intersection(x.supply_point for x in \
+                                                nags_in_range.exclude(warning__gte=4)) \
+                                - hsa_second_warnings - hsa_third_warnings
+        
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
@@ -150,6 +168,7 @@ def send_nag_messages(warnings):
 
 
 def nag_hsas_ept():
+    # For the EPT group, nag them so that they report at least every 30 days
     since = datetime.utcnow() - timedelta(days=30-WARNING_DAYS)
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EPT]]
     for l in locs:
@@ -157,12 +176,18 @@ def nag_hsas_ept():
     nag_hsas_rec(since)
 
 def nag_hsas_em():
-    since = datetime.utcnow().replace(day=EM_REPORTING_DAY) - timedelta(days=WARNING_DAYS)
+    # For the EM group, nag them to report around a (configurable) day of month
+    # We send nags at 9am UTC/11am malawi time
+    since = datetime.utcnow().replace(day=EM_REPORTING_DAY,
+                                      hour=9,minute=0,second=0) - timedelta(days=WARNING_DAYS)
+    
+    # make sure the date is in the past
     if since > datetime.utcnow():
         try:
             since.replace(month=datetime.utcnow().month - 1) # wraparound?
         except ValueError:
             since.replace(year=datetime.utcnow().year - 1, month=12)
+    
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
     for l in locs:
         nag_hsas_soh(since, l)
