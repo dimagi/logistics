@@ -122,13 +122,14 @@ def LoadFacilities(filename):
     We keep this around for now so as not to break certain book scripts.
     """
     from logistics.apps.logistics.models import SupplyPoint, SupplyPointType, Location
+    from logistics.apps.logistics.util import config
     reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"')
     errors = 0
     for row in reader:
         region = row[1].strip()
         district = row[2]
         name = row[3].strip()
-        rms_type = SupplyPointType.objects.get(code__icontains='rms')
+        rms_type = SupplyPointType.objects.get(code__icontains=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
         try:
             rms = SupplyPoint.objects.get(type=rms_type, name__icontains=region)
         except SupplyPoint.DoesNotExist:
@@ -169,6 +170,7 @@ def LoadFacilities(filename):
 def LoadProductsIntoFacilities(demo=False):
     from logistics.apps.logistics.models import SupplyPoint, ProductStock, Product
     facilities = SupplyPoint.objects.order_by('type')
+    print facilities.count()
     
     if demo:
         RMS_consumption = 100
@@ -190,7 +192,7 @@ def LoadProductsIntoFacilities(demo=False):
                 pass
             else:
                 ps.delete()
-            if fac.type.code == 'RMS':
+            if fac.type.code == config.SupplyPointCodes.REGIONAL_MEDICAL_STORE:
                 # RMS get all products by default active, 100 stock
                 ProductStock(quantity=random.randint(0,max_RMS_consumption),
                              supply_point=fac,
@@ -249,7 +251,7 @@ def init_reminders():
 def _get_or_create_region_rms(region_name, region):
     # DELIVER ONLY
     from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
-    rms_type = SupplyPointType.objects.get(code='RMS')
+    rms_type = SupplyPointType.objects.get(code=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
     created = False
     try:
         rms = SupplyPoint.objects.get(type=rms_type, name__icontains=region_name)

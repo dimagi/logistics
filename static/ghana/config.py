@@ -111,7 +111,7 @@ class Messages(object):
     SECOND_STOCK_ON_HAND_REMINDER = 'Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.'
     THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, your facility has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
     THIRD_CHPS_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, %(facility)s has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
-    RRIRV_REMINDER = "Dear %(name)s, have you submitted your stock requisition this month? Please reply 'yes' or 'no'"
+    RRIRV_REMINDER = "Dear %(name)s, have you submitted your RRIRV forms this month? Please reply 'yes' or 'no'"
 
     # reports
     NUMBER_OF_SUPPLY_POINTS = "Number of Facilities"
