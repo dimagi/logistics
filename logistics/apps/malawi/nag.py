@@ -32,6 +32,15 @@ def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
                                                                      datetime.utcnow()]))
     return hsas - reporters
 
+def get_stock_requests_pending_pickup(before=None):
+    reqs = StockRequest.objects.filter(status=StockRequestStatus.APPROVED)
+    if before:
+        reqs = reqs.filter(responded_on__lte=before)
+    return reqs
+    
+def get_hsas_pending_pickup(before=None):
+    return set([x.supply_point for x in get_stock_requests_pending_pickup(before)])
+                     
 def nag_hsas_soh(since, location=None):
     """
     Send non-reporting HSAs a predefined nag message.  
@@ -105,25 +114,39 @@ def nag_hsas_soh(since, location=None):
 
     send_nag_messages(warnings)
 
-def nag_hsas_rec(since):
+def nag_hsas_rec():
     """
     Send non-reporting HSAs a predefined nag message.  Notify their supervisor if they've been
     sufficiently delinquent.
     """
-    hsas = set([x.supply_point for x in StockRequest.objects.filter(status=StockRequestStatus.APPROVED,
-                                                                    responded_on__range = [since, datetime.utcnow()])])
-    hsa_first_warnings = hsas - set(x.supply_point for x in NagRecord.objects.filter(report_date__range = [since,
-                                                                               datetime.utcnow()], nag_type=Reports.REC))
-    hsa_second_warnings = hsas.intersection(x.supply_point for x in \
-                NagRecord.objects.filter(report_date__range = [since,
-                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_FIRST_AND_SECOND_WARNING)],
-                                         warning = 1,
-                                         nag_type=Reports.REC))
-    hsa_third_warnings = hsas.intersection(x.supply_point for x in \
-                NagRecord.objects.filter(report_date__range = [since,
-                                                               datetime.utcnow()-timedelta(days=DAYS_BETWEEN_SECOND_AND_THIRD_WARNING)],
-                                         warning = 2,
-                                         nag_type=Reports.REC))
+    now = datetime.utcnow()
+    
+    # send the first nag WARNING_DAYS days after the order ready message
+    def _get_hsas_ready_for_nag(warning_time, extra_filter_params={}):
+        
+        reqs = get_stock_requests_pending_pickup(warning_time)
+        hsa_warnings = []
+        for req in reqs:
+            if NagRecord.objects.filter(supply_point=req.supply_point,
+                                        report_date__range=[req.responded_on,now], 
+                                        nag_type=Reports.REC,
+                                        **extra_filter_params).count() == 0:
+                hsa_warnings.append(req.supply_point)
+        return set(hsa_warnings)
+        
+    first_warning_time = now - timedelta(days=WARNING_DAYS)
+    hsa_first_warnings = _get_hsas_ready_for_nag(first_warning_time)
+    
+    second_warning_time = first_warning_time - timedelta(days=REC_DAYS_BETWEEN_FIRST_AND_SECOND_WARNING)
+    hsa_second_warnings = _get_hsas_ready_for_nag(second_warning_time, 
+                                                  extra_filter_params={"warning__gte": 2}) \
+                                - hsa_first_warnings
+    
+    third_warning_time = second_warning_time - timedelta(days=REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING)
+    hsa_third_warnings = _get_hsas_ready_for_nag(third_warning_time, 
+                                                 extra_filter_params={"warning__gte": 3}) \
+                                - hsa_first_warnings - hsa_second_warnings
+    
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
@@ -181,7 +204,6 @@ def nag_hsas_ept():
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EPT]]
     for l in locs:
         nag_hsas_soh(since, l)
-    nag_hsas_rec(since)
 
 def nag_hsas_em():
     # For the EM group, nag them to report around a (configurable) day of month
@@ -199,5 +221,3 @@ def nag_hsas_em():
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
     for l in locs:
         nag_hsas_soh(since, l)
-    nag_hsas_rec(since)
-
