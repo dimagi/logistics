@@ -238,7 +238,7 @@ def order_messages(instance):
         for p in PRODUCT_CODES:
             if srf.filter(product__sms_code=p).exists():
                 count += 1
-                g = srf.get(product__sms_code=p)
+                g = srf.filter(product__sms_code=p)[0]
                 s = g.status if g.status != 'canceled' else 'superseded'
                 if not s in row['status']:
                     if row['status']:
