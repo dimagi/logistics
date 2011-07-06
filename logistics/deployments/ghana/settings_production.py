@@ -5,6 +5,8 @@ ADMINS = (('Rowena','rluk+ewsghana-admin@dimagi.com'), )
 MANAGERS = (('Rowena','rluk+ewsghana-manager@dimagi.com'), )
 SEND_BROKEN_LINK_EMAILS = True
 
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
 APPS = [
     "auditcare",
     "rapidsms.contrib.scheduler",
