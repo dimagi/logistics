@@ -7,6 +7,7 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
+from logistics.apps.logistics.models import SupplyPoint
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
 # widget is rendered at its default width -- which is too wide for our
@@ -136,6 +137,10 @@ class IntlSMSContactForm(ContactForm):
                                     {'intl':idc})
 
 class CommoditiesContactForm(IntlSMSContactForm):
+    supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
+                                          required=False,  
+                                          label='Facility')
+
     class Meta:
         model = Contact
         exclude = ("user", "language")
