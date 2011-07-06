@@ -39,6 +39,7 @@ class SupplyPointCodes(object):
     These correspond to SupplyPointType.code
     """
     REGIONAL_MEDICAL_STORE = "RMS"
+    REGIONAL_HOSPITAL = "rh"
     HOSPITAL = "hospital"
     HEALTH_CENTER = "hc"
     CHPS = "chps"
