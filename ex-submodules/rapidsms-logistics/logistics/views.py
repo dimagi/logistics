@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import cache_page
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
@@ -138,6 +139,7 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
         template, context, context_instance=RequestContext(request)
     )
 
+@cache_page(60 * 15)
 @geography_context
 @filter_context
 def facilities_by_product(request, location_code, context={}, template="logistics/by_product.html"):
@@ -163,6 +165,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
         template, context, context_instance=RequestContext(request)
     )
 
+@cache_page(60 * 15)
 @geography_context
 @filter_context
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
@@ -182,6 +185,7 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
         template, context, context_instance=RequestContext(request)
     )
 
+@cache_page(60 * 15)
 @require_POST
 def navigate(request):
     location_code = settings.COUNTRY
@@ -193,6 +197,7 @@ def navigate(request):
     return HttpResponseRedirect(
         reverse(destination, args=(location_code, )))
 
+@cache_page(60 * 15)
 @geography_context
 @filter_context
 def dashboard(request, location_code=None, context={}, template="logistics/aggregate.html"):
@@ -205,6 +210,7 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
         return stockonhand_facility(request, location_code, context=context)
     return aggregate(request, location_code, context=context)
 
+@cache_page(60 * 15)
 @geography_context
 @filter_context
 def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
@@ -343,6 +349,7 @@ def get_facilities():
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
 
+@cache_page(60 * 15)
 @place_in_request()
 def district_dashboard(request, template="logistics/district_dashboard.html"):
     districts = get_districts()
