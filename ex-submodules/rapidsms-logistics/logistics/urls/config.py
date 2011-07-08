@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-
+from __future__ import absolute_import
 from django.conf.urls.defaults import *
 from django.views.generic.simple import redirect_to
 from logistics import views
