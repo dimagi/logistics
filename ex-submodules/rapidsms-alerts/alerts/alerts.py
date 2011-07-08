@@ -1,4 +1,4 @@
-from logistics.apps.alerts import Alert
+from alerts import Alert
 
 def empty(request):
     """
