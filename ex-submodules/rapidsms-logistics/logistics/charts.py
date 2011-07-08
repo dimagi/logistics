@@ -1,6 +1,6 @@
 import gviz_api
-from logistics.apps.logistics.models import ProductReportType, Product
-from logistics.apps.logistics.const import Reports
+from logistics.models import ProductReportType, Product
+from logistics.const import Reports
 
 
 def stocklevel_plot(transactions):

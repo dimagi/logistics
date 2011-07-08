@@ -11,10 +11,10 @@ from rapidsms.conf import settings
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
-from logistics.apps.logistics.models import Product, ProductReportsHelper
-from logistics.apps.logistics.errors import UnknownCommodityCodeError
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.models import Product, ProductReportsHelper
+from logistics.errors import UnknownCommodityCodeError
+from logistics.const import Reports
+from logistics.util import config
 
 class App(AppBase):
 

@@ -3,8 +3,8 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
-from logistics.apps.logistics.models import ProductReport, ProductStock
-from logistics.apps.logistics.util import config
+from logistics.models import ProductReport, ProductStock
+from logistics.util import config
 
 class Stop(KeywordHandler):
     """

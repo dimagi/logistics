@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from django.db import transaction
 from django.dispatch import Signal
-from logistics.apps.logistics.const import Reports
+from logistics.const import Reports
 
 stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
 
@@ -23,7 +23,7 @@ def post_save_product_report(sender, instance, created, **kwargs):
     Something to consider if we start saving stocktransactions anywhere else.
     """
     if not created:             return
-    from logistics.apps.logistics.models import StockTransaction
+    from logistics.models import StockTransaction
     
     # 1. Update the facility report date information 
     instance.supply_point.last_reported = datetime.now()
@@ -46,5 +46,5 @@ def post_save_product_report(sender, instance, created, **kwargs):
 def create_user_profile(sender, instance, created, **kwargs):
     """Create a matching profile whenever a User is created."""
     if created:
-        from logistics.apps.logistics.models import LogisticsProfile
+        from logistics.models import LogisticsProfile
         profile, new = LogisticsProfile.objects.get_or_create(user=instance)

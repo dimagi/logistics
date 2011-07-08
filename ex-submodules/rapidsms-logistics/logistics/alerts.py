@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from logistics.apps.alerts import Alert
+from alerts import Alert
 from django.core.urlresolvers import reverse
-from logistics.apps.logistics.decorators import place_in_request, return_if_place_not_set
-from logistics.apps.logistics.reports import get_reporting_and_nonreporting_facilities
+from logistics.decorators import place_in_request, return_if_place_not_set
+from logistics.reports import get_reporting_and_nonreporting_facilities
 
 class NonReportingFacilityAlert(Alert):
     def __init__(self, facility):

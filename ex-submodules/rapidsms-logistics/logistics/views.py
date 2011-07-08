@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-from logistics.apps.logistics.const import Reports
+from logistics.const import Reports
 
 import json
 from datetime import datetime
@@ -22,15 +22,15 @@ from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
 from auditcare.views import auditAll
 from registration.views import register as django_register
-from logistics.apps.logistics.charts import stocklevel_plot
-from logistics.apps.logistics.decorators import place_in_request
-from logistics.apps.logistics.models import ProductStock, \
+from logistics.charts import stocklevel_plot
+from logistics.decorators import place_in_request
+from logistics.models import ProductStock, \
     ProductReportsHelper, ProductReport, LogisticsProfile,\
     SupplyPoint, StockTransaction
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.view_decorators import filter_context, geography_context
-from logistics.apps.logistics.reports import ReportingBreakdown
-from logistics.apps.logistics.reports import get_reporting_and_nonreporting_facilities
+from logistics.util import config
+from logistics.view_decorators import filter_context, geography_context
+from logistics.reports import ReportingBreakdown
+from logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from .tables import FacilityTable, CommodityTable

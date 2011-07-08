@@ -1,5 +1,5 @@
 from django import template
-from logistics.apps.logistics.util import config
+from logistics.util import config
 
 register = template.Library()
 

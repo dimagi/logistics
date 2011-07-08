@@ -1,9 +1,9 @@
 from datetime import timedelta
-from logistics.apps.logistics.const import Reports
+from logistics.const import Reports
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics.models import Location, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
-from logistics.apps.logistics.models import SupplyPoint as Facility
+from logistics.models import Location, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
+from logistics.models import SupplyPoint as Facility
 
 class TestConsumption (TestScript):
     fixtures = ["ghana_initial_data.json"]

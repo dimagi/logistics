@@ -3,19 +3,19 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
-from logistics.apps.logistics.models import SupplyPoint, StockRequest,\
+from logistics.models import SupplyPoint, StockRequest,\
     StockRequestStatus, Product, ProductStock
 from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
-from logistics.apps.logistics.views import get_location_children
+from logistics.views import get_location_children
 from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics.tables import ShortMessageTable
-from logistics.apps.logistics.reports import ReportingBreakdown,\
+from logistics.tables import ShortMessageTable
+from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, \
     HSASupplyPointRow, FacilitySupplyPointRow
-from logistics.apps.malawi.util import hsas_below
+from malawi.util import hsas_below
 from dimagi.utils.dates import DateSpan
 register = template.Library()
 

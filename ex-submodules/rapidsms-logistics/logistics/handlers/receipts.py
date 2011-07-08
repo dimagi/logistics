@@ -3,12 +3,12 @@
 
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.logistics.models import ProductReportsHelper, \
+from logistics.models import ProductReportsHelper, \
     StockRequest, StockTransfer
-from logistics.apps.logistics.decorators import logistics_contact_required,\
+from logistics.decorators import logistics_contact_required,\
     logistics_contact_and_permission_required
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.const import Reports
+from logistics.util import config
 
 class ReceiptHandler(KeywordHandler):
     """

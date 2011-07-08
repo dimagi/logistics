@@ -1,5 +1,5 @@
 from logistics import settings
-from logistics.apps.logistics.util import config
+from logistics.util import config
 from rapidsms.contrib.locations.models import Location
 
 def logistics_contact_required():

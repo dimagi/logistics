@@ -4,7 +4,7 @@
 
 from django.conf.urls.defaults import *
 from django.views.generic.simple import redirect_to
-from logistics.apps.logistics import views
+from logistics import views
 
 urlpatterns = patterns('',
     url(r'^facility/?$',

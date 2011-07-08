@@ -7,13 +7,13 @@ from django.utils.importlib import import_module
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 from dimagi.utils.dates import DateSpan
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.models import ProductReport, \
+from logistics.const import Reports
+from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest
-from logistics.apps.logistics.tables import ReportingTable
-import logistics.apps.logistics.models as logistics_models
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.tables import ReportingTable
+import logistics.models as logistics_models
+from logistics.const import Reports
+from logistics.util import config
 
 if hasattr(settings,'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)

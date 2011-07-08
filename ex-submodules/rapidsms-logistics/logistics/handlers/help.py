@@ -3,8 +3,8 @@
 
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.logistics.models import Product
-from logistics.apps.logistics.util import config
+from logistics.models import Product
+from logistics.util import config
 
 class Help(KeywordHandler):
     keyword = "help"

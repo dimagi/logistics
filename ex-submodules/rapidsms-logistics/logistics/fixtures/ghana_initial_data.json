@@ -163,7 +163,7 @@
         "model": "rapidsms.app", 
         "fields": {
             "active": false, 
-            "module": "logistics.apps.registration"
+            "module": "registration"
         }
     }, 
     {
@@ -171,7 +171,7 @@
         "model": "rapidsms.app", 
         "fields": {
             "active": false, 
-            "module": "logistics.apps.logistics"
+            "module": "logistics"
         }
     }, 
     {

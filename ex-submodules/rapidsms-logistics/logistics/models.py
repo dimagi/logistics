@@ -18,14 +18,14 @@ from rapidsms.models import Contact, ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.signals import post_save_product_report, create_user_profile,\
+from logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved
-from logistics.apps.logistics.errors import *
+from logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
 import uuid
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
-#import logistics.apps.logistics.log
+from logistics.const import Reports
+from logistics.util import config
+#import logistics.log
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS

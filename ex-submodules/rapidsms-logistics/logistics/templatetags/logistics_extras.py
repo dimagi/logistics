@@ -1,5 +1,5 @@
 from django import template
-from logistics.apps.logistics.templatetags.math_tags import percent
+from logistics.templatetags.math_tags import percent
 register = template.Library()
 
 @register.inclusion_tag("logistics/templatetags/highlight_months_available.html")
