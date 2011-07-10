@@ -1,0 +1,9 @@
+{% extends "logistics/district_dashboard.html" %}
+{% load logistics_report_tags %}
+
+{% block product_data %}
+<div class="module toppadded">
+	<h2>Product Availability Summary</h2>
+	{% product_availability_summary location %}
+</div>
+{% endblock %}

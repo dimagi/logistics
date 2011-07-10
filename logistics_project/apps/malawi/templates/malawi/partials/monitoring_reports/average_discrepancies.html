@@ -1,0 +1,78 @@
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+{% load report_tags %}
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ em_reports|length }}" >EM</th>
+            <th colspan="{{ ept_reports|length }}" >EPT</th>
+            <th colspan="2">Totals</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in em_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+{% for d in ept_reports %}
+            <th>{{ d.name }}</th>
+{% endfor %}
+            <th>EM</th>
+            <th>EPT</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in product_codes %}
+        <tr>
+            <td>Average discrepancy in orders of {% commodity_code_to_name p %}</td>
+        {% for r in em_reports.values %}
+            <td
+            {% if p in r.discrepancies_avg_p %}
+                title="total: {{ r.discrepancies_tot_p|dict_lookup:p }}, count: {{ r.discrepancies_p|dict_lookup:p }}">
+
+            {{ r.discrepancies_avg_p|dict_lookup:p }}
+{#            {{ r.discrepancies_tot_p|dict_lookup:p }}#}
+{#            {{ r.discrepancies_p|dict_lookup:p }}#}
+                {% else %}>
+                <span style="color:gray">n/a</span>
+             {% endif %}
+            </td>
+{% endfor %}
+        {% for r in ept_reports.values %}
+            <td
+            {% if p in r.discrepancies_avg_p %}
+                title="total: {{ r.discrepancies_tot_p|dict_lookup:p }}, count: {{ r.discrepancies_p|dict_lookup:p }}">
+
+                {{ r.discrepancies_avg_p|dict_lookup:p }}
+{#                {{ r.discrepancies_tot_p|dict_lookup:p }}#}
+{#                {{ r.discrepancies_p|dict_lookup:p }}#}
+                {% else %}>
+                <span style="color:gray">n/a</span>
+             {% endif %}
+            </td>
+{% endfor %}
+
+        <td            {% if p in em_totals.discrepancies_avg_p %}
+            title="total: {{ em_totals.discrepancies_tot_p|dict_lookup:p }}, count: {{ em_totals.discrepancies_p|dict_lookup:p }}">
+
+            {{ em_totals.discrepancies_avg_p|dict_lookup:p }}
+                        {% else %}>
+                <span style="color:gray">n/a</span>
+             {% endif %}
+        </td>
+        <td {% if p in ept_totals.discrepancies_avg_p %}
+            title="total: {{ ept_totals.discrepancies_tot_p|dict_lookup:p }}, count: {{ ept_totals.discrepancies_p|dict_lookup:p }}">
+
+            {{ ept_totals.discrepancies_avg_p|dict_lookup:p }}
+
+                        {% else %}>
+                <span style="color:gray">n/a</span>
+             {% endif %}
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div><span style="color:gray">n/a: no receipt data for this product &mdash; a negative number indicates an overfill</span></div>
