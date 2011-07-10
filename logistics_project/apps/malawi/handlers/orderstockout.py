@@ -1,8 +1,8 @@
 from datetime import datetime
-from logistics.apps.logistics.models import StockRequest, ContactRole,\
+from logistics.models import StockRequest, ContactRole,\
     ProductStock
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
+from logistics.util import config
+from logistics_project.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 from rapidsms.models import Contact
 
 class OrderStockoutHandler(OrderResponseBaseHandler):

@@ -1,6 +1,6 @@
 from logistics import settings
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.malawi import loader
+from logistics_project.apps.malawi import loader
 from rapidsms.contrib.messagelog.models import Message
 import csv
 import os

@@ -1,12 +1,12 @@
-from logistics.apps.logistics.models import ProductReportsHelper, StockRequest,\
+from logistics.models import ProductReportsHelper, StockRequest,\
     ContactRole, StockTransfer
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi import util
-from logistics.apps.malawi.shortcuts import create_stock_report,\
+from logistics.const import Reports
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics.util import config
+from logistics_project.apps.malawi import util
+from logistics_project.apps.malawi.shortcuts import create_stock_report,\
     send_emergency_responses, send_soh_responses, send_transfer_responses
 
 SUPPORTED_REPORT_KEYWORDS = [Reports.SOH, Reports.REC, Reports.EMERGENCY_SOH, Reports.GIVE]

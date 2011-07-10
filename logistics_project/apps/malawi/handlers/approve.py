@@ -1,11 +1,11 @@
 """Managers register for the system here"""
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi.util import get_hsa
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics_project.apps.malawi.util import get_hsa
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
-from logistics.apps.logistics.util import config
+from logistics.models import ContactRole, SupplyPoint
+from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from logistics.util import config
 from static.malawi.config import Operations
 
 class ApprovalHandler(RegistrationBaseHandler):

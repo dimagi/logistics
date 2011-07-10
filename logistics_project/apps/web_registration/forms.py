@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.models import SupplyPoint
 
 class AdminRegistersUserForm(RegistrationForm): 
     location = forms.ModelChoiceField(Location.objects.all().order_by('name'), required=False)

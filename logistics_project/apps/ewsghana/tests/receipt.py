@@ -1,8 +1,8 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics import app as logistics_app
-from logistics.apps.logistics.models import Location, SupplyPointType
-from logistics.apps.logistics.models import SupplyPoint as Facility
+from logistics import app as logistics_app
+from logistics.models import Location, SupplyPointType
+from logistics.models import SupplyPoint as Facility
 
 
 class TestReceipts (TestScript):

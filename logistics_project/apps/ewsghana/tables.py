@@ -4,8 +4,8 @@
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
-from logistics.apps.logistics.models import ProductStock
-from logistics.apps.logistics.tables import FacilityTable, _location
+from logistics.models import ProductStock
+from logistics.tables import FacilityTable, _location
 
 def _facility_view(cell):
     return reverse(

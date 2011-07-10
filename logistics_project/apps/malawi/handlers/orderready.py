@@ -2,9 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from datetime import datetime
-from logistics.apps.logistics.models import StockRequest
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
+from logistics.models import StockRequest
+from logistics.util import config
+from logistics_project.apps.malawi.handlers.abstract.orderresponse import OrderResponseBaseHandler
 
 class OrderReadyHandler(OrderResponseBaseHandler):
     """

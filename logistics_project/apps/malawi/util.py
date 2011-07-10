@@ -1,7 +1,7 @@
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import SupplyPoint
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.exceptions import MultipleHSAException
+from logistics.models import SupplyPoint
+from logistics.util import config
+from logistics_project.apps.malawi.exceptions import MultipleHSAException
 from rapidsms.contrib.locations.models import Location
 from django.db.models.query_utils import Q
 

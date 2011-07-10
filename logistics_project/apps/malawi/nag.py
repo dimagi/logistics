@@ -3,15 +3,15 @@ import logging
 import os
 from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
+from logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole, StockRequest, StockRequestStatus
 from celery.schedules import crontab
 from celery.decorators import periodic_task
 from rapidsms.contrib.messaging.utils import send_message
-from logistics.apps.logistics.const import Reports
+from logistics.const import Reports
 from logistics import config
 from static.malawi.config import Messages
-from logistics.apps.malawi.util import hsa_supply_points_below
+from logistics_project.apps.malawi.util import hsa_supply_points_below
 
 DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 2

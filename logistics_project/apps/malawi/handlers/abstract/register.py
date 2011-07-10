@@ -1,8 +1,8 @@
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.models import SupplyPoint
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from logistics.apps.logistics.util import config
+from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics.util import config
 from config import Messages
 
 class RegistrationBaseHandler(RecordResponseHandler):

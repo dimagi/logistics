@@ -1,7 +1,7 @@
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import SupplyPoint, \
+from logistics.models import SupplyPoint, \
     SupplyPointType, Product, ProductType, ProductStock
-from logistics.apps.ewsghana.tests.util import load_test_data
+from logistics_project.apps.ewsghana.tests.util import load_test_data
 
 class TestEquivalents(TestScript):
     def setUp(self):

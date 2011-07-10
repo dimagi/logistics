@@ -1,8 +1,8 @@
 from django import forms
 from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.registration.forms import IntlSMSContactForm
-from logistics.apps.logistics.models import Location, SupplyPoint, SupplyPointType 
+from logistics_project.apps.registration.forms import IntlSMSContactForm
+from logistics.models import Location, SupplyPoint, SupplyPointType 
 
 class TestRegister(TestScript):
     fixtures = ["ghana_initial_data.json"] 

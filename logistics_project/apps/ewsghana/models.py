@@ -1,4 +1,4 @@
 
 
 # we import signals in models
-from logistics.apps.ewsghana import signals 
+from logistics_project.apps.ewsghana import signals 

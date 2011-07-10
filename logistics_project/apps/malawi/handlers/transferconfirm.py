@@ -1,9 +1,9 @@
 from datetime import datetime
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.logistics.models import ProductReportsHelper , StockTransfer
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.logistics.util import config
+from logistics.models import ProductReportsHelper , StockTransfer
+from logistics.const import Reports
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics.util import config
 
 class TransferConfirmHandler(KeywordHandler):
     """

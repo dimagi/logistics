@@ -17,14 +17,14 @@ class Migration(DataMigration):
                 es.callback = new_schedule
                 es.save()            
                 
-        _rename("logistics.apps.logistics.schedule.first_soh_reminder", 
-                "logistics.apps.ewsghana.schedule.first_soh_reminder")
-        _rename("logistics.apps.logistics.schedule.second_soh_reminder", 
-                "logistics.apps.ewsghana.schedule.second_soh_reminder")
-        _rename("logistics.apps.logistics.schedule.third_soh_to_super", 
-                "logistics.apps.ewsghana.schedule.third_soh_to_super")
-        _rename("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV", 
-                "logistics.apps.ewsghana.schedule.reminder_to_submit_RRIRV")
+        _rename("logistics.schedule.first_soh_reminder", 
+                "logistics_project.apps.ewsghana.schedule.first_soh_reminder")
+        _rename("logistics.schedule.second_soh_reminder", 
+                "logistics_project.apps.ewsghana.schedule.second_soh_reminder")
+        _rename("logistics.schedule.third_soh_to_super", 
+                "logistics_project.apps.ewsghana.schedule.third_soh_to_super")
+        _rename("logistics.schedule.reminder_to_submit_RRIRV", 
+                "logistics_project.apps.ewsghana.schedule.reminder_to_submit_RRIRV")
 
     def backwards(self, orm):
         pass

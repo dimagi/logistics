@@ -1,8 +1,8 @@
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.models import SupplyPoint, ContactRole,\
+from logistics.util import config
+from logistics.models import SupplyPoint, ContactRole,\
     StockRequest, ProductReportsHelper
 from rapidsms.models import Contact
-from logistics.apps.logistics.const import Reports
+from logistics.const import Reports
 
 
 def create_hsa(test_class, phone, name, id="1", facility_code="2616"):

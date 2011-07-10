@@ -2,13 +2,13 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from logistics.models import ContactRole, SupplyPoint
+from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.malawi.exceptions import IdFormatException
+from logistics_project.apps.malawi.exceptions import IdFormatException
 from static.malawi import config
 
 

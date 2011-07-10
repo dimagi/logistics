@@ -1,8 +1,8 @@
-from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
+from logistics.models import ProductReportsHelper, ContactRole,\
     StockRequest, StockRequestStatus, ProductStock
-from logistics.apps.logistics.util import config
+from logistics.util import config
 from rapidsms.models import Contact
-from logistics.apps.malawi.util import get_supervisors
+from logistics_project.apps.malawi.util import get_supervisors
 
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None):

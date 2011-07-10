@@ -1,8 +1,8 @@
 from __future__ import absolute_import
-from logistics.apps.logistics.models import Product, SupplyPoint, ProductStock
+from logistics.models import Product, SupplyPoint, ProductStock
 
-from logistics.apps.malawi.tests.util import create_hsa
-from logistics.apps.malawi.tests.base import MalawiTestBase
+from logistics_project.apps.malawi.tests.util import create_hsa
+from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from django.conf import settings
 
 class TestProductLevels(MalawiTestBase):

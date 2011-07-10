@@ -3,7 +3,7 @@
 
 APPS = [
     "rapidsms.contrib.scheduler",
-    "logistics.apps.ewsghana",
+    "logistics_project.apps.ewsghana",
     "django_extensions",
     "debug_toolbar"
 ]
@@ -15,7 +15,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 )
 
@@ -123,11 +123,11 @@ MAP_DEFAULT_LATITUDE  = 6.55
 MAP_DEFAULT_LONGITUDE = -1.2166667
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics.apps.logistics.alerts.non_reporting_facilities',
-    'logistics.apps.logistics.alerts.facilities_without_reminders',
-    'logistics.apps.logistics.alerts.facilities_without_reporters',
-    'logistics.apps.ewsghana.alerts.consumption_not_set',
-    'logistics.apps.ewsghana.alerts.facilities_without_incharge',
-    'logistics.apps.ewsghana.alerts.contact_without_phone',
+    'logistics.alerts.non_reporting_facilities',
+    'logistics.alerts.facilities_without_reminders',
+    'logistics.alerts.facilities_without_reporters',
+    'logistics_project.apps.ewsghana.alerts.consumption_not_set',
+    'logistics_project.apps.ewsghana.alerts.facilities_without_incharge',
+    'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 

@@ -4,7 +4,7 @@
 APPS = [
     "auditcare",
     "django.contrib.webdesign",
-    "logistics.apps.malawi",
+    "logistics_project.apps.malawi",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -14,19 +14,19 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("logistics.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics.apps.malawi.views.facilities",       "Facilities"),
-    ("logistics.apps.malawi.views.hsas",       "HSAs"),
-    ("logistics.apps.malawi.views.help",       "Help"),
-    ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
-    ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
+    ("logistics_project.apps.malawi.views.dashboard",       "Dashboard"),
+    ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
+    ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
+    ("logistics_project.apps.malawi.views.help",       "Help"),
+    ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
+    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
@@ -138,14 +138,14 @@ BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics.apps.malawi.alerts.hsas_no_supervision',
-    'logistics.apps.malawi.alerts.hsas_no_products',
-    'logistics.apps.malawi.alerts.late_reporting_receipt',
-    'logistics.apps.malawi.alerts.non_reporting_hsas',
-    'logistics.apps.malawi.alerts.health_center_stockout',
-    'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
-    'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
-    'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
+    'logistics_project.apps.malawi.alerts.hsas_no_supervision',
+    'logistics_project.apps.malawi.alerts.hsas_no_products',
+    'logistics_project.apps.malawi.alerts.late_reporting_receipt',
+    'logistics_project.apps.malawi.alerts.non_reporting_hsas',
+    'logistics_project.apps.malawi.alerts.health_center_stockout',
+    'logistics_project.apps.malawi.alerts.hsa_below_emergency_quantity',
+    'logistics_project.apps.malawi.alerts.health_center_unable_resupply_stockout',
+    'logistics_project.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
 
 DATABASE_ENGINE = "mysql"

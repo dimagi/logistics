@@ -1,4 +1,4 @@
-from logistics.apps.logistics.app import App as LogisticsApp
+from logistics.app import App as LogisticsApp
 
 class App(LogisticsApp):
     """

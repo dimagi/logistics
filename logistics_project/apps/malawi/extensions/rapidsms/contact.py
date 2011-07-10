@@ -9,8 +9,8 @@ class MalawiContactExtension(models.Model):
         
     @property
     def is_hsa(self):
-        from logistics.apps.logistics.models import ContactRole
-        from logistics.apps.logistics.util import config
+        from logistics.models import ContactRole
+        from logistics.util import config
         return self.role == ContactRole.objects.get(code=config.Roles.HSA)
         
     @property
@@ -19,7 +19,7 @@ class MalawiContactExtension(models.Model):
         For HSA's return the parent facility. For everyone else return the 
         exact supply point.
         """
-        from logistics.apps.logistics.models import SupplyPoint
+        from logistics.models import SupplyPoint
         if self.is_hsa:
             return SupplyPoint.objects.get(location=self.supply_point.location.parent)
         return self.supply_point

@@ -50,7 +50,7 @@ class ReportDefinition(object):
         the slug
         """
         # TODO: genericize
-        import logistics.apps.malawi.reportcalcs as reportcalcs
+        import logistics_project.apps.malawi.reportcalcs as reportcalcs
         return getattr(reportcalcs, self.slug)
     
     @property

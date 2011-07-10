@@ -1,9 +1,9 @@
 from django.db import transaction
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from logistics.apps.logistics.models import StockRequest
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi.shortcuts import create_stock_report
+from logistics.util import config
+from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics.models import StockRequest
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics_project.apps.malawi.shortcuts import create_stock_report
 
 
 class StockReportBaseHandler(RecordResponseHandler):

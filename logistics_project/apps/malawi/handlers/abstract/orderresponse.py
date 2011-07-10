@@ -1,8 +1,8 @@
 from django.db import transaction
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi import util
-from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics.util import config
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics_project.apps.malawi import util
+from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 
 
 class OrderResponseBaseHandler(RecordResponseHandler):

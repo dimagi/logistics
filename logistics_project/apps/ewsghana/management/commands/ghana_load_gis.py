@@ -3,7 +3,7 @@ import csv
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from dimagi.utils.couch.database import get_db
-from logistics.apps.ewsghana import loader
+from logistics_project.apps.ewsghana import loader
 
 class Command(BaseCommand):
     help = "Load GIS data for ghana"
@@ -15,8 +15,8 @@ class Command(BaseCommand):
         self.add_GIS(args[0])
         
     def add_GIS(self, filename):
-        from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
-        from logistics.apps.logistics.models import Location
+        from logistics.models import SupplyPoint, SupplyPointType
+        from logistics.models import Location
         from rapidsms.contrib.locations.models import Point
 
         reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"')

@@ -1,9 +1,9 @@
 from datetime import timedelta
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from logistics.apps.logistics.models import ProductStock, StockRequest
-from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
-from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
+from logistics.models import ProductStock, StockRequest
+from logistics.reports import ReportingBreakdown, calc_percentage
+from logistics_project.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts
 from django.utils.datastructures import SortedDict
 from collections import defaultdict

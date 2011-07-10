@@ -6,6 +6,6 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     url(r'^$',
-        "logistics.apps.maps.views.dashboard",
+        "logistics_project.apps.maps.views.dashboard",
         name="maps_dashboard"),
 )

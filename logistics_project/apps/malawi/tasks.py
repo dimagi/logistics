@@ -1,6 +1,6 @@
 from celery.schedules import crontab
 from celery.decorators import periodic_task
-from logistics.apps.malawi.nag import nag_hsas_em, nag_hsas_ept
+from logistics_project.apps.malawi.nag import nag_hsas_em, nag_hsas_ept
 from datetime import datetime
 import os
 from django.conf import settings

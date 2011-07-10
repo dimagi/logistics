@@ -1,10 +1,10 @@
-from logistics.apps.malawi.tests.register import TestHSARegister
+from logistics_project.apps.malawi.tests.register import TestHSARegister
 from rapidsms.models import Contact
-from logistics.apps.malawi.tests.base import MalawiTestBase
+from logistics_project.apps.malawi.tests.base import MalawiTestBase
 __author__ = 'ternus'
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.models import SupplyPoint
 
-from logistics.apps.logistics.util import config
+from logistics.util import config
 
 class TestCreateUser(MalawiTestBase):
 

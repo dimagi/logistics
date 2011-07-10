@@ -1,9 +1,9 @@
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
-from logistics.apps.malawi.shortcuts import send_emergency_responses
+from logistics.models import ContactRole
+from logistics.const import Reports
+from logistics.util import config
+from logistics_project.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
+from logistics_project.apps.malawi.shortcuts import send_emergency_responses
 
 class EmergencyReportHandler(StockReportBaseHandler):
     """

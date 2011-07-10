@@ -97,8 +97,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.media",
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
-    "logistics.context_processors.custom_settings",
-    "logistics.context_processors.google_analytics",
+    "logistics_project.context_processors.custom_settings",
+    "logistics_project.context_processors.google_analytics",
     "couchlog.context_processors.static_workaround"
 ]
 

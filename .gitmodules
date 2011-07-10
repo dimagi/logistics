@@ -16,3 +16,12 @@
 [submodule "submodules/couchlog"]
 	path = submodules/couchlog
 	url = git://github.com/dimagi/couchlog.git
+[submodule "submodules/rapidsms-alerts"]
+	path = submodules/rapidsms-alerts
+	url = git://github.com/dimagi/rapidsms-alerts
+[submodule "submodules/email-reports"]
+	path = submodules/email-reports
+	url = git://github.com/dimagi/email-reports
+[submodule "submodules/rapidsms-logistics"]
+	path = submodules/rapidsms-logistics
+	url = git://github.com/dimagi/rapidsms-logistics

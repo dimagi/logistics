@@ -1,6 +1,6 @@
-from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.logistics.models import Product, ProductStock
-from logistics.apps.logistics.util import config
+from logistics.decorators import logistics_contact_and_permission_required
+from logistics.models import Product, ProductStock
+from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.db import transaction
 

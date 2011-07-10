@@ -1,10 +1,10 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-from logistics.apps.logistics import app as logistics_app
-from logistics.apps.logistics.models import ProductReportType, \
+from logistics import app as logistics_app
+from logistics.models import ProductReportType, \
     ProductStock, SupplyPoint, Product
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.const import Reports
+from logistics.util import config
 
 class TestLocation (TestScript):
     apps = ([logistics_app.App])

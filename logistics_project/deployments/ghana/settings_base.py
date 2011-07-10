@@ -129,11 +129,11 @@ MAP_DEFAULT_LATITUDE  = 6.55
 MAP_DEFAULT_LONGITUDE = -1.2166667
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics_project.apps.logistics.alerts.non_reporting_facilities',
-    'logistics_project.apps.logistics.alerts.facilities_without_reporters',
+    'logistics.alerts.non_reporting_facilities',
+    'logistics.alerts.facilities_without_reporters',
     'logistics_project.apps.ewsghana.alerts.facilities_without_incharge',
     'logistics_project.apps.ewsghana.alerts.consumption_not_set',
-    'logistics_project.apps.logistics.alerts.facilities_without_reminders',
+    'logistics.alerts.facilities_without_reminders',
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 

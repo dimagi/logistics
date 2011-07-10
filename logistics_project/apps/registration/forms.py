@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.models import SupplyPoint
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
 # widget is rendered at its default width -- which is too wide for our

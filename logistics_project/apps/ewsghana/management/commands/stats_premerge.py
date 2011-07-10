@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from locations.models import *
         from messagelog.models import Message
-        from logistics.apps.logistics.models import * 
+        from logistics.models import * 
         print "ProductStock"
         for p in ProductStock.objects.all().order_by('pk'):
             print "   %s %s %s" % (p.product, p.quantity, p.monthly_consumption)

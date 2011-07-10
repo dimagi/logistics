@@ -2,7 +2,7 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from rapidsms.contrib.locations.models import Location
 from django.conf import settings
-from logistics.apps.logistics.models import SupplyPoint
+from logistics.models import SupplyPoint
 
 
 def dashboard(request):

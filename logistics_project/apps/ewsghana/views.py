@@ -12,14 +12,14 @@ from rapidsms.contrib.messagelog.views import message_log as rapidsms_message_lo
 from dimagi.utils.decorators.datespan import datespan_in_request
 from auditcare.views import auditAll
 from registration.views import register as django_register
-from logistics.apps.logistics.models import SupplyPoint
-from logistics.apps.logistics.view_decorators import geography_context, location_context
-from logistics.apps.logistics.views import reporting as logistics_reporting
-from logistics.apps.reports.views import email_reports as logistics_email_reports
-from logistics.apps.web_registration.forms import AdminRegistersUserForm
-from logistics.apps.web_registration.views import admin_does_all
-from logistics.apps.ewsghana.tables import FacilityDetailTable
-from logistics.apps.logistics.util import config
+from logistics.models import SupplyPoint
+from logistics.view_decorators import geography_context, location_context
+from logistics.views import reporting as logistics_reporting
+from logistics_project.apps.reports.views import email_reports as logistics_email_reports
+from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
+from logistics_project.apps.web_registration.views import admin_does_all
+from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics.util import config
 
 """ Usage-Related Views """
 @geography_context

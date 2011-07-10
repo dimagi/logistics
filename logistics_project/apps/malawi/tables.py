@@ -5,11 +5,11 @@
 from django.conf import settings
 from djtables import Table, Column
 from djtables.column import DateColumn
-from logistics.apps.registration.tables import list_commodities,\
+from logistics_project.apps.registration.tables import list_commodities,\
     contact_edit_link
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import yesno
-from logistics.apps.logistics.models import StockRequestStatus
+from logistics.models import StockRequestStatus
 
 
 class MalawiContactTable(Table):

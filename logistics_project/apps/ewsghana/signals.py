@@ -1,4 +1,4 @@
-from logistics.apps.logistics.signals import stockout_resolved
+from logistics.signals import stockout_resolved
 
 def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, 
                                            resolved_by, **kwargs):

@@ -1,6 +1,6 @@
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.ewsghana.tests.util import load_test_data
-from logistics.apps.logistics.util import config
+from logistics_project.apps.ewsghana.tests.util import load_test_data
+from logistics.util import config
 
 class TestEquivalents(TestScript):
     def setUp(self):

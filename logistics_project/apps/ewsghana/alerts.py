@@ -1,8 +1,8 @@
-from logistics.apps.alerts import Alert
+from logistics_project.apps.alerts import Alert
 from django.core.urlresolvers import reverse
 from rapidsms.models import Contact
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.decorators import place_in_request, return_if_place_not_set
+from logistics.util import config
+from logistics.decorators import place_in_request, return_if_place_not_set
 
 class ConsumptionNotSet(Alert):
     # url aggregate view

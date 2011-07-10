@@ -7,25 +7,25 @@ from urllib2 import urlopen
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
-from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
+from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.models import SupplyPoint, Product, \
+from logistics.models import SupplyPoint, Product, \
     StockTransaction, StockRequestStatus, StockRequest, ProductReport
-from logistics.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
-from logistics.apps.logistics.decorators import place_in_request
-from logistics.apps.logistics.charts import stocklevel_plot
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
+from logistics.decorators import place_in_request
+from logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
-from logistics.apps.logistics.view_decorators import filter_context
-from logistics.apps.logistics.reports import ReportingBreakdown
-from logistics.apps.logistics.util import config
+from logistics.view_decorators import filter_context
+from logistics.reports import ReportingBreakdown
+from logistics.util import config
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 from django.contrib.auth.decorators import permission_required
-from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
+from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP

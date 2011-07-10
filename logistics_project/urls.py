@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     # RapidSMS core URLs
     #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
-    url(r'^/?$', 'logistics.apps.logistics.views.landing_page',
+    url(r'^/?$', 'logistics.views.landing_page',
         name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
@@ -25,9 +25,9 @@ urlpatterns = patterns('',
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
     # i guess having both of these is ok for now
-    (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
-    (r'^malawi/', include('logistics.apps.malawi.urls')),
-    (r'^maps/', include('logistics.apps.maps.urls')),
+    (r'^ewsghana/', include('logistics_project.apps.ewsghana.urls.ewsghana')),
+    (r'^malawi/', include('logistics_project.apps.malawi.urls')),
+    (r'^maps/', include('logistics_project.apps.maps.urls')),
     
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
@@ -41,11 +41,11 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.urls')),
 
     # other app URLS
-    #(r'^', include('logistics.apps.web_registration.urls')), # stolen by ewsghana.urls
-    (r'^registration/', include('logistics.apps.registration.urls')),
-    (r'^logistics/', include('logistics.apps.logistics.urls.logistics')),
-    #(r'^logistics/', include('logistics.apps.logistics.urls.config')), # stolen by ewsghana
-    (r'^reports/', include('logistics.apps.reports.urls')),
+    #(r'^', include('logistics_project.apps.web_registration.urls')), # stolen by ewsghana.urls
+    (r'^registration/', include('logistics_project.apps.registration.urls')),
+    (r'^logistics/', include('logistics.urls.logistics')),
+    #(r'^logistics/', include('logistics.urls.config')), # stolen by ewsghana
+    (r'^reports/', include('logistics_project.apps.reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^', include('auditcare.urls')),
     

@@ -1,11 +1,11 @@
 from __future__ import absolute_import
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import Product, ProductStock, \
+from logistics.models import Product, ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus, StockTransfer,\
     StockTransferStatus
-from logistics.apps.logistics.util import config
-from logistics.apps.malawi.tests.util import create_manager, create_hsa
-from logistics.apps.malawi.tests.base import MalawiTestBase
+from logistics.util import config
+from logistics_project.apps.malawi.tests.util import create_manager, create_hsa
+from logistics_project.apps.malawi.tests.base import MalawiTestBase
 
 class TestTransfer(MalawiTestBase):
     

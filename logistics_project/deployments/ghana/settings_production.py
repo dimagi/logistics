@@ -10,8 +10,8 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 APPS = [
     "auditcare",
     "rapidsms.contrib.scheduler",
-    "logistics.apps.ewsghana",
-    "logistics.apps.smsgh",
+    "logistics_project.apps.ewsghana",
+    "logistics_project.apps.smsgh",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -21,7 +21,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -141,12 +141,12 @@ DEBUG=False
 TEMPLATE_DEBUG=False
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics.apps.logistics.alerts.non_reporting_facilities',
-    'logistics.apps.logistics.alerts.facilities_without_reporters',
-    'logistics.apps.ewsghana.alerts.facilities_without_incharge',
-    'logistics.apps.ewsghana.alerts.consumption_not_set',
-    'logistics.apps.logistics.alerts.facilities_without_reminders',
-    'logistics.apps.ewsghana.alerts.contact_without_phone',
+    'logistics.alerts.non_reporting_facilities',
+    'logistics.alerts.facilities_without_reporters',
+    'logistics_project.apps.ewsghana.alerts.facilities_without_incharge',
+    'logistics_project.apps.ewsghana.alerts.consumption_not_set',
+    'logistics.alerts.facilities_without_reminders',
+    'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
 GOOGLE_ANALYTICS_ID = "123"

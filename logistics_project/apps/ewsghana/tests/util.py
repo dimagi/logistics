@@ -1,10 +1,10 @@
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.logistics.models import SupplyPointType, \
+from logistics.models import SupplyPointType, \
     ProductReportType, SupplyPoint, Product, ProductStock, \
     ProductType
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.const import Reports
+from logistics.util import config
 
 def load_test_data():
     try:

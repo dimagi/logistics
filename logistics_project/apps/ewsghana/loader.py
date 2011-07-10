@@ -24,8 +24,8 @@ def AddFacilities(filename):
     This function expects a csv file in the format: 
     id, region, district, facility name, facility type, x, y, z, etc. 
     """
-    from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
-    from logistics.apps.logistics.models import Location
+    from logistics.models import SupplyPoint, SupplyPointType
+    from logistics.models import Location
 
     try:
         country = Location.objects.get(code=settings.COUNTRY)
@@ -94,7 +94,7 @@ def AddFacilities(filename):
     
     
 def _load_DELIVER_products_into_facility(fac, max_facility_consumption, facility_consumption):
-    from logistics.apps.logistics.models import Product, ProductStock   
+    from logistics.models import Product, ProductStock   
     commodity_codes = ['zt', 'lt', 'ef', 'nv', 'te', 'em', 'zs', 'co', 'fr', 'oq', 'rs']
     for code in commodity_codes:
         product = Product.objects.get(sms_code=code)
@@ -121,8 +121,8 @@ def LoadFacilities(filename):
     THIS IS LARGELY DEPRECATED. Use the addFacilities function above for future updates.
     We keep this around for now so as not to break certain book scripts.
     """
-    from logistics.apps.logistics.models import SupplyPoint, SupplyPointType, Location
-    from logistics.apps.logistics.util import config
+    from logistics.models import SupplyPoint, SupplyPointType, Location
+    from logistics.util import config
     reader = csv.reader(open(filename, 'rb'), delimiter=',', quotechar='"')
     errors = 0
     for row in reader:
@@ -168,7 +168,7 @@ def LoadFacilities(filename):
     print "There were %s errors" % errors
     
 def LoadProductsIntoFacilities(demo=False):
-    from logistics.apps.logistics.models import SupplyPoint, ProductStock, Product
+    from logistics.models import SupplyPoint, ProductStock, Product
     facilities = SupplyPoint.objects.order_by('type')
     print facilities.count()
     
@@ -212,45 +212,45 @@ def init_reminders():
 
     # set up first soh reminder
     try:
-        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.first_soh_reminder")
+        EventSchedule.objects.get(callback="logistics.schedule.first_soh_reminder")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Thursdays
-        set_weekly_event("logistics.apps.logistics.schedule.first_soh_reminder",3,13,58)
-        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.first_soh_reminder",
+        set_weekly_event("logistics.schedule.first_soh_reminder",3,13,58)
+        #EventSchedule.objects.create(callback="logistics.schedule.first_soh_reminder",
         #                             minutes='*')
         
     # set up second soh reminder
     try:
-        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.second_soh_reminder")
+        EventSchedule.objects.get(callback="logistics.schedule.second_soh_reminder")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Mondays
-        set_weekly_event("logistics.apps.logistics.schedule.second_soh_reminder",0,13,57)
-        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.second_soh_reminder", 
+        set_weekly_event("logistics.schedule.second_soh_reminder",0,13,57)
+        #EventSchedule.objects.create(callback="logistics.schedule.second_soh_reminder", 
         #                             minutes='*')
 
     # set up third soh reminder
     try:
-        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.third_soh_to_super")
+        EventSchedule.objects.get(callback="logistics.schedule.third_soh_to_super")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on Wednesdays
-        set_weekly_event("logistics.apps.logistics.schedule.third_soh_to_super",2,13,54)
-        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.third_soh_to_super", 
+        set_weekly_event("logistics.schedule.third_soh_to_super",2,13,54)
+        #EventSchedule.objects.create(callback="logistics.schedule.third_soh_to_super", 
         #                             minutes='*')
         
 
     # set up rrirv reminder
     try:
-        EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV")
+        EventSchedule.objects.get(callback="logistics.schedule.reminder_to_submit_RRIRV")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on the 28th
-        set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
-        #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV", 
+        set_monthly_event("logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
+        #EventSchedule.objects.create(callback="logistics.schedule.reminder_to_submit_RRIRV", 
         #                             minutes='*')
         
 
 def _get_or_create_region_rms(region_name, region):
     # DELIVER ONLY
-    from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
+    from logistics.models import SupplyPoint, SupplyPointType
     rms_type = SupplyPointType.objects.get(code=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
     created = False
     try:
@@ -268,7 +268,7 @@ def _get_or_create_region_rms(region_name, region):
     return rms, created
 
 def _get_or_create_region(region_name, parent):
-    from logistics.apps.logistics.models import Location
+    from logistics.models import Location
     from rapidsms.contrib.locations.models import LocationType
     created = False
     try:
@@ -285,7 +285,7 @@ def _get_or_create_region(region_name, parent):
     return region, created
 
 def _get_or_create_district(district_name, parent):
-    from logistics.apps.logistics.models import Location
+    from logistics.models import Location
     from rapidsms.contrib.locations.models import LocationType
     created = False
     try:
@@ -302,7 +302,7 @@ def _get_or_create_district(district_name, parent):
     return district, created
 
 def _get_or_create_location(location_name, parent):
-    from logistics.apps.logistics.models import Location
+    from logistics.models import Location
     from rapidsms.contrib.locations.models import LocationType
     created = False
     try:
@@ -319,7 +319,7 @@ def _get_or_create_location(location_name, parent):
     return location, created
 
 def _generate_facility_code(facility_name):
-    from logistics.apps.logistics.models import SupplyPoint
+    from logistics.models import SupplyPoint
     code = "".join([word[0] for word in facility_name.split()])
     code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
     postfix = ''
@@ -335,7 +335,7 @@ def _generate_facility_code(facility_name):
     return code
 
 def _generate_district_code(district_name):
-    from logistics.apps.logistics.models import Location
+    from logistics.models import Location
     code = district_name.split()[0].lower()
     code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
     postfix = ''

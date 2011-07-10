@@ -8,10 +8,10 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.messages.outgoing import OutgoingMessage
-from logistics.apps.logistics.models import Contact, \
+from logistics.models import Contact, \
     ProductReport, SupplyPoint
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.util import config
+from logistics.util import config
 from rapidsms.conf import settings
 
 ######################

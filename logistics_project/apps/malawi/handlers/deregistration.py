@@ -3,7 +3,7 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
-from logistics.apps.logistics.util import config
+from logistics.util import config
 
 class DeregistrationHandler(KeywordHandler):
     """

@@ -13,7 +13,7 @@ from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
-from logistics.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
+from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
 @permission_required('rapidsms.add_contact')

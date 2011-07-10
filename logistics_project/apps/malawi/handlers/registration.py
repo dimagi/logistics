@@ -4,11 +4,11 @@
 from django.utils.translation import ugettext as _
 from logistics import settings
 from rapidsms.models import Contact
-from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from logistics.models import ContactRole, SupplyPoint
+from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.malawi.exceptions import IdFormatException
-from logistics.apps.logistics.util import config
+from logistics_project.apps.malawi.exceptions import IdFormatException
+from logistics.util import config
 from static.malawi.config import Roles
 
 class HSARegistrationHandler(RegistrationBaseHandler):

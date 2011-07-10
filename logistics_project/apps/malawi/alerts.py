@@ -1,16 +1,16 @@
 from datetime import datetime, timedelta
 from django.db.models.expressions import F
-from logistics.apps.alerts import Alert
-from logistics.apps.logistics.models import StockRequest, SupplyPoint,\
+from logistics_project.apps.alerts import Alert
+from logistics.models import StockRequest, SupplyPoint,\
     SupplyPointType, _filtered_stock, ProductStock, StockRequestStatus
 from django.db.models.aggregates import Max
 from django.core.urlresolvers import reverse
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.decorators import place_in_request
-from logistics.apps.malawi.nag import get_non_reporting_hsas
-from logistics.apps.malawi.util import get_facility_supply_points, hsas_below,\
+from logistics.util import config
+from logistics.decorators import place_in_request
+from logistics_project.apps.malawi.nag import get_non_reporting_hsas
+from logistics_project.apps.malawi.util import get_facility_supply_points, hsas_below,\
     hsa_supply_points_below, facility_supply_points_below
-from logistics.apps.malawi.templatetags.malawi_tags import place_url
+from logistics_project.apps.malawi.templatetags.malawi_tags import place_url
 
 class ProductStockAlert(Alert):
 

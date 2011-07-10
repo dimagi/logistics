@@ -1,10 +1,10 @@
 from rapidsms.models import Contact
-from logistics.apps.malawi.tests.base import MalawiTestBase
-from logistics.apps.malawi.tests.util import create_manager, create_hsa,\
+from logistics_project.apps.malawi.tests.base import MalawiTestBase
+from logistics_project.apps.malawi.tests.util import create_manager, create_hsa,\
     report_stock
 __author__ = 'ternus'
-from logistics.apps.logistics.models import Location, SupplyPoint, ContactRole
-from logistics.apps.logistics.util import config
+from logistics.models import Location, SupplyPoint, ContactRole
+from logistics.util import config
 
 class TestHSARegister(MalawiTestBase):
     
