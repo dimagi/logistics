@@ -4,7 +4,7 @@ from django.template import TemplateDoesNotExist
 from logistics.apps.logistics.models import ProductStock, StockRequest
 from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
 from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
-    get_ept_districts
+    get_ept_districts, facility_supply_points_below
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
 
@@ -25,7 +25,7 @@ def _update_dict(totals, to_add):
         else:
             totals[k] = v
 
-def _district_breakdown(datespan):
+def _district_breakdown(datespan, facility=False):
     """
     Breakdown of reporting information, by group and district
     """
@@ -55,8 +55,12 @@ def _district_breakdown(datespan):
                        'req_times':[]})
 
     for d in em:
-        bd = ReportingBreakdown(hsa_supply_points_below(d),
-                                datespan, MNE=True)
+        if facility:
+            bd = ReportingBreakdown(facility_supply_points_below(d),
+                                    datespan, MNE=True)
+        else:
+            bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                   datespan, MNE=True)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
         em_totals['req_times'] += bd.req_times
@@ -73,9 +77,12 @@ def _district_breakdown(datespan):
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
     for d in ept:
-        bd = ReportingBreakdown(hsa_supply_points_below(d),
-                                datespan,
-                                MNE=True)
+        if facility:
+            bd = ReportingBreakdown(facility_supply_points_below(d),
+                                    datespan, MNE=True)
+        else:
+            bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                   datespan, MNE=True)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
@@ -178,7 +185,10 @@ def fully_stocked_facilities(instance):
     """
     No stock outs reported by HCs in past 30 days by product, by District and group
     """
-    return _common_report(instance, {}) 
+    d = _district_breakdown(instance.datespan, facility=True)
+    d['product_codes'] = PRODUCT_CODES
+
+    return _common_report(instance, d)
 
 def hsa_stockout_duration(instance):
     """
