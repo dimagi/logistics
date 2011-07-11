@@ -1,4 +1,4 @@
-from django.conf import settings
+from rapidsms.conf import settings
 
 def custom_settings(request):
     return {"excel_export": settings.LOGISTICS_EXCEL_EXPORT_ENABLED,
@@ -14,12 +14,12 @@ def base_template(request):
     """ 
     try:
         base_template = settings.BASE_TEMPLATE
-    except AttributeError:
+    except (ValueError, AttributeError):
         base_template = "layout.html"
 
     try:
         base_template_split_2 = settings.BASE_TEMPLATE_SPLIT_2
-    except AttributeError:
+    except (ValueError, AttributeError):
         base_template_split_2 = "layout-split-2.html"
 
     return {'base_template': base_template,
