@@ -147,11 +147,14 @@ class ReportingBreakdown(object):
             # will need to be revisited
             try:
                 contact = Contact.objects.get(supply_point=sp)
-            except Contact.DoesNotExist:
-                continue
+            except Contact.DoesNotExist, Contact.MultipleObjectsReturned:
+                contact = None
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
-            needed_products = set([c.pk for c in contact.commodities.all()])
+            if contact:
+                needed_products = set([c.pk for c in contact.commodities.all()])
+            else:
+                needed_products = None
             if needed_products:
                 if needed_products - found_products:
                     partial.append(sp)
