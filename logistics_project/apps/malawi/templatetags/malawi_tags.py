@@ -1,6 +1,7 @@
 from django import template
 from logistics.util import config
 from django.core.urlresolvers import reverse
+from malawi.util import hsas_below
 
 register = template.Library()
 
@@ -28,3 +29,15 @@ def breadcrumbs(location):
              "mycrumbs": mycrumbs}
     else:
         return mycrumbs
+    
+@register.simple_tag
+def product_availability_summary(location):
+    if not location:
+        pass # TODO: probably want to disable this if things get slow
+        #return '<p class="notice">To view the product availability summary, first select a district.</p>'
+    
+    hsas = hsas_below(location)
+    summary = ProductAvailabilitySummary(hsas)
+    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+                         {"summary": summary})
+
