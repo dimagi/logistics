@@ -8,8 +8,6 @@ class Location(models.Model):
     Location - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
     This could/should be broken out into subclasses.
     """
-    # TODO: move malawi&ghana to the latest rapidsms-core, and you'll get 'name' for free
-    # name = models.CharField(max_length=100)
     code = models.CharField(max_length=100, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     
