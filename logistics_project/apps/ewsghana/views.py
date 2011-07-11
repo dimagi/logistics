@@ -15,7 +15,7 @@ from registration.views import register as django_register
 from logistics.models import SupplyPoint
 from logistics.view_decorators import geography_context, location_context
 from logistics.views import reporting as logistics_reporting
-from logistics_project.apps.reports.views import email_reports as logistics_email_reports
+from email_reports.views import email_reports as logistics_email_reports
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable

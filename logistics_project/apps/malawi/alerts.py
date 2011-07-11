@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from datetime import datetime, timedelta
 from django.db.models.expressions import F
-from logistics_project.apps.alerts import Alert
+from alerts import Alert
 from logistics.models import StockRequest, SupplyPoint,\
     SupplyPointType, _filtered_stock, ProductStock, StockRequestStatus
 from django.db.models.aggregates import Max

@@ -45,7 +45,7 @@ urlpatterns = patterns('',
     (r'^registration/', include('logistics_project.apps.registration.urls')),
     (r'^logistics/', include('logistics.urls.logistics')),
     #(r'^logistics/', include('logistics.urls.config')), # stolen by ewsghana
-    (r'^reports/', include('logistics_project.apps.reports.urls')),
+    (r'^reports/', include('email_reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^', include('auditcare.urls')),
     

@@ -1,6 +1,7 @@
-from logistics_project.apps.alerts import Alert
+from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from rapidsms.models import Contact
+from alerts import Alert
 from logistics.util import config
 from logistics.decorators import place_in_request, return_if_place_not_set
 
