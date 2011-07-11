@@ -15,7 +15,6 @@ from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, \
     HSASupplyPointRow, FacilitySupplyPointRow
-from malawi.util import hsas_below
 from dimagi.utils.dates import DateSpan
 register = template.Library()
 
@@ -176,17 +175,6 @@ def stockonhand_table(supply_point):
 def recent_messages(contact, limit=5):
     # shouldn't this be ordered by something?
     return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
-
-@register.simple_tag
-def product_availability_summary(location):
-    if not location:
-        pass # TODO: probably want to disable this if things get slow
-        #return '<p class="notice">To view the product availability summary, first select a district.</p>'
-    
-    hsas = hsas_below(location)
-    summary = ProductAvailabilitySummary(hsas)
-    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
-                         {"summary": summary})
 
 @register.simple_tag
 def product_availability_summary_by_facility(location):
