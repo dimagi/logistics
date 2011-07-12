@@ -37,6 +37,12 @@ class TableData(object):
         self.title = title
         self.table = table
 
+def _seconds(td):
+    """
+    Because timedelta.total_seconds() is 2.7+ only.
+    """
+    return td.days * 24 * 60 * 60 + td.seconds
+
 class ReportingBreakdown(object):
     """
     Given a query set of supply points, get an object for displaying reporting
@@ -185,7 +191,7 @@ class ReportingBreakdown(object):
                         ordered_reports = found_reports.filter(product=p).order_by("report_date")
                         for r in ordered_reports:
                             if last_stockout and r.quantity > 0: # Stockout followed by receipt.
-                                duration += (r.report_date - last_stockout).total_seconds()
+                                duration += _seconds(r.report_date - last_stockout)
                                 last_stockout = None
                                 count += 1
                             elif not last_stockout and not r.quantity: # Beginning of a stockout period.

@@ -169,7 +169,8 @@ def em_late_reporting(instance):
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 instance.datespan, 
                                 include_late=True,
-                                days_for_late=2)
+                                days_for_late=2,
+                                MNE=True)
         reports[d] = _to_totals(bd)
         _update_dict(totals, reports[d])
     
