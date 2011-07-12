@@ -64,11 +64,9 @@ class ReportingBreakdown(object):
              supply_point__in=supply_points,
              supply_point__active=True)
         
-        reported_in_range = reports_in_range.values_list\
-            ("supply_point", flat=True).distinct()
+        reported_in_range = reports_in_range.values_list("supply_point", flat=True).distinct()
         
-        reported_on_time_in_range = reports_in_range.filter\
-            (report_date__lte=date_for_late).values_list\
+        reported_on_time_in_range = reports_in_range.filter(report_date__lte=date_for_late).values_list\
             ("supply_point", flat=True).distinct()
         
         non_reporting = supply_points.exclude(pk__in=reported_in_range)
@@ -141,6 +139,8 @@ class ReportingBreakdown(object):
         no_stockouts_p = {}
         stockouts_p = {}
         totals_p = {}
+        stockouts_duration_p ={}
+        stockouts_avg_duration_p = {}
         for sp in reported.all():
             
             # makes an assumption of 1 contact per SP.
@@ -174,8 +174,33 @@ class ReportingBreakdown(object):
                         no_stockouts_p[p.sms_code] += 1
                     totals_p[p.sms_code] += 1
 
+
                 if found_reports.filter(quantity=0):
                     stockouts.append(sp.pk)
+#                    prods = found_reports.values_list("product", flat=True).distinct()
+                    for p in prods:
+                        duration = 0
+                        count = 0
+                        last_stockout = None
+                        ordered_reports = found_reports.filter(product=p).order_by("report_date")
+                        for r in ordered_reports:
+                            print "got report"
+                            if last_stockout and r.quantity > 0: # Stockout followed by receipt.
+                                print "end stockout"
+                                print r.report_date, last_stockout, count
+                                duration += (r.report_date - last_stockout).total_seconds()
+                                last_stockout = None
+                                count += 1
+                            elif not last_stockout and not r.quantity: # Beginning of a stockout period.
+                                print "begin stockout"
+                                last_stockout = r.report_date
+                            else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
+                                print "pass"
+                                pass
+                        if p.sms_code in stockouts_duration_p and duration:
+                            stockouts_duration_p[p.sms_code] += [duration]
+                        elif duration:
+                            stockouts_duration_p[p.sms_code] = [duration]
                 else:
                     no_stockouts.append(sp.pk)
         if MNE:
@@ -185,6 +210,8 @@ class ReportingBreakdown(object):
                 if totals_p[key] > 0:
                     no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
+            for key in stockouts_duration_p:
+                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key])/len(stockouts_duration_p[key]))
 
             self.stockouts = stockouts
             self.emergency = emergency_requesters
@@ -193,6 +220,8 @@ class ReportingBreakdown(object):
             self.no_stockouts_pct_p = no_stockouts_pct_p
             self.no_stockouts_p = no_stockouts_p
             self.totals_p = totals_p
+            self.stockouts_duration_p = stockouts_duration_p
+            self.stockouts_avg_duration_p = stockouts_avg_duration_p
         self.full = full
         self.partial = partial
         self.unconfigured = unconfigured
