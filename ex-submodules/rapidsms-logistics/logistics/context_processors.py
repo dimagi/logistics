@@ -5,7 +5,9 @@ def custom_settings(request):
             "%s_hack" % settings.COUNTRY: True}
 
 def google_analytics(request):
-    return {"GOOGLE_ANALYTICS_ID": getattr(settings, 'GOOGLE_ANALYTICS_ID', None)}
+    if hasattr(settings, 'GOOGLE_ANALYTICS_ID'):
+        return {"GOOGLE_ANALYTICS_ID": getattr(settings, 'GOOGLE_ANALYTICS_ID', None)}
+    return {"GOOGLE_ANALYTICS_ID": None}
 
 def base_template(request):
     """ 
