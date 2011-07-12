@@ -8,7 +8,7 @@ class Location(models.Model):
     Location - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
     This could/should be broken out into subclasses.
     """
-    code = models.CharField(max_length=100, blank=True, null=True)
+    code = models.CharField(max_length=100, blank=False, null=False)
     is_active = models.BooleanField(default=True)
     
     class Meta:
