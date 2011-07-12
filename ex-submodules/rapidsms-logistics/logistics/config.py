@@ -1,3 +1,14 @@
+########################
+# MODULE CONFIG
+########################
+from rapidsms.conf import settings
+mlog_app = getattr(settings,'MESSAGELOG_APP','rapidsms.contrib.messagelog')
+# rl: not sure why i have to specifically list submodules...
+messagelog = __import__(mlog_app, fromlist = ['models'])
+
+########################
+# CONSTANTS CONFIG
+########################
 HSA = "hsa"
 
 class Roles(object):

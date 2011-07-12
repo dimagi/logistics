@@ -10,12 +10,13 @@ from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
 from logistics.views import get_location_children
-from rapidsms.contrib.messagelog.models import Message
 from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, \
     HSASupplyPointRow, FacilitySupplyPointRow
 from dimagi.utils.dates import DateSpan
+from logistics.config import messagelog
+Message = messagelog.models.Message
 register = template.Library()
 
 def _r_2_s_helper(template, dict):
