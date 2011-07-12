@@ -1,8 +1,6 @@
 from django import template
-from django.core.urlresolvers import reverse
-from rapidsms.contrib.messagelog.models import Message
-from logistics.tables import ShortMessageTable
 from logistics.util import config
+from django.core.urlresolvers import reverse
 from malawi.util import hsas_below
 
 register = template.Library()
@@ -43,7 +41,3 @@ def product_availability_summary(location):
     return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
-@register.simple_tag
-def recent_messages(contact, limit=5):
-    # shouldn't this be ordered by something?
-    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
