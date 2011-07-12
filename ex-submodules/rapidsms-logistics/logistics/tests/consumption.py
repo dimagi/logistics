@@ -1,7 +1,6 @@
 from datetime import timedelta
 from logistics.const import Reports
 from rapidsms.tests.scripted import TestScript
-from rapidsms.contrib.messagelog.models import Message
 from logistics.models import Location, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
 from logistics.models import SupplyPoint as Facility
 
