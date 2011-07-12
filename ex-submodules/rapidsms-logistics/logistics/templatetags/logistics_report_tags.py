@@ -37,14 +37,14 @@ def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
 def hsa_aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
     
     rows = [HSASupplyPointRow(SupplyPoint.objects.get(location=child), commodity_filter, commoditytype_filter)\
-            for child in location.children()]
+            for child in location.get_children()]
     return _r_2_s_helper("logistics/partials/aggregate_table.html", {"rows": rows})
 
 @register.simple_tag
 def facility_aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
     
     rows = [FacilitySupplyPointRow(SupplyPoint.objects.get(location=child), commodity_filter, commoditytype_filter)\
-            for child in location.children()]
+            for child in location.get_children()]
     return _r_2_s_helper("logistics/partials/aggregate_table.html", {"rows": rows})
 
 

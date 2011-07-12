@@ -1157,7 +1157,7 @@ def get_geography():
     """
     to get a sense of the complete geography in the system
     we return the top-level entities (example regions)
-    which we can easily iterate through, using children()
+    which we can easily iterate through, using get_children()
     in order to assess the whole geography that we're handling
     """
     try:

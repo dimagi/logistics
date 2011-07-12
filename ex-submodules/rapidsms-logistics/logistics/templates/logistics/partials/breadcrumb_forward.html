@@ -12,12 +12,12 @@
 </script>
 {% endblock %}
 
-{% if location.children %}
+{% if location.get_children %}
     <form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
 	    ->&nbsp;
 	    <select id="zoom_select" name="zoom_select">
 	        <option selected disabled>-----------</option>
-	           {% for child in location.children %}
+	           {% for child in location.get_children %}
 	               <option value="{{child.code}}">
 	                   {{ child.name }}
 	               </option>

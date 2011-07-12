@@ -205,7 +205,7 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
     location = get_object_or_404(Location, code=location_code)
     # if the location has no children, and 1 supply point treat it like
     # a stock on hand request. Otherwise treat it like an aggregate.
-    if location.children().count() == 0 and location.facilities().count() == 1:
+    if location.get_children().count() == 0 and location.facilities().count() == 1:
         return stockonhand_facility(request, location_code, context=context)
     return aggregate(request, location_code, context=context)
 
@@ -260,7 +260,7 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
 def get_location_children(location, commodity_filter, commoditytype_filter):
     children = []
     children.extend(location.facilities())
-    children.extend(location.children())
+    children.extend(location.get_children())
     return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
 
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):

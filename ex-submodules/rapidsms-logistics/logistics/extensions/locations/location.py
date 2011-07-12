@@ -17,8 +17,8 @@ class Location(models.Model):
     def peers(self):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.parent_id).order_by('name')
-
-    def children(self):
+    
+    def get_children(self):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.id).order_by('name')
 
@@ -32,14 +32,14 @@ class Location(models.Model):
     
     def all_facilities(self):
         ret = self.facilities()
-        for c in self.children():
+        for c in self.get_children():
             ret = ret | c.all_facilities()
         return ret
     
     def all_child_facilities(self):
         from logistics.models import SupplyPoint
         ret = SupplyPoint.objects.none()
-        for c in self.children():
+        for c in self.get_children():
             ret = ret | c.all_facilities()
         return ret
         
