@@ -219,7 +219,9 @@ def facility_stockout_duration(instance):
     """
     Duration of HC stockout by product over past, by District and group
     """
-    return _common_report(instance, {}) 
+    d = _district_breakdown(instance.datespan, facility=True)
+    d['product_codes'] = PRODUCT_CODES
+    return _common_report(instance, d)
 
 def emergency_orders(instance):
     """
