@@ -184,18 +184,13 @@ class ReportingBreakdown(object):
                         last_stockout = None
                         ordered_reports = found_reports.filter(product=p).order_by("report_date")
                         for r in ordered_reports:
-                            print "got report"
                             if last_stockout and r.quantity > 0: # Stockout followed by receipt.
-                                print "end stockout"
-                                print r.report_date, last_stockout, count
                                 duration += (r.report_date - last_stockout).total_seconds()
                                 last_stockout = None
                                 count += 1
                             elif not last_stockout and not r.quantity: # Beginning of a stockout period.
-                                print "begin stockout"
                                 last_stockout = r.report_date
                             else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
-                                print "pass"
                                 pass
                         if p.sms_code in stockouts_duration_p and duration:
                             stockouts_duration_p[p.sms_code] += [duration]
