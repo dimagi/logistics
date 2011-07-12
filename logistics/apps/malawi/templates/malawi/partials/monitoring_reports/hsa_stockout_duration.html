@@ -29,7 +29,7 @@
         {% for r in em_reports.values %}
             <td>
             {% if p in r.stockouts_avg_duration_p %}
-            {{ r.stockouts_avg_duration_p|dict_lookup:p }}%
+            {{ r.stockouts_avg_duration_p|dict_lookup:p }}
                 {% else %}
                 <span style="color:gray">n/a</span>
              {% endif %}
@@ -38,7 +38,7 @@
         {% for r in ept_reports.values %}
             <td>
             {% if p in r.stockouts_avg_duration_p %}
-            {{ r.stockouts_avg_duration_p|dict_lookup:p }}%
+            {{ r.stockouts_avg_duration_p|dict_lookup:p }}
                 {% else %}
                 <span style="color:gray">n/a</span>
              {% endif %}
@@ -46,14 +46,14 @@
 {% endfor %}
 
         <td>            {% if p in em_totals.stockouts_avg_duration_p %}
-            {{ em_totals.stockouts_avg_duration_p|dict_lookup:p }}%
+            {{ em_totals.stockouts_avg_duration_p|dict_lookup:p }}
                         {% else %}
                 <span style="color:gray">n/a</span>
              {% endif %}
         </td>
         <td>{% if p in ept_totals.stockouts_avg_duration_p %}
 
-            {{ ept_totals.stockouts_avg_duration_p|dict_lookup:p }}%
+            {{ ept_totals.stockouts_avg_duration_p|dict_lookup:p }}
                         {% else %}
                 <span style="color:gray">n/a</span>
              {% endif %}

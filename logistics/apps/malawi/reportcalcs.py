@@ -77,6 +77,7 @@ def _district_breakdown(datespan, facility=False):
         em_reports[d]['stockouts_duration_p'] = bd.stockouts_duration_p
 
         em_reports[d]['stockouts_avg_duration_p'] = bd.stockouts_avg_duration_p
+        _update_dict(em_totals['stockouts_duration_p'], bd.stockouts_duration_p)
         _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(em_totals['discrepancies_p'], bd.discrepancies_p)
         _update_dict(em_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
@@ -102,16 +103,17 @@ def _district_breakdown(datespan, facility=False):
         ept_reports[d]['stockouts_duration_p'] = bd.stockouts_duration_p
         ept_reports[d]['stockouts_avg_duration_p'] = bd.stockouts_avg_duration_p
         _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(ept_totals['stockouts_duration_p'], bd.stockouts_duration_p)
         _update_dict(ept_totals['discrepancies_p'], bd.discrepancies_p)
         _update_dict(ept_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
         _update_dict(ept_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(ept_totals['totals_p'], bd.totals_p)
 
     for p in ept_totals['stockouts_duration_p']:
-        ept_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(ept_totals['stockouts_duration_p'])/len(ept_totals['stockouts_duration_p']))
+        ept_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(ept_totals['stockouts_duration_p'][p])/len(ept_totals['stockouts_duration_p'][p]))
         
     for p in em_totals['stockouts_duration_p']:
-        em_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(em_totals['stockouts_duration_p'])/len(em_totals['stockouts_duration_p']))
+        em_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(em_totals['stockouts_duration_p'][p])/len(em_totals['stockouts_duration_p'][p]))
 
     for p in ept_totals['no_stockouts_p']:
         ept_totals['no_stockouts_pct_p'][p] = calc_percentage(ept_totals['no_stockouts_p'][p], ept_totals['totals_p'][p])
