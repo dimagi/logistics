@@ -136,9 +136,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "district": config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
-               "hsa_notice": config.Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"}}
                     
                     
         self.runScript(a)
@@ -189,11 +189,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
+        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
                     {"reporter": "sally", "products": "zi"},
-               "district": config.Messages.SUPERVISOR_STOCKOUT_NOTIFICATION  % \
+               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_EO  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
-               "hsa_notice": config.Messages.STOCKOUT_NOTICE % {"hsa": "wendy"}}
+               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi"}}
         self.runScript(a)
         
     def testEmergencyOrderNoProductsInEmergency(self):
@@ -211,11 +211,38 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
-           16175551001 < wendy needs emergency products: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
+           16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
                     
         self.runScript(a)
-        
+
+    def testEmergencyHFStockOut(self):
+        self.testEmergencyOrderNoProductsNotInEmergency()
+        # the difference here is that only emergency products are
+        # reported/escalated
+        a = """
+           16175551001 > os 261601
+           16175551001 < %(confirm)s
+           16175551002 < %(district)s
+           16175551003 < %(district)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+                    {"reporter": "sally", "products": "zi, la"},
+               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
+               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi, la"}}
+        self.runScript(a)
+
+    def testEmergencyOrderNoProductsNotInEmergencyWithAdditional(self):
+        self._setup_users()
+        a = """
+           16175551000 > eo zi 0 la 0 co 10
+           16175551000 < %(confirm)s
+           16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "co zi la"}}
+
+        self.runScript(a)
+
     def testSOHStockout(self):
         self._setup_users()
         a = """

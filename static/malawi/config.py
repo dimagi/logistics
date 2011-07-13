@@ -148,9 +148,17 @@ class Messages(object):
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
     EMERGENCY_SOH = "We have received your emergency order for %(products)s and the health center has been notified. You will be notified when your products are available to pick up."
+    EMERGENCY_STOCKOUT = "%(hsa)s is stocked out of and needs: %(stockouts)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
+    EMERGENCY_STOCKOUT_NO_ADDITIONAL = "%(hsa)s is stocked out of and needs: %(stockouts)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products %(emergency_products)s, also %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
-    
+
+    HF_UNABLE_RESTOCK_EO = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the District office to resolve this issue."
+    HSA_UNABLE_RESTOCK_EO = "Dear %(hsa)s, the Health Center is not able to resupply %(products)s. The HSA Supervisor will work with the District to resolve this issue."
+    DISTRICT_UNABLE_RESTOCK_EO = "%(contact)s reports (supply_point) is unable to resupply %(products)s in response to HSA EO. Work with the HSA Supervisor to resolve this issue."
+    HSA_UNABLE_RESTOCK_ANYTHING = "Dear %(hsa)s, the Health Center is unable to resupply any of the products you need. The HSA Supervisor will work with the District to resolve this issue."
+    DISTRICT_UNABLE_RESTOCK_STOCKOUT = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to HSA stockout. Please work with the HSA Supervisor to resolve this issue."
+
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
     TRANSFER_RESPONSE = "Thank you %(reporter)s. You have reported a transfer from %(giver)s to %(receiver)s of the following products: %(products)s"
