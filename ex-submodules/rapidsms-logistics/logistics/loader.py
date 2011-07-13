@@ -94,7 +94,8 @@ def init_test_location_and_supplypoints():
                                                   code='gar')
     location.parent = gar
     location.save()
-    country, created = Location.objects.get_or_create(code=settings.COUNTRY)
+    country, created = Location.objects.get_or_create(code=settings.COUNTRY, 
+                                                      name=settings.COUNTRY)
     gar.parent = country
     gar.save()
     hctype = SupplyPointType.objects.get(code=config.SupplyPointCodes.CLINIC)
