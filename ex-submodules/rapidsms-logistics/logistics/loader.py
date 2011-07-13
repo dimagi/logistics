@@ -79,7 +79,7 @@ def init_roles(log_to_console=False):
 def  _init_supply_point_types():
     from logistics.models import SupplyPointType
     from logistics.util import config
-    for code, name in config.SupplyPointTypes.ALL.items():
+    for code, name in config.SupplyPointCodes.ALL.items():
         type_ = SupplyPointType.objects.get_or_create(code=code)[0]
         if type_.name != name:
             type_.name = name
@@ -97,8 +97,8 @@ def init_test_location_and_supplypoints():
     country, created = Location.objects.get_or_create(code=settings.COUNTRY)
     gar.parent = country
     gar.save()
-    hctype = SupplyPointType.objects.get(code=config.SupplyPointTypes.CLINIC)
-    rmstype = SupplyPointType.objects.get(code=config.SupplyPointTypes.HOSPITAL)
+    hctype = SupplyPointType.objects.get(code=config.SupplyPointCodes.CLINIC)
+    rmstype = SupplyPointType.objects.get(code=config.SupplyPointCodes.HOSPITAL)
     try:
         dedh = SupplyPoint.objects.get(code='dedh')
     except SupplyPoint.DoesNotExist:
