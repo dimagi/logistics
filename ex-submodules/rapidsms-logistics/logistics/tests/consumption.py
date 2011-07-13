@@ -1,24 +1,21 @@
 from datetime import timedelta
 from logistics.const import Reports
 from rapidsms.tests.scripted import TestScript
-from logistics.models import Location, SupplyPointType, SupplyPoint, Product, ProductStock, StockTransaction, ProductReport, ProductReportType
+from logistics.models import Location, SupplyPointType, SupplyPoint, \
+    Product, ProductType, ProductStock, StockTransaction, ProductReport, ProductReportType
 from logistics.models import SupplyPoint as Facility
+from logistics.tests.util import load_test_data
 
 class TestConsumption (TestScript):
     fixtures = ["ghana_initial_data.json"]
+    
+    def setUp(self):
+        TestScript.setUp(self)
+        load_test_data()
 
     def testConsumption(self):
-        if not SupplyPoint.objects.exists():
-            location = Location.objects.get(code='de')
-            facilitytype = SupplyPointType.objects.get(code='hc')
-            rms = Facility.objects.get(code='garms')
-            sp, created = Facility.objects.get_or_create(code='dedh',
-                                                           name='Dangme East District Hospital',
-                                                           location=location, active=True,
-                                                           type=facilitytype, supplied_by=rms)
-        else:
-            sp = SupplyPoint.objects.all()[0]
         pr = Product.objects.all()[0]
+        sp = Facility.objects.all()[0]
         sp.report_stock(pr, 200)
         ps = ProductStock.objects.get(supply_point=sp,product=pr)
         ps.use_auto_consumption = True
