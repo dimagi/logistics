@@ -604,7 +604,8 @@ class StockRequest(models.Model):
     requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by")
     responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by")
     received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
-    
+
+    balance = models.IntegerField(null=True, default=None)
     amount_requested = models.PositiveIntegerField(null=True)
     # this field is actually unnecessary with no ability to 
     # approve partial resupplies in the current system, but is
@@ -699,7 +700,8 @@ class StockRequest(models.Model):
                                                   requested_by=contact,
                                                   amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
-                                                  is_emergency=is_emergency)
+                                                  is_emergency=is_emergency,
+                                                  balance=current_stock.quantity)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)
