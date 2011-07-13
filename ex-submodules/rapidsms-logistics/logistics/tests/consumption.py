@@ -7,8 +7,6 @@ from logistics.models import SupplyPoint as Facility
 from logistics.tests.util import load_test_data
 
 class TestConsumption (TestScript):
-    fixtures = ["ghana_initial_data.json"]
-    
     def setUp(self):
         TestScript.setUp(self)
         load_test_data()
