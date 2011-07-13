@@ -1,40 +1,43 @@
 import os
 import sys
 from django.conf import settings
-from rapidsms.contrib.locations.models import LocationType, Location, Point
 from dimagi.utils.couch.database import get_db
 from logistics.const import Reports
 from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
     ProductReportType, ContactRole, Product, ProductType
 from logistics.util import config
 
-def load_products():
+def load_products(log_to_console=False):
     from logistics.models import Product, ProductType
     product_types = {'m':'Malaria'}
     products = [('yellow','Yellow ACT','m','box',10), 
                 ('blue','Blue ACT','m','box',10), 
                 ('brown','Brown ACT','m','box',10), 
                 ('green','Green ACT','m','box',10), 
-                ('other','Other ACT','m','box',10), ]
+                ('other','Other ACT','m','box',10)]
     for key in product_types.keys():
         t, created = ProductType.objects.get_or_create(code=key, name=product_types[key])
     for prod in products:
-        p, created = Product.objects.get_or_create(sms_code=prod[0], name=prod[1], 
-                                                   type=ProductType.objects.get(code=prod[2]), 
-                                                   units=prod[3], 
-                                                   average_monthly_consumption=prod[4])
-        if created:
+        try: 
+            p = Product.objects.get(sms_code=prod[0])
+        except Product.DoesNotExist:
+            p, created = Product.objects.get_or_create(sms_code=prod[0], name=prod[1], 
+                                                       type=ProductType.objects.get(code=prod[2]), 
+                                                       units=prod[3], 
+                                                       average_monthly_consumption=prod[4])
+        if created and log_to_console:
             print "Created product %(prod)s" % {'prod':p}
 
-def generate_codes_for_locations():
+def generate_codes_for_locations(log_to_console=False):
     from rapidsms.contrib.locations.models import Location
     locs = Location.objects.all().order_by('name')
     for loc in locs:
         if loc.code is None or len(loc.code) == 0:
             loc.code = _generate_location_code(loc.name)
             loc.save()
-            print "  %(name)s's code is %(code)s" % {'name':loc.name,
-                                                     'code':loc.code}
+            if log_to_console:
+                print "  %(name)s's code is %(code)s" % {'name':loc.name,
+                                                         'code':loc.code}
 
 def _generate_location_code(name):
     from rapidsms.contrib.locations.models import Location
@@ -73,13 +76,29 @@ def init_roles(log_to_console=False):
             role.name = name
             role.save()
 
+def  _init_supply_point_types():
+    from logistics.models import SupplyPointType
+    from logistics.util import config
+    for code, name in config.SupplyPointTypes.ALL.items():
+        type_ = SupplyPointType.objects.get_or_create(code=code)[0]
+        if type_.name != name:
+            type_.name = name
+            type_.save()
+
 def init_test_location_and_supplypoints():
+    from rapidsms.contrib.locations.models import Location
+    _init_supply_point_types()
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 
                                                   code='gar')
-    hctype, created = SupplyPointType.objects.get_or_create(code='hc')
-    rmstype, created = SupplyPointType.objects.get_or_create(code='rms')
+    location.parent = gar
+    location.save()
+    country, created = Location.objects.get_or_create(code=settings.COUNTRY)
+    gar.parent = country
+    gar.save()
+    hctype = SupplyPointType.objects.get(code=config.SupplyPointTypes.CLINIC)
+    rmstype = SupplyPointType.objects.get(code=config.SupplyPointTypes.HOSPITAL)
     try:
         dedh = SupplyPoint.objects.get(code='dedh')
     except SupplyPoint.DoesNotExist:
