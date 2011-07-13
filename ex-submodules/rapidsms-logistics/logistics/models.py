@@ -1007,7 +1007,7 @@ class ProductReportsHelper(object):
                 stockouts_resolved.append(stock_code)
         if stockouts_resolved:
             # use signals framework to manage custom notifications
-            reporter = self.message.contact if self.message else None
+            reporter = self.message.connection.contact if self.message else None
             stockout_resolved.send(sender="product_report", supply_point=self.supply_point, 
                                    products=[self.get_product(code) for code in stockouts_resolved], 
                                    resolved_by=reporter)
