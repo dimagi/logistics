@@ -97,6 +97,7 @@ class StatusColumn(Column):
 class StockRequestTable(Table):
     product = Column()
     is_emergency = EmergencyColumn()
+    balance = Column()
     amount_requested = Column()
     amount_received = Column()
     requested_on = DateColumn()
