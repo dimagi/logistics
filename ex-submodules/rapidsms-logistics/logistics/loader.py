@@ -9,22 +9,19 @@ from logistics.util import config
 
 def load_products(log_to_console=False):
     from logistics.models import Product, ProductType
-    product_types = {'m':'Malaria'}
-    products = [('yellow','Yellow ACT','m','box',10), 
-                ('blue','Blue ACT','m','box',10), 
-                ('brown','Brown ACT','m','box',10), 
-                ('green','Green ACT','m','box',10), 
-                ('other','Other ACT','m','box',10)]
-    for key in product_types.keys():
-        t, created = ProductType.objects.get_or_create(code=key, name=product_types[key])
-    for prod in products:
+    from logistics.util import config
+    for key in config.ProductTypes.ALL.keys():
+        t, created = ProductType.objects.get_or_create(code=key, 
+                                                       name=config.ProductTypes.ALL[key])
+    for key in config.Products.ALL.keys():
         try: 
-            p = Product.objects.get(sms_code=prod[0])
+            p = Product.objects.get(sms_code=key)
         except Product.DoesNotExist:
-            p, created = Product.objects.get_or_create(sms_code=prod[0], name=prod[1], 
-                                                       type=ProductType.objects.get(code=prod[2]), 
-                                                       units=prod[3], 
-                                                       average_monthly_consumption=prod[4])
+            p, created = Product.objects.get_or_create(sms_code=key, 
+                                                       name=config.Products.ALL[key][0], 
+                                                       type=ProductType.objects.get(code=config.Products.ALL[key][1]), 
+                                                       units=config.Products.ALL[key][2], 
+                                                       average_monthly_consumption=10)
         if created and log_to_console:
             print "Created product %(prod)s" % {'prod':p}
 
