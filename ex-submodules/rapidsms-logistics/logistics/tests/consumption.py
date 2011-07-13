@@ -17,7 +17,7 @@ class TestConsumption (TestScript):
         pr = Product.objects.all()[0]
         sp = Facility.objects.all()[0]
         sp.report_stock(pr, 200)
-        ps = ProductStock.objects.get(supply_point=sp,product=pr)
+        ps = ProductStock.objects.get(supply_point=sp, product=pr)
         ps.use_auto_consumption = True
 
         # Not enough data.
