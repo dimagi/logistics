@@ -119,7 +119,7 @@ class HSAStockRequestTable(Table):
     is_emergency = EmergencyColumn()
     #amount_requested = Column()
     #amount_received = Column()
-    
+    balance = Column()
     requested_on = DateColumn()
     responded_on = DateColumn()
     received_on = DateColumn()
