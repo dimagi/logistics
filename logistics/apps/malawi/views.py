@@ -109,7 +109,8 @@ def hsa(request, code):
             "stockrequest_table": stockrequest_table 
         }, context_instance=RequestContext(request)
     )
-    
+
+@cache_page(60 * 15)
 @place_in_request()
 def facilities(request):
     facilities = get_facilities().order_by("parent_id", "code")
@@ -129,7 +130,8 @@ def facilities(request):
             "table": table,
             "districts": get_districts().order_by("code")
         }, context_instance=RequestContext(request))
-    
+
+@cache_page(60 * 15)
 @filter_context
 @datespan_in_request()
 def facility(request, code, context={}):
@@ -181,6 +183,8 @@ def monitoring_report(request, report_slug):
                                "facilities": facilities,
                                "location": location},
                               context_instance=RequestContext(request))
+
+def monitoring_report_ajax(): pass
 
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
