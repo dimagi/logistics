@@ -2,12 +2,12 @@ import os
 import sys
 from django.conf import settings
 from dimagi.utils.couch.database import get_db
-from logistics.const import Reports
 from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
-    ProductReportType, ContactRole, Product, ProductType
+    ProductReportType, Product, ProductType
 from logistics.util import config
 
 def load_products(log_to_console=False):
+    """ Creates both products and product types """
     from logistics.models import Product, ProductType
     from logistics.util import config
     for key in config.ProductTypes.ALL.keys():
@@ -26,6 +26,9 @@ def load_products(log_to_console=False):
             print "Created product %(prod)s" % {'prod':p}
 
 def generate_codes_for_locations(log_to_console=False):
+    """ CVS doesn't require locations to have a code, but logistics
+    assumes that location does, so we generate codes where they are missing
+      """
     from rapidsms.contrib.locations.models import Location
     locs = Location.objects.all().order_by('name')
     for loc in locs:
@@ -58,6 +61,7 @@ def init_reports(log_to_console=False):
     """
     Initialize any data that should be static here
     """
+    from logistics.const import Reports
     # These are annoyingly necessary to live in the DB, currently. 
     # Really this should be app logic, I think.
     for code, name in Reports.ALL_REPORTS.items():
@@ -66,25 +70,32 @@ def init_reports(log_to_console=False):
             prod.name = name
             prod.save()
 
-def init_roles(log_to_console=False):
+def init_roles_and_responsibilities(log_to_console=False):
+    from logistics.models import ContactRole, Responsibility
     for code, name in config.Roles.ALL_ROLES.items():
         role = ContactRole.objects.get_or_create(code=code)[0]
         if role.name != name:
             role.name = name
             role.save()
+    for code, name in config.Responsibilities.ALL.items():
+        resp = Responsibility.objects.get_or_create(code=code)[0]
+        if resp.name != name:
+            resp.name = name
+            resp.save()
 
-def  _init_supply_point_types():
+def init_supply_point_types():
     from logistics.models import SupplyPointType
     from logistics.util import config
     for code, name in config.SupplyPointCodes.ALL.items():
-        type_ = SupplyPointType.objects.get_or_create(code=code)[0]
-        if type_.name != name:
-            type_.name = name
-            type_.save()
+        spt = SupplyPointType.objects.get_or_create(code=code)[0]
+        if spt.name != name:
+            spt.name = name
+            spt.save()
 
 def init_test_location_and_supplypoints():
     from rapidsms.contrib.locations.models import Location
-    _init_supply_point_types()
+    hctype = SupplyPointType.objects.get(code=config.SupplyPointCodes.CLINIC)
+    rmstype = SupplyPointType.objects.get(code=config.SupplyPointCodes.HOSPITAL)
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 
@@ -95,8 +106,6 @@ def init_test_location_and_supplypoints():
                                                       name=settings.COUNTRY)
     gar.parent = country
     gar.save()
-    hctype = SupplyPointType.objects.get(code=config.SupplyPointCodes.CLINIC)
-    rmstype = SupplyPointType.objects.get(code=config.SupplyPointCodes.HOSPITAL)
     try:
         dedh = SupplyPoint.objects.get(code='dedh')
     except SupplyPoint.DoesNotExist:
