@@ -7,6 +7,7 @@ from urllib2 import urlopen
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.views.decorators.vary import vary_on_cookie
 from logistics.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
@@ -33,6 +34,7 @@ from django.conf import settings
 
 @cache_page(60 * 15)
 @place_in_request()
+@vary_on_cookie
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
@@ -76,7 +78,9 @@ def products(request):
         }, context_instance=RequestContext(request)
     )
 
+@cache_page(60 * 15)
 @place_in_request()
+@vary_on_cookie
 def hsas(request):
     hsas = hsas_below(request.location)
     districts = get_districts().order_by("id")
@@ -112,6 +116,7 @@ def hsa(request, code):
 
 @cache_page(60 * 15)
 @place_in_request()
+@vary_on_cookie
 def facilities(request):
     facilities = get_facilities().order_by("parent_id", "code")
     
