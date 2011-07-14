@@ -6,6 +6,42 @@ from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
     ProductReportType, Product, ProductType
 from logistics.util import config
 
+def load_products_into_facilities(demo=False):
+    import random
+    from logistics.models import SupplyPoint, ProductStock, Product
+    facilities = SupplyPoint.objects.order_by('type')
+    if demo:
+        RMS_consumption = 100
+        max_RMS_consumption = 330
+        facility_consumption = 10
+        max_facility_consumption = 33
+    else:
+        RMS_consumption = None
+        max_RMS_consumption = 0
+        facility_consumption = None
+        max_facility_consumption = 0
+    for fac in facilities:
+        products = Product.objects.all()
+        for product in products:
+            try:
+                ps = ProductStock.objects.get(supply_point=fac, product=product)
+            except ProductStock.DoesNotExist:
+                # no preexisting product stock, which is fine.
+                pass
+            else:
+                ps.delete()
+            # facilities get all products by default active, 10 stock
+            quantity = None
+            if demo:
+                quantity = random.randint(0,max_facility_consumption)
+            ProductStock(quantity=quantity, 
+                         is_active=True,
+                         supply_point=fac,
+                         product=product,
+                         monthly_consumption=facility_consumption).save()
+        print "Loaded products into %(fac)s" % {'fac':fac.name}
+
+
 def load_products(log_to_console=False):
     """ Creates both products and product types """
     from logistics.models import Product, ProductType
