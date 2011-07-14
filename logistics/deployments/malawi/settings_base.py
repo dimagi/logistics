@@ -15,7 +15,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'johnny.middleware.CommittingTransactionMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
 )
+
+CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
@@ -149,3 +154,4 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 DATABASE_ENGINE = "mysql"
+
