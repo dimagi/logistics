@@ -131,3 +131,9 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
+def foo(request):
+  return True
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': foo,
+}
+
