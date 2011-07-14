@@ -173,7 +173,7 @@ def stockonhand_table(supply_point):
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
-    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
+    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I").order_by("-date")[:limit]).as_html()
 
 @register.simple_tag
 def product_availability_summary(location):
