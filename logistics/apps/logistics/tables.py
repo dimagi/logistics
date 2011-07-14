@@ -41,6 +41,7 @@ class CommodityTable(Table):
 class ShortMessageTable(Table):
 
     date = DateColumn(format="H:i d/m/Y", sortable=False)
+    direction = Column(sortable=False)
     text = Column(css_class="message", sortable=False)
 
     
