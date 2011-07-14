@@ -172,9 +172,10 @@ def stockonhand_table(supply_point):
                          {"stockonhands": supply_point.productstock_set.all()})
     
 @register.simple_tag
-def recent_messages(contact, limit=8):
+def recent_messages(contact, limit=5):
     mdates = Message.objects.filter(contact=contact).order_by("-date").distinct().values_list("date", flat=True)
-    mdates = list(mdates)[:limit]
+    if limit:
+        mdates = list(mdates)[:limit]
     messages = Message.objects.filter(contact=contact, date__in=mdates).order_by("-date")
     return ShortMessageTable(messages).as_html()
 
