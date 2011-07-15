@@ -1,7 +1,6 @@
 import os
 import sys
 from django.conf import settings
-from dimagi.utils.couch.database import get_db
 from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
     ProductReportType, Product, ProductType
 from logistics.util import config
