@@ -20,7 +20,6 @@ from django.views.decorators.cache import cache_page
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
-from registration.views import register as django_register
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
 from logistics.models import ProductStock, \
