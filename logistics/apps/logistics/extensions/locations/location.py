@@ -31,18 +31,32 @@ class Location(models.Model):
         from logistics.apps.logistics.models import SupplyPoint
         return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk), active=True).order_by('name')
     
-    def all_facilities(self):
-        ret = self.facilities()
-        for c in self.children():
-            ret = ret | c.all_facilities()
+    def get_descendents(self, include_self=False):
+        """ This signature gets overriden by mptt when mptt is used
+        It must return a queryset
+        """
+        from rapidsms.contrib.locations.models import Location
+        def _get_descendent_pks(node):
+            pks = []
+            for c in node.children():
+                pks.append(c.pk)
+                pks.extend(_get_descendent_pks(c))
+            return pks
+        pks = _get_descendent_pks(self)
+        if include_self:
+            pks.append(self.pk)
+        ret = Location.objects.filter(id__in=pks)
         return ret
+
+    def all_facilities(self):
+        from logistics.apps.logistics.models import SupplyPoint
+        locations = self.get_descendents(include_self=True)
+        return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
     
     def all_child_facilities(self):
         from logistics.apps.logistics.models import SupplyPoint
-        ret = SupplyPoint.objects.none()
-        for c in self.children():
-            ret = ret | c.all_facilities()
-        return ret
+        locations = self.get_descendents()
+        return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
         
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None):
