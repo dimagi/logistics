@@ -37,7 +37,7 @@
 
 <div class="module noprint">
     <h2>{% trans 'Alerts' %}</h2>
-    {% cache 6000 alerts location %}
+    {% cache 86400 alerts location %}
     {% alerts request %}
     {% endcache %}
 </div>

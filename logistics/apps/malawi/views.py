@@ -32,9 +32,8 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
-@cache_page(60 * 15)
+#@cache_page(60 * 15)
 @place_in_request()
-@vary_on_cookie
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
