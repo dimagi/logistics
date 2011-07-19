@@ -1,4 +1,6 @@
 {% extends base_template %}
+{% load cache %}
+
 
 {% load logistics_report_tags %}
 
@@ -11,8 +13,11 @@
 {% include "malawi/partials/selector_form.html" %}
 <div class="module">
     {% if location %}
+
     <h2>Facilities in {{ location.name }}</h2>
+        {% cache 86400 facility_aggregate_table location %}
         {% facility_aggregate_table location %}
+        {% endcache %}
     {% else %}
     <h2>Choose a district to see stock levels</h2>
     {{ table.as_html }}
