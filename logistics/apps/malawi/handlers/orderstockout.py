@@ -65,7 +65,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             self.respond(config.Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
                          products=", ".join(req.product.sms_code for req in reqs))
             self.hsa.message(config.Messages.HSA_UNABLE_RESTOCK_ANYTHING, hsa=self.hsa.name)
-            _message_supervisors(config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT)
+            _message_supervisors(config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL)
 
             
         # this is pretty hacky, but set the SoH to 0 for the stocked out products
