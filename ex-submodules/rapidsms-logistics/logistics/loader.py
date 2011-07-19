@@ -136,8 +136,11 @@ def init_test_location_and_supplypoints():
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 
                                                   code='gar')
     location.set_parent(gar)
-    country, created = Location.objects.get_or_create(code=settings.COUNTRY, 
-                                                      name=settings.COUNTRY)
+    try:
+        country = Location.objects.get(code__icontains=settings.COUNTRY)
+    except Location.DoesNotExist:
+        country, created = Location.objects.get_or_create(code=settings.COUNTRY, 
+                                                          name=settings.COUNTRY)
     gar.set_parent(country)
     try:
         dedh = SupplyPoint.objects.get(code='dedh')
