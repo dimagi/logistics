@@ -107,7 +107,7 @@ def hsa_below_emergency_quantity(request):
     for p in ProductStock.objects.filter(is_active=True,
             supply_point__in=hsas,
             quantity__lte = F('product__emergency_order_level')):
-        if not p.supply_point in [z.supply_point for z in StockRequest.pending_requests().filter(product=p.product)]:
+        if not StockRequest.pending_requests().filter(product=p.product, supply_point=p.supply_point).exists():
             r += [HSABelowEmergencyQuantityAlert(p.supply_point, p.product)]
     return r
 
