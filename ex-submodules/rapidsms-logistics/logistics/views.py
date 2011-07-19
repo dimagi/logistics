@@ -154,7 +154,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
     else:
         raise HttpResponse('Must specify "commodity"')
     location = get_object_or_404(Location, code=location_code)
-    stockonhands = ProductStock.objects.filter(Q(supply_point__location=location)|Q(supply_point__location__parent_id=location.pk))
+    stockonhands = ProductStock.objects.filter(Q(supply_point__location__in=location.get_descendents(include_self=True)))
     context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
     context['location'] = location
     context['hide_product_link'] = True

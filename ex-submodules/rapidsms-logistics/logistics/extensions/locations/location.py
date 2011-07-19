@@ -1,7 +1,8 @@
 from __future__ import absolute_import
+import uuid
 from django.db import models
 from django.db.models import Q
-import uuid
+from rapidsms.conf import settings
 
 class Location(models.Model):
     """
@@ -13,23 +14,23 @@ class Location(models.Model):
     
     class Meta:
         abstract = True
-        
-    def peers(self):
-        from rapidsms.contrib.locations.models import Location
-        return Location.objects.filter(parent_id=self.parent_id).order_by('name')
     
+    def set_parent(self, parent):
+        if hasattr(self,'tree_parent'):
+            self.tree_parent = parent
+        else:
+            self.parent = parent
+        self.save()
+        
+    @property
+    def tree_parent(self):
+        """ This signature gets overriden by mptt when mptt is used """
+        return self.parent
+        
     def get_children(self):
         """ This signature gets overriden by mptt when mptt is used """
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.id).order_by('name')
-
-    def facilities(self):
-        from logistics.models import SupplyPoint
-        return SupplyPoint.objects.filter(location=self, active=True).order_by('name')
-
-    def child_facilities(self):
-        from logistics.models import SupplyPoint
-        return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk), active=True).order_by('name')
     
     def get_descendents(self, include_self=False):
         """ This signature gets overriden by mptt when mptt is used
@@ -47,6 +48,25 @@ class Location(models.Model):
             pks.append(self.pk)
         ret = Location.objects.filter(id__in=pks)
         return ret
+    
+    def peers(self):
+        from rapidsms.contrib.locations.models import Location
+        # rl: is there a better way to do this?
+        if 'mptt' in settings.INSTALLED_APPS:
+            return Location.objects.filter(tree_parent=self.tree_parent).order_by('name')
+        return Location.objects.filter(parent_id=self.parent_id).order_by('name')
+        
+
+    def child_facilities(self):
+        from logistics.models import SupplyPoint
+        # rl: is there a better way to do this?
+        if 'mptt' in settings.INSTALLED_APPS:
+            return SupplyPoint.objects.filter(Q(location=self)|Q(location__tree_parent=self), active=True).order_by('name')
+        return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk), active=True).order_by('name')
+    
+    def facilities(self):
+        from logistics.models import SupplyPoint
+        return SupplyPoint.objects.filter(location=self, active=True).order_by('name')
 
     def all_facilities(self):
         from logistics.models import SupplyPoint

@@ -7,10 +7,10 @@ register = template.Library()
 def breadcrumbs(location):
     mycrumbs = '%(display)s' % \
                 {"display": location.name}
-    if location.parent is not None:
+    if location.tree_parent is not None:
         # > 
         return '%(parentcrumbs)s &raquo; %(mycrumbs)s' % \
-            {"parentcrumbs": breadcrumbs(location.parent),
+            {"parentcrumbs": breadcrumbs(location.tree_parent),
              "mycrumbs": mycrumbs}
     else:
         return mycrumbs

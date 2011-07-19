@@ -1,7 +1,7 @@
 {% load geonav_tags %}
 
-{% if location.parent %}
-	<span class="breadcrumb">{% render_bread_nav location.parent %}</span>
+{% if location.tree_parent %}
+	<span class="breadcrumb">{% render_bread_nav location.tree_parent %}</span>
 	-> 
 {% endif %}
 
