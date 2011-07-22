@@ -52,7 +52,7 @@ def nag_hsas_soh(since, location=None):
     nags_in_range = NagRecord.objects.filter\
                         (report_date__range=[since, datetime.utcnow()],
                          nag_type=Reports.SOH)
-    
+
     # empty init
     hsa_first_warnings = hsa_second_warnings = hsa_third_warnings = hsa_fourth_warnings = set(())
     now = datetime.utcnow()
@@ -125,13 +125,18 @@ def nag_hsas_rec():
     def _get_hsas_ready_for_nag(warning_time, extra_filter_params={}):
         
         reqs = get_stock_requests_pending_pickup(warning_time)
+
         hsa_warnings = []
         for req in reqs:
-            if NagRecord.objects.filter(supply_point=req.supply_point,
-                                        report_date__range=[req.responded_on,now], 
+            if not NagRecord.objects.filter(supply_point=req.supply_point,
+                                        report_date__range=[req.responded_on,now],
                                         nag_type=Reports.REC,
-                                        **extra_filter_params).count() == 0:
-                hsa_warnings.append(req.supply_point)
+                                        **extra_filter_params).count():
+
+                if not ProductReport.objects.filter(report_type__code=Reports.REC,
+                                                 report_date__range=[req.responded_on,
+                                                                     now]).exists():
+                    hsa_warnings.append(req.supply_point)
         return set(hsa_warnings)
         
     first_warning_time = now - timedelta(days=WARNING_DAYS)
