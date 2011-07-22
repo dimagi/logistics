@@ -19,6 +19,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.dates import DateSpan
 from auditcare.views import auditAll
 from registration.views import register as django_register
@@ -33,7 +34,7 @@ from logistics.apps.logistics.reports import ReportingBreakdown
 from logistics.apps.logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
-from .tables import FacilityTable, CommodityTable
+from .tables import FacilityTable, CommodityTable, MessageTable
 
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
@@ -371,3 +372,10 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
                                "districts": districts.order_by("code"),
                                "location": request.location},
                               context_instance=RequestContext(request))
+
+def message_log(req, template="messagelog/index.html"):
+    return render_to_response(
+        template, {
+            "messages_table": MessageTable(Message.objects.all(), request=req)
+        }, context_instance=RequestContext(req)
+    )

@@ -8,7 +8,7 @@ This all is just eye candy to tie these views together one one page
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from rapidsms.contrib.messagelog.views import message_log as rapidsms_message_log
+from logistics.apps.logistics.views import message_log as rapidsms_message_log
 from dimagi.utils.decorators.datespan import datespan_in_request
 from auditcare.views import auditAll
 from registration.views import register as django_register

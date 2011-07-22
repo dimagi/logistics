@@ -56,3 +56,32 @@ class ReportingTable(Table):
     class Meta:
         order_by = '-last_reported'
 
+def _facility(cell):
+    if cell.object.contact is None:
+        return None
+    if cell.object.contact.supply_point is None:
+        return None
+    return cell.object.contact.supply_point
+def _district(cell):
+    facility = _facility(cell)
+    if facility is None:
+        return None
+    if facility.location is None:
+        return None
+    if facility.location.parent is None:
+        return None
+    return facility.location.parent.name
+def _connection(cell):
+    return cell.object.connection.identity
+class MessageTable(Table):
+    # this is temporary, until i fix ModelTable!
+    contact = Column()
+    mobile_number = Column(value=_connection)
+    direction = Column()
+    date = DateColumn(format="H:i d/m")
+    text = Column(css_class="message")
+    facility = Column(value=_facility)
+    location = Column(value=_district)
+
+    class Meta:
+        order_by = '-date'
