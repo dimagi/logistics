@@ -50,7 +50,7 @@ class Product(models.Model):
     product_code = models.CharField(max_length=100, null=True, blank=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
-    type = models.ForeignKey('ProductType')
+    type = models.ForeignKey('ProductType', verbose_name="Program Area")
     equivalents = models.ManyToManyField('self', null=True, blank=True)
     
     def __unicode__(self):
