@@ -136,7 +136,6 @@ class ReportingBreakdown(object):
                 self.req_times = secs
 
         # fully reporting / non reporting
-        print self.discrepancies_pct_p
         full = []
         partial = []
         unconfigured = []
