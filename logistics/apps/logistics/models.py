@@ -331,6 +331,7 @@ class SupplyPoint(SupplyPointBase):
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
+    designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
 
