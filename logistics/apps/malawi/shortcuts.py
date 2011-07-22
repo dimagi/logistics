@@ -68,7 +68,9 @@ def send_soh_responses(msg, contact, stock_report, requests):
                                   products=orders,
                                   stockedout_products=stocked_out,
                                   hsa_id=contact.supply_point.code)
-                
+                msg.respond(config.Messages.SOH_ORDER_STOCKOUT_CONFIRM,
+                            products=stocked_out)
+
             else:
                 for super in supervisors:
                     super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION,
@@ -76,8 +78,8 @@ def send_soh_responses(msg, contact, stock_report, requests):
                                   products=orders,
                                   hsa_id=contact.supply_point.code)
 
-            msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                        products=" ".join(stock_report.reported_products()).strip())
+                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
+                            products=" ".join(stock_report.reported_products()).strip())
 
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:

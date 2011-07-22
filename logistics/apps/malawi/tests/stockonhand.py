@@ -130,15 +130,15 @@ class TestStockOnHandMalawi(MalawiTestBase):
         
         a = """
            16175551001 > os 261601
-           16175551001 < %(confirm)s
-           16175551002 < %(district)s
-           16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
+           16175551003 < %(district)s
+           16175551002 < %(district)s
+           16175551001 < %(confirm)s
         """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT  % \
-                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"}}
+               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"},
+               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL  % \
+                    {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
                     
                     
         self.runScript(a)
@@ -250,8 +250,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551001 < %(supervisor)s
            16175551004 < %(supervisor)s
-        """ % {"confirm": config.Messages.SOH_ORDER_CONFIRM % \
-                    {"contact": "wendy", "products": "co zi la"},
+        """ % {"confirm": config.Messages.SOH_ORDER_STOCKOUT_CONFIRM % \
+                    {"contact": "wendy", "products": "zi la"},
                "supervisor": config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS % \
                     {"hsa": "wendy", "products": "co 430, zi 200, la 360",
                      "stockedout_products": "zi la",

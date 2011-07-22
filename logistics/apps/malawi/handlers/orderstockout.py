@@ -42,7 +42,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             supplier = self.msg.logistics_contact.supply_point.supplied_by
             if supplier is not None:
                 supervisors = Contact.objects.filter(is_active=True,
-                                                     supply_point=supplier,
+                                                     supply_point__location=supplier.location,
                                                      role__in=[ContactRole.objects.get(code=config.Roles.DISTRICT_PHARMACIST),
                                                                ContactRole.objects.get(code=config.Roles.IMCI_COORDINATOR)])
                 # note that if there are no supervisors registered, this will silently
