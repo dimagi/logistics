@@ -97,7 +97,6 @@ class ReportingBreakdown(object):
             discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
             orders_list = filled_requests.values_list("product", flat=True)
 
-
             # We could save a lot of time here if the primary key for Product were its sms_code.
             # Unfortunately, it isn't, so we have to remap keys->codes.
             _p = {}
@@ -114,12 +113,12 @@ class ReportingBreakdown(object):
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+                self.discrepancies_p[product] = len([x for x in discrepancies_list if x == product])
 
                 z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
                 if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
-                self.filled_orders_p[product] = len([x for x in orders_list if x is product])
+                self.filled_orders_p[product] = len([x for x in orders_list if x == product])
                 self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
@@ -137,6 +136,7 @@ class ReportingBreakdown(object):
                 self.req_times = secs
 
         # fully reporting / non reporting
+        print self.discrepancies_pct_p
         full = []
         partial = []
         unconfigured = []
