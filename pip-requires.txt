@@ -16,3 +16,4 @@ couchdbkit>=0.5.4
 supervisor
 twilio
 johnny-cache
+python-memcached
