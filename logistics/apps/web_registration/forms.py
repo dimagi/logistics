@@ -12,9 +12,12 @@ from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from rapidsms.contrib.locations.models import Location
 from logistics.apps.logistics.models import SupplyPoint
+from logistics.apps.logistics.util import config
 
 class AdminRegistersUserForm(RegistrationForm): 
-    location = forms.ModelChoiceField(Location.objects.all().order_by('name'), required=False)
+    # don't bother displaying facility locations since facility-specific views are drawn 
+    # from user.facility anyways
+    location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
                                 label=_(u'password'), required=False)
