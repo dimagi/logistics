@@ -15,6 +15,11 @@ class Location(models.Model):
     class Meta:
         abstract = True
         
+    @property
+    def tree_parent(self):
+        """ This signature gets overriden by mptt when mptt is used """
+        return self.parent
+
     def peers(self):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.parent_id).order_by('name')

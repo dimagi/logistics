@@ -57,20 +57,17 @@ class ReportingTable(Table):
         order_by = '-last_reported'
 
 def _facility(cell):
-    if cell.object.contact is None:
-        return None
-    if cell.object.contact.supply_point is None:
+    if cell.object.contact is None or \
+     cell.object.contact.supply_point is None:
         return None
     return cell.object.contact.supply_point
 def _district(cell):
     facility = _facility(cell)
-    if facility is None:
+    if facility is None or \
+      facility.location is None or \
+      facility.location.tree_parent is None:
         return None
-    if facility.location is None:
-        return None
-    if facility.location.parent is None:
-        return None
-    return facility.location.parent.name
+    return facility.location.tree_parent.name
 def _connection(cell):
     return cell.object.connection.identity
 class MessageTable(Table):

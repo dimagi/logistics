@@ -776,6 +776,25 @@ class ProductReport(models.Model):
         
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
+    
+    # the following are for the benfit of excel export
+    def contact(self):
+        if self.message is None or self.message.contact is None:
+            return None
+        return self.message.contact
+    def parent_location(self):
+        provider = self.contact()
+        if provider is None or \
+          provider.supply_point is None or \
+          provider.supply_point.location is None or \
+          provider.supply_point.location.tree_parent is None:
+            return None
+        return provider.supply_point.location.tree_parent
+    def grandparent_location(self):
+        parent_location = self.parent_location()
+        if parent_location is None or parent_location.tree_parent is None:
+            return None
+        return parent_location.tree_parent
 
 class StockTransaction(models.Model):
     """
