@@ -3,7 +3,6 @@
 
 import sys
 from datetime import datetime
-from rapidsms.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -13,7 +12,9 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from rapidsms.models import Connection, Backend, Contact
+from django.utils import simplejson
+from rapidsms.conf import settings
+from rapidsms.contrib.locations.models import Location
 from .forms import AdminRegistersUserForm
 
 @transaction.commit_on_success
@@ -60,8 +61,30 @@ def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, context={},
                 return HttpResponseRedirect( reverse(success_url))
     context['form'] = form
     context['users'] = User.objects.all().order_by('username')
+    context.update(get_nav_context())
     return render_to_response(template, context, 
                               context_instance = RequestContext(request)) 
+    
+def get_nav_context():
+    context = {}
+    country = Location.objects.get(code=settings.COUNTRY)
+    regions_qs = country.get_children().order_by('name')
+    context['regions'] = regions_qs #simplejson.dumps([r.name for r in regions_qs])
+
+    districts = {}
+    districts_qs = Location.objects.none()
+    for r in regions_qs:
+        # TODO: optimize this to use mptt
+        qs = r.get_children()
+        districts[r.name] = [c.name for c in qs.order_by('name')]
+        districts_qs = districts_qs | qs
+    context['districts'] = simplejson.dumps(districts)
+    
+    facilities = {}
+    for d in districts_qs:
+        facilities[d.name] = [f.name for f in d.all_facilities().order_by('name')]
+    context['facilities'] = simplejson.dumps(facilities)
+    return context
 
 def _send_user_registration_email(recipient, username, password):
     """ Raises exception on error - returns nothing """

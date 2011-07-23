@@ -22,6 +22,33 @@
   </div>
 {% endif %}
 
+<div class="fieldWrapper">
+  	<div class="span-5 clear"><label for="id_subject">Region</label></div>
+    <div class="span-2">
+		<select name="region" id="id_region">
+		<option value="" selected="selected">---------</option>
+		{% for r in regions %}
+			<option value="{{r.name}}">{{r.name}}</option>
+		{% endfor %}
+		</select>
+    </div><br/>
+</div>
+<div class="fieldWrapper">
+  	<div class="span-5 clear"><label for="id_subject">District</label></div>
+    <div class="span-2">
+		<select name="district" id="id_district">
+		<option value="" selected="selected">---------</option>
+		</select>
+    </div><br/>
+</div>
+<div class="fieldWrapper">
+  	<div class="span-5 clear"><label for="id_subject">Facility</label></div>
+    <div class="span-2">
+		<select name="facility" id="id_facility">
+		<option value="" selected="selected">---------</option>
+		</select>
+    </div><br/>
+</div>
 {% for field in form.visible_fields %}
   {% if field.errors %}
     <div class="field_errors">

@@ -24,6 +24,10 @@ class Location(models.Model):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.parent_id).order_by('name')
 
+    def get_children(self):
+        # this function will be overriden by mptt. remove this after merge with uganda-dev branch.
+        return self.children()
+
     def children(self):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.id).order_by('name')

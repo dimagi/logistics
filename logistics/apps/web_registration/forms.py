@@ -15,10 +15,11 @@ from logistics.apps.logistics.models import SupplyPoint
 from logistics.apps.logistics.util import config
 
 class AdminRegistersUserForm(RegistrationForm): 
-    # don't bother displaying facility locations since facility-specific views are drawn 
-    # from user.facility anyways
-    location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
-    facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
+    #these three fields will now be handled in javascript, so that we can seamless, 
+    #non-server-load-time-dependent facility filtering based on region
+    #region = forms.ModelChoiceField(Location.objects.filter(type=config.LocationCodes.REGION).order_by('name'), required=False)
+    #district = forms.ModelChoiceField(Location.objects.filter(type=config.LocationCodes.DISTRICT).order_by('name'), required=False)
+    #facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
                                 label=_(u'password'), required=False)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
