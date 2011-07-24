@@ -1,35 +1,5 @@
 {% extends "registration/base.html" %}
 
-{% block javascripts %}{{super}}
-<script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/jquery.min.js"></script>
-<script type="text/javascript" language="javascript">
-	$(document).ready(function () {
-       	$("#id_region").change(function(event) {
-           	var district_dict = {{districts|safe}}
-           	var district_list = district_dict[event.currentTarget.value]
-            $("#id_facility").empty()           	                              	
-            $("#id_facility").append($("<option />").val('').text('-----------------'));
-           	$("#id_district").empty()           	                              	
-            $("#id_district").append($("<option />").val('').text('Select a district'));
-           	$.each(district_list, function(index, value) {
-           		$("#id_district").append($("<option />").val(value).text(value));
-           	});
-        });
-       	$("#id_district").change(function(event) {
-           	var facility_dict = {{facilities|safe}}
-           	var facility_list = facility_dict[event.currentTarget.value]
-           	$("#id_facility").empty()           	                              	
-            $("#id_facility").append($("<option />").val('').text('Select a facility'));
-           	$.each(facility_list, function(index, value) {
-           		$("#id_facility").append($("<option />").val(value).text(value));
-           	});
-        });
-    });
-</script>
-{% endblock %} 
-
-
-
 {% block title %}
 {% if title %}
 {{title}}
