@@ -471,13 +471,13 @@ class ProductStock(models.Model):
 
     def is_in_good_supply(self):
         if self.maximum_level is not None and self.reorder_level is not None:
-            if self.quantity > self.reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
     def is_in_adequate_supply(self):
         if self.maximum_level is not None and self.emergency_reorder_level is not None:
-            if self.quantity > self.emergency_reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.emergency_reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
