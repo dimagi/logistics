@@ -50,7 +50,7 @@ class Product(models.Model):
     product_code = models.CharField(max_length=100, null=True, blank=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
-    type = models.ForeignKey('ProductType')
+    type = models.ForeignKey('ProductType', verbose_name="Program Area")
     equivalents = models.ManyToManyField('self', null=True, blank=True)
     
     def __unicode__(self):
@@ -331,6 +331,7 @@ class SupplyPoint(SupplyPointBase):
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
+    designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
 
@@ -470,13 +471,13 @@ class ProductStock(models.Model):
 
     def is_in_good_supply(self):
         if self.maximum_level is not None and self.reorder_level is not None:
-            if self.quantity > self.reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
     def is_in_adequate_supply(self):
         if self.maximum_level is not None and self.emergency_reorder_level is not None:
-            if self.quantity > self.emergency_reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.emergency_reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
@@ -776,6 +777,25 @@ class ProductReport(models.Model):
         
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
+    
+    # the following are for the benfit of excel export
+    def contact(self):
+        if self.message is None or self.message.contact is None:
+            return None
+        return self.message.contact
+    def parent_location(self):
+        provider = self.contact()
+        if provider is None or \
+          provider.supply_point is None or \
+          provider.supply_point.location is None or \
+          provider.supply_point.location.tree_parent is None:
+            return None
+        return provider.supply_point.location.tree_parent
+    def grandparent_location(self):
+        parent_location = self.parent_location()
+        if parent_location is None or parent_location.tree_parent is None:
+            return None
+        return parent_location.tree_parent
 
 class StockTransaction(models.Model):
     """

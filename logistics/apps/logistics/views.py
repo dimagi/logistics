@@ -19,6 +19,7 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.dates import DateSpan
 from auditcare.views import auditAll
 from registration.views import register as django_register
@@ -33,7 +34,7 @@ from logistics.apps.logistics.reports import ReportingBreakdown
 from logistics.apps.logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
-from .tables import FacilityTable, CommodityTable
+from .tables import FacilityTable, CommodityTable, MessageTable
 
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
@@ -257,19 +258,36 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
                                                    producttype=commoditytype_filter)
         rows.append(row)
     return rows
-
+                                                           
 def get_location_children(location, commodity_filter, commoditytype_filter):
     children = []
     children.extend(location.facilities())
     children.extend(location.children())
     return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
 
-def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
+def export_productreport(request, facility_code=None, format='xls', filename='ewsghana'):
     class ProductReportDataset(ModelDataset):
+        fields = [
+            'id',
+            'product',
+            'supply_point',
+            'report_type',
+            'quantity',
+            'report_date',
+            'message',
+            'contact',
+            'parent_location',
+            'grandparent_location',
+        ]
         class Meta:
-            queryset = ProductReport.objects.filter(supply_point__code=facility_code).order_by('report_date')
+            queryset = ProductReport.objects.all().order_by('report_date')
+            if facility_code is not None:
+                queryset = queryset.filter(supply_point__code=facility_code)
+            queryset = queryset
     dataset = getattr(ProductReportDataset(), format)
-    filename = '%s_%s.%s' % (filename, facility_code, format)
+    filename = '%s.%s' % (filename, format)
+    if facility_code is not None:
+        filename = '%s_%s' % (facility_code, filename)
     response = HttpResponse(
         dataset,
         mimetype=mimetype_map.get(format, 'application/octet-stream')
@@ -371,3 +389,10 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
                                "districts": districts.order_by("code"),
                                "location": request.location},
                               context_instance=RequestContext(request))
+
+def message_log(req, template="messagelog/index.html"):
+    return render_to_response(
+        template, {
+            "messages_table": MessageTable(Message.objects.all(), request=req)
+        }, context_instance=RequestContext(req)
+    )
