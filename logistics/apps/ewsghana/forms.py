@@ -34,9 +34,6 @@ class EWSGhanaWebRegistrationForm(AdminRegistersUserForm):
             if profile.designation is not None:
                 initial['designation'] = profile.designation
         return super(EWSGhanaWebRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['username', 'designation', 'email', 
-                                'password1', 'password2', 'location', 
-                                'facility', 'is_program_admin', 'is_IT_admin']
 
     def save(self, profile_callback=None):
         user = super(EWSGhanaWebRegistrationForm, self).save(profile_callback)
