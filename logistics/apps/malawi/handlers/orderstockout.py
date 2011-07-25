@@ -62,7 +62,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             else:
                 _message_supervisors(config.Messages.DISTRICT_UNABLE_RESTOCK_EO)
         else:
-            self.respond(config.Messages.STOCKOUT_RESPONSE, reporter=self.msg.logistics_contact.name,
+            self.respond(config.Messages.HF_UNABLE_RESTOCK_EO,
                          products=", ".join(req.product.sms_code for req in reqs))
             self.hsa.message(config.Messages.HSA_UNABLE_RESTOCK_ANYTHING, hsa=self.hsa.name)
             _message_supervisors(config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL)
