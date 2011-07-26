@@ -722,12 +722,17 @@ class StockRequest(models.Model):
         requests = []
         pending_reqs = StockRequest.pending_requests().filter\
             (supply_point=stock_report.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys())
+             product__sms_code__in=stock_report.product_stock.keys()).order_by('-received_on')
         now = datetime.utcnow()
+        ps = set(stock_report.product_stock.keys())
         for req in pending_reqs:
-            req.receive(contact, 
-                        stock_report.product_stock[req.product.sms_code],
-                        now)
+            if req.product.sms_code in ps:
+                req.receive(contact,
+                            stock_report.product_stock[req.product.sms_code],
+                            now)
+                ps.remove(req.product.sms_code)
+            else:
+                req.receive(contact, 0, now)
             requests.append(req)
         return requests
     

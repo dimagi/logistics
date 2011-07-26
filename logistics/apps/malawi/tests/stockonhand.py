@@ -94,7 +94,39 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(b)
         self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
         self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
-        
+
+
+    def testSOHBeforeReceipt(self):
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
+        la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
+
+        b = """
+           16175551001 > ready 261601
+           16175551001 < %(confirm)s
+           16175551000 < %(hsa_notice)s
+        """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
+                    {"hsa": "wendy"},
+               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"hsa": "wendy"}}
+        self.runScript(b)
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
+
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
+
+        c = """
+           16175551000 > rec zi 190 la 345
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(c)
+        self.assertEqual(200, ProductStock.objects.get(pk=zi.pk).quantity)
+        self.assertEqual(360, ProductStock.objects.get(pk=la.pk).quantity)
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.RECEIVED).count())
+
+
 
     def testNothingToFill(self):
         self._setup_users()
@@ -134,7 +166,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551003 < %(district)s
            16175551002 < %(district)s
            16175551001 < %(confirm)s
-        """ % {"confirm": config.Messages.STOCKOUT_RESPONSE %\
+        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
                     {"reporter": "sally", "products": "zi, la"},
                "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"},
                "district": config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL  % \
