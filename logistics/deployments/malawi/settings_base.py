@@ -149,7 +149,7 @@ LOGISTICS_ALERT_GENERATORS = [
     #'logistics.apps.malawi.alerts.hsas_no_products',
     #'logistics.apps.malawi.alerts.late_reporting_receipt',
     #'logistics.apps.malawi.alerts.non_reporting_hsas',
-    'logistics.apps.malawi.alerts.health_center_stockout',
+    #'logistics.apps.malawi.alerts.health_center_stockout',
     'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
