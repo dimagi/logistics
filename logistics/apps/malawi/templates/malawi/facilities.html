@@ -17,9 +17,11 @@
     <h2>Facilities in {{ location.name }}</h2>
         {% cache 86400 facility_aggregate_table location %}
         {% facility_aggregate_table location %}
+           {% include "logistics/partials/icon_legend.html" %}
+
         {% endcache %}
     {% else %}
-    <h2>Choose a district to see stock levels</h2>
+    <h2>Choose a district to see facilities and their stock levels</h2>
     {{ table.as_html }}
     {% endif %}
 </div>
