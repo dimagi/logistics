@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -37,20 +37,31 @@ from django.conf import settings
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    group = None
+    em_group = None
+    begin_date = None
     # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-        group = group_for_location(request.location)
+        em_group = (group_for_location(request.location) == config.Groups.EM)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False, MNE=False)#(group == config.Groups.EM))
+    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
+    if em_group:
+        end_date = datetime.now().replace(day=1) - timedelta(days=1)
+        begin_date = end_date.replace(day=1)
+        d = DateSpan(begin_date, end_date)
+        em_report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
+    else:
+        em_report = None
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
                                                                                        role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
+                               "em_group": em_group,
+                               "em_report": em_report,
+                               "begin_date": begin_date,
                                "districts": get_districts().order_by("code"),
                                "location": request.location},
                                
