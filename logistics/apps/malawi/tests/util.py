@@ -18,14 +18,26 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
     return Contact.objects.get(name=name)
 
 def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
-    a = """
-           %(phone)s > manage %(name)s %(role)s %(code)s
-           %(phone)s < %(confirm)s
-        """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
-               "confirm": config.Messages.REGISTRATION_CONFIRM % \
-                    {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
-                     "role": ContactRole.objects.get(code=role).name,
-                     "contact_name": name}}
+
+    if not role in  ['dp', 'im']:
+        a = """
+               %(phone)s > manage %(name)s %(role)s %(code)s
+               %(phone)s < %(confirm)s
+            """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
+                   "confirm": config.Messages.REGISTRATION_CONFIRM % \
+                        {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
+                         "role": ContactRole.objects.get(code=role).name,
+                         "contact_name": name}}
+    else:
+        a = """
+               %(phone)s > manage %(name)s %(role)s %(code)s
+               %(phone)s < %(confirm)s
+            """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
+                   "confirm": config.Messages.REGISTRATION_DISTRICT_CONFIRM % \
+                        {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
+                         "role": ContactRole.objects.get(code=role).name,
+                         "contact_name": name}}
+
     test_class.runScript(a)
     return Contact.objects.get(name=name)
 

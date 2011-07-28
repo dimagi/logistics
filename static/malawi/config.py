@@ -112,6 +112,7 @@ class Messages(object):
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
     REGISTRATION_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your facility is %(sp_name)s and your role is: %(role)s"
+    REGISTRATION_DISTRICT_CONFIRM = "Congratulations %(contact_name)s, you have been registered for the cStock System. Your district is %(sp_name)s and your role is: %(role)s"
 
     # "manage" keyword (manger registration)
     MANAGER_HELP = "Sorry, I didn't understand. To register, send manage [first name] [last name] [role] [facility]. Example: 'manage john smith ic 1001'"
@@ -160,6 +161,8 @@ class Messages(object):
     HSA_UNABLE_RESTOCK_ANYTHING = "Dear %(hsa)s, the Health Center is unable to resupply any of the products you need. The HSA Supervisor will work with the District to resolve this issue."
     DISTRICT_UNABLE_RESTOCK_STOCKOUT = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to HSA stockout. Please work with the HSA Supervisor to resolve this issue."
     DISTRICT_UNABLE_RESTOCK_NORMAL = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Please work with the HSA Supervisor to resolve this issue."
+    HSA_UNABLE_RESTOCK_STOCKOUT = HSA_UNABLE_RESTOCK_EO
+
 
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
