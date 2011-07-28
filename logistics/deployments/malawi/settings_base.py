@@ -136,7 +136,7 @@ LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
-LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
+LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
