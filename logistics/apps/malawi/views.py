@@ -47,8 +47,8 @@ def dashboard(request):
     # reporting info
     report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
     if em_group:
-        end_date = datetime.now().replace(day=1) - timedelta(days=1)
-        begin_date = end_date.replace(day=1)
+        begin_date = datetime.now().replace(day=1)
+        end_date = datetime.now()
         d = DateSpan(begin_date, end_date)
         em_report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
     else:
