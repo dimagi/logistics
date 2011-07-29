@@ -18,11 +18,11 @@ def message_log(req, template="messagelog/index.html"):
             contact=None
         else:
             contact = Contact.objects.get(pk=req.GET['contact'])
-            messages = Message.objects.filter(contact=contact)
+            messages = messages.filter(contact=contact)
 
     if 'search' in req.GET and req.GET['search'] != '':
         search = req.GET['search']
-        messages = Message.objects.filter(text__iregex=search)
+        messages = messages.filter(text__iregex=search)
 
     return render_to_response(
         template, {
