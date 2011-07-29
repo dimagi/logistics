@@ -57,6 +57,7 @@
                 <div class="col-1">
                     <h2>Recent Messages</h2>
                     {% recent_messages hsa %}
+                    <p><a href="{% url rapidsms.contrib.messagelog.views.message_log %}?contact={{ hsa.pk }}">All messages to or from {{ hsa.name }}</a></p>
                 </div>
                 <div class="col-2">
                                 <h2>HSA Details</h2>
