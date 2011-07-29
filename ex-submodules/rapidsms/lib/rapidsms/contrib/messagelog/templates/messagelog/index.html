@@ -11,6 +11,15 @@
 <div class="messages module">
 	<h2>Message Log</h2>
 	{% block toolbar %}
+        <form method="get" id="contact-selector">
+        <label for="contact">Contact: </label>
+        <select name="contact" id="contact">
+        <option value="">--None--</option>
+        {% for c in contacts %}
+            <option value="{{ c.pk }}" {% if c.pk == contact.pk %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+        <input type="submit" value="Filter" />
+        </form>
     {% endblock %}
 	{{ messages_table.as_html }}
 </div>
