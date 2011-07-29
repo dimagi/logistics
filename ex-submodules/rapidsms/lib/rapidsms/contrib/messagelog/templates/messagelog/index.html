@@ -18,6 +18,10 @@
         {% for c in contacts %}
             <option value="{{ c.pk }}" {% if c.pk == contact.pk %}selected{% endif %}>{{ c.name }}</option>
         {% endfor %}
+        </select>
+        &nbsp;
+        <label for="search">Search: </label>
+        <input type="text" name="search" id="search" value="{% if search %}{{ search }}{% endif %}"></input>
         <input type="submit" value="Filter" />
         </form>
     {% endblock %}

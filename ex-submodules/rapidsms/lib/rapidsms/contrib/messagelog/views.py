@@ -10,26 +10,25 @@ from .models import Message
 
 
 def message_log(req, template="messagelog/index.html"):
+    messages = Message.objects.all()
     contact = None
+    search = None
     if 'contact' in req.GET:
         if req.GET['contact'] == '':
             contact=None
         else:
             contact = Contact.objects.get(pk=req.GET['contact'])
+            messages = Message.objects.filter(contact=contact)
 
-    if contact:
-        return render_to_response(
-            template, {
-                "messages_table": MessageTable(Message.objects.filter(contact=contact), request=req),
-                "contact": contact,
-                "contacts": Contact.objects.all().order_by("name"),
-            }, context_instance=RequestContext(req)
-        )
-    else:
-        return render_to_response(
-            template, {
-                "messages_table": MessageTable(Message.objects.all(), request=req),
-                "contact": None,
-                "contacts": Contact.objects.all().order_by("name"),
-            }, context_instance=RequestContext(req)
-        )
+    if 'search' in req.GET and req.GET['search'] != '':
+        search = req.GET['search']
+        messages = Message.objects.filter(text__iregex=search)
+
+    return render_to_response(
+        template, {
+            "messages_table": MessageTable(messages, request=req),
+            "search": search,
+            "contact": contact,
+            "contacts": Contact.objects.all().order_by("name"),
+        }, context_instance=RequestContext(req)
+    )
