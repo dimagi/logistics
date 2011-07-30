@@ -17,6 +17,9 @@ class Help(KeywordHandler):
         if not hasattr(self.msg,'logistics_contact'):
             self.respond(config.Messages.REGISTER_MESSAGE)
             return True
+        if self.msg.logistics_contact.supply_point is None:
+            self.respond(config.Messages.NO_SUPPLY_POINT_MESSAGE)
+            return True
         supply_point = self.msg.logistics_contact.supply_point
         if text[0] == 'y':
             submitted = True
