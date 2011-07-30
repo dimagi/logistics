@@ -14,7 +14,10 @@ class Help(KeywordHandler):
 
     def handle(self, text):
         text = text.strip().lower()
-        supply_point = self.msg.contact.supply_point
+        if not hasattr(self.msg,'logistics_contact'):
+            self.respond(config.Messages.REGISTER_MESSAGE)
+            return True
+        supply_point = self.msg.logistics_contact.supply_point
         if text[0] == 'y':
             submitted = True
             response = config.Messages.REQ_SUBMITTED
