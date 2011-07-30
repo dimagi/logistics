@@ -13,7 +13,7 @@ class App(AppBase):
     def __find_location(self, text):
         try:
             # check for a location code first
-            return Location.objects.get(slug__iexact=text)
+            return Location.objects.get(code__iexact=text)
 
         # nothing else is supported, for now!
         except Location.DoesNotExist:
