@@ -304,28 +304,45 @@ def hsas_with_stock(instance):
     ept_reports = {}
     em_totals = {}
     ept_totals = {}
+    em_users = {}
+    ept_users = {}
+    em_total_u = {}
+    ept_total_u ={}
 
     # There is just no good way to do this.  The performance here is going to suck and there's no way around it.
     for p in PRODUCT_CODES:
         em_totals[p] = 0
         ept_totals[p] = 0
+        em_total_u[p] = 0
+        ept_total_u[p] = 0
+
     for d in em:
         em_reports[d] = {}
+        em_users[d] = {}
         for p in PRODUCT_CODES:
             em_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            em_users[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d))])
             em_totals[p] += em_reports[d][p]
+            em_total_u[p] += em_users[d][p]
     for d in ept:
         ept_reports[d] = {}
+        ept_users[d] = {}
         for p in PRODUCT_CODES:
             ept_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            ept_users[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d))])
             ept_totals[p] += ept_reports[d][p]
+            ept_total_u[p] += ept_users[d][p]
 
     instance.datespan = None
     return _common_report(instance, {'product_codes': PRODUCT_CODES,
                                      'em_reports':em_reports,
+                                     'em_users':em_users,
                                      'ept_reports':ept_reports,
+                                     'ept_users':ept_users,
                                      'em_totals':em_totals,
-                                     'ept_totals':ept_totals})
+                                     'ept_totals':ept_totals,
+                                     'em_total_u':em_total_u,
+                                     'ept_total_u':ept_total_u})
 
 def average_discrepancies(instance):
     """
