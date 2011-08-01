@@ -39,4 +39,8 @@ def attribute_lookup(obj, attr):
     '''Get an attribute from an object.'''
     if (hasattr(obj, attr)):
         return getattr(obj, attr)
+
+@register.filter
+def times(a,b):
+    return a * b
     

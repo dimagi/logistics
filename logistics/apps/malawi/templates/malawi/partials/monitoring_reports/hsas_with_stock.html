@@ -29,7 +29,11 @@
         {% for r in em_reports.values %}
             <td>
             {% if p in r %}
-            {{ r|dict_lookup:p }}
+            {% with r|dict_lookup:p as num %}
+                {% with t|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                 {% else %}
                 <span style="color:gray">n/a</span>
              {% endif %}

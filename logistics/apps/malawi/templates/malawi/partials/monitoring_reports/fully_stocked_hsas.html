@@ -6,20 +6,20 @@
     <thead>
         <tr>
             <th></th>
-            <th colspan="{{ em_reports|length }}" >EM</th>
-            <th colspan="{{ ept_reports|length }}" >EPT</th>
-            <th colspan="2">Totals</th>
+            <th colspan="{{ em_reports|length|times:2 }}" >EM</th>
+            <th colspan="{{ ept_reports|length|times:2 }}" >EPT</th>
+            <th colspan="4">Totals</th>
         </tr>
         <tr>
             <th>Category</th>
 {% for d in em_reports %}
-            <th>{{ d.name }}</th>
+            <th colspan=2>{{ d.name }}</th>
 {% endfor %}
 {% for d in ept_reports %}
-            <th>{{ d.name }}</th>
+            <th colspan=2>{{ d.name }}</th>
 {% endfor %}
-            <th>EM</th>
-            <th>EPT</th>
+            <th colspan=2>EM</th>
+            <th colspan=2>EPT</th>
         </tr>
     </thead>
     <tbody>
@@ -27,37 +27,49 @@
         <tr>
             <td>% HSAs who manage {% commodity_code_to_name p %} with no stockouts</td>
         {% for r in em_reports.values %}
-            <td>
-            {% if p in r.no_stockouts_pct_p %}
-            {{ r.no_stockouts_pct_p|dict_lookup:p }}%
+            {% if p in r.no_stockouts_p %}
+                {% with r.no_stockouts_p|dict_lookup:p as num %}
+                {% with r.totals_p|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                 {% else %}
-                <span style="color:gray">n/a</span>
+                <td colspan=2><span style="color:gray">n/a</span></td>
              {% endif %}
-            </td>
 {% endfor %}
         {% for r in ept_reports.values %}
-            <td>
-            {% if p in r.no_stockouts_pct_p %}
-                {{ r.no_stockouts_pct_p|dict_lookup:p }}%
+            {% if p in r.no_stockouts_p %}
+                {% with r.no_stockouts_p|dict_lookup:p as num %}
+                {% with r.totals_p|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                 {% else %}
-                <span style="color:gray">n/a</span>
+                <td colspan="2"><span style="color:gray">n/a</span></td>
              {% endif %}
-            </td>
-{% endfor %}
+            {% endfor %}
 
-        <td>            {% if p in em_totals.no_stockouts_pct_p %}
-            {{ em_totals.no_stockouts_pct_p|dict_lookup:p }}%
+           {% if p in em_totals.no_stockouts_p %}
+            {%  with em_totals.no_stockouts_p|dict_lookup:p as num%}
+            {%  with em_totals.totals_p|dict_lookup:p as denom%}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                         {% else %}
-                <span style="color:gray">n/a</span>
+                        <td colspan="2"> <span style="color:gray">n/a</span>        </td>
              {% endif %}
-        </td>
-        <td>{% if p in ept_totals.no_stockouts_pct_p %}
 
-            {{ ept_totals.no_stockouts_pct_p|dict_lookup:p }}%
+           {% if p in ept_totals.no_stockouts_p %}
+            {%  with ept_totals.no_stockouts_p|dict_lookup:p as num%}
+            {%  with ept_totals.totals_p|dict_lookup:p as denom%}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                         {% else %}
-                <span style="color:gray">n/a</span>
+                        <td colspan="2"> <span style="color:gray">n/a</span>        </td>
              {% endif %}
-        </td>
+
+
         </tr>
     {% endfor %}
     </tbody>
