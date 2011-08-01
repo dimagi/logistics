@@ -69,6 +69,8 @@ def _district_breakdown(datespan, facility=False):
         _update_dict(em_totals, em_reports[d])
         em_totals['req_times'] += bd.req_times
         em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        em_reports[d]['no_stockouts_p'] = bd.no_stockouts_p
+        em_reports[d]['totals_p'] = bd.totals_p
         em_reports[d]['avg_req_time'] = bd.avg_req_time
         em_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         em_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
@@ -95,6 +97,8 @@ def _district_breakdown(datespan, facility=False):
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
         ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        ept_reports[d]['no_stockouts_p'] = bd.no_stockouts_p
+        ept_reports[d]['totals_p'] = bd.totals_p
         ept_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         ept_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
         ept_reports[d]['discrepancies_tot_p'] = bd.discrepancies_tot_p
