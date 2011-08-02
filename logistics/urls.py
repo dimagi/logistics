@@ -27,7 +27,7 @@ urlpatterns = patterns('',
     # i guess having both of these is ok for now
     (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
     (r'^malawi/', include('logistics.apps.malawi.urls')),
-    (r'^ilsgateway/', include('logistics.apps.ilsgateway.urls')),
+    #(r'^ilsgateway/', include('logistics.apps.ilsgateway.urls')),
     (r'^maps/', include('logistics.apps.maps.urls')),
     
     # login/logout. this is order dependent
