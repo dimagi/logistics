@@ -54,7 +54,10 @@ def nag_hsas_soh(since, location=None):
                          nag_type=Reports.SOH)
 
     # empty init
-    hsa_first_warnings = hsa_second_warnings = hsa_third_warnings = hsa_fourth_warnings = set(())
+    hsa_first_warnings = set(())
+    hsa_second_warnings = set(())
+    hsa_third_warnings = set(())
+    hsa_fourth_warnings = set(())
     now = datetime.utcnow()
     
     # only send nags if we're past the nag period
