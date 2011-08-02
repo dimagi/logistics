@@ -622,7 +622,8 @@ class StockRequest(models.Model):
     requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by")
     responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by")
     received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
-    
+
+    balance = models.IntegerField(null=True, default=None)
     amount_requested = models.PositiveIntegerField(null=True)
     # this field is actually unnecessary with no ability to 
     # approve partial resupplies in the current system, but is
@@ -717,7 +718,8 @@ class StockRequest(models.Model):
                                                   requested_by=contact,
                                                   amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
-                                                  is_emergency=is_emergency)
+                                                  is_emergency=is_emergency,
+                                                  balance=current_stock.quantity)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)
@@ -738,12 +740,17 @@ class StockRequest(models.Model):
         requests = []
         pending_reqs = StockRequest.pending_requests().filter\
             (supply_point=stock_report.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys())
+             product__sms_code__in=stock_report.product_stock.keys()).order_by('-received_on')
         now = datetime.utcnow()
+        ps = set(stock_report.product_stock.keys())
         for req in pending_reqs:
-            req.receive(contact, 
-                        stock_report.product_stock[req.product.sms_code],
-                        now)
+            if req.product.sms_code in ps:
+                req.receive(contact,
+                            stock_report.product_stock[req.product.sms_code],
+                            now)
+                ps.remove(req.product.sms_code)
+            else:
+                req.receive(contact, 0, now)
             requests.append(req)
         return requests
     
@@ -868,6 +875,10 @@ class RequisitionReport(models.Model):
 
     
 class NagRecord(models.Model):
+    """
+    A record of a Nag going out, so we don't send the same nag
+    multiple times.
+    """
     supply_point = models.ForeignKey(SupplyPoint)
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)

@@ -1,17 +1,18 @@
 {% load logistics_extras %}
+{% load report_tags %}
 <table>
     <thead>
         <tr>
             <th></th>
-            <th colspan="{{ reports|length }}" >EM</th>
-            <th>EM Total</th>
+            <th colspan="{{ reports|length|times:2 }}" >EM</th>
+            <th colspan="2">EM Total</th>
         </tr>
         <tr>
             <th>Category</th>
 {% for d in reports %}
-            <th>{{ d.name }}</th>
+            <th colspan="2">{{ d.name }}</th>
 {% endfor %}
-            <th></th>
+            <th colspan="2"></th>
         </tr>
     </thead>
     <tbody>

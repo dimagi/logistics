@@ -174,8 +174,11 @@ def stockonhand_table(supply_point):
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
-    # shouldn't this be ordered by something?
-    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
+    mdates = Message.objects.filter(contact=contact).order_by("-date").distinct().values_list("date", flat=True)
+    if limit:
+        mdates = list(mdates)[:limit]
+    messages = Message.objects.filter(contact=contact, date__in=mdates).order_by("-date")
+    return ShortMessageTable(messages).as_html()
 
 @register.simple_tag
 def product_availability_summary(location):

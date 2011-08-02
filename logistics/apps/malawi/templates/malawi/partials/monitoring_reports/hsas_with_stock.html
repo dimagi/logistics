@@ -6,58 +6,76 @@
     <thead>
         <tr>
             <th></th>
-            <th colspan="{{ em_reports|length }}" >EM</th>
-            <th colspan="{{ ept_reports|length }}" >EPT</th>
-            <th colspan="2">Totals</th>
+            <th colspan="{{ em_reports|length|times:2 }}" >EM</th>
+            <th colspan="{{ ept_reports|length|times:2 }}" >EPT</th>
+            <th colspan="4">Totals</th>
         </tr>
         <tr>
             <th>Category</th>
 {% for d in em_reports %}
-            <th>{{ d.name }}</th>
+            <th colspan="2">{{ d.name }}</th>
 {% endfor %}
 {% for d in ept_reports %}
-            <th>{{ d.name }}</th>
+            <th colspan="2">{{ d.name }}</th>
 {% endfor %}
-            <th>EM</th>
-            <th>EPT</th>
+            <th colspan="2">EM</th>
+            <th colspan="2">EPT</th>
         </tr>
     </thead>
     <tbody>
     {% for p in product_codes %}
         <tr>
-            <td># of HSAs with adequate stock of {% commodity_code_to_name p %}</td>
-        {% for r in em_reports.values %}
-            <td>
-            {% if p in r %}
-            {{ r|dict_lookup:p }}
+            <td>% HSAs with adequate {% commodity_code_to_name p %}</td>
+        {% for d in em_reports.keys %}
+            
+            {% with em_reports|dict_lookup:d as r %}
+            {% with em_users|dict_lookup:d as t %}
+            {% if p in r and p in t%}
+            {% with r|dict_lookup:p as num %}
+                {% with t|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                 {% else %}
-                <span style="color:gray">n/a</span>
+                <td colspan="2"> <span style="color:gray">n/a</span></td>
              {% endif %}
-            </td>
-{% endfor %}
-        {% for r in ept_reports.values %}
-            <td>
-            {% if p in r%}
-                {{ r|dict_lookup:p }}
+             {% endwith %}
+             {% endwith %}
+        {% endfor %}
+        {% for d in ept_reports.keys %}
+            {% with ept_reports|dict_lookup:d as r %}
+            {% with ept_users|dict_lookup:d as t %}
+            {% if p in r and p in t%}
+            {% with r|dict_lookup:p as num %}
+                {% with t|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
                 {% else %}
-                <span style="color:gray">n/a</span>
+                <td colspan="2"> <span style="color:gray">n/a</span></td>
              {% endif %}
-            </td>
-{% endfor %}
+             {% endwith %}
+             {% endwith %}
+        {% endfor %}
+        {% if p in em_totals %}
+            {% with em_totals|dict_lookup:p as num %}
+                {% with em_total_u|dict_lookup:p as denom %}
+                    {% percent_cell num denom %}
+                {% endwith %}
+            {% endwith %}
+        {% else %}
+            <td colspan="2"><span style="color:gray">n/a</span></td>
+        {% endif %}
+        {% if p in ept_totals %}
+            {% with ept_totals|dict_lookup:p as num %}
+                {% with ept_total_u|dict_lookup:p as denom %}
+                    {% percent_cell num denom %}
+                {% endwith %}
+            {% endwith %}
+        {% else %}
+            <td colspan="2"><span style="color:gray">n/a</span></td>
+        {% endif %}
 
-        <td>            {% if p in em_totals %}
-            {{ em_totals|dict_lookup:p }}
-                        {% else %}
-                <span style="color:gray">n/a</span>
-             {% endif %}
-        </td>
-        <td>{% if p in ept_totals %}
-
-            {{ ept_totals|dict_lookup:p }}
-                        {% else %}
-                <span style="color:gray">n/a</span>
-             {% endif %}
-        </td>
         </tr>
     {% endfor %}
     </tbody>

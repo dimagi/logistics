@@ -1,10 +1,10 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
 from logistics.apps.logistics.models import ProductStock, StockRequest
 from logistics.apps.logistics.reports import ReportingBreakdown, calc_percentage
 from logistics.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
-    get_ept_districts
+    get_ept_districts, facility_supply_points_below
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
 
@@ -25,7 +25,7 @@ def _update_dict(totals, to_add):
         else:
             totals[k] = v
 
-def _district_breakdown(datespan):
+def _district_breakdown(datespan, facility=False):
     """
     Breakdown of reporting information, by group and district
     """
@@ -37,6 +37,8 @@ def _district_breakdown(datespan):
     ept_totals = defaultdict(lambda: 0)
     em_totals.update({'no_stockouts_pct_p':{},
                       'no_stockouts_p':{},
+                      'stockouts_duration_p':{},
+                      'stockouts_avg_duration_p':{},
                       'totals_p':{},
                       'discrepancies_p': {},
                       'discrepancies_tot_p': {},
@@ -46,6 +48,8 @@ def _district_breakdown(datespan):
                       'req_times':[]})
     ept_totals.update({'no_stockouts_pct_p':{},
                        'no_stockouts_p':{},
+                       'stockouts_duration_p':{},
+                       'stockouts_avg_duration_p':{},
                        'totals_p':{},
                        'discrepancies_p': {},
                        'discrepancies_pct_p': {},
@@ -55,17 +59,27 @@ def _district_breakdown(datespan):
                        'req_times':[]})
 
     for d in em:
-        bd = ReportingBreakdown(hsa_supply_points_below(d),
-                                datespan, MNE=True)
+        if facility:
+            bd = ReportingBreakdown(facility_supply_points_below(d),
+                                    datespan, MNE=True)
+        else:
+            bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                   datespan, MNE=True)
         em_reports[d] = _to_totals(bd)
         _update_dict(em_totals, em_reports[d])
         em_totals['req_times'] += bd.req_times
         em_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        em_reports[d]['no_stockouts_p'] = bd.no_stockouts_p
+        em_reports[d]['totals_p'] = bd.totals_p
         em_reports[d]['avg_req_time'] = bd.avg_req_time
         em_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         em_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
         em_reports[d]['discrepancies_tot_p'] = bd.discrepancies_tot_p
         em_reports[d]['discrepancies_p'] = bd.discrepancies_p
+        em_reports[d]['stockouts_duration_p'] = bd.stockouts_duration_p
+
+        em_reports[d]['stockouts_avg_duration_p'] = bd.stockouts_avg_duration_p
+        _update_dict(em_totals['stockouts_duration_p'], bd.stockouts_duration_p)
         _update_dict(em_totals['no_stockouts_p'], bd.no_stockouts_p)
         _update_dict(em_totals['discrepancies_p'], bd.discrepancies_p)
         _update_dict(em_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
@@ -73,24 +87,37 @@ def _district_breakdown(datespan):
         _update_dict(em_totals['totals_p'], bd.totals_p)
 
     for d in ept:
-        bd = ReportingBreakdown(hsa_supply_points_below(d),
-                                datespan,
-                                MNE=True)
+        if facility:
+            bd = ReportingBreakdown(facility_supply_points_below(d),
+                                    datespan, MNE=True)
+        else:
+            bd = ReportingBreakdown(hsa_supply_points_below(d),
+                                   datespan, MNE=True)
         ept_reports[d] = _to_totals(bd)
         _update_dict(ept_totals, ept_reports[d])
         ept_totals['req_times'] += bd.req_times
         ept_reports[d]['no_stockouts_pct_p'] = bd.no_stockouts_pct_p
+        ept_reports[d]['no_stockouts_p'] = bd.no_stockouts_p
+        ept_reports[d]['totals_p'] = bd.totals_p
         ept_reports[d]['discrepancies_pct_p'] = bd.discrepancies_pct_p
         ept_reports[d]['discrepancies_avg_p'] = bd.discrepancies_avg_p
         ept_reports[d]['discrepancies_tot_p'] = bd.discrepancies_tot_p
         ept_reports[d]['discrepancies_p'] = bd.discrepancies_p
         ept_reports[d]['avg_req_time'] = bd.avg_req_time
+        ept_reports[d]['stockouts_duration_p'] = bd.stockouts_duration_p
+        ept_reports[d]['stockouts_avg_duration_p'] = bd.stockouts_avg_duration_p
         _update_dict(ept_totals['no_stockouts_p'], bd.no_stockouts_p)
+        _update_dict(ept_totals['stockouts_duration_p'], bd.stockouts_duration_p)
         _update_dict(ept_totals['discrepancies_p'], bd.discrepancies_p)
         _update_dict(ept_totals['discrepancies_tot_p'], bd.discrepancies_tot_p)
         _update_dict(ept_totals['filled_orders_p'], bd.filled_orders_p)
         _update_dict(ept_totals['totals_p'], bd.totals_p)
 
+    for p in ept_totals['stockouts_duration_p']:
+        ept_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(ept_totals['stockouts_duration_p'][p])/len(ept_totals['stockouts_duration_p'][p]))
+        
+    for p in em_totals['stockouts_duration_p']:
+        em_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(em_totals['stockouts_duration_p'][p])/len(em_totals['stockouts_duration_p'][p]))
 
     for p in ept_totals['no_stockouts_p']:
         ept_totals['no_stockouts_pct_p'][p] = calc_percentage(ept_totals['no_stockouts_p'][p], ept_totals['totals_p'][p])
@@ -146,7 +173,8 @@ def em_late_reporting(instance):
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 instance.datespan, 
                                 include_late=True,
-                                days_for_late=2)
+                                days_for_late=2,
+                                MNE=True)
         reports[d] = _to_totals(bd)
         _update_dict(totals, reports[d])
     
@@ -178,19 +206,26 @@ def fully_stocked_facilities(instance):
     """
     No stock outs reported by HCs in past 30 days by product, by District and group
     """
-    return _common_report(instance, {}) 
+    d = _district_breakdown(instance.datespan, facility=True)
+    d['product_codes'] = PRODUCT_CODES
+
+    return _common_report(instance, d)
 
 def hsa_stockout_duration(instance):
     """
     Duration of HSA stockout by product over past, by District and group
     """
-    return _common_report(instance, {}) 
+    d = _district_breakdown(instance.datespan)
+    d['product_codes'] = PRODUCT_CODES
+    return _common_report(instance, d)
 
 def facility_stockout_duration(instance):
     """
     Duration of HC stockout by product over past, by District and group
     """
-    return _common_report(instance, {}) 
+    d = _district_breakdown(instance.datespan, facility=True)
+    d['product_codes'] = PRODUCT_CODES
+    return _common_report(instance, d)
 
 def emergency_orders(instance):
     """
@@ -238,7 +273,7 @@ def order_messages(instance):
         for p in PRODUCT_CODES:
             if srf.filter(product__sms_code=p).exists():
                 count += 1
-                g = srf.get(product__sms_code=p)
+                g = srf.filter(product__sms_code=p)[0]
                 s = g.status if g.status != 'canceled' else 'superseded'
                 if not s in row['status']:
                     if row['status']:
@@ -273,28 +308,45 @@ def hsas_with_stock(instance):
     ept_reports = {}
     em_totals = {}
     ept_totals = {}
+    em_users = {}
+    ept_users = {}
+    em_total_u = {}
+    ept_total_u ={}
 
     # There is just no good way to do this.  The performance here is going to suck and there's no way around it.
     for p in PRODUCT_CODES:
         em_totals[p] = 0
         ept_totals[p] = 0
+        em_total_u[p] = 0
+        ept_total_u[p] = 0
+
     for d in em:
         em_reports[d] = {}
+        em_users[d] = {}
         for p in PRODUCT_CODES:
             em_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            em_users[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d))])
             em_totals[p] += em_reports[d][p]
+            em_total_u[p] += em_users[d][p]
     for d in ept:
         ept_reports[d] = {}
+        ept_users[d] = {}
         for p in PRODUCT_CODES:
             ept_reports[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d)) if px.is_in_adequate_supply()])
+            ept_users[d][p] = len([px for px in ps.filter(product__sms_code=p, supply_point__in=hsa_supply_points_below(d))])
             ept_totals[p] += ept_reports[d][p]
+            ept_total_u[p] += ept_users[d][p]
 
     instance.datespan = None
     return _common_report(instance, {'product_codes': PRODUCT_CODES,
                                      'em_reports':em_reports,
+                                     'em_users':em_users,
                                      'ept_reports':ept_reports,
+                                     'ept_users':ept_users,
                                      'em_totals':em_totals,
-                                     'ept_totals':ept_totals})
+                                     'ept_totals':ept_totals,
+                                     'em_total_u':em_total_u,
+                                     'ept_total_u':ept_total_u})
 
 def average_discrepancies(instance):
     """

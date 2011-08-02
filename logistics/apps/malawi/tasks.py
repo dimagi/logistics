@@ -1,8 +1,7 @@
 from celery.schedules import crontab
 from celery.decorators import periodic_task
-from logistics.apps.malawi.nag import nag_hsas_em, nag_hsas_ept
+from logistics.apps.malawi.nag import nag_hsas_em, nag_hsas_ept, nag_hsas_rec
 from datetime import datetime
-import os
 from django.conf import settings
 
 
@@ -10,6 +9,7 @@ from django.conf import settings
 def nag_hsas():
     nag_hsas_ept()
     nag_hsas_em()
+    nag_hsas_rec()
 
 @periodic_task(run_every=crontab(hour="*", minute="*", day_of_week="*"))
 def heartbeat():

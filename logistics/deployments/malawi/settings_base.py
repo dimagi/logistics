@@ -15,7 +15,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'johnny.middleware.CommittingTransactionMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
 )
+
+CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
@@ -129,7 +134,9 @@ LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
-LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True
+
+LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
@@ -138,14 +145,15 @@ BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics.apps.malawi.alerts.hsas_no_supervision',
-    'logistics.apps.malawi.alerts.hsas_no_products',
-    'logistics.apps.malawi.alerts.late_reporting_receipt',
-    'logistics.apps.malawi.alerts.non_reporting_hsas',
-    'logistics.apps.malawi.alerts.health_center_stockout',
+    #'logistics.apps.malawi.alerts.hsas_no_supervision',
+    #'logistics.apps.malawi.alerts.hsas_no_products',
+    #'logistics.apps.malawi.alerts.late_reporting_receipt',
+    #'logistics.apps.malawi.alerts.non_reporting_hsas',
+    #'logistics.apps.malawi.alerts.health_center_stockout',
     'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
 
 DATABASE_ENGINE = "mysql"
+
