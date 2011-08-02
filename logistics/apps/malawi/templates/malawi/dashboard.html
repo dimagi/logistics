@@ -1,4 +1,3 @@
-
 {% extends base_template %}
 
 {% load i18n %}
@@ -77,6 +76,5 @@
     {% cache 1000 product_availability location %}
         {% product_availability_summary location %}
     {% endcache %}
->>>>>>> malawi-dev
 </div>
 {% endblock %}
