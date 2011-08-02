@@ -167,7 +167,7 @@ CELERY_HEARTBEAT_FILE = '/tmp/sc4ccm-heartbeat'
 # kannel
 KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
 
-DEFAULT_BACKEND = 'smsgh'
+DEFAULT_BACKEND = 'message_tester'
 INTL_DIALLING_CODE = "+"
 DOMESTIC_DIALLING_CODE = 0
 STATIC_ROOT = "/static_root"

@@ -1,0 +1,11 @@
+[{"pk": 2, "model": "auth.user", "fields": {"username": "guest", "first_name": "", "last_name": "", "is_active": true, "is_superuser": false, "is_staff": false, "last_login": "2010-10-01 11:01:55", "groups": [], "user_permissions": [], "password": "sha1$1e91d$50aca38bba1f01613e5e3aa359c19c4088d4eead", "email": "", "date_joined": "2010-10-01 11:00:46"}},
+  {
+    "pk": 2, 
+    "model": "ilsgateway.ilsgatewayuser", 
+    "fields": {
+    	"service_delivery_point": 1
+    }
+  },
+{"pk": 1, "model": "rapidsms.contact", "fields": {"name": "guest", "language": ""}}, 
+{"pk": 1, "model": "rapidsms.connection", "fields": {"contact": 1, "identity": "123", "backend": 2}}, 
+{"pk": 1, "model": "ilsgateway.contactdetail", "fields": {"service_delivery_point": 31, "role": 4, "user": 2, "primary": false, "email": ""}}]

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{{ facility.name }} Detail{{ block.super }}{% endblock %}
+
+{% block stylesheets %}
+{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="/static/ilsgateway/stylesheets/ilsgateway.css" />
+{% endblock %}
+
+{% block content %}
+<div class="crumbs">{% for title, href in breadcrumbs %}{% if not forloop.first %} &raquo; {% endif %}{% if href %}<a href="{{href}}">{{ title }}</a>{% else %}{{ title }}{% endif %}{% endfor %}</div>
+<div style="clear:both;">&nbsp;</div>
+<div><h2>{{ facility.name }} ({{ facility.msd_code }}) {% trans 'Group' %} {{ facility.delivery_group.name }} &raquo; <a href="{% url locations facility.uid %}">{% trans 'see on map' %}</a></h2></div>
+
+<div class="split-2">
+    <div class="left">
+        <div class="module">
+            <h2>{% trans 'Inventory History' %}</h2>
+            <div class="toolbar">
+                {% if view_type == 'inventory' %}<a href="/facilities/{{ facility.id }}/months_of_stock/">{% trans 'show months of stock' %}</a>
+                {% else %}<a href="/facilities/{{ facility.id}}/inventory/">{% trans 'show stock levels' %}</a>{% endif %}
+            </div>
+            <div class="inventorySMS">
+                <p>{% trans 'Last SMS message received' %}:</p>
+            {% if facility.last_message_received %}
+                <p><i>&raquo;"{{ facility.last_message_received.text }}"</i></p>
+                <p>{{ facility.stock_on_hand_last_reported }} {% trans 'by' %} {{ facility.last_message_received.contact.contactdetail.role }} {{ facility.last_message_received.contact }}</p>
+            {% else %}
+                <p>{% trans 'No inventory messages have been received' %}</p>
+            {% endif %}    
+            <p><a href="/facilities/{{ facility.id }}/message_history/">{% trans 'See complete SMS message history' %} &raquo;</a></p>
+            </div>
+            <table>
+                <thead>
+                    <th>{% trans "Product" %}</th>
+                    <th>{% if view_type == 'inventory' %}{% trans 'Stock on Hand' %}{% else %}{% trans 'Months of Stock' %}{% endif %}</th>
+                </thead>
+                <tbody>
+                {% for product, quantity in product_counts %}
+                    <tr><td>{{ product }}</td><td><span class="{% if quantity == 0 %}zero_count{% else %}{% if not quantity %}insufficient_data{% endif %}{% endif %}">{% if quantity == None %}{% trans 'no data' %}{% else %}{{ quantity|floatformat }}{% endif %}</span></td></tr>    
+                {% endfor %}                
+                </tbody>
+            </table>            
+        </div>    
+    </div>
+    <div class="right">
+        <div class="module">
+            <h2>{% trans 'R&amp;R History' %}</h2>
+            <div class="toolbar">
+                <a href="">{% trans 'see all R&amp;R history' %}</a>
+            </div>
+            {% if facility.randr_status %}
+            <p>
+                {% trans 'Status' %}: <span class="{{ facility.randr_status.status_type.short_name }}">{% blocktrans with facility.randr_status as status %}{{ status }}{% endblocktrans %}</span>
+            </p>
+            <p>
+                {% trans "Last updated on" %}: <span class="{{ facility.randr_status.status_type.short_name }}">{{ facility.randr_status.status_date }}</span>
+            </p>
+            {% else %}
+            <p>
+                 <span class="no_delivery_status_reported">{% trans 'No delivery status reported' %}</a>
+            </p>
+            {% endif %}
+            </p>
+            <p><a href="/docdownload/{{ facility.id }}">{% trans 'Download most recent R&amp;R' %} &raquo;</a></p>
+        </div>
+        <div class="module">
+            <h2>{% trans "Notes" %}</h2>
+            <div class="toolbar">
+                <a href="{% url ilsgateway.views.note_history facility.id %}">{% trans 'see all notes' %}'</a>
+            </div>
+        {% for note in notes %}
+            <div class="recentNote">
+                <p class="noteText">&raquo; "{{ note.text }}"</span></p>
+                <p class="noteByLine">{{ note.created_at }} by {{ note.contact_detail.name }}
+            </div> 
+        {% endfor %}
+            <form action="{% url ilsgateway.views.facilities_detail facility.id %}" method="post">
+            <p>{% trans 'Enter a note for this facility' %}:</p>
+            {{ form.as_p }}
+            <input type="submit" value="Submit" />
+            </form>
+        </div>
+    </div>
+    <div style="clear:both;">&nbsp;</div>
+    <div class="module">
+        <h2 class="contactGroup">{% trans "Registration" %}</h2>
+        <div class="toolbar">
+            <a href="{% url registration %}">{% trans 'see all users' %}</a>
+        </div>
+        {% for group_name, contacts in contact_groups %}
+        <div class="contactGroupHeader">{{ group_name }} {% trans 'Contacts' %}</div>
+        <table>
+            <thead>
+                <th>{% trans 'Name' %}</th>
+                <th>{% trans 'Role' %}</th>
+                <th>{% trans 'Phone' %}</th>
+                <th>{% trans 'Email' %}</th>
+                <th>{% trans 'Primary' %}</th>
+            </thead>
+            <tbody>
+                {% for contact in contacts %}
+                <tr class="">
+                    <td>{{ contact.name }}</td>
+                    <td>{% blocktrans with contact.role as role%}{{ role }}{% endblocktrans %}</td>
+                    <td>{{ contact.phone }}</td>
+                    <td>{{ contact.email }}</td>
+                    <td><input type="checkbox" {% if contact.primary %}checked{% endif %} DISABLED /></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endfor %}
+        <br />
+        <span style="margin-top:10px;"><a href="{% url registration %}">{% trans 'Add a contact' %} &raquo;</a></span>
+    </div>
+</div>
+
+{% endblock %}
