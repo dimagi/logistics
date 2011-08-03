@@ -5,6 +5,7 @@ from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole, Product, ProductType
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
+from logistics.loader.base import load_report_types, load_roles
 
 class LoaderException(Exception):
     pass
@@ -15,18 +16,8 @@ def init_static_data(log_to_console=False):
     """
     # These are annoyingly necessary to live in the DB, currently. 
     # Really this should be app logic, I think.
-    for code, name in Reports.ALL_REPORTS.items():
-        prod = ProductReportType.objects.get_or_create(code=code)[0]
-        if prod.name != name:
-            prod.name = name
-            prod.save()
-    
-    for code, name in config.Roles.ALL_ROLES.items():
-        role = ContactRole.objects.get_or_create(code=code)[0]
-        if role.name != name:
-            role.name = name
-            role.save()
-    
+    load_report_types()
+    load_roles()
     loc_file = getattr(settings, "STATIC_LOCATIONS")
     if loc_file:
         load_locations(loc_file, log_to_console=log_to_console)
