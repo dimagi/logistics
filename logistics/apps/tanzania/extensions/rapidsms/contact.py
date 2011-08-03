@@ -2,10 +2,13 @@ from __future__ import absolute_import
 from django.contrib.auth.models import User
 from django.db import models
 
-class Contact(models.Model):
+class TanzaniaContactExtension(models.Model):
 
-    user = models.OneToOneField(User)
+    # user = models.OneToOneField(User)
     
+    class Meta:
+        abstract = True
+
     def allowed_to_edit(self, current_sdp):
         parent_service_delivery_points_ids = []
         while current_sdp is not None:
@@ -27,9 +30,6 @@ class Contact(models.Model):
 
     def supply_point_name(self):
         return self.supply_point.name
-
-    class Meta:
-        verbose_name = "Contact Detail"
 
     def __unicode__(self):
         return self.name
