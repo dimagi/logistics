@@ -4,8 +4,8 @@ from django.db import models
 
 class TanzaniaContactExtension(models.Model):
 
-    # user = models.OneToOneField(User)
-    
+    user = models.OneToOneField(User, null=True, blank=True)
+
     class Meta:
         abstract = True
 
