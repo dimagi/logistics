@@ -4,7 +4,8 @@
 APPS = [
     "auditcare",
     "django.contrib.webdesign",
-    "logistics.apps.ilsgateway",
+    # commented out until fixed
+    #"logistics.apps.ilsgateway",
     "logistics.apps.tanzania",
 ]
 INSTALLED_BACKENDS = {
