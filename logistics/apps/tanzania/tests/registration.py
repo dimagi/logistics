@@ -1,7 +1,7 @@
-from logistics.apps.malawi.tests.base import OutputtingTestScript
 import os
+from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
-class TestRegister(OutputtingTestScript):
+class TestRegister(TanzaniaTestScriptBase):
     
     output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
     
@@ -9,6 +9,6 @@ class TestRegister(OutputtingTestScript):
 
         script = """
           743 > Register Alfred Mchau d10001
-          743 < Asante kwa kujisajili katika VETA 1, d10001, Alfred Mchau
+          743 < Thank you for registering at Test Facility, d10001, Alfred Mchau
         """
-        
+        self.runScript(script)

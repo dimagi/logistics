@@ -45,10 +45,13 @@ class ILSRegistrationHandler(KeywordHandler):
                 return True
         
         # Default to Facility in-charge or District Pharmacist for now
-        if sdp.type.name == config.SupplyPointCodes.DISTRICT:
-            role = ContactRole.objects.get(code=config.DISTRICT_PHARMACIST)
-        elif sdp.type.name == config.SupplyPointCodes.FACILITY:
-            role = ContactRole.objects.get(code=config.IN_CHARGE)
+        if sdp.type.code == config.SupplyPointCodes.DISTRICT:
+            role = ContactRole.objects.get(code=config.Roles.DISTRICT_PHARMACIST)
+        elif sdp.type.code == config.SupplyPointCodes.FACILITY:
+            role = ContactRole.objects.get(code=config.Roles.IN_CHARGE)
+        else:
+            # TODO be graceful
+            raise Exception("bad location type: %s" % sdp.type.name)
             
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
         contact.name = name
