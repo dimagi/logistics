@@ -1,5 +1,6 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+LOGISTICS_CONFIG = 'logistics.apps.tanzania.config'
 
 APPS = [
     "auditcare",
@@ -41,7 +42,7 @@ LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
-COUNTRY = "malawi"
+COUNTRY = "tanzania"
 TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
 
@@ -68,8 +69,6 @@ LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
 BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
-
-LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
     #'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
