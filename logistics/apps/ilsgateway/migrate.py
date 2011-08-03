@@ -58,15 +58,3 @@ def migrate():
                                          quantity = a.current_quantity,
                                          product = new_models.Product.objects.get(sms_code=a.product.sms_code))
             ps.save()
-
-        for p in old_models.ServiceDeliveryPointProductReport.objects.filter(service_delivery_point=object):
-            pr = new_models.ProductReport(product=new_models.Product.objects.get(sms_code=p.product.sms_code),
-                                          supply_point=sp,
-                                          report_type=new_models.ProductReportType.objects.get(sms_code=p.report_type.sms_code),
-                                          quantity=p.quantity,
-                                          report_date=p.report_date,
-                                          message=p.message)
-            pr.save()
-
-
-        
