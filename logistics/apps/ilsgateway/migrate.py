@@ -1,8 +1,10 @@
 __author__ = 'ternus'
-import models as old_models
+import oldmodels as old_models
 import logistics.apps.logistics.models as new_models
+from rapidsms.models import Contact, ConnectionBase
 
 def migrate():
+
 
     for product in old_models.Product.objects.all():
         p = new_models.Product(
@@ -58,3 +60,26 @@ def migrate():
                                          quantity = a.current_quantity,
                                          product = new_models.Product.objects.get(sms_code=a.product.sms_code))
             ps.save()
+
+    roles = (
+        ("Facility in-charge", "ic"),
+        ("DMO", "dm"),
+        ("RMO", "rm"),
+        ("District Pharmacist", "dp"),
+        ("MOHSW", "mh"),
+        ("MSD", "ms")
+    )
+
+    for r in roles:
+        c = new_models.ContactRole(name=r[0], code=r[1])
+        c.save()
+    for oc in old_models.ContactDetail.objects.all():
+        c = Contact(
+            name = oc.name,
+            role = new_models.ContactRole.objects.get(name=oc.role.name),
+            supply_point=new_models.SupplyPoint.objects.get(name=oc.service_delivery_point.name)
+        )
+        c.save()
+        for cb in ConnectionBase.objects.filter(contact=oc):
+            cb.contact = c
+            cb.save()
