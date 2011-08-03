@@ -44,7 +44,6 @@ COUNTRY = "malawi"
 TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
 
-
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
 LOGISTICS_LANDING_PAGE_VIEW = "malawi_dashboard"
@@ -72,14 +71,8 @@ BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
 LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
-    #'logistics.apps.malawi.alerts.hsas_no_supervision',
-    #'logistics.apps.malawi.alerts.hsas_no_products',
-    #'logistics.apps.malawi.alerts.late_reporting_receipt',
-    #'logistics.apps.malawi.alerts.non_reporting_hsas',
-    #'logistics.apps.malawi.alerts.health_center_stockout',
     #'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
     #'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
     #'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
-
 
