@@ -102,6 +102,7 @@ class SupplyPointBase(models.Model):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    groups = models.ManyToManyField('SupplyPointGroup')
 
     class Meta:
         abstract = True
@@ -328,6 +329,11 @@ class SupplyPointBase(models.Model):
 class SupplyPoint(SupplyPointBase):
     __metaclass__ = ExtensibleModelBase
 
+class SupplyPointGroup(models.Model):
+    code = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.code
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)

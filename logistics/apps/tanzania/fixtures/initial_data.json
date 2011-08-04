@@ -1,5 +1,13 @@
 [
     {
+        "pk": 11, 
+        "model": "logistics.producttype", 
+        "fields": {
+            "code": "", 
+            "name": ""
+        }
+    }, 
+    {
         "pk": 148, 
         "model": "logistics.product", 
         "fields": {
@@ -336,150 +344,6 @@
         "fields": {
             "code": "la", 
             "name": "Lost/Adjusted"
-        }
-    }, 
-    {
-        "pk": 92, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delivery received", 
-            "short_name": "delivery_received_facility"
-        }
-    }, 
-    {
-        "pk": 93, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delivery quantities reported", 
-            "short_name": "delivery_quantities_reported"
-        }
-    }, 
-    {
-        "pk": 94, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "R&R Submitted from District to MSD", 
-            "short_name": "r_and_r_submitted_district_to_msd"
-        }
-    }, 
-    {
-        "pk": 95, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "R&R Submitted From Facility to District", 
-            "short_name": "r_and_r_submitted_facility_to_district"
-        }
-    }, 
-    {
-        "pk": 96, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Waiting R&R sent confirmation", 
-            "short_name": "r_and_r_reminder_sent_facility"
-        }
-    }, 
-    {
-        "pk": 97, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Waiting Delivery Confirmation", 
-            "short_name": "delivery_received_reminder_sent_facility"
-        }
-    }, 
-    {
-        "pk": 98, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "R&R Reminder Sent to District", 
-            "short_name": "r_and_r_reminder_sent_district"
-        }
-    }, 
-    {
-        "pk": 99, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "R&R Not Submitted", 
-            "short_name": "r_and_r_not_submitted_facility_to_district"
-        }
-    }, 
-    {
-        "pk": 100, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delivery Not Received", 
-            "short_name": "delivery_not_received_facility"
-        }
-    }, 
-    {
-        "pk": 101, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Stock on hand reminder sent to Facility", 
-            "short_name": "soh_reminder_sent_facility"
-        }
-    }, 
-    {
-        "pk": 102, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delivery received", 
-            "short_name": "delivery_received_district"
-        }
-    }, 
-    {
-        "pk": 103, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delivery received", 
-            "short_name": "delivery_not_received_district"
-        }
-    }, 
-    {
-        "pk": 104, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Waiting Delivery Confirmation", 
-            "short_name": "delivery_received_reminder_sent_district"
-        }
-    }, 
-    {
-        "pk": 105, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Supervision reminder sent", 
-            "short_name": "supervision_reminder_sent_facility"
-        }
-    }, 
-    {
-        "pk": 106, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Supervision received", 
-            "short_name": "supervision_received_facility"
-        }
-    }, 
-    {
-        "pk": 107, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Supervision not received", 
-            "short_name": "supervision_not_received_facility"
-        }
-    }, 
-    {
-        "pk": 108, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Lost/Adjusted reminder sent to Facility", 
-            "short_name": "lost_adjusted_reminder_sent_facility"
-        }
-    }, 
-    {
-        "pk": 109, 
-        "model": "tanzania.supplypointstatustype", 
-        "fields": {
-            "name": "Delinquent deliveries summary sent to District", 
-            "short_name": "alert_delinquent_delivery_sent_district"
         }
     }
 ]
