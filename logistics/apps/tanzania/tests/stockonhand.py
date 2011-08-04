@@ -2,7 +2,7 @@ from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics.apps.tanzania.tests.util import register_user, add_products
 from logistics.apps.logistics.models import Product, ProductStock
 
-class TestRegister(TanzaniaTestScriptBase):
+class TestStockOnHand(TanzaniaTestScriptBase):
     
     def testStockOnHand(self):
         contact = register_user(self, "778", "someone")
