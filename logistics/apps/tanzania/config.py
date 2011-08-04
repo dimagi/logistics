@@ -136,6 +136,8 @@ class Messages(object):
     # "stop" keyword
     STOP_CONFIRM = "You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."
     
+    # yes
+    YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
     
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
