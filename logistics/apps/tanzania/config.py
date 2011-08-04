@@ -127,11 +127,15 @@ class Messages(object):
     HELP_REGISTERED = 'Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la'
     HELP_UNREGISTERED = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
     
-    
+    # language keyword
     LANGUAGE_HELP = "To set your language, send LANGUAGE <CODE>"
     LANGUAGE_CONTACT_REQUIRED = "You must JOIN or IDENTIFY yourself before you can set your language preference."
     LANGUAGE_CONFIRM = "I will speak to you in %(language)s."
     LANGUAGE_UNKNOWN = 'Sorry, I don\'t speak "%(language)s".'
+    
+    # "stop" keyword
+    STOP_CONFIRM = "You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."
+    
     
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
