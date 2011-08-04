@@ -1,5 +1,6 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+import os
 LOGISTICS_CONFIG = 'logistics.apps.tanzania.config'
 
 APPS = [
@@ -20,7 +21,7 @@ INSTALLED_BACKENDS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "logistics",
+        "NAME": "ilsgateway",
         "USER": "postgres",
         "PASSWORD": "test",
         "HOST": "localhost",
@@ -76,3 +77,7 @@ LOGISTICS_ALERT_GENERATORS = [
     #'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
 
+
+STATIC_REGIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "regions.csv")
+STATIC_DISTRICTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "districts.csv")
+STATIC_FACILITIES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "facilities.csv")
