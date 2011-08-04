@@ -1,8 +1,7 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
-    ProductReportType, ContactRole, Product, ProductType
+from logistics.apps.logistics.models import SupplyPoint, SupplyPointType, SupplyPointGroup
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 
@@ -97,11 +96,14 @@ def load_facilities(path):
                 loc = Location.objects.get_or_create(name=facility,
                                                      code=facility,
                                                      parent_id=parent.pk)[0]
+            group = SupplyPointGroup.objects.get_or_create(code=group)
             s = SupplyPoint.objects.get_or_create(id=id,
+                            name=facility,
                             code=code,
                             type=SupplyPointType.objects.get_or_create(name="facility", code="fac")[0],
                             location=loc
                         )
+            s[0].groups.add(group)
             s[0].save()
             count += 1
     finally:
