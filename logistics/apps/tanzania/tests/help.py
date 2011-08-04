@@ -1,9 +1,6 @@
-import os
 from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
 class TestHelp(TanzaniaTestScriptBase):
-    
-    output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
     
     def testHelp(self):
 
