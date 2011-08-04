@@ -256,9 +256,9 @@ class Messages(object):
     NUMBER_OF_SUPPLY_POINTS = "Number of HSAs"
     
     # response to 'help'
-    HELP_TEXT = "Text 'help stock' for help on the format of stock reports; " + \
-                "'help codes' for a list of commodity codes; " + \
-                "'help start' or 'help stop' to start and stop reminders."
+    HELP_TEXT = "Haujasajiliwa,Tafadhali jisajili kwanza kabla ya kupata huduma," + \
+                "Kusajili andika 'sajili<nafasi><jina lako><nafasi><msd code>'. " + \
+                "Mfano 'sajili Peter Juma d34002'"
 
 class Alerts(object):
     

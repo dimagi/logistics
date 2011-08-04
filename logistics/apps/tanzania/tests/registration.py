@@ -8,7 +8,7 @@ class TestRegister(TanzaniaTestScriptBase):
     def testRegister(self):
 
         script = """
-          743 > Register Alfred Mchau d10001
-          743 < Thank you for registering at Test Facility, d10001, Alfred Mchau
+          743 > sajili Alfred Mchau d10001
+          743 < Asante kwa kujisajili katika Test Facility, d10001, Alfred Mchau
         """
         self.runScript(script)
