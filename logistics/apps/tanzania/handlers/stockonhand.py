@@ -10,8 +10,8 @@ from logistics.apps.logistics.shortcuts import create_stock_report
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_required
 import logging
-from logistics.apps.tanzania.models import SupplyPointStatusType,\
-    SupplyPointStatus
+from logistics.apps.tanzania.models import SupplyPointStatus,\
+    SupplyPointStatusTypes
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
@@ -57,8 +57,7 @@ class StockOnHandHandler(KeywordHandler):
                 self.respond(_(config.Messages.SOH_CONFIRM), 
                              reply_list=','.join(sorted(stock_report.reported_products())))
             self.respond(_(config.Messages.SOH_ADJUSTMENTS_REMINDER))
-            # todo
-#            SupplyPointStatus.objects.create(supply_point=sp, 
-#                                             status_type="fixme", 
-#                                             status_date=datetime.utcnow())
-#            
+            SupplyPointStatus.objects.create(supply_point=sp, 
+                                             status_type=SupplyPointStatusTypes.LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY, 
+                                             status_date=datetime.utcnow())
+            

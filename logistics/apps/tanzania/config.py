@@ -12,47 +12,6 @@ class Languages(object):
     DEFAULT = SWAHILI
 
 
-class SupplyPointStatus(object):
-    DELIVERY_RECEIVED_FACILITY = "Delivery received"
-    DELIVERY_QUANTITIES_REPORTED = "Delivery quantities reported"
-    R_AND_R_SUBMITTED_DISTRICT_TO_MSD = "R&R Submitted from District to MSD"
-    R_AND_R_SUBMITTED_FACILITY_TO_DISTRICT = "R&R Submitted From Facility to District"
-    R_AND_R_REMINDER_SENT_TO_FACILITY = "Waiting R&R sent confirmation"
-    R_AND_R_REMINDER_SENT_TO_DISTRICT = "R&R Reminder Sent to District"
-    DELIVERY_RECEIVED_REMINDER_SENT_TO_FACILITY = "Waiting Delivery Confirmation"
-    R_AND_R_NOT_SUBMITTED_FACILITY_TO_DISTRICT =  "R&R Not Submitted"
-    DELIVERY_NOT_RECEIVED_FACILITY = "Delivery Not Received"
-    SOH_REMINDER_SENT_FACILITY = "Stock on hand reminder sent to Facility"
-    DELIVERY_RECEIVED_DISTRICT = "Delivery received"
-    DELIVERY_NOT_RECEIVED_DISTRICT = "Delivery not received"
-    DELIVERY_RECEIVED_REMINDER_SENT_DISTRICT = "Waiting Delivery Confirmation"
-    SUPERVISION_REMINDER_SENT_FACILITY = "Supervision Reminder Sent"
-    SUPERVISION_RECEIVED_FACILITY = "Supervision Received"
-    SUPERVISION_NOT_RECEIVED_FACILITY = "Supervision Not Received"
-    LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY = "Lost/Adjusted Reminder sent to Facility"
-    ALERT_DELINQUENT_DELIVERY_SENT_TO_FACILITY = "Delinquent deliveries summary sent to District"
-
-    CHOICES = (
-        (0, DELIVERY_RECEIVED_FACILITY),
-        (1, DELIVERY_QUANTITIES_REPORTED),
-        (2, R_AND_R_SUBMITTED_DISTRICT_TO_MSD),
-        (3, R_AND_R_SUBMITTED_FACILITY_TO_DISTRICT),
-        (4, R_AND_R_REMINDER_SENT_TO_FACILITY),
-        (5, R_AND_R_REMINDER_SENT_TO_DISTRICT),
-        (6, DELIVERY_RECEIVED_REMINDER_SENT_TO_FACILITY),
-        (7, R_AND_R_NOT_SUBMITTED_FACILITY_TO_DISTRICT),
-        (8, DELIVERY_NOT_RECEIVED_FACILITY),
-        (9, SOH_REMINDER_SENT_FACILITY),
-        (10, DELIVERY_RECEIVED_DISTRICT),
-        (11, DELIVERY_NOT_RECEIVED_DISTRICT),
-        (12, DELIVERY_RECEIVED_REMINDER_SENT_DISTRICT),
-        (13, SUPERVISION_REMINDER_SENT_FACILITY),
-        (14, SUPERVISION_RECEIVED_FACILITY),
-        (15, SUPERVISION_NOT_RECEIVED_FACILITY),
-        (16, LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY),
-        (17, ALERT_DELINQUENT_DELIVERY_SENT_TO_FACILITY)
-    )
-
 
 
 class Roles(object):
