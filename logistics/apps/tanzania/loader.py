@@ -96,7 +96,7 @@ def load_facilities(path):
                 loc = Location.objects.get_or_create(name=facility,
                                                      code=facility,
                                                      parent_id=parent.pk)[0]
-            group = SupplyPointGroup.objects.get_or_create(code=group)
+            group = SupplyPointGroup.objects.get_or_create(code=group)[0]
             s = SupplyPoint.objects.get_or_create(id=id,
                             name=facility,
                             code=code,
