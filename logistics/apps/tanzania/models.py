@@ -17,23 +17,10 @@ from re import match
 from django.utils.translation import ugettext as _
 from djtables.cell import Cell
 from djtables.column import Column, DateColumn
-
-
-class SupplyPointStatusType(models.Model):
-    """
-    This is the status for both R&R process and delivery - could be given a process name field to clarify between the two.
-    """
-    name = models.CharField(max_length=100)
-    short_name = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = "Facility Status Type"
-
-    def __unicode__(self):
-        return self.name
+from logistics.apps.logistics.util import config
 
 class SupplyPointStatus(models.Model):
-    status_type = models.ForeignKey(SupplyPointStatusType)
+    status_type = models.IntegerField(choices=config.SupplyPointStatus.CHOICES)
     #message = models.ForeignKey(Message)
     status_date = models.DateTimeField()
     supply_point = models.ForeignKey(SupplyPoint)
