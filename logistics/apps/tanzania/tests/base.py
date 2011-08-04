@@ -1,5 +1,4 @@
-from logistics import settings
-from logistics.apps.malawi import loader
+from logistics.apps.tanzania import loader
 from logistics.apps.malawi.tests.base import OutputtingTestScript
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
 from logistics.apps.logistics.util import config
@@ -11,7 +10,7 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
     """
     Base test class that prepopulates tests with tanzania's static data
     """
-    
+    fixtures = ["tz_static.json", ]
     # this is so the paths line up
     output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
     
@@ -19,6 +18,7 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
         super(TanzaniaTestScriptBase, self).setUp()
         load_roles()
         load_report_types()
+        loader.init_static_data()
         
         # create a few supply points types
         self.fac_type = SupplyPointType.objects.create(name="Facility",
