@@ -3,7 +3,7 @@ from logistics.apps.logistics.util import config
 from logistics.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.apps.logistics.models import StockRequest
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi.shortcuts import create_stock_report
+from logistics.apps.logistics.shortcuts import create_stock_report
 
 
 class StockReportBaseHandler(RecordResponseHandler):
@@ -36,4 +36,4 @@ class StockReportBaseHandler(RecordResponseHandler):
                                            text, 
                                            self.msg.logger_msg)
         self.requests = StockRequest.create_from_report(stock_report, self.hsa)
-        self.send_responses(stock_report)        
+        self.send_responses(stock_report)

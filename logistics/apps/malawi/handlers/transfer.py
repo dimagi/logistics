@@ -7,8 +7,8 @@ from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 from logistics.apps.malawi import util
 from logistics.apps.logistics.decorators import logistics_contact_and_permission_required
-from logistics.apps.malawi.shortcuts import create_stock_report,\
-    send_transfer_responses
+from logistics.apps.malawi.shortcuts import send_transfer_responses
+from logistics.apps.logistics.shortcuts import create_stock_report
 
 class TransferHandler(KeywordHandler):
     """

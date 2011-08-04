@@ -1,20 +1,8 @@
-from logistics.apps.logistics.models import ProductReportsHelper, ContactRole,\
-    StockRequest, StockRequestStatus, ProductStock
+from logistics.apps.logistics.models import ProductReportsHelper, \
+    StockRequest, StockRequestStatus
 from logistics.apps.logistics.util import config
-from rapidsms.models import Contact
 from logistics.apps.malawi.util import get_supervisors
 
-
-def create_stock_report(report_type, supply_point, text, logger_msg=None):
-    """
-    Gets a stock report helper object parses it, and saves it.
-    """
-    stock_report = ProductReportsHelper(supply_point, 
-                                        report_type,  
-                                        logger_msg)
-    stock_report.parse(text)
-    stock_report.save()
-    return stock_report
 
 def send_transfer_responses(msg, stock_report, transfers, giver, to):
     
