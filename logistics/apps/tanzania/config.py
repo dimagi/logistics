@@ -10,7 +10,29 @@ class Languages(object):
     ENGLISH = "en"
     SWAHILI = "sw"
     DEFAULT = SWAHILI
-    
+
+
+class SupplyPointStatus(object):
+    DELIVERY_RECEIVED_FACILITY = "Delivery received"
+    DELIVERY_QUANTITIES_REPORTED = "Delivery quantities reported"
+    R_AND_R_SUBMITTED_DISTRICT_TO_MSD = "R&R Submitted from District to MSD"
+    R_AND_R_SUBMITTED_FACILITY_TO_DISTRICT = "R&R Submitted From Facility to District"
+    R_AND_R_REMINDER_SENT_TO_FACILITY = "Waiting R&R sent confirmation"
+    R_AND_R_REMINDER_SENT_TO_DISTRICT = "R&R Reminder Sent to District"
+    DELIVERY_RECEIVED_REMINDER_SENT_TO_FACILITY = "Waiting Delivery Confirmation"
+    R_AND_R_NOT_SUBMITTED_FACILITY_TO_DISTRICT =  "R&R Not Submitted"
+    DELIVERY_NOT_RECEIVED_FACILITY = "Delivery Not Received"
+    SOH_REMINDER_SENT_FACILITY = "Stock on hand reminder sent to Facility"
+    DELIVERY_RECEIVED_DISTRICT = "Delivery received"
+    DELIVERY_NOT_RECEIVED_DISTRICT = "Delivery not received"
+    DELIVERY_RECEIVED_REMINDER_SENT_DISTRICT = "Waiting Delivery Confirmation"
+    SUPERVISION_REMINDER_SENT_FACILITY = "Supervision Reminder Sent"
+    SUPERVISION_RECEIVED_FACILITY = "Supervision Received"
+    SUPERVISION_NOT_RECEIVED_FACILITY = "Supervision Not Received"
+    LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY = "Lost/Adjusted Reminder sent to Facility"
+    ALERT_DELINQUENT_DELIVERY_SENT_TO_FACILITY = "Delinquent deliveries summary sent to District"
+
+
 class Roles(object):
     """
     Roles go here
@@ -107,13 +129,6 @@ def hsa_location_type():
     """
     from rapidsms.contrib.locations.models import LocationType
     return LocationType.objects.get(slug=HSA)
-
-class Groups(object):
-    EPT = "ept"
-    EM = "em"
-    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu"),
-              EPT: ("Machinga", "Nkhatabay", "Mulanje")}
-
 
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
