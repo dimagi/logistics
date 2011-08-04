@@ -3,7 +3,6 @@ from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
 class TestRegister(TanzaniaTestScriptBase):
     
-    output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
     
     def testRegister(self):
 
