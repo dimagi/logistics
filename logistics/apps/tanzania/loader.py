@@ -10,6 +10,7 @@ from logging import info
 import logging
 
 def clear_supplypoints():
+    Location.objects.all().delete()
     SupplyPoint.objects.all().delete()
 
 def create_location_types():
@@ -40,8 +41,8 @@ def load_regions(path):
                 continue
             id,name,type,lat,long=line.strip().split(',')
             l = Location.objects.get_or_create(
-                id=int(id),
                 name=name,
+                code=name,
                 type=LocationType.objects.get_or_create(name="REGION")[0])
             l[0].save()
             count += 1
@@ -60,7 +61,7 @@ def load_districts(path):
                 continue
             id,region,name=line.split(',')[0:3]
             l = Location.objects.get_or_create(
-                id=int(id),
+                code=name,
                 name=name,
                 type=LocationType.objects.get_or_create(name="REGION")[0],
                 parent_id=Location.objects.get(name=region).pk
@@ -81,24 +82,34 @@ def load_facilities(path):
         for line in f.read().splitlines(): #necessary due to different line endings
             if "LONGITUDE" in line:
                 continue
+
             id,code,region,district,facility,group,longitude,latitude = line.split(',')[0:8]
             parent = Location.objects.get_or_create(name=district.upper())[0]
+            point = None
+            if longitude and latitude:
+                point = Point.objects.get_or_create(longitude=longitude, latitude=latitude)[0]
+            if point:
+                loc = Location.objects.get_or_create(name=facility,
+                                                     code=facility,
+                                                     point=point,
+                                                     parent_id=parent.pk)[0]
+            else:
+                loc = Location.objects.get_or_create(name=facility,
+                                                     code=facility,
+                                                     parent_id=parent.pk)[0]
             s = SupplyPoint.objects.get_or_create(id=id,
                             code=code,
                             type=SupplyPointType.objects.get_or_create(name="facility", code="fac")[0],
-                            location=Location.objects.get_or_create(
-                                point = Point.objects.get_or_create(longitude=longitude,
-                                                                    latitude=latitude)[0],
-                                parent_id = parent.pk
-                            )[0]
+                            location=loc
                         )
-            s.save()
+            s[0].save()
             count += 1
     finally:
         f.close()
     print "Processed %d facilities" % count
 
 def init_static_data():
+    clear_supplypoints()
     create_location_types()
     regions = getattr(settings, "STATIC_REGIONS")
     districts = getattr(settings, "STATIC_DISTRICTS")
