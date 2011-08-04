@@ -16,7 +16,7 @@ class Stop(KeywordHandler):
     def help(self):
         return self.handle("")
         
-    @logistics_contact_required
+    @logistics_contact_required()
     def handle(self, text):
         self.msg.contact.is_active = False
         self.msg.contact.save()
