@@ -124,6 +124,8 @@ class Messages(object):
     REGISTER_UNKNOWN_CODE = "Sorry, can't find the location with MSD CODE %(msd_code)s"
     REGISTRATION_CONFIRM = "Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
     
+    HELP_REGISTERED = 'Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la'
+    HELP_UNREGISTERED = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
     
