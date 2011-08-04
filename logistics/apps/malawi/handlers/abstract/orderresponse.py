@@ -15,7 +15,7 @@ class OrderResponseBaseHandler(RecordResponseHandler):
     @logistics_contact_and_permission_required(config.Operations.FILL_ORDER)
     def handle(self, text):
         """
-        Check some precondidtions, based on shared assumptions of these handlers.
+        Check some preconditions, based on shared assumptions of these handlers.
         
         Calls handle custom if things go well, otherwise responds directly and 
         doesn't call the subclass method.
