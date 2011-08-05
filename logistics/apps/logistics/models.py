@@ -24,8 +24,7 @@ from logistics.apps.logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
-from logistics.apps.tanzania.utils import parse_report
+from logistics.apps.logistics.util import config, parse_report
 #import logistics.apps.logistics.log
 
 try:
