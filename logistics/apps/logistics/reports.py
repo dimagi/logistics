@@ -4,7 +4,7 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, Product, ProductStock,\
     SupplyPoint, StockRequest
 from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.tables import ReportingTable
+from logistics.apps.logistics.tables import ReportingTable, SOHReportingTable
 import json
 from django.core.urlresolvers import reverse
 import logistics.apps.logistics.models as logistics_models
@@ -269,8 +269,8 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", ReportingTable(self.partial)),
-                TableData("Complete Reports", ReportingTable(self.full)),
+        return [TableData("Incomplete Reports", SOHReportingTable(self.partial)),
+                TableData("Complete Reports", SOHReportingTable(self.full)),
                 #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))
                 ]
         
@@ -309,12 +309,12 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-             TableData("Late HSAs", ReportingTable(self.reported_late)),
-             TableData("On-Time HSAs", ReportingTable(self.on_time))]
+            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
+             TableData("Late HSAs", SOHReportingTable(self.reported_late)),
+             TableData("On-Time HSAs", SOHReportingTable(self.on_time))]
         else:
-            return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-                    TableData("Reporting HSAs", ReportingTable(self.on_time))]
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
+                    TableData("Reporting HSAs", SOHReportingTable(self.on_time))]
 
 class ProductAvailabilitySummary(object):
     

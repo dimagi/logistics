@@ -57,3 +57,14 @@ class ReportingTable(Table):
     class Meta:
         order_by = '-last_reported'
 
+class SOHReportingTable(Table):
+    name = Column(sortable=False)
+    last_reported = DateColumn(name="Last Stock Report Received",
+                               value=lambda cell: cell.object.last_soh \
+                                    if cell.object.last_soh else "never",
+                               format="M d, h:m A",
+                               sortable=False,
+                               css_class="tabledate")
+
+    class Meta:
+        order_by = '-last_reported'

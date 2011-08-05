@@ -149,7 +149,6 @@ class SupplyPoint(models.Model):
                     self.productstock_set.filter\
                         (quantity__gt=0).values_list("product", flat=True))
         
-    
     @property
     def label(self):
         return unicode(self)
@@ -157,6 +156,14 @@ class SupplyPoint(models.Model):
     @property
     def is_active(self):
         return self.active
+
+    @property
+    def last_soh(self):
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self).order_by("-report_date")
+        if sohs.exists():
+            return sohs[0].report_date
+        else:
+            return None
     
     def deprecate(self, new_code=None):
         """
@@ -311,6 +318,8 @@ class SupplyPoint(models.Model):
                              {'name':reporter.name,
                              'products':", ".join(stockouts_resolved),
                              'supply_point':self.name})
+
+
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
