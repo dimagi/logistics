@@ -132,6 +132,11 @@ class Messages(object):
     # "stop" keyword
     STOP_CONFIRM = "You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."
     
+    # stockout
+    STOCKOUT_HELP = "Please send in stockout reports in the form 'so <product>'"
+    STOCKOUT_INVALID_CODES = "Sorry, invalid product codes %(codes)s"
+    STOCKOUT_CONFIRM = 'Thank you %(contact_name)s for reporting stockouts of %(product_names)s for %(facility_name)s.'
+    
     # yes
     YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
     
