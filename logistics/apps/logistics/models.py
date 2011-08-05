@@ -358,7 +358,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey(Product)
     days_stocked_out = models.IntegerField(default=0)
-    last_modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(default=datetime.utcnow)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     use_auto_consumption = models.BooleanField(default=settings.LOGISTICS_USE_AUTO_CONSUMPTION)
