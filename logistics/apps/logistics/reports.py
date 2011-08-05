@@ -9,6 +9,7 @@ import json
 from django.core.urlresolvers import reverse
 import logistics.apps.logistics.models as logistics_models
 from dimagi.utils.dates import DateSpan
+from calendar import month_name
 
 class Colors(object):
     RED = "red"
@@ -300,7 +301,7 @@ class ReportingBreakdown(object):
                         }
                 ]
 
-                self._on_time_chart = PieChartData("Reporting Rates (%s %s)" % (self.datespan.startdate.month,
+                self._on_time_chart = PieChartData("Reporting Rates (%s %s)" % (month_name[self.datespan.startdate.month],
                                                                         self.datespan.startdate.year), graph_data)
             else:
                 self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
