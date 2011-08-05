@@ -31,7 +31,7 @@
 	                    series: {
 	                        pie: {
 	                            show: true,
-	                            radius: 1,
+	                            radius: 100,
 	                            label: {
 	                                show: true,
 	                                radius: .5,
@@ -57,7 +57,7 @@
         })
 	</script>
 {% endblock %}
-<div id="{{ chartdiv }}" style="margin:auto; width:{{graph_width|default:300}}px; height:{{graph_height|default:300}}px;" ></div>
+<div id="{{ chartdiv }}" style="margin:auto; margin-top:10px; padding: 5px; width:{{graph_width|default:400}}px; height:{{graph_height|default:400}}px;" ></div>
 <div id="{{ hoverdiv }}" style="text-align:center">
     <!-- This div is where the hover text hint shows up -->
     &nbsp;
