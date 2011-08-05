@@ -277,11 +277,11 @@ class ReportingBreakdown(object):
     def on_time_chart(self):
         if self._on_time_chart is None:
             graph_data = [
-                {"display": "On Time",
+                {"display": "On Time" if self.include_late else "Reporting",
                  "value": len(self.on_time),
                  "color": Colors.LIGHT_GREEN,
-                 "description": "(%s) On Time (%s)" % \
-                    (len(self.on_time), self.datespan)
+                 "description": "(%s) %s (%s)" % \
+                    (len(self.on_time), "On Time" if self.include_late else "Reporting", self.datespan)
                 },
                 {"display": "Non Reporting",
                  "value": len(self.non_reporting),
@@ -309,7 +309,7 @@ class ReportingBreakdown(object):
              TableData("On-Time HSAs", ReportingTable(self.on_time))]
         else:
             return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-                    TableData("On-Time HSAs", ReportingTable(self.on_time))]
+                    TableData("Reporting HSAs", ReportingTable(self.on_time))]
 
 class ProductAvailabilitySummary(object):
     
