@@ -1,4 +1,5 @@
 import unittest
-from .registration import *
 from .help import *
+from .registration import *
 from .stockonhand import *
+from .util import *

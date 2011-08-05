@@ -1,5 +1,6 @@
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import Product, ProductStock
+from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
 def register_user(testcase, phone, name, loc_code="d10001", loc_name="Test Facility"):
     """
@@ -24,4 +25,24 @@ def add_products(contact, products):
             ProductStock(supply_point=contact.supply_point, product=product).save()
             contact.commodities.add(product)
     contact.save()
-    
+
+class TestUtilities(TanzaniaTestScriptBase):
+
+    def testRegisterUser(self):
+        count = Contact.objects.count()
+        contact = register_user(self, "778", "someone")
+        self.assertEqual(count + 1, Contact.objects.count())
+        self.assertEqual("778", contact.default_connection.identity)
+        self.assertEqual("someone", contact.name)
+        
+    def testAddProducts(self):
+        ProductStock.objects.all().delete()
+        contact = register_user(self, "778", "someone")
+        self.assertEqual(0, ProductStock.objects.count())
+        
+        add_products(contact, ["id", "dp", "ip"])
+        self.assertEqual(3, ProductStock.objects.count())
+        for ps in ProductStock.objects.all():
+            self.assertEqual(contact.supply_point, ps.supply_point)
+            self.assertFalse(ps.quantity)
+        
