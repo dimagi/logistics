@@ -299,7 +299,11 @@ class ReportingBreakdown(object):
                             (len(self.reported_late), self.datespan)
                         }
                 ]
-            self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
+
+                self._on_time_chart = PieChartData("Reporting Rates (%s %s)" % (self.datespan.startdate.month,
+                                                                        self.datespan.startdate.year), graph_data)
+            else:
+                self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
         return self._on_time_chart
         
     def on_time_groups(self):
