@@ -12,6 +12,7 @@ from logistics.apps.logistics.decorators import logistics_contact_required
 import logging
 from logistics.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes
+from logistics.apps.logistics.models import ProductStock, Product
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
@@ -38,24 +39,28 @@ class StockOnHandHandler(KeywordHandler):
             return
     
         else:    
-            # todo, check for missing
-            missing_products = [] 
-            logging.error("TODO: FIX MISSING PRODUCT GENERATION HERE")
-            # start_date = datetime.utcnow() + timedelta(days=-7)
-            # Product.objects.filter(Q(activeproduct__service_delivery_point=sdp, activeproduct__is_active=True), 
-            # ~Q(servicedeliverypointproductreport__report_date__gt=date_check) )
-#            for dict in missing_products.values('sms_code'):
-#                all_products.append(dict['sms_code'])
-#            missing_product_list = list(set(all_products)-set(reported_products))
+            expected_products = set(contact.commodities.all())
             
+            # define missing as products not seen in the last 7 days
+            # the exclusion prevents newly added products from counting as "seen"
+            start_date = datetime.utcnow() + timedelta(days=-7)
+            seen_products = set(Product.objects.get(pk=product_id) for product_id in \
+                                ProductStock.objects.filter\
+                                    (supply_point=sp, last_modified__gte=start_date)\
+                                    .exclude(quantity=None)\
+                                    .values_list("product", flat=True))
+            
+            # if missing products tell them they still need to report, otherwise send confirmation 
+            missing_products = expected_products - seen_products
             if missing_products:
                 kwargs = {'contact_name': self.msg.contact.name,
                           'facility_name': sp.name,
-                          'product_list': ' '.join(missing_products)}
+                          'product_list': ' '.join(sorted([p.sms_code for p in missing_products]))}
                 self.respond(_(config.Messages.SOH_PARTIAL_CONFIRM), **kwargs)
             else:    
                 self.respond(_(config.Messages.SOH_CONFIRM), 
                              reply_list=','.join(sorted(stock_report.reported_products())))
+            
             self.respond(_(config.Messages.SOH_ADJUSTMENTS_REMINDER))
             SupplyPointStatus.objects.create(supply_point=sp, 
                                              status_type=SupplyPointStatusTypes.LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY, 
