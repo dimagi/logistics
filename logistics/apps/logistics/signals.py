@@ -32,7 +32,7 @@ def post_save_product_report(sender, instance, created, **kwargs):
     beginning_balance = instance.supply_point.stock(instance.product)
     if instance.report_type.code in [Reports.SOH, Reports.EMERGENCY_SOH]:
         instance.supply_point.update_stock(instance.product, instance.quantity)
-    elif instance.report_type.code == Reports.REC:
+    elif instance.report_type.code in [Reports.REC, Reports.LOSS_ADJUST]:
         # receipts are additive
         instance.supply_point.update_stock(instance.product, beginning_balance + instance.quantity)
     elif instance.report_type.code == Reports.GIVE:

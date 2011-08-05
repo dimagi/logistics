@@ -25,6 +25,7 @@ from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
+from logistics.apps.tanzania.utils import parse_report
 #import logistics.apps.logistics.log
 
 try:
@@ -850,10 +851,12 @@ class StockTransaction(models.Model):
 
     
         st.beginning_balance = beginning_balance
-        if pr.report_type.code == Reports.SOH or pr.report_type.code == Reports.EMERGENCY_SOH:
+        if pr.report_type.code == Reports.SOH or \
+           pr.report_type.code == Reports.EMERGENCY_SOH:
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
-        elif pr.report_type.code == Reports.REC:
+        elif pr.report_type.code == Reports.REC or \
+             pr.report_type.code == Reports.LOSS_ADJUST:
             st.ending_balance = st.beginning_balance + pr.quantity
             st.quantity = pr.quantity
         elif pr.report_type.code == Reports.GIVE:
@@ -974,7 +977,26 @@ class ProductReportsHelper(object):
                     token = ''
             i = i+1
 
+    
+    def newparse(self, string, delimiters=" "):
+        """
+        A new, simpler parse method.
+        Assumes:
+          a space separated list.
+          products before values.
+          positive or negative numbers.
+          a single quantity per commodity.
+        """
+        if not string:
+            return
+        vals = parse_report(string)
+        for code, amt in vals:
+            self.add_product_stock(code.lower(), amt)
+                        
     def parse(self, string):
+        """
+        Old parse method, used in Ghana for more 'interesting' parsing.
+        """
         if not string:
             return
         match = re.search("[0-9]",string)

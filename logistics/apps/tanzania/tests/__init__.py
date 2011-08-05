@@ -1,5 +1,6 @@
 import unittest
 from .help import *
+from .loss_adjust import *
 from .registration import *
 from .stockout import *
 from .stockonhand import *

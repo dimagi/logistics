@@ -137,6 +137,11 @@ class Messages(object):
     STOCKOUT_INVALID_CODES = "Sorry, invalid product codes %(codes)s"
     STOCKOUT_CONFIRM = 'Thank you %(contact_name)s for reporting stockouts of %(product_names)s for %(facility_name)s.'
     
+    # l & a
+    LOSS_ADJUST_HELP = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
+    LOSS_ADJUST_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'la <product> +-<amount> +-<product> +-<amount>..."
+    LOSS_ADJUST_CONFIRM = 'Thank you, you reported your losses/adjustments: %(reply_list)s. If incorrect, please resend.'
+    
     # yes
     YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
     
