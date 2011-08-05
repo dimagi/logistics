@@ -710,7 +710,7 @@ class StockRequest(models.Model):
                                                   amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
                                                   is_emergency=is_emergency,
-                                                  balance=current_stock.quantity)
+                                                  balance=stock)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)
