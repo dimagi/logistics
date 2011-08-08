@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_noop as _
 from logistics.apps.logistics.util import config
 from logistics.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes
+from logistics.apps.logistics.decorators import logistics_contact_required
         
 class Not(KeywordHandler):
     """
@@ -19,6 +20,7 @@ class Not(KeywordHandler):
     def help(self):
         self.respond(_(config.Messages.NOT_HELP))
 
+    @logistics_contact_required()
     def handle(self, text):
         if re.match("del", text.strip().lower() ):
             SupplyPointStatus.objects.create\
