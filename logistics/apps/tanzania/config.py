@@ -145,6 +145,15 @@ class Messages(object):
     # yes
     YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
     
+    # not general
+    NOT_HELP = "If you haven't submitted your R&R, respond \"not submitted\". If you haven't received your delivery, respond \"not delivered\""
+    
+    # not delivered
+    NOT_DELIVERED_CONFIRM = "You have reported that you haven't yet received your delivery."
+    
+    # not submitted
+    NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
+    
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>'"

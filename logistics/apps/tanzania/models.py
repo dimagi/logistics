@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 from logistics.apps.logistics.models import SupplyPoint
 from logistics.apps.logistics.util import config
 
@@ -49,8 +50,7 @@ class SupplyPointStatusTypes(object):
 class SupplyPointStatus(models.Model):
     status_type = models.CharField(choices=SupplyPointStatusTypes.CHOICES, 
                                    max_length=50)
-    #message = models.ForeignKey(Message)
-    status_date = models.DateTimeField()
+    status_date = models.DateTimeField(default=datetime.utcnow)
     supply_point = models.ForeignKey(SupplyPoint)
 
     def status_type_name(self):
