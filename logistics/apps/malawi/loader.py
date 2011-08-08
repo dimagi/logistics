@@ -6,6 +6,7 @@ from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.util import config
 from logistics.loader.base import load_report_types, load_roles
+from logistics.apps.logistics.shortcuts import supply_point_from_location
 
 class LoaderException(Exception):
     pass
@@ -110,7 +111,7 @@ def load_locations(file_path, log_to_console=True):
                 district = Location.objects.create(name=district_name.strip(), type=district_type, 
                                                    code=district_code, parent=country)
             # create/load district supply point info
-            dist_sp = _supply_point_from_location(district, type=district_sp_type)
+            dist_sp = supply_point_from_location(district, type=district_sp_type)
             
             #create/load location info
             if not facility_code:
@@ -125,7 +126,7 @@ def load_locations(file_path, log_to_console=True):
             fac_loc.save()
             
             # create/load supply point info
-            fac_sp = _supply_point_from_location(fac_loc, type=fac_sp_type, parent=dist_sp)
+            fac_sp = supply_point_from_location(fac_loc, type=fac_sp_type, parent=dist_sp)
             
             count += 1
     
@@ -133,20 +134,6 @@ def load_locations(file_path, log_to_console=True):
     
     finally:
         csv_file.close()
-            
-def _supply_point_from_location(loc, type, parent=None):
-    try:
-        sp = SupplyPoint.objects.get(location=loc, type=type)
-    except SupplyPoint.DoesNotExist:
-        sp = SupplyPoint(location=loc)
-    sp.name = loc.name
-    sp.active = True
-    sp.type = type
-    sp.code = loc.code
-    sp.supplied_by = parent
-    sp.save()
-    return sp
-    
     
 def _clean(location_name):
     return location_name.lower().strip().replace(" ", "_")[:30]
