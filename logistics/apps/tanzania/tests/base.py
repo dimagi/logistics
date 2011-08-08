@@ -16,23 +16,9 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
     
     def setUp(self):
         super(TanzaniaTestScriptBase, self).setUp()
-        load_roles()
-        load_report_types()
         loader.init_static_data()
         
-        # create a few supply points types
-        self.fac_type = SupplyPointType.objects.create(name="Facility",
-                                                       code=config.SupplyPointCodes.FACILITY)
-        self.dist_type = SupplyPointType.objects.create(name="District", 
-                                                       code=config.SupplyPointCodes.DISTRICT)
-        self.facility = SupplyPoint.objects.create\
-                            (code="d10001",name="Test Facility", type=self.fac_type)
-        self.district = SupplyPoint.objects.create\
-                            (code="d10002",name="Test District", type=self.dist_type)
                             
     def tearDown(self):
         super(TanzaniaTestScriptBase, self).tearDown()
-        self.fac_type.delete()
-        self.dist_type.delete()
-        self.facility.delete()
-        self.district.delete()
+        
