@@ -11,7 +11,7 @@ from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_required
 import logging
 from logistics.apps.tanzania.models import SupplyPointStatus,\
-    SupplyPointStatusTypes
+    SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.apps.logistics.models import ProductStock, Product
 
 CHARS_IN_CODE = "2, 4"
@@ -63,6 +63,7 @@ class StockOnHandHandler(KeywordHandler):
             
             self.respond(_(config.Messages.SOH_ADJUSTMENTS_REMINDER))
             SupplyPointStatus.objects.create(supply_point=sp, 
-                                             status_type=SupplyPointStatusTypes.LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY, 
+                                             status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
+                                             status_value=SupplyPointStatusValues.REMINDER_SENT,
                                              status_date=datetime.utcnow())
             

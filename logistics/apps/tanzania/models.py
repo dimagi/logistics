@@ -3,64 +3,74 @@ from datetime import datetime
 from logistics.apps.logistics.models import SupplyPoint
 from logistics.apps.logistics.util import config
 
-class SupplyPointStatusTypes(object):
-    DELIVERY_RECEIVED_FACILITY = "del_rec_fac"
-    DELIVERY_QUANTITIES_REPORTED = "del_quant_rep"
-    R_AND_R_SUBMITTED_DISTRICT_TO_MSD = "rr_sub_dist_msd"
-    R_AND_R_SUBMITTED_FACILITY_TO_DISTRICT = "rr_sub_fac_dist"
-    R_AND_R_REMINDER_SENT_TO_FACILITY = "rr_rem_sent_fac"
-    R_AND_R_REMINDER_SENT_TO_DISTRICT = "rr_rem_sent_dist"
-    DELIVERY_RECEIVED_REMINDER_SENT_TO_FACILITY = "del_rec_rem_sent_fac"
-    R_AND_R_NOT_SUBMITTED_FACILITY_TO_DISTRICT =  "rr_not_sub_fac_dist"
-    DELIVERY_NOT_RECEIVED_FACILITY = "del_not_rec_fac"
-    SOH_REMINDER_SENT_FACILITY = "soh_rem_sent_fac"
-    DELIVERY_RECEIVED_DISTRICT = "del_rec_dist"
-    DELIVERY_NOT_RECEIVED_DISTRICT = "del_not_rec_dist"
-    DELIVERY_RECEIVED_REMINDER_SENT_DISTRICT = "del_rec_rem_sent_dist"
-    SUPERVISION_REMINDER_SENT_FACILITY = "sup_rem_sent_fac"
-    SUPERVISION_RECEIVED_FACILITY = "sup_rec_fac"
-    SUPERVISION_NOT_RECEIVED_FACILITY = "sup_not_rec_fac"
-    LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY = "la_rem_sent_fac"
-    ALERT_DELINQUENT_DELIVERY_SENT_TO_FACILITY = "del_del_sent_fac"
+class SupplyPointStatusValues(object):
+    WAITING = "waiting"
+    RECEIVED = "received"
+    NOT_RECEIVED = "not_recieved"
+    QUANTITIES_REPORTED = "quantities_reported"
+    SUBMITTED = "submitted"
+    NOT_SUBMITTED = "not_submitted"
+    REMINDER_SENT = "reminder_sent"
+    ALERT_SENT = "alert_sent"
+    CHOICES = [WAITING, RECEIVED, NOT_RECEIVED, QUANTITIES_REPORTED, SUBMITTED,
+               NOT_SUBMITTED, REMINDER_SENT, ALERT_SENT]
     
-    CHOICES = (
-        (DELIVERY_RECEIVED_FACILITY, "Delivery received"),
-        (DELIVERY_QUANTITIES_REPORTED, "Delivery quantities reported"),
-        (R_AND_R_SUBMITTED_DISTRICT_TO_MSD, "R&R Submitted from District to MSD"),
-        (R_AND_R_SUBMITTED_FACILITY_TO_DISTRICT, "R&R Submitted From Facility to District"),
-        (R_AND_R_REMINDER_SENT_TO_FACILITY, "Waiting R&R sent confirmation"),
-        (R_AND_R_REMINDER_SENT_TO_DISTRICT, "R&R Reminder Sent to District"),
-        (DELIVERY_RECEIVED_REMINDER_SENT_TO_FACILITY, "Waiting Delivery Confirmation"),
-        (R_AND_R_NOT_SUBMITTED_FACILITY_TO_DISTRICT,  "R&R Not Submitted"),
-        (DELIVERY_NOT_RECEIVED_FACILITY, "Delivery Not Received"),
-        (SOH_REMINDER_SENT_FACILITY, "Stock on hand reminder sent to Facility"),
-        (DELIVERY_RECEIVED_DISTRICT, "Delivery received"),
-        (DELIVERY_NOT_RECEIVED_DISTRICT, "Delivery not received"),
-        (DELIVERY_RECEIVED_REMINDER_SENT_DISTRICT, "Waiting Delivery Confirmation"),
-        (SUPERVISION_REMINDER_SENT_FACILITY, "Supervision Reminder Sent"),
-        (SUPERVISION_RECEIVED_FACILITY, "Supervision Received"),
-        (SUPERVISION_NOT_RECEIVED_FACILITY, "Supervision Not Received"),
-        (LOST_ADJUSTED_REMINDER_SENT_TO_FACILITY, "Lost/Adjusted Reminder sent to Facility"),
-        (ALERT_DELINQUENT_DELIVERY_SENT_TO_FACILITY, "Delinquent deliveries summary sent to District")
-    )
-
-    def get_display_name(self, slug):
-        return dict(self.CHOICES)[slug]
+class SupplyPointStatusTypes(object):
+    DELIVERY_FACILITY = "del_fac"
+    DELIVER_DISTRICT = "del_dist"
+    R_AND_R_FACILITY = "rr_fac"
+    R_AND_R_DISTRICT = "rr_dist"
+    SOH_FACILITY = "soh_fac"
+    SUPERVISION_FACILITY = "super_fac"
+    LOSS_ADJUSTMENT_FACILITY = "la_fac"
+    DELINQUENT_DELIVERIES = "del_del"
+    DELIVERY_FACILITY = "del_fac"
+    
+    CHOICE_MAP = {
+        DELIVERY_FACILITY: {SupplyPointStatusValues.WAITING: "Waiting Delivery Confirmation",
+                            SupplyPointStatusValues.RECEIVED: "Delivery received",
+                            SupplyPointStatusValues.QUANTITIES_REPORTED: "Delivery quantities reported",
+                            SupplyPointStatusValues.NOT_RECEIVED: "Delivery Not Received"},
+        DELIVER_DISTRICT: {SupplyPointStatusValues.WAITING: "Waiting Delivery Confirmation",
+                           SupplyPointStatusValues.RECEIVED: "Delivery received",
+                           SupplyPointStatusValues.NOT_RECEIVED: "Delivery not received"},
+        R_AND_R_FACILITY: {SupplyPointStatusValues.WAITING: "Waiting R&R sent confirmation",
+                           SupplyPointStatusValues.SUBMITTED: "R&R Submitted From Facility to District",
+                           SupplyPointStatusValues.NOT_SUBMITTED: "R&R Not Submitted"},
+        R_AND_R_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "R&R Reminder Sent to District",
+                           SupplyPointStatusValues.SUBMITTED: "R&R Submitted from District to MSD"},
+        SOH_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Stock on hand reminder sent to Facility"},
+        SUPERVISION_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Supervision Reminder Sent",
+                               SupplyPointStatusValues.RECEIVED: "Supervision Received",
+                               SupplyPointStatusValues.NOT_RECEIVED: "Supervision Not Received"},
+        LOSS_ADJUSTMENT_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Lost/Adjusted Reminder sent to Facility"},
+        DELINQUENT_DELIVERIES: {SupplyPointStatusValues.ALERT_SENT: "Delinquent deliveries summary sent to District"},
+    }
+    
+    @classmethod
+    def get_display_name(cls, type, value):
+        return cls.CHOICE_MAP[type][value]
+    
+    @classmethod
+    def is_legal_combination(cls, type, value):
+        return type in cls.CHOICE_MAP and value in cls.CHOICE_MAP[type]
 
 class SupplyPointStatus(models.Model):
-    status_type = models.CharField(choices=SupplyPointStatusTypes.CHOICES, 
+    status_type = models.CharField(choices=((k, k) for k in SupplyPointStatusTypes.CHOICE_MAP.keys()),
                                    max_length=50)
+    status_value = models.CharField(max_length=50,
+                                    choices=((c, c) for c in SupplyPointStatusValues.CHOICES))
     status_date = models.DateTimeField(default=datetime.utcnow)
     supply_point = models.ForeignKey(SupplyPoint)
 
-    def status_type_name(self):
-        return self.status_type.name
-
-    def supply_point_name(self):
-        return self.supply_point.name
-    
+    def save(self, *args, **kwargs):
+        if not SupplyPointStatusTypes.is_legal_combination(self.status_type, self.status_value):
+            raise ValueError("%s and %s is not a legal value combination" % \
+                             (self.status_type, self.status_value))
+        super(SupplyPointStatus, self).save(*args, **kwargs)
+        
     def __unicode__(self):
-        return self.status_type.name
+        return "%s: %s" % (self.status_type, self.status_value)
 
     class Meta:
         verbose_name = "Facility Status"
