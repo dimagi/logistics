@@ -10,6 +10,19 @@ APPS = [
     #"logistics.apps.ilsgateway",
     "logistics.apps.tanzania",
 ]
+
+RAPIDSMS_TABS = [
+    ("logistics.apps.tanzania.views.dashboard",       "Dashboard"),
+#    ("logistics.apps.malawi.views.facilities",       "Facilities"),
+#    ("logistics.apps.malawi.views.hsas",       "HSAs"),
+#    ("logistics.apps.malawi.views.help",       "Help"),
+#    ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
+#    ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
+#    ("registration",                          "Registration", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+]
+
 INSTALLED_BACKENDS = {
     # tester
     "message_tester": {
@@ -49,7 +62,7 @@ COUNTRY_DIALLING_CODE = 265
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
-LOGISTICS_LANDING_PAGE_VIEW = "malawi_dashboard"
+LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
@@ -57,18 +70,16 @@ LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
-LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
-LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
+LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
-SESSION_EXPIRE_AT_BROWSER_CLOSE=True
-
 LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
-LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
-SITE_TITLE="cStock"
-BASE_TEMPLATE="malawi/base.html"
+LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"
+SITE_TITLE="ILSGateway"
+BASE_TEMPLATE="tanzania/base.html"
 BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 LOGISTICS_ALERT_GENERATORS = [

@@ -24,10 +24,9 @@ urlpatterns = patterns('',
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
-    # i guess having both of these is ok for now
-    (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
+    # i guess having all of these is ok for now (?)    (r'^ewsghana/', include('logistics.apps.ewsghana.urls.ewsghana')),
     (r'^malawi/', include('logistics.apps.malawi.urls')),
-    #(r'^ilsgateway/', include('logistics.apps.ilsgateway.urls')),
+    (r'^tz/', include('logistics.apps.tanzania.urls')),
     (r'^maps/', include('logistics.apps.maps.urls')),
     
     # login/logout. this is order dependent
