@@ -8,8 +8,15 @@ if hasattr(settings,'LOGISTICS_CONFIG'):
 else:
     import config
     
-CODE_CHARS_RANGE = getattr(settings, "CODE_CHARS_RANGE", (2,4)) # from 2 to 4 characters per product code
-NUMERIC_LETTERS = getattr(settings, "NUMERIC_LETTERS", ("lLO", "110"))
+if hasattr(settings, "CODE_CHARS_RANGE"):
+    CODE_CHARS_RANGE = settings.CODE_CHARS_RANGE
+else:
+    CODE_CHARS_RANGE = (2,4) # from 2 to 4 characters per product code
+
+if hasattr(settings, "NUMERIC_LETTERS"):
+    NUMERIC_LETTERS = settings.NUMERIC_LETTERS
+else:
+    NUMERIC_LETTERS = ("lLO", "110")
 
 def parse_report(val):
     """
