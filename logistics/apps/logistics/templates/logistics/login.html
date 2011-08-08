@@ -15,7 +15,7 @@
 
 {% else %}
 
-<h1>Please log in to cStock</h1>
+<h1>Please log in to {% if site_title %}{{ site_title }}{% else %}RapidSMS{% endif %}</h1>
 
 <form method="post" action="{% url rapidsms-login %}">
 <table>
