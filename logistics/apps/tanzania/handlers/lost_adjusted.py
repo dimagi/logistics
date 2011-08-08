@@ -21,7 +21,6 @@ class LostAdjusted(KeywordHandler):
 
     @logistics_contact_required()
     def handle(self, text):
-        print "foo"
         contact = self.msg.logistics_contact
         sp = self.msg.logistics_contact.supply_point
         stock_report = create_stock_report(Reports.LOSS_ADJUST,  
@@ -29,7 +28,6 @@ class LostAdjusted(KeywordHandler):
                                            text, 
                                            self.msg.logger_msg)
         
-        print "bar"
         if stock_report.errors:
             self.respond(_(config.Messages.LOSS_ADJUST_BAD_FORMAT))
             return

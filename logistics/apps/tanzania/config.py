@@ -281,7 +281,7 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     
-	# messages originally in logistics.models.py
+    # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \

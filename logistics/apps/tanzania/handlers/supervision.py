@@ -31,6 +31,5 @@ class Supervision(KeywordHandler):
                 (status_type=SupplyPointStatusTypes.SUPERVISION_RECEIVED_FACILITY,
                  supply_point=self.msg.logistics_contact.supply_point)
             self.respond(_(config.Messages.SUPERVISION_CONFIRM_YES))
-            
         else:
             self.help()
