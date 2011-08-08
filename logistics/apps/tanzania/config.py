@@ -60,9 +60,11 @@ class SupplyPointCodes(object):
     """
     These correspond to SupplyPointType.code
     """
+    MOH = "moh"
+    REGION = "region"
     DISTRICT = "district"
     FACILITY = "facility"
-
+    
 class LocationCodes(object):
     """
     These correspond to LocationType.code

@@ -23,7 +23,7 @@ class TestStockouts(TanzaniaTestScriptBase):
         
         script = """
             778 > stockout id dp ip
-            778 < Asante someone kwa kutuma taarifa ya hakuna dp id ip vya Test Facility.
+            778 < Asante someone kwa kutuma taarifa ya hakuna dp id ip vya VETA 1.
         """
         self.runScript(script)
         for ps in ProductStock.objects.all():

@@ -11,6 +11,7 @@ from logistics.loader.base import load_report_types, load_roles
 from logistics.apps.logistics.shortcuts import supply_point_from_location
 import csv
 from dimagi.utils.parsing import string_to_boolean
+from logistics.apps.tanzania.config import SupplyPointCodes
 
 def clear_supplypoints():
     Location.objects.all().delete()
@@ -21,10 +22,10 @@ def clear_supplypoints():
 
 def create_location_and_sp_types():
     types = (
-        ("MOHSW", "moh"),
-        ("REGION", "reg"),
-        ("DISTRICT", "dis"),
-        ("FACILITY", "fac")
+        ("MOHSW", SupplyPointCodes.MOH),
+        ("REGION", SupplyPointCodes.REGION),
+        ("DISTRICT", SupplyPointCodes.DISTRICT),
+        ("FACILITY", SupplyPointCodes.FACILITY)
     )
     count = 0
     for t in types:

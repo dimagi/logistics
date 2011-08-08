@@ -2,7 +2,7 @@ from rapidsms.models import Contact
 from logistics.apps.logistics.models import Product, ProductStock
 from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
-def register_user(testcase, phone, name, loc_code="d10001", loc_name="Test Facility"):
+def register_user(testcase, phone, name, loc_code="d10001", loc_name="VETA 1"):
     """
     Test utility to register a user
     """

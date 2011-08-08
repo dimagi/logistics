@@ -27,13 +27,13 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         add_products(contact, ["id", "dp", "ip"])
         script = """
             778 > Hmk Id 400 
-            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya Test Facility, bado taarifa za dp ip
+            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za dp ip
         """
         self.runScript(script)
         
         script = """
             778 > Hmk Dp 569
-            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya Test Facility, bado taarifa za ip
+            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za ip
         """
         self.runScript(script)
         
