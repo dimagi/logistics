@@ -4,6 +4,7 @@ from logistics.apps.tanzania.tests.util import register_user
 class TestSupervision(TanzaniaTestScriptBase):
     
     def testSupervision(self):
+        #TODO confirm actual supervision status
         contact = register_user(self, "778", "someone")
         script = """
           778 > usimamizi ndio
