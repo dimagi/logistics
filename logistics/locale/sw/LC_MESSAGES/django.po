@@ -11,7 +11,7 @@ msgid "Please send in stockout reports in the form 'so <product>"
 msgstr "Tafadhali tuma taarifa za hakuna katika mpangilio ufuatao, 'hakuna <kifaa>'"
 
 msgid "Thank you %(contact_name)s for reporting stockouts of %(product_names)s for %(facility_name)s."
-msgstr "Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_name)s vya %(facility_name)s."
+msgstr "Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_names)s vya %(facility_name)s."
 #end stockout
 
 msgid "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
