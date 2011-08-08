@@ -89,6 +89,4 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 
-STATIC_REGIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "regions.csv")
-STATIC_DISTRICTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "districts.csv")
-STATIC_FACILITIES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics", "apps", "tanzania", "fixtures", "facilities.csv")
+STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")

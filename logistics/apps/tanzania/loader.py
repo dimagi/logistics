@@ -7,12 +7,19 @@ from logistics.apps.logistics.util import config
 
 from logging import info
 import logging
+from logistics.loader.base import load_report_types, load_roles
+from logistics.apps.logistics.shortcuts import supply_point_from_location
+import csv
+from dimagi.utils.parsing import string_to_boolean
 
 def clear_supplypoints():
     Location.objects.all().delete()
     SupplyPoint.objects.all().delete()
+    Point.objects.all().delete()
+    LocationType.objects.all().delete()
+    SupplyPointType.objects.all().delete()
 
-def create_location_types():
+def create_location_and_sp_types():
     types = (
         ("MOHSW", "moh"),
         ("REGION", "reg"),
@@ -21,103 +28,61 @@ def create_location_types():
     )
     count = 0
     for t in types:
-        l = LocationType(name=t[0], slug=t[1])
-        l.save()
+        LocationType.objects.create(name=t[0], slug=t[1])
+        SupplyPointType.objects.create(name=t[0],code=t[1])
         count += 1
     print "Created %d loc types." % count
 
-def load_regions(path):
-    info("Loading regions %s"  % path)
+
+def load_locations(path):
+    info("Loading locations %s"  % (path))
     if not os.path.exists(path):
-        raise
+        raise Exception("no file found at %s" % path)
 
-    f = open(path, 'r')
-    try:
-        count = 0
-        for line in f.read().splitlines(): #necessary due to different line endings
-            
-            if "LONGITUDE" in line:
-                continue
-            id,name,type,lat,long=line.strip().split(',')
-            l = Location.objects.get_or_create(
-                name=name,
-                code=name,
-                type=LocationType.objects.get_or_create(name="REGION")[0])
-            l[0].save()
-            count += 1
-    finally:
-        f.close()
-    print "Processed %d regions"  % count
-
-def load_districts(path):
-    info("Loading districts %s"  % path)
-    
-    f = open(path, 'r')
-    try:
-        count = 0
-        for line in f.read().splitlines(): #necessary due to different line endings
-            if "LONGITUDE" in line:
-                continue
-            id,region,name=line.split(',')[0:3]
-            l = Location.objects.get_or_create(
-                code=name,
-                name=name,
-                type=LocationType.objects.get_or_create(name="REGION")[0],
-                parent_id=Location.objects.get(name=region).pk
-            )
-            l[0].save()
-            count += 1
-    finally:
-        f.close()
-    print "Processed %d districts"  % count
-
-    
-def load_facilities(path):
-    info("Loading facilities %s"  % path)
-
-    f = open(path, 'r')
     count = 0
-    try:
-        for line in f.read().splitlines(): #necessary due to different line endings
-            if "LONGITUDE" in line:
-                continue
-
-            id,code,region,district,facility,group,longitude,latitude = line.split(',')[0:8]
-            parent = Location.objects.get_or_create(name=district.upper())[0]
-            point = None
-            if longitude and latitude:
-                point = Point.objects.get_or_create(longitude=longitude, latitude=latitude)[0]
-            if point:
-                loc = Location.objects.get_or_create(name=facility,
-                                                     code=facility,
-                                                     point=point,
-                                                     parent_id=parent.pk)[0]
-            else:
-                loc = Location.objects.get_or_create(name=facility,
-                                                     code=facility,
-                                                     parent_id=parent.pk)[0]
-            group = SupplyPointGroup.objects.get_or_create(code=group)[0]
-            s = SupplyPoint.objects.get_or_create(id=id,
-                            name=facility,
-                            code=code,
-                            type=SupplyPointType.objects.get_or_create(name="facility", code="fac")[0],
-                            location=loc
-                        )
-            s[0].groups.add(group)
-            s[0].save()
+    with open(path, 'r') as f:
+        reader = csv.reader(f, delimiter=',', quotechar='"')
+        for row in reader:
+            id, name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
+            loc_type = LocationType.objects.get(name__iexact=type)
+            
+            
+            parent = Location.objects.get(name__iexact=parent_name, 
+                                          type__name__iexact=parent_type) \
+                            if parent_name and parent_type else None
+            
+            point = Point.objects.create(longitude=lon, latitude=lat) \
+                            if lat and lon else None
+            
+            kwargs = {}
+            if parent: kwargs["parent"] = parent
+            if point:  kwargs["point"] = point
+            
+            l = Location.objects.create(name=name,
+                                        code=msd_code if msd_code else "%s-%s" % (type, name),
+                                        type=loc_type,
+                                        is_active=string_to_boolean(is_active),
+                                        **kwargs)
+            
+            sp = supply_point_from_location\
+                    (l, SupplyPointType.objects.get(name__iexact=type),
+                     SupplyPoint.objects.get(location=parent) if parent else None)
+            
+            if group:
+                group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
+                sp.groups.add(group_obj)
+                sp.save()
+            
             count += 1
-    finally:
-        f.close()
-    print "Processed %d facilities" % count
+    print "Processed %d locations"  % count
+
 
 def init_static_data():
     clear_supplypoints()
-    create_location_types()
-    regions = getattr(settings, "STATIC_REGIONS")
-    districts = getattr(settings, "STATIC_DISTRICTS")
-    facilities = getattr(settings, "STATIC_FACILITIES")
-    if regions and facilities and districts:
-        load_regions(regions)
-        load_districts(districts)
-        load_facilities(facilities)
+    load_report_types()
+    load_roles()
+    create_location_and_sp_types()
+    locations = getattr(settings, "STATIC_LOCATIONS")
+    if locations:
+        load_locations(locations)
     info("Success!")

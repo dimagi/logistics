@@ -24,12 +24,18 @@ class Roles(object):
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
+    RMO = "rmo"
+    MOHSW = "mohsw"
+    DMO = "dmo"
+    MSD = "msd"
     ALL_ROLES = {
-        HSA: "hsa",
-        HSA_SUPERVISOR: "hsa supervisor",
-        IN_CHARGE: "in charge",
+        IN_CHARGE: "Facility in-charge",
+        DISTRICT_PHARMACIST: "District Pharmacist",
+        RMO: "RMO",
+        MOHSW: "MOHSW",
+        DMO: "DMO",
+        MSD: "MSD",
         DISTRICT_SUPERVISOR: "district supervisor",
-        DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator"
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
