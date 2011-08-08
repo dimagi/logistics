@@ -127,7 +127,7 @@ LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
 SITE_TITLE="Early Warning System"
 BASE_TEMPLATE="ewsghana/base.html"
-BASE_TEMPLATE_SPLIT_2="ewsghana/base-split-2.html"
+BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 # TODO: move this configuration over to urls.py
 SMS_REGISTRATION_VIEW='ewsghana_sms_registration'

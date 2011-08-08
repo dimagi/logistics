@@ -69,7 +69,7 @@ LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
-BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
+BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 LOGISTICS_ALERT_GENERATORS = [
     #'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
