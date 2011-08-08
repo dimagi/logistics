@@ -142,10 +142,15 @@ class Messages(object):
     LOSS_ADJUST_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'la <product> +-<amount> +-<product> +-<amount>..."
     LOSS_ADJUST_CONFIRM = 'Thank you, you reported your losses/adjustments: %(reply_list)s. If incorrect, please resend.'
     
+    # supervision
+    SUPERVISION_HELP = "Supervision reminders will come monthly, and you can respond 'supervision yes' if you have received supervision or 'supervision no' if you have not"
+    SUPERVISION_CONFIRM_NO = 'You have reported that you have not yet received supervision this month.'
+    SUPERVISION_CONFIRM_YES = 'Thank you for reporting that you have received supervision this month.'
+    
     # yes
     YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
     
-    # not general
+    # not 
     NOT_HELP = "If you haven't submitted your R&R, respond \"not submitted\". If you haven't received your delivery, respond \"not delivered\""
     
     # not delivered
