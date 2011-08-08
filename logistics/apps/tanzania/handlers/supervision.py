@@ -1,8 +1,6 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
 import re
-from logistics.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType
-import datetime
 from logistics.apps.logistics.util import config
 from logistics.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes
