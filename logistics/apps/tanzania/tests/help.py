@@ -4,12 +4,6 @@ class TestHelp(TanzaniaTestScriptBase):
     
     def testHelp(self):
 
-#        English
-#        script = """
-#          743 > help
-#          743 < To register, send register <name> <msd code>. Example: register 'john patel d34002'
-#        """
-
 #        Swahili
         script = """
           743 > help
