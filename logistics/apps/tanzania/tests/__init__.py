@@ -6,3 +6,4 @@ from .stockout import *
 from .stockonhand import *
 from .util import *
 from .stop import *
+from .supervision import *
