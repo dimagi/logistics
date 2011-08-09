@@ -6,7 +6,7 @@
 *.db
 *.swp
 *~
-logistics/localsettings.py
-logistics/logistics.log
-logistics/apps/malawi/tests/testscripts/*
-logistics/apps/tanzania/tests/testscripts/*
+logistics_project/localsettings.py
+logistics_project/logistics.log
+logistics_project/apps/malawi/tests/testscripts/*
+logistics_project/apps/tanzania/tests/testscripts/*
