@@ -23,10 +23,12 @@ from logistics.errors import *
 from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.const import Reports
-from logistics.util import config
-from logistics.config import messagelog
-Message = messagelog.models.Message
-#import log.py
+from logistics.util import config, parse_report
+from django.conf import settings
+if hasattr(settings, "MESSAGE_CLASS"):
+    message_class = settings.MESSAGE_CLASS
+else:
+    message_class = "messagelog.Message"
 
 try:
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -103,6 +105,7 @@ class SupplyPointBase(models.Model):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    groups = models.ManyToManyField('SupplyPointGroup')
 
     class Meta:
         abstract = True
@@ -329,9 +332,15 @@ class SupplyPointBase(models.Model):
 class SupplyPoint(SupplyPointBase):
     __metaclass__ = ExtensibleModelBase
 
+class SupplyPointGroup(models.Model):
+    code = models.CharField(max_length=30)
+
+    def __unicode__(self):
+        return self.code
 
 class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
+    designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
 
@@ -352,7 +361,7 @@ class ProductStock(models.Model):
     quantity = models.IntegerField(blank=True, null=True)
     product = models.ForeignKey(Product)
     days_stocked_out = models.IntegerField(default=0)
-    last_modified = models.DateTimeField(auto_now=True)
+    last_modified = models.DateTimeField(default=datetime.utcnow)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     use_auto_consumption = models.BooleanField(default=settings.LOGISTICS_USE_AUTO_CONSUMPTION)
@@ -471,13 +480,13 @@ class ProductStock(models.Model):
 
     def is_in_good_supply(self):
         if self.maximum_level is not None and self.reorder_level is not None:
-            if self.quantity > self.reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
     def is_in_adequate_supply(self):
         if self.maximum_level is not None and self.emergency_reorder_level is not None:
-            if self.quantity > self.emergency_reorder_level and self.quantity < self.maximum_level:
+            if self.quantity > self.emergency_reorder_level and self.quantity <= self.maximum_level:
                 return True
         return False
 
@@ -623,6 +632,7 @@ class StockRequest(models.Model):
     responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by")
     received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
     
+    balance = models.IntegerField(null=True, default=None)
     amount_requested = models.PositiveIntegerField(null=True)
     # this field is actually unnecessary with no ability to 
     # approve partial resupplies in the current system, but is
@@ -717,7 +727,8 @@ class StockRequest(models.Model):
                                                   requested_by=contact,
                                                   amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
-                                                  is_emergency=is_emergency)
+                                                  is_emergency=is_emergency,
+                                                  balance=current_stock.quantity)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)
@@ -738,12 +749,17 @@ class StockRequest(models.Model):
         requests = []
         pending_reqs = StockRequest.pending_requests().filter\
             (supply_point=stock_report.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys())
+             product__sms_code__in=stock_report.product_stock.keys()).order_by('-received_on')
         now = datetime.utcnow()
+        ps = set(stock_report.product_stock.keys())
         for req in pending_reqs:
-            req.receive(contact, 
+            if req.product.sms_code in ps:
+                req.receive(contact, 
                         stock_report.product_stock[req.product.sms_code],
                         now)
+                ps.remove(req.product.sms_code)
+            else:
+                req.receive(contact, 0, now)
             requests.append(req)
         return requests
     
@@ -770,13 +786,32 @@ class ProductReport(models.Model):
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.utcnow)
     # message should only be null if the stock report was provided over the web
-    message = models.ForeignKey(Message, blank=True, null=True)
+    message = models.ForeignKey(message_class, blank=True, null=True)
 
     class Meta:
         verbose_name = "Product Report"
         
     def __unicode__(self):
         return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
+
+    # the following are for the benfit of excel export
+    def contact(self):
+        if self.message is None or self.message.contact is None:
+            return None
+        return self.message.contact
+    def parent_location(self):
+        provider = self.contact()
+        if provider is None or \
+          provider.supply_point is None or \
+          provider.supply_point.location is None or \
+          provider.supply_point.location.tree_parent is None:
+            return None
+        return provider.supply_point.location.tree_parent
+    def grandparent_location(self):
+        parent_location = self.parent_location()
+        if parent_location is None or parent_location.tree_parent is None:
+            return None
+        return parent_location.tree_parent
 
 class StockTransaction(models.Model):
     """
@@ -818,10 +853,12 @@ class StockTransaction(models.Model):
 
     
         st.beginning_balance = beginning_balance
-        if pr.report_type.code == Reports.SOH or pr.report_type.code == Reports.EMERGENCY_SOH:
+        if pr.report_type.code == Reports.SOH or \
+           pr.report_type.code == Reports.EMERGENCY_SOH:
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
-        elif pr.report_type.code == Reports.REC:
+        elif pr.report_type.code == Reports.REC or \
+             pr.report_type.code == Reports.LOSS_ADJUST:
             st.ending_balance = st.beginning_balance + pr.quantity
             st.quantity = pr.quantity
         elif pr.report_type.code == Reports.GIVE:
@@ -845,10 +882,14 @@ class RequisitionReport(models.Model):
     supply_point = models.ForeignKey(SupplyPoint)
     submitted = models.BooleanField()
     report_date = models.DateTimeField(default=datetime.utcnow)
-    message = models.ForeignKey(Message)
+    message = models.ForeignKey(message_class)
 
     
 class NagRecord(models.Model):
+    """
+    A record of a Nag going out, so we don't send the same nag
+    multiple times.
+    """
     supply_point = models.ForeignKey(SupplyPoint)
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)
@@ -938,7 +979,26 @@ class ProductReportsHelper(object):
                     token = ''
             i = i+1
 
+    
+    def newparse(self, string, delimiters=" "):
+        """
+        A new, simpler parse method.
+        Assumes:
+          a space separated list.
+          products before values.
+          positive or negative numbers.
+          a single quantity per commodity.
+        """
+        if not string:
+            return
+        vals = parse_report(string)
+        for code, amt in vals:
+            self.add_product_stock(code.lower(), amt)
+                        
     def parse(self, string):
+        """
+        Old parse method, used in Ghana for more 'interesting' parsing.
+        """
         if not string:
             return
         match = re.search("[0-9]",string)

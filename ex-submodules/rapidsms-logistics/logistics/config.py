@@ -49,7 +49,7 @@ def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
     # this but currently it seems strange that we'd have such tight
     # coupling between app logic and database logic, so it's here
-    from logistics.apps.logistics.models import ContactRole
+    from logistics.models import ContactRole
     if not contact.is_active:
         return False
     if operation == Operations.REPORT_STOCK:
@@ -70,7 +70,7 @@ def hsa_supply_point_type():
     """
     The supply point type for HSAs
     """
-    from logistics.apps.logistics.models import SupplyPointType
+    from logistics.models import SupplyPointType
     return SupplyPointType.objects.get(pk=HSA)
 
 def hsa_location_type():

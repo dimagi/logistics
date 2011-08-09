@@ -1,6 +1,5 @@
 {% if commoditytypes|length > 1 %}
 {% load i18n %}
-{% block javascripts %}{{ block.super }}
 <script type="text/javascript">
     <!--//--><![CDATA[//><!--
     $(document).ready(function(){
@@ -10,7 +9,6 @@
     });
     //--><!]]>
 </script>
-{% endblock %}
 
 <form id="commoditytype_form" method="GET">
     {%  csrf_token %}

@@ -1,4 +1,4 @@
-from logistics import settings
+from django.conf import settings
 from logistics.util import config
 from rapidsms.contrib.locations.models import Location
 

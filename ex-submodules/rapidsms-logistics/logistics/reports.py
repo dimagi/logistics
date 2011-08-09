@@ -47,6 +47,12 @@ class TableData(object):
         self.title = title
         self.table = table
 
+def _seconds(td):
+    """
+    Because timedelta.total_seconds() is 2.7+ only.
+    """
+    return td.days * 24 * 60 * 60 + td.seconds
+
 class ReportingBreakdown(object):
     """
     Given a query set of supply points, get an object for displaying reporting
@@ -103,7 +109,6 @@ class ReportingBreakdown(object):
             discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
             orders_list = filled_requests.values_list("product", flat=True)
 
-
             # We could save a lot of time here if the primary key for Product were its sms_code.
             # Unfortunately, it isn't, so we have to remap keys->codes.
             _p = {}
@@ -120,12 +125,12 @@ class ReportingBreakdown(object):
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+                self.discrepancies_p[product] = len([x for x in discrepancies_list if x == product])
 
                 z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
                 if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
-                self.filled_orders_p[product] = len([x for x in orders_list if x is product])
+                self.filled_orders_p[product] = len([x for x in orders_list if x == product])
                 self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
@@ -151,11 +156,22 @@ class ReportingBreakdown(object):
         no_stockouts_p = {}
         stockouts_p = {}
         totals_p = {}
+        stockouts_duration_p ={}
+        stockouts_avg_duration_p = {}
         for sp in reported.all():
             
+            # makes an assumption of 1 contact per SP.
+            # will need to be revisited
+            try:
+                contact = Contact.objects.get(supply_point=sp)
+            except Contact.DoesNotExist, Contact.MultipleObjectsReturned:
+                contact = None
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
-            needed_products = set([c.pk for c in sp.commodities_stocked()])
+            if contact:
+                needed_products = set([c.pk for c in contact.commodities.all()])
+            else:
+                needed_products = None
             if needed_products:
                 if needed_products - found_products:
                     partial.append(sp)
@@ -177,6 +193,25 @@ class ReportingBreakdown(object):
 
                 if found_reports.filter(quantity=0):
                     stockouts.append(sp.pk)
+#                    prods = found_reports.values_list("product", flat=True).distinct()
+                    for p in prods:
+                        duration = 0
+                        count = 0
+                        last_stockout = None
+                        ordered_reports = found_reports.filter(product=p).order_by("report_date")
+                        for r in ordered_reports:
+                            if last_stockout and r.quantity > 0: # Stockout followed by receipt.
+                                duration += _seconds(r.report_date - last_stockout)
+                                last_stockout = None
+                                count += 1
+                            elif not last_stockout and not r.quantity: # Beginning of a stockout period.
+                                last_stockout = r.report_date
+                            else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
+                                pass
+                        if p.sms_code in stockouts_duration_p and duration:
+                            stockouts_duration_p[p.sms_code] += [duration]
+                        elif duration:
+                            stockouts_duration_p[p.sms_code] = [duration]
                 else:
                     no_stockouts.append(sp.pk)
         if MNE:
@@ -186,6 +221,8 @@ class ReportingBreakdown(object):
                 if totals_p[key] > 0:
                     no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
+            for key in stockouts_duration_p:
+                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key])/len(stockouts_duration_p[key]))
 
             self.stockouts = stockouts
             self.emergency = emergency_requesters
@@ -194,6 +231,8 @@ class ReportingBreakdown(object):
             self.no_stockouts_pct_p = no_stockouts_pct_p
             self.no_stockouts_p = no_stockouts_p
             self.totals_p = totals_p
+            self.stockouts_duration_p = stockouts_duration_p
+            self.stockouts_avg_duration_p = stockouts_avg_duration_p
         self.full = full
         self.partial = partial
         self.unconfigured = unconfigured

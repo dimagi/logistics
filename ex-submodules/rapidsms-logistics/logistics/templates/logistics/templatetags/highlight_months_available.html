@@ -10,19 +10,21 @@
         <img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency" />
         {% else %}
 {#            {% if stockonhand.is_below_low_supply_but_above_emergency_level %}#}
-{#                <img src="{{ MEDIA_URL }}logistics/images/warning.png" title="Low Stock" />#}
 {#            {% else %}#}
-                {% if stockonhand.is_in_good_supply %}
-                    <img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Good Supply" />
-                {% else %}
                     {% if stockonhand.is_overstocked %}
                         <img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock" />
+        {% else %}
+
+{#                {% if not stockonhand.is_in_good_supply %}#}
+                    <img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Good Supply" />
+{#                <img src="{{ MEDIA_URL }}logistics/images/warning.png" title="Low Stock" />#}
+
                    {% endif %}
                 {% endif %}
 {#            {% endif %}#}
         {% endif %}
     {% endif %}
-{% endif %}
+{#{% endif %}#}
 
 
 </td>

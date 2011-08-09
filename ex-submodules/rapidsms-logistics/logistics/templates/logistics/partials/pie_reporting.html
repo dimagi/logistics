@@ -14,10 +14,10 @@
             {
                 percent = parseFloat(obj.series.percent).toFixed(0);
                 if(obj.series.label=="{% trans 'On Time' %}"){
-                    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% On Time in last {{days|default:7}} days ({{ on_time_facilities|length }})</span>');
+                    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% {% trans "On Time" %} in last {{days|default:7}} days ({{ on_time_facilities|length }})</span>');
                 }
                 else if(obj.series.label=="{% blocktrans %}Late{% endblocktrans %}"){
-                    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% Late in last {{days|default:7}} days ({{ late_facilities|length }})</span>');
+                    $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% {% trans "Late" %} in last {{days|default:7}} days ({{ late_facilities|length }})</span>');
                 }
             }
             if({{ 100 }} > 0){

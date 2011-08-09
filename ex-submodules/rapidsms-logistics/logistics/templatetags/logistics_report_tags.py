@@ -16,6 +16,7 @@ from logistics.reports import ReportingBreakdown,\
     HSASupplyPointRow, FacilitySupplyPointRow
 from dimagi.utils.dates import DateSpan
 from logistics.config import messagelog
+import logging
 Message = messagelog.models.Message
 register = template.Library()
 
@@ -174,8 +175,23 @@ def stockonhand_table(supply_point):
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
-    # shouldn't this be ordered by something?
-    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
+    mdates = Message.objects.filter(contact=contact).order_by("-date").distinct().values_list("date", flat=True)
+    if limit:
+        mdates = list(mdates)[:limit]
+    messages = Message.objects.filter(contact=contact, date__in=mdates).order_by("-date")
+    return ShortMessageTable(messages).as_html()
+
+@register.simple_tag
+def product_availability_summary(location):
+    if not location:
+        pass # TODO: probably want to disable this if things get slow
+        #return '<p class="notice">To view the product availability summary, first select a district.</p>'
+    logging.error("FIXME: no hsa references here anymore" )
+    # hsas = hsas_below(location)
+    hsas = []
+    summary = ProductAvailabilitySummary(hsas)
+    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+                         {"summary": summary})
 
 @register.simple_tag
 def product_availability_summary_by_facility(location):

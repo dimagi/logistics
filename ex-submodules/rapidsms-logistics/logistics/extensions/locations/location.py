@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import uuid
 from django.db import models
 from django.db.models import Q
-from rapidsms.conf import settings
+from django.conf import settings
 
 class Location(models.Model):
     """
@@ -10,6 +10,7 @@ class Location(models.Model):
     This could/should be broken out into subclasses.
     """
     code = models.CharField(max_length=100, blank=False, null=False)
+    name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     
     class Meta:
@@ -31,7 +32,7 @@ class Location(models.Model):
         """ This signature gets overriden by mptt when mptt is used """
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.id).order_by('name')
-    
+        
     def get_descendents(self, include_self=False):
         """ This signature gets overriden by mptt when mptt is used
         It must return a queryset
