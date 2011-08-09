@@ -3,7 +3,6 @@
 
 import sys, os
 from django.core.management import execute_manager
-import settings
 
 filedir = os.path.dirname(__file__)
 sys.path.append(os.path.join(filedir))
@@ -20,4 +19,5 @@ sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
 
 if __name__ == "__main__":
+    import settings
     execute_manager(settings)
