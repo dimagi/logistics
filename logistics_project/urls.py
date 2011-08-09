@@ -24,10 +24,11 @@ urlpatterns = patterns('',
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
-    # i guess having both of these is ok for now
+    # i guess having all of these is ok for now (?)    
     (r'^ewsghana/', include('logistics_project.apps.ewsghana.urls.ewsghana')),
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
     (r'^maps/', include('logistics_project.apps.maps.urls')),
+    (r'^tz/', include('logistics_project.apps.tanzania.urls')),
     
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 

@@ -46,5 +46,9 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
-                     contact_name=contact.name, role=contact.role.name)
+        if role.code in config.Roles.DISTRICT_ONLY:
+            self.respond(_(config.Messages.REGISTRATION_DISTRICT_CONFIRM), sp_name=self.supply_point.name,
+                         contact_name=contact.name, role=contact.role.name)
+        else:
+            self.respond(_(config.Messages.REGISTRATION_CONFIRM), sp_name=self.supply_point.name,
+                         contact_name=contact.name, role=contact.role.name)

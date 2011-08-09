@@ -96,6 +96,14 @@ class TestHSARegister(MalawiTestBase):
                                                                "role": "in charge",
                                                                "contact_name": "incharge"}}
         self.runScript(a)
+
+        a = """
+              8005551215 > manage district dp 26
+              8005551215 < %(confirm)s
+            """ % {"confirm": config.Messages.REGISTRATION_DISTRICT_CONFIRM % {"sp_name": "Machinga",
+                                                               "role": "district pharmacist",
+                                                               "contact_name": "district"}}
+        self.runScript(a)
         
     def testLeave(self):
         a = """

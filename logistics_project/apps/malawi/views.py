@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -7,6 +7,7 @@ from urllib2 import urlopen
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from django.views.decorators.vary import vary_on_cookie
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
@@ -31,25 +32,36 @@ from logistics_project.apps.malawi.reports import ReportInstance, ReportDefiniti
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
-@cache_page(60 * 15)
+#@cache_page(60 * 15)
 @place_in_request()
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    group = None
+    em_group = None
+    begin_date = None
     # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-        group = group_for_location(request.location)
+        em_group = (group_for_location(request.location) == config.Groups.EM)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30), include_late = False, MNE=False)#(group == config.Groups.EM))
+    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
+    if em_group:
+        begin_date = datetime.now().replace(day=1)
+        end_date = datetime.now()
+        d = DateSpan(begin_date, end_date)
+        em_report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
+    else:
+        em_report = None
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
                                                                                        role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
+                               "em_group": em_group,
+                               "em_report": em_report,
+                               "begin_date": begin_date,
                                "districts": get_districts().order_by("code"),
                                "location": request.location},
                                
@@ -76,7 +88,9 @@ def products(request):
         }, context_instance=RequestContext(request)
     )
 
+@cache_page(60 * 15)
 @place_in_request()
+@vary_on_cookie
 def hsas(request):
     hsas = hsas_below(request.location)
     districts = get_districts().order_by("id")
@@ -109,8 +123,10 @@ def hsa(request, code):
             "stockrequest_table": stockrequest_table 
         }, context_instance=RequestContext(request)
     )
-    
+
+@cache_page(60 * 15)
 @place_in_request()
+@vary_on_cookie
 def facilities(request):
     facilities = get_facilities().order_by("parent_id", "code")
     
@@ -129,7 +145,8 @@ def facilities(request):
             "table": table,
             "districts": get_districts().order_by("code")
         }, context_instance=RequestContext(request))
-    
+
+@cache_page(60 * 15)
 @filter_context
 @datespan_in_request()
 def facility(request, code, context={}):
@@ -181,6 +198,8 @@ def monitoring_report(request, report_slug):
                                "facilities": facilities,
                                "location": location},
                               context_instance=RequestContext(request))
+
+def monitoring_report_ajax(): pass
 
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))

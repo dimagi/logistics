@@ -15,7 +15,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'johnny.middleware.CommittingTransactionMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
 )
+
+CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
@@ -44,7 +49,7 @@ RAPIDSMS_TABS = [
 # the valid options for each.
 INSTALLED_BACKENDS = {
     "airtel-smpp": {
-        "ENGINE": "logistics.backends.kannel",
+        "ENGINE": "rapidsms.backends.kannel",
         "host": "127.0.0.1",
         "port": 8002,
         "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
@@ -123,29 +128,32 @@ LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
-LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
-LOGISTICS_LOGOUT_TEMPLATE = "malawi/loggedout.html"
+LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
-LOGO_LEFT_URL="/static/malawi/images/malawi-flag.jpg"
+SESSION_EXPIRE_AT_BROWSER_CLOSE=True
+
+LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
 LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
 SITE_TITLE="cStock"
 BASE_TEMPLATE="malawi/base.html"
-BASE_TEMPLATE_SPLIT_2="malawi/base-split-2.html"
+BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 LOGISTICS_CONFIG = 'static.malawi.config'
 
 LOGISTICS_ALERT_GENERATORS = [
-    'logistics_project.apps.malawi.alerts.hsas_no_supervision',
-    'logistics_project.apps.malawi.alerts.hsas_no_products',
-    'logistics_project.apps.malawi.alerts.late_reporting_receipt',
-    'logistics_project.apps.malawi.alerts.non_reporting_hsas',
-    'logistics_project.apps.malawi.alerts.health_center_stockout',
+    #'logistics_project.apps.malawi.alerts.hsas_no_supervision',
+    #'logistics_project.apps.malawi.alerts.hsas_no_products',
+    #'logistics_project.apps.malawi.alerts.late_reporting_receipt',
+    #'logistics_project.apps.malawi.alerts.non_reporting_hsas',
+    #'logistics_project.apps.malawi.alerts.health_center_stockout',
     'logistics_project.apps.malawi.alerts.hsa_below_emergency_quantity',
     'logistics_project.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics_project.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
 
 DATABASE_ENGINE = "mysql"
+

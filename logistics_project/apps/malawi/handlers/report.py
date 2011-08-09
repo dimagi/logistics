@@ -6,8 +6,9 @@ from logistics.const import Reports
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.util import config
 from logistics_project.apps.malawi import util
-from logistics_project.apps.malawi.shortcuts import create_stock_report,\
+from logistics_project.apps.malawi.shortcuts import \
     send_emergency_responses, send_soh_responses, send_transfer_responses
+from logistics.shortcuts import create_stock_report
 
 SUPPORTED_REPORT_KEYWORDS = [Reports.SOH, Reports.REC, Reports.EMERGENCY_SOH, Reports.GIVE]
 class ReportRegistrationHandler(KeywordHandler):

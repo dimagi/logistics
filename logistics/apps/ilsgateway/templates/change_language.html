@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Change Language{{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="module">
+    <form action="/i18n/setlang/" method="POST">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="/" />
+        <select name="language">
+            {% for lang in LANGUAGES %}
+                <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Go" />
+        {% trans 'Current language' %}: {{ language }}
+    </form>
+</div>
+{% endblock %}

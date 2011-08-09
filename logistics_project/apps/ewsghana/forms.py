@@ -15,6 +15,7 @@ def _get_program_admin_group():
     return Group.objects.get(name=PROGRAM_ADMIN_GROUP_NAME)
 
 class EWSGhanaWebRegistrationForm(AdminRegistersUserForm): 
+    designation = forms.CharField(required=False)
     is_program_admin = forms.BooleanField(label='User is a DHIO', initial=False, required=False)
     is_IT_admin = forms.BooleanField(label='User is an IT administrator (e.g. programmer)', initial=False, required=False)
     
@@ -29,6 +30,9 @@ class EWSGhanaWebRegistrationForm(AdminRegistersUserForm):
                 initial['is_program_admin'] = True 
             initial['is_IT_admin'] = self.edit_user.is_superuser
             kwargs['initial'] = initial
+            profile = self.edit_user.get_profile()
+            if profile.designation is not None:
+                initial['designation'] = profile.designation
         return super(EWSGhanaWebRegistrationForm, self).__init__(*args, **kwargs)
 
     def save(self, profile_callback=None):
@@ -44,4 +48,8 @@ class EWSGhanaWebRegistrationForm(AdminRegistersUserForm):
         else:
             user.is_superuser = False
         user.save()
+        if 'designation' in self.cleaned_data:
+            profile = user.get_profile()
+            profile.designation = self.cleaned_data['designation']
+            profile.save()
         return user

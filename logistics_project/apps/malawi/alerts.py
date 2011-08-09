@@ -108,7 +108,7 @@ def hsa_below_emergency_quantity(request):
     for p in ProductStock.objects.filter(is_active=True,
             supply_point__in=hsas,
             quantity__lte = F('product__emergency_order_level')):
-        if not p.supply_point in [z.supply_point for z in StockRequest.pending_requests().filter(product=p.product)]:
+        if not StockRequest.pending_requests().filter(product=p.product, supply_point=p.supply_point).exists():
             r += [HSABelowEmergencyQuantityAlert(p.supply_point, p.product)]
     return r
 
@@ -146,7 +146,8 @@ def late_reporting_receipt(request):
     
     since = datetime.utcnow() - timedelta(days=7)
     bad_reqs = StockRequest.objects.filter(received_on=None, responded_on__lte=since, 
-                                           supply_point__in=hsas)\
+                                           supply_point__in=hsas,
+                                           status=StockRequestStatus.APPROVED)\
                     .values('supply_point').annotate(last_response=Max('responded_on'))
     alerts = [LateReportingAlert(SupplyPoint.objects.get(pk=val["supply_point"]), val["last_response"]) \
               for val in bad_reqs]

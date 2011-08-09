@@ -97,6 +97,7 @@ class StatusColumn(Column):
 class StockRequestTable(Table):
     product = Column()
     is_emergency = EmergencyColumn()
+    balance = Column()
     amount_requested = Column()
     amount_received = Column()
     requested_on = DateColumn()
@@ -116,13 +117,17 @@ class HSAStockRequestTable(Table):
     supply_point = Column()
     product = Column()
     is_emergency = EmergencyColumn()
-    #amount_requested = Column()
-    #amount_received = Column()
-    
-    requested_on = DateColumn()
-    responded_on = DateColumn()
-    received_on = DateColumn()
-
+    balance = Column()
+    amount_requested = Column(value=lambda cell:cell.object.amount_requested,
+                              name="Amt. Requested")
+    amount_received = Column(value=lambda cell:cell.object.amount_received,
+                              name="Amt. Received")
+    requested_on = DateColumn(value=lambda cell:cell.object.requested_on,
+                              name="Date Requested")
+    responded_on = DateColumn(value=lambda cell:cell.object.responded_on,
+                              name="Date Responded")
+    received_on = DateColumn(value=lambda cell:cell.object.received_on,
+                              name="Date Received")
     status = StatusColumn()
     
     class Meta:
