@@ -1,23 +1,23 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 import os
-LOGISTICS_CONFIG = 'logistics.apps.tanzania.config'
+LOGISTICS_CONFIG = 'logistics_project.apps.tanzania.config'
 
 APPS = [
     "auditcare",
     "django.contrib.webdesign",
     # commented out until fixed
-    #"logistics.apps.ilsgateway",
-    "logistics.apps.tanzania",
+    #"logistics_project.apps.ilsgateway",
+    "logistics_project.apps.tanzania",
 ]
 
 RAPIDSMS_TABS = [
-    ("logistics.apps.tanzania.views.dashboard",       "Dashboard"),
-#    ("logistics.apps.malawi.views.facilities",       "Facilities"),
-#    ("logistics.apps.malawi.views.hsas",       "HSAs"),
-#    ("logistics.apps.malawi.views.help",       "Help"),
-#    ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
-#    ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.dashboard",       "Dashboard"),
+#    ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
+#    ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
+#    ("logistics_project.apps.malawi.views.help",       "Help"),
+#    ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
+#    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
 #    ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
@@ -83,9 +83,9 @@ BASE_TEMPLATE="tanzania/base.html"
 BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 LOGISTICS_ALERT_GENERATORS = [
-    #'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
-    #'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
-    #'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
+    #'logistics_project.apps.malawi.alerts.hsa_below_emergency_quantity',
+    #'logistics_project.apps.malawi.alerts.health_center_unable_resupply_stockout',
+    #'logistics_project.apps.malawi.alerts.health_center_unable_resupply_emergency',
 ]
 
 

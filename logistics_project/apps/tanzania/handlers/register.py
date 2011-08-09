@@ -2,9 +2,9 @@ from django.utils.translation import ugettext as _
 from logistics import settings
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
+from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
-from logistics.apps.malawi.exceptions import IdFormatException
+from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics.apps.logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 import re

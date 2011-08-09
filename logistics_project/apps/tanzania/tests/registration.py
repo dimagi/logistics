@@ -1,4 +1,4 @@
-from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
+from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 
 class TestRegistration(TanzaniaTestScriptBase):
     

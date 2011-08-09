@@ -1,14 +1,14 @@
 from rapidsms.tests.scripted import TestScript
-import logistics.apps.ilsgateway.app as ilsgateway_app
-from logistics.apps.ilsgateway.utils import *
-import logistics.apps.ilsgateway.callbacks as callbacks
-from logistics.apps.ilsgateway.models import Facility, District, ServiceDeliveryPoint, ServiceDeliveryPointStatusType
+import logistics_project.apps.ilsgateway.app as ilsgateway_app
+from logistics_project.apps.ilsgateway.utils import *
+import logistics_project.apps.ilsgateway.callbacks as callbacks
+from logistics_project.apps.ilsgateway.models import Facility, District, ServiceDeliveryPoint, ServiceDeliveryPointStatusType
 from datetime import datetime, date
 from dateutil.relativedelta import *
 from dateutil.rrule import *
 
 from rapidsms.tests.harness import MockRouter, MockBackend
-from logistics.apps.ilsgateway.tests.testcases import CreateDataTest, FlushTestScript
+from logistics_project.apps.ilsgateway.tests.testcases import CreateDataTest, FlushTestScript
     
 class TestCallbacks (FlushTestScript, CreateDataTest):
 

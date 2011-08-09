@@ -1,6 +1,6 @@
 __author__ = 'ternus'
 import oldmodels as old_models
-import logistics.apps.logistics.models as new_models
+import logistics.models as new_models
 from rapidsms.models import Contact, ConnectionBase
 
 def migrate():

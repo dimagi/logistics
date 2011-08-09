@@ -1,4 +1,4 @@
-from logistics.apps.ilsgateway.models import ServiceDeliveryPoint, ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, DeliveryGroup
+from logistics_project.apps.ilsgateway.models import ServiceDeliveryPoint, ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, DeliveryGroup
 import ilsgateway.app as ilsgateway_app
 from datetime import datetime, timedelta
 from rapidsms.tests.scripted import TestScript

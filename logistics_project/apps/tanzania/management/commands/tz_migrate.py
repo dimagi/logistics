@@ -4,7 +4,7 @@ from rapidsms.models import Connection, Contact, Backend
 import os
 import csv
 from logistics.apps.logistics.models import ContactRole, SupplyPoint
-from logistics.apps.tanzania.loader import init_static_data
+from logistics_project.apps.tanzania.loader import init_static_data
 
 def get_supply_point(name, code, type):
     """

@@ -1,5 +1,5 @@
-from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
-from logistics.apps.tanzania.tests.util import register_user
+from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
+from logistics_project.apps.tanzania.tests.util import register_user
 
 class TestStop(TanzaniaTestScriptBase):
     

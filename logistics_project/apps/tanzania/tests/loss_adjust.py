@@ -1,5 +1,5 @@
-from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
-from logistics.apps.tanzania.tests.util import register_user, add_products
+from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
+from logistics_project.apps.tanzania.tests.util import register_user, add_products
 from logistics.apps.logistics.models import Product, ProductStock
 
 class TestLossesAdjustments(TanzaniaTestScriptBase):

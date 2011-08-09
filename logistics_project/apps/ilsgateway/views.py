@@ -63,7 +63,7 @@ def password_reset(request, is_admin_site=False, template_name='accounts/passwor
         password_reset_form=PasswordResetForm, token_generator=default_token_generator,
         post_reset_redirect=None):
     if post_reset_redirect is None:
-        post_reset_redirect = reverse('logistics.apps.ilsgateway.views.password_reset_done')
+        post_reset_redirect = reverse('logistics_project.apps.ilsgateway.views.password_reset_done')
     if request.method == "POST":
         form = password_reset_form(request.POST)
         if form.is_valid():
@@ -97,7 +97,7 @@ def password_reset_confirm(request, uidb36=None, token=None, template_name='acco
     """
     assert uidb36 is not None and token is not None # checked by URLconf
     if post_reset_redirect is None:
-        post_reset_redirect = reverse('logistics.apps.ilsgateway.views.password_reset_complete')
+        post_reset_redirect = reverse('logistics_project.apps.ilsgateway.views.password_reset_complete')
     try:
         uid_int = base36_to_int(uidb36)
     except ValueError:
@@ -144,7 +144,7 @@ def password_change(request, template_name='accounts/password_change.html',
     elif request.LANGUAGE_CODE == 'sw':
         language = 'Swahili'
     if post_change_redirect is None:
-        post_change_redirect = reverse('logistics.apps.ilsgateway.views.password_change_done')
+        post_change_redirect = reverse('logistics_project.apps.ilsgateway.views.password_change_done')
     if request.method == "POST":
         form = password_change_form(user=request.user, data=request.POST)
         if form.is_valid():
@@ -230,9 +230,9 @@ def reports(request):
 
     on_time_count = 0
     for facility in facilities:
-        row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+        row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                 'data': facility.msd_code},
-               {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+               {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                 'data': facility.name}]
         query_date = report_date + relativedelta(report_date)
         randr_status = facility.randr_status_by_quarter(report_date)
@@ -322,10 +322,10 @@ def reports(request):
                 soh_not_reported_count = soh_not_reported_count + 1
                 soh_reporting_cell_class = "soh_not_reported"
                 
-            row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+            row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                     'data': facility.msd_code},
                    {'data': facility.delivery_group},
-                   {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+                   {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                     'data': facility.name},
                    {'data': last_report_date,
                     'cell_class': soh_reporting_cell_class}]
@@ -427,9 +427,9 @@ def reports(request):
                            'data': header if not header_name else header_name})
         
     for facility in facilities:
-        row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+        row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                 'data': facility.msd_code},
-               {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+               {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                 'data': facility.name}]
         query_date = report_date + relativedelta(report_date)
         randr_status = facility.randr_status_by_quarter(report_date)
@@ -543,10 +543,10 @@ def supervision(request):
             supervision_status_name = supervision_status.status_type.name
             supervision_status_date = supervision_status.status_date
             supervision_status_code = supervision_status.status_type.short_name
-        row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+        row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                 'data': facility.msd_code},
                {'data': facility.delivery_group},
-               {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+               {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                 'data': facility.name},
                {'data': supervision_status_name, 'cell_class': supervision_status_code},
                {'data': supervision_status_date, 'cell_class': supervision_status_code}]
@@ -732,7 +732,7 @@ def message_history(request, facility_id):
     breadcrumbs = [[facility.parent.parent.name], 
                    #[facility.parent.name, reverse('ilsgateway.views.dashboard')], 
                    [facility.parent.name],
-                   [facility.name, reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id])], 
+                   [facility.name, reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id])], 
                    [_('Message History')] ]    
     messages = Message.objects.filter(contact__contactdetail__service_delivery_point=facility_id)
     return render_to_response("message_history.html", 
@@ -749,7 +749,7 @@ def note_history(request, facility_id):
     breadcrumbs = [[facility.parent.parent.name], 
                    #[facility.parent.name, reverse('ilsgateway.views.dashboard')], 
                    [facility.parent.name],
-                   [facility.name, reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id])], 
+                   [facility.name, reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id])], 
                    ['Note History'] ]    
     notes = facility.servicedeliverypointnote_set.all().order_by('-created_at')
     return render_to_response("note_history.html", 
@@ -830,10 +830,10 @@ def facilities_index(request, view_type='inventory'):
         end_time = report_date + relativedelta(months=-1, hour=14, minute=0, second=0, microsecond=0) + relativedelta(day=get_last_business_day_of_month(report_date.year, 
                                                                           report_date.month))
         for facility in facilities:
-            row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+            row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                     'data': facility.msd_code},
                    {'data': facility.delivery_group},
-                   {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+                   {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                     'data': facility.name}]
             for product in products:
                 if view_type=="inventory":
@@ -961,10 +961,10 @@ def facilities_ordering(request):
             delivery_status_name = delivery_status.status_type.name
             delivery_status_date = delivery_status.status_date
             delivery_status_code = delivery_status.status_type.short_name
-        row = [{'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
+        row = [{'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]), 
                 'data': facility.msd_code},
                {'data': facility.delivery_group},
-               {'link': reverse('logistics.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
+               {'link': reverse('logistics_project.apps.ilsgateway.views.facilities_detail', args=[facility.id]),
                 'data': facility.name},
                {'data': randr_status_name, 'cell_class': randr_status_code},
                {'data': randr_status_date, 'cell_class': randr_status_code},

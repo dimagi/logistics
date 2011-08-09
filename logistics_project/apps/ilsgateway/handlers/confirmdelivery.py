@@ -2,9 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ProductReportType, Product, ContactDetail
+from logistics_project.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ProductReportType, Product, ContactDetail
 from datetime import *
-from logistics.apps.ilsgateway.utils import *
+from logistics_project.apps.ilsgateway.utils import *
 from django.utils.translation import ugettext_noop as _
         
 class ConfirmDeliveryReceived(KeywordHandler):

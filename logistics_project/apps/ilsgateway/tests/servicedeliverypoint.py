@@ -1,5 +1,5 @@
 from rapidsms.tests.scripted import TestScript
-from logistics.apps.ilsgateway.models import ServiceDeliveryPoint
+from logistics_project.apps.ilsgateway.models import ServiceDeliveryPoint
 import ilsgateway.app as ilsgateway_app
 
 class TestServiceDeliveryPoint (TestScript):

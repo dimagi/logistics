@@ -10,7 +10,7 @@ from logistics.apps.logistics.shortcuts import create_stock_report
 from logistics.apps.logistics.const import Reports
 from logistics.apps.logistics.decorators import logistics_contact_required
 import logging
-from logistics.apps.tanzania.models import SupplyPointStatus,\
+from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.apps.logistics.models import ProductStock, Product
 

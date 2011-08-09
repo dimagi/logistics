@@ -1,11 +1,11 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.apps.logistics.models import SupplyPoint, SupplyPointType,\
+from logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole, Product, ProductType
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
-from logistics.loader.base import load_report_types, load_roles
+from logistics.const import Reports
+from logistics.util import config
+from logistics_project.loader.base import load_report_types, load_roles
 
 class LoaderException(Exception):
     pass

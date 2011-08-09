@@ -1,5 +1,5 @@
-from logistics.apps.tanzania import loader
-from logistics.apps.malawi.tests.base import OutputtingTestScript
+from logistics_project.apps.tanzania import loader
+from logistics_project.apps.malawi.tests.base import OutputtingTestScript
 from logistics.apps.logistics.models import SupplyPoint, SupplyPointType
 from logistics.apps.logistics.util import config
 from logistics.loader.base import load_roles, load_report_types

@@ -2,11 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ContactDetail, DeliveryGroup
+from logistics_project.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ContactDetail, DeliveryGroup
 from rapidsms.models import Connection 
 from rapidsms.messages import OutgoingMessage
 import datetime
-from logistics.apps.ilsgateway.utils import *
+from logistics_project.apps.ilsgateway.utils import *
 from django.utils.translation import ugettext as _
 
 class ConfirmRandRSubmitted(KeywordHandler):

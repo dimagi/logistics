@@ -3,9 +3,9 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.messages import OutgoingMessage
-from logistics.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ProductReportType, Product, ServiceDeliveryPoint, ContactDetail
+from logistics_project.apps.ilsgateway.models import ServiceDeliveryPointStatus, ServiceDeliveryPointStatusType, ProductReportType, Product, ServiceDeliveryPoint, ContactDetail
 from datetime import *
-from logistics.apps.ilsgateway.utils import current_submitting_group, current_delivering_group
+from logistics_project.apps.ilsgateway.utils import current_submitting_group, current_delivering_group
 from django.utils.translation import ugettext_noop as _
         
 class TestReminder(KeywordHandler):
