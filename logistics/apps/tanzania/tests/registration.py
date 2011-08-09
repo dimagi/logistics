@@ -1,10 +1,18 @@
 from logistics.apps.tanzania.tests.base import TanzaniaTestScriptBase
+from django.utils.translation import ugettext as _
+from logistics.apps.logistics.util import config
+from django.utils import translation
+from logistics.apps.logistics.models import SupplyPoint
 
 class TestRegistration(TanzaniaTestScriptBase):
     
     def testRegister(self):
+        translation.activate("sw")
+        sp = SupplyPoint.objects.get(code="D10001")
         script = """
           743 > sajili Alfred Mchau d10001
-          743 < Asante kwa kujisajili katika VETA 1, d10001, Alfred Mchau
-        """
+          743 < %(registration_confirm)s
+        """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM) % {"sdp_name": sp.name,
+                                                      "msd_code": "d10001" ,
+                                                      "contact_name":"Alfred Mchau"}}
         self.runScript(script)

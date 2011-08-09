@@ -13,6 +13,7 @@ import logging
 from logistics.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.apps.logistics.models import ProductStock, Product
+from logistics.apps.logistics.errors import UnknownCommodityCodeError
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
@@ -37,10 +38,14 @@ class DeliveryHandler(KeywordHandler):
     def handle(self, text):
         contact = self.msg.logistics_contact
         sp = self.msg.logistics_contact.supply_point
-        stock_report = create_stock_report(Reports.REC,
-                                           sp,
-                                           text,
-                                           self.msg.logger_msg)
+        try:
+            stock_report = create_stock_report(Reports.REC,
+                                               sp,
+                                               text,
+                                               self.msg.logger_msg)
+        except UnknownCommodityCodeError, code:
+            self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"code": code})
+            return
 
         if stock_report.errors:
             self.respond(_(config.Messages.DELIVERY_BAD_FORMAT))
