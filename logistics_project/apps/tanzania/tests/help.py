@@ -1,6 +1,6 @@
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.tests.util import register_user
-from logistics.apps.logistics.util import config
+from logistics.util import config
 from django.utils.translation import ugettext as _
 
 class TestHelp(TanzaniaTestScriptBase):

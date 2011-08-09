@@ -1,9 +1,9 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
-from logistics.apps.logistics.util import config
+from logistics.util import config
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
-from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.decorators import logistics_contact_required
 
 class NotSubmitted(KeywordHandler):
     

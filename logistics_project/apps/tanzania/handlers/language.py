@@ -1,6 +1,6 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.conf import settings
-from logistics.apps.logistics.util import config
+from logistics.util import config
 
 
 class LanguageHandler(KeywordHandler):

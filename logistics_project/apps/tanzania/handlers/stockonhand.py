@@ -5,14 +5,14 @@ from datetime import datetime, timedelta
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.db.models import Q
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.shortcuts import create_stock_report
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.util import config
+from logistics.shortcuts import create_stock_report
+from logistics.const import Reports
+from logistics.decorators import logistics_contact_required
 import logging
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
-from logistics.apps.logistics.models import ProductStock, Product
+from logistics.models import ProductStock, Product
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")

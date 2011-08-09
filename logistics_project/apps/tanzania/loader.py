@@ -1,14 +1,14 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.apps.logistics.models import SupplyPoint, SupplyPointType, SupplyPointGroup
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.util import config
+from logistics.models import SupplyPoint, SupplyPointType, SupplyPointGroup
+from logistics.const import Reports
+from logistics.util import config
 
 from logging import info
 import logging
 from logistics.loader.base import load_report_types, load_roles
-from logistics.apps.logistics.shortcuts import supply_point_from_location
+from logistics.shortcuts import supply_point_from_location
 import csv
 from dimagi.utils.parsing import string_to_boolean
 from logistics_project.apps.tanzania.config import SupplyPointCodes

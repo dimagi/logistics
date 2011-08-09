@@ -1,6 +1,6 @@
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.models import ProductReportType, ContactRole
-from logistics.apps.logistics.const import Reports
+from logistics.util import config
+from logistics.models import ProductReportType, ContactRole
+from logistics.const import Reports
     
 def load_report_types():
     """

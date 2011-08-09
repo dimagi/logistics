@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
-from logistics.apps.logistics.models import SupplyPoint
-from logistics.apps.logistics.util import config
+from logistics.models import SupplyPoint
+from logistics.util import config
 
 class SupplyPointStatusValues(object):
     WAITING = "waiting"

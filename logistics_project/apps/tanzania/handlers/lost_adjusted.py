@@ -3,10 +3,10 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.decorators import logistics_contact_required
-from logistics.apps.logistics.shortcuts import create_stock_report
-from logistics.apps.logistics.const import Reports
+from logistics.util import config
+from logistics.decorators import logistics_contact_required
+from logistics.shortcuts import create_stock_report
+from logistics.const import Reports
 import logging
 
 class LostAdjusted(KeywordHandler):

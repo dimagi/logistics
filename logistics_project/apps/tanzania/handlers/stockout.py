@@ -4,11 +4,11 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.db.models import Q
 from django.utils.translation import ugettext as _
-from logistics.apps.logistics.util import config
-from logistics.apps.logistics.models import Product
-from logistics.apps.logistics.shortcuts import create_stock_report
-from logistics.apps.logistics.const import Reports
-from logistics.apps.logistics.decorators import logistics_contact_required
+from logistics.util import config
+from logistics.models import Product
+from logistics.shortcuts import create_stock_report
+from logistics.const import Reports
+from logistics.decorators import logistics_contact_required
 
 class StockOut(KeywordHandler):
     """
