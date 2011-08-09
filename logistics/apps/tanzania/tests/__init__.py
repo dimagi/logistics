@@ -10,3 +10,4 @@ from .supervision import *
 from .delivery import *
 from .yes import *
 from .randr import *
+from .language import *

@@ -60,6 +60,11 @@ COUNTRY = "tanzania"
 TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
 
+LANGUAGES = (
+  ('sw', 'Swahili'),
+  ('en', 'English'),
+)
+
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
 LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"

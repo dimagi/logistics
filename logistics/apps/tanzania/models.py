@@ -6,7 +6,7 @@ from logistics.apps.logistics.util import config
 class SupplyPointStatusValues(object):
     WAITING = "waiting"
     RECEIVED = "received"
-    NOT_RECEIVED = "not_recieved"
+    NOT_RECEIVED = "not_received"
     QUANTITIES_REPORTED = "quantities_reported"
     SUBMITTED = "submitted"
     NOT_SUBMITTED = "not_submitted"

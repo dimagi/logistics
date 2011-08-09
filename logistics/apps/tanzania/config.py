@@ -163,7 +163,10 @@ class Messages(object):
     
     # not delivered
     NOT_DELIVERED_CONFIRM = "You have reported that you haven't yet received your delivery."
-    
+
+    # delivered
+    DELIVERED_CONFIRM = "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
+
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
 
