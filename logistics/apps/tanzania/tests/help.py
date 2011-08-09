@@ -7,13 +7,14 @@ class TestHelp(TanzaniaTestScriptBase):
     
     def testHelp(self):
 
-#        Swahili
+        # Unregistered user
         script = """
           743 > help
           743 < %(help_unregistered)s
         """ % {'help_unregistered': _(config.Messages.HELP_UNREGISTERED)}
         self.runScript(script)
-        
+
+        # Registered user
         contact = register_user(self, "778", "someone")
         script = """
           778 > help

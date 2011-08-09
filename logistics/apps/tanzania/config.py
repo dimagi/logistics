@@ -166,7 +166,10 @@ class Messages(object):
     
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
-    
+
+    # submitted
+    SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
+
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>'"
