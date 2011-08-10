@@ -28,8 +28,19 @@ class RandRHandler(KeywordHandler):
         contact = self.msg.logistics_contact
         sp = self.msg.logistics_contact.supply_point
 
-        SupplyPointStatus.objects.create(supply_point=sp,
-                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                 status_value=SupplyPointStatusValues.SUBMITTED,
-                                 status_date=datetime.utcnow())
-        self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
+        if sp.type.code.lower() == config.SupplyPointCodes.DISTRICT:
+            SupplyPointStatus.objects.create(supply_point=sp,
+                                     status_type=SupplyPointStatusTypes.R_AND_R_DISTRICT,
+                                     status_value=SupplyPointStatusValues.SUBMITTED,
+                                     status_date=datetime.utcnow())
+            self.respond(_(config.Messages.SUBMITTED_PARTIAL_CONFIRM))
+        elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
+            SupplyPointStatus.objects.create(supply_point=sp,
+                                     status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                     status_value=SupplyPointStatusValues.SUBMITTED,
+                                     status_date=datetime.utcnow())
+            self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
+        else:
+            # TODO be graceful
+            raise Exception("bad location type: %s" % sdp.type.name)
+

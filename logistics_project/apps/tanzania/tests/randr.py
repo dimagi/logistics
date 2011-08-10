@@ -3,13 +3,37 @@ from logistics_project.apps.tanzania.tests.util import register_user
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from django.utils import translation
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, Contact
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 
 class TestRandR(TanzaniaTestScriptBase):
-    
-    def testRandRSubmitted(self):
+
+    def setUp(self):
+        super(TestRandR, self).setUp()
+        Contact.objects.all().delete()
+
+    def testRandRSubmittedDistrict(self):
+        contact = register_user(self, "22345", "RandR Tester", "d5555", "TANDAHIMBA")
+
+        # submitted successfully
+        translation.activate("sw")
+        sp = SupplyPoint.objects.get(code="D5555")
+
+        script = """
+          22345 > nimetuma
+          22345 < %(submitted_message)s
+        """ % {'submitted_message': _(config.Messages.SUBMITTED_PARTIAL_CONFIRM) % {"group":"changeme"}}
+        self.runScript(script)
+
+        sps = SupplyPointStatus.objects.filter(supply_point=sp,
+                                         status_type="rr_dist").order_by("-status_date")[0]
+
+        self.assertEqual(SupplyPointStatusValues.SUBMITTED, sps.status_value)
+        self.assertEqual(SupplyPointStatusTypes.R_AND_R_DISTRICT, sps.status_type)
+
+
+    def testRandRSubmittedFacility(self):
         contact = register_user(self, "12345", "RandR Tester", "d10001")
         
         # submitted successfully

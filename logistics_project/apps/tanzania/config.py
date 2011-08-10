@@ -175,6 +175,7 @@ class Messages(object):
 
     # submitted         
     SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
+    SUBMITTED_PARTIAL_CONFIRM = "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
 
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
