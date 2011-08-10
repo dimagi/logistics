@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from django.utils import translation
 
 class TestHelp(TanzaniaTestScriptBase):
-    
+
     def testHelp(self):
         translation.activate("sw")
 

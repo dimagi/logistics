@@ -10,15 +10,15 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
 class TestRandR(TanzaniaTestScriptBase):
     
     def testRandRSubmitted(self):
-        contact = register_user(self, "778", "someone", "d10001")
+        contact = register_user(self, "12345", "RandR Tester", "d10001")
         
         # submitted successfully
         translation.activate("sw")
         sp = SupplyPoint.objects.get(code="D10001")
 
         script = """
-          778 > nimatuma
-          778 < %(submitted_message)s
+          12345 > nimetuma
+          12345 < %(submitted_message)s
         """ % {'submitted_message': _(config.Messages.SUBMITTED_CONFIRM) % {"contact_name":contact.name,
                                                                                     "sdp_name":sp.name}}
         self.runScript(script)
