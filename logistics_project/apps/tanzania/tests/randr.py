@@ -14,16 +14,18 @@ class TestRandR(TanzaniaTestScriptBase):
         Contact.objects.all().delete()
 
     def testRandRSubmittedDistrict(self):
-        contact = register_user(self, "22345", "RandR Tester", "d5555", "TANDAHIMBA")
+        contact = register_user(self, "22345", "RandR Tester")
 
         # submitted successfully
         translation.activate("sw")
-        sp = SupplyPoint.objects.get(code="D5555")
+        sp = SupplyPoint.objects.get(name="TANDAHIMBA")
+        contact.supply_point = sp
+        contact.save()
 
         script = """
           22345 > nimetuma
           22345 < %(submitted_message)s
-        """ % {'submitted_message': _(config.Messages.SUBMITTED_PARTIAL_CONFIRM) % {"group":"changeme"}}
+        """ % {'submitted_message': _(config.Messages.SUBMITTED_PARTIAL_CONFIRM)}
         self.runScript(script)
 
         sps = SupplyPointStatus.objects.filter(supply_point=sp,

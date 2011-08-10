@@ -16,15 +16,3 @@ class TestRegistration(TanzaniaTestScriptBase):
                                                       "msd_code": "d10001" ,
                                                       "contact_name":"Alfred Mchau"}}
         self.runScript(script)
-    def testRegisterDistrict(self):
-        msd_code = "D5555"
-        translation.activate("sw")
-        sp = SupplyPoint.objects.get(code=msd_code)
-        script = """
-          743 > sajili Alfred Mchau %(msd_code)s
-          743 < %(registration_confirm)s
-        """ % {"msd_code": msd_code,
-               "registration_confirm": _(config.Messages.REGISTRATION_CONFIRM) % {"sdp_name": sp.name,
-                                                      "msd_code": "d5555" ,
-                                                      "contact_name":"Alfred Mchau"}}
-        self.runScript(script)
