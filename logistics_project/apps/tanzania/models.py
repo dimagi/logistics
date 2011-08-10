@@ -4,7 +4,6 @@ from logistics.models import SupplyPoint
 from logistics.util import config
 
 class SupplyPointStatusValues(object):
-    WAITING = "waiting"
     RECEIVED = "received"
     NOT_RECEIVED = "not_received"
     QUANTITIES_REPORTED = "quantities_reported"
@@ -12,7 +11,7 @@ class SupplyPointStatusValues(object):
     NOT_SUBMITTED = "not_submitted"
     REMINDER_SENT = "reminder_sent"
     ALERT_SENT = "alert_sent"
-    CHOICES = [WAITING, RECEIVED, NOT_RECEIVED, QUANTITIES_REPORTED, SUBMITTED,
+    CHOICES = [RECEIVED, NOT_RECEIVED, QUANTITIES_REPORTED, SUBMITTED,
                NOT_SUBMITTED, REMINDER_SENT, ALERT_SENT]
     
 class SupplyPointStatusTypes(object):
@@ -27,14 +26,14 @@ class SupplyPointStatusTypes(object):
     DELIVERY_FACILITY = "del_fac"
     
     CHOICE_MAP = {
-        DELIVERY_FACILITY: {SupplyPointStatusValues.WAITING: "Waiting Delivery Confirmation",
+        DELIVERY_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                             SupplyPointStatusValues.RECEIVED: "Delivery received",
                             SupplyPointStatusValues.QUANTITIES_REPORTED: "Delivery quantities reported",
                             SupplyPointStatusValues.NOT_RECEIVED: "Delivery Not Received"},
-        DELIVER_DISTRICT: {SupplyPointStatusValues.WAITING: "Waiting Delivery Confirmation",
+        DELIVER_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                            SupplyPointStatusValues.RECEIVED: "Delivery received",
                            SupplyPointStatusValues.NOT_RECEIVED: "Delivery not received"},
-        R_AND_R_FACILITY: {SupplyPointStatusValues.WAITING: "Waiting R&R sent confirmation",
+        R_AND_R_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting R&R sent confirmation",
                            SupplyPointStatusValues.SUBMITTED: "R&R Submitted From Facility to District",
                            SupplyPointStatusValues.NOT_SUBMITTED: "R&R Not Submitted"},
         R_AND_R_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "R&R Reminder Sent to District",
