@@ -163,10 +163,19 @@ class Messages(object):
     
     # not delivered
     NOT_DELIVERED_CONFIRM = "You have reported that you haven't yet received your delivery."
-    
+
+    # delivery
+    DELIVERED_CONFIRM = "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
+    DELIVERY_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'delivered product amount product amount'"
+    DELIVERY_CONFIRM = "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
+    DELIVERY_PARTIAL_CONFIRM = "To record a delivery, respond with \"delivered product amount product amount...\""
+
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
-    
+
+    # submitted
+    SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
+
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>'"
@@ -181,7 +190,8 @@ class Messages(object):
     SOH_ORDER_STOCKOUT_CONFIRM = "We have received your report of stock out of %(products)s and the health center has been notified. You will be notified when your products are available."
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."
     
-    
+    INVALID_PRODUCT_CODE = "Sorry, invalid product code %(code)s"
+
     
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
