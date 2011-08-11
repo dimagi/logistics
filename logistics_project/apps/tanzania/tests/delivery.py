@@ -99,8 +99,11 @@ class TestDelivery(TanzaniaTestScriptBase):
         script = """
           32345 > nimepokea
           32345 < %(submitted_message)s
-        """ % {'submitted_message': _(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":"RandR Tester",
-                                                                                    "facility_name":"TANDAHIMBA"}}
+          32346 < %(delivery_confirm_children)s
+          32347 < %(delivery_confirm_children)s
+        """ % {"submitted_message": _(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":"RandR Tester",
+                                                                                    "facility_name":"TANDAHIMBA"},
+               "delivery_confirm_children":_(config.Messages.DELIVERY_CONFIRM_CHILDREN % {"district_name":"TANDAHIMBA"})}
         self.runScript(script)
 
         sps = SupplyPointStatus.objects.filter(supply_point=sp,
@@ -109,11 +112,11 @@ class TestDelivery(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusValues.RECEIVED, sps.status_value)
         self.assertEqual(SupplyPointStatusTypes.DELIVERY_DISTRICT, sps.status_type)
 
-        for child in sp.children():
-            for c in child.active_contact_set:
-                self.assertEqual(Message.objects.filter(contact=c).count(), 2)
-                msg = Message.objects.filter(contact=c).order_by("-date")[0]
-                self.assertEqual(msg.text, config.Messages.DELIVERY_CONFIRM_CHILDREN % {"district_name":"TANDAHIMBA"})
+#        for child in sp.children():
+#            for c in child.active_contact_set:
+#                self.assertEqual(Message.objects.filter(contact=c).count(), 2)
+#                msg = Message.objects.filter(contact=c).order_by("-date")[0]
+#                self.assertEqual(msg.text, config.Messages.DELIVERY_CONFIRM_CHILDREN % {"district_name":"TANDAHIMBA"})
 
     def testDeliveryDistrictNotReceived(self):
         contact = register_user(self, "32345", "RandR Tester")

@@ -34,12 +34,14 @@ class TestRandR(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusValues.SUBMITTED, sps.status_value)
         self.assertEqual(SupplyPointStatusTypes.R_AND_R_DISTRICT, sps.status_type)
 
+    def testRandRSubmittedDistrictWithAmounts(self):
+        raise Exception("This test needs to be implemented")
 
     def testRandRSubmittedFacility(self):
         contact = register_user(self, "12345", "RandR Tester", "d10001")
         
         # submitted successfully
-        translation.activate("sw")
+        translation.activate("en")
         sp = SupplyPoint.objects.get(code="D10001")
 
         script = """
