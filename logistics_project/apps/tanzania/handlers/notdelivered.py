@@ -14,7 +14,18 @@ class NotDelivered(KeywordHandler):
         
     @logistics_contact_required()
     def handle(self, text):
-        SupplyPointStatus.objects.create(status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+        contact = self.msg.logistics_contact
+        sp = self.msg.logistics_contact.supply_point
+
+        if sp.type.code.lower() == config.SupplyPointCodes.DISTRICT:
+            st = SupplyPointStatusTypes.DELIVERY_DISTRICT
+        elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
+            st = SupplyPointStatusTypes.DELIVERY_FACILITY
+        else:
+            # TODO be graceful
+            raise Exception("bad location type: %s" % sp.type.name)
+
+        SupplyPointStatus.objects.create(status_type=st,
                                          status_value=SupplyPointStatusValues.NOT_RECEIVED,
-                                         supply_point=self.msg.logistics_contact.supply_point)
+                                         supply_point=sp)
         self.respond(_(config.Messages.NOT_DELIVERED_CONFIRM))
