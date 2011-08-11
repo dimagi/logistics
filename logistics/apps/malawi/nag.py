@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import logging
 import os
-import pprint
 from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
@@ -120,8 +119,7 @@ def nag_hsas_soh(since, location=None):
              'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG}
             ]
     
-    pprint.pprint(warnings)
-#    send_nag_messages(warnings)
+    send_nag_messages(warnings)
 
 def nag_hsas_rec():
     """
