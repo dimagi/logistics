@@ -41,7 +41,7 @@ BASE_APPS = [
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
-    "rapidsms.contrib.scheduler",
+    #"rapidsms.contrib.scheduler",
     "alerts",
     "logistics_project.apps.registration",
     "logistics_project.apps.web_registration",
