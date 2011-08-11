@@ -60,20 +60,22 @@ class NagRecordAdmin(admin.ModelAdmin):
     list_filter = ("supply_point", "warning", "nag_type")
 
 
-admin.site.unregister(Contact)
-admin.site.register(Contact, LogisticsContactAdmin)
-
-admin.site.register(LogisticsProfile, LogisticsProfileAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductType, ProductTypeAdmin)
-admin.site.register(ProductStock, ProductStockAdmin)
-admin.site.register(ProductReport, ProductReportAdmin)
-admin.site.register(RequisitionReport, RequisitionReportAdmin)
-admin.site.register(ProductReportType, ProductReportTypeAdmin)
-admin.site.register(StockTransaction, StockTransactionAdmin)
-admin.site.register(ContactRole, ContactRoleAdmin)
-admin.site.register(Responsibility, ResponsibilityAdmin)
-admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
-admin.site.register(SupplyPoint, SupplyPointAdmin)
-admin.site.register(StockRequest, StockRequestAdmin)
-admin.site.register(NagRecord, NagRecordAdmin)
+
+admin.site.unregister(Contact)
+admin.site.register(Contact, LogisticsContactAdmin)
+if not getattr(settings, 'LOGISTICS_USERS_HAVE_ADMIN_ACCESS', False):
+    # Set this to True to prevent users from mucking about with internal models.
+    admin.site.register(LogisticsProfile, LogisticsProfileAdmin)
+    admin.site.register(ProductStock, ProductStockAdmin)
+    admin.site.register(ProductReport, ProductReportAdmin)
+    admin.site.register(RequisitionReport, RequisitionReportAdmin)
+    admin.site.register(ProductReportType, ProductReportTypeAdmin)
+    admin.site.register(StockTransaction, StockTransactionAdmin)
+    admin.site.register(ContactRole, ContactRoleAdmin)
+    admin.site.register(Responsibility, ResponsibilityAdmin)
+    admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
+    admin.site.register(SupplyPoint, SupplyPointAdmin)
+    admin.site.register(StockRequest, StockRequestAdmin)
+    admin.site.register(NagRecord, NagRecordAdmin)
