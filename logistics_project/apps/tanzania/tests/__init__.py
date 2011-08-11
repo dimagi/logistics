@@ -11,3 +11,4 @@ from .delivery import *
 from .yes import *
 from .randr import *
 from .language import *
+from .stockinquiry import *
