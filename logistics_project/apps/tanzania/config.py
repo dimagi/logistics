@@ -190,10 +190,17 @@ class Messages(object):
     SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready."
     SOH_ORDER_STOCKOUT_CONFIRM = "We have received your report of stock out of %(products)s and the health center has been notified. You will be notified when your products are available."
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."
-    
+
+    # stock inquiry
+    STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
+    STOCK_INQUIRY_CONFIRM = 'Thank you, you reported you have %(quantity)s     %(product_name)s. If incorrect, please resend.'
+
     INVALID_PRODUCT_CODE = "Sorry, invalid product code %(code)s"
 
-    
+    #test handler
+    TEST_HANDLER_HELP = "To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
+    TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
+
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
     
