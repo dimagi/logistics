@@ -8,12 +8,16 @@ from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from datetime import datetime
+from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Contact
 
 class TestDelivery(TanzaniaTestScriptBase):
         
     def setUp(self):
         super(TestDelivery, self).setUp()
         ProductStock.objects.all().delete()
+        Contact.objects.all().delete()
+        Message.objects.all().delete()
         
     def testDeliveryReceivedNoQuantitiesReported(self):
         translation.activate("sw")
@@ -75,17 +79,19 @@ class TestDelivery(TanzaniaTestScriptBase):
             """ % {'error_message': _(config.Messages.INVALID_PRODUCT_CODE) % {"code":"ig"}}
         self.runScript(script)
 
-    def testDeliveryDistrict(self):
+    def testDeliveryDistrictReceived(self):
         #Should record a SupplyPointStatus and send out a notification to all the District's sub-facilities.
 
         contact = register_user(self, "32345", "RandR Tester")
-        sp = contact.supply_point
 
         # submitted successfully
         translation.activate("en")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
         contact.supply_point = sp
         contact.save()
+
+        contact = register_user(self, "32346", "Person 1", "d30701", "CHAUME DISP")
+        contact = register_user(self, "32347", "Person 2", "d31049", "CHIDEDE DISP")
 
         script = """
           32345 > nimepokea
@@ -94,12 +100,37 @@ class TestDelivery(TanzaniaTestScriptBase):
                                                                                     "facility_name":"TANDAHIMBA"}}
         self.runScript(script)
 
-#        sps = SupplyPointStatus.objects.filter(supply_point=sp,
-#                                         status_type="rr_dist").order_by("-status_date")[0]
-#
-#        self.assertEqual(SupplyPointStatusValues.SUBMITTED, sps.status_value)
-#        self.assertEqual(SupplyPointStatusTypes.R_AND_R_DISTRICT, sps.status_type)
+        sps = SupplyPointStatus.objects.filter(supply_point=sp,
+                                         status_type="del_dist").order_by("-status_date")[0]
 
+        self.assertEqual(SupplyPointStatusValues.RECEIVED, sps.status_value)
+        self.assertEqual(SupplyPointStatusTypes.DELIVERY_DISTRICT, sps.status_type)
 
+        for child in sp.children():
+            for c in child.active_contact_set:
+                self.assertEqual(Message.objects.filter(contact=c).count(), 2)
+                msg = Message.objects.filter(contact=c).order_by("-date")[0]
+                self.assertEqual(msg.text, config.Messages.DELIVERY_CONFIRM_CHILDREN % {"district_name":"TANDAHIMBA"})
+
+    def testDeliveryDistrictNotReceived(self):
+        contact = register_user(self, "32345", "RandR Tester")
+
+        # submitted successfully
+        translation.activate("sw")
+        sp = SupplyPoint.objects.get(name="TANDAHIMBA")
+        contact.supply_point = sp
+        contact.save()
+
+        script = """
+          32345 > sijapokea
+          32345 < %(submitted_message)s
+        """ % {'submitted_message': _(config.Messages.NOT_DELIVERED_CONFIRM)}
+        self.runScript(script)
+
+        sps = SupplyPointStatus.objects.filter(supply_point=sp,
+                                         status_type="del_dist").order_by("-status_date")[0]
+
+        self.assertEqual(SupplyPointStatusValues.NOT_RECEIVED, sps.status_value)
+        self.assertEqual(SupplyPointStatusTypes.DELIVERY_DISTRICT, sps.status_type)
 
 

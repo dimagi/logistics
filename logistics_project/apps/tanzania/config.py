@@ -170,7 +170,9 @@ class Messages(object):
     DELIVERY_CONFIRM = "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
     DELIVERY_PARTIAL_CONFIRM = "To record a delivery, respond with \"delivered product amount product amount...\""
 
-    DELIVERY_CONFIRM_DISTRICT = 'Thank you %(contact_name)s for reporting your delivery for %(facility_name)s'
+    DELIVERY_CONFIRM_DISTRICT = "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
+    #TODO This doesn't look right
+    DELIVERY_CONFIRM_CHILDREN = "Sending alert to all facilities under %(district_name)s that they received delivery from from MSD"
 
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."

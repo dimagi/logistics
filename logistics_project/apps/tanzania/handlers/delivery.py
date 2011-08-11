@@ -23,6 +23,12 @@ class DeliveryHandler(KeywordHandler):
     """
     keyword = "delivered|dlvd|nimepokea"
 
+    def _send_delivery_alert_to_facilities(self, sp):
+        for child in sp.children():
+            for c in child.active_contact_set:
+                c.message(config.Messages.DELIVERY_CONFIRM_CHILDREN,
+                                   district_name="TANDAHIMBA")
+
     @logistics_contact_required()
     def help(self):
         contact = self.msg.logistics_contact
@@ -33,6 +39,7 @@ class DeliveryHandler(KeywordHandler):
                                      status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
                                      status_value=SupplyPointStatusValues.RECEIVED,
                                      status_date=datetime.utcnow())
+            self._send_delivery_alert_to_facilities(sp)
             self.respond(_(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":contact.name,
                                                                          "facility_name":sp.name})
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
