@@ -28,11 +28,22 @@ class DeliveryHandler(KeywordHandler):
         contact = self.msg.logistics_contact
         sp = self.msg.logistics_contact.supply_point
 
-        SupplyPointStatus.objects.create(supply_point=sp,
-                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
-                                 status_value=SupplyPointStatusValues.RECEIVED,
-                                 status_date=datetime.utcnow())
-        self.respond(_(config.Messages.DELIVERY_PARTIAL_CONFIRM))
+        if sp.type.code.lower() == config.SupplyPointCodes.DISTRICT:
+            SupplyPointStatus.objects.create(supply_point=sp,
+                                     status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
+                                     status_value=SupplyPointStatusValues.RECEIVED,
+                                     status_date=datetime.utcnow())
+            self.respond(_(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":contact.name,
+                                                                         "facility_name":sp.name})
+        elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
+            SupplyPointStatus.objects.create(supply_point=sp,
+                                     status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                     status_value=SupplyPointStatusValues.RECEIVED,
+                                     status_date=datetime.utcnow())
+            self.respond(_(config.Messages.DELIVERY_PARTIAL_CONFIRM))
+        else:
+            # TODO be graceful
+            raise Exception("bad location type: %s" % sp.type.name)
 
     @logistics_contact_required()
     def handle(self, text):

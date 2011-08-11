@@ -16,7 +16,7 @@ class SupplyPointStatusValues(object):
     
 class SupplyPointStatusTypes(object):
     DELIVERY_FACILITY = "del_fac"
-    DELIVER_DISTRICT = "del_dist"
+    DELIVERY_DISTRICT = "del_dist"
     R_AND_R_FACILITY = "rr_fac"
     R_AND_R_DISTRICT = "rr_dist"
     SOH_FACILITY = "soh_fac"
@@ -30,7 +30,7 @@ class SupplyPointStatusTypes(object):
                             SupplyPointStatusValues.RECEIVED: "Delivery received",
                             SupplyPointStatusValues.QUANTITIES_REPORTED: "Delivery quantities reported",
                             SupplyPointStatusValues.NOT_RECEIVED: "Delivery Not Received"},
-        DELIVER_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
+        DELIVERY_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                            SupplyPointStatusValues.RECEIVED: "Delivery received",
                            SupplyPointStatusValues.NOT_RECEIVED: "Delivery not received"},
         R_AND_R_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting R&R sent confirmation",

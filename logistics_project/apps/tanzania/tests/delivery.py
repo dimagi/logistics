@@ -7,6 +7,7 @@ from django.utils import translation
 from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
+from datetime import datetime
 
 class TestDelivery(TanzaniaTestScriptBase):
         
@@ -74,6 +75,31 @@ class TestDelivery(TanzaniaTestScriptBase):
             """ % {'error_message': _(config.Messages.INVALID_PRODUCT_CODE) % {"code":"ig"}}
         self.runScript(script)
 
-    #def testDeliveryFacility
-    #TODO should record a SupplyPointStatus and send out a notification to all the District's sub-facilities.
+    def testDeliveryDistrict(self):
+        #Should record a SupplyPointStatus and send out a notification to all the District's sub-facilities.
+
+        contact = register_user(self, "32345", "RandR Tester")
+        sp = contact.supply_point
+
+        # submitted successfully
+        translation.activate("en")
+        sp = SupplyPoint.objects.get(name="TANDAHIMBA")
+        contact.supply_point = sp
+        contact.save()
+
+        script = """
+          32345 > nimepokea
+          32345 < %(submitted_message)s
+        """ % {'submitted_message': _(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":"RandR Tester",
+                                                                                    "facility_name":"TANDAHIMBA"}}
+        self.runScript(script)
+
+#        sps = SupplyPointStatus.objects.filter(supply_point=sp,
+#                                         status_type="rr_dist").order_by("-status_date")[0]
+#
+#        self.assertEqual(SupplyPointStatusValues.SUBMITTED, sps.status_value)
+#        self.assertEqual(SupplyPointStatusTypes.R_AND_R_DISTRICT, sps.status_type)
+
+
+
 
