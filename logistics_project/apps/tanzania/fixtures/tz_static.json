@@ -321,29 +321,5 @@
             "type": 11, 
             "description": "Oral Rehydration Salts"
         }
-    }, 
-    {
-        "pk": 16, 
-        "model": "logistics.productreporttype", 
-        "fields": {
-            "code": "soh", 
-            "name": "Stock on hand"
-        }
-    }, 
-    {
-        "pk": 17, 
-        "model": "logistics.productreporttype", 
-        "fields": {
-            "code": "dlvd", 
-            "name": "Delivery"
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "logistics.productreporttype", 
-        "fields": {
-            "code": "la", 
-            "name": "Lost/Adjusted"
-        }
-    }
+    } 
 ]
