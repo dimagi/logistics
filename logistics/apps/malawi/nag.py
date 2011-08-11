@@ -186,7 +186,6 @@ def nag_hsas_rec():
 
 
 def send_nag_messages(warnings):
-    print warnings
     for w in warnings:
         for hsa in w["hsas"]:
             
