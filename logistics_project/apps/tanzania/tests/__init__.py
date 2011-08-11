@@ -12,3 +12,4 @@ from .yes import *
 from .randr import *
 from .language import *
 from .stockinquiry import *
+from .messageinitiator import *

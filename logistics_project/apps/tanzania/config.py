@@ -154,6 +154,7 @@ class Messages(object):
     SUPERVISION_HELP = "Supervision reminders will come monthly, and you can respond 'supervision yes' if you have received supervision or 'supervision no' if you have not"
     SUPERVISION_CONFIRM_NO = 'You have reported that you have not yet received supervision this month.'
     SUPERVISION_CONFIRM_YES = 'Thank you for reporting that you have received supervision this month.'
+    SUPERVISION_REMINDER = "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
     
     # yes
     YES_HELP = 'If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\"'
@@ -169,8 +170,10 @@ class Messages(object):
     DELIVERY_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'delivered product amount product amount'"
     DELIVERY_CONFIRM = "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
     DELIVERY_PARTIAL_CONFIRM = "To record a delivery, respond with \"delivered product amount product amount...\""
-
+    DELIVERY_REMINDER_FACILITY = "Did you receive your delivery yet? Please reply 'delivered <product> <amount> <product> <amount>...'"
+    DELIVERY_REMINDER_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     DELIVERY_CONFIRM_DISTRICT = "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
+    DELIVERY_LATE_DISTRICT = "Facility deliveries for group %(group_name)s (out of %(group_total)d): %(not_responded_count)d haven't responded and %(not_received_count)d have reported not receiving. See ilsgateway.com"
     #TODO This doesn't look right
     DELIVERY_CONFIRM_CHILDREN = "Sending alert to all facilities under %(district_name)s that they received delivery from from MSD"
 
@@ -180,6 +183,8 @@ class Messages(object):
     # submitted         
     SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
     SUBMITTED_PARTIAL_CONFIRM = "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
+    SUBMITTED_REMINDER_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
+    SUBMITTED_REMINDER_DISTRICT= "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
 
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
@@ -204,6 +209,7 @@ class Messages(object):
     #test handler
     TEST_HANDLER_HELP = "To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
     TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
+    TEST_HANDLER_CONFIRM = "Sent"
 
     # "register" keyword (hsa registration)
     HSA_HELP = "Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'"
