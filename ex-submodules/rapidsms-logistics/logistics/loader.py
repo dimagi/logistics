@@ -137,7 +137,7 @@ def init_test_location_and_supplypoints():
                                                   code='gar')
     location.set_parent(gar)
     try:
-        country = Location.objects.get(code__icontains=settings.COUNTRY)
+        country = Location.objects.get(code=settings.COUNTRY)
     except Location.DoesNotExist:
         country, created = Location.objects.get_or_create(code=settings.COUNTRY, 
                                                           name=settings.COUNTRY)
