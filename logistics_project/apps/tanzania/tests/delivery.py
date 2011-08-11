@@ -18,8 +18,11 @@ class TestDelivery(TanzaniaTestScriptBase):
         ProductStock.objects.all().delete()
         Contact.objects.all().delete()
         Message.objects.all().delete()
+
+    def tearDown(self):
+        super(TestDelivery, self).tearDown()
         
-    def testDeliveryReceivedNoQuantitiesReported(self):
+    def testDeliveryFacilityReceivedNoQuantitiesReported(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")
 
@@ -36,7 +39,7 @@ class TestDelivery(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusValues.RECEIVED, sps.status_value)
         self.assertEqual(SupplyPointStatusTypes.DELIVERY_FACILITY, sps.status_type)
 
-    def testDeliveryReceivedQuantitiesReported(self):
+    def testDeliveryFacilityReceivedQuantitiesReported(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")
         add_products(contact, ["id", "dp", "ip"])
@@ -51,7 +54,7 @@ class TestDelivery(TanzaniaTestScriptBase):
             self.assertEqual(contact.supply_point, ps.supply_point)
             self.assertTrue(0 != ps.quantity)
 
-    def testDeliveryNotReceived(self):
+    def testDeliveryFacilityNotReceived(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")
 
@@ -68,7 +71,7 @@ class TestDelivery(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusValues.NOT_RECEIVED, sps.status_value)
         self.assertEqual(SupplyPointStatusTypes.DELIVERY_FACILITY, sps.status_type)
 
-    def testDeliveryReportError(self):
+    def testDeliveryFacilityReportProductError(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")
         add_products(contact, ["id", "dp", "ip"])
