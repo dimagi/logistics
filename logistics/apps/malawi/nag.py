@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 import os
+import pprint
 from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact
 from logistics.apps.logistics.models import ProductReport, ProductReportType, SupplyPoint,\
@@ -66,26 +67,30 @@ def nag_hsas_soh(since, location=None):
         hsa_first_warnings = hsas - set(x.supply_point for x in nags_in_range)
         
     if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING):
-        # everyone who hasn't gotten a nag level 2 or higher
+        # everyone who hasn't gotten a nag level 2 or higher, but has gotten a first
         hsa_second_warnings = hsas.intersection(x.supply_point for x in \
-                                                nags_in_range.exclude(warning__gte=2))
-                    
+                                                nags_in_range.filter(warning=1)) - \
+                              set(x.supply_point for x in nags_in_range.filter(warning__gte=2))
+
     if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
                                DAYS_BETWEEN_SECOND_AND_THIRD_WARNING):
-        # everyone who hasn't gotten a nag level 3 or higher,
-        # minus the folks only getting level 2
+        # everyone who hasn't gotten a nag level 3 or higher, but has gotten a second.
         hsa_third_warnings = hsas.intersection(x.supply_point for x in \
-                                               nags_in_range.exclude(warning__gte=3)) \
-                                - hsa_second_warnings
+                                               nags_in_range.filter(warning=2)) - \
+                             set(x.supply_point for x in nags_in_range.filter(warning__gte=3))
     if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
                                DAYS_BETWEEN_SECOND_AND_THIRD_WARNING + DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING):
         
-        # everyone who hasn't gotten a nag level 4 or higher,
-        # minus the folks only getting levels 2 or 3
+        # everyone who hasn't gotten a nag level 4 or higher, but has gotten a third.
         hsa_fourth_warnings = hsas.intersection(x.supply_point for x in \
-                                                nags_in_range.exclude(warning__gte=4)) \
-                                - hsa_second_warnings - hsa_third_warnings
-        
+                                                nags_in_range.filter(warning=3)) - \
+                              set(x.supply_point for x in nags_in_range.filter(warning__gte=4))
+
+    # These should never fail.
+    assert(hsa_first_warnings.intersection(hsa_second_warnings) == set())
+    assert(hsa_second_warnings.intersection(hsa_third_warnings) == set())
+    assert(hsa_third_warnings.intersection(hsa_fourth_warnings) == set())
+
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
@@ -114,8 +119,9 @@ def nag_hsas_soh(since, location=None):
              'flag_supervisor': True,
              'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG}
             ]
-
-    send_nag_messages(warnings)
+    
+    pprint.pprint(warnings)
+#    send_nag_messages(warnings)
 
 def nag_hsas_rec():
     """
@@ -154,7 +160,8 @@ def nag_hsas_rec():
     hsa_third_warnings = _get_hsas_ready_for_nag(third_warning_time, 
                                                  extra_filter_params={"warning__gte": 3}) \
                                 - hsa_first_warnings - hsa_second_warnings
-    
+
+
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
@@ -181,6 +188,7 @@ def nag_hsas_rec():
 
 
 def send_nag_messages(warnings):
+    print warnings
     for w in warnings:
         for hsa in w["hsas"]:
             
