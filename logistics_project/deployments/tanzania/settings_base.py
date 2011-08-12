@@ -15,7 +15,7 @@ APPS = [
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard",       "Dashboard"),
 #    ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
-#    ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
+    ("logistics.views.dashboard",       "Facilities"),
 #    ("logistics_project.apps.malawi.views.help",       "Help"),
 #    ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
 #    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
@@ -61,7 +61,7 @@ LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
-COUNTRY = "tanzania"
+COUNTRY = "MOHSW-MOHSW"
 TIME_ZONE="Africa/Maputo"
 COUNTRY_DIALLING_CODE = 265
 
