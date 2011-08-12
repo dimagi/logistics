@@ -25,7 +25,7 @@ class App(AppBase):
                 "To use the migration app, you must add a migration " +\
                 "backend named 'migration' to your INSTALLED_BACKENDS")
 
-
+    
     @property
     def backend(self):
         return self.router.backends["migration"]
@@ -38,11 +38,9 @@ class App(AppBase):
             post.get("identity", None),
             post.get("text", ""),
             timestamp)
-        print "got message! %s" % msg
         return True
     
     def ajax_GET_status(self, get):
         # this method does nothing, but can be used to check if the router 
         # is running
-        print "status"
         return ""
