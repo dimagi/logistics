@@ -1,7 +1,7 @@
 from logistics_project.apps.tanzania import loader
 from logistics_project.apps.malawi.tests.base import OutputtingTestScript
 import os
-
+from django.conf import settings
 
 class TanzaniaTestScriptBase(OutputtingTestScript):
     """
@@ -10,9 +10,12 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
     fixtures = ["tz_static.json", ]
     # this is so the paths line up
     output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
+    settings.STATIC_LOCATIONS = "%s%s" % (settings.STATIC_LOCATIONS[:-4], "_test.csv")
     
     def setUp(self):
         super(TanzaniaTestScriptBase, self).setUp()
+
+        print settings.STATIC_LOCATIONS
         loader.init_static_data()
         
                             
