@@ -83,11 +83,11 @@ class Command(BaseCommand):
             with open(message_file) as f:
                 reader = csv.reader(f, delimiter=',', quotechar='"')
                 count = 0
-                max = 100
+                max = 9999999999
                 for row in reader:
                     pk1, pk2, pk3, dir, timestamp, text, phone = row
                     if dir == "I":
-                        print "%s: %s (%s)" % (phone, text, timestamp)
+                        #print "%s: %s (%s)" % (phone, text, timestamp)
                         count = count + 1
                         try:
                             utils.send_test_message(identity=phone,
@@ -99,9 +99,12 @@ class Command(BaseCommand):
                             print e.response
                             raise
                             
-
+                        if count % 100 == 0:
+                            print "processed %s messages." % count
+                    
                     if count >= max:
                         break
+            print "processed %s incoming messages" % count
             pass
         
         def check_router():
