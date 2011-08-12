@@ -17,6 +17,7 @@ from logistics.reports import ReportingBreakdown,\
 from dimagi.utils.dates import DateSpan
 from logistics.config import messagelog
 import logging
+from rapidsms.models import Contact
 Message = messagelog.models.Message
 register = template.Library()
 
@@ -184,12 +185,12 @@ def recent_messages(contact, limit=5):
 @register.simple_tag
 def product_availability_summary(location):
     if not location:
-        pass # TODO: probably want to disable this if things get slow
-        #return '<p class="notice">To view the product availability summary, first select a district.</p>'
-    logging.error("FIXME: no hsa references here anymore" )
-    # hsas = hsas_below(location)
-    hsas = []
-    summary = ProductAvailabilitySummary(hsas)
+        # TODO: probably want to disable this if things get slow
+        contacts = Contact.objects
+    else:
+        contacts = Contact.objects.filter(supply_point__location=location)
+    
+    summary = ProductAvailabilitySummary(contacts)
     return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
