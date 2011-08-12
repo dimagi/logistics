@@ -32,7 +32,8 @@ class StockOnHandHandler(KeywordHandler):
         stock_report = create_stock_report(Reports.SOH,  
                                            sp,
                                            text, 
-                                           self.msg.logger_msg)
+                                           self.msg.logger_msg,
+                                           self.msg.timestamp)
         
         if stock_report.errors:
             self.respond(_(config.Messages.SOH_BAD_FORMAT))

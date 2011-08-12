@@ -26,7 +26,8 @@ class LostAdjusted(KeywordHandler):
         stock_report = create_stock_report(Reports.LOSS_ADJUST,  
                                            sp,
                                            text, 
-                                           self.msg.logger_msg)
+                                           self.msg.logger_msg,
+                                           timestamp=self.msg.timestamp)
         
         if stock_report.errors:
             self.respond(_(config.Messages.LOSS_ADJUST_BAD_FORMAT))
