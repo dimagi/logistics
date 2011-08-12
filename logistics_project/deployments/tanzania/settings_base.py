@@ -9,6 +9,7 @@ APPS = [
     # commented out until fixed
     #"logistics_project.apps.ilsgateway",
     "logistics_project.apps.tanzania",
+    "logistics_project.apps.migration",
 ]
 
 RAPIDSMS_TABS = [
@@ -27,6 +28,10 @@ INSTALLED_BACKENDS = {
     # tester
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
+    },
+    # message migration
+    "migration": {
+        "ENGINE": "logistics_project.apps.migration.backends.migration",
     },
 }
 
