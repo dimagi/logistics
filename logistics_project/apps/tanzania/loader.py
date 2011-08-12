@@ -31,6 +31,12 @@ def create_location_and_sp_types():
         count += 1
     print "Created %d loc types." % count
 
+def _get_code(type, name):
+    def clean(string):
+        for char in " /\+_":
+            string = string.replace(char, "-")
+        return string 
+    return "%s-%s" % (clean(type), clean(name))
 
 def load_locations(path):
     info("Loading locations %s"  % (path))
@@ -57,7 +63,7 @@ def load_locations(path):
             if point:  kwargs["point"] = point
             
             l = Location.objects.create(name=name,
-                                        code=msd_code if msd_code else "%s-%s" % (type, name),
+                                        code=msd_code if msd_code else _get_code(type, name),
                                         type=loc_type,
                                         is_active=string_to_boolean(is_active),
                                         **kwargs)
