@@ -16,5 +16,6 @@ class NotSubmitted(KeywordHandler):
     def handle(self, text):
         SupplyPointStatus.objects.create(status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                          status_value=SupplyPointStatusValues.NOT_SUBMITTED,
-                                         supply_point=self.msg.logistics_contact.supply_point)
+                                         supply_point=self.msg.logistics_contact.supply_point,
+                                         status_date=self.msg.timestamp)
         self.respond(_(config.Messages.NOT_SUBMITTED_CONFIRM))

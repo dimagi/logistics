@@ -36,9 +36,9 @@ class DeliveryHandler(KeywordHandler):
 
         if sp.type.code.lower() == config.SupplyPointCodes.DISTRICT:
             SupplyPointStatus.objects.create(supply_point=sp,
-                                     status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
-                                     status_value=SupplyPointStatusValues.RECEIVED,
-                                     status_date=datetime.utcnow())
+                                             status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
+                                             status_value=SupplyPointStatusValues.RECEIVED,
+                                             status_date=self.msg.timestamp)
             self._send_delivery_alert_to_facilities(sp)
             self.respond(_(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":contact.name,
                                                                          "facility_name":sp.name})

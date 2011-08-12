@@ -39,7 +39,8 @@ class StockOut(KeywordHandler):
         stock_report = create_stock_report(Reports.SOH,  
                                            self.msg.logistics_contact.supply_point,
                                            fake_report_text,
-                                           self.msg.logger_msg)
+                                           self.msg.logger_msg,
+                                           self.msg.timestamp)
         
         kwargs = {'contact_name': self.msg.logistics_contact.name,
                   'facility_name': self.msg.logistics_contact.supply_point.name,

@@ -23,13 +23,15 @@ class Supervision(KeywordHandler):
             SupplyPointStatus.objects.create\
                 (status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                  status_value=SupplyPointStatusValues.NOT_RECEIVED,
-                 supply_point=self.msg.logistics_contact.supply_point)
+                 supply_point=self.msg.logistics_contact.supply_point,
+                 status_date=self.msg.timestamp)
             self.respond(_(config.Messages.SUPERVISION_CONFIRM_NO))
         elif re.match("ndi", sub_command) or re.match("yes", sub_command):
             SupplyPointStatus.objects.create\
                 (status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                  status_value=SupplyPointStatusValues.RECEIVED,
-                 supply_point=self.msg.logistics_contact.supply_point)
+                 supply_point=self.msg.logistics_contact.supply_point,
+                 status_date=self.msg.timestamp)
             self.respond(_(config.Messages.SUPERVISION_CONFIRM_YES))
         else:
             self.help()

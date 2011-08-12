@@ -27,5 +27,6 @@ class NotDelivered(KeywordHandler):
 
         SupplyPointStatus.objects.create(status_type=st,
                                          status_value=SupplyPointStatusValues.NOT_RECEIVED,
-                                         supply_point=sp)
+                                         supply_point=sp,
+                                         status_date=self.msg.timestamp)
         self.respond(_(config.Messages.NOT_DELIVERED_CONFIRM))

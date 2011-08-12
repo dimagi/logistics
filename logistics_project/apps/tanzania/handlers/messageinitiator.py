@@ -37,7 +37,7 @@ class MessageInitiator(KeywordHandler):
             SupplyPointStatus.objects.create(supply_point=sp_target,
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
-                                             status_date=datetime.utcnow())
+                                             status_date=self.msg.timestamp)
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["soh", "hmk"]:
             raise Exception("This handler command hasn't been implemented yet")
