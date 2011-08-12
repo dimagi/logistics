@@ -24,7 +24,6 @@ from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.const import Reports
 from logistics.util import config, parse_report
-from django.conf import settings
 if hasattr(settings, "MESSAGE_CLASS"):
     message_class = settings.MESSAGE_CLASS
 else:
@@ -928,7 +927,7 @@ class ProductReportsHelper(object):
     """
     REC_SEPARATOR = '-'
 
-    def __init__(self, sdp, report_type, message=None):
+    def __init__(self, sdp, report_type, message=None, timestamp=None):
         self.product_stock = {}
         self.consumption = {}
         self.product_received = {}
@@ -937,6 +936,7 @@ class ProductReportsHelper(object):
         self.supply_point = sdp
         self.message = message
         self.report_type = report_type
+        self.timestamp = timestamp if timestamp else datetime.utcnow()
         self.errors = []
 
     def _clean_string(self, string):
@@ -993,7 +993,11 @@ class ProductReportsHelper(object):
             return
         vals = parse_report(string)
         for code, amt in vals:
-            self.add_product_stock(code.lower(), amt)
+            try:
+                self.add_product_stock(code.lower(), amt)
+            except ValueError, e:
+                self.errors.append(e)
+                
                         
     def parse(self, string):
         """
@@ -1108,7 +1112,8 @@ class ProductReportsHelper(object):
     def _record_product_report(self, product, quantity, report_type):
         report_type = ProductReportType.objects.get(code=report_type)
         self.supply_point.report(product=product, report_type=report_type,
-                                 quantity=quantity, message=self.message)
+                                 quantity=quantity, message=self.message, 
+                                 date=self.timestamp)
 
     def _record_product_stock(self, product_code, quantity):
         self._record_product_report(product_code, quantity, Reports.SOH)
@@ -1221,13 +1226,13 @@ def get_geography():
     in order to assess the whole geography that we're handling
     """
     try:
-        return Location.objects.get(code=settings.COUNTRY)
+        return Location.objects.get(code__iexact=settings.COUNTRY)
     except ValueError:
         raise UnknownLocationCodeError("Invalid COUNTRY defined in settings.py. Please choose one that matches the code of a registered location.")
     except Location.MultipleObjectsReturned:
         raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
     except Location.DoesNotExist:
-        raise Location.MultipleObjectsReturned("The COUNTRY specified in settings.py does not exist.")
+        raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)
 
