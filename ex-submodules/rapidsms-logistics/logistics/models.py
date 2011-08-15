@@ -179,7 +179,7 @@ class SupplyPointBase(models.Model):
         productstock.save()
         return productstock
 
-    def stock(self, product):
+    def _get_product_stock(self, product):
         try:
             productstock = ProductStock.objects.get(supply_point=self,
                                                     product=product)
@@ -187,7 +187,16 @@ class SupplyPointBase(models.Model):
             return 0
         if productstock.quantity == None:
             return 0
-        return productstock.quantity
+        return productstock
+
+    def stock(self, product):
+        productstock = _get_product_stock(self, product)
+        return productstock.quantity if productstock else 0
+
+    def months_of_stock(self, product):
+        productstock = _get_product_stock(self, product)
+        return productstock.months_remaining() if productstock else 0
+
 
     def record_consumption_by_code(self, product_code, rate):
         ps = ProductStock.objects.get(product__sms_code=product_code, supply_point=self)

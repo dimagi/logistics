@@ -216,3 +216,7 @@ def commodity_code_to_name(code):
 @register.simple_tag
 def stock(supply_point, product):
     return supply_point.stock(product)
+
+@register.simple_tag
+def months_of_stock(supply_point, product):
+    return supply_point.stock(product)
