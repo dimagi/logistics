@@ -66,5 +66,5 @@ class StockOnHandHandler(KeywordHandler):
             SupplyPointStatus.objects.create(supply_point=sp, 
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
-                                             status_date=datetime.utcnow())
+                                             status_date=self.msg.timestamp)
             
