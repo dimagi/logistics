@@ -1,16 +1,5 @@
 {% if commodities|length > 1 %}
 {% load i18n %}
-{% block javascripts %}{{ block.super }}
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $(document).ready(function(){
-        $(":radio[name='commodity']").click(function() {
-              $("#commodity_form").submit();
-        });
-    });
-    //--><!]]>
-</script>
-{% endblock %}
 
 <form id="commodity_form" method="GET">
     {%  csrf_token %}
@@ -29,4 +18,15 @@
     <br>
     {% endfor %}
 </form>
+
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commodity']").click(function() {
+              $("#commodity_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+
 {% endif %}

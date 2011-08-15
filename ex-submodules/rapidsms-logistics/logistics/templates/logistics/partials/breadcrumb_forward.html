@@ -1,16 +1,4 @@
 {% load geonav_tags %}
-{% block javascripts %}{{block.super}}
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $(document).ready(function(){
-        $("#zoom_select").change(function(event) {
-            $("#zoom_form > #location").val(event.currentTarget.value);
-            $("#zoom_form").submit();
-        });
-    });
-    //--><!]]>
-</script>
-{% endblock %}
 
 {% if location.get_children %}
     <form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
@@ -30,3 +18,14 @@
 {% endif %}
 
 <div style="clear:both"></div>
+
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $("#zoom_select").change(function(event) {
+            $("#zoom_form > #location").val(event.currentTarget.value);
+            $("#zoom_form").submit();
+        });
+    });
+    //--><!]]>
+</script>

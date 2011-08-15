@@ -1,4 +1,10 @@
-{% block javascripts %}{{ block.super }}
+{% load geonav_tags %}
+<div><span id="locationselect" class="noprint" onclick="$('#side').animate({height:'toggle'},350);">Select Location</span></div>
+<div id="side" style="display:none;" class="noprint">
+    <ul class="accordion">
+        {% render_nav geography location %}
+    </ul></div>
+
 <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/expand.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.nestedAccordion.js"></script>
 <script type="text/javascript">
@@ -13,10 +19,3 @@
     });
     //--><!]]>
 </script>
-{% endblock %}
-{% load geonav_tags %}
-<div><span id="locationselect" class="noprint" onclick="$('#side').animate({height:'toggle'},350);">Select Location</span></div>
-<div id="side" style="display:none;" class="noprint">
-    <ul class="accordion">
-        {% render_nav geography location %}
-    </ul></div>

@@ -7,18 +7,6 @@ REQUIRES:
 
 
 {% load geonav_tags %}
-{% block javascripts %}{{block.super}}
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $(document).ready(function(){
-        $(".location_select").change(function(event) {
-			$("#location").val(event.currentTarget.value)
-            $("#location_form").submit();
-        });
-    });
-    //--><!]]>
-</script>
-{% endblock %}
 
 <div id="topnav">
 <form style="border-style:none;" id="location_form" method="POST" action="{% url navigate %}">
@@ -29,3 +17,13 @@ REQUIRES:
 </form>
 </div>
 
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(".location_select").change(function(event) {
+			$("#location").val(event.currentTarget.value)
+            $("#location_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
