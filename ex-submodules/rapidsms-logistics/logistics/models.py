@@ -190,11 +190,11 @@ class SupplyPointBase(models.Model):
         return productstock
 
     def stock(self, product):
-        productstock = _get_product_stock(self, product)
+        productstock = self._get_product_stock(product)
         return productstock.quantity if productstock else 0
 
     def months_of_stock(self, product):
-        productstock = _get_product_stock(self, product)
+        productstock = self._get_product_stock(product)
         return productstock.months_remaining() if productstock else 0
 
 
