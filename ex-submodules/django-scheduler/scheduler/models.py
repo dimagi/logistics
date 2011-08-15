@@ -3,8 +3,8 @@
 
 from datetime import datetime
 from django.db import models
-from fields import PickledObjectField
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR
+from scheduler.fields import JSONField, SetField
 
 # set timespans (e.g. EventSchedule.hours, EventSchedule.minutes) to 
 # ALL when we want to schedule something for every hour/minute/etc.
@@ -17,7 +17,8 @@ _TIME_FIELDS = ['minutes', 'hours', 'days_of_week',
                'days_of_month', 'months']
 
 class EventSchedule(models.Model):
-    """ create a new EventSchedule and save it every time 
+    """ 
+    Create a new EventSchedule and save it every time 
     you want to register a new event on a schedule
     we can implement one_off future events by setting count to 1 
     All timespans less than the specified one must be set
@@ -36,17 +37,17 @@ class EventSchedule(models.Model):
     # null: set db value to be Null
     description = models.CharField(max_length=255, null=True, blank=True)
 
-    # pickled set
-    callback_args = PickledObjectField(null=True, blank=True)
-    # pickled dictionary
-    callback_kwargs = PickledObjectField(null=True, blank=True)
+    # a list
+    callback_args = JSONField(null=True, blank=True)
+    # a dictionary
+    callback_kwargs = JSONField(null=True, blank=True)
     
-    # the following are pickled sets of numbers
-    months = PickledObjectField(null=True, blank=True, help_text="'1,2,3' for jan, feb, march - '*' for all")
-    days_of_month = PickledObjectField(null=True, blank=True, help_text="'1,2,3' for 1st, 2nd, 3rd - '*' for all")
-    days_of_week = PickledObjectField(null=True, blank=True, help_text="'0,1,2' for mon, tue, wed - '*' for all")
-    hours = PickledObjectField(null=True, blank=True, help_text="'0,1,2' for midnight, 1 o'clock, 2 - '*' for all")
-    minutes = PickledObjectField(null=True, blank=True, help_text="'0,1,2' for X:00, X:01, X:02 - '*' for all")
+    # the following are sets of numbers
+    months = SetField(null=True, blank=True, help_text="'1,2,3' for jan, feb, march - '*' for all")
+    days_of_month = SetField(null=True, blank=True, help_text="'1,2,3' for 1st, 2nd, 3rd - '*' for all")
+    days_of_week = SetField(null=True, blank=True, help_text="'0,1,2' for mon, tue, wed - '*' for all")
+    hours = SetField(null=True, blank=True, help_text="'0,1,2' for midnight, 1 o'clock, 2 - '*' for all")
+    minutes = SetField(null=True, blank=True, help_text="'0,1,2' for X:00, X:01, X:02 - '*' for all")
     
     start_time = models.DateTimeField(null=True, blank=True, 
                                       help_text="When do you want alerts to start? Leave blank for 'now'.")
@@ -56,14 +57,6 @@ class EventSchedule(models.Model):
     count = models.IntegerField(null=True, blank=True, 
                                 help_text="How many times do you want this to fire? Leave blank for 'continuously'")
     active = models.BooleanField(default=True)
-    
-    """
-    class Meta:
-        permissions = (
-            ("can_view", "Can view"),
-            ("can_edit", "Can edit"),
-        )
-    """
     
     # First, we must define some utility classes
     class AllMatch(set):
@@ -310,7 +303,7 @@ def set_daily_event(callback, hour, minute, callback_args):
 
 # check valid values
 def check_bounds(name, time_set, min, max):
-    if time_set!='*': # ignore AllMatch/'*'
+    if time_set != set('*'): # ignore AllMatch/'*'
         for m in time_set: # check all values in set
             if int(m) < min or int(m) > max:
                 raise TypeError("%s (%s) must be a value between %s and %s" % \

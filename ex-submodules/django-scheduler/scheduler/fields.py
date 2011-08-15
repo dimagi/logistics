@@ -1,57 +1,46 @@
 """
-A field which can store any pickleable object in the database. 
-It is database-agnostic, and should work with any database 
-backend you can throw at it.
-
-Pass in any object and it will be automagically converted 
-behind the scenes, and you never have to manually pickle or 
-unpickle anything. Also works fine when querying.
-
-http://www.djangosnippets.org/snippets/1694/ 
+A field which can store a json object in the database. 
 """
+
 from django.db import models
+from django.utils import simplejson as json
+from simplejson.decoder import JSONDecodeError
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+class JSONField(models.TextField):
+    """
+    JSONField is a generic textfield that neatly serializes/unserializes
+    JSON objects seamlessly
+    """
 
-class PickledObject(str):
-    """A subclass of string so it can be told whether a string is
-       a pickled object or not (if the object is an instance of this class
-       then it must [well, should] be a pickled one)."""
-    pass
-
-class PickledObjectField(models.TextField):
-    """ An extension of django's model Field to support pickled Python objects """
     __metaclass__ = models.SubfieldBase
-    
+
     def to_python(self, value):
-        if isinstance(value, PickledObject):
-            # If the value is a definite pickle; and an error is raised in de-pickling
-            # it should be allowed to propogate.
-            return pickle.loads(str(value))
-        else:
+        """Convert our string value to JSON after we load it from the DB"""
+        if value is not None and isinstance(value, basestring):
             try:
-                return pickle.loads(str(value))
-            except:
-                # If an error was raised, just return the plain value
-                return value
-    
-    def get_db_prep_save(self, value):
-        if value is not None and not isinstance(value, basestring):
-            value = pickle.dumps(value)
-        return super(PickledObjectField, self).get_db_prep_save(value)
-    
-    def get_db_prep_lookup(self, lookup_type, value):
-        if lookup_type == 'exact' or lookup_type == 'iexact':
-            value = self.get_db_prep_save(value)
-            return super(PickledObjectField, self).get_db_prep_lookup(lookup_type, value)
-        elif lookup_type == 'in':
-            value = [self.get_db_prep_save(v) for v in value]
-            return super(PickledObjectField, self).get_db_prep_lookup(lookup_type, value)
-        elif lookup_type == 'contains' or lookup_type == 'icontains':
-            value = self.get_db_prep_save(value)
-            return super(PickledObjectField, self).get_db_prep_lookup(lookup_type, value)
-        else:
-            raise TypeError('Lookup type %s not supported for PickledObject.' % lookup_type)
+                return json.loads(value)
+            except JSONDecodeError:
+                # it's unclear why this is getting called in the model 
+                # constructor but it is, and this catches the errors.
+                pass 
+        
+        return value
+
+    def get_prep_value(self, value):
+        """Convert our JSON object to a string before we save"""
+        value = json.dumps(value)
+        return super(JSONField, self).get_prep_value(value)
+
+class SetField(JSONField):
+    """
+    A brittle but functional set field
+    """
+    def to_python(self, value):
+        value = super(SetField, self).to_python(value)
+        if value is not None:
+            return set(value)
+        
+    def get_prep_value(self, value):
+        if isinstance(value, set):
+            return super(SetField, self).get_prep_value(list(value))
+
