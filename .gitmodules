@@ -25,3 +25,6 @@
 [submodule "submodules/rapidsms-logistics"]
 	path = submodules/rapidsms-logistics
 	url = git://github.com/dimagi/rapidsms-logistics
+[submodule "submodules/django-scheduler"]
+	path = submodules/django-scheduler
+	url = git://github.com/dimagi/django-scheduler.git
