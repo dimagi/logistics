@@ -195,3 +195,7 @@ def commodity_code_to_name(code):
         return Product.objects.get(sms_code=code).name
     except Product.DoesNotExist:
         return "Unknown Commodity"
+
+@register.simple_tag
+def stock(supply_point, product):
+    return supply_point.stock(product)
