@@ -1,0 +1,3 @@
+from djtables import Table
+
+
