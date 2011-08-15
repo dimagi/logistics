@@ -5,6 +5,7 @@ register = template.Library()
 
 @register.simple_tag
 def breadcrumbs(location):
+    if location is None: return ""
     mycrumbs = '%(display)s' % \
                 {"display": location.name}
     if location.tree_parent is not None:
