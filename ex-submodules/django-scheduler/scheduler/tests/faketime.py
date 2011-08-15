@@ -7,8 +7,8 @@ import time
 import logging
 from datetime import datetime, timedelta, MINYEAR
 from rapidsms.tests.scripted import TestScript
-import rapidsms.contrib.scheduler.app as scheduler_app
-from rapidsms.contrib.scheduler.models import EventSchedule, ALL
+import scheduler.app as scheduler_app
+from scheduler.models import EventSchedule, ALL
 
 start = datetime(MINYEAR, 1, 1, 0, 0, 0, 0 , tzinfo=None)
 sec = timedelta(seconds=1)

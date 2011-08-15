@@ -30,12 +30,12 @@ import threading
 from datetime import datetime, timedelta
 
 from rapidsms.apps.base import AppBase
-from rapidsms.contrib.scheduler.models import EventSchedule
+from .models import EventSchedule
 
 class App (AppBase):
-    """ This app provides cron-like functionality for scheduled tasks,
+    """
+    This app provides cron-like functionality for scheduled tasks,
     as defined in the django model EventSchedule
-    
     """
     bootstrapped = False
 
@@ -58,7 +58,7 @@ class App (AppBase):
            
             ajax/messaging/run_schedule
            
-\        '''
+        '''
         schedule = EventSchedule.objects.get(pk=form["schedule_pk"])
         schedule.run(self.router)
         return True

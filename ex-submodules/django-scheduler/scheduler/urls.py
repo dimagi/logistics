@@ -3,7 +3,7 @@
 
 import os
 from django.conf.urls.defaults import *
-import rapidsms.contrib.scheduler.views as views
+import .views as views
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name="scheduler"),

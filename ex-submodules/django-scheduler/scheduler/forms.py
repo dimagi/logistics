@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django import forms
-from rapidsms.contrib.scheduler.models import EventSchedule
+from .models import EventSchedule
 
 class ScheduleForm(forms.ModelForm):
     """ This form is used to edit existing schedules """

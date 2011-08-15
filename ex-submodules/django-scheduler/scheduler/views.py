@@ -12,8 +12,8 @@ from django.http import HttpResponseRedirect
 from rapidsms.utils.pagination import paginated
 from rapidsms.contrib.ajax.utils import call_router
 
-from rapidsms.contrib.scheduler.models import EventSchedule
-from rapidsms.contrib.scheduler.forms import ScheduleForm
+from .models import EventSchedule
+from .forms import ScheduleForm
 
 
 @login_required

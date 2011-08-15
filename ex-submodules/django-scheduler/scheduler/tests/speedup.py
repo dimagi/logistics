@@ -2,8 +2,8 @@ import time
 import logging
 from datetime import datetime, timedelta
 from rapidsms.tests.scripted import TestScript
-import rapidsms.contrib.scheduler.app as scheduler_app
-from rapidsms.contrib.scheduler.models import EventSchedule, ALL
+import scheduler.app as scheduler_app
+from scheduler.models import EventSchedule, ALL
 
 class TestSpeedup (TestScript):
     apps = ([scheduler_app.App])
