@@ -130,7 +130,7 @@ def init_supply_point_types():
 def init_test_location_and_supplypoints():
     from rapidsms.contrib.locations.models import Location
     hctype, created = SupplyPointType.objects.get_or_create(code="clinic")
-    rmstype, created = SupplyPointType.objects.get(code="hospital")
+    rmstype, created = SupplyPointType.objects.get_or_create(code="hospital")
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 
