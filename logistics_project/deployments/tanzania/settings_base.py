@@ -10,6 +10,7 @@ APPS = [
     #"logistics_project.apps.ilsgateway",
     "logistics_project.apps.tanzania",
     "logistics_project.apps.migration",
+    "scheduler",
 ]
 
 RAPIDSMS_TABS = [
