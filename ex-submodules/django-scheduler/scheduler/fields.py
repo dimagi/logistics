@@ -33,8 +33,11 @@ class JSONField(models.TextField):
 
 class SetField(JSONField):
     """
-    A brittle but functional set field
+    A brittle but functional set field.
+    
+    Not recommended outside the context of this app without hardening.
     """
+    
     def to_python(self, value):
         value = super(SetField, self).to_python(value)
         if value is not None:

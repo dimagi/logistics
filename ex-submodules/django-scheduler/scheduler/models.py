@@ -16,6 +16,17 @@ ALL = '*'
 _TIME_FIELDS = ['minutes', 'hours', 'days_of_week', 
                'days_of_month', 'months']
 
+
+class ExecutionRecord(models.Model):
+    """
+    Each time a scheduler fires, a record is kept for historical/auditing 
+    purposes
+    """
+    
+    schedule = models.ForeignKey("EventSchedule")
+    runtime = models.DateTimeField()
+    
+
 class EventSchedule(models.Model):
     """ 
     Create a new EventSchedule and save it every time 
@@ -30,11 +41,9 @@ class EventSchedule(models.Model):
     callback - all callback function must take as the first 
         argument a reference to a 'router' object
     """
-    # whether this schedule is active or not
     callback = models.CharField(max_length=255, 
                                 help_text="Name of Python callback function")
-    # blank: ensure django validation doesn't force a value
-    # null: set db value to be Null
+    
     description = models.CharField(max_length=255, null=True, blank=True)
 
     # a list
@@ -53,9 +62,13 @@ class EventSchedule(models.Model):
                                       help_text="When do you want alerts to start? Leave blank for 'now'.")
     end_time = models.DateTimeField(null=True, blank=True, 
                                       help_text="When do you want alerts to end? Leave blank for 'never'.")
+    last_ran = models.DateTimeField(null=True) # updated each time the scheduler runs
+    
     # how many times do we want this event to fire? optional
     count = models.IntegerField(null=True, blank=True, 
                                 help_text="How many times do you want this to fire? Leave blank for 'continuously'")
+    
+    # whether this schedule is active or not
     active = models.BooleanField(default=True)
     
     # First, we must define some utility classes
@@ -104,10 +117,6 @@ class EventSchedule(models.Model):
         for time in _TIME_FIELDS:
             if getattr(self, time) is None: 
                 setattr(self,time, set())
-    
-    # TODO: define these helper functions
-    # def set_daily(self):
-    # def set_weekly(self): etc.
     
     @staticmethod
     def validate(months, days_of_month, days_of_week, hours, minutes):
@@ -161,14 +170,6 @@ class EventSchedule(models.Model):
         check_bounds('Months', months, 1, 12)
         
     def save(self, *args, **kwargs):
-        """
-        
-        TODO - still need to fix this so that creating a schedule
-        in the ui, saving it, editing it, saving it, editing it continues to work
-        with callback_args, kwargs, and different timespans
-        (currently fails because set([1,2]) -> a string)
-        """
-        
         # transform all the input into known data structures
         for time in _TIME_FIELDS:
             val = getattr(self, time)
@@ -253,55 +254,46 @@ class EventSchedule(models.Model):
             return True
         return False
 
-    def run(self, router):
+    def execute(self):
+        """
+        Executes the referenced function and returns the results
+        """
+        # TODO: make this less brittle if imports or args don't line up
         module, callback = self.callback.rsplit(".", 1)
         module = __import__(module, globals(), locals(), [callback])
         callback = getattr(module, callback)
-        if self.callback_args and self.callback_kwargs:
-            callback(router, *self.callback_args, **self.callback_kwargs)
-        elif self.callback_args:
-            callback(router, *self.callback_args)
-        elif self.callback_kwargs:
-            callback(router, **self.callback_kwargs)
-        else:
-            callback(router)
+        args = self.callback_args or []
+        kwargs = self.callback_kwargs or {}
+        return callback(*args, **kwargs)
+        
+    def record_execution(self, asof):
         if self.count:
             self.count = self.count - 1
             # should we delete expired schedules? we do now.
             if self.count <= 0: 
-                self.deactivate()
-            else: self.save()
+                self.active = False
         # should we delete expired schedules? we do now.
         if self.end_time:
-            if datetime.now() > self.end_time:
-                self.deactivate()
+            if asof > self.end_time:
+                self.active = False
+        self.last_ran = asof
+        self.save()
+        ExecutionRecord.objects.create(schedule=self,
+                                       runtime=asof)
         
+    def run(self, asof):
+        """
+        Runs the schedule, update the model appropriately, return the results. 
+        """
+        ret = self.execute()
+        self.record_execution(asof)
+        return ret
+
+    
 ############################
 # global utility functions #
 ############################
 
-def set_monthly_event(callback, day, hour, minute, callback_args=None):
-    # relies on all the built-in checks in EventSchedule.save()
-    schedule = EventSchedule(callback=callback, hours=set([hour]), \
-                             days_of_month=set([day]), minutes=set([minute]), \
-                             callback_args=callback_args )
-    schedule.save()
-
-def set_weekly_event(callback, day, hour, minute, callback_args=None):
-    # relies on all the built-in checks in EventSchedule.save()
-    schedule = EventSchedule(callback=callback, hours=set([hour]), \
-                             days_of_week=set([day]), minutes=set([minute]), \
-                             callback_args=callback_args )
-    schedule.save()
-
-def set_daily_event(callback, hour, minute, callback_args):
-    # relies on all the built-in checks in EventSchedule.save()
-    schedule = EventSchedule(callback=callback, hours=set([hour]), \
-                             minutes=set([minute]), \
-                             callback_args=callback_args )
-    schedule.save()
-
-# check valid values
 def check_bounds(name, time_set, min, max):
     if time_set != set('*'): # ignore AllMatch/'*'
         for m in time_set: # check all values in set

@@ -31,6 +31,7 @@ from datetime import datetime, timedelta
 
 from rapidsms.apps.base import AppBase
 from .models import EventSchedule
+from scheduler.schedules import get_relevant_schedules
 
 class App (AppBase):
     """
@@ -94,13 +95,13 @@ class SchedulerThread (threading.Thread):
     def scheduler_loop(self, interval=60):
         now = datetime.now()
         while not self.stopped():
-            event_schedules = EventSchedule.objects.filter(active=True)
+            
+            event_schedules = get_relevant_schedules(now)
             for schedule in event_schedules:
                 try:
-                    if schedule.should_fire(now):
-                        # call the callback function
-                        # possibly passing in args and kwargs
-                        schedule.run(self._router)
+                    # call the callback function
+                    # possibly passing in args and kwargs
+                    schedule.run(self._router)
                 except Exception, e:
                     # Don't prevent exceptions from killing the thread
                     exc_type, exc_value, exc_traceback = sys.exc_info()
