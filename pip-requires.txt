@@ -10,7 +10,7 @@ python-dateutil==1.5
 pytz==2010b
 virtualenv==1.4.5
 django-celery
-djkombu
+django-kombu
 django-registration
 couchdbkit>=0.5.4
 supervisor
