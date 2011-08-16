@@ -5,10 +5,6 @@ import os
 import csv
 from logistics.models import ContactRole, SupplyPoint
 from logistics_project.apps.tanzania.loader import init_static_data
-from couchdb.client import Row
-from dimagi.utils.parsing import string_to_datetime
-from rapidsms.router import router
-from django.core.management import call_command
 from rapidsms.contrib.ajax.exceptions import RouterNotResponding, RouterError
 import sys
 from rapidsms.contrib.messagelog.models import Message
