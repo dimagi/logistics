@@ -87,7 +87,7 @@ LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 
-LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
+LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"
 SITE_TITLE="ILSGateway"
 BASE_TEMPLATE="tanzania/base.html"

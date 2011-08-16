@@ -3,6 +3,34 @@ from datetime import datetime
 from logistics.models import SupplyPoint
 from logistics.util import config
 
+class DeliveryGroups(object):
+    GROUPS = ('A', 'B', 'C')
+
+    # Current submitting group: Jan = A
+    # Current processing group: Jan = B
+    # Current delivering group: Jan = C
+
+    @classmethod
+    def current_submitting_group(cls, month=datetime.now().month):
+        return cls.GROUPS[(month + 2) % 3]
+
+    @classmethod
+    def current_processing_group(cls, month=datetime.now().month):
+        return cls.current_submitting_group(month=(month+1))
+
+    @classmethod
+    def current_delivering_group(cls, month=datetime.now().month):
+        return cls.current_submitting_group(month=(month+2))
+
+    @classmethod
+    def facilities_by_group(cls, month=datetime.now().month):
+        groups = {}
+        facs = SupplyPoint.objects.filter(type__code="facility")
+        groups['submitting'] = [f for f in facs if f.groups.filter(code=cls.current_submitting_group(month)).count()]
+        groups['processing'] = [f for f in facs if f.groups.filter(code=cls.current_processing_group(month)).count()]
+        groups['delivering'] = [f for f in facs if f.groups.filter(code=cls.current_delivering_group(month)).count()]
+        return groups
+
 class SupplyPointStatusValues(object):
     RECEIVED = "received"
     NOT_RECEIVED = "not_received"

@@ -8,6 +8,9 @@
 {% block content %}
 
 <div class="crumbs">{% breadcrumbs location %}</div>
+    <div class="toolbar">
+    {% include "logistics/partials/selector_form.html" %}
+    </div>
 <div style="clear:both;">&nbsp;</div>
 <p><a href="{{ previous_month_link }}">&laquo; previous month</a><span style="font-weight:bold;font-size:1.5em;"> {{ report_date|date:"F" }} {{ report_date|date:"Y" }} </span>{% if show_next_month %}<a href="{{ next_month_link }}">next month &raquo;</a>{% else %}<span style="color:gray;">next month &raquo;</span>{% endif %} </p>
 <p>Stock levels for the month prior reported between {{ start_time }} and {{ end_time }}</p>
@@ -33,7 +36,7 @@
                 {% for fac in facs %}
             <tr>
                 <td>{{ fac.code }}</td>
-                <td>{{ fac.group }}</td>
+                <td>{{ fac.groups.all|first }}</td>
                 <td>{{ fac.name }}</td>
                 {% for p in products %}
                     <td>{% stock fac p %}</td>
