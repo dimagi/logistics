@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 import re
-import math
 import logging
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -930,7 +929,7 @@ class ContactRole(models.Model):
 
 class ProductReportsHelper(object):
     """
-    The following is a helper class (doesn't touch the db) which takes in aggregate
+    The following is a helper class which takes in aggregate
     sets of reports and handles things like string parsing, aggregate validation,
     lazy UPDATE-ing, error reporting etc.
     """
@@ -989,6 +988,15 @@ class ProductReportsHelper(object):
             i = i+1
 
     
+    def clean_product_code(self, code):
+        code = code.lower()
+        if hasattr(settings, "LOGISTICS_PRODUCT_ALIASES"):
+            # support aliases for product codes.
+            if code in settings.LOGISTICS_PRODUCT_ALIASES:
+                assert(not Product.objects.filter(sms_code__iexact=code).exists()) 
+                code = settings.LOGISTICS_PRODUCT_ALIASES[code]
+        return code
+    
     def newparse(self, string, delimiters=" "):
         """
         A new, simpler parse method.
@@ -1002,12 +1010,12 @@ class ProductReportsHelper(object):
             return
         vals = parse_report(string)
         for code, amt in vals:
+            code = self.clean_product_code(code)
             try:
-                self.add_product_stock(code.lower(), amt)
+                self.add_product_stock(code, amt)
             except ValueError, e:
                 self.errors.append(e)
-                
-                        
+                                        
     def parse(self, string):
         """
         Old parse method, used in Ghana for more 'interesting' parsing.
@@ -1024,7 +1032,7 @@ class ProductReportsHelper(object):
         while True:
             try:
                 while commodity is None or not commodity.isalpha():
-                    commodity = an_iter.next()
+                    commodity = self.clean_product_code(an_iter.next())
                 count = an_iter.next()
                 while not count.isdigit():
                     count = an_iter.next()
