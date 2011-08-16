@@ -86,6 +86,12 @@ LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
+LOGISTICS_PRODUCT_ALIASES = {'iucd': 'id' ,
+                             'depo': 'dp',
+                             'impl': 'ip',
+                             'coc': 'cc',
+                             'pop': 'pp'}
+
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"

@@ -22,7 +22,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             self.assertEqual(contact.supply_point, ps.supply_point)
             self.assertTrue(0 != ps.quantity)
         
-    def testsStockOnHandPartialReport(self):
+    def testStockOnHandPartialReport(self):
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "ip"])
         script = """
@@ -42,4 +42,25 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             778 < Asante, umetoa taarifa una ip. Kama sio sahihi, tafadhali tuma tena taarifa sahihi.
         """
         self.runScript(script)
+        
+    def testProductAliases(self):
+        contact = register_user(self, "778", "someone")
+        add_products(contact, ["id", "dp", "ip"])
+        script = """
+            778 > Hmk iucd 400 
+            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za dp ip
+        """
+        self.runScript(script)
+        script = """
+            778 > Hmk Depo 569
+            778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za ip
+        """
+        self.runScript(script)
+        
+        script = """
+            778 > Hmk IMPL 678
+            778 < Asante, umetoa taarifa una ip. Kama sio sahihi, tafadhali tuma tena taarifa sahihi.
+        """
+        self.runScript(script)
+        
         
