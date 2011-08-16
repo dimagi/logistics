@@ -9,6 +9,7 @@ from logistics.shortcuts import supply_point_from_location
 import csv
 from dimagi.utils.parsing import string_to_boolean
 from logistics_project.apps.tanzania.config import SupplyPointCodes
+from scheduler.models import EventSchedule, ALL_VALUE
 
 def clear_supplypoints():
     Location.objects.all().delete()
@@ -80,12 +81,27 @@ def load_locations(path):
             count += 1
     print "Processed %d locations"  % count
 
+def load_schedules():
+    # TODO make this sane.
+    schedule_mod = "logistics_project.apps.tanzania.reminders" 
+    schedule_funcs = ["test_email_admins"]
+    for func in schedule_funcs:
+        func_abspath = "%s.%s" % (schedule_mod, func)
+        try:
+            schedule = EventSchedule.objects.get(callback=func_abspath)
+        except EventSchedule.DoesNotExist:
+            schedule = EventSchedule.objects.create(callback=func_abspath,
+                                                    hours=ALL_VALUE,
+                                                    minutes=[0])
+        schedule.hours = ALL_VALUE
+        schedule.save()
 
 def init_static_data():
     clear_supplypoints()
     load_report_types()
     load_roles()
     create_location_and_sp_types()
+    load_schedules()
     locations = getattr(settings, "STATIC_LOCATIONS")
     if locations:
         load_locations(locations)
