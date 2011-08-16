@@ -1,11 +1,11 @@
 from django.test import TestCase
-from scheduler.models import EventSchedule, ALL
+from scheduler.models import EventSchedule, ALL_VALUE
 
 class TestFields(TestCase):
     
     def testFields(self):
         schedule = EventSchedule(callback="foo", \
-                                 minutes=ALL)
+                                 minutes=ALL_VALUE)
         args = ["a", 2, None]
         kwargs = {"foo": "bar", "4": None, "asdf": 18}
         schedule.callback_args = args
@@ -22,7 +22,7 @@ class TestFields(TestCase):
             self.assertEqual(sback.callback_kwargs[k], val)
         
     def testDefaults(self):
-        schedule = EventSchedule(callback="foo", minutes=ALL)
+        schedule = EventSchedule(callback="foo", minutes=ALL_VALUE)
         schedule.save()
         sback = EventSchedule.objects.get(pk=schedule.pk)
         

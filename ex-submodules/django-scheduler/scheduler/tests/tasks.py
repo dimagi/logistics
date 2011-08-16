@@ -1,6 +1,5 @@
 from django.test import TestCase
-from datetime import datetime
-from scheduler.models import EventSchedule, ALL, ExecutionRecord
+from scheduler.models import EventSchedule, ExecutionRecord, ALL_VALUE
 import logging
 from scheduler.tasks import scheduler_heartbeat
 
@@ -19,7 +18,7 @@ class TestTasks(TestCase):
         EventSchedule.objects.all().delete()
         ExecutionRecord.objects.all().delete()
         schedule = EventSchedule(callback="scheduler.tests.tasks.callback_func", \
-                                 minutes=ALL)
+                                 minutes=ALL_VALUE)
         schedule.save()
         self.schedule = EventSchedule.objects.get(pk=schedule.pk)
         self.assertTrue(self.schedule.last_ran is None)

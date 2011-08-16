@@ -1,6 +1,6 @@
 from django.test import TestCase
 from datetime import datetime
-from scheduler.models import EventSchedule, ALL, ExecutionRecord
+from scheduler.models import EventSchedule, ALL_VALUE, ExecutionRecord
 import logging
 
 def callback_func(arg=1):
@@ -18,7 +18,7 @@ class TestExecution(TestCase):
         EventSchedule.objects.all().delete()
         ExecutionRecord.objects.all().delete()
         schedule = EventSchedule(callback="scheduler.tests.execution.callback_func", \
-                                 minutes=ALL)
+                                 minutes=ALL_VALUE)
         schedule.save()
         self.schedule = EventSchedule.objects.get(pk=schedule.pk)
         self.assertTrue(self.schedule.last_ran is None)
