@@ -4,7 +4,6 @@ A field which can store a json object in the database.
 
 from django.db import models
 from django.utils import simplejson as json
-from simplejson.decoder import JSONDecodeError
 
 class JSONField(models.TextField):
     """
@@ -19,7 +18,7 @@ class JSONField(models.TextField):
         if value is not None and isinstance(value, basestring):
             try:
                 return json.loads(value)
-            except JSONDecodeError:
+            except ValueError:
                 # it's unclear why this is getting called in the model 
                 # constructor but it is, and this catches the errors.
                 pass 
