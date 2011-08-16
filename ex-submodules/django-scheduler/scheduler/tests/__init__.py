@@ -2,7 +2,7 @@
 
 from .execution import *
 from .fields import *
-#import unittest
+from .tasks import *
 #from speedup import *
 #from faketime import *
 #from slow import *
