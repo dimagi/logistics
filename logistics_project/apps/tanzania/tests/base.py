@@ -7,15 +7,13 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
     """
     Base test class that prepopulates tests with tanzania's static data
     """
-    fixtures = ["tz_static.json", ]
     # this is so the paths line up
     output_directory = os.path.join(os.path.dirname(__file__), "testscripts")
+    # hack the static locations to only load a very minor subset
     settings.STATIC_LOCATIONS = "%s%s" % (settings.STATIC_LOCATIONS[:-4], "_test.csv")
     
     def setUp(self):
         super(TanzaniaTestScriptBase, self).setUp()
-
-        print settings.STATIC_LOCATIONS
         loader.init_static_data()
         
                             
