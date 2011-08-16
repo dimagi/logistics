@@ -9,6 +9,7 @@ from scheduler.fields import JSONField, SetField
 # set timespans (e.g. EventSchedule.hours, EventSchedule.minutes) to 
 # ALL when we want to schedule something for every hour/minute/etc.
 ALL = '*'
+ALL_VALUE = set('*')
 # knowing which fields are related to time is useful
 # for a bunch of operations below
 # TIME_FIELDS should always reflect the names of 
@@ -207,11 +208,11 @@ class EventSchedule(models.Model):
         days_of_week = self.days_of_week
         days_of_month = self.days_of_month
         months = self.months
-        if self.minutes == '*': minutes = self.allMatch
-        if self.hours == '*': hours = self.allMatch
-        if self.days_of_week == '*': days_of_week = self.allMatch
-        if self.days_of_month == '*': days_of_month = self.allMatch
-        if self.months == '*': months = self.allMatch
+        if self.minutes == ALL_VALUE: minutes = self.allMatch
+        if self.hours == ALL_VALUE: hours = self.allMatch
+        if self.days_of_week == ALL_VALUE: days_of_week = self.allMatch
+        if self.days_of_month == ALL_VALUE: days_of_month = self.allMatch
+        if self.months == ALL_VALUE: months = self.allMatch
         
         # when a timespan is set, all super-timespans default to 'all'
         # i.e. a schedule specified for hourly will automatically be sent
@@ -295,7 +296,7 @@ class EventSchedule(models.Model):
 ############################
 
 def check_bounds(name, time_set, min, max):
-    if time_set != set('*'): # ignore AllMatch/'*'
+    if time_set != ALL_VALUE: # ignore AllMatch/'*'
         for m in time_set: # check all values in set
             if int(m) < min or int(m) > max:
                 raise TypeError("%s (%s) must be a value between %s and %s" % \
