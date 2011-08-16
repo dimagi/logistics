@@ -182,7 +182,6 @@ class Messages(object):
 
     # submitted         
     SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
-    SUBMITTED_PARTIAL_CONFIRM = "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
     SUBMITTED_REMINDER_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
     SUBMITTED_REMINDER_DISTRICT= "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
 
@@ -203,6 +202,9 @@ class Messages(object):
     # stock inquiry
     STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
     STOCK_INQUIRY_CONFIRM = 'Thank you, you reported you have %(quantity)s     %(product_name)s. If incorrect, please resend.'
+    STOCK_INQUIRY_MESSAGE = "How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  Please respond 'si %(msd_code)s <amount>'"
+    STOCK_INQUIRY_PRODUCT_CODE_ERROR = "Invalid product code %(product_code)s"
+    STOCK_INQUIRY_NOT_A_FACILITY_ERROR = "Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
 
     INVALID_PRODUCT_CODE = "Sorry, invalid product code %(code)s"
 

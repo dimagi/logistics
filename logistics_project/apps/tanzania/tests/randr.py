@@ -25,7 +25,7 @@ class TestRandR(TanzaniaTestScriptBase):
         script = """
           22345 > nimetuma
           22345 < %(submitted_message)s
-        """ % {'submitted_message': _(config.Messages.SUBMITTED_PARTIAL_CONFIRM)}
+        """ % {'submitted_message': _(config.Messages.SUBMITTED_REMINDER_DISTRICT)}
         self.runScript(script)
 
         sps = SupplyPointStatus.objects.filter(supply_point=sp,

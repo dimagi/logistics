@@ -33,7 +33,7 @@ class RandRHandler(KeywordHandler):
                                      status_type=SupplyPointStatusTypes.R_AND_R_DISTRICT,
                                      status_value=SupplyPointStatusValues.SUBMITTED,
                                      status_date=self.msg.timestamp)
-            self.respond(_(config.Messages.SUBMITTED_PARTIAL_CONFIRM))
+            self.respond(_(config.Messages.SUBMITTED_REMINDER_DISTRICT))
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
             SupplyPointStatus.objects.create(supply_point=sp,
                                      status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
