@@ -1,7 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 from scheduler.decorators import businessday, businessday_before,\
-    businessday_after
+    businessday_after, day
 from scheduler.models import EventSchedule, ExecutionRecord, ALL_VALUE
 
 def callback_func(arg=1):
@@ -23,6 +23,37 @@ class TestDecorators(TestCase):
         super(TestDecorators, self).setUp()
         global callback_counter
         callback_counter = 0
+        
+    def testDays(self):
+        global callback_counter
+        
+        # the third is the first business day of october
+        set_date(datetime(2011, 10, 1))
+        
+        @day(1, date_generator_func=get_date)
+        def cb():
+            return callback_func()
+        
+        @day(15, date_generator_func=get_date)
+        def cb2():
+            return callback_func()
+        
+        cb()
+        self.assertEqual(1, callback_counter)
+        cb()
+        self.assertEqual(2, callback_counter)
+        cb2()
+        self.assertEqual(2, callback_counter)
+        
+        set_date(datetime(2011, 10, 15))
+        
+        cb()
+        self.assertEqual(2, callback_counter)
+        cb2()
+        self.assertEqual(3, callback_counter)
+        cb2()
+        self.assertEqual(4, callback_counter)
+    
         
     def testBusinessDays(self):
         global callback_counter
@@ -120,5 +151,3 @@ class testDecoratedExecution(TestCase):
         self.assertEqual(2, callback_counter)
         self.schedule.execute()
         self.assertEqual(2, callback_counter)
-        
-        
