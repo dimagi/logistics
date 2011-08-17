@@ -64,16 +64,22 @@ def get_message(contact_detail, msg_code, **kwargs):
     if msg_code == "lost_adjusted_reminder_sent_facility":
         str = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     if msg_code == "soh_reminder_sent_facility":
+        # updated
         str = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     if msg_code == "r_and_r_reminder_sent_district":
+        # updated
         str=  "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
     if msg_code == "delivery_received_reminder_sent_facility":
+        # updated
         str =  "Did you receive your delivery yet? Please reply 'delivered <product> <amount> <product> <amount>...'"
     if msg_code == "supervision_reminder_sent_facility":
+        # updated
         str =  "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
     if msg_code == "delivery_received_reminder_sent_district":
+        # updated
         str = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     if msg_code == "r_and_r_reminder_sent_facility":
+        # updated
         str = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
     if msg_code == "alert_delinquent_delivery_sent_district":
         sdp = contact_detail.service_delivery_point
