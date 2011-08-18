@@ -6,9 +6,9 @@ from django.utils import translation
 
 class TestHelp(TanzaniaTestScriptBase):
 
-    def testHelp(self):
+    def testHelpUnregistered(self):
         translation.activate("sw")
-
+        
         # Unregistered user
         script = """
           743 > help
@@ -16,6 +16,9 @@ class TestHelp(TanzaniaTestScriptBase):
         """ % {'help_unregistered': _(config.Messages.HELP_UNREGISTERED)}
         self.runScript(script)
 
+    def testHelpRegistered(self):
+        translation.activate("sw")
+        
         # Registered user
         contact = register_user(self, "778", "someone")
         script = """
