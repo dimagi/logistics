@@ -61,9 +61,8 @@ class StockOnHandHandler(KeywordHandler):
             else:    
                 self.respond(_(config.Messages.SOH_CONFIRM), 
                              reply_list=','.join(sorted(stock_report.reported_products())))
-            
-            self.respond(_(config.Messages.SOH_ADJUSTMENTS_REMINDER))
-            SupplyPointStatus.objects.create(supply_point=sp, 
+
+            SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
                                              status_date=self.msg.timestamp)
