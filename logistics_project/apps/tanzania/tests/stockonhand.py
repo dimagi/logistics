@@ -1,6 +1,6 @@
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.tests.util import register_user, add_products
-from logistics.models import Product, ProductStock
+from logistics.models import Product, ProductStock, ProductReport
 from logistics.util import config
 from django.utils import translation
 from django.utils.translation import ugettext as _
@@ -10,6 +10,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
     def setUp(self):
         super(TestStockOnHand, self).setUp()
         ProductStock.objects.all().delete()
+        ProductReport.objects.all().delete()
         
     def testStockOnHand(self):
         contact = register_user(self, "778", "someone")
@@ -20,6 +21,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             778 < %(soh_confirm)s
         """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
+        self.assertEqual(3, ProductReport.objects.count())
         self.assertEqual(3, ProductStock.objects.count())
         for ps in ProductStock.objects.all():
             self.assertEqual(contact.supply_point, ps.supply_point)
