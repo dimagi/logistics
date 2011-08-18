@@ -38,30 +38,36 @@ def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
     em_group = None
-    begin_date = None
-    # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
         em_group = (group_for_location(request.location) == config.Groups.EM)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
+
+    month = int(request.GET.get('month', datetime.utcnow().month))
+    year = int(request.GET.get('year', datetime.utcnow().year))
+    begin_date = datetime(year=year, month=month, day=1)
+    end_date = (begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
+    prev_month = begin_date - timedelta(days=1)
+    next_month = end_date + timedelta(days=1)
+    show_next = True if end_date < datetime.utcnow().replace(day=1) else False
+    d = DateSpan(begin_date, end_date)
+
     if em_group:
-        begin_date = datetime.now().replace(day=1)
-        end_date = datetime.now()
-        d = DateSpan(begin_date, end_date)
-        em_report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
+        report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
     else:
-        em_report = None
+        report = ReportingBreakdown(base_facilities, d)
+
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
                                                                                        role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
-                               "em_group": em_group,
-                               "em_report": em_report,
                                "begin_date": begin_date,
+                               "show_next": show_next,
+                               "prev_month": prev_month,
+                               "next_month": next_month,
                                "districts": get_districts().order_by("code"),
                                "location": request.location},
                                
