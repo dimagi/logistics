@@ -13,8 +13,8 @@ def get_people():
     # TODO, change totally arbitrary cutoff
     cutoff = datetime.utcnow() - timedelta(days=10)
     for contact in Contact.objects.filter\
-            (supply_point__code=SupplyPointCodes.FACILITY):
-        if not contact.supply_point.product_report__set.filter\
+            (supply_point__type__code=SupplyPointCodes.FACILITY):
+        if not contact.supply_point.productreport_set.filter\
                 (report_type__code=Reports.SOH,
                  report_date__gte=cutoff).exists():
             yield contact
@@ -22,17 +22,17 @@ def get_people():
 
 @businessday(-1)
 def first():
-    """Last business day of the month-2:00 PM"""
+    """Last business day of the month 2:00 PM"""
     send_reminders(get_people(), config.Messages.REMINDER_STOCKONHAND)
     
 @businessday(1)
 def second():
-    """1st business day of the next month – 9:00am"""
+    """1st business day of the next month 9:00am"""
     send_reminders(get_people(), config.Messages.REMINDER_STOCKONHAND)
     
 @businessday(5)
 def third():
-    """5th  business day of the next month – 8:15am"""
+    """5th business day of the next month 8:15am"""
     send_reminders(get_people(), config.Messages.REMINDER_STOCKONHAND)
     
 
