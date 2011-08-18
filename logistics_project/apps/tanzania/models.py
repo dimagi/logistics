@@ -11,15 +11,18 @@ class DeliveryGroups(object):
     # Current delivering group: Jan = C
 
     @classmethod
-    def current_submitting_group(cls, month=datetime.now().month):
+    def current_submitting_group(cls, month=None):
+        if month is None:  month = datetime.utcnow().month
         return cls.GROUPS[(month + 2) % 3]
 
     @classmethod
-    def current_processing_group(cls, month=datetime.now().month):
+    def current_processing_group(cls, month=None):
+        if month is None:  month = datetime.utcnow().month
         return cls.current_submitting_group(month=(month+1))
 
     @classmethod
-    def current_delivering_group(cls, month=datetime.now().month):
+    def current_delivering_group(cls, month=None):
+        if month is None:  month = datetime.utcnow().month
         return cls.current_submitting_group(month=(month+2))
 
     @classmethod
