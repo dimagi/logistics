@@ -2,16 +2,16 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from django.utils.translation import ugettext_noop as _
-from logistics.models import ProductReport, ProductStock
+from logistics.models import ProductReport
 from logistics.util import config
+from logistics.handlers import logistics_keyword
 
 class Stop(KeywordHandler):
     """
     Stop handler for when a user wants to stop receiving reminders
     """
 
-    keyword = "sta|stat|status"
+    keyword = logistics_keyword("sta|stat|status")
     
     def help(self):
         self.handle("")

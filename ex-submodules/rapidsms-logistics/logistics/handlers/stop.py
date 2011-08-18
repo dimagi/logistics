@@ -4,13 +4,14 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext_noop as _
 from logistics.util import config
+from logistics.handlers import logistics_keyword
 
 class Stop(KeywordHandler):
     """
     Stop handler for when a user wants to stop receiving reminders
     """
 
-    keyword = "stop"
+    keyword = logistics_keyword("stop")
     
     def help(self):
         if self.msg.contact is None:
