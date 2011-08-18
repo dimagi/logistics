@@ -12,6 +12,7 @@ class TestStockouts(TanzaniaTestScriptBase):
         ProductStock.objects.all().delete()
         
     def testStockout(self):
+        translation.activate("sw")
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "ip"])
         script = """
