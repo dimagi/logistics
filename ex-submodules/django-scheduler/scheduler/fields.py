@@ -30,19 +30,3 @@ class JSONField(models.TextField):
         value = json.dumps(value)
         return super(JSONField, self).get_prep_value(value)
 
-class SetField(JSONField):
-    """
-    A brittle but functional set field.
-    
-    Not recommended outside the context of this app without hardening.
-    """
-    
-    def to_python(self, value):
-        value = super(SetField, self).to_python(value)
-        if value is not None:
-            return set(value)
-        
-    def get_prep_value(self, value):
-        if isinstance(value, set):
-            return super(SetField, self).get_prep_value(list(value))
-

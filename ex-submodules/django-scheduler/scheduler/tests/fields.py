@@ -26,10 +26,10 @@ class TestFields(TestCase):
         schedule.save()
         sback = EventSchedule.objects.get(pk=schedule.pk)
         
-        self.assertEqual(set(), sback.months)
-        self.assertEqual(set(), sback.days_of_month)
-        self.assertEqual(set(), sback.days_of_week)
-        self.assertEqual(set(), sback.hours)
-        self.assertEqual(set("*"), sback.minutes)
+        self.assertEqual([], sback.months)
+        self.assertEqual([], sback.days_of_month)
+        self.assertEqual([], sback.days_of_week)
+        self.assertEqual([], sback.hours)
+        self.assertEqual(["*"], sback.minutes)
         
         

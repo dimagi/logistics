@@ -4,12 +4,12 @@
 from datetime import datetime
 from django.db import models
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR
-from scheduler.fields import JSONField, SetField
+from scheduler.fields import JSONField
 
 # set timespans (e.g. EventSchedule.hours, EventSchedule.minutes) to 
 # ALL when we want to schedule something for every hour/minute/etc.
 ALL = '*'
-ALL_VALUE = set('*')
+ALL_VALUE = ['*']
 # knowing which fields are related to time is useful
 # for a bunch of operations below
 # TIME_FIELDS should always reflect the names of 
@@ -53,11 +53,11 @@ class EventSchedule(models.Model):
     callback_kwargs = JSONField(null=True, blank=True)
     
     # the following are sets of numbers
-    months = SetField(null=True, blank=True, help_text="'1,2,3' for jan, feb, march - '*' for all")
-    days_of_month = SetField(null=True, blank=True, help_text="'1,2,3' for 1st, 2nd, 3rd - '*' for all")
-    days_of_week = SetField(null=True, blank=True, help_text="'0,1,2' for mon, tue, wed - '*' for all")
-    hours = SetField(null=True, blank=True, help_text="'0,1,2' for midnight, 1 o'clock, 2 - '*' for all")
-    minutes = SetField(null=True, blank=True, help_text="'0,1,2' for X:00, X:01, X:02 - '*' for all")
+    months = JSONField(null=True, blank=True, help_text="'1,2,3' for jan, feb, march - '*' for all")
+    days_of_month = JSONField(null=True, blank=True, help_text="'1,2,3' for 1st, 2nd, 3rd - '*' for all")
+    days_of_week = JSONField(null=True, blank=True, help_text="'0,1,2' for mon, tue, wed - '*' for all")
+    hours = JSONField(null=True, blank=True, help_text="'0,1,2' for midnight, 1 o'clock, 2 - '*' for all")
+    minutes = JSONField(null=True, blank=True, help_text="'0,1,2' for X:00, X:01, X:02 - '*' for all")
     
     start_time = models.DateTimeField(null=True, blank=True, 
                                       help_text="When do you want alerts to start? Leave blank for 'now'.")
@@ -90,34 +90,29 @@ class EventSchedule(models.Model):
         return unicode(self).encode('utf-8')
     
     def __unicode__(self):
-        def _set_to_string(set, conversion_dict=None):
-            if len(set)>0:
+        def _list_to_string(list, conversion_dict=None):
+            if len(list)>0:
                 if conversion_dict is not None:
-                    return ", ".join( [unicode(conversion_dict[m]) for m in set] )
+                    return ", ".join( [unicode(conversion_dict[m]) for m in list] )
                 else:
-                    return ", ".join( [unicode(m) for m in set] )
+                    return ", ".join( [unicode(m) for m in list] )
             else: 
                 return 'All'
-        months = _set_to_string(self.months, MONTHS)
-        days_of_month = _set_to_string(self.days_of_month)
-        days_of_week = _set_to_string(self.days_of_week, WEEKDAYS_ABBR)
-        hours = _set_to_string(self.hours)
-        minutes = _set_to_string(self.minutes)
+        months = _list_to_string(self.months, MONTHS)
+        days_of_month = _list_to_string(self.days_of_month)
+        days_of_week = _list_to_string(self.days_of_week, WEEKDAYS_ABBR)
+        hours = _list_to_string(self.hours)
+        minutes = _list_to_string(self.minutes)
         return "%s: Months:(%s), Days of Month:(%s), Days of Week:(%s), Hours:(%s), Minutes:(%s)" % \
             ( self.callback, months, days_of_month, days_of_week, hours, minutes )
             
     def __init__(self, *args, **kwargs):
-        # these 3 lines allow users to create eventschedules from arrays
-        # and not just sets (since lots of people don't know sets)
-        for time in _TIME_FIELDS:
-            if time in kwargs and isinstance(kwargs[time],list):
-                kwargs[time] = set( kwargs[time] )
         super(EventSchedule, self).__init__(*args, **kwargs)
         if self.callback_args is None: self.callback_args = []
         if self.callback_kwargs is None: self.callback_kwargs = {}
         for time in _TIME_FIELDS:
             if getattr(self, time) is None: 
-                setattr(self,time, set())
+                setattr(self,time, [])
     
     @staticmethod
     def validate(months, days_of_month, days_of_week, hours, minutes):
@@ -175,15 +170,14 @@ class EventSchedule(models.Model):
         for time in _TIME_FIELDS:
             val = getattr(self, time)
             if val is None or len(val)==0:
-                # set default value to empty set
-                setattr(self,time,set())
+                # set default value to empty list
+                setattr(self,time,[])
             if isinstance(val,list):
-                # accept either lists or sets, but turn all lists into sets
-                val = set(val)
+                # accept either lists or sets, but turn all lists into 
                 setattr(self,time,val)
             if not self._valid(getattr(self,time)):
                 raise TypeError("%s must be specified as " % time + 
-                                "sets of numbers, an empty set, or '*'")
+                                "lists of numbers, an empty list, or '*'")
         
         # validate those data structures
         self.validate(self.months, self.days_of_month, self.days_of_week, 
@@ -251,7 +245,7 @@ class EventSchedule(models.Model):
         self.save()
 
     def _valid(self, timespan):
-        if isinstance(timespan, set) or timespan == '*':
+        if isinstance(timespan, list) or timespan == '*':
             return True
         return False
 
