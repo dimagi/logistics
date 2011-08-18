@@ -88,18 +88,42 @@ def load_fixtures():
     
 def load_schedules():
     # TODO make this sane.
-    schedule_mod = "logistics_project.apps.tanzania.reminders" 
-    schedule_funcs = ["test_email_admins"]
-    for func in schedule_funcs:
-        func_abspath = "%s.%s" % (schedule_mod, func)
-        try:
-            schedule = EventSchedule.objects.get(callback=func_abspath)
-        except EventSchedule.DoesNotExist:
-            schedule = EventSchedule.objects.create(callback=func_abspath,
-                                                    hours=ALL_VALUE,
-                                                    minutes=[0])
-        schedule.hours = ALL_VALUE
-        schedule.save()
+    # {module: {function: (hours, minutes)}}
+    # everything is daily.
+    # we convert from TZ time to UTC
+    theschedule = {"logistics_project.apps.tanzania.reminders.delivery":
+                   {"first_facility": (14, 0),
+                    "second_facility": (14, 0),
+                    "third_facility": (14, 0),
+                    "first_district": (14, 0),
+                    "second_district": (14, 0),
+                    "third_district": (14, 0)},
+                   "logistics_project.apps.tanzania.reminders.randr":
+                    {"first_facility": (8, 0),
+                     "second_facility": (8, 0),
+                     "third_facility": (8, 0),
+                     "first_district": (8, 0),
+                     "second_district": (8, 0),
+                     "third_district": (14, 0)},
+                   "logistics_project.apps.tanzania.reminders.stockonhand":
+                   {"first": (2, 0),
+                    "second": (9, 0),
+                    "third": (8, 15)},
+                   "logistics_project.apps.tanzania.reminders.test":
+                   {"test_email_admins": (12, 0)}}
+                     
+    for module, funcdict in theschedule.items():
+        for func, (hours, minutes) in funcdict.items():
+            func_abspath = "%s.%s" % (module, func)
+            try:
+                schedule = EventSchedule.objects.get(callback=func_abspath)
+                schedule.hours = [hours]
+                schedule.minutes = [minutes]
+            except EventSchedule.DoesNotExist:
+                schedule = EventSchedule(callback=func_abspath,
+                                         hours=[hours],
+                                         minutes=[minutes])
+            schedule.save()
 
 def init_static_data():
     clear_supplypoints()
