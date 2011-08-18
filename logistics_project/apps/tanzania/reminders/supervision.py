@@ -4,6 +4,7 @@ from logistics_project.apps.tanzania.reminders import send_reminders
 
 def get_people():
     # TODO, update this appropriately
+    # DON'T IMPLEMENT THIS WITHOUT TALKING TO RYAN
     return []
 
 @businessday(-1)
