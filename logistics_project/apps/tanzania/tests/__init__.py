@@ -1,4 +1,3 @@
-import unittest
 from .help import *
 from .loss_adjust import *
 from .registration import *
@@ -13,3 +12,4 @@ from .randr import *
 from .language import *
 from .stockinquiry import *
 from .messageinitiator import *
+from .reminders import *

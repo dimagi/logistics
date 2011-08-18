@@ -71,6 +71,8 @@ LANGUAGES = (
   ('en', 'English'),
 )
 
+LANGUAGE_CODE = "sw"
+ 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
 LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"
@@ -91,7 +93,7 @@ LOGISTICS_PRODUCT_ALIASES = {'iucd': 'id' ,
                              'impl': 'ip',
                              'coc': 'cc',
                              'pop': 'pp'}
-
+LOGISTICS_USE_DEFAULT_HANDLERS = False
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"

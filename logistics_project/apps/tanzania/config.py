@@ -185,6 +185,14 @@ class Messages(object):
     SUBMITTED_REMINDER_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
     SUBMITTED_REMINDER_DISTRICT= "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
 
+    # reminders
+    REMINDER_STOCKONHAND = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
+    REMINDER_R_AND_R_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
+    REMINDER_R_AND_R_DISTRICT = "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
+    REMINDER_DELIVERY_FACILITY = "Did you receive your delivery yet? Please reply 'delivered <product> <amount> <product> <amount>...'"
+    REMINDER_DELIVERY_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
+    REMINDER_SUPERVISION = "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
+    
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>'"
