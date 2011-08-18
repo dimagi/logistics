@@ -58,5 +58,4 @@ class LostAdjusted(KeywordHandler):
                 kwargs = {} # fix!
                 self.respond(_('Thank you, you reported your losses/adjustments: %(reply_list)s. Still missing %(product_list)s.'), **kwargs)
             else:
-                self.respond(_(config.Messages.LOSS_ADJUST_CONFIRM), 
-                             reply_list=','.join(sorted(stock_report.reported_products())))
+                self.respond(_(config.Messages.LOSS_ADJUST_CONFIRM))

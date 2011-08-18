@@ -148,7 +148,7 @@ class Messages(object):
     # l & a
     LOSS_ADJUST_HELP = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     LOSS_ADJUST_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'la <product> +-<amount> +-<product> +-<amount>..."
-    LOSS_ADJUST_CONFIRM = 'Thank you, you reported your losses/adjustments: %(reply_list)s. If incorrect, please resend.'
+    LOSS_ADJUST_CONFIRM = "Thank you. Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
     
     # supervision
     SUPERVISION_HELP = "Supervision reminders will come monthly, and you can respond 'supervision yes' if you have received supervision or 'supervision no' if you have not"
@@ -189,7 +189,7 @@ class Messages(object):
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format.  The message should be in the format 'soh <product> <amount> <product> <amount>'"
     SOH_PARTIAL_CONFIRM = 'Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'
-    SOH_CONFIRM = 'Thank you, you reported you have %(reply_list)s. If incorrect, please resend.'
+    SOH_CONFIRM = "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     SOH_ADJUSTMENTS_REMINDER = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     # old
     SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
