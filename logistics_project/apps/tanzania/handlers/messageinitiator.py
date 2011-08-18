@@ -61,7 +61,7 @@ class MessageInitiator(KeywordHandler):
             try:
                 product = Product.objects.get(product_code=pc)
             except Product.DoesNotExist:
-                self.respond(_(config.Messages.STOCK_INQUIRY_PRODUCT_CODE_ERROR ) % {"product_code": pc})
+                self.respond(_(config.Messages.INVALID_PRODUCT_CODE ) % {"product_code": pc})
                 return True
             #facility only - SMS usage
             if sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY:

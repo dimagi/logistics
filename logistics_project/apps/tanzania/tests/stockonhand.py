@@ -13,6 +13,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         ProductReport.objects.all().delete()
         
     def testStockOnHand(self):
+        translation.activate("sw")
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "ip"])
         
@@ -28,6 +29,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             self.assertTrue(0 != ps.quantity)
         
     def testStockOnHandPartialReport(self):
+        translation.activate("sw")
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "fs", "md", "ff", "dx", "bp", "pc", "qi"])
         script = """
@@ -49,6 +51,8 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         self.runScript(script)
                 
     def testProductAliases(self):
+        translation.activate("sw")
+
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "ip"])
         script = """
@@ -78,7 +82,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100 md100 ff100 dx100 bp100 pc100 qi100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersNoSpaces(self):
@@ -91,7 +95,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100md100ff100dx100bp100pc100qi100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersMixedSpacing(self):
@@ -104,7 +108,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100 md 100 ff100 dx  100bp   100 pc100 qi100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersAllSpacedOut(self):
@@ -117,7 +121,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs 100 md 100 ff 100 dx 100 bp 100 pc 100 qi 100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersCommas(self):
@@ -130,7 +134,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100,md100,ff100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersCommasAndSpaces(self):
@@ -143,7 +147,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100, md100, ff100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandDelimitersExtraSpaces(self):
@@ -156,7 +160,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs  100   md    100     ff      100       pc        100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
     def testStockOnHandMixedDelimitersAndSpacing(self):
@@ -169,10 +173,10 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100 , md100,ff 100 pc  100  qi,       1000,bp, 100, dx,100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
-    def testStockOnHandKeywordsandLanguage(self):
+    def testStockOnHandKeywordsandLanguageSwahili(self):
         translation.activate("sw")
         contact = register_user(self, "+255714774042", "someone")
         product_codes = ["fs", "md"]
@@ -181,13 +185,20 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100md100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
 
+    def testStockOnHandKeywordsandLanguageEnglish(self):
         translation.activate("en")
+        contact = register_user(self, "+255714774042", "someone")
+        product_codes = ["fs", "md"]
+        add_products(contact, product_codes)
 
         script = """
             +255714774042 > soh fs100md100
+            +255714774042 > language en
+            +255714774042 < %(language_confirm)s
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM) % {"reply_list": ','.join(sorted(product_codes))}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM),
+               'language_confirm': _(config.Messages.LANGUAGE_CONFIRM) % {"language": "English"}}
         self.runScript(script)

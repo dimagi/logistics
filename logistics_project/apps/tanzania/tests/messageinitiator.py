@@ -100,7 +100,7 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
             """ % {"test_handler_confirm":_(config.Messages.TEST_HANDLER_CONFIRM),
                    "response":_(config.Messages.STOCK_INQUIRY_MESSAGE) % {"product_name":p.name,
                                                                           "msd_code":p.product_code},
-                   "invalid_code_message":_(config.Messages.STOCK_INQUIRY_PRODUCT_CODE_ERROR) % {"product_code":"m11112"},
+                   "invalid_code_message":_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code":"m11112"},
                    "location_error":_(config.Messages.STOCK_INQUIRY_NOT_A_FACILITY_ERROR) % {"location_name":"changeme",
                                                                                              "location_type":"changeme"}}
         self.runScript(script)

@@ -41,7 +41,7 @@ class TestRandR(TanzaniaTestScriptBase):
         contact = register_user(self, "12345", "RandR Tester", "d10001")
         
         # submitted successfully
-        translation.activate("en")
+        translation.activate("sw")
         sp = SupplyPoint.objects.get(code="D10001")
 
         script = """

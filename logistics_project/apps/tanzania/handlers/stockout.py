@@ -31,7 +31,7 @@ class StockOut(KeywordHandler):
         
         if len(products) != len(words):
             bad = words - set([p.sms_code.lower() for p in products])
-            self.respond(_(config.Messages.STOCKOUT_INVALID_CODES), codes=" ".join(bad))
+            self.respond(_(config.Messages.INVALID_PRODUCT_CODE), product_code=" ".join(bad))
             return 
         
         # fake a soh report with the stock level set to 0 for all products

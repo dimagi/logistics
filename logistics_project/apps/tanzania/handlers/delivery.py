@@ -62,7 +62,7 @@ class DeliveryHandler(KeywordHandler):
                                                text,
                                                self.msg.logger_msg)
         except UnknownCommodityCodeError, code:
-            self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"code": code})
+            self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": code})
             return
 
         if stock_report.errors:

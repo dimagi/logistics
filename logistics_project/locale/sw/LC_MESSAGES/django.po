@@ -20,8 +20,8 @@ msgstr "Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kif
 msgid "Sorry, invalid format.  The message should be in the format 'la <product> +-<amount> +-<product> +-<amount>..."
 msgstr "Kutuma taarifa za kupokea vifaa, jibu 'um <kifaa> +-<idadi> <kifaa> +-<idadi>...'"
 
-msgid "Thank you, you reported your losses/adjustments: %(reply_list)s. If incorrect, please resend."
-msgstr "Asante, umetoa taarifa kuwa marekebisho: %(reply_list)s.  Kama sio sahihi, tafadhali tuma tena taarifa sahihi."
+msgid "Thank you. Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
+msgstr "Asante. Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi ndiyo' au 'usimamizi hapana'"
 
 msgid "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
 msgstr "Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi ndiyo' au 'usimamizi hapana'"
@@ -65,8 +65,8 @@ msgstr "Samahani, vifupisho vya vifaa sio sahihi %(codes)s"
 
 #: handlers/confirmdelivery.py:72 handlers/stockonhand.py:62
 #, python-format
-msgid "Thank you, you reported you have %(reply_list)s. If incorrect, please resend."
-msgstr "Asante, umetoa taarifa una %(reply_list)s. Kama sio sahihi, tafadhali tuma tena taarifa sahihi."
+msgid "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
+msgstr "Asante. Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
 
 msgid "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
 msgstr "Asante, umetoa taarifa kuwa umepokea %(reply_list)s. Kama sio sahihi, tafadhali tuma tena taarifa sahihi."
@@ -137,8 +137,8 @@ msgstr ""
 
 #: handlers/stockonhand.py:21
 #, fuzzy
-msgid "Sorry, invalid format. The message should be in the format '<product> <amount> <product> <amount>...'"
-msgstr "Kutuma taarifa za kupokea vifaa, jibu 'delivered <jina la vifaa> <idadi ya vifaa>...'"
+msgid "Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'"
+msgstr "Kutuma taarifa za kupokea vifaa, jibu 'hmk <jina la vifaa> <idadi ya vifaa>...'"
 
 #: handlers/stockonhand.py:42
 #, fuzzy, python-format

@@ -79,7 +79,7 @@ class TestDelivery(TanzaniaTestScriptBase):
         script = """
             778 > nimepokea Ig 400 Dp 569 Ip 678
             778 < %(error_message)s
-            """ % {'error_message': _(config.Messages.INVALID_PRODUCT_CODE) % {"code":"ig"}}
+            """ % {'error_message': _(config.Messages.INVALID_PRODUCT_CODE) % {"product_code":"ig"}}
         self.runScript(script)
 
     def testDeliveryDistrictReceived(self):
@@ -88,7 +88,7 @@ class TestDelivery(TanzaniaTestScriptBase):
         contact = register_user(self, "32345", "RandR Tester")
 
         # submitted successfully
-        translation.activate("en")
+        translation.activate("sw")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
         contact.supply_point = sp
         contact.save()
