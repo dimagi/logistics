@@ -35,7 +35,6 @@ class TestLossesAdjustments(TanzaniaTestScriptBase):
         """ % {"loss_adjust_confirm": _(config.Messages.LOSS_ADJUST_CONFIRM)}
         self.runScript(script)
 
-        self.runScript(script)
         self.assertEqual(397, ProductStock.objects.get(product__sms_code="id").quantity)
         self.assertEqual(564, ProductStock.objects.get(product__sms_code="dp").quantity)
         self.assertEqual(691, ProductStock.objects.get(product__sms_code="ip").quantity)
