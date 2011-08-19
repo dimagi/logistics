@@ -18,7 +18,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved
-from logistics.errors import *
+from logistics.errors import UnknownCommodityCodeError
 from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.const import Reports
@@ -1013,8 +1013,13 @@ class ProductReportsHelper(object):
             code = self.clean_product_code(code)
             try:
                 self.add_product_stock(code, amt)
+            except UnknownCommodityCodeError, e:
+                # U.C.C.E. subclasses ValueError, so we have to treat it specially
+                
+                raise e
             except ValueError, e:
                 self.errors.append(e)
+
                                         
     def parse(self, string):
         """
@@ -1119,7 +1124,9 @@ class ProductReportsHelper(object):
             stock = int(stock)
         if not isinstance(stock, int):
             raise TypeError("Stock must be reported in integers")
+        print "getting product for code %s" % product_code
         product = self.get_product(product_code)
+        print "got product: %s" % product.name
         if save:
             self._record_product_report(product, stock, self.report_type)
         self.product_stock[product_code] = stock
