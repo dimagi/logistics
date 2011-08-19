@@ -32,6 +32,7 @@ class DeliveryGroups(object):
         groups['submitting'] = [f for f in facs if f.groups.filter(code=cls.current_submitting_group(month)).count()]
         groups['processing'] = [f for f in facs if f.groups.filter(code=cls.current_processing_group(month)).count()]
         groups['delivering'] = [f for f in facs if f.groups.filter(code=cls.current_delivering_group(month)).count()]
+        groups['total'] = list(facs)
         return groups
 
 class SupplyPointStatusValues(object):

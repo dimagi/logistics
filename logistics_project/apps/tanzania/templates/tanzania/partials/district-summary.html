@@ -8,20 +8,20 @@
             </div>-->
             <ul class="stats">
                 <li>
-                    <div class="report">{{ counts.total }}</div>
-{#                    <div class="caption"><a href="{% url ordering %}">{% trans 'Facilities' %}</a></div>#}
+                    <div class="report">{{ groups.total|length }}</div>
+                    <div class="caption"><a href="{% url ordering %}">{% trans 'Facilities' %}</a></div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg_model.current_submitting_group }}: {% trans 'Submitting' %}</div>
-{#                    <div class="caption">{% blocktrans with monthly_data.submitted as submitted and counts.current_submitting_group as count %}{{ submitted }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'submitted' %}</a></div>#}
+                    <div class="caption">{% blocktrans with monthly_data.submitted as submitted and groups.submitting|length as count %}{{ submitted }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'submitted' %}</a></div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg_model.current_processing_group }}: {% trans 'Processing' %}</div>
-{#                    <div class="caption">{% blocktrans with monthly_data.randrs_sent_to_msd as processed and counts.current_processing_group as count %}{{ processed }} of {{ count }} forms sent to MSD{% endblocktrans %}</div>#}
+                    <div class="caption">{% blocktrans with monthly_data.randrs_sent_to_msd as processed and groups.processing|length as count %}{{ processed }} of {{ count }} forms sent to MSD{% endblocktrans %}</div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg_model.current_delivering_group }}: {% trans "Deliveries" %}</div>
-{#                    <div class="caption">{% blocktrans with monthly_data.received_delivery as delivered and counts.current_delivering_group as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'delivered' %}</a></div>#}
+                    <div class="caption">{% blocktrans with monthly_data.received_delivery as delivered and groups.delivering|length as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'delivered' %}</a></div>
                 </li>
             </ul>
 </div>

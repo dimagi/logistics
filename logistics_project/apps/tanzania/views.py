@@ -35,16 +35,12 @@ def dashboard(request):
 #    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
     return render_to_response("tanzania/dashboard.html",
                               {
-#            "reporting_data": report,
-#                               "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
-#                                                                                       role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
                                "dg_model": DeliveryGroups,
                                "groups": groups,
-#                               "em_report": em_report,
+                               "facilities": list(base_facilities),
                                "begin_date": begin_date,
-                               #"districts": get_districts().order_by("code"),
                                "location": location},
                                
                               context_instance=RequestContext(request))
@@ -79,3 +75,6 @@ def facilities_index(request, view_type="inventory"):
                                'end_date': request.datespan.enddate if request.datespan else datetime.utcnow()
                                }, context_instance=RequestContext(request))
 
+
+def facilities_ordering(request):
+    pass
