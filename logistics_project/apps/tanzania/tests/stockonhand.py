@@ -173,7 +173,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         script = """
             +255714774042 > hmk fs100 , md100,ff 100 pc  100  qi,       1000,bp, 100, dx,100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
+        """ % {"soh_confirm": _(config.Messages.SOH_PARTIAL_CONFIRM) % {"contact_name": "someone", "facility_name": "VETA 1", "product_list": "bp dx qi"}}
         self.runScript(script)
 
     def testStockOnHandKeywordsandLanguageSwahili(self):
@@ -195,10 +195,14 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         add_products(contact, product_codes)
 
         script = """
-            +255714774042 > soh fs100md100
             +255714774042 > language en
             +255714774042 < %(language_confirm)s
+        """ % {'language_confirm': _(config.Messages.LANGUAGE_CONFIRM) % {"language": "English"}}
+        self.runScript(script)
+        
+        """
+            +255714774042 > soh fs100md100
             +255714774042 < %(soh_confirm)s
-        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM),
-               'language_confirm': _(config.Messages.LANGUAGE_CONFIRM) % {"language": "English"}}
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
+
         self.runScript(script)
