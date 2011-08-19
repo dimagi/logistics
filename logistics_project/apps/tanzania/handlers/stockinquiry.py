@@ -14,9 +14,6 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.models import ProductStock, Product, ProductReportsHelper
 
-CHARS_IN_CODE = "2, 4"
-NUMERIC_LETTERS = ("lLIoO", "11100")
-
 class StockInquiryHandler(KeywordHandler):
     """
     """
@@ -33,6 +30,7 @@ class StockInquiryHandler(KeywordHandler):
         product_code = result[0]
         amt = result[1]
         p = Product.objects.get(product_code=product_code)
-        prh = ProductReportsHelper(p.sms_code, Reports.SOH)
+        prh = ProductReportsHelper(sp, Reports.SOH)
         prh.add_product_stock(p.sms_code, amt)
+        prh.save()
         self.respond(_(config.Messages.STOCK_INQUIRY_CONFIRM) % {"quantity": amt, "product_name": p.name})
