@@ -242,9 +242,9 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
             +255714774043 < %(response)s
             """ % {"test_handler_confirm":_(config.Messages.TEST_HANDLER_CONFIRM),
                    "response":_(config.Messages.DELIVERY_LATE_DISTRICT) % {"group_name":"changeme",
-                                                                           "group_total":0,
-                                                                           "not_responded_count":0,
-                                                                           "not_received_count":0}}
+                                                                           "group_total":1,
+                                                                           "not_responded_count":2,
+                                                                           "not_received_count":3}}
         self.runScript(script)
 
     def testMessageInitiatorSOHFacility(self):
