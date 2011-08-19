@@ -56,16 +56,15 @@ class DeliveryHandler(KeywordHandler):
     def handle(self, text):
         contact = self.msg.logistics_contact
         sp = self.msg.logistics_contact.supply_point
-        try:
-            stock_report = create_stock_report(Reports.REC,
-                                               sp,
-                                               text,
-                                               self.msg.logger_msg)
-        except UnknownCommodityCodeError, code:
-            self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": code})
-            return
-
+        stock_report = create_stock_report(Reports.REC,
+                                           sp,
+                                           text,
+                                           self.msg.logger_msg)
         if stock_report.errors:
+            for e in stock_report.errors:
+                if isinstance(e, UnknownCommodityCodeError):
+                    self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": e})
+                    return
             self.respond(_(config.Messages.DELIVERY_BAD_FORMAT))
             return
 
