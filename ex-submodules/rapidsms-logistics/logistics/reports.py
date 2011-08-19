@@ -446,6 +446,32 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
                              "without_data": without_data})
         self.data = data
 
+class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
+
+    def __init__(self, facilities, width=900, height=300):
+        """
+        facilities should be a query set of facilities that you care about
+        the product availability for.
+        """
+        self._width = width
+        self._height = height
+
+        total = facilities.count()
+
+        products = Product.objects.all()
+        data = []
+        for p in products:
+            stocks = ProductStock.objects.filter(product=p, supply_point__active=True).distinct()
+            with_stock = stocks.filter(quantity__gt=0).count()
+            without_stock = stocks.filter(quantity=0).count()
+            without_data = total - with_stock - without_stock
+            data.append({"product": p,
+                         "total": total,
+                         "with_stock": with_stock,
+                         "without_stock": without_stock,
+                         "without_data": without_data})
+        self.data = data
+
 class SupplyPointRow():
         
     def __init__(self, supply_point, commodity_filter, commoditytype_filter):

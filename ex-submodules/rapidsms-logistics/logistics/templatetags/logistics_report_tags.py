@@ -12,12 +12,13 @@ from logistics.context_processors import custom_settings
 from logistics.views import get_location_children
 from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
-    ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, \
+    ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
     HSASupplyPointRow, FacilitySupplyPointRow
 from dimagi.utils.dates import DateSpan
 from logistics.config import messagelog
 import logging
 from rapidsms.models import Contact
+
 Message = messagelog.models.Message
 register = template.Library()
 
@@ -199,9 +200,21 @@ def product_availability_summary_by_facility(location):
     if not location:
         pass
     summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities())
-    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+    c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
                          {"summary": summary})
-    
+    return c
+
+@register.simple_tag
+def product_availability_summary_by_facility_sp(location):
+    if not location:
+        pass
+    summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities())
+    c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
+                         {"summary": summary})
+    print c
+    return c
+
+
 def commodity_filter(commodities, can_select_all=True):
     return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
                                                                          "can_select_all": can_select_all})
