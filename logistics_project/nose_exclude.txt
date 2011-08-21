@@ -1,3 +1,2 @@
 apps/malawi
-apps/ewsghana
 apps/ilsgateway
