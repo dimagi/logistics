@@ -161,7 +161,7 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 
 # celery
 CARROT_BACKEND = "django"
-CELERY_HEARTBEAT_FILE = '/tmp/sc4ccm-heartbeat'
+CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
 
 # kannel
 KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
