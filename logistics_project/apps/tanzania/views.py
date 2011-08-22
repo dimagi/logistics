@@ -13,21 +13,18 @@ from logistics_project.apps.tanzania.utils import chunks
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.decorators.datespan import datespan_in_request
 from models import DeliveryGroups
-
+from logistics.views import MonthPager
 
 @place_in_request()
 def dashboard(request):
-    now = datetime.utcnow()
-    month = int(request.GET['month'] if 'month' in request.GET else now.month)
-    year = int(request.GET['year'] if 'year' in request.GET else now.year)
-
+    mp = MonthPager(request)
+    
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
 
-    dg = DeliveryGroups(month)
-    groups = dg.facilities_by_group(month=month)
+    dg = DeliveryGroups(mp.month)
+    groups = dg.facilities_by_group(month=mp.month)
     
     em_group = None
-    begin_date = datetime(year=year, month=month, day=1)
 
     # district filter
     if request.location:
@@ -37,7 +34,7 @@ def dashboard(request):
     else:
         location = Location.objects.get(name="MOHSW")
 #    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
-    sub_data = SupplyPointStatusBreakdown(base_facilities, begin_date)
+    sub_data = SupplyPointStatusBreakdown(base_facilities, mp.begin_date)
     return render_to_response("tanzania/dashboard.html",
                               {
                                "sub_data": sub_data,
@@ -46,7 +43,7 @@ def dashboard(request):
                                "dg": dg,
                                "groups": groups,
                                "facilities": list(base_facilities),
-                               "begin_date": begin_date,
+                               "month_pager": mp,
                                "location": location},
                                
                               context_instance=RequestContext(request))
