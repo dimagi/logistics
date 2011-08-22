@@ -15,7 +15,6 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
     def setUp(self):
         super(TanzaniaTestScriptBase, self).setUp()
         loader.init_static_data()
-        
                             
     def tearDown(self):
         super(TanzaniaTestScriptBase, self).tearDown()

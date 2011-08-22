@@ -6,8 +6,9 @@ from logistics_project.apps.tanzania.models import DeliveryGroups,\
     SupplyPointStatusTypes
 from rapidsms.models import Contact
 from logistics_project.apps.tanzania.config import SupplyPointCodes
+from dimagi.utils.dates import get_business_day_of_month_before
 
-def get_facility_people():
+def get_facility_people(cutoff):
     # Facilities:
     # Group A gets a reminder every three months starting in March.
     # Then it rotates accordingly.
@@ -16,8 +17,6 @@ def get_facility_people():
     # any status of type of del_fac
     current_group = DeliveryGroups().current_delivering_group()
     
-    # TODO, change totally arbitrary cutoff
-    cutoff = datetime.utcnow() - timedelta(days=10)
     for contact in Contact.objects.filter\
             (supply_point__type__code=SupplyPointCodes.FACILITY,
              supply_point__groups__code__in=current_group):
@@ -37,33 +36,46 @@ def get_district_people():
                  status_date__gte=cutoff).exists():
             yield contact
 
+def get_facility_cutoff():
+    now = datetime.utcnow()
+    return get_business_day_of_month_before(now.year, now.month, 15)
+
+def get_district_cutoff():
+    now = datetime.utcnow()
+    return get_business_day_of_month_before(now.year, now.month, 13)
 
 @businessday_before(15)
 def first_facility():
     """2:00pm"""
-    send_reminders(get_facility_people(), config.Messages.REMINDER_DELIVERY_FACILITY)
+    send_reminders(get_facility_people(get_facility_cutoff()), 
+                   config.Messages.REMINDER_DELIVERY_FACILITY)
     
 @businessday_before(22)
 def second_facility():
     """2:00pm"""
-    send_reminders(get_facility_people(), config.Messages.REMINDER_DELIVERY_FACILITY)
+    send_reminders(get_facility_people(get_facility_cutoff()), 
+                   config.Messages.REMINDER_DELIVERY_FACILITY)
     
 @businessday_before(30)
 def third_facility():
     """2:00pm"""
-    send_reminders(get_facility_people(), config.Messages.REMINDER_DELIVERY_FACILITY)
+    send_reminders(get_facility_people(get_facility_cutoff()), 
+                   config.Messages.REMINDER_DELIVERY_FACILITY)
     
 @businessday_before(13)
 def first_district():
     """2:00pm"""
-    send_reminders(get_district_people(), config.Messages.REMINDER_DELIVERY_DISTRICT)
+    send_reminders(get_district_people(get_district_cutoff()), 
+                   config.Messages.REMINDER_DELIVERY_DISTRICT)
     
 @businessday_before(20)
 def second_district():
     """2:00pm"""
-    send_reminders(get_district_people(), config.Messages.REMINDER_DELIVERY_DISTRICT)
+    send_reminders(get_district_people(get_district_cutoff()), 
+                   config.Messages.REMINDER_DELIVERY_DISTRICT)
     
 @businessday_before(28)
 def third_district():
     """2:00pm"""
-    send_reminders(get_district_people(), config.Messages.REMINDER_DELIVERY_DISTRICT)
+    send_reminders(get_district_people(get_district_cutoff()),
+                   config.Messages.REMINDER_DELIVERY_DISTRICT)
