@@ -211,7 +211,6 @@ def product_availability_summary_by_facility_sp(location):
     summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities())
     c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
                          {"summary": summary})
-    print c
     return c
 
 
