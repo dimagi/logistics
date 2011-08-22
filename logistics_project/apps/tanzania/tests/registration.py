@@ -29,7 +29,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         translation.activate("sw")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
         script = """
-          743 > sajili Alfred Mchau at tandahimba
+          743 > sajili Alfred Mchau kutokea tandahimba
           743 < %(registration_confirm)s
         """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM_DISTRICT) % {"sdp_name": sp.name,
                                                       "contact_name":"Alfred Mchau"}}
@@ -39,7 +39,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         translation.activate("sw")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
         script = """
-          743 > sajili Alfred Mchau at TANDAHIMBA
+          743 > sajili Alfred Mchau kutokea TANDAHIMBA
           743 < %(registration_confirm)s
         """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM_DISTRICT) % {"sdp_name": sp.name,
                                                       "contact_name":"Alfred Mchau"}}
@@ -49,7 +49,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         translation.activate("sw")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
         script = """
-          743 > sajili Alfred Mchau at TANDAhimbA
+          743 > sajili Alfred Mchau kutokea TANDAhimbA
           743 < %(registration_confirm)s
         """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM_DISTRICT) % {"sdp_name": sp.name,
                                                       "contact_name":"Alfred Mchau"}}
@@ -62,7 +62,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         sp.save()
 
         script = """
-          743 > sajili Alfred Mchau at TANDAHIMBA RURAL
+          743 > sajili Alfred Mchau kutokea TANDAHIMBA RURAL
           743 < %(registration_confirm)s
         """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM_DISTRICT) % {"sdp_name": sp.name,
                                                       "contact_name":"Alfred Mchau"}}
@@ -71,7 +71,7 @@ class TestRegistration(TanzaniaTestScriptBase):
     def testRegisterDistrictMultipleWordDoesNotExist(self):
         translation.activate("sw")
         script = """
-          743 > sajili Alfred Mchau at tandahimba rural place
+          743 > sajili Alfred Mchau kutokea tandahimba rural place
           743 < %(registration_unknown_district)s
         """ % {"registration_unknown_district": _(config.Messages.REGISTER_UNKNOWN_DISTRICT) % {"name": "TANDAHIMBA RURAL PLACE"}}
         self.runScript(script)
@@ -91,3 +91,14 @@ class TestRegistration(TanzaniaTestScriptBase):
           743 < %(registration_help)s
         """ % {"registration_help": _(config.Messages.REGISTER_HELP)}
         self.runScript(script)
+
+    def testRegisterDistrictLowercaseEnglishSeparator(self):
+        translation.activate("sw")
+        sp = SupplyPoint.objects.get(name="TANDAHIMBA")
+        script = """
+          743 > register Alfred Mchau at tandahimba
+          743 < %(registration_confirm)s
+        """ % {"registration_confirm": _(config.Messages.REGISTRATION_CONFIRM_DISTRICT) % {"sdp_name": sp.name,
+                                                      "contact_name":"Alfred Mchau"}}
+        self.runScript(script)
+
