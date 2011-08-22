@@ -12,7 +12,7 @@ def get_facility_people():
     # Facilities:
     # Group A gets a reminder every three months starting in January.
     # Then it rotates accordingly.
-    current_group = DeliveryGroups.current_submitting_group()
+    current_group = DeliveryGroups().current_submitting_group()
     
     # TODO, change totally arbitrary cutoff
     cutoff = datetime.utcnow() - timedelta(days=10)

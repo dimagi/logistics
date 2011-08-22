@@ -14,7 +14,7 @@ def get_facility_people():
     # All people at all Districts get all reminders each month.
     # For facilities the reminder should go out if we haven't received 
     # any status of type of del_fac
-    current_group = DeliveryGroups.current_delivering_group()
+    current_group = DeliveryGroups().current_delivering_group()
     
     # TODO, change totally arbitrary cutoff
     cutoff = datetime.utcnow() - timedelta(days=10)

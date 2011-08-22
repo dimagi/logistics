@@ -6,32 +6,40 @@ from logistics.util import config
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
 
+    def __init__(self, month=None):
+        self.month = month if month else datetime.utcnow().month
+        
     # Current submitting group: Jan = A
     # Current processing group: Jan = B
     # Current delivering group: Jan = C
 
-    @classmethod
-    def current_submitting_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.GROUPS[(month + 2) % 3]
+    def current_submitting_group(self, month=None):
+        month = month if month else self.month
+        return self.GROUPS[(month + 2) % 3]
 
-    @classmethod
-    def current_processing_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.current_submitting_group(month=(month+1))
+    def current_processing_group(self, month=None):
+        month = month if month else self.month
+        return self.current_submitting_group(month=(month+1))
 
-    @classmethod
-    def current_delivering_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.current_submitting_group(month=(month+2))
+    def current_delivering_group(self, month=None):
+        month = month if month else self.month
+        return self.current_submitting_group(month=(month+2))
 
-    @classmethod
+    def delivering(cls, facs, month=None):
+        return facs.filter(groups__code=cls.current_delivering_group(month))
+
+    def processing(cls, facs, month=None):
+        return facs.filter(groups__code=cls.current_processing_group(month))
+
+    def submitting(cls, facs, month=None):
+        return facs.filter(groups__code=cls.current_submitting_group(month))
+
     def facilities_by_group(cls, month=datetime.now().month):
         groups = {}
         facs = SupplyPoint.objects.filter(type__code="facility")
-        groups['submitting'] = [f for f in facs if f.groups.filter(code=cls.current_submitting_group(month)).count()]
-        groups['processing'] = [f for f in facs if f.groups.filter(code=cls.current_processing_group(month)).count()]
-        groups['delivering'] = [f for f in facs if f.groups.filter(code=cls.current_delivering_group(month)).count()]
+        groups['submitting'] = cls.submitting(facs, month)
+        groups['processing'] = cls.processing(facs, month)
+        groups['delivering'] = cls.delivering(facs, month)
         groups['total'] = list(facs)
         return groups
 

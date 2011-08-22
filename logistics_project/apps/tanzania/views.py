@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from logistics_project.apps.malawi.util import facility_supply_points_below
+from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.utils import chunks
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.decorators.datespan import datespan_in_request
@@ -16,15 +17,18 @@ from models import DeliveryGroups
 
 @place_in_request()
 def dashboard(request):
-    month = request.GET.get('month', datetime.now().month)
-    year = request.GET.get('month', datetime.now().year)
-    
+    now = datetime.utcnow()
+    month = int(request.GET['month'] if 'month' in request.GET else now.month)
+    year = int(request.GET['year'] if 'year' in request.GET else now.year)
+
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
 
-    groups = DeliveryGroups.facilities_by_group()
+    dg = DeliveryGroups(month)
+    groups = dg.facilities_by_group(month=month)
     
     em_group = None
-    begin_date = None
+    begin_date = datetime(year=year, month=month, day=1)
+
     # district filter
     if request.location:
         location = request.location
@@ -33,11 +37,13 @@ def dashboard(request):
     else:
         location = Location.objects.get(name="MOHSW")
 #    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
+    sub_data = SupplyPointStatusBreakdown(base_facilities, begin_date)
     return render_to_response("tanzania/dashboard.html",
                               {
-                               "graph_width": 200,
-                               "graph_height": 200,
-                               "dg_model": DeliveryGroups,
+                               "sub_data": sub_data,
+                               "graph_width": 300,
+                               "graph_height": 300,
+                               "dg": dg,
                                "groups": groups,
                                "facilities": list(base_facilities),
                                "begin_date": begin_date,

@@ -42,11 +42,13 @@
     {% endcache %}
 </div>
 <div class="two-columns toppadded">
-    {% cache 1000 reporting_breakdown location %}
 
     <div class="col-1">
         <div class="module">
-            
+         <h2>{{ sub_data.submission_chart.title }}</h2>
+        {% with sub_data.submission_chart.data as chart_data %}{% with "submission_chart" as chartdiv %}{% with "submission_hover" as hoverdiv %}
+        {% include "logistics/partials/pie_reporting_generic.html" %}
+        {% endwith %}{% endwith %}{% endwith %}
         </div>
 
     </div>
@@ -54,7 +56,6 @@
         {% include "tanzania/partials/district-summary.html" %}
     </div>
     <div class="clear-hack"></div>
-    {%endcache%}
 </div>
 <div class="module toppadded">
     <h2>Product Availability Summary</h2>
