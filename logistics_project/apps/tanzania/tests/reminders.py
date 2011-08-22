@@ -16,7 +16,7 @@ class TestStockOnHandReminders(TanzaniaTestScriptBase):
         self.contact = register_user(self, "778", "someone")
         
     def testBasicList(self):
-        people = list(stockonhand.get_people())
+        people = list(stockonhand.get_people(datetime.utcnow()))
         self.assertEqual(1, len(people))
         for person in people:
             self.assertEqual(self.contact, person)
@@ -26,18 +26,21 @@ class TestStockOnHandReminders(TanzaniaTestScriptBase):
         self.contact.supply_point = SupplyPoint.objects.exclude\
                     (type__code=SupplyPointCodes.FACILITY)[0]
         self.contact.save()
-        self.assertEqual(0, len(list(stockonhand.get_people())))
+        self.assertEqual(0, len(list(stockonhand.get_people(datetime.utcnow()))))
         self.contact.supply_point = old_sp
         self.contact.save()
-        self.assertEqual(1, len(list(stockonhand.get_people())))
+        self.assertEqual(1, len(list(stockonhand.get_people(datetime.utcnow()))))
         
     def testReportExclusion(self):
-        self.assertEqual(1, len(list(stockonhand.get_people())))
+        now = datetime.utcnow()
+        self.assertEqual(1, len(list(stockonhand.get_people(now))))
         script = """
             778 > Hmk Id 400 Dp 569 Ip 678
         """
         self.runScript(script)
-        self.assertEqual(0, len(list(stockonhand.get_people())))
+        self.assertEqual(0, len(list(stockonhand.get_people(now))))
+        self.assertEqual(1, len(list(stockonhand.get_people(datetime.utcnow()))))
+        
 
 class TestDeliveryReminder(TanzaniaTestScriptBase):
     
@@ -73,14 +76,13 @@ class TestDeliveryReminder(TanzaniaTestScriptBase):
         
     def testReportExclusion(self):
         now = datetime.utcnow()
-        thefirst = datetime(now.year, now.month, 1)
-        self.assertEqual(1, len(list(delivery.get_facility_people(thefirst))))
+        self.assertEqual(1, len(list(delivery.get_facility_people(now))))
         
         script = """
             778 > nimepokea
         """
         self.runScript(script)
-        self.assertEqual(0, len(list(delivery.get_facility_people(thefirst))))
+        self.assertEqual(0, len(list(delivery.get_facility_people(now))))
         self.assertEqual(1, len(list(delivery.get_facility_people(datetime.utcnow()))))
         
         
