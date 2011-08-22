@@ -27,7 +27,12 @@ class Location(models.Model):
     def tree_parent(self):
         """ This signature gets overriden by mptt when mptt is used """
         return self.parent
-        
+    
+    @tree_parent.setter
+    def tree_parent(self, value):
+        """ This signature gets overriden by mptt when mptt is used """
+        self.parent = value
+            
     def get_children(self):
         """ This signature gets overriden by mptt when mptt is used """
         from rapidsms.contrib.locations.models import Location
