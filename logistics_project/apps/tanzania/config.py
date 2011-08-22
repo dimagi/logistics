@@ -12,7 +12,7 @@ class Languages(object):
     DEFAULT = SWAHILI
 
 
-
+DISTRICT_REG_DELIMITER = ":"
 
 class Roles(object):
     """
