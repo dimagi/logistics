@@ -3,7 +3,7 @@
 from logistics.const import Reports
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
