@@ -33,7 +33,7 @@ class ILSRegistrationHandler(KeywordHandler):
         name = " ".join(names) 
         
         if len(msd_codes) != 1:
-            self.respond(_(config.Messages.REGISTER_BAD_CODE))
+            self.respond(_(config.Messages.REGISTER_HELP))
             return True
         else:
             [msd_code] = msd_codes

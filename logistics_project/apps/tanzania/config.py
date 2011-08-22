@@ -123,11 +123,13 @@ class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     
     # "register" keyword (tz registration)
-    REGISTER_HELP = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
+    REGISTER_HELP = "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel at tandahimba"
     REGISTER_BAD_CODE = "I didn't recognize your msd code.  To register, send register <name> <msd code>. example: register Peter Juma d34002"
     REGISTER_UNKNOWN_CODE = "Sorry, can't find the location with MSD CODE %(msd_code)s"
+    REGISTER_UNKNOWN_DISTRICT = "Sorry, can't find the location with the name %(name)s"
     REGISTRATION_CONFIRM = "Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
-    
+    REGISTRATION_CONFIRM_DISTRICT = "Thank you for registering at %(sdp_name)s, %(contact_name)s"
+
     HELP_REGISTERED = 'Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la'
     HELP_UNREGISTERED = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
     
