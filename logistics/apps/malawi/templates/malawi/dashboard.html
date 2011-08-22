@@ -41,19 +41,13 @@
     {% alerts request %}
     {% endcache %}
 </div>
-
-    {% if prev_month %}
-    <p align="center"><a href="{% url malawi_dashboard %}?month={{ prev_month.month }}&year={{ prev_month.year }}&place={{ location.code }}">&laquo; previous month</a>
-           <span style="font-weight:bold;font-size:1.5em;"> {{ begin_date|date:"F" }} {{ begin_date|date:"Y" }} </span>
-    {% if show_next %}<a href="{% url malawi_dashboard %}?month={{ next_month.month }}&year={{ next_month.year }}&place={{ location.code }}">next month &raquo;</a>
-        {% else %}<span style="color:gray;">next month &raquo;</span>
-    {% endif %} </p>
-    {% endif %}
+    
+    {% include "malawi/partials/month_pager.html" %}
 
     <div class="two-columns toppadded">
 
 
-    {% cache 1000 reporting_breakdown location begin_date %}
+    {% cache 1000 reporting_breakdown location month_pager.begin_date %}
 
     <div class="col-1">
         <div class="module">

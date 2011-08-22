@@ -32,6 +32,20 @@ from logistics.apps.malawi.reports import ReportInstance, ReportDefinition,\
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
+class MonthPager(object):
+    """
+    Utility class to show a month pager, e.g. << August 2011 >>
+    """
+    def __init__(self, request):
+        self.month = int(request.GET.get('month', datetime.utcnow().month))
+        self.year = int(request.GET.get('year', datetime.utcnow().year))
+        self.begin_date = datetime(year=self.year, month=self.month, day=1)
+        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
+        self.prev_month = self.begin_date - timedelta(days=1)
+        self.next_month = self.end_date + timedelta(days=1)
+        self.show_next = True if self.end_date < datetime.utcnow().replace(day=1) else False
+        self.datespan = DateSpan(self.begin_date, self.end_date)
+
 #@cache_page(60 * 15)
 @place_in_request()
 def dashboard(request):
@@ -44,19 +58,12 @@ def dashboard(request):
         em_group = (group_for_location(request.location) == config.Groups.EM)
     # reporting info
 
-    month = int(request.GET.get('month', datetime.utcnow().month))
-    year = int(request.GET.get('year', datetime.utcnow().year))
-    begin_date = datetime(year=year, month=month, day=1)
-    end_date = (begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
-    prev_month = begin_date - timedelta(days=1)
-    next_month = end_date + timedelta(days=1)
-    show_next = True if end_date < datetime.utcnow().replace(day=1) else False
-    d = DateSpan(begin_date, end_date)
+    month = MonthPager(request)
 
     if em_group:
-        report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
+        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False)#(group == config.Groups.EM))
     else:
-        report = ReportingBreakdown(base_facilities, d)
+        report = ReportingBreakdown(base_facilities, month.datespan)
 
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
@@ -64,10 +71,7 @@ def dashboard(request):
                                                                                        role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
-                               "begin_date": begin_date,
-                               "show_next": show_next,
-                               "prev_month": prev_month,
-                               "next_month": next_month,
+                               "month_pager": month,
                                "districts": get_districts().order_by("code"),
                                "location": request.location},
                                
