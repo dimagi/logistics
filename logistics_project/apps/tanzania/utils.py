@@ -12,18 +12,19 @@ def chunks(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
 
-def sps_with_latest_status(sps, status_type, status_value, report_date):
+def sps_with_latest_status(sps, status_type, status_value, year, month):
     """
     Filters S
     """
+    # filter out people who submitted in the wrong month
     if status_type.startswith('rr'):
-        sdps = DeliveryGroups(report_date.month).submitting(sps, report_date.month)
+        sps = DeliveryGroups(month).submitting(sps, month)
     elif status_type.startswith('del'):
-        sdps = DeliveryGroups(report_date.month).delivering(sps, report_date.month)
+        sps = DeliveryGroups(month).delivering(sps, month)
     inner = sps.filter(supplypointstatus__status_type=status_type,
 #                       supplypointstatus__status_value=status_value,
-                       supplypointstatus__status_date__month=report_date.month,
-                       supplypointstatus__status_date__year=report_date.year)\
+                       supplypointstatus__status_date__month=month,
+                       supplypointstatus__status_date__year=year)\
                         .annotate(pk=Max('supplypointstatus__id'))
     ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query, status_type=status_type,
                                            status_value=status_value)\

@@ -14,23 +14,25 @@ class SupplyPointStatusBreakdown(object):
         if not facilities:
             facilities = SupplyPoint.objects.filter(type__code="facility")
 
+        year = report_date.year
+        month = report_date.month
         self.submitted = sps_with_latest_status(sps=facilities,
-                                                 report_date=report_date,
-                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                 status_value=SupplyPointStatusValues.SUBMITTED)
+                                                year=year, month=month,
+                                                status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                status_value=SupplyPointStatusValues.SUBMITTED)
 
         self.not_submitted = sps_with_latest_status(sps=facilities,
-                                                 report_date=report_date,
+                                                 year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED)
 
         self.not_responding = sps_with_latest_status(sps=facilities,
-                                                 report_date=report_date,
+                                                 year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT)
 
         self.delivery_received = sps_with_latest_status(sps=facilities,
-                                                 report_date=report_date,
+                                                 year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.RECEIVED)
 
