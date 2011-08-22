@@ -376,3 +376,18 @@ def message_log(req, template="messagelog/index.html"):
             "messages_table": MessageTable(Message.objects.all(), request=req)
         }, context_instance=RequestContext(req)
     )
+
+
+class MonthPager(object):
+    """
+    Utility class to show a month pager, e.g. << August 2011 >>
+    """
+    def __init__(self, request):
+        self.month = int(request.GET.get('month', datetime.utcnow().month))
+        self.year = int(request.GET.get('year', datetime.utcnow().year))
+        self.begin_date = datetime(year=self.year, month=self.month, day=1)
+        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
+        self.prev_month = self.begin_date - timedelta(days=1)
+        self.next_month = self.end_date + timedelta(days=1)
+        self.show_next = True if self.end_date < datetime.utcnow().replace(day=1) else False
+        self.datespan = DateSpan(self.begin_date, self.end_date)
