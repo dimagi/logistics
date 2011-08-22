@@ -8,14 +8,13 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Contact.email'
-        db.add_column('rapidsms_contact', 'email', self.gf('django.db.models.fields.EmailField')(default='', max_length=75, blank=True), keep_default=False)
-
+        # Adding field 'SupplyPoint.is_supervising_facility'
+        db.add_column('logistics_supplypoint', 'is_supervising_facility', self.gf('django.db.models.fields.BooleanField')(default=False), keep_default=False)
 
     def backwards(self, orm):
         
-        # Deleting field 'Contact.email'
-        db.delete_column('rapidsms_contact', 'email')
+        # Deleting field 'SupplyPoint.is_supervising_facility'
+        db.delete_column('logistics_supplypoint', 'is_supervising_facility')
 
 
     models = {
@@ -30,7 +29,7 @@ class Migration(SchemaMigration):
             'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         },
         'auth.user': {
             'Meta': {'object_name': 'User'},
@@ -84,11 +83,24 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'responsibilities': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['logistics.Responsibility']", 'null': 'True', 'blank': 'True'})
         },
+        'logistics.logisticsprofile': {
+            'Meta': {'object_name': 'LogisticsProfile'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
+        },
+        'logistics.nagrecord': {
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'NagRecord'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
+            'warning': ('django.db.models.fields.IntegerField', [], {'default': '1'})
+        },
         'logistics.product': {
             'Meta': {'object_name': 'Product'},
             'average_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'emergency_order_level': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'equivalents': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'equivalents_rel_+'", 'null': 'True', 'to': "orm['logistics.Product']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -97,11 +109,48 @@ class Migration(SchemaMigration):
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ProductType']"}),
             'units': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'logistics.productreport': {
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'ProductReport'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'message': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['messagelog.Message']", 'null': 'True', 'blank': 'True'}),
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
+            'quantity': ('django.db.models.fields.IntegerField', [], {}),
+            'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
+            'report_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ProductReportType']"}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
+        },
+        'logistics.productreporttype': {
+            'Meta': {'object_name': 'ProductReportType'},
+            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'logistics.productstock': {
+            'Meta': {'unique_together': "(('supply_point', 'product'),)", 'object_name': 'ProductStock'},
+            'auto_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'days_stocked_out': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'last_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'manual_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
+            'quantity': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
+            'use_auto_consumption': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+        },
         'logistics.producttype': {
             'Meta': {'object_name': 'ProductType'},
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+        },
+        'logistics.requisitionreport': {
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'RequisitionReport'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'message': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['messagelog.Message']"}),
+            'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
+            'submitted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
         },
         'logistics.responsibility': {
             'Meta': {'object_name': 'Responsibility'},
@@ -109,34 +158,74 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
         },
+        'logistics.stockrequest': {
+            'Meta': {'object_name': 'StockRequest'},
+            'amount_approved': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'amount_received': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'amount_requested': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
+            'canceled_for': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.StockRequest']", 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_emergency': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
+            'received_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'received_by'", 'null': 'True', 'to': "orm['rapidsms.Contact']"}),
+            'received_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'requested_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'requested_by'", 'null': 'True', 'to': "orm['rapidsms.Contact']"}),
+            'requested_on': ('django.db.models.fields.DateTimeField', [], {}),
+            'responded_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'responded_by'", 'null': 'True', 'to': "orm['rapidsms.Contact']"}),
+            'responded_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'response_status': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'}),
+            'status': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
+        },
+        'logistics.stocktransaction': {
+            'Meta': {'ordering': "('-date',)", 'object_name': 'StockTransaction'},
+            'beginning_balance': ('django.db.models.fields.IntegerField', [], {}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
+            'ending_balance': ('django.db.models.fields.IntegerField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
+            'product_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ProductReport']", 'null': 'True'}),
+            'quantity': ('django.db.models.fields.IntegerField', [], {}),
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
+        },
+        'logistics.stocktransfer': {
+            'Meta': {'object_name': 'StockTransfer'},
+            'amount': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'closed_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'giver': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'giver'", 'null': 'True', 'to': "orm['logistics.SupplyPoint']"}),
+            'giver_unknown': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'initiated_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
+            'receiver': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'receiver'", 'to': "orm['logistics.SupplyPoint']"}),
+            'status': ('django.db.models.fields.CharField', [], {'max_length': '10'})
+        },
         'logistics.supplypoint': {
             'Meta': {'object_name': 'SupplyPoint'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['logistics.SupplyPointGroup']", 'symmetrical': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_supervising_facility': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_reported': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'supplied_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPointType']"})
         },
-        'logistics.supplypointgroup': {
-            'Meta': {'object_name': 'SupplyPointGroup'},
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
-        },
         'logistics.supplypointtype': {
             'Meta': {'object_name': 'SupplyPointType'},
             'code': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50', 'primary_key': 'True', 'db_index': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'rapidsms.app': {
-            'Meta': {'object_name': 'App'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+        'messagelog.message': {
+            'Meta': {'object_name': 'Message'},
+            'connection': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Connection']", 'null': 'True'}),
+            'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'null': 'True'}),
+            'date': ('django.db.models.fields.DateTimeField', [], {}),
+            'direction': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'module': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'})
+            'text': ('django.db.models.fields.TextField', [], {})
         },
         'rapidsms.backend': {
             'Meta': {'object_name': 'Backend'},
@@ -153,25 +242,14 @@ class Migration(SchemaMigration):
         'rapidsms.contact': {
             'Meta': {'object_name': 'Contact'},
             'commodities': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'reported_by'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['logistics.Product']"}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'language': ('django.db.models.fields.CharField', [], {'max_length': '6', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'needs_reminders': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'role': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.ContactRole']", 'null': 'True', 'blank': 'True'}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True', 'null': 'True', 'blank': 'True'})
-        },
-        'rapidsms.deliveryreport': {
-            'Meta': {'object_name': 'DeliveryReport'},
-            'action': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'number': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'report': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'report_id': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'})
         }
     }
 
-    complete_apps = ['rapidsms']
+    complete_apps = ['logistics']

@@ -270,6 +270,3 @@ AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 AUDITCARE_LOG_ERRORS = False
 
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
-}

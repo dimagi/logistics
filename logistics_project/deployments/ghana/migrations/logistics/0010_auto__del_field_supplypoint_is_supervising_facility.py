@@ -5,26 +5,17 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
-    depends_on = (
-        ("logistics", "0009_auto__add_field_supplypoint_is_supervising_facility"),
-    )
 
     def forwards(self, orm):
         
-        # Adding field 'Product.emergency_order_level'
-        db.add_column('logistics_product', 'emergency_order_level', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True), keep_default=False)
-
-        # Adding field 'NagRecord.nag_type'
-        db.add_column('logistics_nagrecord', 'nag_type', self.gf('django.db.models.fields.CharField')(default='soh', max_length=30), keep_default=False)
+        # Deleting field 'SupplyPoint.is_supervising_facility'
+        db.delete_column('logistics_supplypoint', 'is_supervising_facility')
 
 
     def backwards(self, orm):
         
-        # Deleting field 'Product.emergency_order_level'
-        db.delete_column('logistics_product', 'emergency_order_level')
-
-        # Deleting field 'NagRecord.nag_type'
-        db.delete_column('logistics_nagrecord', 'nag_type')
+        # Adding field 'SupplyPoint.is_supervising_facility'
+        db.add_column('logistics_supplypoint', 'is_supervising_facility', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
 
 
     models = {
@@ -218,10 +209,10 @@ class Migration(SchemaMigration):
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_supervising_facility': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_reported': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'supervised_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'supervising_facility'", 'null': 'True', 'to': "orm['logistics.SupplyPoint']"}),
             'supplied_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPointType']"})
         },

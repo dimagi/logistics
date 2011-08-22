@@ -1,6 +1,7 @@
 import csv
 import random
 from rapidsms.conf import settings
+from logistics import loader as logistics_loader
 
 class LoaderException(Exception):
     pass
@@ -14,6 +15,7 @@ def init_static_data(demo=False):
               "to a csv list of Facilities."
         return
     facilities_file = getattr(settings, "STATIC_LOCATIONS")
+    logistics_loader.init_supply_point_types()
     LoadFacilities(facilities_file)
     LoadProductsIntoFacilities(demo)
     init_reminders()

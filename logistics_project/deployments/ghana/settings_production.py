@@ -151,3 +151,9 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 GOOGLE_ANALYTICS_ID = "123"
+
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'deployments.ghana.migrations.rapidsms',
+    'logistics': 'deployments.ghana.migrations.logistics',
+    'ewsghana': 'deployments.ghana.migrations.ewsghana',
+}
