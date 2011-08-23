@@ -6,12 +6,13 @@ from logistics.util import config
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
 
-    def __init__(self, month=None):
+    def __init__(self, month=None, facs = None):
         self.month = month if month else datetime.utcnow().month
+        self.facs = facs
         
     # Current submitting group: Jan = A
-    # Current processing group: Jan = B
-    # Current delivering group: Jan = C
+    # Current processing group: Jan = C
+    # Current delivering group: Jan = B
 
     def current_submitting_group(self, month=None):
         month = month if month else self.month
@@ -19,27 +20,33 @@ class DeliveryGroups(object):
 
     def current_processing_group(self, month=None):
         month = month if month else self.month
-        return self.current_submitting_group(month=(month+1))
+        return self.current_submitting_group(month=(month+2))
 
     def current_delivering_group(self, month=None):
         month = month if month else self.month
-        return self.current_submitting_group(month=(month+2))
+        return self.current_submitting_group(month=(month+1))
 
-    def delivering(cls, facs, month=None):
-        return facs.filter(groups__code=cls.current_delivering_group(month))
+    def delivering(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return []
+        return facs.filter(groups__code=self.current_delivering_group(month))
 
-    def processing(cls, facs, month=None):
-        return facs.filter(groups__code=cls.current_processing_group(month))
+    def processing(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return []
+        return facs.filter(groups__code=self.current_processing_group(month))
 
-    def submitting(cls, facs, month=None):
-        return facs.filter(groups__code=cls.current_submitting_group(month))
+    def submitting(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return []
+        return facs.filter(groups__code=self.current_submitting_group(month))
 
-    def facilities_by_group(cls, month=datetime.now().month):
+    def facilities_by_group(self, month=datetime.now().month):
         groups = {}
-        facs = SupplyPoint.objects.filter(type__code="facility")
-        groups['submitting'] = cls.submitting(facs, month)
-        groups['processing'] = cls.processing(facs, month)
-        groups['delivering'] = cls.delivering(facs, month)
+        facs = self.facs if self.facs else SupplyPoint.objects.filter(type__code="facility")
+        groups['submitting'] = self.submitting(facs, month)
+        groups['processing'] = self.processing(facs, month)
+        groups['delivering'] = self.delivering(facs, month)
         groups['total'] = list(facs)
         return groups
 

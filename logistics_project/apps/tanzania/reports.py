@@ -16,6 +16,8 @@ class SupplyPointStatusBreakdown(object):
 
         year = report_date.year
         month = report_date.month
+
+
         self.submitted = sps_with_latest_status(sps=facilities,
                                                 year=year, month=month,
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
