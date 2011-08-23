@@ -105,7 +105,7 @@ class RapidHttpBackend(BackendBase):
                            'phone_number': self.incoming_phone_number_param,
                            'params': unicode(request.GET)
                          }
-            self.error(error_msg)
+            self.warning(error_msg)
             return HttpResponseBadRequest(error_msg)
         now = datetime.utcnow()
         try:
