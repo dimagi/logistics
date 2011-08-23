@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    url(r'^$', 'logistics_project.apps.tanzania.views.dashboard', name="tz_dashboard"),                       
+    url(r'^dashboard/$', 'logistics_project.apps.tanzania.views.dashboard', name="tz_dashboard"),
     (r'^facilities/(?P<facility_id>\d+)/$', 'logistics_project.apps.tanzania.views.facilities_detail'),
     (r'^facilities/(?P<facility_id>\d+)/inventory/$', 'logistics_project.apps.tanzania.views.facilities_detail', {'view_type': 'inventory'}),
     (r'^facilities/(?P<facility_id>\d+)/months_of_stock/$', 'logistics_project.apps.tanzania.views.facilities_detail', {'view_type': 'months_of_stock'}),
