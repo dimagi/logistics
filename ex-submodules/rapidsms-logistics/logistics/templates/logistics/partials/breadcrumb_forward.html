@@ -7,14 +7,20 @@
             $("#zoom_form > #location").val(event.currentTarget.value);
             $("#zoom_form").submit();
         });
+        $(".location_parent").click(function(event) {
+            $("#zoom_form > #location").val("{{location.tree_parent.code}}");
+            $("#zoom_form").submit();
+        });
     });
     //--><!]]>
 </script>
 {% endblock %}
-
+<form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
+    {% csrf_token %}
+    <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
+    <input type="hidden" name="location" id="location" value="" />
 {% if location.get_children %}
-    <form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
-	    ->&nbsp;
+        &raquo;
 	    <select id="zoom_select" name="zoom_select">
 	        <option selected disabled>-----------</option>
 	           {% for child in location.get_children %}
@@ -23,10 +29,10 @@
 	               </option>
 	           {% endfor %}
 	    </select>
-	    <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
-	    <input type="hidden" name="location" id="location" value="" />
-	    {% csrf_token %}
-    </form>
+	    
 {% endif %}
-
+{% if location.tree_parent %}
+    <a class="location_parent" href="#">Up a level</a>
+{% endif %}
+</form>
 <div style="clear:both"></div>
