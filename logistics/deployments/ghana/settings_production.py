@@ -11,6 +11,7 @@ APPS = [
     "auditcare",
     "logistics.apps.ewsghana",
     "logistics.apps.smsgh",
+    "cpserver",
 ]
 
 MIDDLEWARE_CLASSES = (
