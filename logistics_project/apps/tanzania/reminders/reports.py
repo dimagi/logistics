@@ -42,6 +42,10 @@ def construct_randr_summary(supply_point):
                                    SupplyPointStatusValues.NOT_SUBMITTED],
                                   children, DateSpan(cutoff, datetime.utcnow()))
     
+def construct_randr_summary_message(supply_point):
+    return _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY, 
+             **construct_randr_summary(supply_point))
+             
 def construct_soh_summary(supply_point):
     children = supply_point.children()
     # assumes being run in month after the cutoff date (last day of previous month)
@@ -49,6 +53,10 @@ def construct_soh_summary(supply_point):
     return _construct_status_dict(SupplyPointStatusTypes.SOH_FACILITY, 
                                   [SupplyPointStatusValues.SUBMITTED],
                                   children, DateSpan(cutoff, datetime.utcnow()))
+
+def construct_soh_summary_message(supply_point):
+    return  _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY, 
+              **construct_soh_summary(supply_point))
     
 def construct_delivery_summary(supply_point):
     children = supply_point.children()
@@ -58,7 +66,11 @@ def construct_delivery_summary(supply_point):
                                   [SupplyPointStatusValues.SUBMITTED, 
                                    SupplyPointStatusValues.NOT_SUBMITTED],
                                   children, DateSpan(cutoff, datetime.utcnow()))
-    
+
+def construct_delivery_summary_message(supply_point):    
+    return _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY, 
+             **construct_delivery_summary(supply_point))
+
 @businessday(-1)
 def delivery_summary():
     """
@@ -66,8 +78,7 @@ def delivery_summary():
     """
     for contact in get_district_people():
         send_message(contact.connection,
-                     _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY, 
-                       **construct_delivery_summary(contact.supply_point)))
+                     construct_delivery_summary_message(contact.supply_point))
         
 
 
@@ -78,8 +89,7 @@ def soh_summary():
     """
     for contact in get_district_people():
         send_message(contact.connection,
-                     _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY, 
-                       **construct_soh_summary(contact.supply_point)))
+                     construct_soh_summary_message(contact.supply_point))
         
 @businessday_before(17)
 def randr_summary():
@@ -88,5 +98,4 @@ def randr_summary():
     """
     for contact in get_district_people():
         send_message(contact.connection,
-                     _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY, 
-                       **construct_randr_summary(contact.supply_point)))
+                     construct_randr_summary_message(contact.supply_point))

@@ -6,11 +6,14 @@ from logistics.models import SupplyPoint, Product
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from datetime import datetime
+from logistics_project.apps.tanzania.reminders import reports
 
 class MessageInitiator(KeywordHandler):
     """
+    Initiate test messages for trainings.
     """
-    keyword = "test|TEST"
+    
+    keyword = "test"
 
     @logistics_contact_required()
     def help(self):
@@ -19,16 +22,25 @@ class MessageInitiator(KeywordHandler):
     @logistics_contact_required()
     def handle(self, text):
         result = text.lower().split()
-        command = result.pop(0).lower()
-        msd_code = result.pop(0).upper()
-
+        if len(result < 2):
+            return self.help()
+        
+        command = result[0]
+        rest = " ".join(result[1:])
+        
         try:
-            sp_target = SupplyPoint.objects.get(code__iexact=msd_code)
+            sp_target = SupplyPoint.objects.get(code__iexact=rest)
         except SupplyPoint.DoesNotExist:
-            self.respond(_(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":msd_code})
-            return True
-
-        if command in  ["la"]:
+            # maybe it's a district, get by name
+            try:
+                sp_target = SupplyPoint.objects.get(name__iexact=rest)
+            except SupplyPoint.DoesNotExist:
+                # fail
+                self.respond(_(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":msd_code})
+                return True
+        
+        # target guaranteed to be set by here
+        if command in ["la"]:
             for c in sp_target.active_contact_set:
                 c.message(_(config.Messages.LOSS_ADJUST_HELP))
             SupplyPointStatus.objects.create(supply_point=sp_target,
@@ -72,7 +84,7 @@ class MessageInitiator(KeywordHandler):
             else:
                 self.respond(_("Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s") % {"location_name":"changeme",
                                                                                                                                                 "location_type":"changeme"})
-        if command in  ["randr"]:
+        if command in ["randr"]:
             if sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT:
                 for c in sp_target.active_contact_set:
                     c.message(_(config.Messages.SUBMITTED_REMINDER_DISTRICT))
@@ -89,7 +101,7 @@ class MessageInitiator(KeywordHandler):
                                                  status_date=self.msg.timestamp)
 
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
-        if command in  ["delivery"]:
+        if command in ["delivery"]:
             if sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT:
                 for c in sp_target.active_contact_set:
                     c.message(_(config.Messages.DELIVERY_REMINDER_DISTRICT))
@@ -106,7 +118,7 @@ class MessageInitiator(KeywordHandler):
                                                  status_date=self.msg.timestamp)
 
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
-        if command in  ["latedelivery"]:
+        if command in ["latedelivery"]:
             #TODO: Query out counts
             for c in sp_target.active_contact_set:
                 c.message(_(config.Messages.DELIVERY_LATE_DISTRICT) % {"group_name":"changeme",
@@ -115,7 +127,28 @@ class MessageInitiator(KeywordHandler):
                                                                        "not_received_count":3})
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
 
-        if command in  ["send_inquiry_message"]:
+        if command in ["send_inquiry_message"]:
             #sends to all children under a location - website only
             raise Exception("This handler command hasn't been implemented yet")
-            self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
+            
+        # these next three only make sense for districts
+        if command in ["randr_report"]:
+            assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
+            for c in sp_target.active_contact_set:
+                c.message(reports.construct_randr_summary_message(sp_target))
+            self.respond_success()
+        if command in ["soh_report"]:
+            assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
+            for c in sp_target.active_contact_set:
+                c.message(reports.construct_soh_summary_message(sp_target))
+            self.respond_success()
+        if command in ["delivery_report"]:
+            assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
+            for c in sp_target.active_contact_set:
+                c.message(reports.construct_delivery_summary_message(sp_target))
+            self.respond_success()
+        
+    def respond_success(self):
+        self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
+        
+        
