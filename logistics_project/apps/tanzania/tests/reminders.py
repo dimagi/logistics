@@ -52,7 +52,7 @@ class TestDeliveryReminder(TanzaniaTestScriptBase):
         self.contact = register_user(self, "778", "someone")
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_delivering_group()),)
+                     (code=DeliveryGroups().current_delivering_group()),)
         sp.save()
         
     def testGroupExclusion(self):
@@ -63,14 +63,14 @@ class TestDeliveryReminder(TanzaniaTestScriptBase):
         
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_submitting_group()),)
+                     (code=DeliveryGroups().current_submitting_group()),)
         sp.save()
         people = list(delivery.get_facility_people(datetime.utcnow()))
         self.assertEqual(0, len(people))
         
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_processing_group()),)
+                     (code=DeliveryGroups().current_processing_group()),)
         sp.save()
         people = list(delivery.get_facility_people(datetime.utcnow()))
         self.assertEqual(0, len(people))
@@ -102,7 +102,7 @@ class TestRandRReminder(TanzaniaTestScriptBase):
         self.contact = register_user(self, "778", "someone")
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_submitting_group()),)
+                     (code=DeliveryGroups().current_submitting_group()),)
         sp.save()
         
     def testGroupExclusion(self):
@@ -113,13 +113,13 @@ class TestRandRReminder(TanzaniaTestScriptBase):
         
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_delivering_group()),)
+                     (code=DeliveryGroups().current_delivering_group()),)
         sp.save()
         self.assertEqual(0, len(list(randr.get_facility_people(datetime.utcnow()))))
         
         sp = self.contact.supply_point
         sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups.current_processing_group()),)
+                     (code=DeliveryGroups().current_processing_group()),)
         sp.save()
         self.assertEqual(0, len(list(randr.get_facility_people(datetime.utcnow()))))
         
