@@ -10,6 +10,7 @@ from django.template.context import RequestContext
 from django.utils import translation
 from logistics_project.apps.malawi.util import facility_supply_points_below
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
+from logistics_project.apps.tanzania.tables import OrderingStatusTable
 from logistics_project.apps.tanzania.utils import chunks
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.decorators.datespan import datespan_in_request
@@ -25,8 +26,6 @@ def dashboard(request):
     # district filter
     if request.location:
         location = request.location
-#        valid_facilities = get_facilities().filter(parent_id=location.pk)
-#        base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
         base_facilities = base_facilities.filter(supplied_by__location=location)
     else:
         location = Location.objects.get(name="MOHSW")
@@ -78,7 +77,17 @@ def facilities_index(request, view_type="inventory"):
                                'begin_date': request.datespan.startdate if request.datespan else datetime.utcnow().replace(day=1),
                                'end_date': request.datespan.enddate if request.datespan else datetime.utcnow()
                                }, context_instance=RequestContext(request))
-
-
+@place_in_request()
 def facilities_ordering(request):
-    pass
+    facs = SupplyPoint.objects.filter(type__code="facility", active=True)
+
+    if request.location:
+        location = request.location
+        facs = facs.filter(supplied_by__location=location)
+    return render_to_response(
+        "tanzania/facilities_ordering.html",
+        {
+            "districts": Location.objects.filter(supplypoint__type__code="district"),
+            "table": OrderingStatusTable(facs, request=request)
+        },
+        context_instance=RequestContext(request))

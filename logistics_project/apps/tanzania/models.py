@@ -119,6 +119,10 @@ class SupplyPointStatus(models.Model):
     def __unicode__(self):
         return "%s: %s" % (self.status_type, self.status_value)
 
+    @property
+    def name(self):
+        return SupplyPointStatusTypes.get_display_name(self.status_type, self.status_value)
+
     class Meta:
         verbose_name = "Facility Status"
         verbose_name_plural = "Facility Statuses"
