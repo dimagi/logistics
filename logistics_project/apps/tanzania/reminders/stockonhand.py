@@ -1,7 +1,8 @@
 from scheduler.decorators import businessday
 from logistics.util import config
 from datetime import datetime, timedelta
-from logistics_project.apps.tanzania.reminders import send_reminders
+from logistics_project.apps.tanzania.reminders import send_reminders,\
+    update_statuses
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from rapidsms.models import Contact
 from logistics.const import Reports
@@ -32,35 +33,26 @@ def last_yearmonth():
     last_month = datetime(now.year, now.month, 1) - timedelta(days=1)
     return (last_month.year, last_month.month)
     
-def update_statuses(contacts):
-    now = datetime.utcnow()
-    for sp in set(c.supply_point for c in contacts):
-        SupplyPointStatus.objects.create(supply_point=sp,
-                                         status_type=SupplyPointStatusTypes.SOH_FACILITY,
-                                         status_value=SupplyPointStatusValues.REMINDER_SENT,
-                                         status_date=now)
             
+def _shared(people):
+    send_reminders(people, config.Messages.REMINDER_STOCKONHAND) 
+    update_statuses(people, SupplyPointStatusTypes.SOH_FACILITY,
+                    SupplyPointStatusValues.REMINDER_SENT)        
+    
 @businessday(-1)
 def first():
     """Last business day of the month 2:00 PM"""
-    people = get_people(get_cutoff(*this_yearmonth()))
-    send_reminders(people, config.Messages.REMINDER_STOCKONHAND) 
-    update_statuses(people)        
+    _shared(get_people(get_cutoff(*this_yearmonth())))
     
 @businessday(1)
 def second():
     """1st business day of the next month 9:00am"""
-    people = get_people(get_cutoff(*last_yearmonth()))
-    send_reminders(people, config.Messages.REMINDER_STOCKONHAND)
-    update_statuses(people)
+    _shared(get_people(get_cutoff(*last_yearmonth())))
     
 @businessday(5)
 def third():
     """5th business day of the next month 8:15am"""
-    people = get_people(get_cutoff(*last_yearmonth()))
-    send_reminders(people, config.Messages.REMINDER_STOCKONHAND)
-    update_statuses(people)
-    
+    _shared(get_people(get_cutoff(*last_yearmonth())))    
 
     
     

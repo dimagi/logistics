@@ -10,7 +10,17 @@ Reminders can fire up to three times.
 """
 from rapidsms.contrib.messaging.utils import send_message
 from django.utils.translation import ugettext as _
+from datetime import datetime
+from logistics_project.apps.tanzania.models import SupplyPointStatus
 
 def send_reminders(contacts, message):
     for contact in contacts:
         send_message(contact.connection, _(message))
+        
+def update_statuses(contacts, type, value):
+    now = datetime.utcnow()
+    for sp in set(c.supply_point for c in contacts):
+        SupplyPointStatus.objects.create(supply_point=sp,
+                                         status_type=type,
+                                         status_value=value,
+                                         status_date=now)
