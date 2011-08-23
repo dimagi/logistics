@@ -44,17 +44,21 @@
         bounds.extend(latlng{{forloop.counter0}});
 {% endfor %}
 
-        //map.fitBounds(bounds);
+        map.fitBounds(bounds);
     });
 </script>
 {% endblock %}
 
 {% block stylesheets %}{{ block.super }}
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}maps/stylesheets/maps.css" />
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 {% endblock %}
 
 {% block content %}
+    {% include "logistics/partials/breadcrumb_nav.html" %}
+    {% include "logistics/partials/breadcrumb_forward.html" %}
+        
     <h2>Map</h2>
     <div id="map_legend">
     	<span><img src="{{MEDIA_URL}}logistics/images/stockout.png"></img>&nbsp;</span>All Stockouts
