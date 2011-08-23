@@ -18,25 +18,29 @@ class SupplyPointStatusBreakdown(object):
         month = report_date.month
 
 
-        self.submitted = sps_with_latest_status(sps=facilities,
+        self.submitted = list(sps_with_latest_status(sps=facilities,
                                                 year=year, month=month,
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                status_value=SupplyPointStatusValues.SUBMITTED)
+                                                status_value=SupplyPointStatusValues.SUBMITTED))
 
-        self.not_submitted = sps_with_latest_status(sps=facilities,
+        self.not_submitted = list(sps_with_latest_status(sps=facilities,
                                                  year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                 status_value=SupplyPointStatusValues.NOT_SUBMITTED)
+                                                 status_value=SupplyPointStatusValues.NOT_SUBMITTED))
 
-        self.not_responding = sps_with_latest_status(sps=facilities,
+        self.not_responding = list(sps_with_latest_status(sps=facilities,
                                                  year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                 status_value=SupplyPointStatusValues.REMINDER_SENT)
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
 
-        self.delivery_received = sps_with_latest_status(sps=facilities,
+        self.delivery_received = list(sps_with_latest_status(sps=facilities,
                                                  year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
-                                                 status_value=SupplyPointStatusValues.RECEIVED)
+                                                 status_value=SupplyPointStatusValues.RECEIVED)) + \
+                                 list(sps_with_latest_status(sps=facilities,
+                                                 year=year, month=month,
+                                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                                 status_value=SupplyPointStatusValues.QUANTITIES_REPORTED))
 
         self._submission_chart = None
 
