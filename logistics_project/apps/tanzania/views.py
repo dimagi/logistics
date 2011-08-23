@@ -24,7 +24,7 @@ def dashboard(request):
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
 
     # district filter
-    if request.location:
+    if request.location and not request.location.name.startswith("MOHSW"):
         location = request.location
         base_facilities = base_facilities.filter(supplied_by__location=location)
     else:
@@ -33,7 +33,6 @@ def dashboard(request):
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     districts = Location.objects.filter(supplypoint__type__code="district")
     sub_data = SupplyPointStatusBreakdown(base_facilities, mp.begin_date)
-    
     return render_to_response("tanzania/dashboard.html",
                               {
                                "sub_data": sub_data,

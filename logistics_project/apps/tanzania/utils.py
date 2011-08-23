@@ -22,7 +22,6 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
     elif status_type.startswith('del'):
         sps = DeliveryGroups(month).delivering(sps, month)
     inner = sps.filter(supplypointstatus__status_type=status_type,
-#                       supplypointstatus__status_value=status_value,
                        supplypointstatus__status_date__month=month,
                        supplypointstatus__status_date__year=year)\
                         .annotate(pk=Max('supplypointstatus__id'))
