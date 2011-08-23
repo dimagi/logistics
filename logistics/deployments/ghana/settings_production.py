@@ -1,8 +1,8 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-ADMINS = (('Rowena','rluk+ewsghana-admin@dimagi.com'), )
-MANAGERS = (('Rowena','rluk+ewsghana-manager@dimagi.com'), )
+ADMINS = (('Rowena','ews-dev@dimagi.com'), )
+MANAGERS = (('Rowena','ews-dev@dimagi.com'), )
 SEND_BROKEN_LINK_EMAILS = True
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
