@@ -14,7 +14,7 @@ def chunks(l, n):
 
 def sps_with_latest_status(sps, status_type, status_value, year, month):
     """
-    Filters S
+    This method is used by the dashboard.
     """
     # filter out people who submitted in the wrong month
     if status_type.startswith('rr'):
@@ -27,6 +27,21 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
                        supplypointstatus__status_date__year=year)\
                         .annotate(pk=Max('supplypointstatus__id'))
     ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query, status_type=status_type,
+                                           status_value=status_value)\
+                                           .distinct()\
+                                            .values_list("supply_point", flat=True)
+    return SupplyPoint.objects.filter(id__in=ids)
+
+def supply_points_with_latest_status_by_datespan(sps, status_type, status_value, datespan):
+    """
+    This very similar method is used by the reminders.
+    """
+    inner = sps.filter(supplypointstatus__status_type=status_type,
+                       supplypointstatus__status_date__gte=datespan.startdate,
+                       supplypointstatus__status_date__lte=datespan.enddate)\
+                        .annotate(pk=Max('supplypointstatus__id'))
+    ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query, 
+                                           status_type=status_type,
                                            status_value=status_value)\
                                            .distinct()\
                                             .values_list("supply_point", flat=True)

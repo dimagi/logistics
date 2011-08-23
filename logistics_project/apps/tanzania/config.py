@@ -197,7 +197,9 @@ class Messages(object):
     
     # reminder reports 
     REMINDER_MONTHLY_RANDR_SUMMARY = "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
-     
+    REMINDER_MONTHLY_SOH_SUMMARY = "SOH - %(reported)s/%(total)s reported, %(not_responding)s/%(total)s did not reply" 
+    REMINDER_MONTHLY_DELIVERY_SUMMARY = "Deliveries - %(received)s/%(total)s received, %(not_received)/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
+
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'"
