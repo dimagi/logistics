@@ -6,9 +6,9 @@ from logistics_project.apps.tanzania.reminders import send_reminders,\
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from rapidsms.models import Contact
 from logistics.const import Reports
-from dimagi.utils.dates import get_business_day_of_month_before
+from dimagi.utils.dates import get_business_day_of_month
 from logistics_project.apps.tanzania.models import SupplyPointStatusValues,\
-    SupplyPointStatusTypes, SupplyPointStatus
+    SupplyPointStatusTypes
 
 def get_people(cutoff):
     # these go out every month to every active person at all facilities
@@ -22,7 +22,7 @@ def get_people(cutoff):
             yield contact
                 
 def get_cutoff(year, month):
-    return get_business_day_of_month_before(year, month, -1)
+    return get_business_day_of_month(year, month, -1)
 
 def this_yearmonth():
     now = datetime.utcnow()

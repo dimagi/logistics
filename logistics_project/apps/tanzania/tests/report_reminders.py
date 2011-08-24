@@ -36,6 +36,11 @@ class TestReportGroups(TanzaniaTestScriptBase):
         self.assertEqual(1, len(list(reports.get_district_people())))
 
 class TestReportSummaryBase(TanzaniaTestScriptBase):
+    """
+    Stub base class for the report tests. Provides some convenience methods
+    and does some initial setup of facility and distsrict users and supply
+    points.
+    """
     
     @property
     def relevant_group(self):
@@ -150,7 +155,6 @@ class TestDeliverySummary(TestReportSummaryBase):
 
     @property
     def relevant_group(self):
-        # this doesn't really matter since it's relevant every month
         return DeliveryGroups().current_delivering_group()
     
     def testBasicReportNoResponses(self):
@@ -216,6 +220,50 @@ class TestDeliverySummary(TestReportSummaryBase):
         script = """
             777 > test delivery_report TEST DISTRICT
             777 < Deliveries - 1/3 received, 1/3 did not receive, 1/3 did not reply
+        """
+        self.runScript(script)
+
+class TestSoHSummary(TestReportSummaryBase):
+
+    @property
+    def relevant_group(self):
+        # this doesn't really matter since it's relevant every month
+        return DeliveryGroups().current_delivering_group()
+    
+    def testBasicReportNoResponses(self):
+        result = reports.construct_soh_summary(self.district_contact.supply_point)
+        self.assertEqual(self.relevant_count, result["total"])
+        self.assertEqual(self.relevant_count, result["not_responding"])
+        self.assertEqual(0, result["submitted"])
+        
+    def testPositiveResponses(self):
+        script = """
+            %(phone)s > Hmk Id 400 Dp 569 Ip 678
+        """
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_soh_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
+            self.assertEqual(1 + i, result["submitted"])
+
+    def testMessageInitiation(self):
+        # todo: translations
+        script = """
+            777 > test soh_report TEST DISTRICT
+            777 < SOH - 0/3 reported, 3/3 did not reply
+        """
+        self.runScript(script)
+        
+        script = """
+            778 > Hmk Id 400 Dp 569 Ip 678
+            779 > Hmk Id 400 Dp 569 Ip 678
+        """
+        self.runScript(script)
+        
+        script = """
+            777 > test soh_report TEST DISTRICT
+            777 < SOH - 2/3 reported, 1/3 did not reply
         """
         self.runScript(script)
 
