@@ -42,9 +42,27 @@
         });
         
         bounds.extend(latlng{{forloop.counter0}});
+{% empty %}
+        bounds.extend(latlng);        
 {% endfor %}
-
+        // This is needed to set the zoom after fitbounds,
+        // HT: http://stackoverflow.com/questions/2989858/google-maps-v3-enforcing-min-zoom-level-when-using-fitbounds/2990316#2990316 
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+		    zoomChangeBoundsListener = 
+		        google.maps.event.addListener(map, 'bounds_changed', function(event) {
+		            if (this.getZoom() > 10 && this.initialZoom == true) {
+		                // Change max/min zoom here
+		                this.setZoom(10);
+		                this.initialZoom = false;
+		            } else {
+		              console.log(this.getZoom());
+		            }
+		        google.maps.event.removeListener(zoomChangeBoundsListener);
+		    });
+		});
+		map.initialZoom = true;
         map.fitBounds(bounds);
+        
     });
 </script>
 {% endblock %}
@@ -59,7 +77,7 @@
     {% include "logistics/partials/breadcrumb_nav.html" %}
     {% include "logistics/partials/breadcrumb_forward.html" %}
         
-    <h2>Map</h2>
+    <h2>{{ location.name }}</h2>
     <div id="map_legend">
     	<span><img src="{{MEDIA_URL}}logistics/images/stockout.png"></img>&nbsp;</span>All Stockouts
     	<span><img src="{{MEDIA_URL}}logistics/images/warning.png">&nbsp;</span>Some Stockouts
