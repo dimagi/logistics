@@ -52,7 +52,7 @@ def _malawi_shared():
     def malawi_extras():
         run("python manage.py malawi_init")
         run("python manage.py loaddata ../deploy/malawi/initial_data.json")
-	sudo("/etc/init.d/memcached restart")
+        sudo("/etc/init.d/memcached restart")
     env.extras = malawi_extras
 
 def malawi():
@@ -81,11 +81,9 @@ def _tz_shared():
     env.db_cleanup = False
     env.stop_start = True
     env.branch = "tz-dev"
-    def malawi_extras():
-#        run("python manage.py malawi_init")
-#        run("python manage.py loaddata ../deploy/malawi/initial_data.json")
-	sudo("/etc/init.d/memcached restart")
-    env.extras = malawi_extras
+    def tz_extras():
+        sudo("/etc/init.d/memcached restart")
+    env.extras = tz_extras
 
 def tz_staging():
     """
