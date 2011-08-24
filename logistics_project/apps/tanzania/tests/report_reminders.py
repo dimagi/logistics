@@ -35,10 +35,20 @@ class TestReportGroups(TanzaniaTestScriptBase):
         self.contact.save()
         self.assertEqual(1, len(list(reports.get_district_people())))
 
-class TestRandRSummary(TanzaniaTestScriptBase):
-
+class TestReportSummaryBase(TanzaniaTestScriptBase):
+    
+    @property
+    def relevant_group(self):
+        raise NotImplementedError
+    
+    @property
+    def relevant_count(self):
+        return SupplyPoint.objects.filter\
+            (type__code=SupplyPointCodes.FACILITY,
+             groups__code=self.relevant_group).count()
+    
     def setUp(self):
-        super(TestRandRSummary, self).setUp()
+        super(TestReportSummaryBase, self).setUp()
         Contact.objects.all().delete()
         ProductReport.objects.all().delete()
 
@@ -49,104 +59,74 @@ class TestRandRSummary(TanzaniaTestScriptBase):
         self.district_contact.supply_point = sp
         self.district_contact.save()
         
-        self.facility_contact = register_user(self, "778", "someone")
-        self.assertEqual(self.facility_contact.supply_point.supplied_by,
-                         self.district_contact.supply_point)
+        contact1 = register_user(self, "778", "Test User1", "d10001", "VETA 1")
+        contact2 = register_user(self, "779", "Test User2", "d10002", "VETA 2")
+        contact3 = register_user(self, "780", "Test User3", "d10003", "VETA 3")
+        self.facility_contacts = [contact1, contact2, contact3]
+        for contact in self.facility_contacts:
+            # make sure parentage is right
+            self.assertEqual(contact.supply_point.supplied_by,
+                             self.district_contact.supply_point)
+            # make sure group is right 
+            contact.supply_point.groups = (SupplyPointGroup.objects.get\
+                                           (code=self.relevant_group),)
+            contact.supply_point.save()
+            
+    
+class TestRandRSummary(TestReportSummaryBase):
+
+    @property
+    def relevant_group(self):
+        return DeliveryGroups().current_submitting_group()
     
     def testBasicReportNoResponses(self):
-        
-        sp = self.facility_contact.supply_point
-        sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups().current_submitting_group()),)
-        sp.save()
-        submitting = SupplyPoint.objects.filter\
-            (type__code=SupplyPointCodes.FACILITY,
-             groups__code=DeliveryGroups().current_submitting_group()).count()
-
         result = reports.construct_randr_summary(self.district_contact.supply_point)
-        self.assertEqual(submitting, result["total"])
-        self.assertEqual(submitting, result["not_responding"])
+        self.assertEqual(self.relevant_count, result["total"])
+        self.assertEqual(self.relevant_count, result["not_responding"])
         self.assertEqual(0, result["not_submitted"])
         self.assertEqual(0, result["submitted"])
 
-    def testBasicReportOneResponder(self):
-        sp = self.facility_contact.supply_point
-        sp.groups = (SupplyPointGroup.objects.get\
-                     (code=DeliveryGroups().current_submitting_group()),)
-        sp.save()
-
-        submitting = SupplyPoint.objects.filter\
-            (type__code=SupplyPointCodes.FACILITY,
-             groups__code=DeliveryGroups().current_submitting_group()).count()
-
+    def testPositiveResponses(self):
         script = """
-            778 > nimetuma
+            %(phone)s > nimetuma
         """
-        self.runScript(script)
-        result = reports.construct_randr_summary(self.district_contact.supply_point)
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_randr_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
+            self.assertEqual(0, result["not_submitted"])
+            self.assertEqual(1 + i, result["submitted"])
 
-        self.assertEqual(submitting, result["total"])
-        self.assertEqual(submitting - 1, result["not_responding"])
-        self.assertEqual(0, result["not_submitted"])
-        self.assertEqual(1, result["submitted"])
-
-    def testBasicReportMultipleResponders(self):
-        contact1 = register_user(self, "778", "Test User1", "d10001", "VETA 1")
-        contact2 = register_user(self, "779", "Test User2", "d10002", "VETA 2")
-        contact3 = register_user(self, "780", "Test User3", "d10003", "VETA 3")
-
-        for sp in [contact1.supply_point, contact2.supply_point, contact3.supply_point]:
-            sp.groups = (SupplyPointGroup.objects.get\
-                         (code=DeliveryGroups().current_submitting_group()),)
-            sp.save()
-
-        submitting = SupplyPoint.objects.filter\
-            (type__code=SupplyPointCodes.FACILITY,
-             groups__code=DeliveryGroups().current_submitting_group()).count()
-
+    def testNegativeResponses(self):
         script = """
-            778 > nimetuma
+            %(phone)s > sijatuma
         """
-        self.runScript(script)
-        result = reports.construct_randr_summary(sp.supplied_by)
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_randr_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
+            self.assertEqual(1 + i, result["not_submitted"])
+            self.assertEqual(0, result["submitted"])
 
-        self.assertEqual(submitting, result["total"])
-        self.assertEqual(submitting-1, result["not_responding"])
-        self.assertEqual(0, result["not_submitted"])
-        self.assertEqual(1, result["submitted"])
-
+    def testOverrides(self):
+        self.testPositiveResponses()
+        # at this point they should all be positive. But if we send 
+        # an additional negative it should override it
         script = """
-            779 > nimetuma
+            %(phone)s > sijatuma
         """
-        self.runScript(script)
-        result = reports.construct_randr_summary(sp.supplied_by)
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_randr_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 3, result["not_responding"])
+            self.assertEqual(1 + i, result["not_submitted"])
+            self.assertEqual(self.relevant_count - 1 - i, result["submitted"])
 
-        self.assertEqual(submitting, result["total"])
-        self.assertEqual(submitting-2, result["not_responding"])
-        self.assertEqual(0, result["not_submitted"])
-        self.assertEqual(2, result["submitted"])
-
-        script = """
-            780 > sijatuma
-        """
-        self.runScript(script)
-        result = reports.construct_randr_summary(sp.supplied_by)
-
-        self.assertEqual(submitting, result["total"])
-        self.assertEqual(submitting-3, result["not_responding"])
-        self.assertEqual(1, result["not_submitted"])
-        self.assertEqual(2, result["submitted"])
-        
     def testMessageInitiation(self):
-        contact1 = register_user(self, "778", "Test User1", "d10001", "VETA 1")
-        contact2 = register_user(self, "779", "Test User2", "d10002", "VETA 2")
-        contact3 = register_user(self, "780", "Test User3", "d10003", "VETA 3")
         
-        for sp in [contact1.supply_point, contact2.supply_point, contact3.supply_point]:
-            sp.groups = (SupplyPointGroup.objects.get\
-                         (code=DeliveryGroups().current_submitting_group()),)
-            sp.save()
-
         # todo: translations
         script = """
             777 > test randr_report TEST DISTRICT
@@ -165,4 +145,77 @@ class TestRandRSummary(TanzaniaTestScriptBase):
             777 < R&R - 1/3 submitted, 1/3 did not submit, 1/3 did not reply
         """
         self.runScript(script)
+
+class TestDeliverySummary(TestReportSummaryBase):
+
+    @property
+    def relevant_group(self):
+        # this doesn't really matter since it's relevant every month
+        return DeliveryGroups().current_delivering_group()
+    
+    def testBasicReportNoResponses(self):
+        result = reports.construct_delivery_summary(self.district_contact.supply_point)
+        self.assertEqual(self.relevant_count, result["total"])
+        self.assertEqual(self.relevant_count, result["not_responding"])
+        self.assertEqual(0, result["not_received"])
+        self.assertEqual(0, result["received"])
+
+    def testPositiveResponses(self):
+        script = """
+            %(phone)s > nimepokea
+        """
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_delivery_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
+            self.assertEqual(0, result["not_received"])
+            self.assertEqual(1 + i, result["received"])
+
+    def testNegativeResponses(self):
+        script = """
+            %(phone)s > sijapokea
+        """
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_delivery_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
+            self.assertEqual(1 + i, result["not_received"])
+            self.assertEqual(0, result["received"])
+
+    def testOverrides(self):
+        self.testPositiveResponses()
+        # at this point they should all be positive. But if we send 
+        # an additional negative it should override it
+        script = """
+            %(phone)s > sijapokea
+        """
+        for i, contact in enumerate(self.facility_contacts):
+            self.runScript(script % {"phone": contact.default_connection.identity})
+            result = reports.construct_delivery_summary(self.district_contact.supply_point)
+            self.assertEqual(self.relevant_count, result["total"])
+            self.assertEqual(self.relevant_count - 3, result["not_responding"])
+            self.assertEqual(1 + i, result["not_received"])
+            self.assertEqual(self.relevant_count - 1 - i, result["received"])
+
+    def testMessageInitiation(self):
+        # todo: translations
+        script = """
+            777 > test delivery_report TEST DISTRICT
+            777 < Deliveries - 0/3 received, 0/3 did not receive, 3/3 did not reply
+        """
+        self.runScript(script)
         
+        script = """
+            778 > nimepokea
+            779 > sijapokea
+        """
+        self.runScript(script)
+        
+        script = """
+            777 > test delivery_report TEST DISTRICT
+            777 < Deliveries - 1/3 received, 1/3 did not receive, 1/3 did not reply
+        """
+        self.runScript(script)
+

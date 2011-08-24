@@ -62,8 +62,8 @@ def construct_delivery_summary(supply_point):
     # assumes being run in the same month we care about.
     cutoff = delivery.get_facility_cutoff()
     return _construct_status_dict(SupplyPointStatusTypes.DELIVERY_FACILITY,
-                                  [SupplyPointStatusValues.SUBMITTED, 
-                                   SupplyPointStatusValues.NOT_SUBMITTED],
+                                  [SupplyPointStatusValues.RECEIVED, 
+                                   SupplyPointStatusValues.NOT_RECEIVED],
                                   children, DateSpan(cutoff, datetime.utcnow()))
 
 def construct_delivery_summary_message(supply_point):    
