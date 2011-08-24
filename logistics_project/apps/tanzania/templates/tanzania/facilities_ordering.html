@@ -1,13 +1,15 @@
 {% extends base_template %}
 {% load i18n %}
 {% load djtables_tags %}
+{% load nav_tags %}
+
 
 {% block title %}{% trans "Ordering Status"%}{{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="crumbs">{% for title, href in breadcrumbs %}{% if not forloop.first %} &raquo; {% endif %}{% if href %}<a href="{{href}}">{{ title }}</a>{% else %}{{ title }}{% endif %}{% endfor %}</div>
-
-{#{% include "logistics/partials/month_pager.html" %}#}
+    <div class="crumbs">{% breadcrumbs location %}</div>
+   <div style="clear:both;">&nbsp;</div>
+{% include "logistics/partials/month_pager.html" %}
 
     <div style="clear:both;">
 {% include "logistics/partials/selector_form.html" %}

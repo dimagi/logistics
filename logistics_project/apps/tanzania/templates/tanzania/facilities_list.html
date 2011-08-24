@@ -7,13 +7,16 @@
 
 {% block content %}
 
+    
+
 <div class="crumbs">{% breadcrumbs location %}</div>
-    <div class="toolbar">
+<div style="clear:both;">&nbsp;</div>
+{% include "logistics/partials/month_pager.html" %}
+
+<div class="toolbar">
     {% include "logistics/partials/selector_form.html" %}
     </div>
-<div style="clear:both;">&nbsp;</div>
-<p><a href="{{ previous_month_link }}">&laquo; previous month</a><span style="font-weight:bold;font-size:1.5em;"> {{ report_date|date:"F" }} {{ report_date|date:"Y" }} </span>{% if show_next_month %}<a href="{{ next_month_link }}">next month &raquo;</a>{% else %}<span style="color:gray;">next month &raquo;</span>{% endif %} </p>
-<p>Stock levels for the month prior reported between {{ start_time }} and {{ end_time }}</p>
+
 {% for products in product_set %}
     <div class="module">
 	    <h2>{% trans 'Current Stock Status' %}{% if not forloop.first %} (continued){% endif %}</h2>
