@@ -36,11 +36,8 @@ class SupplyPointStatusBreakdown(object):
         self.delivery_received = list(sps_with_latest_status(sps=facilities,
                                                  year=year, month=month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
-                                                 status_value=SupplyPointStatusValues.RECEIVED)) + \
-                                 list(sps_with_latest_status(sps=facilities,
-                                                 year=year, month=month,
-                                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
-                                                 status_value=SupplyPointStatusValues.QUANTITIES_REPORTED))
+                                                 status_value=SupplyPointStatusValues.RECEIVED))
+                                 
 
         self._submission_chart = None
 

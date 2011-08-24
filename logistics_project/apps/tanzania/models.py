@@ -56,12 +56,11 @@ class DeliveryGroups(object):
 class SupplyPointStatusValues(object):
     RECEIVED = "received"
     NOT_RECEIVED = "not_received"
-    QUANTITIES_REPORTED = "quantities_reported"
     SUBMITTED = "submitted"
     NOT_SUBMITTED = "not_submitted"
     REMINDER_SENT = "reminder_sent"
     ALERT_SENT = "alert_sent"
-    CHOICES = [RECEIVED, NOT_RECEIVED, QUANTITIES_REPORTED, SUBMITTED,
+    CHOICES = [RECEIVED, NOT_RECEIVED, SUBMITTED,
                NOT_SUBMITTED, REMINDER_SENT, ALERT_SENT]
     
 class SupplyPointStatusTypes(object):
@@ -78,7 +77,6 @@ class SupplyPointStatusTypes(object):
     CHOICE_MAP = {
         DELIVERY_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                             SupplyPointStatusValues.RECEIVED: "Delivery received",
-                            SupplyPointStatusValues.QUANTITIES_REPORTED: "Delivery quantities reported",
                             SupplyPointStatusValues.NOT_RECEIVED: "Delivery Not Received"},
         DELIVERY_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                            SupplyPointStatusValues.RECEIVED: "Delivery received",
