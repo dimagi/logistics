@@ -1,0 +1,22 @@
+{% load i18n %}
+<table style="margin-top: 1em; width: 100%">
+    {% for product_stock in product_stocks %}
+    {% if forloop.first %}
+    <thead>
+        <th>{% trans "Product" %}</th>
+        <th>{% trans report_type %}</th>
+    </thead>
+    {% endif %}
+    <tbody>
+        <tr>
+            <td>{{ product_stock.product.name }}</td>
+            <td><span class="{% if product_stock.quantity == 0 %}zero_count{% else %}{% if not product_stock.quantity %}insufficient_data{% endif %}{% endif %}">
+                {% if product_stock.quantity == None %}{% trans 'no data' %}{% else %}{{ product_stock.quantity|floatformat }}{% endif %}
+                </span>
+            </td>
+        </tr>    
+    </tbody>
+    {% empty %}
+    <th>No stock data found</th>
+    {% endfor %}                
+</table>

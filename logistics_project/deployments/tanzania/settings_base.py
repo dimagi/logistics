@@ -96,6 +96,7 @@ LOGISTICS_PRODUCT_ALIASES = {'iucd': 'id' ,
                              'coc': 'cc',
                              'pop': 'pp'}
 LOGISTICS_USE_DEFAULT_HANDLERS = False
+LOGISTICS_URL_GENERATOR_FUNCTION = "logistics_project.apps.tanzania.views.tz_location_url"
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"

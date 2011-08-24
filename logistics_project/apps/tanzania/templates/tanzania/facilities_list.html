@@ -40,7 +40,7 @@
             <tr>
                 <td>{{ fac.code }}</td>
                 <td>{{ fac.groups.all|first }}</td>
-                <td>{{ fac.name }}</td>
+                <td><a href="{% url tz_facility_details fac.pk %}">{{ fac.name }}</a></td>
                 {% for p in products %}
                     <td>{% stock fac p %}</td>
                 {% endfor %}

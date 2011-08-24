@@ -1,28 +1,30 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% load i18n %}
-
+{% load nav_tags %}
+{% load tz_tags %}
 {% block title %}{{ facility.name }} Detail{{ block.super }}{% endblock %}
-
-{% block stylesheets %}
-{{ block.super }}
-    <link type="text/css" rel="stylesheet" href="/static/ilsgateway/stylesheets/ilsgateway.css" />
+{% block stylesheets %}{{ block.super }}
 {% endblock %}
-
 {% block content %}
-<div class="crumbs">{% for title, href in breadcrumbs %}{% if not forloop.first %} &raquo; {% endif %}{% if href %}<a href="{{href}}">{{ title }}</a>{% else %}{{ title }}{% endif %}{% endfor %}</div>
-<div style="clear:both;">&nbsp;</div>
-<div><h2>{{ facility.name }} ({{ facility.msd_code }}) {% trans 'Group' %} {{ facility.delivery_group.name }} &raquo; <a href="{% url locations facility.uid %}">{% trans 'see on map' %}</a></h2></div>
-
-<div class="split-2">
-    <div class="left">
+{{ location_url_func }}
+<div class="breadcrumbs">
+    {% breadcrumbs facility.location  %}
+</div>
+<div><h2>{{ facility.name }} ({{ facility.code }}) {% trans 'Group' %} {{ facility.groups.all.0.code }} &raquo; 
+<a href="{% url maps_dashboard facility.code %}">{% trans 'see on map' %}</a></h2></div>
+<div class="two-columns toppadded">
+    <div class="col-1">
         <div class="module">
-            <h2>{% trans 'Inventory History' %}</h2>
-            <div class="toolbar">
-                {% if view_type == 'inventory' %}<a href="/facilities/{{ facility.id }}/months_of_stock/">{% trans 'show months of stock' %}</a>
-                {% else %}<a href="/facilities/{{ facility.id}}/inventory/">{% trans 'show stock levels' %}</a>{% endif %}
+        <h2>{% trans 'Inventory History' %}</h2>
+            <div class="toolbar">   
+                <a href="#months_of_stock">{% trans 'show months of stock' %}</a>
+                <a href="#inventory">{% trans 'show stock levels' %}</a>
             </div>
+            {% comment %}
+            ########################################### 
             <div class="inventorySMS">
                 <p>{% trans 'Last SMS message received' %}:</p>
+                
             {% if facility.last_message_received %}
                 <p><i>&raquo;"{{ facility.last_message_received.text }}"</i></p>
                 <p>{{ facility.stock_on_hand_last_reported }} {% trans 'by' %} {{ facility.last_message_received.contact.contactdetail.role }} {{ facility.last_message_received.contact }}</p>
@@ -31,20 +33,11 @@
             {% endif %}    
             <p><a href="/facilities/{{ facility.id }}/message_history/">{% trans 'See complete SMS message history' %} &raquo;</a></p>
             </div>
-            <table>
-                <thead>
-                    <th>{% trans "Product" %}</th>
-                    <th>{% if view_type == 'inventory' %}{% trans 'Stock on Hand' %}{% else %}{% trans 'Months of Stock' %}{% endif %}</th>
-                </thead>
-                <tbody>
-                {% for product, quantity in product_counts %}
-                    <tr><td>{{ product }}</td><td><span class="{% if quantity == 0 %}zero_count{% else %}{% if not quantity %}insufficient_data{% endif %}{% endif %}">{% if quantity == None %}{% trans 'no data' %}{% else %}{{ quantity|floatformat }}{% endif %}</span></td></tr>    
-                {% endfor %}                
-                </tbody>
-            </table>            
-        </div>    
+            {% endcomment %}
+            {% product_inventory facility "inventory" %}
+       </div>
     </div>
-    <div class="right">
+    <div class="col-2">
         <div class="module">
             <h2>{% trans 'R&amp;R History' %}</h2>
             <div class="toolbar">
@@ -67,23 +60,38 @@
         </div>
         <div class="module">
             <h2>{% trans "Notes" %}</h2>
+            {% comment %}
+            ########################################### 
             <div class="toolbar">
                 <a href="{% url ilsgateway.views.note_history facility.id %}">{% trans 'see all notes' %}'</a>
             </div>
+            ########################################### 
+            {% endcomment %}
         {% for note in notes %}
             <div class="recentNote">
                 <p class="noteText">&raquo; "{{ note.text }}"</span></p>
                 <p class="noteByLine">{{ note.created_at }} by {{ note.contact_detail.name }}
             </div> 
         {% endfor %}
+            {% comment %}
+            ########################################### 
             <form action="{% url ilsgateway.views.facilities_detail facility.id %}" method="post">
             <p>{% trans 'Enter a note for this facility' %}:</p>
             {{ form.as_p }}
             <input type="submit" value="Submit" />
             </form>
+            ########################################### 
+            {% endcomment %}
         </div>
     </div>
-    <div style="clear:both;">&nbsp;</div>
+    <div class="clear-hack"></div>
+</div>
+
+
+{% comment %}
+    
+
+<div class="split-2">
     <div class="module">
         <h2 class="contactGroup">{% trans "Registration" %}</h2>
         <div class="toolbar">
@@ -116,5 +124,5 @@
         <span style="margin-top:10px;"><a href="{% url registration %}">{% trans 'Add a contact' %} &raquo;</a></span>
     </div>
 </div>
-
+{% endcomment %}
 {% endblock %}

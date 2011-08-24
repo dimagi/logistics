@@ -5,7 +5,7 @@ from logistics.reports import ReportingBreakdown
 from dimagi.utils.dates import DateSpan
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils import translation
 from logistics_project.apps.malawi.util import facility_supply_points_below
@@ -16,6 +16,16 @@ from rapidsms.contrib.locations.models import Location
 from dimagi.utils.decorators.datespan import datespan_in_request
 from models import DeliveryGroups
 from logistics.views import MonthPager
+from django.core.urlresolvers import reverse
+
+def tz_location_url(location):
+    try:
+        sp = SupplyPoint.objects.get(location=location)
+        if sp.type.code == "facility":
+            return reverse("tz_facility_details", args=(sp.pk,))
+    except SupplyPoint.DoesNotExist:
+        pass
+    return "#todo"
 
 def _get_facilities_and_location(request):
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
@@ -99,3 +109,12 @@ def facilities_ordering(request):
         },
         context_instance=RequestContext(request))
 
+def facility_details(request, facility_id):
+    facility = get_object_or_404(SupplyPoint, pk=facility_id)
+    return render_to_response(
+        "tanzania/facility_details.html",
+        {
+            "facility": facility,
+            "report_types": ['Stock on Hand', 'Months of Stock']
+        },
+        context_instance=RequestContext(request))
