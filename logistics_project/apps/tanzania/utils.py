@@ -49,8 +49,8 @@ def supply_points_with_latest_status_by_datespan(sps, status_type, status_value,
 def latest_status(sp, type, value=None, month=None, year=None):
     qs = sp.supplypointstatus_set.filter(status_type=type)
     if value:
-        qs.filter(status_value=value)
+        qs = qs.filter(status_value=value)
     if month and year:
-        qs.filter(status_date__month=month, status_date__year=year)
+        qs = qs.filter(status_date__month=month, status_date__year=year)
     qs = qs.order_by("-status_date")
     return qs[0] if qs.count() else None

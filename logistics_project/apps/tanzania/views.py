@@ -17,10 +17,7 @@ from dimagi.utils.decorators.datespan import datespan_in_request
 from models import DeliveryGroups
 from logistics.views import MonthPager
 
-@place_in_request()
-def dashboard(request):
-    translation.activate("en")
-    mp = MonthPager(request)
+def _get_facilities_and_location(request):
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
 
     # district filter
@@ -29,10 +26,19 @@ def dashboard(request):
         base_facilities = base_facilities.filter(supplied_by__location=location)
     else:
         location = Location.objects.get(name="MOHSW")
+    return base_facilities, location
+
+def _districts():
+    return Location.objects.filter(supplypoint__type__code="district")
+
+@place_in_request()
+def dashboard(request):
+    translation.activate("en")
+    mp = MonthPager(request)
+    base_facilities, location = _get_facilities_and_location(request)
 
     dg = DeliveryGroups(mp.month, facs=base_facilities)
-    districts = Location.objects.filter(supplypoint__type__code="district")
-    sub_data = SupplyPointStatusBreakdown(base_facilities, mp.begin_date)
+    sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     return render_to_response("tanzania/dashboard.html",
                               {
                                "sub_data": sub_data,
@@ -41,52 +47,55 @@ def dashboard(request):
                                "dg": dg,
                                "month_pager": mp,
                                "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
-                               "districts": districts,
+                               "districts": _districts(),
                                "location": location},
                                
                               context_instance=RequestContext(request))
 PRODUCTS_PER_TABLE = 6
 
 #@login_required
-@place_in_request
-@datespan_in_request()
+@place_in_request()
 def facilities_detail(request, view_type="inventory"):
-    facs = SupplyPoint.objects.filter(type__code='facility', parent__location=request.location)
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(reqyest)
     products = Product.objects.all().order_by('name')
     products = chunks(products, PRODUCTS_PER_TABLE)
     return render_to_response("tanzania/facilities_list.html",
                               {'facs': facs,
                                'product_sets': products,
-                               'location': request.location}, context_instance=RequestContext(request))
+                               'month_pager': mp,
+                               'districts': _districts(),
+                               'location': location}, context_instance=RequestContext(request))
 
 def datespan_to_month(datespan):
     return datespan.startdate.month
 
 #@login_required
-@datespan_in_request()
+@place_in_request()
 def facilities_index(request, view_type="inventory"):
     # TODO Needs ability to view stock as of a given month.
-    facs = SupplyPoint.objects.filter(type__code='facility')
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
     products = chunks(products, PRODUCTS_PER_TABLE)
     return render_to_response("tanzania/facilities_list.html",
                               {'facs': facs,
                                'product_set': products,
-                               'location': None,
-                               'begin_date': request.datespan.startdate if request.datespan else datetime.utcnow().replace(day=1),
-                               'end_date': request.datespan.enddate if request.datespan else datetime.utcnow()
+                               'location': location,
+                               'month_pager': mp,
+                               'districts': _districts(),
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
-    facs = SupplyPoint.objects.filter(type__code="facility", active=True)
-
-    if request.location:
-        location = request.location
-        facs = facs.filter(supplied_by__location=location)
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(request)
     return render_to_response(
         "tanzania/facilities_ordering.html",
         {
-            "districts": Location.objects.filter(supplypoint__type__code="district"),
-            "table": OrderingStatusTable(facs, request=request)
+            "month_pager": mp,
+            "districts": _districts(),
+            "location": location,
+            "table": OrderingStatusTable(object_list=facs, request=request, month=mp.month, year=mp.year)
         },
         context_instance=RequestContext(request))
+
