@@ -151,9 +151,10 @@ class ReportingBreakdown(object):
             
             # makes an assumption of 1 contact per SP.
             # will need to be revisited
-            try:
-                contact = Contact.objects.get(supply_point=sp)
-            except Contact.DoesNotExist, Contact.MultipleObjectsReturned:
+            contacts = Contact.objects.filter(supply_point=sp)
+            if contacts.count() == 1:
+                contact = contacts[0]
+            else:
                 contact = None
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
