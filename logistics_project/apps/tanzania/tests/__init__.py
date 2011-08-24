@@ -13,3 +13,5 @@ from .language import *
 from .stockinquiry import *
 from .messageinitiator import *
 from .reminders import *
+from .translations import *
+from .deliverygroups import *

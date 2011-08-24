@@ -11,7 +11,7 @@ from logistics.util import config
 from logistics_project.apps.tanzania.utils import sps_with_latest_status,\
     supply_points_with_latest_status_by_datespan
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
-    SupplyPointStatusValues
+    SupplyPointStatusValues, DeliveryGroups
 from logistics_project.apps.tanzania.reminders import stockonhand, randr, delivery
 from dimagi.utils.dates import DateSpan
 
@@ -34,7 +34,7 @@ def _construct_status_dict(status_type, status_values, supply_points, datespan):
     return ret
 
 def construct_randr_summary(supply_point):
-    children = supply_point.children()
+    children = supply_point.children().filter(groups__code=DeliveryGroups().current_submitting_group())
     # assumes being run in the same month we care about.
     cutoff = randr.get_facility_cutoff()
     return _construct_status_dict(SupplyPointStatusTypes.R_AND_R_FACILITY,
