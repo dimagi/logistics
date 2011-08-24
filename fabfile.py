@@ -137,7 +137,6 @@ def deploy():
     """ deploy code to some remote environment """
     require('config', provided_by=('test', 'staging', 'production', 'malawi'))
     if env.stop_start:
-        sudo("/etc/init.d/apache2 stop")
         sudo("supervisorctl stop all")
     if env.config == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
@@ -162,7 +161,7 @@ def deploy():
         
     bootstrap(subdir='logistics_project' if env.config.startswith('tz') else 'logistics')
     if env.stop_start:
-        sudo("/etc/init.d/apache2 start")
+        sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
     
 
