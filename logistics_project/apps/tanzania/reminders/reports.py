@@ -4,16 +4,15 @@ Reports that go out
 from scheduler.decorators import businessday_before, businessday
 from rapidsms.models import Contact
 from logistics_project.apps.tanzania.config import SupplyPointCodes
-from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from datetime import datetime
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.util import config
-from logistics_project.apps.tanzania.utils import sps_with_latest_status,\
-    supply_points_with_latest_status_by_datespan
+from logistics_project.apps.tanzania.utils import supply_points_with_latest_status_by_datespan
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
     SupplyPointStatusValues, DeliveryGroups
 from logistics_project.apps.tanzania.reminders import stockonhand, randr, delivery
 from dimagi.utils.dates import DateSpan
+from django.utils.translation import ugettext as _
 
 def get_district_people():
     for contact in Contact.objects.filter\
@@ -43,8 +42,8 @@ def construct_randr_summary(supply_point):
                                   children, DateSpan(cutoff, datetime.utcnow()))
     
 def construct_randr_summary_message(supply_point):
-    return _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY, 
-             **construct_randr_summary(supply_point))
+    return _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY) % \
+             construct_randr_summary(supply_point)
              
 def construct_soh_summary(supply_point):
     children = supply_point.children()
@@ -55,8 +54,8 @@ def construct_soh_summary(supply_point):
                                   children, DateSpan(cutoff, datetime.utcnow()))
 
 def construct_soh_summary_message(supply_point):
-    return  _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY, 
-              **construct_soh_summary(supply_point))
+    return  _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY) % \
+              construct_soh_summary(supply_point)
     
 def construct_delivery_summary(supply_point):
     children = supply_point.children()
@@ -68,8 +67,8 @@ def construct_delivery_summary(supply_point):
                                   children, DateSpan(cutoff, datetime.utcnow()))
 
 def construct_delivery_summary_message(supply_point):    
-    return _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY, 
-             **construct_delivery_summary(supply_point))
+    return _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY) % \
+             construct_delivery_summary(supply_point)
 
 @businessday(-1)
 def delivery_summary():

@@ -196,7 +196,7 @@ class Messages(object):
     REMINDER_SUPERVISION = "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
     
     # reminder reports 
-    REMINDER_MONTHLY_RANDR_SUMMARY = "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
+    REMINDER_MONTHLY_RANDR_SUMMARY = "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
     REMINDER_MONTHLY_SOH_SUMMARY = "SOH - %(reported)s/%(total)s reported, %(not_responding)s/%(total)s did not reply" 
     REMINDER_MONTHLY_DELIVERY_SUMMARY = "Deliveries - %(received)s/%(total)s received, %(not_received)/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
 
@@ -224,6 +224,8 @@ class Messages(object):
     HELP_TEXT = "Haujasajiliwa,Tafadhali jisajili kwanza kabla ya kupata huduma," + \
                 "Kusajili andika 'sajili<nafasi><jina lako><nafasi><msd code>'. " + \
                 "Mfano 'sajili Peter Juma d34002'"
+                
+    REGISTRATION_REQUIRED_MESSAGE = HELP_UNREGISTERED
 
 class Alerts(object):
     

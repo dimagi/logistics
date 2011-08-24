@@ -22,7 +22,7 @@ class MessageInitiator(KeywordHandler):
     @logistics_contact_required()
     def handle(self, text):
         result = text.lower().split()
-        if len(result < 2):
+        if len(result) < 2:
             return self.help()
         
         command = result[0]

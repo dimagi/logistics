@@ -136,3 +136,33 @@ class TestRandRSummary(TanzaniaTestScriptBase):
         self.assertEqual(submitting-3, result["not_responding"])
         self.assertEqual(1, result["not_submitted"])
         self.assertEqual(2, result["submitted"])
+        
+    def testMessageInitiation(self):
+        contact1 = register_user(self, "778", "Test User1", "d10001", "VETA 1")
+        contact2 = register_user(self, "779", "Test User2", "d10002", "VETA 2")
+        contact3 = register_user(self, "780", "Test User3", "d10003", "VETA 3")
+        
+        for sp in [contact1.supply_point, contact2.supply_point, contact3.supply_point]:
+            sp.groups = (SupplyPointGroup.objects.get\
+                         (code=DeliveryGroups().current_submitting_group()),)
+            sp.save()
+
+        # todo: translations
+        script = """
+            777 > test randr_report TEST DISTRICT
+            777 < R&R - 0/3 submitted, 0/3 did not submit, 3/3 did not reply
+        """
+        self.runScript(script)
+        
+        script = """
+            778 > nimetuma
+            779 > sijatuma
+        """
+        self.runScript(script)
+        
+        script = """
+            777 > test randr_report TEST DISTRICT
+            777 < R&R - 1/3 submitted, 1/3 did not submit, 1/3 did not reply
+        """
+        self.runScript(script)
+        
