@@ -16,10 +16,6 @@
     <div class="col-1">
         <div class="module">
         <h2>{% trans 'Inventory History' %}</h2>
-            <div class="toolbar">   
-                <a href="#months_of_stock">{% trans 'show months of stock' %}</a>
-                <a href="#inventory">{% trans 'show stock levels' %}</a>
-            </div>
             {% last_sms facility %}
             {% product_inventory facility "inventory" %}
        </div>
@@ -48,18 +44,6 @@
         <div class="module">
             <h2>{% trans "Notes" %}</h2>
             The notes functionality has been temporarily disabled. 
-            {% comment %}
-            ########################################### 
-            <div class="toolbar">
-                <a href="{% url ilsgateway.views.note_history facility.id %}">{% trans 'see all notes' %}'</a>
-            </div>
-            <form action="{% url ilsgateway.views.facilities_detail facility.id %}" method="post">
-            <p>{% trans 'Enter a note for this facility' %}:</p>
-            {{ form.as_p }}
-            <input type="submit" value="Submit" />
-            </form>
-            ########################################### 
-            {% endcomment %}
         </div>
     </div>
     <div class="clear-hack"></div>
@@ -72,20 +56,4 @@
     </div>
     {% contact_list facility "True" 2 %}
 </div>
-
-{% comment %}
-<div class="split-2">
-    <div class="module">
-        <h2 class="contactGroup">{% trans "Registration" %}</h2>
-        <div class="toolbar">
-            <a href="{% url registration %}">{% trans 'see all users' %}</a>
-        </div>
-        {% for group_name, contacts in contact_groups %}
-        <div class="contactGroupHeader">{{ group_name }} {% trans 'Contacts' %}</div>
-        {% endfor %}
-        <br />
-        <span style="margin-top:10px;"><a href="{% url registration %}">{% trans 'Add a contact' %} &raquo;</a></span>
-    </div>
-</div>
-{% endcomment %}
 {% endblock %}

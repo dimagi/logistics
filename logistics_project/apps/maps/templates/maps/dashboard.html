@@ -34,7 +34,8 @@
             title:"{{ sp.name }}",
             icon: "{% get_map_icon sp request %}"
         });
-        marker{{forloop.counter0}}.infowindow = new google.maps.InfoWindow({content: '{% get_map_popup sp request %}'});
+        var infoWindowContents{{forloop.counter0}} = $('{% get_map_popup sp request %}');
+        marker{{forloop.counter0}}.infowindow = new google.maps.InfoWindow({content: infoWindowContents{{forloop.counter0}}.get(0)});
         google.maps.event.addListener(marker{{forloop.counter0}}, 'click', function(event) {
             if (last_marker != null) { last_marker.infowindow.close(); }
             marker{{forloop.counter0}}.infowindow.open(map, marker{{forloop.counter0}});
@@ -55,7 +56,7 @@
 		                this.setZoom(10);
 		                this.initialZoom = false;
 		            } else {
-		              console.log(this.getZoom());
+		              // Nothing to worry about here.
 		            }
 		        google.maps.event.removeListener(zoomChangeBoundsListener);
 		    });
