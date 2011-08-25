@@ -57,7 +57,6 @@ TESTING_DATABASES= {
 }
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.locale.LocaleMiddleware', 
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -67,6 +66,7 @@ MIDDLEWARE_CLASSES = (
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'johnny.middleware.CommittingTransactionMiddleware',
     'johnny.middleware.QueryCacheMiddleware',
+    'django.middleware.locale.LocaleMiddleware', 
 )
 
 
