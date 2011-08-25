@@ -31,3 +31,18 @@ def get_map_popup(supply_point, request):
                             {"sp": supply_point, 
                              "productstocks": supply_point.productstock_set.all().order_by('product__name')}
                             ).replace("\n", "")
+
+@register.simple_tag
+def contact_list(supply_point, recurse=True, recurse_depth=100, current_depth=0, 
+                 currently_rendered=""):
+    this_rendering = render_to_string("tanzania/partials/contact_table.html",
+                                      {"supply_point": supply_point,
+                                       "contacts": supply_point.contact_set.all()})
+    this_depth = "%s%s" % (currently_rendered, this_rendering)
+    if recurse and supply_point.supplied_by and current_depth < recurse_depth:
+        return contact_list(supply_point.supplied_by, recurse, 
+                            recurse_depth, current_depth + 1, this_depth)
+    else:
+        return this_depth
+    
+    

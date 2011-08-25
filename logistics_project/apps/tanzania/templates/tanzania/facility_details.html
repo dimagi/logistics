@@ -47,21 +47,12 @@
         </div>
         <div class="module">
             <h2>{% trans "Notes" %}</h2>
+            The notes functionality has been temporarily disabled. 
             {% comment %}
             ########################################### 
             <div class="toolbar">
                 <a href="{% url ilsgateway.views.note_history facility.id %}">{% trans 'see all notes' %}'</a>
             </div>
-            ########################################### 
-            {% endcomment %}
-        {% for note in notes %}
-            <div class="recentNote">
-                <p class="noteText">&raquo; "{{ note.text }}"</span></p>
-                <p class="noteByLine">{{ note.created_at }} by {{ note.contact_detail.name }}
-            </div> 
-        {% endfor %}
-            {% comment %}
-            ########################################### 
             <form action="{% url ilsgateway.views.facilities_detail facility.id %}" method="post">
             <p>{% trans 'Enter a note for this facility' %}:</p>
             {{ form.as_p }}
@@ -74,10 +65,15 @@
     <div class="clear-hack"></div>
 </div>
 
+<div class="module">
+    <h2>{% trans "Registration" %}</h2>
+    <div class="toolbar">
+        <a href="{% url registration %}">{% trans 'see all users' %}</a>
+    </div>
+    {% contact_list facility "True" 2 %}
+</div>
 
 {% comment %}
-    
-
 <div class="split-2">
     <div class="module">
         <h2 class="contactGroup">{% trans "Registration" %}</h2>
@@ -86,26 +82,6 @@
         </div>
         {% for group_name, contacts in contact_groups %}
         <div class="contactGroupHeader">{{ group_name }} {% trans 'Contacts' %}</div>
-        <table>
-            <thead>
-                <th>{% trans 'Name' %}</th>
-                <th>{% trans 'Role' %}</th>
-                <th>{% trans 'Phone' %}</th>
-                <th>{% trans 'Email' %}</th>
-                <th>{% trans 'Primary' %}</th>
-            </thead>
-            <tbody>
-                {% for contact in contacts %}
-                <tr class="">
-                    <td>{{ contact.name }}</td>
-                    <td>{% blocktrans with contact.role as role%}{{ role }}{% endblocktrans %}</td>
-                    <td>{{ contact.phone }}</td>
-                    <td>{{ contact.email }}</td>
-                    <td><input type="checkbox" {% if contact.primary %}checked{% endif %} DISABLED /></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
         {% endfor %}
         <br />
         <span style="margin-top:10px;"><a href="{% url registration %}">{% trans 'Add a contact' %} &raquo;</a></span>
