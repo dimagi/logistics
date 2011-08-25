@@ -856,7 +856,7 @@ class StockTransaction(models.Model):
           beginning_balance == pr.quantity:
             return None
         st = cls(product_report=pr, supply_point=pr.supply_point, 
-                 product=pr.product)
+                 product=pr.product, date=pr.report_date)
 
     
         st.beginning_balance = beginning_balance
