@@ -16,6 +16,7 @@ from rapidsms.contrib.locations.models import Location
 from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 def tz_location_url(location):
     try:
@@ -117,3 +118,9 @@ def facility_details(request, facility_id):
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))
+
+def change_language(request):
+    return render_to_response('tanzania/change_language.html',
+                              {'LANGUAGES': settings.LANGUAGES},
+                              context_instance=RequestContext(request))
+
