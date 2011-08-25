@@ -5,6 +5,7 @@ from logistics.reports import ReportingBreakdown
 from dimagi.utils.dates import DateSpan
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
+from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils import translation
@@ -31,15 +32,22 @@ def _get_facilities_and_location(request):
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
 
     # district filter
-    if request.location and not request.location.name.startswith("MOHSW"):
+    if request.location:
         location = request.location
-        base_facilities = base_facilities.filter(supplied_by__location=location)
+        print request.location, request.location.type.name
+        if request.location.type.name == "REGION":
+            print "Got a region"
+            base_facilities = base_facilities.filter(Q(supplied_by__location__parent_id=location.id) | Q(supplied_by__location=location))
+        elif request.location.type.name == "DISTRICT":
+            base_facilities = base_facilities.filter(supplied_by__location=location)
     else:
         location = Location.objects.get(name="MOHSW")
     return base_facilities, location
 
 def _districts():
-    return Location.objects.filter(supplypoint__type__code="district")
+    return Location.objects.filter(type__name="DISTRICT")
+def _regions():
+    return Location.objects.filter(type__name="REGION")
 
 @place_in_request()
 def dashboard(request):
@@ -58,6 +66,7 @@ def dashboard(request):
                                "month_pager": mp,
                                "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
                                "districts": _districts(),
+                               "regions": _regions(),
                                "location": location},
                                
                               context_instance=RequestContext(request))
@@ -75,6 +84,7 @@ def facilities_detail(request, view_type="inventory"):
                                'product_sets': products,
                                'month_pager': mp,
                                'districts': _districts(),
+                               "regions": _regions(),
                                'location': location}, context_instance=RequestContext(request))
 
 def datespan_to_month(datespan):
@@ -94,6 +104,7 @@ def facilities_index(request, view_type="inventory"):
                                'location': location,
                                'month_pager': mp,
                                'districts': _districts(),
+                               "regions": _regions(),
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
@@ -104,6 +115,7 @@ def facilities_ordering(request):
         {
             "month_pager": mp,
             "districts": _districts(),
+            "regions": _regions(),
             "location": location,
             "table": OrderingStatusTable(object_list=facs, request=request, month=mp.month, year=mp.year)
         },
