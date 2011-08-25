@@ -7,7 +7,6 @@ def gdata_required(f):
     Authenticate against Google GData service
     """
     def wrap(request, *args, **kwargs):
-        print "function %s " % f
         if 'token' not in request.GET and 'token' not in request.session:
             # no token at all, request one-time-token
             # next: where to redirect
@@ -17,13 +16,11 @@ def gdata_required(f):
             
             urlbase = Site.objects.get_current().domain
             next_url='%s%s' %  (urlbase, request.get_full_path())
-            print next_url
             session_val='1'
             target_url="%s?next=%s&scope=%s&session=%s" % (base_url, next_url, scope, session_val)
             return HttpResponseRedirect(target_url)
         elif 'token' not in request.session and 'token' in request.GET:
             # request session token using one-time-token
-            print "we got a token"
             conn = HTTPSConnection("www.google.com")
             conn.putrequest('GET', '/accounts/AuthSubSessionToken')
             conn.putheader('Authorization', 'AuthSub token="%s"' % request.GET['token'])
