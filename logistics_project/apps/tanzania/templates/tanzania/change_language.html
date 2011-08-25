@@ -5,15 +5,16 @@
 <h2>{% trans "Change your default language" %}</h2>
 <div class="module">
     <form action="/i18n/setlang/" method="post">
-		{% csrf_token %}
-		<input name="next" type="hidden" value="/" />
-		<select name="language">
-		{% get_language_info_list for LANGUAGES as languages %}
-		{% for language in languages %}
-		<option value="{{ language.code }}">{{ language.name_local }} ({{ language.code }})</option>
-		{% endfor %}
-		</select>
-		<input type="submit" value="Go" />
-	</form>
+        {% csrf_token %}
+        <input name="next" type="hidden" value="/tz/change_language/">
+        <select name="language">
+            {# can't copy the docs because swahili isn't supported #}
+            {% for code, val in LANGUAGES %}
+            <option value="{{ code }}">{% trans val %} ({{ code }})</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Go">
+        {% trans 'Current language' %}: {{ language }}
+    </form>
 </div>
 {% endblock %}

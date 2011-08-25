@@ -132,7 +132,9 @@ def facility_details(request, facility_id):
         context_instance=RequestContext(request))
 
 def change_language(request):
+    language = dict(settings.LANGUAGES)[request.LANGUAGE_CODE]   
     return render_to_response('tanzania/change_language.html',
-                              {'LANGUAGES': settings.LANGUAGES},
+                              {'LANGUAGES': settings.LANGUAGES,
+                               "language": language},
                               context_instance=RequestContext(request))
 

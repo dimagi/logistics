@@ -56,6 +56,20 @@ TESTING_DATABASES= {
     }
 }
 
+MIDDLEWARE_CLASSES = (
+    'django.middleware.locale.LocaleMiddleware', 
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'auditcare.middleware.AuditMiddleware',
+    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'johnny.middleware.CommittingTransactionMiddleware',
+    'johnny.middleware.QueryCacheMiddleware',
+)
+
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
