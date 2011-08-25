@@ -1,15 +1,9 @@
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
-from logistics.views import get_facilities
-from logistics.reports import ReportingBreakdown
-from dimagi.utils.dates import DateSpan
-from datetime import datetime
-from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils import translation
-from logistics_project.apps.malawi.util import facility_supply_points_below
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable
 from logistics_project.apps.tanzania.utils import chunks
@@ -18,6 +12,12 @@ from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from logistics_project.apps.tanzania.decorators import gdata_required
+import gdata.docs.client
+import gdata.gauth
+from django.contrib import messages
+from django.http import HttpResponseRedirect, HttpResponse
+from dimagi.utils.parsing import string_to_datetime
 
 def tz_location_url(location):
     try:
@@ -130,6 +130,46 @@ def facility_details(request, facility_id):
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))
+
+@gdata_required
+def docdownload(request, facility_id):
+    """
+    Download google docs document
+    """
+    print "download"
+    if 'token' in request.session:
+        print "token"
+        #should be able to make this global
+        client = gdata.docs.client.DocsClient()
+        client.ssl = True  # Force all API requests through HTTPS
+        client.http_client.debug = False  # Set to True for debugging HTTP requests
+        client.auth_token = gdata.gauth.AuthSubToken(request.session['token'])
+        supply_point = get_object_or_404(SupplyPoint, pk=facility_id)
+        query_string = '/feeds/default/private/full?title=%s&title-exact=false&max-results=100' % supply_point.code
+        feed = client.GetDocList(uri=query_string)
+
+        most_recent_doc = None
+
+        if not feed.entry:
+            messages.error(request, 'Sorry, there is no recent R&R for this facility.')
+            return HttpResponseRedirect(reverse("tz_facility_details", args=[supply_point.pk]))
+        else:
+            for entry in feed.entry:
+                if not most_recent_doc:
+                    most_recent_doc = entry
+                else:
+                    new_date = string_to_datetime(entry.updated.text)
+                    old_date = string_to_datetime(most_recent_doc.updated.text)
+                    if new_date > old_date:
+                        most_recent_doc = entry
+
+        exportFormat = '&exportFormat=pdf'
+        content = client.GetFileContent(uri=most_recent_doc.content.src + exportFormat)
+    
+    response = HttpResponse(content)
+    response['content-Type'] = 'application/pdf'
+    response['Content-Disposition'] = 'inline; filename=%s' % most_recent_doc.title.text
+    return response
 
 def change_language(request):
     language = dict(settings.LANGUAGES)[request.LANGUAGE_CODE]   

@@ -39,7 +39,7 @@
             </p>
             {% endif %}
             </p>
-            <p><a href="/docdownload/{{ facility.id }}">{% trans 'Download most recent R&amp;R' %} &raquo;</a></p>
+            <p><a href="{% url tz_docdownload facility.id %}">{% trans 'Download most recent R&amp;R' %} &raquo;</a></p>
         </div>
         <div class="module">
             <h2>{% trans "Notes" %}</h2>

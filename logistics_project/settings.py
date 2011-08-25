@@ -29,6 +29,7 @@ BASE_APPS = [
     "django.contrib.sites",
     "django.contrib.auth",
     "django.contrib.admin",
+    "django.contrib.messages",
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     
