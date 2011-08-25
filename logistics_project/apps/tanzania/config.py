@@ -207,6 +207,7 @@ class Messages(object):
     SOH_PARTIAL_CONFIRM = 'Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'
     SOH_CONFIRM = "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     SOH_ADJUSTMENTS_REMINDER = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
+    SOH_THANK_YOU = "Thank you for reporting your stock on hand this month"
 
     # stock inquiry
     STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"

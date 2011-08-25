@@ -147,7 +147,13 @@ class MessageInitiator(KeywordHandler):
             for c in sp_target.active_contact_set:
                 c.message(reports.construct_delivery_summary_message(sp_target))
             self.respond_success()
-        
+        if command in ["soh_thank_you"]:
+            # test at the facility level for now
+            assert(sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY)
+            for c in sp_target.active_contact_set:
+                c.message(_(config.Messages.SOH_THANK_YOU))
+            self.respond_success()
+
     def respond_success(self):
         self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         

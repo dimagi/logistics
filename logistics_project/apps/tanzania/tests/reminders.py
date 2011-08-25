@@ -1,5 +1,5 @@
 from logistics_project.apps.tanzania.reminders import stockonhand , delivery,\
-    randr
+    randr, stockonhandthankyou
 from logistics_project.apps.tanzania.tests.util import register_user
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.config import SupplyPointCodes
@@ -141,3 +141,27 @@ class TestRandRReminder(TanzaniaTestScriptBase):
         self.assertEqual(0, len(list(randr.get_facility_people(now))))
         self.assertEqual(1, len(list(randr.get_facility_people(datetime.utcnow()))))
 
+class TestSOHThankYou(TanzaniaTestScriptBase):
+
+    def setUp(self):
+        super(TestSOHThankYou, self).setUp()
+        Contact.objects.all().delete()
+        self.contact = register_user(self, "778", "someone")
+        sp = self.contact.supply_point
+        sp.groups = (SupplyPointGroup.objects.get\
+                     (code=DeliveryGroups().current_submitting_group()),)
+        sp.save()
+
+    def testGroupExclusion(self):
+        now = datetime.utcnow()
+        people = list(stockonhandthankyou.get_people(now))
+        self.assertEqual(0, len(people))
+
+        # a SOH report should meet inclusion criteria
+        script = """
+            778 > soh id 100
+        """
+        self.runScript(script)
+
+        self.assertEqual(1, len(list(stockonhandthankyou.get_people(now))))
+        self.assertEqual(0, len(list(stockonhandthankyou.get_people(datetime.utcnow()))))

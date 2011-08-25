@@ -43,7 +43,6 @@ class RandRHandler(KeywordHandler):
                                      status_type=SupplyPointStatusTypes.R_AND_R_DISTRICT,
                                      status_value=SupplyPointStatusValues.SUBMITTED,
                                      status_date=self.msg.timestamp)
-            #TODO: query these out properly
             submitted_vals = {"a":"0",
                               "b":"0",
                               "c":"0"}
