@@ -1,11 +1,21 @@
-<label for="place" id="place_label">Site: </label> 
+<label for="place" id="place_label">Site: </label>
 <select name="place" id="place">
     <option value="" {% if not location %}selected{% endif %}>Select a site</option>
+{% if regions %}
+    <optgroup label="Regions">
+        {% for region in regions %}
+        <option value="{{ region.code }}" {% if region.pk == location.pk %}selected{% endif %}>{{ region.name }} Region ({{ region.code }})</option>
+        {% endfor %}
+    </optgroup>
+{% endif %}
+{% if districts %}
     <optgroup label="Districts">
         {% for district in districts %}
         <option value="{{ district.code }}" {% if district.pk == location.pk %}selected{% endif %}>{{ district.name }} District ({{ district.code }})</option>
         {% endfor %}
     </optgroup>
+{% endif %}
+{% if facilities %}
     {% for facility in facilities %}
         {% ifchanged facility.parent.id %}
             {% if not forloop.first %}</optgroup>{% endif %}
@@ -14,4 +24,5 @@
         <option value="{{ facility.code }}" {% if facility.pk == location.pk %}selected{% endif %}>{{ facility.name }} ({{ facility.code }})</option>
         {% if forloop.last %}</optgroup>{% endif %}
     {% endfor %}
+{% endif %}
 </select>
