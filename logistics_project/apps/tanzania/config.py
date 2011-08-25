@@ -123,7 +123,7 @@ class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     
     # "register" keyword (tz registration)
-    REGISTER_HELP = "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel at tandahimba"
+    REGISTER_HELP = "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"
     REGISTER_BAD_CODE = "I didn't recognize your msd code.  To register, send register <name> <msd code>. example: register Peter Juma d34002"
     REGISTER_UNKNOWN_CODE = "Sorry, can't find the location with MSD CODE %(msd_code)s"
     REGISTER_UNKNOWN_DISTRICT = "Sorry, can't find the location with the name %(name)s"
@@ -186,6 +186,7 @@ class Messages(object):
     SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
     SUBMITTED_REMINDER_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
     SUBMITTED_REMINDER_DISTRICT= "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
+    SUBMITTED_NOTIFICATION_MSD = "%(district_name)s has submitted their R&R forms to MSD: %(group_a)s for Group A, %(group_b)s for Group B, %(group_c)s for Group C"
 
     # reminders
     REMINDER_STOCKONHAND = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
