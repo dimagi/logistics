@@ -20,20 +20,7 @@
                 <a href="#months_of_stock">{% trans 'show months of stock' %}</a>
                 <a href="#inventory">{% trans 'show stock levels' %}</a>
             </div>
-            {% comment %}
-            ########################################### 
-            <div class="inventorySMS">
-                <p>{% trans 'Last SMS message received' %}:</p>
-                
-            {% if facility.last_message_received %}
-                <p><i>&raquo;"{{ facility.last_message_received.text }}"</i></p>
-                <p>{{ facility.stock_on_hand_last_reported }} {% trans 'by' %} {{ facility.last_message_received.contact.contactdetail.role }} {{ facility.last_message_received.contact }}</p>
-            {% else %}
-                <p>{% trans 'No inventory messages have been received' %}</p>
-            {% endif %}    
-            <p><a href="/facilities/{{ facility.id }}/message_history/">{% trans 'See complete SMS message history' %} &raquo;</a></p>
-            </div>
-            {% endcomment %}
+            {% last_sms facility %}
             {% product_inventory facility "inventory" %}
        </div>
     </div>

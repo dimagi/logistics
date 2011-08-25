@@ -1,0 +1,6 @@
+{% load tz_tags %}
+<div class="content">
+    <h3 class="popup_title">{{ sp.name }}</h3>
+    {% last_sms sp %}
+    {% product_inventory sp "inventory" %}
+</div>

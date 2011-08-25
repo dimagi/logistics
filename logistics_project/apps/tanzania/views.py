@@ -13,7 +13,6 @@ from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable
 from logistics_project.apps.tanzania.utils import chunks
 from rapidsms.contrib.locations.models import Location
-from dimagi.utils.decorators.datespan import datespan_in_request
 from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
@@ -25,7 +24,7 @@ def tz_location_url(location):
             return reverse("tz_facility_details", args=(sp.pk,))
     except SupplyPoint.DoesNotExist:
         pass
-    return "#todo"
+    return ""
 
 def _get_facilities_and_location(request):
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
