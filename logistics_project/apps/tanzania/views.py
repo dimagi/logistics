@@ -18,6 +18,9 @@ import gdata.gauth
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
 from dimagi.utils.parsing import string_to_datetime
+from django.views.decorators.http import require_POST
+from django.views import i18n as i18n_views
+from django.utils.translation import ugettext as _
 
 def tz_location_url(location):
     try:
@@ -170,9 +173,12 @@ def docdownload(request, facility_id):
     return response
 
 def change_language(request):
-    language = dict(settings.LANGUAGES)[request.LANGUAGE_CODE]   
     return render_to_response('tanzania/change_language.html',
-                              {'LANGUAGES': settings.LANGUAGES,
-                               "language": language},
+                              {'LANGUAGES': settings.LANGUAGES},
                               context_instance=RequestContext(request))
 
+@require_POST
+def change_language_real(request):
+    messages.success(request, _("Language changed to %(lang)s") % \
+                    {"lang": dict(settings.LANGUAGES)[request.POST.get("language")]})
+    return i18n_views.set_language(request)

@@ -4,9 +4,9 @@
 {% block content %}
 <h2>{% trans "Change your default language" %}</h2>
 <div class="module">
-    <form action="/i18n/setlang/" method="post">
+    <form action="{% url tz_language_redirect %}" method="post">
         {% csrf_token %}
-        <input name="next" type="hidden" value="/tz/change_language/">
+        <input name="next" type="hidden" value="/">
         <select name="language">
             {# can't copy the docs because swahili isn't supported #}
             {% for code, val in LANGUAGES %}

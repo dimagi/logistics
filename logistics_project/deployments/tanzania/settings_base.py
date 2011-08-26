@@ -70,6 +70,18 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware', 
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = [
+    "django.core.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.request",
+    "rapidsms.context_processors.logo",
+    "logistics.context_processors.custom_settings",
+    "logistics.context_processors.google_analytics",
+    "logistics_project.apps.tanzania.context_processors.language_in_request",
+    "couchlog.context_processors.static_workaround"
+]
 
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000

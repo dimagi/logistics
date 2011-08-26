@@ -49,6 +49,7 @@
 
 			{% block auth %}
 			<div id="auth">{% if user.is_authenticated %}
+			    Language: {{ language }} (<a href="{% url tz_language %}">change</a>)
 				<a href="{% url rapidsms-logout %}">{% trans "Log out" %} {{ user.username }}</a>{% else %}
 				<a href="{% url rapidsms-login %}">{% trans "Log in" %}</a>{% endif %}
 			</div>
@@ -67,6 +68,7 @@
 		</div>
 		{% endblock %}
 
+		<div id="messages">
 		{% if messages %}
              <ul class="messages">
                  {% for message in messages %}
@@ -74,7 +76,7 @@
                  {% endfor %}
              </ul>
            {% endif %}
-           
+        </div>
 		{% block breadcrumbs %}{% if breadcrumbs %}
 		<div id="breadcrumbs">{% for caption, url in breadcrumbs %}
 			<a href="{{ url }}">{{ caption }}</a>{% if not forloop.last %}
