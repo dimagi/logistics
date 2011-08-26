@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 from logistics.models import Product, ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
+from logistics_project.apps.tanzania.utils import latest_lead_time
 
 register = template.Library()
 
@@ -46,3 +47,14 @@ def contact_list(supply_point, recurse=True, recurse_depth=100, current_depth=0,
         return this_depth
     
     
+@register.simple_tag
+def lead_time(supply_point):
+    ltime = latest_lead_time(supply_point)
+    return render_to_string("tanzania/partials/lead_time.html", 
+                            {"lead_time": ltime})
+    
+
+@register.simple_tag
+def average_lead_time(supply_point):
+    pass 
+            

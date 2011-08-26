@@ -1,7 +1,8 @@
 from datetime import datetime,timedelta
 from re import match
 from django.db.models.aggregates import Max
-from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups
+from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
+    SupplyPointStatusValues, SupplyPointStatusTypes
 from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
 
@@ -59,3 +60,29 @@ def latest_status(sp, type, value=None, month=None, year=None):
 
 def soh(sp, product, month=None, year=None):
     ProductReport.objects.filter(type=Reports.SOH)
+    
+def latest_lead_time(supply_point):
+    """
+    The days elapsed from the day they respond "submitted" to the day they 
+    respond "delivered". Only include the last period for now
+    """
+    deliveries = SupplyPointStatus.objects.filter\
+                        (supply_point=supply_point, 
+                         status_type__in=[SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                          SupplyPointStatusTypes.DELIVERY_DISTRICT],
+                         status_value=SupplyPointStatusValues.SUBMITTED).order_by("-status_date")
+    if deliveries:
+        print deliveries
+        latest_delivery = deliveries[0]
+        print latest_delivery
+        previous_submissions = SupplyPointStatus.objects.filter\
+                            (supply_point=supply_point, 
+                             status_type__in=[SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                              SupplyPointStatusTypes.R_AND_R_DISTRICT],
+                             status_value=SupplyPointStatusValues.RECEIVED,
+                             status_date__lte=latest_delivery.status_date).order_by("-status_date")
+        if previous_submissions:
+            lead_time = latest_delivery.status_date - previous_submissions[0].status_date
+            if lead_time < timedelta(days=100):
+                # if it's more than 100 days it's likely the wrong cycle
+                return lead_time
