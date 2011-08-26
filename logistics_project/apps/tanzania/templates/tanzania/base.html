@@ -49,7 +49,7 @@
 
 			{% block auth %}
 			<div id="auth">{% if user.is_authenticated %}
-			    Language: {{ language }} (<a href="{% url tz_language %}">change</a>)
+			    {% trans "Language" %}: {{ language }} (<a href="{% url tz_language %}">{% trans "change language" %}</a>)
 				<a href="{% url rapidsms-logout %}">{% trans "Log out" %} {{ user.username }}</a>{% else %}
 				<a href="{% url rapidsms-login %}">{% trans "Log in" %}</a>{% endif %}
 			</div>
