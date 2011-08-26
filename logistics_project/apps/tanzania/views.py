@@ -136,9 +136,7 @@ def docdownload(request, facility_id):
     """
     Download google docs document
     """
-    print "download"
     if 'token' in request.session:
-        print "token"
         #should be able to make this global
         client = gdata.docs.client.DocsClient()
         client.ssl = True  # Force all API requests through HTTPS
