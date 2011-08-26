@@ -39,36 +39,36 @@ div.module h2.contactGroup {
   background-image: none;                    
 }
 
-span.r_and_r_not_submitted_facility_to_district, 
-span.delivery_not_received_facility, 
-span.r_and_r_reminder_sent_facility, 
-span.delivery_received_reminder_sent_facility,
-span.zero_count,
-span.no_delivery_status_reported,
-span.supervision_not_received_facility,
-span.supervision_reminder_sent_facility {
+.r_and_r_not_submitted_facility_to_district, 
+.delivery_not_received_facility, 
+.r_and_r_reminder_sent_facility, 
+.delivery_received_reminder_sent_facility,
+.zero_count,
+.no_delivery_status_reported,
+.supervision_not_received_facility,
+.supervision_reminder_sent_facility {
    color: red;
 }
 
-span.exceeds_max,
-span.supervision_received_facility,
-span.randr_submitted_facility_to_district,
-span.soh_reported_on_time { 
+.exceeds_max,
+.supervision_received_facility,
+.randr_submitted_facility_to_district,
+.soh_reported_on_time { 
    color: green;
 }
 
-span.under_min,
-span.soh_not_reported {
+.under_min,
+.soh_not_reported {
    color: red;
 }
 
-span.randr_submitted_facility_to_district_wrong_date,
-span.soh_reported_late {
+.randr_submitted_facility_to_district_wrong_date,
+.soh_reported_late {
    color: orange;
 }
 
-span.not_reported,
-span.insufficient_data {
+.not_reported,
+.insufficient_data {
    color: gray;
 }
 
