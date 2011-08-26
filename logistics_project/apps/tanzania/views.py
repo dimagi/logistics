@@ -71,22 +71,6 @@ def dashboard(request):
                                "location": location},
                                
                               context_instance=RequestContext(request))
-PRODUCTS_PER_TABLE = 6
-
-#@login_required
-@place_in_request()
-def facilities_detail(request):
-    facs, location = _get_facilities_and_location(request)
-    mp = MonthPager(request)
-    products = Product.objects.all().order_by('name')
-    products = chunks(products, PRODUCTS_PER_TABLE)
-    return render_to_response("tanzania/facilities_list.html",
-                              {'facs': facs,
-                               'product_sets': products,
-                               'month_pager': mp,
-                               'districts': _districts(),
-                               "regions": _regions(),
-                               'location': location}, context_instance=RequestContext(request))
 
 def datespan_to_month(datespan):
     return datespan.startdate.month
@@ -95,6 +79,7 @@ def datespan_to_month(datespan):
 @place_in_request()
 def facilities_index(request):
     # Needs ability to view stock as of a given month.
+    PRODUCTS_PER_TABLE = 15
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
