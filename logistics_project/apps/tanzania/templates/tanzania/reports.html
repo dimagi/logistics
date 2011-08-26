@@ -1,0 +1,61 @@
+{% extends "tanzania/base.html" %}
+{% load nav_tags %}
+{% load logistics_report_tags %}
+{% load i18n %}
+
+{% block title %}{% trans 'Reports' %} - {{ block.super }}{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+<script type="text/javascript">
+    $(function() {
+        $("#show_stock").hide();
+        $("#show_months").click(function() {
+            $("td.stock").each(function () {
+                $(this).text($(this).data("months"));
+            });
+            $("#show_stock").show();
+            $("#show_months").hide();
+        });
+        $("#show_stock").click(function() {
+            $("td.stock").each(function () {
+                $(this).text($(this).data("stock"));
+            });
+            $("#show_months").show();
+            $("#show_stock").hide();
+        });
+        $("td.stock").each(function () {
+            $(this).text($(this).data("stock"));
+        });
+
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+    <div class="crumbs">{% breadcrumbs location %}</div>
+
+    <div style="clear:both;">&nbsp;</div>
+{% include "logistics/partials/month_pager.html" %}
+
+    <div class="toolbar">
+        {% include "logistics/partials/selector_form.html" %}
+        </div>
+
+
+
+ 
+    <div class="module">
+    <h2>{% trans 'R&amp;R Reporting History' %} &raquo; Group {{ current_submitting_group }}: {% blocktrans with number_submitted as submitted and submitting_total as count %}{{ submitted }} of {{ count }}{% endblocktrans %} {% trans 'submitted' %} ({{ reporting_percentage|floatformat }}%) {% blocktrans with on_time as on_time and number_submitted as submitted %}{{ on_time }} of {{ submitted }}{% endblocktrans %} on time ({{ on_time_percentage|floatformat }}%)</h2>
+    {{ randr_table.as_html }}
+    </div>
+
+    <div class="module">
+    <h2>{% trans 'R&amp;R Reporting History' %} &raquo; Group {{ current_submitting_group }}: {% blocktrans with number_submitted as submitted and submitting_total as count %}{{ submitted }} of {{ count }}{% endblocktrans %} {% trans 'submitted' %} ({{ reporting_percentage|floatformat }}%) {% blocktrans with on_time as on_time and number_submitted as submitted %}{{ on_time }} of {{ submitted }}{% endblocktrans %} on time ({{ on_time_percentage|floatformat }}%)</h2>
+    {{ supervision_table.as_html }}
+    </div>
+
+    <div class="module">
+    {% include "tanzania/partials/soh_table.html" %}
+    </div>
+
+{% endblock %}
