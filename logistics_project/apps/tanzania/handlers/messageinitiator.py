@@ -8,6 +8,10 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
 from datetime import datetime
 from logistics_project.apps.tanzania.reminders import reports
 
+def _send_if_connection(c, message):
+    if c.default_connection is not None:
+        c.message(message)
+        
 class MessageInitiator(KeywordHandler):
     """
     Initiate test messages for trainings.
@@ -42,7 +46,7 @@ class MessageInitiator(KeywordHandler):
         # target guaranteed to be set by here
         if command in ["la"]:
             for c in sp_target.active_contact_set:
-                c.message(_(config.Messages.LOSS_ADJUST_HELP))
+                _send_if_connection(c, _(config.Messages.LOSS_ADJUST_HELP))
             SupplyPointStatus.objects.create(supply_point=sp_target,
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
@@ -50,7 +54,7 @@ class MessageInitiator(KeywordHandler):
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["soh", "hmk"]:
             for c in sp_target.active_contact_set:
-                c.message(_(config.Messages.SOH_HELP_MESSAGE))
+                _send_if_connection(c, _(config.Messages.SOH_HELP_MESSAGE))
             SupplyPointStatus.objects.create(supply_point=sp_target,
                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
@@ -58,11 +62,11 @@ class MessageInitiator(KeywordHandler):
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["fw"]:
             for c in sp_target.active_contact_set:
-                c.message(' '.join(result))
+                _send_if_connection(c, ' '.join(result))
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["supervision"]:
             for c in sp_target.active_contact_set:
-                c.message(_(config.Messages.SUPERVISION_REMINDER))
+                _send_if_connection(c, _(config.Messages.SUPERVISION_REMINDER))
             SupplyPointStatus.objects.create(supply_point=sp_target,
                                              status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
@@ -78,7 +82,7 @@ class MessageInitiator(KeywordHandler):
             #facility only - SMS usage
             if sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY:
                 for c in sp_target.active_contact_set:
-                    c.message(_(config.Messages.STOCK_INQUIRY_MESSAGE) % {"product_name":product.name,
+                    _send_if_connection(c, _(config.Messages.STOCK_INQUIRY_MESSAGE) % {"product_name":product.name,
                                                                           "msd_code":product.product_code})
                 self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
             else:
@@ -87,14 +91,14 @@ class MessageInitiator(KeywordHandler):
         if command in ["randr"]:
             if sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT:
                 for c in sp_target.active_contact_set:
-                    c.message(_(config.Messages.SUBMITTED_REMINDER_DISTRICT))
+                    _send_if_connection(c, _(config.Messages.SUBMITTED_REMINDER_DISTRICT))
                 SupplyPointStatus.objects.create(supply_point=sp_target,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_DISTRICT,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT,
                                                  status_date=self.msg.timestamp)
             elif sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY:
                 for c in sp_target.active_contact_set:
-                    c.message(_(config.Messages.SUBMITTED_REMINDER_FACILITY))
+                    _send_if_connection(c, _(config.Messages.SUBMITTED_REMINDER_FACILITY))
                 SupplyPointStatus.objects.create(supply_point=sp_target,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT,
@@ -104,14 +108,14 @@ class MessageInitiator(KeywordHandler):
         if command in ["delivery"]:
             if sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT:
                 for c in sp_target.active_contact_set:
-                    c.message(_(config.Messages.DELIVERY_REMINDER_DISTRICT))
+                    _send_if_connection(c, _(config.Messages.DELIVERY_REMINDER_DISTRICT))
                 SupplyPointStatus.objects.create(supply_point=sp_target,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT,
                                                  status_date=self.msg.timestamp)
             elif sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY:
                 for c in sp_target.active_contact_set:
-                    c.message(_(config.Messages.DELIVERY_REMINDER_FACILITY))
+                    _send_if_connection(c, _(config.Messages.DELIVERY_REMINDER_FACILITY))
                 SupplyPointStatus.objects.create(supply_point=sp_target,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT,
@@ -121,7 +125,7 @@ class MessageInitiator(KeywordHandler):
         if command in ["latedelivery"]:
             #TODO: Query out counts
             for c in sp_target.active_contact_set:
-                c.message(_(config.Messages.DELIVERY_LATE_DISTRICT) % {"group_name":"changeme",
+                _send_if_connection(c, _(config.Messages.DELIVERY_LATE_DISTRICT) % {"group_name":"changeme",
                                                                        "group_total":1,
                                                                        "not_responded_count":2,
                                                                        "not_received_count":3})
@@ -135,23 +139,23 @@ class MessageInitiator(KeywordHandler):
         if command in ["randr_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                c.message(reports.construct_randr_summary_message(sp_target))
+                _send_if_connection(c, reports.construct_randr_summary_message(sp_target))
             self.respond_success()
         if command in ["soh_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                c.message(reports.construct_soh_summary_message(sp_target))
+                _send_if_connection(c, reports.construct_soh_summary_message(sp_target))
             self.respond_success()
         if command in ["delivery_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                c.message(reports.construct_delivery_summary_message(sp_target))
+                _send_if_connection(c, reports.construct_delivery_summary_message(sp_target))
             self.respond_success()
         if command in ["soh_thank_you"]:
             # test at the facility level for now
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY)
             for c in sp_target.active_contact_set:
-                c.message(_(config.Messages.SOH_THANK_YOU))
+                _send_if_connection(c, _(config.Messages.SOH_THANK_YOU))
             self.respond_success()
 
     def respond_success(self):
