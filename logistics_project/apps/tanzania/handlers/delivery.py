@@ -46,7 +46,7 @@ class DeliveryHandler(KeywordHandler):
             SupplyPointStatus.objects.create(supply_point=sp,
                                      status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                      status_value=SupplyPointStatusValues.RECEIVED,
-                                     status_date=datetime.utcnow())
+                                     status_date=self.msg.timestamp)
             self.respond(_(config.Messages.DELIVERY_PARTIAL_CONFIRM))
         else:
             # TODO be graceful
@@ -86,4 +86,4 @@ class DeliveryHandler(KeywordHandler):
             SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                              status_value=SupplyPointStatusValues.RECEIVED,
-                                             status_date=datetime.utcnow())
+                                             status_date=self.msg.timestamp)
