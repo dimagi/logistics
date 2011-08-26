@@ -4,6 +4,31 @@
 {% load i18n %}
 
 {% block title %}{% trans "Current Stock Status" %}{{ block.super }}{% endblock %}
+{% block javascripts %}{{ block.super }}
+<script type="text/javascript">
+    $(function() {
+        $("#show_stock").hide();
+        $("#show_months").click(function() {
+            $("td.stock").each(function () {
+                $(this).text($(this).data("months"));
+            });
+            $("#show_stock").show();
+            $("#show_months").hide();
+        });
+        $("#show_stock").click(function() {
+            $("td.stock").each(function () {
+                $(this).text($(this).data("stock"));
+            });
+            $("#show_months").show();
+            $("#show_stock").hide();
+        });
+        $("td.stock").each(function () {
+            $(this).text($(this).data("stock"));
+        });
+            
+    });                 
+</script>
+{% endblock %}
 
 {% block content %}
 
@@ -21,7 +46,8 @@
     <div class="module">
 	    <h2>{% trans 'Current Stock Status' %}{% if not forloop.first %} (continued){% endif %}</h2>
 	    <div class="toolbar">
-	        {% if view_type == 'inventory' %}<a href="{{ mos_link }}">{% trans 'Show months of stock' %}</a>{% else %}<a href="{{ inv_link }}">{% trans 'Show inventory' %}</a>{% endif %}
+	        <a id="show_months" href="#months">{% trans 'Show months of stock' %}</a>
+	        <a id="show_stock" href="#stock">{% trans 'Show inventory' %}</a>
 	    </div>    
         <table>
             <thead><tr>
@@ -42,7 +68,7 @@
                 <td>{{ fac.groups.all|first }}</td>
                 <td><a href="{% url tz_facility_details fac.pk %}">{{ fac.name }}</a></td>
                 {% for p in products %}
-                    <td>{% stock fac p %}</td>
+                    <td class="stock" data-stock="{% stock fac p %}" data-months="{% months_of_stock fac p %}"></td>
                 {% endfor %}
             </tr>
             {% endfor %}

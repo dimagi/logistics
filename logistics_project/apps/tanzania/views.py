@@ -77,9 +77,9 @@ PRODUCTS_PER_TABLE = 6
 
 #@login_required
 @place_in_request()
-def facilities_detail(request, view_type="inventory"):
+def facilities_detail(request):
     facs, location = _get_facilities_and_location(request)
-    mp = MonthPager(reqyest)
+    mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
     products = chunks(products, PRODUCTS_PER_TABLE)
     return render_to_response("tanzania/facilities_list.html",
@@ -95,8 +95,8 @@ def datespan_to_month(datespan):
 
 #@login_required
 @place_in_request()
-def facilities_index(request, view_type="inventory"):
-    # TODO Needs ability to view stock as of a given month.
+def facilities_index(request):
+    # Needs ability to view stock as of a given month.
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
