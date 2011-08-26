@@ -194,7 +194,7 @@ class SupplyPointBase(models.Model):
 
     def months_of_stock(self, product):
         productstock = self._get_product_stock(product)
-        return productstock.months_remaining() if productstock else 0
+        return productstock.months_remaining if productstock else 0
 
 
     def record_consumption_by_code(self, product_code, rate):

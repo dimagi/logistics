@@ -231,4 +231,5 @@ def stock(supply_point, product):
 
 @register.simple_tag
 def months_of_stock(supply_point, product):
-    return supply_point.stock(product)
+    val = supply_point.months_of_stock(product)
+    return "%0.2f" % val if val else val 
