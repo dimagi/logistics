@@ -24,13 +24,17 @@ def _latest_status_or_none(cell, type, attr):
         return getattr(t, attr, None)
     return None
 
+def supply_point_link(cell):
+    from logistics_project.apps.tanzania.views import tz_location_url
+    return tz_location_url(cell.object.location)
+
 class OrderingStatusTable(MonthTable):
     """
     Same as above but includes a column for the HSA
     """
     code = Column(value=lambda cell:cell.object.code)
     delivery_group = Column(sortable=False, value=lambda cell: cell.object.groups.all()[0] if cell.object.groups.count() else None, name="Delivery Group")
-    name = Column()
+    name = Column(link=supply_point_link)
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
     delivery_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
