@@ -22,6 +22,8 @@ from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 
+PRODUCTS_PER_TABLE = 15
+
 def tz_location_url(location):
     try:
         sp = SupplyPoint.objects.get(location=location)
@@ -79,7 +81,6 @@ def datespan_to_month(datespan):
 @place_in_request()
 def facilities_index(request):
     # Needs ability to view stock as of a given month.
-    PRODUCTS_PER_TABLE = 15
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
