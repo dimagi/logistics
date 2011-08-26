@@ -37,9 +37,7 @@ def _get_facilities_and_location(request):
     # district filter
     if request.location:
         location = request.location
-        print request.location, request.location.type.name
         if request.location.type.name == "REGION":
-            print "Got a region"
             base_facilities = base_facilities.filter(Q(supplied_by__location__parent_id=location.id) | Q(supplied_by__location=location))
         elif request.location.type.name == "DISTRICT":
             base_facilities = base_facilities.filter(supplied_by__location=location)
