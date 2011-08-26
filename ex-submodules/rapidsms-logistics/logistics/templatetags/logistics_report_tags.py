@@ -4,7 +4,8 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.models import SupplyPoint, StockRequest,\
-    StockRequestStatus, Product, ProductStock
+    StockRequestStatus, Product, ProductStock, StockTransaction
+from logistics.const import Reports
 from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
@@ -236,3 +237,9 @@ def months_of_stock(supply_point, product, default_value=None):
         return "%0.2f" % val 
     except TypeError:
         return default_value
+
+@register.simple_tag
+def historical_stock(supply_point, product, month, year):
+    srs = StockTransaction.objects.filter(supply_point=supply_point, product=product, date__month=month, date__year=year).order_by("-date")
+    if srs.exists():
+        return srs[0].ending_balance
