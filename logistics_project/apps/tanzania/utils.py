@@ -2,7 +2,9 @@ from datetime import datetime,timedelta
 from re import match
 from django.db.models.aggregates import Max
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ProductReport, ProductReportType
+from logistics.const import Reports
+
 
 def chunks(l, n):
     """
@@ -54,3 +56,6 @@ def latest_status(sp, type, value=None, month=None, year=None):
         qs = qs.filter(status_date__month=month, status_date__year=year)
     qs = qs.order_by("-status_date")
     return qs[0] if qs.count() else None
+
+def soh(sp, product, month=None, year=None):
+    ProductReport.objects.filter(type=Reports.SOH)

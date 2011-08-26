@@ -69,42 +69,7 @@
     {% include "logistics/partials/selector_form.html" %}
     </div>
 
-{% for products in product_set %}
-    <div class="module">
-	    <h2>{% trans 'Current Stock Status' %}{% if not forloop.first %} (continued){% endif %}</h2>
-	    <div class="toolbar">
-	        <a id="show_months" href="#months">{% trans 'Show months of stock' %}</a>
-	        <a id="show_stock" href="#stock">{% trans 'Show inventory' %}</a>
-	    </div>    
-        <table>
-            <thead><tr>
-
-                <th>MSD Code</th>
-                <th>Delivery Group</th>
-                <th>Name</th>
-
-            {% for p in products %}
-                <th>{{ p.sms_code }}</th>
-            {% endfor %}
-            </tr>
-                </thead>
-                <tbody>
-                {% for fac in facs %}
-            <tr>
-                <td>{{ fac.code }}</td>
-                <td>{{ fac.groups.all|first }}</td>
-                <td><a href="{% url tz_facility_details fac.pk %}">{{ fac.name }}</a></td>
-                {% for p in products %}
-                    <td class="stock" data-stock="{% stock fac p "No data" %}" data-months="{% months_of_stock fac p "N/A" %}"></td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
-
-    </div>
-{% endfor %}
-
+{% include "tanzania/partials/soh_table.html" %}
+</div>
 
 {% endblock %}

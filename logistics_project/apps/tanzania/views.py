@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.utils import translation
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import OrderingStatusTable
+from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable
 from logistics_project.apps.tanzania.utils import chunks
 from rapidsms.contrib.locations.models import Location
 from models import DeliveryGroups
@@ -165,3 +165,24 @@ def change_language_real(request):
     messages.success(request, _("Language changed to %(lang)s") % \
                     {"lang": dict(settings.LANGUAGES)[request.POST.get("language")]})
     return i18n_views.set_language(request)
+
+@place_in_request()
+def reporting(request):
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(request)
+    products = Product.objects.all().order_by('name')
+    products = chunks(products, PRODUCTS_PER_TABLE)
+    
+    return render_to_response("tanzania/reports.html",
+        {
+          "location": location,
+          "month_pager": mp,
+          "districts": _districts(),
+          "regions": _regions(),
+          "facs": facs,
+          "product_set": products,
+          "supervision_table": SupervisionTable(object_list=facs, request=request, month=mp.month, year=mp.year),
+          "randr_table": RandRReportingHistoryTable(object_list=facs, request=request, month=mp.month, year=mp.year),
+        },
+        context_instance=RequestContext(request),
+    )
