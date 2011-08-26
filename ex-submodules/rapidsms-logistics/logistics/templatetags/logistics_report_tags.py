@@ -226,10 +226,13 @@ def commodity_code_to_name(code):
         return "Unknown Commodity"
 
 @register.simple_tag
-def stock(supply_point, product):
-    return supply_point.stock(product)
+def stock(supply_point, product, default_value=0):
+    return supply_point.stock(product, default_value)
 
 @register.simple_tag
-def months_of_stock(supply_point, product):
-    val = supply_point.months_of_stock(product)
-    return "%0.2f" % val if val else val 
+def months_of_stock(supply_point, product, default_value=None):
+    val = supply_point.months_of_stock(product, default_value)
+    try:
+        return "%0.2f" % val 
+    except TypeError:
+        return default_value
