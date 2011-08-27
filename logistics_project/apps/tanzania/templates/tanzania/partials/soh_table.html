@@ -27,7 +27,7 @@
                 <td>{{ fac.groups.all|first }}</td>
                 <td><a href="{% url tz_facility_details fac.pk %}">{{ fac.name }}</a></td>
                 {% for p in products %}
-                    <td class="stock" data-stock="{% historical_stock fac p month_pager.month month_pager.year %}" data-months="{% months_of_stock fac p "N/A" %}"></td>
+                    <td class="stock" data-stock="{% historical_stock fac p month_pager.year month_pager.month "No data" %}" data-months="{% historical_months_of_stock fac p month_pager.year month_pager.month "N/A" %}"></td>
                 {% endfor %}
             </tr>
             {% endfor %}
