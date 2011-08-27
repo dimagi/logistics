@@ -1,7 +1,7 @@
 from datetime import datetime
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint
-from models import DeliveryGroups, SupplyPointStatusTypes, SupplyPointStatusValues
+from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from utils import sps_with_latest_status
 from calendar import month_name
@@ -28,12 +28,10 @@ class SupplyPointStatusBreakdown(object):
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED))
-
-        self.not_responding = list(sps_with_latest_status(sps=facilities,
-                                                 year=self.year, month=self.month,
-                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
-
+        
+        # everyone else is not responding. TODO optimize/tweak
+        self.not_responding = list(set(facilities.all()) - set(self.submitted) - set(self.not_submitted))
+        
         self.delivery_received = list(sps_with_latest_status(sps=facilities,
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
