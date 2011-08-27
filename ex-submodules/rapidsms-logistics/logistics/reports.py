@@ -15,7 +15,7 @@ import logistics.models as logistics_models
 from logistics.const import Reports
 from logistics.util import config
 
-if hasattr(settings,'LOGISTICS_CONFIG'):
+if hasattr(settings, 'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)
 else:
     import config
@@ -59,7 +59,7 @@ class ReportingBreakdown(object):
     information.
     """
     
-    def __init__(self, supply_points, datespan=None, include_late=False, 
+    def __init__(self, supply_points, datespan=None, include_late=False,
                  days_for_late=5, MNE=False):
         self.supply_points = supply_points
         
@@ -144,7 +144,7 @@ class ReportingBreakdown(object):
             self.req_times = []
             if filled_requests:
                 secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
-                self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
+                self.avg_req_time = timedelta(seconds=(sum(secs) / len(secs)))
                 self.req_times = secs
 
         # fully reporting / non reporting
@@ -156,7 +156,7 @@ class ReportingBreakdown(object):
         no_stockouts_p = {}
         stockouts_p = {}
         totals_p = {}
-        stockouts_duration_p ={}
+        stockouts_duration_p = {}
         stockouts_avg_duration_p = {}
         for sp in reported.all():
             
@@ -164,8 +164,9 @@ class ReportingBreakdown(object):
             # will need to be revisited
             try:
                 contact = Contact.objects.get(supply_point=sp)
-            except Contact.DoesNotExist, Contact.MultipleObjectsReturned:
+            except (Contact.DoesNotExist, Contact.MultipleObjectsReturned):
                 contact = None
+            
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
             if contact:
@@ -222,7 +223,7 @@ class ReportingBreakdown(object):
                     no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
             for key in stockouts_duration_p:
-                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key])/len(stockouts_duration_p[key]))
+                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key]) / len(stockouts_duration_p[key]))
 
             self.stockouts = stockouts
             self.emergency = emergency_requesters
@@ -399,22 +400,22 @@ class ProductAvailabilitySummary(object):
                 products.append([index, product_summary["product"].sms_code])
 
             bar_data = [{"data" : without_stock,
-                         "label": "Stocked out", 
+                         "label": "Stocked out",
                          "bars": { "show" : "true"},
                          "color": Colors.DARK_RED,
                         },
                         {"data" : with_stock,
-                         "label": "Not Stocked out", 
-                         "bars": { "show" : "true"}, 
+                         "label": "Not Stocked out",
+                         "bars": { "show" : "true"},
                          "color": Colors.MEDIUM_GREEN,
                          
                         },
                         {"data" : without_data,
-                         "label": "No Stock Data", 
+                         "label": "No Stock Data",
                          "bars": { "show" : "true"},
                          "color": Colors.MEDIUM_YELLOW,
                         }]
-            self._flot_data = {"data": json.dumps(bar_data), 
+            self._flot_data = {"data": json.dumps(bar_data),
                                "ticks": json.dumps(products)}
                 
         return self._flot_data
@@ -553,7 +554,7 @@ class FacilitySupplyPointRow(SupplyPointRow):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
 
-def calc_percentage(a,b):
+def calc_percentage(a, b):
     if not (a and b):
         return 0 # Don't return ugly NaN
     return int((float(a) / float(b)) * 100.0)
@@ -566,5 +567,5 @@ def get_reporting_and_nonreporting_facilities(deadline, location):
         return None, None
     facilities = location.all_facilities()
     on_time_facilities = facilities.filter(last_reported__gte=deadline, active=True)
-    late_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline), active=True)
+    late_facilities = facilities.filter(Q(last_reported=None) | Q(last_reported__lt=deadline), active=True)
     return on_time_facilities, late_facilities
