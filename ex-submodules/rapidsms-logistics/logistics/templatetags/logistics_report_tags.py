@@ -231,15 +231,28 @@ def stock(supply_point, product, default_value=0):
     return supply_point.stock(product, default_value)
 
 @register.simple_tag
-def months_of_stock(supply_point, product, default_value=None):
-    val = supply_point.months_of_stock(product, default_value)
+def historical_stock(supply_point, product, year, month, default_value=0):
+    srs = StockTransaction.objects.filter(supply_point=supply_point, product=product, date__month=month, date__year=year).order_by("-date")
+    if srs.exists():
+        return srs[0].ending_balance
+    return default_value
+
+def _months_or_default(val, default_value):
     try:
         return "%0.2f" % val 
     except TypeError:
         return default_value
 
 @register.simple_tag
-def historical_stock(supply_point, product, month, year):
+def months_of_stock(supply_point, product, default_value=None):
+    val = supply_point.months_of_stock(product, default_value)
+    return _months_or_default(val, default_value)
+
+@register.simple_tag
+def historical_months_of_stock(supply_point, product, year, month, default_value=None):
     srs = StockTransaction.objects.filter(supply_point=supply_point, product=product, date__month=month, date__year=year).order_by("-date")
     if srs.exists():
-        return srs[0].ending_balance
+        val = ProductStock.objects.get(supply_point=supply_point, product=product)\
+                    .calculate_months_remaining(srs[0].ending_balance)
+        return _months_or_default(val, default_value)
+    return default_value

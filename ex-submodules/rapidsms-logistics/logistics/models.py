@@ -445,9 +445,12 @@ class ProductStock(models.Model):
 
     @property
     def months_remaining(self):
+        return self.calculate_months_remaining(self.quantity)
+        
+    def calculate_months_remaining(self, quantity):
         if self.monthly_consumption is not None and self.monthly_consumption > 0 \
-          and self.quantity is not None:
-            return float(self.quantity) / float(self.monthly_consumption)
+          and quantity is not None:
+            return float(quantity) / float(self.monthly_consumption)
         return None
 
     def is_stocked_out(self):
