@@ -6,6 +6,7 @@ from logistics.models import Product, ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
 from logistics_project.apps.tanzania.utils import latest_lead_time
+from datetime import timedelta
 
 register = template.Library()
 
@@ -53,8 +54,19 @@ def lead_time(supply_point):
     return render_to_string("tanzania/partials/lead_time.html", 
                             {"lead_time": ltime})
     
-
 @register.simple_tag
-def average_lead_time(supply_point):
-    pass 
+def average_lead_time(supply_point_list):
+    total_time = timedelta(days=0)
+    count = 0
+    for supply_point in supply_point_list:
+        ltime = latest_lead_time(supply_point)
+        if ltime is not None:
+            total_time += ltime
+            count += 1
+    
+    average_time = total_time / count if count else None
+    return render_to_string("tanzania/partials/lead_time.html", 
+                            {"lead_time": average_time})
+    
+
             

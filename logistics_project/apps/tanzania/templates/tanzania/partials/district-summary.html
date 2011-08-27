@@ -1,5 +1,5 @@
 {% load i18n %}
-
+{% load tz_tags %}
 
 <div class="module">
             <h2>{% trans 'District Summary' %}</h2>
@@ -22,6 +22,10 @@
                 <li>
                     <div class="report">Group {{ dg.current_delivering_group }}: {% trans "Deliveries" %}</div>
                     <div class="caption">{% blocktrans with sub_data.delivery_received|length as delivered and dg.delivering|length as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'delivered' %}</a></div>
+                </li>
+                <li>
+                    <div class="report">Lead Time</div>
+                    <div class="caption">{% average_lead_time facs %}</div>
                 </li>
             </ul>
 </div>

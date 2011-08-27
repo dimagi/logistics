@@ -70,16 +70,14 @@ def latest_lead_time(supply_point):
                         (supply_point=supply_point, 
                          status_type__in=[SupplyPointStatusTypes.DELIVERY_FACILITY,
                                           SupplyPointStatusTypes.DELIVERY_DISTRICT],
-                         status_value=SupplyPointStatusValues.SUBMITTED).order_by("-status_date")
+                         status_value=SupplyPointStatusValues.RECEIVED).order_by("-status_date")
     if deliveries:
-        print deliveries
         latest_delivery = deliveries[0]
-        print latest_delivery
         previous_submissions = SupplyPointStatus.objects.filter\
                             (supply_point=supply_point, 
                              status_type__in=[SupplyPointStatusTypes.R_AND_R_FACILITY,
                                               SupplyPointStatusTypes.R_AND_R_DISTRICT],
-                             status_value=SupplyPointStatusValues.RECEIVED,
+                             status_value=SupplyPointStatusValues.SUBMITTED,
                              status_date__lte=latest_delivery.status_date).order_by("-status_date")
         if previous_submissions:
             lead_time = latest_delivery.status_date - previous_submissions[0].status_date

@@ -1,5 +1,6 @@
 {% extends "tanzania/base.html" %}
 {% load nav_tags %}
+{% load tz_tags %}
 {% load logistics_report_tags %}
 {% load i18n %}
 
@@ -65,9 +66,8 @@
 
 <div class="toolbar">
     {% include "logistics/partials/selector_form.html" %}
-    </div>
-
-{% include "tanzania/partials/soh_table.html" %}
 </div>
+{% average_lead_time facs %}
+{% include "tanzania/partials/soh_table.html" %}
 
 {% endblock %}
