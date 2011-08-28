@@ -103,6 +103,14 @@ LANGUAGES = (
 
 LANGUAGE_CODE = "sw"
  
+NO_LOGIN_REQUIRED_FOR = ['password/reset',
+                         'register',
+                         'logout',
+                         'activate',
+                         'help',
+                         'scmgr',
+                         'reports/pdf']
+
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
 LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"

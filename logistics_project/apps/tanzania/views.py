@@ -21,6 +21,7 @@ from dimagi.utils.parsing import string_to_datetime
 from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
+from logistics_project.decorators import magic_token_required
 
 PRODUCTS_PER_TABLE = 15
 
@@ -187,5 +188,9 @@ def reporting(request):
           "randr_table": RandRReportingHistoryTable(object_list=randr_facs, request=request, 
                                                     month=mp.month, year=mp.year),
         },
-        context_instance=RequestContext(request),
-    )
+        context_instance=RequestContext(request))
+
+@place_in_request()
+@magic_token_required()
+def reporting_pdf(request):
+    return reporting(request)
