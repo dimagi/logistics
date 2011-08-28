@@ -7,7 +7,7 @@
 
 {% block javascripts %}{{ block.super }}
 <script type="text/javascript" src="{{ MEDIA_URL }}tanzania/js/stock_init.js"></script>
-
+<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/legend_hider.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -25,6 +25,8 @@
     <h2>{% trans 'R&amp;R Reporting History' %} &raquo; Group {{ randr_table.submitting_group }}: {% blocktrans with number_submitted as submitted and submitting_total as count %}{{ submitted }} of {{ count }}{% endblocktrans %} {% trans 'submitted' %} ({{ reporting_percentage|floatformat }}%) {% blocktrans with on_time as on_time and number_submitted as submitted %}{{ on_time }} of {{ submitted }}{% endblocktrans %} on time ({{ on_time_percentage|floatformat }}%)</h2>
     {{ randr_table.as_html }}
     </div>
+    <br><br>
+{% include "logistics/partials/combined_legend.html" %}
 
     <div class="module">
     <a id="stock"></a>
