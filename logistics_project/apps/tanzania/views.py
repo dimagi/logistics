@@ -22,6 +22,7 @@ from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
+from logistics_project.apps.tanzania.tasks import email_report
 
 PRODUCTS_PER_TABLE = 15
 
@@ -194,3 +195,9 @@ def reporting(request):
 @magic_token_required()
 def reporting_pdf(request):
     return reporting(request)
+
+@place_in_request()
+def pdf_test(request):
+    loc = request.location.code if request.location else "DISTRICT-MASASI"
+    email_report.delay(loc, ["czue@dimagi.com"])
+    return HttpResponse("Sent!")
