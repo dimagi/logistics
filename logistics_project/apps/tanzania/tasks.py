@@ -18,9 +18,9 @@ def email_report(location_code, to):
           "loc": location_code, "token": settings.MAGIC_TOKEN}
     fd, tmpfilepath = tempfile.mkstemp(suffix=".pdf", prefix="report-%s" % location_code)
     os.close(fd)
-    command = 'wkhtmltopdf "%(url)s" %(file)s"' % {"url": full_url, "file": tmpfilepath}
-    p = subprocess.Popen(command, stdout=PIPE,stderr=PIPE,shell=False)
-    p.wait()
+    command = 'wkhtmltopdf "%(url)s" %(file)s' % {"url": full_url, "file": tmpfilepath}
+    p = subprocess.Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+    p.communicate()
     email = EmailMessage('%s Report' % location_code, 'See attachment', 
                          settings.EMAIL_LOGIN, to)
     email.attach_file(tmpfilepath)

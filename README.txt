@@ -5,6 +5,7 @@ NON-PYTHON DEPENDENCIES
 * postgres
 * pip
 * couchdb
+* wkhtmltopdf (for pdf report functionality only)
 
 You can install all of the above by running:
 > sudo apt-get install git-core postgresql python-psycopg2 couchdb
