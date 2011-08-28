@@ -201,4 +201,4 @@ def pdf_test(request):
     loc = request.location.code if request.location else "DISTRICT-MASASI"
     to = request.REQUEST["to"] if "to" in request.REQUEST else "czue@dimagi.com"
     email_report.delay(loc, [to])
-    return HttpResponse("Sent report to @s!" % to)
+    return HttpResponse("Sent report for %s to %s." % (loc, to))
