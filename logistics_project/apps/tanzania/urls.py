@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     url(r'^reports/$', 'logistics_project.apps.tanzania.views.reporting', name='reports'),
     url(r'^reports/pdf/$', 'logistics_project.apps.tanzania.views.reporting_pdf', name="tz_pdf_reports"),
     url(r'^reports/pdf/test$', 'logistics_project.apps.tanzania.views.pdf_test', name="tz_pdf_test"),
+    url(r'^reports/adhoc/$', 'logistics_project.apps.tanzania.views.ad_hoc_reports', 
+        name='ad_hoc_reports'),
     
 #    (r'^stockinquiry', 'ilsgateway.views.stock_inquiry'),
     url(r'^docdownload/(?P<facility_id>\w+)/$', 'logistics_project.apps.tanzania.views.docdownload', name="tz_docdownload"),

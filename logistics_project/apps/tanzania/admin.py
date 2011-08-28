@@ -2,7 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.contrib import admin
-from logistics_project.apps.tanzania.models import SupplyPointStatus
+from logistics_project.apps.tanzania.models import SupplyPointStatus,\
+    AdHocReport
 
 class SupplyPointStatusAdmin(admin.ModelAdmin):
     model = SupplyPointStatus
@@ -10,3 +11,4 @@ class SupplyPointStatusAdmin(admin.ModelAdmin):
     list_filter = ('status_type', 'status_value', 'supply_point', 'status_date')
 
 admin.site.register(SupplyPointStatus, SupplyPointStatusAdmin)
+admin.site.register(AdHocReport)

@@ -11,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+    <a href="{% url ad_hoc_reports %}?place={{ location.code }}" style="float:right;">ad hoc email settings</a>
     <div class="crumbs">{% breadcrumbs location %}</div>
 
     <div style="clear:both;">&nbsp;</div>

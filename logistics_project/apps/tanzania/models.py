@@ -129,3 +129,7 @@ class SupplyPointStatus(models.Model):
         verbose_name_plural = "Facility Statuses"
         get_latest_by = "status_date"
         ordering = ('-status_date',)
+        
+class AdHocReport(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    recipients = models.TextField(help_text="Use a list of email addresses separated by commas")

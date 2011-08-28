@@ -23,6 +23,8 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.tasks import email_report
+from logistics_project.apps.tanzania.forms import AdHocReportForm
+from logistics_project.apps.tanzania.models import AdHocReport
 
 PRODUCTS_PER_TABLE = 15
 
@@ -204,3 +206,53 @@ def pdf_test(request):
     to = request.REQUEST["to"] if "to" in request.REQUEST else "czue@dimagi.com"
     email_report.delay(loc, [to])
     return HttpResponse("Sent report for %s to %s." % (loc, to))
+
+@place_in_request()
+def ad_hoc_reports(request):
+    supply_point = None
+    if request.location:
+        try:
+            supply_point = SupplyPoint.objects.get(location=request.location)
+        except SupplyPoint.DoesNotExist:
+            pass
+    report = None
+    if supply_point:
+        try:
+            report = AdHocReport.objects.get(supply_point=supply_point)
+        except (AdHocReport.DoesNotExist, AdHocReport.MultipleObjectsReturned):
+            pass
+        
+    if request.method == "POST":
+        form = AdHocReportForm(request.POST)
+        if form.is_valid():
+            new_report = form.save(commit=False)
+            if report is not None:
+                assert(report.supply_point == new_report.supply_point)
+                report.recipients = new_report.recipients
+            else:
+                report = new_report
+            
+            report.save()
+            messages.success(request, "changes to ad hoc report saved")
+            if request.POST["submit"] == "Send Test Messages":
+                recipients = report.recipients.split(",")
+                email_report.delay(report.supply_point.code, recipients)
+                messages.success(request, "Test report sent to %s" % ", ".join(recipients))
+                
+            else:
+                return HttpResponseRedirect("%s?place=%s" % (reverse("reports"), 
+                                                             report.supply_point.code))
+    
+    else:
+        if report:
+            form = AdHocReportForm(instance=report)
+        elif supply_point:
+            form = AdHocReportForm({"supply_point": supply_point})
+        else:
+            form = AdHocReportForm()
+    
+    return render_to_response("tanzania/edit_adhoc_report.html", {
+        "form": form,
+    }, context_instance=RequestContext(request))
+    
+
