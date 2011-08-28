@@ -173,7 +173,7 @@ def reporting(request):
     mp = MonthPager(request)
     products = Product.objects.all().order_by('name')
     products = chunks(products, PRODUCTS_PER_TABLE)
-    
+    randr_facs = facs.filter(groups__code__in=DeliveryGroups(mp.month).current_submitting_group())
     return render_to_response("tanzania/reports.html",
         {
           "location": location,
@@ -182,8 +182,10 @@ def reporting(request):
           "regions": _regions(),
           "facs": facs,
           "product_set": products,
-          "supervision_table": SupervisionTable(object_list=facs, request=request, month=mp.month, year=mp.year),
-          "randr_table": RandRReportingHistoryTable(object_list=facs, request=request, month=mp.month, year=mp.year),
+          "supervision_table": SupervisionTable(object_list=facs, request=request, 
+                                                month=mp.month, year=mp.year),
+          "randr_table": RandRReportingHistoryTable(object_list=randr_facs, request=request, 
+                                                    month=mp.month, year=mp.year),
         },
         context_instance=RequestContext(request),
     )

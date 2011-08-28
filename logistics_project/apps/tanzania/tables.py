@@ -1,8 +1,10 @@
 from datetime import datetime
 from djtables import Table, Column
 from djtables.column import DateColumn
-from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues
+from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
+    DeliveryGroups
 from utils import latest_status
+from rapidsms.models import Contact
 
 
 class MonthTable(Table):
@@ -22,6 +24,14 @@ def _latest_status_or_none(cell, type, attr, value=None):
     t = latest_status(cell.object, type, month=cell.row.table.month, year=cell.row.table.year, value=value)
     if t and attr:
         return getattr(t, attr, None)
+    return None
+
+def _default_contact(supply_point):
+    qs = Contact.objects.filter(supply_point=supply_point)
+    if qs.exists():
+        contact = qs[0]
+        return "%s (%s) %s" % (contact, contact.role, 
+                               contact.default_connection.identity if contact.default_connection else "")
     return None
 
 def supply_point_link(cell):
@@ -46,9 +56,15 @@ class OrderingStatusTable(MonthTable):
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
-    submitted = Column(name="R&R Submitted This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED))
-    contact = Column(name="Contact", value=lambda cell: None)
-
+    submitted = DateColumn(name="R&R Submitted This Quarter", 
+                           value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED),
+                           format="d M Y P")
+    contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object))
+    
+    @property
+    def submitting_group(self):
+        return DeliveryGroups(self.month).current_submitting_group()
+    
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
