@@ -50,6 +50,20 @@ div.module h2.contactGroup {
    color: red;
 }
 
+.zero_count {
+    background: no-repeat; 
+    background-image: url("../../logistics/images/stockout.png");
+    background-position: left center;
+    text-indent: 1.2em; 	
+}
+
+.adequate_stock {
+    background: no-repeat; 
+    background-image: url("../../logistics/images/goodstock.png");
+    background-position: left center;
+    text-indent: 1.2em;     
+}
+
 .exceeds_max,
 .supervision_received_facility,
 .randr_submitted_facility_to_district,

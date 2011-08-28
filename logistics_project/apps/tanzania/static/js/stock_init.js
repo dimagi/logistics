@@ -8,6 +8,8 @@ function update_class_by_stock(elem) {
         $(elem).addClass("insufficient_data");
     } else if (stock == "0") {
         $(elem).addClass("zero_count");
+    } else {
+        $(elem).addClass("adequate_stock");
     }
 }
 function update_class_by_months(elem) {
@@ -17,6 +19,8 @@ function update_class_by_months(elem) {
         $(elem).addClass("insufficient_data");
     } else if (stock == "0") {
         $(elem).addClass("zero_count");
+    } else {
+        $(elem).addClass("adequate_stock");
     }
 }
 $(function() {
