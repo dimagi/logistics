@@ -451,6 +451,8 @@ class ProductStock(models.Model):
         if self.monthly_consumption is not None and self.monthly_consumption > 0 \
           and quantity is not None:
             return float(quantity) / float(self.monthly_consumption)
+        elif quantity == 0:
+            return 0
         return None
 
     def is_stocked_out(self):
