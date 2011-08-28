@@ -133,3 +133,6 @@ class SupplyPointStatus(models.Model):
 class AdHocReport(models.Model):
     supply_point = models.ForeignKey(SupplyPoint)
     recipients = models.TextField(help_text="Use a list of email addresses separated by commas")
+    
+    def get_recipients(self):
+        return [email.strip() for email in self.recipients.split(",")]

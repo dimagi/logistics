@@ -235,7 +235,7 @@ def ad_hoc_reports(request):
             report.save()
             messages.success(request, "changes to ad hoc report saved")
             if request.POST["submit"] == "Send Test Messages":
-                recipients = report.recipients.split(",")
+                recipients = report.get_recipients()
                 email_report.delay(report.supply_point.code, recipients)
                 messages.success(request, "Test report sent to %s" % ", ".join(recipients))
                 
@@ -247,10 +247,9 @@ def ad_hoc_reports(request):
         if report:
             form = AdHocReportForm(instance=report)
         elif supply_point:
-            form = AdHocReportForm({"supply_point": supply_point})
+            form = AdHocReportForm({"supply_point": supply_point.pk, "recipients": "Put email addresses here, separated by commas."})
         else:
             form = AdHocReportForm()
-    
     return render_to_response("tanzania/edit_adhoc_report.html", {
         "form": form,
     }, context_instance=RequestContext(request))
