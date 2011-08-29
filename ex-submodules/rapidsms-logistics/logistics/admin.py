@@ -49,6 +49,9 @@ class StockRequestAdmin(admin.ModelAdmin):
 
 class StockTransactionAdmin(admin.ModelAdmin):
     model = StockTransaction
+    
+    list_display = ('product', 'supply_point', 'date', 'quantity','beginning_balance', 'ending_balance')
+    list_filter = ('product', 'supply_point')
 
 class LogisticsContactAdmin(admin.ModelAdmin):
     model = Contact
