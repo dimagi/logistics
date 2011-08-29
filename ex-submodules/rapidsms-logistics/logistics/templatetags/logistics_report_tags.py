@@ -15,7 +15,7 @@ from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
     HSASupplyPointRow, FacilitySupplyPointRow
-from dimagi.utils.dates import DateSpan
+from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
 from rapidsms.models import Contact
@@ -230,9 +230,15 @@ def commodity_code_to_name(code):
 def stock(supply_point, product, default_value=0):
     return supply_point.stock(product, default_value)
 
+def transactions_before_or_during(year, month):
+    last_of_the_month = get_day_of_month(year, month, -1)
+    first_of_the_next_month = last_of_the_month + timedelta(days=1)
+    return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
+    
 @register.simple_tag
 def historical_stock(supply_point, product, year, month, default_value=0):
-    srs = StockTransaction.objects.filter(supply_point=supply_point, product=product, date__month=month, date__year=year).order_by("-date")
+    srs = transactions_before_or_during(year, month).\
+                filter(supply_point=supply_point, product=product).order_by("-date")
     if srs.exists():
         return srs[0].ending_balance
     return default_value
@@ -250,7 +256,8 @@ def months_of_stock(supply_point, product, default_value=None):
 
 @register.simple_tag
 def historical_months_of_stock(supply_point, product, year, month, default_value=None):
-    srs = StockTransaction.objects.filter(supply_point=supply_point, product=product, date__month=month, date__year=year).order_by("-date")
+    srs = transactions_before_or_during(year, month).\
+                filter(supply_point=supply_point, product=product).order_by("-date")
     if srs.exists():
         val = ProductStock.objects.get(supply_point=supply_point, product=product)\
                     .calculate_months_remaining(srs[0].ending_balance)
