@@ -75,7 +75,7 @@ def _user_districts(user):
     if _is_district(location):
         return districts.filter(pk=location.pk)
     elif _is_region(location):
-        return districts.filter(supplied_by__location=location)
+        return districts.filter(parent_id=location.pk)
     return districts
 
 def _user_regions(user):
