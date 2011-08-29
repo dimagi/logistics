@@ -9,7 +9,7 @@ from calendar import month_name
 class SupplyPointStatusBreakdown(object):
 
     def __init__(self, facilities=None, year=None, month=None):
-        if not year and month:
+        if not (year and month):
             self.month = datetime.utcnow().month
             self.year = datetime.utcnow().year
         else:
@@ -37,7 +37,10 @@ class SupplyPointStatusBreakdown(object):
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.RECEIVED))
                                  
-
+        self.delivery_not_received = list(sps_with_latest_status(sps=facilities,
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                                 status_value=SupplyPointStatusValues.NOT_RECEIVED))
         self._submission_chart = None
 
     def submission_chart(self):
