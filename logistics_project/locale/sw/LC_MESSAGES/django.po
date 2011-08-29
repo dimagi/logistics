@@ -399,37 +399,36 @@ msgid "Facilities"
 msgstr "Vituo"
 
 #: templates/ilsgateway_dashboard.html:81
-msgid "have reported not submitting their R&amp;R form as of today."
-msgstr "vimetoa taarifa kuwa havijatuma R&amp;R fomu za vituo vyao kwa leo"
+msgid "%(count)d facilities have reported not submitting their R&R form as of today."
+msgstr "%(count)d vituo vimetoa taarifa kuwa havijatuma R&R fomu za vituo vyao kwa leo"
 		
 #: templates/ilsgateway_dashboard.html:82
-msgid ""
-"did not respond to the SMS asking if they had submitted their R&amp;R form."
-msgstr "havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
+msgid "%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
 		
 #: templates/ilsgateway_dashboard.html:83
-msgid "have not reported their stock levels for last month."
-msgstr "havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita "
-		
+msgid "%(count)d facilities have not reported their stock levels for last month."
+msgstr "%(count)d vituo havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita"
+
 #: templates/ilsgateway_dashboard.html:84
-msgid "have reported not receiving their deliveries as of today."
-msgstr "vimetoa taarifa leo kuwa havijapokea vifaa"
+msgid "%(count)d facilities have reported not receiving their deliveries as of today."
+msgstr "%(count)d vituo vimetoa taarifa leo kuwa havijapokea vifaa"
 		
 msgid "Deliveries"
 msgstr "Wamepokea"
 
 #: templates/ilsgateway_dashboard.html:85
-msgid "did not respond to the SMS asking if they had received their delivery."
-msgstr "havijajibu ujumbe unaouliza kama vimepokea vifaa"
+msgid "%(count)d facilities did not respond to the SMS asking if they had received their delivery."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimepokea vifaa"
 		
 #: templates/ilsgateway_dashboard.html:87
 #, python-format
-msgid "%(name)s is stocked out of %(product)s"
-msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s"
+msgid "%(name)s is stocked out of %(product)s."
+msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s."
 
 #: templates/ilsgateway_dashboard.html:90
-msgid "has no primary contact"
-msgstr "Hakuna mhusika mkuu kwa kituo cha afya"
+msgid "%(name)s has no primary contact."
+msgstr "%(name)s hakuna mhusika mkuu kwa kituo cha afya."
 
 #: templates/ilsgateway_dashboard.html:90
 msgid "Register someone now"

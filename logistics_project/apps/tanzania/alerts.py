@@ -17,7 +17,7 @@ class RandRNotSubmitted(Alert):
         super(RandRNotSubmitted, self).__init__(self._get_text, reverse('ordering'))
 
     def _get_text(self):
-        return '%d facilities have reported not submitting their R&R form as of today.' % len(self.bd.not_submitted)
+        return _('%(count)d facilities have reported not submitting their R&R form as of today.') % {'count': len(self.bd.not_submitted)}
 
 @place_in_request()
 @return_if_place_not_set()
@@ -34,7 +34,7 @@ class RandRNotResponded(Alert):
         super(RandRNotResponded, self).__init__(self._get_text(), reverse('ordering'))
 
     def _get_text(self):
-        return '%s facilities did not respond to the SMS asking if they had submitted their R&R form.' % len(self.bd.submit_not_responding)
+        return _('%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form.') % {'count': len(self.bd.submit_not_responding)}
 
 @place_in_request()
 @return_if_place_not_set()
@@ -51,7 +51,7 @@ class DeliveryNotReceived(Alert):
         super(DeliveryNotReceived, self).__init__(self._get_text(), reverse('ordering'))
 
     def _get_text(self):
-        return '%s facilities have reported not receiving their deliveries as of today.' % len(self.bd.delivery_not_received)
+        return _('%(count)d facilities have reported not receiving their deliveries as of today.') % {'count':len(self.bd.delivery_not_received)}
 
 @place_in_request()
 @return_if_place_not_set()
@@ -68,7 +68,7 @@ class DeliveryNotResponding(Alert):
         super(DeliveryNotResponding, self).__init__(self._get_text(), reverse('ordering'))
 
     def _get_text(self):
-        return '%s facilities did not respond to the SMS asking if they had received their delivery.' % len(self.bd.delivery_not_responding)
+        return _('%(count)d facilities did not respond to the SMS asking if they had received their delivery.') % {'count': len(self.bd.delivery_not_responding)}
 
 @place_in_request()
 @return_if_place_not_set()
@@ -85,7 +85,7 @@ class ProductStockout(Alert):
         super(ProductStockout, self).__init__(self._get_text())
 
     def _get_text(self):
-        return '%s is stocked out of %s.' % (self.sp.name, self.product.name)
+        return _('%(name)s is stocked out of %(product)s.') % {'name': self.sp.name, 'product': self.product.name}
 
 @place_in_request()
 @return_if_place_not_set()
@@ -102,7 +102,7 @@ class NoPrimaryContact(Alert):
         super(NoPrimaryContact, self).__init__(self._get_text())
 
     def _get_text(self):
-        return '%s has no primary contact.' % (self.sp.name)
+        return _('%(name)s has no primary contact.') % {'name': self.sp.name}
 
 @place_in_request()
 @return_if_place_not_set()
