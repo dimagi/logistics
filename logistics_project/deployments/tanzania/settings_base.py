@@ -38,6 +38,17 @@ INSTALLED_BACKENDS = {
     "migration": {
         "ENGINE": "logistics_project.apps.migration.backends.migration",
     },
+    # push
+    "push": {
+        "ENGINE": "logistics_project.backends.push",
+        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
+        'config': {
+            'url': "https://dragon.operatelecom.com:1089/Gateway",
+            'channel': "24358",
+            'service': "147118",
+            'password': 'CHANGEME',
+        }
+    },
 }
 
 # for postgresql:
