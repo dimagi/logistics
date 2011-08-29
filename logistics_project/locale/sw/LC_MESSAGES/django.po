@@ -288,6 +288,9 @@ msgstr "simu"
 msgid "Phone"
 msgstr "Simu"
 
+msgid "Maps"
+msgstr "Ramani"
+
 #: templates/facilities_detail.html:57
 msgid "Email"
 msgstr "Barua pepe"
@@ -402,6 +405,12 @@ msgstr "Kumbuka"
 msgid "Facilities"
 msgstr "Vituo"
 
+msgid "Message Tester"
+msgstr "Ujumbe mtihani"
+
+msgid "Submission Status"
+msgstr "Kuwasilisha hali"
+
 #: templates/ilsgateway_dashboard.html:81
 msgid "%(count)d facilities have reported not submitting their R&R form as of today."
 msgstr "%(count)d vituo vimetoa taarifa kuwa havijatuma R&R fomu za vituo vyao kwa leo"
@@ -443,8 +452,8 @@ msgid "R&amp;R Submission Summary"
 msgstr "Muhtasari wa R&R"
 
 #: templates/ilsgateway_dashboard.html:100
-msgid "All Reports"
-msgstr "Ripoti zote"
+msgid "Reports"
+msgstr "Ripoti"
 
 #: templates/ilsgateway_dashboard.html:107
 msgid "Product Availability Summary"
@@ -488,6 +497,10 @@ msgstr "Wamepokea vifaa"
 #: templates/message_history.html:4
 msgid "Message History"
 msgstr "Historia ya ujumbe "
+
+msgid "Message Log"
+msgstr "Historia ya ujumbe "
+
 
 #: templates/message_history.html:13 templates/note_history.html:12
 msgid "Sender"
