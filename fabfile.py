@@ -25,9 +25,26 @@ env.remote = "origin"
 env.branch = "master"
 env.pathhack = False
 env.stop_start = False
+env.virtualenv_root = None
 
 def do_nothing(): pass
 env.extras = do_nothing
+
+def enter_virtualenv():
+    """
+    modify path to use virtualenv's python
+
+    usage:
+
+        with enter_virtualenv():
+            run('python script.py')
+
+    """
+    if env.virtualenv_root:
+        return prefix('PATH=%(virtualenv_root)s/bin/:PATH' % env)
+    else:
+        # this is just a noop
+        return prefix("pwd")
 
 def _join(*args):
     if env.pathhack:
@@ -95,6 +112,17 @@ def tz_staging():
     _tz_shared()
 
 
+def tz_production():
+    """
+    TZ configuration (staging)
+    """
+    env.deploy_dir = '/home/dimagi/src'
+    env.db_name = "logistics"
+    env.hosts = ['dimagi@ilsgateway.com']
+    _tz_shared()
+    env.virtualenv_root = "/home/dimagi/src/logistics-env"
+
+
 def staging():
     env.config = 'staging'
     env.deploy_dir = '/home/ewsghana'
@@ -118,8 +146,8 @@ def django_tests():
 def update_requirements():
     """ update external dependencies """
     with cd(env.code_dir):
-        run('ls')
-        run('pip install --requirement %s' % _join(env.code_dir, "pip-requires.txt"))
+        with enter_virtualenv():
+            run('pip install -r %s' % _join(env.code_dir, "pip-requires.txt"))
 
 def bootstrap(subdir='logistics'):
     """ run this after you've checked out the code """
@@ -127,11 +155,12 @@ def bootstrap(subdir='logistics'):
         run('git submodule init')
         run('git submodule update')
         with cd(subdir):
-            run('./manage.py syncdb --noinput')
-            run('./manage.py migrate --noinput')
-            # this doesn't seem to exist
-            #run('./bootstrap_db.py')
-            env.extras()
+            with enter_virtualenv():
+                run('./manage.py syncdb --noinput')
+                run('./manage.py migrate --noinput')
+                # this doesn't seem to exist
+                #run('./bootstrap_db.py')
+                env.extras()
 
 def deploy():
     """ deploy code to some remote environment """
