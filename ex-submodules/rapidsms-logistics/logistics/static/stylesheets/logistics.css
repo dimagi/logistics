@@ -34,3 +34,28 @@
     font-size: 1.5em;
     margin-bottom: 1em;
 }
+
+/* stock icons */
+
+.stock_iconified {
+    background: no-repeat; 
+    background-position: left center;
+    text-indent: 1.2em;
+}
+
+.zero_count {
+    background-image: url("../images/stockout.png");
+}
+
+.low_stock {
+    background-image: url("../images/warning.png");
+}
+
+.adequate_stock {
+    background-image: url("../images/goodstock.png");
+}
+
+.overstock {
+    background-image: url("../images/overstock.png");
+}
+
