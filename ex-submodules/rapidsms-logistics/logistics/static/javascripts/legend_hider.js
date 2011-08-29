@@ -9,5 +9,5 @@ $(function() {
         $("#legendhider").show();
         $("#legendshower").hide();
     });    
-    $("#legendhider").hide();
+    $("#legendshower").hide();
 });
