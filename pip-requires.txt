@@ -17,5 +17,5 @@ supervisor
 twilio
 johnny-cache
 python-memcached
-pyscopg2
+psycopg2
 gdata
