@@ -1,8 +1,26 @@
+{% block javascripts %}
+{{ block.super }}
+    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.query.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/monthpicker.js"></script>
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+.ui-datepicker-calendar {
+    display: none;
+    }
+.ui-datepicker-current {
+    display: none;
+    }
+    </style>
+
+{% endblock %}
+
 {% if month_pager %}
 {% load logistics_tags %}
     {% with month_pager as mp %}
     <p align="center"><a href="{% mp_prev_month_link request mp %}">&laquo; previous month</a>
-       <span style="font-weight:bold;font-size:1.5em;"> {{ mp.begin_date|date:"F Y" }}  </span>
+       <span style="font-weight:bold;font-size:1.5em;"> {{ mp.begin_date|date:"F Y" }}  <input type="hidden" class="monthPicker" /></span>
     {% if mp.show_next %}<a href="{% mp_next_month_link request mp %}">next month &raquo;</a>
     {% else %}<span style="color:gray;">next month &raquo;</span>
     {% endif %} </p>
