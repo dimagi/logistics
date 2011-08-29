@@ -38,11 +38,11 @@ class PushBackend(RapidHttpBackend):
                         </member>
                         <member>
                             <name>SMSText</name>
-                            <value>(text)s</value>
+                            <value>%(text)s</value>
                         </member>
                         <member>
                             <name>Numbers</name>
-                            <value>(number)s</value>
+                            <value>%(number)s</value>
                         </member>                        
                     </struct>
                 </value>
