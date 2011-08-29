@@ -93,22 +93,17 @@ class PushBackend(RapidHttpBackend):
         return super(PushBackend, self).message(mobile_number, text, now)
 
     def send(self, message):
-        # this is ghetto xml parsing but we control all the inputs so 
-        # we're comfortable with that. 
-        url = settings.PUSH_URL
-        password = settings.PUSH_PASSWORD
-        channel = settings.PUSH_CHANNEL
-        service = settings.PUSH_SERVICE
-
         number = message.connection.identity
         text = message.text
         
-        payload = self.OUTBOUND_SMS_TEMPLATE % {"password": password,
-                                                "channel": channel,
-                                                "service": service,
+        # this is ghetto xml parsing but we control all the inputs so 
+        # we're comfortable with that. 
+        payload = self.OUTBOUND_SMS_TEMPLATE % {"password": self.get_password(),
+                                                "channel": self.get_channel(),
+                                                "service": self.get_service(),
                                                 "text": text,
                                                 "number": number}
-        req = urllib2.Request(url=url, 
+        req = urllib2.Request(url=self.get_url(), 
                               data=payload, 
                               headers={'Content-Type': 'application/xml'})
         handle = urllib2.urlopen(req)
