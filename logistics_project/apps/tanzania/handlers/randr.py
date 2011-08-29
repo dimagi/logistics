@@ -1,19 +1,12 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-from datetime import datetime, timedelta
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from django.db.models import Q
 from django.utils.translation import ugettext as _
 from logistics.util import config
-from logistics.shortcuts import create_stock_report
-from logistics.const import Reports
 from logistics.decorators import logistics_contact_required
-import logging
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
-from logistics.models import ProductStock, Product
-from logistics.errors import UnknownCommodityCodeError
 from rapidsms.models import Contact
 
 CHARS_IN_CODE = "2, 4"
