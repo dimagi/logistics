@@ -15,7 +15,7 @@
             <td>{% blocktrans with contact.role as role%}{{ role }}{% endblocktrans %}</td>
             <td>{{ contact.phone }}</td>
             <td>{{ contact.email }}</td>
-            <td><input type="checkbox" {% if contact.primary %}checked{% endif %} DISABLED /></td>
+            <td><input type="checkbox" {% if contact.is_active %}checked{% endif %} DISABLED /></td>
         </tr>
         {% endfor %}
     </tbody>
