@@ -143,10 +143,11 @@ BASE_TEMPLATE="tanzania/base.html"
 BASE_TEMPLATE_SPLIT_2="logistics/base-split-2.html"
 
 LOGISTICS_ALERT_GENERATORS = [
-    #'logistics_project.apps.malawi.alerts.hsa_below_emergency_quantity',
-    #'logistics_project.apps.malawi.alerts.health_center_unable_resupply_stockout',
-    #'logistics_project.apps.malawi.alerts.health_center_unable_resupply_emergency',
+    "logistics_project.apps.tanzania.alerts.randr_not_submitted",
+    "logistics_project.apps.tanzania.alerts.randr_not_responded",
+    "logistics_project.apps.tanzania.alerts.delivery_not_received",
+    "logistics_project.apps.tanzania.alerts.product_stockout",
+    "logistics_project.apps.tanzania.alerts.no_primary_contact",
 ]
-
 
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")
