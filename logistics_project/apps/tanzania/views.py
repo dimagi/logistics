@@ -89,7 +89,6 @@ def _user_regions(user):
     
 @place_in_request()
 def dashboard(request):
-    translation.activate("en")
     mp = MonthPager(request)
     base_facilities, location = _get_facilities_and_location(request)
 
