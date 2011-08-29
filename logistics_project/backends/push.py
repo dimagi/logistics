@@ -5,7 +5,6 @@ from rapidsms.backends.http import RapidHttpBackend
 from django.http import HttpResponse
 import datetime
 import urllib2
-from rapidsms.conf import settings
 
 class PushBackend(RapidHttpBackend):
     """
@@ -19,7 +18,7 @@ class PushBackend(RapidHttpBackend):
     
     OUTBOUND_SMS_TEMPLATE = """
     <methodCall>
-        <methodName>EAPIGateway.SendSMSItem</methodName>
+        <methodName>EAPIGateway.SendSMS</methodName>
         <params>
             <param>
                 <value>
@@ -106,6 +105,9 @@ class PushBackend(RapidHttpBackend):
         req = urllib2.Request(url=self.get_url(), 
                               data=payload, 
                               headers={'Content-Type': 'application/xml'})
+        
         handle = urllib2.urlopen(req)
-        return HttpResponse(handle.read())
+        resp = handle.read()
+        self.debug("got push response: %s" % resp)
+        return True
         
