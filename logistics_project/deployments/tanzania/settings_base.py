@@ -157,6 +157,7 @@ LOGISTICS_ALERT_GENERATORS = [
     "logistics_project.apps.tanzania.alerts.randr_not_submitted",
     "logistics_project.apps.tanzania.alerts.randr_not_responded",
     "logistics_project.apps.tanzania.alerts.delivery_not_received",
+    "logistics_project.apps.tanzania.alerts.delivery_not_responding",
     "logistics_project.apps.tanzania.alerts.product_stockout",
     "logistics_project.apps.tanzania.alerts.no_primary_contact",
 ]

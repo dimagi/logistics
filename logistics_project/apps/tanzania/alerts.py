@@ -34,7 +34,7 @@ class RandRNotResponded(Alert):
         super(RandRNotResponded, self).__init__(self._get_text(), reverse('ordering'))
 
     def _get_text(self):
-        return '%s facilities did not respond to the SMS asking if they had submitted their R&R form.' % len(self.bd.not_responding)
+        return '%s facilities did not respond to the SMS asking if they had submitted their R&R form.' % len(self.bd.submit_not_responding)
 
 @place_in_request()
 @return_if_place_not_set()
@@ -60,6 +60,23 @@ def delivery_not_received(request):
     if not facilities:
         return None
     return [DeliveryNotReceived(facilities)]
+
+class DeliveryNotResponding(Alert):
+    def __init__(self, sps):
+        self.sps = sps
+        self.bd = SupplyPointStatusBreakdown(facilities=sps)
+        super(DeliveryNotResponding, self).__init__(self._get_text(), reverse('ordering'))
+
+    def _get_text(self):
+        return '%s facilities did not respond to the SMS asking if they had received their delivery.' % len(self.bd.delivery_not_responding)
+
+@place_in_request()
+@return_if_place_not_set()
+def delivery_not_responding(request):
+    facilities = request.location.all_child_facilities()
+    if not facilities:
+        return None
+    return [DeliveryNotResponding(facilities)]
 
 class ProductStockout(Alert):
     def __init__(self, sp, product):
