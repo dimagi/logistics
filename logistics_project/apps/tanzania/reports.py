@@ -1,6 +1,7 @@
 from datetime import datetime
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint
+from logistics_project.apps.tanzania.models import DeliveryGroups
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from utils import sps_with_latest_status
@@ -17,30 +18,34 @@ class SupplyPointStatusBreakdown(object):
             self.year = year
         if not facilities:
             facilities = SupplyPoint.objects.filter(type__code="facility")
+        self.dg = DeliveryGroups(month=month)
 
-
-        self.submitted = list(sps_with_latest_status(sps=facilities,
+        self.submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
                                                 year=self.year, month=self.month,
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                 status_value=SupplyPointStatusValues.SUBMITTED))
 
-        self.not_submitted = list(sps_with_latest_status(sps=facilities,
+        self.not_submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED))
         
         # everyone else is not responding. TODO optimize/tweak
-        self.not_responding = list(set(facilities.all()) - set(self.submitted) - set(self.not_submitted))
+        self.submit_not_responding = list(set(self.dg.submitting(facilities)) - set(self.submitted) - set(self.not_submitted))
         
-        self.delivery_received = list(sps_with_latest_status(sps=facilities,
+        self.delivery_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.RECEIVED))
                                  
-        self.delivery_not_received = list(sps_with_latest_status(sps=facilities,
+        self.delivery_not_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_RECEIVED))
+
+        self.delivery_not_responding = list(set(self.dg.delivering(facilities)) - set(self.delivery_received) - set(self.delivery_not_received))
+
+        
         self._submission_chart = None
 
     def submission_chart(self):
@@ -58,10 +63,10 @@ class SupplyPointStatusBreakdown(object):
                     (len(self.not_submitted), month_name[self.month], self.year)
                 },
                 {"display": _("Didn't Respond"),
-                 "value": len(self.not_responding),
+                 "value": len(self.submit_not_responding),
                  "color": Colors.PURPLE,
                  "description": "(%s) Didn't Respond (%s %s)" % \
-                    (len(self.not_responding), month_name[self.month], self.year)
+                    (len(self.submit_not_responding), month_name[self.month], self.year)
                 }
             ]
         self._submission_chart = PieChartData("Submission Status (%s %s)" % (month_name[self.month], self.year), graph_data)
