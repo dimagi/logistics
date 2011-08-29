@@ -11,6 +11,9 @@ from dimagi.utils.parsing import string_to_boolean
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from scheduler.models import EventSchedule, ALL_VALUE
 from django.core.management import call_command
+from datetime import datetime
+import pytz
+from pytz import timezone
 
 def clear_supplypoints():
     Location.objects.all().delete()
@@ -112,11 +115,19 @@ def load_schedules():
                    "logistics_project.apps.tanzania.reminders.test":
                    {"test_email_admins": (12, 0)}}
                      
+    
+    tanzania_tz = timezone("Africa/Dar_es_Salaam") 
+    def _to_tz_time(hours, minutes):
+        localized = tanzania_tz.normalize(tanzania_tz.localize(datetime(2011, 1, 1, hours, minutes)))
+        utced = localized.astimezone(pytz.utc)
+        return (utced.hour, utced.minute)
+    
     for module, funcdict in theschedule.items():
         for func, (hours, minutes) in funcdict.items():
             func_abspath = "%s.%s" % (module, func)
             try:
                 schedule = EventSchedule.objects.get(callback=func_abspath)
+                hours, minutes = _to_tz_time(hours, minutes)
                 schedule.hours = [hours]
                 schedule.minutes = [minutes]
             except EventSchedule.DoesNotExist:
