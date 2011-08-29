@@ -196,6 +196,10 @@ msgstr ""
 msgid "Current language"
 msgstr "Lugha inayotumika"
 
+#: templates/change_language.html:17
+msgid "change language"
+msgstr "Badilisha lugha"
+
 #: templates/facilities_detail.html:18
 msgid "Inventory History"
 msgstr "Historia ya..."
