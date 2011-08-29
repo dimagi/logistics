@@ -79,6 +79,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
+    "logistics.context_processors.stock_cutoffs",
     "logistics.context_processors.google_analytics",
     "logistics_project.apps.tanzania.context_processors.language_in_request",
     "couchlog.context_processors.static_workaround"
@@ -116,8 +117,8 @@ NO_LOGIN_REQUIRED_FOR = ['password/reset',
 LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
-LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1
-LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
+LOGISTICS_REORDER_LEVEL_IN_MONTHS = 3
+LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 7
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
