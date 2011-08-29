@@ -84,3 +84,15 @@ def latest_lead_time(supply_point):
             if lead_time < timedelta(days=100):
                 # if it's more than 100 days it's likely the wrong cycle
                 return lead_time
+
+def get_user_location(user):
+    """
+    Get a user's location, based on their user profile, return nothing if
+    no location found.
+    """
+    if user and user.is_authenticated(): 
+        prof = user.get_profile()
+        if prof:
+            return prof.location if prof.location else \
+                prof.supply_point.location if prof.supply_point \
+                else None

@@ -6,7 +6,7 @@ from django.template.context import RequestContext
 from django.utils import translation
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable
-from logistics_project.apps.tanzania.utils import chunks
+from logistics_project.apps.tanzania.utils import chunks, get_user_location
 from rapidsms.contrib.locations.models import Location
 from models import DeliveryGroups
 from logistics.views import MonthPager
@@ -37,25 +37,56 @@ def tz_location_url(location):
         pass
     return ""
 
-def _get_facilities_and_location(request):
-    base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
+def _is_district(location):
+    return location and location.type.name == "DISTRICT"
 
-    # district filter
+def _is_region(location):
+    return location and location.type.name == "REGION"
+
+def _get_facilities_and_location(request):
+    
+    def _filter_facilities_by_location(facilities, location):
+        if _is_region(location):
+            return facilities.filter(Q(supplied_by__location__parent_id=location.id) | Q(supplied_by__location=location))
+        elif _is_district(location):
+            return facilities.filter(supplied_by__location=location)
+        return facilities
+    
+    base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
+    # filter initial list by location
+    filtered_facilities = _filter_facilities_by_location(base_facilities, 
+                                                         get_user_location(request.user))
     if request.location:
         location = request.location
-        if request.location.type.name == "REGION":
-            base_facilities = base_facilities.filter(Q(supplied_by__location__parent_id=location.id) | Q(supplied_by__location=location))
-        elif request.location.type.name == "DISTRICT":
-            base_facilities = base_facilities.filter(supplied_by__location=location)
+        filtered_facilities = _filter_facilities_by_location(filtered_facilities, request.location)
     else:
         location = Location.objects.get(name="MOHSW")
-    return base_facilities, location
+    return (filtered_facilities, location)
 
 def _districts():
     return Location.objects.filter(type__name="DISTRICT")
+
 def _regions():
     return Location.objects.filter(type__name="REGION")
 
+def _user_districts(user):
+    districts = _districts()
+    location = get_user_location(user)
+    if _is_district(location):
+        return districts.filter(pk=location.pk)
+    elif _is_region(location):
+        return districts.filter(supplied_by__location=location)
+    return districts
+
+def _user_regions(user):
+    regions = _regions()
+    location = get_user_location(user)
+    if _is_district(location):
+        return regions.filter(pk=location.parent.pk)
+    elif _is_region(location):
+        return regions.filter(pk=location.pk)
+    return regions
+    
 @place_in_request()
 def dashboard(request):
     translation.activate("en")
@@ -72,8 +103,8 @@ def dashboard(request):
                                "dg": dg,
                                "month_pager": mp,
                                "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
-                               "districts": _districts(),
-                               "regions": _regions(),
+                               "districts": _user_districts(request.user),
+                               "regions": _user_regions(request.user),
                                "location": location},
                                
                               context_instance=RequestContext(request))
@@ -95,8 +126,8 @@ def facilities_index(request):
                                'products': products,
                                'location': location,
                                'month_pager': mp,
-                               'districts': _districts(),
-                               "regions": _regions(),
+                               'districts': _user_districts(request.user),
+                               "regions": _user_regions(request.user),
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
@@ -106,8 +137,8 @@ def facilities_ordering(request):
         "tanzania/facilities_ordering.html",
         {
             "month_pager": mp,
-            "districts": _districts(),
-            "regions": _regions(),
+            "districts": _user_districts(request.user),
+            "regions": _user_regions(request.user),
             "location": location,
             "table": OrderingStatusTable(object_list=facs, request=request, month=mp.month, year=mp.year)
         },
@@ -183,8 +214,8 @@ def reporting(request):
         {
           "location": location,
           "month_pager": mp,
-          "districts": _districts(),
-          "regions": _regions(),
+          "districts": _user_districts(request.user),
+          "regions": _user_regions(request.user),
           "facs": facs,
           "product_set": product_set,
           "products": products,
