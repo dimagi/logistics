@@ -72,7 +72,8 @@ class Command(BaseCommand):
                         # todo commodities?
                         c = Contact.objects.create(name=name, language=language, 
                                                    is_active=is_primary, role=role_obj,
-                                                   supply_point=sp, is_approved=True)
+                                                   supply_point=sp, is_approved=True,
+                                                   email=email)
                         idmap[id] = c
                     c = idmap[id]
                     if backend and phone:
