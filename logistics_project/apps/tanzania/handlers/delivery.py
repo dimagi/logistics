@@ -59,7 +59,8 @@ class DeliveryHandler(KeywordHandler):
         stock_report = create_stock_report(Reports.REC,
                                            sp,
                                            text,
-                                           self.msg.logger_msg)
+                                           self.msg.logger_msg,
+                                           timestamp=self.msg.timestamp)
         if stock_report.errors:
             for e in stock_report.errors:
                 if isinstance(e, UnknownCommodityCodeError):
