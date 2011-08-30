@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from rapidsms.backends.http import RapidHttpBackend
+from xml.sax.saxutils import escape
 from django.http import HttpResponse
 import datetime
 import urllib2
@@ -61,7 +62,7 @@ class PushBackend(RapidHttpBackend):
     def handle_request(self, request):
         if request.method != 'POST':
             return HttpResponse('Not a post!')
-        self.debug('This is the PUSH inbound POST data: %s' % request.raw_post_data)
+        self.debug('This is the PUSH inbound POST data: %s' % request.POST)
         message = self.message(request.POST)
         if message:
             self.route(message)
@@ -100,7 +101,7 @@ class PushBackend(RapidHttpBackend):
         payload = self.OUTBOUND_SMS_TEMPLATE % {"password": self.get_password(),
                                                 "channel": self.get_channel(),
                                                 "service": self.get_service(),
-                                                "text": text,
+                                                "text": escape(text),
                                                 "number": number}
         req = urllib2.Request(url=self.get_url(), 
                               data=payload, 
