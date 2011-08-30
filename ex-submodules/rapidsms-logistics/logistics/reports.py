@@ -465,8 +465,6 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
         products = Product.objects.all()
         data = []
         for p in products:
-            if not ProductStock.objects.filter(product=p).exists():
-                continue
             # TODO This is ludicrously inefficient.
             with_stock = 0
             without_stock = 0
