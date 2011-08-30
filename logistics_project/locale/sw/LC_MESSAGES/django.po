@@ -448,7 +448,7 @@ msgid "Register someone now"
 msgstr "Sajili mtu sasa"
 
 #: templates/ilsgateway_dashboard.html:98
-msgid "R&amp;R Submission Summary"
+msgid "R&R Submission Summary"
 msgstr "Muhtasari wa R&R"
 
 #: templates/ilsgateway_dashboard.html:100

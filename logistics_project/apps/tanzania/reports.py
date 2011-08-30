@@ -72,5 +72,5 @@ class SupplyPointStatusBreakdown(object):
                     (len(self.submit_not_responding), month_name[self.month], self.year)
                 }
             ]
-        self._submission_chart = PieChartData(_("Submission Status") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        self._submission_chart = PieChartData(_("R&R Submission Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
         return self._submission_chart
