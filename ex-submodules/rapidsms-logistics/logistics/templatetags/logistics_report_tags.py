@@ -215,10 +215,10 @@ def product_availability_summary_by_facility(location):
     return c
 
 @register.simple_tag
-def product_availability_summary_by_facility_sp(location):
+def product_availability_summary_by_facility_sp(location, year, month):
     if not location:
         pass
-    summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities())
+    summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
     c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
                          {"summary": summary})
     return c
@@ -239,18 +239,9 @@ def commodity_code_to_name(code):
 def stock(supply_point, product, default_value=0):
     return supply_point.stock(product, default_value)
 
-def transactions_before_or_during(year, month):
-    last_of_the_month = get_day_of_month(year, month, -1)
-    first_of_the_next_month = last_of_the_month + timedelta(days=1)
-    return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
-    
 @register.simple_tag
 def historical_stock(supply_point, product, year, month, default_value=0):
-    srs = transactions_before_or_during(year, month).\
-                filter(supply_point=supply_point, product=product).order_by("-date")
-    if srs.exists():
-        return srs[0].ending_balance
-    return default_value
+    return supply_point.historical_stock(product, year, month, default_value)
 
 def _months_or_default(val, default_value):
     try:

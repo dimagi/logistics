@@ -23,6 +23,9 @@ from django.db.models.fields import PositiveIntegerField
 import uuid
 from logistics.const import Reports
 from logistics.util import config, parse_report
+from dimagi.utils.dates import DateSpan, get_day_of_month
+from datetime import timedelta
+
 if hasattr(settings, "MESSAGE_CLASS"):
     message_class = settings.MESSAGE_CLASS
 else:
@@ -200,6 +203,13 @@ class SupplyPointBase(models.Model):
         ps = ProductStock.objects.get(product__sms_code=product_code, supply_point=self)
         ps.monthly_consumption = rate
         ps.save()
+
+    def historical_stock(self, product, year, month, default_value=0):
+        srs = transactions_before_or_during(year, month).\
+                filter(supply_point=self, product=product).order_by("-date")
+        if srs.exists():
+            return srs[0].ending_balance
+        return default_value
 
     def stockout_count(self, product=None, producttype=None):
         return stockout_count(facilities=[self], 
@@ -1373,3 +1383,10 @@ def consumption(facilities=None, product=None, producttype=None):
     # TOOD: this needs to be fixed to work with auto_monthly_consumption
     consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
     return consumption
+
+
+def transactions_before_or_during(year, month):
+    last_of_the_month = get_day_of_month(year, month, -1)
+    first_of_the_next_month = last_of_the_month + timedelta(days=1)
+    return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
+    

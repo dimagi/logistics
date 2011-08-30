@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.db.models import Q, Sum
@@ -449,11 +449,14 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
 
 class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
 
-    def __init__(self, facilities, width=900, height=300):
+    def __init__(self, facilities, width=900, height=300, month=None, year=None):
         """
         facilities should be a query set of facilities that you care about
         the product availability for.
         """
+        if not (month and year):
+            year = datetime.utcnow().year
+            month = datetime.utcnow().month
         self._width = width
         self._height = height
 
@@ -462,10 +465,20 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
         products = Product.objects.all()
         data = []
         for p in products:
-            stocks = ProductStock.objects.filter(product=p, supply_point__active=True).distinct()
-            with_stock = stocks.filter(quantity__gt=0).count()
-            without_stock = stocks.filter(quantity=0).count()
-            without_data = total - with_stock - without_stock
+            if not ProductStock.objects.filter(product=p).exists():
+                continue
+            # TODO This is ludicrously inefficient.
+            with_stock = 0
+            without_stock = 0
+            without_data = 0
+            for f in facilities:
+                stock = f.historical_stock(p, year, month, default_value=-1)
+                if stock > 0:
+                    with_stock += 1
+                elif stock == 0:
+                    without_stock += 1
+                else:
+                    without_data += 1
             data.append({"product": p,
                          "total": total,
                          "with_stock": with_stock,
