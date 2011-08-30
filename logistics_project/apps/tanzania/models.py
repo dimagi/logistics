@@ -28,17 +28,17 @@ class DeliveryGroups(object):
 
     def delivering(self, facs=None, month=None):
         if not facs: facs = self.facs
-        if not facs: return []
+        if not facs: return SupplyPoint.objects.none()
         return facs.filter(groups__code=self.current_delivering_group(month))
 
     def processing(self, facs=None, month=None):
         if not facs: facs = self.facs
-        if not facs: return []
+        if not facs: return SupplyPoint.objects.none()
         return facs.filter(groups__code=self.current_processing_group(month))
 
     def submitting(self, facs=None, month=None):
         if not facs: facs = self.facs
-        if not facs: return []
+        if not facs: return SupplyPoint.objects.none()
         return facs.filter(groups__code=self.current_submitting_group(month))
 
     def total(self):
