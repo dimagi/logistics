@@ -19,6 +19,7 @@ from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
 from rapidsms.models import Contact
+from logistics.models import transactions_before_or_during
 
 Message = messagelog.models.Message
 register = template.Library()
