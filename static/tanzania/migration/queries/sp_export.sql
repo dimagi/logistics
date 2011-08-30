@@ -8,4 +8,3 @@ LEFT JOIN ilsgateway_servicedeliverypoint sdp2 on sdp.parent_id = sdp2.id
 LEFT JOIN ilsgateway_servicedeliverypointtype sdpt2 on sdp2.service_delivery_point_type_id = sdpt2.id
 ORDER BY sdp.id asc
 ) To 'e://all_facilities.csv' with CSV;
-;
