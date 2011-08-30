@@ -9,11 +9,11 @@
             <ul class="stats">
                 <li>
                     <div class="report">{{ dg.total|length }}</div>
-                    <div class="caption"><a href="{% url ordering %}">{% trans 'Facilities' %}</a></div>
+                    <div class="caption"><a href="{% url ordering %}?place={{ location.code }}">{% trans 'Facilities' %}</a></div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg.current_submitting_group }}: {% trans 'Submitting' %}</div>
-                    <div class="caption">{% blocktrans with sub_data.submitted|length as submitted and dg.submitting|length as count %}{{ submitted }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'submitted' %}</a></div>
+                    <div class="caption">{% blocktrans with sub_data.submitted|length as submitted and dg.submitting|length as count %}{{ submitted }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}?place={{ location.code }}">{% trans 'submitted' %}</a></div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg.current_processing_group }}: {% trans 'Processing' %}</div>
@@ -21,7 +21,7 @@
                 </li>
                 <li>
                     <div class="report">Group {{ dg.current_delivering_group }}: {% trans "Deliveries" %}</div>
-                    <div class="caption">{% blocktrans with sub_data.delivery_received|length as delivered and dg.delivering|length as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}">{% trans 'delivered' %}</a></div>
+                    <div class="caption">{% blocktrans with sub_data.delivery_received|length as delivered and dg.delivering|length as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url ordering %}?place={{ location.code }}">{% trans 'delivered' %}</a></div>
                 </li>
                 <li>
                     <div class="report">Lead Time</div>
