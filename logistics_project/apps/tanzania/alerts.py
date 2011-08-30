@@ -93,7 +93,7 @@ def delivery_not_responding(request):
     
 class SOHNotResponding(SupplyPointStatusAlert):
     def _get_template(self):
-        '%(count)d facilities have not reported their stock levels for last month.'
+        return '%(count)d facilities have not reported their stock levels for last month.'
     
     def get_count(self):    
         return len(self.bd.soh_not_responding)
