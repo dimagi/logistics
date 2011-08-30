@@ -1,0 +1,30 @@
+{% extends base_template %}
+{% load i18n %}
+{% load nav_tags %}
+{% load logistics_report_tags %}
+
+{% load tz_tags %}
+{% block title %}Supervision{% endblock %}
+{% block stylesheets %}{{ block.super }}
+{% endblock %}
+
+{% block imports %}
+    {% include "imports/jquery-ui.html" %}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
+{% endblock %}
+
+{% block content %}
+    <a href="{% url ad_hoc_reports %}?place={{ location.code }}" style="float:right;">ad hoc email settings</a>
+    <div class="crumbs">{% breadcrumbs location %}</div>
+
+    <div style="clear:both;">&nbsp;</div>
+{% include "logistics/partials/month_pager.html" %}
+    <div class="toolbar">
+        {% include "logistics/partials/selector_form.html" %}
+    </div>
+
+    <div class="module">
+<a id="supervision"></a>
+{% include "tanzania/partials/supervision_table.html" %}
+    </div>
+{% endblock %}

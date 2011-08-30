@@ -219,7 +219,6 @@ def reporting(request):
     dg = DeliveryGroups(mp.month, facs=facs)
     products = Product.objects.all().order_by('name')
     product_set = chunks(products, PRODUCTS_PER_TABLE)
-    randr_facs = facs.filter(groups__code__in=dg.current_submitting_group())
     return render_to_response("tanzania/reports.html",
         {
           "location": location,
@@ -230,12 +229,32 @@ def reporting(request):
           "product_set": product_set,
           "products": products,
           "dg": dg,
-          "supervision_table": SupervisionTable(object_list=facs, request=request, 
+          "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
+          "supervision_table": SupervisionTable(object_list=dg.submitting(), request=request,
                                                 month=mp.month, year=mp.year),
-          "randr_table": RandRReportingHistoryTable(object_list=randr_facs, request=request, 
+          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting(), request=request,
                                                     month=mp.month, year=mp.year),
         },
         context_instance=RequestContext(request))
+
+@place_in_request()
+def supervision(request):
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(request)
+    dg = DeliveryGroups(mp.month, facs=facs)
+    return render_to_response("tanzania/supervision.html",
+        {
+          "location": location,
+          "month_pager": mp,
+          "districts": _user_districts(request.user),
+          "regions": _user_regions(request.user),
+          "facs": dg.submitting(facs, month=mp.month),
+          "dg": dg,
+          "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
+          "supervision_table": SupervisionTable(object_list=dg.submitting(facs, month=mp.month), request=request,
+                                                month=mp.month, year=mp.year),
+          },
+    context_instance=RequestContext(request))
 
 @place_in_request()
 @magic_token_required()

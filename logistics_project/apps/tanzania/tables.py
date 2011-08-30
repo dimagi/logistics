@@ -49,8 +49,8 @@ class OrderingStatusTable(MonthTable):
     name = Column(link=supply_point_link)
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
-    delivery_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
-    delivery_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
+    delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
+    delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
 
     class Meta:
         order_by = '-code'
@@ -91,8 +91,8 @@ class RandRReportingHistoryTable(MonthTable):
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
-    supervision_this_quarter = Column(value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
-    date = DateColumn()
+    supervision_this_quarter = Column(value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
+    date = DateColumn(value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
 
 class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
