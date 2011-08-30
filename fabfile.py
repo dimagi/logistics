@@ -154,6 +154,7 @@ def bootstrap(subdir='logistics'):
     with cd(env.code_dir):
         run('git submodule init')
         run('git submodule update')
+        update_requirements()
         with cd(subdir):
             with enter_virtualenv():
                 run('./manage.py syncdb --noinput')
