@@ -9,10 +9,11 @@ from rapidsms.contrib.messaging.utils import send_message
 from logistics.util import config
 from logistics_project.apps.tanzania.utils import supply_points_with_latest_status_by_datespan
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
-    SupplyPointStatusValues, DeliveryGroups
+    SupplyPointStatusValues, DeliveryGroups, AdHocReport
 from logistics_project.apps.tanzania.reminders import stockonhand, randr, delivery
 from dimagi.utils.dates import DateSpan
 from django.utils.translation import ugettext as _
+from logistics_project.apps.tanzania.tasks import email_report
 
 def get_district_people():
     for contact in Contact.objects.filter\
@@ -98,3 +99,15 @@ def randr_summary():
     for contact in get_district_people():
         send_message(contact.connection,
                      construct_randr_summary_message(contact.supply_point))
+        
+@businessday(6)
+def email_reports():    
+    """
+    6th business day of the month @ 3pm
+    """
+    for contact in get_district_people():
+        if contact.email:
+            email_report.delay(contact.supply_point.code, [contact.email])
+    for report in AdHocReport.objects.all():
+        report.send()
+                

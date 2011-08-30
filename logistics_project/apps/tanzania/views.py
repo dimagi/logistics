@@ -258,9 +258,8 @@ def ad_hoc_reports(request):
             report.save()
             messages.success(request, "changes to ad hoc report saved")
             if request.POST["submit"] == "Send Test Messages":
-                recipients = report.get_recipients()
-                email_report.delay(report.supply_point.code, recipients)
-                messages.success(request, "Test report sent to %s" % ", ".join(recipients))
+                report.send()
+                messages.success(request, "Test report sent to %s" % ", ".join(report.get_recipients()))
                 
             else:
                 return HttpResponseRedirect("%s?place=%s" % (reverse("reports"), 

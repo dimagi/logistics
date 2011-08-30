@@ -109,9 +109,14 @@ def load_schedules():
                      "second_district": (8, 0),
                      "third_district": (14, 0)},
                    "logistics_project.apps.tanzania.reminders.stockonhand":
-                   {"first": (2, 0),
+                   {"first": (14, 0),
                     "second": (9, 0),
                     "third": (8, 15)},
+                   "logistics_project.apps.tanzania.reminders.reports":
+                   {"delivery_summary": (15, 0),
+                    "soh_summary": (15, 0),
+                    "randr_summary": (15, 0),
+                    "email_reports": (15, 0)},
                    "logistics_project.apps.tanzania.reminders.test":
                    {"test_email_admins": (12, 0)}}
                      

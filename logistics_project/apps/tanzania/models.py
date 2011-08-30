@@ -1,7 +1,7 @@
 from django.db import models
 from datetime import datetime
 from logistics.models import SupplyPoint
-from logistics.util import config
+from logistics_project.apps.tanzania.tasks import email_report
 
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
@@ -136,3 +136,7 @@ class AdHocReport(models.Model):
     
     def get_recipients(self):
         return [email.strip() for email in self.recipients.split(",")]
+    
+    def send(self):
+        email_report.delay(self.supply_point.code, self.get_recipients())
+                
