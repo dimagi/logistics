@@ -8,7 +8,8 @@ from django.core.validators import EmailValidator, validate_email
 
 class AdHocReportForm(forms.ModelForm):
     supply_point = forms.ModelChoiceField(queryset=SupplyPoint.objects.filter\
-                                          (type__code=SupplyPointCodes.DISTRICT))
+                                          (type__code__in=[SupplyPointCodes.DISTRICT,
+                                                           SupplyPointCodes.REGION]))
     
     def clean_recipients(self):
         data = self.cleaned_data['recipients']
