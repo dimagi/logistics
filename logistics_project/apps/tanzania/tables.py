@@ -5,7 +5,8 @@ from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, Suppl
     DeliveryGroups
 from utils import latest_status
 from rapidsms.models import Contact
-
+from django.template import defaultfilters
+from django.utils.translation import ugettext as _
 
 class MonthTable(Table):
 
@@ -53,12 +54,33 @@ class OrderingStatusTable(MonthTable):
     class Meta:
         order_by = '-code'
 
+class RandRSubmittedColumn(DateColumn):
+    # copied and modified from djtables DateColumn
+    
+    def render(self, cell):
+        val = self.value(cell)
+        if val:
+            return super(RandRSubmittedColumn, self).render(cell)
+        else:
+            return _("Not reported")
+    
+def _randr_value(cell):
+    return _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+
+def _randr_css_class(cell):
+    val = _randr_value(cell)
+    if val is None:
+        return "warning_icon iconified"
+    else:
+        return "good_icon iconified"
+
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
-    submitted = DateColumn(name="R&R Submitted This Quarter", 
-                           value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED),
-                           format="d M Y P")
+    submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter", 
+                                     value=_randr_value,
+                                     format="d M Y P",
+                                     css_class=_randr_css_class)
     contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object))
     
     @property

@@ -3,7 +3,6 @@ from logistics.models import SupplyPoint, Product
 from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.utils import translation
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location
@@ -23,7 +22,6 @@ from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
-from logistics_project.apps.tanzania.tasks import email_report
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport
 from rapidsms.contrib.messagelog.models import Message
