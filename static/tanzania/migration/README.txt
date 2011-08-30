@@ -19,3 +19,9 @@ Migration process:
    > ./manage.py runrouter
 7. Run migration
    > ./manage.py tz_migrate
+   
+Post Migration:
+
+1. Change the localsettings backend from "push" to "push_backend" to reactivate everyone's real backends.
+2. Make sure the default connection is "push_backend". This must supercede the migration backend. 
+ 
