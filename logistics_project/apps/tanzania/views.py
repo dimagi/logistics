@@ -8,6 +8,7 @@ from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location
 from rapidsms.contrib.locations.models import Location
+from logistics.tables import FullMessageTable
 from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
@@ -25,6 +26,7 @@ from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.tasks import email_report
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport
+from rapidsms.contrib.messagelog.models import Message
 
 PRODUCTS_PER_TABLE = 12
 
@@ -152,6 +154,16 @@ def facility_details(request, facility_id):
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))
+
+def facility_messages(request, facility_id):
+    facility = get_object_or_404(SupplyPoint, pk=facility_id)
+    return render_to_response("tanzania/facility_messages.html",
+        {
+            "facility": facility,
+            "table": FullMessageTable(object_list=Message.objects.filter(contact__in=facility.contact_set.all).order_by("-date"), request=request)
+        },
+                              context_instance=RequestContext(request)
+    )
 
 @gdata_required
 def docdownload(request, facility_id):

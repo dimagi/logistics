@@ -8,5 +8,5 @@
 {% else %}
     <p>{% trans 'No inventory messages have been received' %}</p>
 {% endif %}    
-    <p><a href="#">TODO {% trans 'See complete SMS message history' %} &raquo;</a></p>
+    <p><a href="{% url facility_messages facility.id %}">{% trans 'See complete SMS message history' %} &raquo;</a></p>
 </div>
