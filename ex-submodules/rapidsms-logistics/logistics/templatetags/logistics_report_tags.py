@@ -185,6 +185,15 @@ def recent_messages(contact, limit=5):
     return ShortMessageTable(messages).as_html()
 
 @register.simple_tag
+def recent_messages_sp(sp, limit=5):
+    mdates = Message.objects.filter(contact__in=sp.contact_set.all).order_by("-date").distinct().values_list("date", flat=True)
+    if limit:
+        mdates = list(mdates)[:limit]
+    messages = Message.objects.filter(contact__in=sp.contact_set.all, date__in=mdates).order_by("-date")
+    return ShortMessageTable(messages).as_html()
+
+
+@register.simple_tag
 def product_availability_summary(location):
     if not location:
         # TODO: probably want to disable this if things get slow

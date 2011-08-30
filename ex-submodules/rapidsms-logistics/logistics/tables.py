@@ -44,7 +44,14 @@ class ShortMessageTable(Table):
     direction = Column(sortable=False)
     text = Column(css_class="message", sortable=False)
 
-    
+class FullMessageTable(Table):
+    contact = Column(value=lambda cell:cell.object.contact.name)
+    direction = Column(sortable=False)
+    role = Column(value=lambda cell:cell.object.contact.role.name)
+    number = Column(value=lambda cell:cell.object.contact.phone)
+    date = DateColumn(format="H:i d/m/Y", sortable=False)
+    text = Column(css_class="message", sortable=False)
+
 class ReportingTable(Table):
     name = Column(sortable=False)
     last_reported = DateColumn(name="Last Reported on",
