@@ -252,6 +252,17 @@ div.highlightedMessage {
     list-style-type: none;
     margin-top: 1em;
 }
+/* alerts, copied from malawi */
+
+.scrollable {     
+    background-color: #f9f9f9;
+    border: 1px solid #aaa;
+}
+    
+#alertpane {
+    height:200px;
+    overflow:auto;  
+}
 
 /* stolen from blueprint */
 .error, .notice, .success {padding:.8em;margin-bottom:1em;border:2px solid #ddd;}
