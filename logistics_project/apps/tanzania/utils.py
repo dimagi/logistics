@@ -60,8 +60,8 @@ def latest_status(sp, type, value=None, month=None, year=None):
 
 def soh(sp, product, month=None, year=None):
     ProductReport.objects.filter(type=Reports.SOH)
-    
-def latest_lead_time(supply_point):
+
+def calc_lead_time(supply_point, year=None, month=None):
     """
     The days elapsed from the day they respond "submitted" to the day they 
     respond "delivered". Only include the last period for now
@@ -71,6 +71,9 @@ def latest_lead_time(supply_point):
                          status_type__in=[SupplyPointStatusTypes.DELIVERY_FACILITY,
                                           SupplyPointStatusTypes.DELIVERY_DISTRICT],
                          status_value=SupplyPointStatusValues.RECEIVED).order_by("-status_date")
+    if year and month:
+        deliveries.filter(status_date__month=month, status_date__year=year)
+
     if deliveries:
         latest_delivery = deliveries[0]
         previous_submissions = SupplyPointStatus.objects.filter\

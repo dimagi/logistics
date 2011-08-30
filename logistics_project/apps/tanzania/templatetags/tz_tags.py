@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response
 from logistics.models import Product, ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
-from logistics_project.apps.tanzania.utils import latest_lead_time
+from logistics_project.apps.tanzania.utils import calc_lead_time
 from datetime import timedelta
 
 register = template.Library()
@@ -49,21 +49,20 @@ def contact_list(supply_point, recurse=True, recurse_depth=100, current_depth=0,
     
     
 @register.simple_tag
-def lead_time(supply_point):
-    ltime = latest_lead_time(supply_point)
+def lead_time(supply_point, month=None, year=None):
+    ltime = calc_lead_time(supply_point, month=month, year=year)
     return render_to_string("tanzania/partials/lead_time.html", 
                             {"lead_time": ltime})
     
 @register.simple_tag
-def average_lead_time(supply_point_list):
+def average_lead_time(supply_point_list, year=None, month=None):
     total_time = timedelta(days=0)
     count = 0
     for supply_point in supply_point_list:
-        ltime = latest_lead_time(supply_point)
+        ltime = calc_lead_time(supply_point, year, month)
         if ltime is not None:
             total_time += ltime
             count += 1
-    
     average_time = total_time / count if count else None
     return render_to_string("tanzania/partials/lead_time.html", 
                             {"lead_time": average_time})

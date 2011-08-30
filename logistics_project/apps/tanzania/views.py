@@ -216,9 +216,10 @@ def change_language_real(request):
 def reporting(request):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
+    dg = DeliveryGroups(mp.month, facs=facs)
     products = Product.objects.all().order_by('name')
     product_set = chunks(products, PRODUCTS_PER_TABLE)
-    randr_facs = facs.filter(groups__code__in=DeliveryGroups(mp.month).current_submitting_group())
+    randr_facs = facs.filter(groups__code__in=dg.current_submitting_group())
     return render_to_response("tanzania/reports.html",
         {
           "location": location,
@@ -228,6 +229,7 @@ def reporting(request):
           "facs": facs,
           "product_set": product_set,
           "products": products,
+          "dg": dg,
           "supervision_table": SupervisionTable(object_list=facs, request=request, 
                                                 month=mp.month, year=mp.year),
           "randr_table": RandRReportingHistoryTable(object_list=randr_facs, request=request, 
