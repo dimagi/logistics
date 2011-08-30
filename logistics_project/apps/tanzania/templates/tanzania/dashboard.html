@@ -61,8 +61,8 @@
 </div>
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
-    {% cache 1000 product_availability location %}
-        {% product_availability_summary_by_facility_sp location %}
-    {% endcache %}
+{#    {% cache 1000 product_availability location month_pager.year month_pager.month %}#}
+        {% product_availability_summary_by_facility_sp location month_pager.year month_pager.month %}
+{#    {% endcache %}#}
 </div>
 {% endblock %}
