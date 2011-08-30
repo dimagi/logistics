@@ -45,7 +45,10 @@ class SupplyPointStatusBreakdown(object):
 
         self.delivery_not_responding = list(set(self.dg.delivering(facilities)) - set(self.delivery_received) - set(self.delivery_not_received))
 
-        
+        self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
+                                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
+                                                              status_value=SupplyPointStatusValues.REMINDER_SENT))
+
         self._submission_chart = None
 
     def submission_chart(self):

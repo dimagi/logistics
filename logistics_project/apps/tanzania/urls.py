@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     url(r'^dashboard/$', 'logistics_project.apps.tanzania.views.dashboard', name="tz_dashboard"),
-    ('^facilities/index/$', 'logistics_project.apps.tanzania.views.facilities_index'),
+    url('^facilities/index/$', 'logistics_project.apps.tanzania.views.facilities_index', name="facilities_index"),
 #    (r'^facilities/(?P<facility_id>\d+)/message_history/$', 'logistics_project.apps.tanzania.views.message_history'),
 #    (r'^facilities/(?P<facility_id>\d+)/note_history/$', 'ilsgateway.views.note_history'),
     url('^facility/(?P<facility_id>\d+)/$', 'logistics_project.apps.tanzania.views.facility_details', name="tz_facility_details"),

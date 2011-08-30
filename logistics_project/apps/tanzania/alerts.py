@@ -78,6 +78,23 @@ def delivery_not_responding(request):
         return None
     return [DeliveryNotResponding(facilities)]
 
+class SOHNotResponding(Alert):
+    def __init__(self, sps):
+        self.sps = sps
+        self.bd = SupplyPointStatusBreakdown(facilities=sps)
+        super(SOHNotResponding, self).__init__(self._get_text(), reverse('facilities_index'))
+
+    def _get_text(self):
+        return _('%(count)d facilities have not reported their stock levels for last month.') % {'count': len(self.bd.soh_not_responding)}
+
+@place_in_request()
+@return_if_place_not_set()
+def soh_not_responding(request):
+    facilities = request.location.all_child_facilities()
+    if not facilities:
+        return None
+    return [SOHNotResponding(facilities)]
+
 class ProductStockout(Alert):
     def __init__(self, sp, product):
         self.sp = sp
