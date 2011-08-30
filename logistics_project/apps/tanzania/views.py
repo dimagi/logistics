@@ -26,7 +26,7 @@ from logistics_project.apps.tanzania.tasks import email_report
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport
 
-PRODUCTS_PER_TABLE = 15
+PRODUCTS_PER_TABLE = 12
 
 def tz_location_url(location):
     try:
