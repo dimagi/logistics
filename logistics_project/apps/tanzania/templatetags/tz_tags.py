@@ -3,7 +3,6 @@ from logistics.models import ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
 from logistics_project.apps.tanzania.utils import calc_lead_time
-from logistics_project.apps.tanzania.utils import latest_lead_time
 from datetime import datetime, timedelta, time
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
