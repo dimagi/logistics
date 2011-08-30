@@ -1,20 +1,23 @@
 {% load logistics_report_tags %}
+{% load tz_tags %}
 {% load i18n %}
 
 {% for products in product_set %}
     <div class="module">
 	    <h2>{% trans 'Current Stock Status' %}{% if not forloop.first %} (continued){% endif %}</h2>
+	    {% if forloop.first %}
 	    <div class="toolbar">
 	        <a id="show_months" href="#months">{% trans 'Show months of stock' %}</a>
 	        <a id="show_stock" href="#stock">{% trans 'Show inventory' %}</a>
 	    </div>
+	    {% endif %}
         <table>
             <thead><tr>
 
-                <th>MSD Code</th>
-                <th>Delivery Group</th>
-                <th>Name</th>
-
+                <th>{% trans "MSD Code" %}</th>
+                <th>{% trans "Delivery Group" %}</th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Last Reported At" %}</th>
             {% for p in products %}
                 <th>{{ p.sms_code }}</th>
             {% endfor %}
@@ -26,6 +29,7 @@
                 <td>{{ fac.code }}</td>
                 <td>{{ fac.groups.all|first }}</td>
                 <td><a href="{% url tz_facility_details fac.pk %}">{{ fac.name }}</a></td>
+                {% last_report_cell fac month_pager.year month_pager.month %}
                 {% for p in products %}
                     <td class="stock" data-stock="{% historical_stock fac p month_pager.year month_pager.month "No data" %}" data-months="{% historical_months_of_stock fac p month_pager.year month_pager.month "N/A" %}"></td>
                 {% endfor %}
