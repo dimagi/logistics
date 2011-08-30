@@ -41,6 +41,7 @@
     background: no-repeat; 
     background-position: left center;
     text-indent: 1.2em;
+    white-space: nowrap;
 }
 
 .zero_count, .error_icon {
