@@ -5,6 +5,7 @@ from datetime import datetime
 from django.db import models
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR
 from scheduler.fields import JSONField
+import logging
 
 # set timespans (e.g. EventSchedule.hours, EventSchedule.minutes) to 
 # ALL when we want to schedule something for every hour/minute/etc.
@@ -26,7 +27,12 @@ class ExecutionRecord(models.Model):
     
     schedule = models.ForeignKey("EventSchedule")
     runtime = models.DateTimeField()
-    
+
+class FailedExecutionRecord(ExecutionRecord):
+    """
+    Execution record for failures.
+    """
+    message = models.TextField()
 
 class EventSchedule(models.Model):
     """ 
@@ -261,7 +267,7 @@ class EventSchedule(models.Model):
         kwargs = self.callback_kwargs or {}
         return callback(*args, **kwargs)
         
-    def record_execution(self, asof):
+    def _record_execution(self, asof):
         if self.count:
             self.count = self.count - 1
             # should we delete expired schedules? we do now.
@@ -273,14 +279,28 @@ class EventSchedule(models.Model):
                 self.active = False
         self.last_ran = asof
         self.save()
+        
+    def record_execution(self, asof):
+        self._record_execution(asof)
         ExecutionRecord.objects.create(schedule=self,
                                        runtime=asof)
+    
+    def record_failed_execution(self, asof, msg):
+        self._record_execution(asof)
+        FailedExecutionRecord.objects.create(schedule=self,
+                                             runtime=asof, 
+                                             message=msg)
         
     def run(self, asof):
         """
         Runs the schedule, update the model appropriately, return the results. 
         """
-        ret = self.execute()
+        try:
+            ret = self.execute()
+        except Exception, e:
+            logging.exception("Problem executing scheduled item %s" % self)
+            self.record_failed_execution(asof, str(e))
+            return None
         self.record_execution(asof)
         return ret
 
