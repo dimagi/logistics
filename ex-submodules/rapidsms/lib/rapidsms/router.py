@@ -370,7 +370,7 @@ class Router(object, LoggerMixin):
                 if phase == "default":
                     if msg.handled:
                         self.debug("Skipping phase")
-                        break
+                        continue
 
                 for app in self.apps:
                     self.debug("In %s app" % app)
