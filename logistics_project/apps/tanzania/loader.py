@@ -130,9 +130,9 @@ def load_schedules():
     for module, funcdict in theschedule.items():
         for func, (hours, minutes) in funcdict.items():
             func_abspath = "%s.%s" % (module, func)
+            hours, minutes = _to_tz_time(hours, minutes)
             try:
                 schedule = EventSchedule.objects.get(callback=func_abspath)
-                hours, minutes = _to_tz_time(hours, minutes)
                 schedule.hours = [hours]
                 schedule.minutes = [minutes]
             except EventSchedule.DoesNotExist:
