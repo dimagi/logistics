@@ -20,3 +20,4 @@ class FailedExecutionRecordAdmin(admin.ModelAdmin):
 
 admin.site.register(EventSchedule, EventScheduleAdmin)
 admin.site.register(ExecutionRecord, ExecutionRecordAdmin)
+admin.site.register(FailedExecutionRecord, FailedExecutionRecordAdmin)
