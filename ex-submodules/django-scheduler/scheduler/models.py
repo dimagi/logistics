@@ -69,7 +69,7 @@ class EventSchedule(models.Model):
                                       help_text="When do you want alerts to start? Leave blank for 'now'.")
     end_time = models.DateTimeField(null=True, blank=True, 
                                       help_text="When do you want alerts to end? Leave blank for 'never'.")
-    last_ran = models.DateTimeField(null=True) # updated each time the scheduler runs
+    last_ran = models.DateTimeField(null=True, blank=True) # updated each time the scheduler runs
     
     # how many times do we want this event to fire? optional
     count = models.IntegerField(null=True, blank=True, 
