@@ -15,7 +15,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus
 
 def send_reminders(contacts, message):
     for contact in contacts:
-        send_message(contact.connection, _(message))
+        send_message(contact.default_connection, _(message))
         
 def update_statuses(contacts, type, value):
     now = datetime.utcnow()
