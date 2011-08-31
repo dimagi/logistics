@@ -77,9 +77,10 @@ def delivery_summary():
     "Deliveries - 5/10 received, 4/10 did not receive, 1/10 users did not reply" - last business day of month 3pm
     """
     for contact in get_district_people():
-        send_message(contact.default_connection,
-                     construct_delivery_summary_message(contact.supply_point))
-        
+        if contact.default_connection:
+            send_message(contact.default_connection,
+                         construct_delivery_summary_message(contact.supply_point))
+            
 
 
 @businessday(6)
@@ -88,18 +89,20 @@ def soh_summary():
     "SOH - 6/10 reported, 4/10 did not reply" - 6th of the month @ 3pm
     """
     for contact in get_district_people():
-        send_message(contact.default_connection,
-                     construct_soh_summary_message(contact.supply_point))
-        
+        if contact.default_connection:
+            send_message(contact.default_connection,
+                         construct_soh_summary_message(contact.supply_point))
+            
 @businessday_before(17)
 def randr_summary():
     """
     "R&R - 6/10 submitted, 2/10 did not submit, 3/10 did not reply" - 17th of the month @ 3pm
     """
     for contact in get_district_people():
-        send_message(contact.default_connection,
-                     construct_randr_summary_message(contact.supply_point))
-        
+        if contact.default_connection:
+            send_message(contact.default_connection,
+                         construct_randr_summary_message(contact.supply_point))
+            
 @businessday(6)
 def email_reports():    
     """
