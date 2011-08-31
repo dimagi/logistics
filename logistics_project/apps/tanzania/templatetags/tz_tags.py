@@ -2,6 +2,7 @@ from django import template
 from logistics.models import ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
+from logistics_project.apps.tanzania.models import SupplyPointNote
 from logistics_project.apps.tanzania.utils import calc_lead_time
 from datetime import datetime, timedelta, time
 from django.template import defaultfilters
@@ -103,4 +104,10 @@ def last_report_cell(supply_point, year, month):
             
         classes = get_classes(last_report.report_date, year, month)
     return cell_template % {"classes": classes, "msg": msg} 
-            
+
+@register.simple_tag
+def latest_note(supply_point):
+    notes = SupplyPointNote.objects.filter(supply_point=supply_point).order_by("-date")
+    if notes.count():
+        return notes[0]
+    return None

@@ -98,4 +98,21 @@ class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
     last_reported = Column()
-    
+
+
+def _contact_or_none(cell, attr):
+    try:
+        return getattr(cell.object.user.contact, attr, "")
+    except Contact.DoesNotExist:
+        return ""
+
+class NotesTable(Table):
+    name = Column(sortable=False, value=lambda cell: cell.object.user.username)
+    role = Column(sortable=False, value=lambda cell: _contact_or_none(cell, 'role'))
+    date = DateColumn(format = "d M Y P")
+    phone = Column(sortable=False, value=lambda cell: _contact_or_none(cell, 'phone'))
+    text = Column()
+
+    class Meta:
+        per_page = 5
+        order_by = "-date"

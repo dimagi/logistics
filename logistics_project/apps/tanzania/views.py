@@ -4,7 +4,7 @@ from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable
+from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
@@ -23,7 +23,7 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm
-from logistics_project.apps.tanzania.models import AdHocReport
+from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote
 from rapidsms.contrib.messagelog.models import Message
 
 PRODUCTS_PER_TABLE = 12
@@ -145,10 +145,22 @@ def facilities_ordering(request):
 
 def facility_details(request, facility_id):
     facility = get_object_or_404(SupplyPoint, pk=facility_id)
+
+    if request.method == "POST":
+        print request.POST
+        text = request.POST.get('note_text')
+        if text:
+            note = SupplyPointNote(supply_point=facility,
+                                   user=request.user,
+                                   text=text)
+            note.save()
+            messages.success(request, "Note added!")
+
     return render_to_response(
         "tanzania/facility_details.html",
         {
             "facility": facility,
+            "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date"), request=request),
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))

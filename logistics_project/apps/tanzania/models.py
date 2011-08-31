@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
 from logistics.models import SupplyPoint
@@ -139,4 +140,12 @@ class AdHocReport(models.Model):
     
     def send(self):
         email_report.delay(self.supply_point.code, self.get_recipients())
-                
+
+class SupplyPointNote(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User)
+    text = models.TextField()
+
+    def __unicode__(self):
+        return "%s at %s on %s: %s" % (self.user.username, self.supply_point.name, self.date, self.text)

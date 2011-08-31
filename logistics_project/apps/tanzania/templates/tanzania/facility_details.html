@@ -46,7 +46,8 @@
         </div>
         <div class="module">
             <h2>{% trans "Notes" %}</h2>
-            The notes functionality has been temporarily disabled. 
+            {{ notes_table.as_html }}
+            {% include "tanzania/partials/add_note.html" %}
         </div>
         <div class="module">
             <h2>{% trans "Recent messages" %}</h2>
