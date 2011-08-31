@@ -18,7 +18,7 @@ class App(AppBase):
 
     def _log(self, direction, who, text):
         return Message.objects.create(
-            date=datetime.datetime.now(),
+            date=datetime.datetime.utcnow(),
             direction=direction,
             text=text,
             **who)
