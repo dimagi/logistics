@@ -12,7 +12,7 @@ def dashboard(request, location_code=None):
     # whole country
     # supply_points = SupplyPoint.objects.exclude(location__point=None)
     location = get_object_or_404(Location, code=location_code)
-    supply_points = location.child_facilities().exclude(location__point=None)
+    supply_points = location.all_facilities().exclude(location__point=None)
     return render_to_response("maps/dashboard.html",
                               {"supply_points": supply_points,
                                "default_latitude":  settings.MAP_DEFAULT_LATITUDE,
