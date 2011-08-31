@@ -1,14 +1,19 @@
 from django.core.management.base import BaseCommand
-from dimagi.utils.django.management import are_you_sure
 from rapidsms.models import Connection, Contact, Backend
-import os
 import csv
 from logistics.models import ContactRole, SupplyPoint
 from logistics_project.apps.tanzania.loader import init_static_data
-from rapidsms.contrib.ajax.exceptions import RouterNotResponding, RouterError
-import sys
 from rapidsms.contrib.messagelog.models import Message
+from django.utils.translation.trans_real import translation
 from logistics_project.apps.migration import utils
+from logistics_project.apps.tanzania.config import Messages
+from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
+    SupplyPointStatusValues, SupplyPointStatus
+from rapidsms.contrib.ajax.exceptions import RouterError, RouterNotResponding
+from dimagi.utils.django.management import are_you_sure
+import os
+import sys
+from dimagi.utils.parsing import string_to_datetime
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
     # csv.py doesn't do Unicode; encode temporarily as UTF-8:
@@ -92,19 +97,49 @@ class Command(BaseCommand):
             print "Migrated %s Contacts and %s Phone numbers" % \
                     (Contact.objects.count(), Connection.objects.count())
         
+        def guess_status_from_outbound_message(text):
+            def matches_in_any_language(string_to_translate, string_to_check):
+                def clean(s):
+                    return s.lower().strip()
+                if clean(string_to_translate) == clean(string_to_check): return True
+                for lang in ["en", "sw"]:
+                    translated = translation(lang).gettext(string_to_translate)
+                    if clean(translated) == clean(string_to_check):
+                        return True
+                    else:
+                        pass
+                        #print "%s is not %s" % (translated, string_to_check)
+                
+                return False
+            
+            if matches_in_any_language(Messages.REMINDER_STOCKONHAND, text):
+                return (SupplyPointStatusTypes.SOH_FACILITY, SupplyPointStatusValues.REMINDER_SENT)
+            if matches_in_any_language(Messages.REMINDER_R_AND_R_FACILITY, text):
+                return (SupplyPointStatusTypes.R_AND_R_FACILITY, SupplyPointStatusValues.REMINDER_SENT)
+            if matches_in_any_language(Messages.REMINDER_R_AND_R_DISTRICT, text):
+                return (SupplyPointStatusTypes.R_AND_R_DISTRICT, SupplyPointStatusValues.REMINDER_SENT)
+            if matches_in_any_language(Messages.REMINDER_DELIVERY_FACILITY, text):
+                return (SupplyPointStatusTypes.DELIVERY_FACILITY, SupplyPointStatusValues.REMINDER_SENT)
+            if matches_in_any_language(Messages.REMINDER_DELIVERY_DISTRICT, text):
+                return (SupplyPointStatusTypes.DELIVERY_DISTRICT, SupplyPointStatusValues.REMINDER_SENT)
+            if matches_in_any_language(Messages.REMINDER_SUPERVISION, text):
+                return (SupplyPointStatusTypes.SUPERVISION_FACILITY, SupplyPointStatusValues.REMINDER_SENT)
+
+            return (None, None)
+        
         def load_messages(message_file):
             print "loading messages from %s" % message_file
             print "started"
             with open(message_file, 'r') as f:
                 reader = unicode_csv_reader(f, delimiter=',', quotechar='"')
-                count = 0
-                max = 9999999999
-                max = 100
+                inbound_count = outbound_count = 0
+                inbound_max = outbound_max = 9999999999
                 for row in reader:
                     pk1, pk2, pk3, dir, timestamp, text, phone = row
+                    parsed_date = string_to_datetime(timestamp)
                     if dir == "I":
                         #print "%s: %s (%s)" % (phone, text, timestamp)
-                        count = count + 1
+                        inbound_count = inbound_count + 1
                         try:
                             utils.send_test_message(identity=phone,
                                                     text=text,
@@ -115,14 +150,38 @@ class Command(BaseCommand):
                             print e.response
                             raise
                             
-                        if count % 100 == 0:
-                            print "processed %s messages." % count
-                    
-                    if count >= max:
+                        if inbound_count % 100 == 0:
+                            print "processed %s inbound and %s outbound messages." % (inbound_count, outbound_count)
+                    elif dir == "O":
+                        status_type, status_value = guess_status_from_outbound_message(text)
+                        if status_type and status_value:
+                            outbound_count = outbound_count + 1
+                        
+                            # this is super janky, but we'll live with it
+                            # hack it so that outbound reminders generate the
+                            # appropriate supply point statuses in the db
+                            notset = False
+                            try:
+                                connection = Connection.objects.get(identity=phone,
+                                                                    backend__name="migration")
+                                if connection.contact and connection.contact.supply_point:
+                                    SupplyPointStatus.objects.create(status_type=status_type,
+                                                                     status_value=status_value,
+                                                                     status_date=parsed_date,
+                                                                     supply_point=connection.contact.supply_point)
+                                else:
+                                    notset = True
+                            except Connection.DoesNotExist:
+                                notset = True
+                            if notset:
+                                print "No connection, contact, or supply point found for %s, so no status saved" % phone
+                            
+                    if inbound_count >= inbound_max:
                         break
-            print "processed %s incoming messages" % count
-            pass
-        
+                    if outbound_count >= outbound_max:
+                        break
+            print "processed %s incoming and %s outgoing messages" % (inbound_count, outbound_count)
+            
         def check_router():
             # quasi-stolen from the httptester
             try:
