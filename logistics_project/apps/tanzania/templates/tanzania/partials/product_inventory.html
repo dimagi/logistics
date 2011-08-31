@@ -14,7 +14,7 @@
 	    <tbody>
 	        <tr>
 	            <td>{{ product_stock.product.name }}</td>
-	            <td><span class="{% if product_stock.quantity == 0 %}zero_count{% else %}{% if not product_stock.quantity %}insufficient_data{% endif %}{% endif %}">
+	            <td><span class="{% if product_stock.quantity == 0 %}{% else %}{% if not product_stock.quantity %}insufficient_data{% endif %}{% endif %}">
 	                {% if product_stock.quantity == None %}{% trans "no data"   %}{% else %}{{ product_stock.quantity|floatformat }}{% endif %}
 	                </span>
 	            </td>
