@@ -76,15 +76,18 @@ class Command(BaseCommand):
                                                    email=email)
                         idmap[id] = c
                     c = idmap[id]
-                    if backend and phone:
-                        be = Backend.objects.get_or_create(name=backend)[0]
-                        Connection.objects.create(backend=be, identity=phone,
-                                                  contact=c)
                     if phone and backend=="push_backend":
-                        # for real users, also create a migration backend for them 
+                        # for real users, create a migration backend for them
+                        # instead of the push backend, this will be cleaned later
+                        # in the migration 
                         be = Backend.objects.get_or_create(name="migration")[0]
                         Connection.objects.get_or_create(backend=be, identity=phone,
                                                          contact=c)
+                    elif phone and backend:
+                        be = Backend.objects.get_or_create(name=backend)[0]
+                        Connection.objects.create(backend=be, identity=phone,
+                                                  contact=c)
+                    
                         
             print "Migrated %s Contacts and %s Phone numbers" % \
                     (Contact.objects.count(), Connection.objects.count())
@@ -96,7 +99,7 @@ class Command(BaseCommand):
                 reader = unicode_csv_reader(f, delimiter=',', quotechar='"')
                 count = 0
                 max = 9999999999
-                #max = 100
+                max = 100
                 for row in reader:
                     pk1, pk2, pk3, dir, timestamp, text, phone = row
                     if dir == "I":
@@ -133,7 +136,30 @@ class Command(BaseCommand):
                       "Is the migration app in your installed_apps list? and " \
                       "have you enabled the migration backend?" 
                 return False
-                
+        
+        def clean_migration_backends():
+            migration_connections = Connection.objects.filter(backend__name="migration")
+            push_backend = Backend.objects.get_or_create(name="push_backend")[0]
+            for conn in migration_connections:
+                conn.backend = push_backend
+                conn.save()
+            print "moved %s migration connections to push backend" % migration_connections.count()
+        
+        def check_status():
+            real_contacts = Contact.objects.filter(connection__backend__name="push_backend")
+            failed = 0
+            for contact in real_contacts:
+                if contact.default_connection.backend.name != "push_backend":
+                    print "contact %s has %s as default instead of push" % contact.default_connection
+                    failed += 1
+                if contact.connection_set.count() > 1:
+                    print "found multiple connections"
+            print "checked %s contacts" % real_contacts.count()
+            if failed:
+                print "Check FAILED for %s contacts. See output for more details"
+            else:
+                print "Check PASSED"
+        
         print "checking router.."
         if not check_router():
             sys.exit()
@@ -154,6 +180,10 @@ class Command(BaseCommand):
             
             messages_file = os.path.join(datapath, "messages.csv")
             load_messages(messages_file)
+            print "cleaning up"
+            clean_migration_backends()
+            print "checking status"
+            check_status()
             
         else:
             print "Migration canceled."
