@@ -147,7 +147,6 @@ def facility_details(request, facility_id):
     facility = get_object_or_404(SupplyPoint, pk=facility_id)
 
     if request.method == "POST":
-        print request.POST
         text = request.POST.get('note_text')
         if text:
             note = SupplyPointNote(supply_point=facility,
