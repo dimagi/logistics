@@ -3,13 +3,13 @@
 import os
 LOGISTICS_CONFIG = 'logistics_project.apps.tanzania.config'
 
+PRIORITY_APPS = [ "logistics_project.apps.migration" ]
+    
+                 
 APPS = [
     "auditcare",
     "django.contrib.webdesign",
-    # commented out until fixed
-    #"logistics_project.apps.ilsgateway",
     "logistics_project.apps.tanzania",
-    "logistics_project.apps.migration",
     "scheduler",
 ]
 

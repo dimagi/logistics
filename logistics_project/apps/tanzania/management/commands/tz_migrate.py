@@ -96,6 +96,7 @@ class Command(BaseCommand):
                 reader = unicode_csv_reader(f, delimiter=',', quotechar='"')
                 count = 0
                 max = 9999999999
+                #max = 100
                 for row in reader:
                     pk1, pk2, pk3, dir, timestamp, text, phone = row
                     if dir == "I":

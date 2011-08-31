@@ -53,7 +53,8 @@ BASE_APPS = [
     "registration",
 ]
 
-APPS = []
+PRIORITY_APPS = [] # if you want apps before the defaults
+APPS = []          # if you want apps after the defaults
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -251,7 +252,7 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
 
-INSTALLED_APPS = BASE_APPS + APPS
+INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 
 def get_server_url(server_root, username, password):
     if username and password:
