@@ -397,7 +397,7 @@ class ProductAvailabilitySummary(object):
                 with_stock.append([index, product_summary["with_stock"]])
                 without_stock.append([index, product_summary["without_stock"]])
                 without_data.append([index, product_summary["without_data"]])
-                products.append([index, product_summary["product"].sms_code])
+                products.append([index, "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)])
 
             bar_data = [{"data" : without_stock,
                          "label": "Stocked out",
