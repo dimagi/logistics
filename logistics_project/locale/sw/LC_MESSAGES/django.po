@@ -14,6 +14,18 @@ msgid "Thank you %(contact_name)s for reporting stockouts of %(product_names)s f
 msgstr "Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_names)s vya %(facility_name)s."
 #end stockout
 
+#district reports#
+msgid "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
+msgstr "Uwasilishaji wa R&R: %(submitted)s/%(total)s wamewasilisha R&R, %(not_submitted)s/%(total)s hawajawasilisha R&R, %(not_responding)s/%(total)s hawajajibu ujumbe"
+
+msgid "SOH - %(submitted)s/%(total)s reported, %(not_responding)s/%(total)s did not reply"
+msgstr "Hesabu ya mkono: %(submitted)s/%(total)s wametoa taarifa ya hmk, %(not_responding)s/%(total)s hawajajibu ujumbe"
+
+msgid "Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
+msgstr "Upokeaji wa Shehena: %(received)s/%(total)s wamepokea shehena, %(not_received)s/%(total)s hawajapokea shehena, %(not_responding)s/%(total)s hawajajibu ujumbe"
+#end district reports#
+
+
 msgid "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
 msgstr "Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
 
