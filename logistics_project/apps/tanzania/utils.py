@@ -1,11 +1,13 @@
 from datetime import datetime,timedelta, time
+from mx.DateTime.DateTime import utctime
 from re import match
 from django.db.models.aggregates import Max
+from logistics_project import settings
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
     SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates
 from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
-from dimagi.utils.dates import get_business_day_of_month
+from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 
 def chunks(l, n):
     """
@@ -14,6 +16,16 @@ def chunks(l, n):
     """
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
+
+def latest_status(sp, type, value=None, month=None, year=None):
+    qs = sp.supplypointstatus_set.filter(status_type=type)
+    if value:
+        qs = qs.filter(status_value=value)
+    if month and year:
+        qs = qs.filter(status_date__month=month, status_date__year=year)
+    qs = qs.order_by("-status_date")
+    return qs[0] if qs.count() else None
 
 def sps_with_latest_status(sps, status_type, status_value, year, month):
     """
@@ -25,14 +37,26 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
     elif status_type.startswith('del'):
         sps = DeliveryGroups(month).delivering(sps, month)
     inner = sps.filter(supplypointstatus__status_type=status_type,
+                       supplypointstatus__status_value=status_value,
                        supplypointstatus__status_date__month=month,
                        supplypointstatus__status_date__year=year)\
                         .annotate(pk=Max('supplypointstatus__id'))
-    ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query, status_type=status_type,
-                                           status_value=status_value)\
+    ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query)\
                                            .distinct()\
                                             .values_list("supply_point", flat=True)
-    return SupplyPoint.objects.filter(id__in=ids)
+    f = SupplyPoint.objects.filter(id__in=ids)
+    if settings.DEBUG:
+        for a in f:
+            q = latest_status(a, status_type, value=status_value, year=year, month=month)
+            if q.status_type != status_type or q.status_value != status_value:
+                print "false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value)
+        for s in sps:
+            q = latest_status(s, status_type, value=status_value, year=year, month=month)
+            if q and s not in f:
+                print "false negative in sps_with_latest_status: %s %s %s" % (s, status_type, status_value)
+    return f
+
+
 
 def supply_points_with_latest_status_by_datespan(sps, status_type, status_value, datespan):
     """
@@ -49,14 +73,6 @@ def supply_points_with_latest_status_by_datespan(sps, status_type, status_value,
                                             .values_list("supply_point", flat=True)
     return SupplyPoint.objects.filter(id__in=ids)
 
-def latest_status(sp, type, value=None, month=None, year=None):
-    qs = sp.supplypointstatus_set.filter(status_type=type)
-    if value:
-        qs = qs.filter(status_value=value)
-    if month and year:
-        qs = qs.filter(status_date__month=month, status_date__year=year)
-    qs = qs.order_by("-status_date")
-    return qs[0] if qs.count() else None
 
 def soh(sp, product, month=None, year=None):
     ProductReport.objects.filter(type=Reports.SOH)
@@ -110,25 +126,50 @@ def last_stock_on_hand_before(facility, date):
                                            .order_by('-report_date')
     return reports[0] if reports.exists() else None
 
+def last_status_before(facility, date, type, value=None):
+    statuses = SupplyPointStatus.objects.filter(supply_point=facility,
+                                           status_type=type,
+                                           status_date__lt=date)
+    if value:
+        statuses = statuses.filter(status_value=value)
+    statuses= statuses.order_by('-status_date')
 
-def reported_on_time(supply_point, year, month):
+    return statuses[0] if statuses.exists() else None
+
+def soh_reported_on_time(supply_point, year, month):
     last_bd_of_the_month = get_business_day_of_month(year, month, -1)
     last_report = last_stock_on_hand_before(supply_point, last_bd_of_the_month)
+    last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
+    last_bd_of_last_month = datetime.combine\
+       (get_business_day_of_month(last_of_last_month.year,
+                                   last_of_last_month.month,
+                                   -1), time())
     if last_report:
-        last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
-        last_bd_of_last_month = datetime.combine\
-               (get_business_day_of_month(last_of_last_month.year,
-                                           last_of_last_month.month,
-                                           -1), time())
-        cutoff_date = last_bd_of_last_month + timedelta(days=5)
+        return _reported_on_time(last_bd_of_last_month, last_report.report_date)
+    else:
+        return OnTimeStates.NO_DATA
 
-        if last_report.report_date < last_bd_of_last_month:
-            return OnTimeStates.INSUFFICIENT_DATA
-        elif last_report.report_date < cutoff_date:
-            return OnTimeStates.ON_TIME
-        else:
-            return OnTimeStates.LATE
-    return OnTimeStates.NO_DATA
+def randr_reported_on_time(supply_point, year, month):
+    reminder_date = datetime.combine(get_business_day_of_month_before(year, month, 5), time())
+#    last_report = last_status_before(supply_point, get_business_day_of_month(year, month, -1), SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
+    last_report = last_status_before(supply_point, datetime(year=year, month=month+1, day=1)-timedelta(days=1), SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
+    if last_report:
+        return _reported_on_time(reminder_date, last_report.status_date)
 
-def on_time_reporting(supply_points, year, month):
-    return [f for f in supply_points if reported_on_time(f, year, month) == OnTimeStates.ON_TIME]
+    else:
+        return OnTimeStates.NO_DATA
+
+def _reported_on_time(reminder_date, last_report_date):
+    cutoff_date = reminder_date + timedelta(days=5)
+    if last_report_date < reminder_date:
+        return OnTimeStates.INSUFFICIENT_DATA
+    elif last_report_date < cutoff_date:
+        return OnTimeStates.ON_TIME
+    else:
+        return OnTimeStates.LATE
+
+def soh_on_time_reporting(supply_points, year, month):
+    return [f for f in supply_points if soh_reported_on_time(f, year, month) == OnTimeStates.ON_TIME]
+
+def randr_on_time_reporting(supply_points, year, month):
+    return [f for f in supply_points if randr_reported_on_time(f, year, month) == OnTimeStates.ON_TIME]

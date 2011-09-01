@@ -3,7 +3,7 @@ from logistics.models import ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
 from logistics_project.apps.tanzania.models import SupplyPointNote, OnTimeStates
-from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, reported_on_time, on_time_reporting
+from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, soh_reported_on_time, soh_on_time_reporting
 from datetime import datetime, timedelta, time
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
@@ -68,7 +68,7 @@ def average_lead_time(supply_point_list, year=None, month=None):
 @register.simple_tag
 def last_report_cell(supply_point, year, month):
     cell_template = '<td class="%(classes)s">%(msg)s</td>' 
-    state = reported_on_time(supply_point, year, month)
+    state = soh_reported_on_time(supply_point, year, month)
     classes = "insufficient_data"
     msg = _("Waiting for reply")
     if state == OnTimeStates.NO_DATA:
@@ -95,4 +95,4 @@ def latest_note(supply_point):
 
 @register.simple_tag
 def on_time_percentage(facs, year, month):
-        return float(len(on_time_reporting(facs, year, month))) / float(len(facs))
+        return float(len(soh_on_time_reporting(facs, year, month))) / float(len(facs))

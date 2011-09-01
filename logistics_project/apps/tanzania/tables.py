@@ -53,6 +53,7 @@ class OrderingStatusTable(MonthTable):
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
 
     class Meta:
+        per_page = 9999
         order_by = '-code'
 
 class RandRSubmittedColumn(DateColumn):
@@ -87,7 +88,10 @@ class RandRReportingHistoryTable(MonthTable):
     @property
     def submitting_group(self):
         return DeliveryGroups(self.month).current_submitting_group()
-    
+
+    class Meta:
+        per_page = 9999
+
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
@@ -99,6 +103,8 @@ class StockOnHandTable(MonthTable):
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
     last_reported = Column()
 
+    class Meta:
+        per_page = 9999
 
 def _contact_or_none(cell, attr):
     try:

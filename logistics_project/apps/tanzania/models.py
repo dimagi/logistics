@@ -45,7 +45,7 @@ class DeliveryGroups(object):
     def total(self):
         return self.facs.filter(groups__code__in=self.GROUPS)
 
-    def facilities_by_group(self, month=datetime.now().month):
+    def facilities_by_group(self, month=datetime.utcnow().month):
         groups = {}
         facs = self.facs if self.facs else SupplyPoint.objects.filter(type__code="facility")
         groups['submitting'] = self.submitting(facs, month)
