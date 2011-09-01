@@ -44,15 +44,14 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
                                            .distinct()\
                                             .values_list("supply_point", flat=True)
     f = SupplyPoint.objects.filter(id__in=ids)
-    if settings.DEBUG:
-        for a in f:
-            q = latest_status(a, status_type, value=status_value, year=year, month=month)
-            if q.status_type != status_type or q.status_value != status_value:
-                print "false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value)
-        for s in sps:
-            q = latest_status(s, status_type, value=status_value, year=year, month=month)
-            if q and s not in f:
-                print "false negative in sps_with_latest_status: %s %s %s" % (s, status_type, status_value)
+#    for a in f:
+#        q = latest_status(a, status_type, value=status_value, year=year, month=month)
+#        if q and q.status_type != status_type or q.status_value != status_value:
+#            print "false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value)
+#    for s in sps:
+#        q = latest_status(s, status_type, value=status_value, year=year, month=month)
+#        if q and s not in f:
+#            print "false negative in sps_with_latest_status: %s %s %s" % (s, status_type, status_value)
     return f
 
 
