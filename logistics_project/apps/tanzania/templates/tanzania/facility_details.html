@@ -29,12 +29,12 @@
             <div class="toolbar">
                 <a href="">{% trans 'see all R&amp;R history' %}</a>
             </div>
-            {% if facility.randr_status %}
+            {% if randr_status %}
             <p>
-                {% trans 'Status' %}: <span class="{{ facility.randr_status.status_type.short_name }}">{% blocktrans with facility.randr_status as status %}{{ status }}{% endblocktrans %}</span>
+                {% trans 'Status' %}: <span class="{{ randr_status.status_value }}">{% blocktrans with randr_status.name as status %}{{ status }}{% endblocktrans %}</span>
             </p>
             <p>
-                {% trans "Last updated on" %}: <span class="{{ facility.randr_status.status_type.short_name }}">{{ facility.randr_status.status_date }}</span>
+                {% trans "Last updated on" %}: <span class="{{ randr_status.status_value }}">{{ randr_status.status_date }}</span>
             </p>
             {% else %}
             <p>

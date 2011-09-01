@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, on_time_reporting
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, on_time_reporting, latest_status
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
 from models import DeliveryGroups
@@ -23,7 +23,7 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm
-from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote
+from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 
 PRODUCTS_PER_TABLE = 12
@@ -159,6 +159,7 @@ def facility_details(request, facility_id):
         "tanzania/facility_details.html",
         {
             "facility": facility,
+            "randr_status": latest_status(facility, SupplyPointStatusTypes.R_AND_R_FACILITY),
             "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date"), request=request),
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
