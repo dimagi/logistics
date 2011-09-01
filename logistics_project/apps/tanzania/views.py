@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, on_time_reporting
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
 from models import DeliveryGroups
@@ -228,6 +228,8 @@ def reporting(request):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     dg = DeliveryGroups(mp.month, facs=facs)
+    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
+    ot = on_time_reporting(dg.submitting(), mp.year, mp.month)
     products = Product.objects.all().order_by('name')
     product_set = chunks(products, PRODUCTS_PER_TABLE)
     return render_to_response("tanzania/reports.html",
@@ -240,7 +242,10 @@ def reporting(request):
           "product_set": product_set,
           "products": products,
           "dg": dg,
-          "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
+          "bd": bd,
+          "on_time": ot,
+          "reporting_percentage": float(len(bd.submitted)) / float(len(dg.submitting())) * 100,
+          "on_time_percentage": float(len(ot)) / float(len(dg.submitting())) * 100,
           "supervision_table": SupervisionTable(object_list=dg.submitting(), request=request,
                                                 month=mp.month, year=mp.year),
           "randr_table": RandRReportingHistoryTable(object_list=dg.submitting(), request=request,

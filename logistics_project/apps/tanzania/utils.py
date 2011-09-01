@@ -1,11 +1,11 @@
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta, time
 from re import match
 from django.db.models.aggregates import Max
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
-    SupplyPointStatusValues, SupplyPointStatusTypes
+    SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates
 from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
-
+from dimagi.utils.dates import get_business_day_of_month
 
 def chunks(l, n):
     """
@@ -99,3 +99,36 @@ def get_user_location(user):
             return prof.location if prof.location else \
                 prof.supply_point.location if prof.supply_point \
                 else None
+
+def last_stock_on_hand(facility):
+    return last_stock_on_hand_before(facility, datetime.utcnow())
+
+def last_stock_on_hand_before(facility, date):
+    reports = ProductReport.objects.filter(supply_point=facility,
+                                           report_type__code=Reports.SOH,
+                                           report_date__lt=date)\
+                                           .order_by('-report_date')
+    return reports[0] if reports.exists() else None
+
+
+def reported_on_time(supply_point, year, month):
+    last_bd_of_the_month = get_business_day_of_month(year, month, -1)
+    last_report = last_stock_on_hand_before(supply_point, last_bd_of_the_month)
+    if last_report:
+        last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
+        last_bd_of_last_month = datetime.combine\
+               (get_business_day_of_month(last_of_last_month.year,
+                                           last_of_last_month.month,
+                                           -1), time())
+        cutoff_date = last_bd_of_last_month + timedelta(days=5)
+
+        if last_report.report_date < last_bd_of_last_month:
+            return OnTimeStates.INSUFFICIENT_DATA
+        elif last_report.report_date < cutoff_date:
+            return OnTimeStates.ON_TIME
+        else:
+            return OnTimeStates.LATE
+    return OnTimeStates.NO_DATA
+
+def on_time_reporting(supply_points, year, month):
+    return [f for f in supply_points if reported_on_time(f, year, month) == OnTimeStates.ON_TIME]

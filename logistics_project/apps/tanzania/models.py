@@ -54,6 +54,12 @@ class DeliveryGroups(object):
         groups['total'] = list(facs)
         return groups
 
+class OnTimeStates(object):
+    ON_TIME = "on time"
+    LATE = "late"
+    NO_DATA = "no data"
+    INSUFFICIENT_DATA = "insufficient data"
+
 class SupplyPointStatusValues(object):
     RECEIVED = "received"
     NOT_RECEIVED = "not_received"

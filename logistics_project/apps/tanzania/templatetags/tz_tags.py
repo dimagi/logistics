@@ -2,8 +2,8 @@ from django import template
 from logistics.models import ProductReport
 from django.template.loader import render_to_string
 from logistics.const import Reports
-from logistics_project.apps.tanzania.models import SupplyPointNote
-from logistics_project.apps.tanzania.utils import calc_lead_time
+from logistics_project.apps.tanzania.models import SupplyPointNote, OnTimeStates
+from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, reported_on_time, on_time_reporting
 from datetime import datetime, timedelta, time
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
@@ -16,16 +16,6 @@ def product_inventory(facility, view_type):
     return render_to_string("tanzania/partials/product_inventory.html", 
                               {"view_type": view_type,
                                "product_stocks": facility.product_stocks().all()})
-
-def last_stock_on_hand(facility):
-    return last_stock_on_hand_before(facility, datetime.utcnow())
-
-def last_stock_on_hand_before(facility, date):
-    reports = ProductReport.objects.filter(supply_point=facility, 
-                                           report_type__code=Reports.SOH,
-                                           report_date__lt=date)\
-                                           .order_by('-report_date')
-    return reports[0] if reports.exists() else None
 
 @register.simple_tag
 def last_sms(facility):
@@ -78,32 +68,23 @@ def average_lead_time(supply_point_list, year=None, month=None):
 @register.simple_tag
 def last_report_cell(supply_point, year, month):
     cell_template = '<td class="%(classes)s">%(msg)s</td>' 
+    state = reported_on_time(supply_point, year, month)
+    classes = "insufficient_data"
+    msg = _("Waiting for reply")
+    if state == OnTimeStates.NO_DATA:
+        return cell_template % {"classes": classes, "msg": msg}
+
     # check from business day to business day
     last_bd_of_the_month = get_business_day_of_month(year, month, -1)
     last_report = last_stock_on_hand_before(supply_point, last_bd_of_the_month)
-    classes = "insufficient_data"
-    msg = _("Waiting for reply")
-    if last_report:
-        msg = defaultfilters.date(last_report.report_date, "d M Y")
-        def get_classes(report_date, year, month):
-            last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
-            last_bd_of_last_month = datetime.combine\
-                (get_business_day_of_month(last_of_last_month.year, 
-                                           last_of_last_month.month,
-                                           -1), time())
-            cutoff_date = last_bd_of_last_month + timedelta(days=5)
-            if report_date < last_bd_of_last_month:
-                # early
-                return "insufficient_data"
-            elif report_date < cutoff_date:
-                # on time
-                return "good_icon iconified"
-            else:
-                # late
-                return "warning_icon iconified"
-            
-        classes = get_classes(last_report.report_date, year, month)
-    return cell_template % {"classes": classes, "msg": msg} 
+    msg = defaultfilters.date(last_report.report_date, "d M Y")
+
+    if state == OnTimeStates.LATE:
+        classes = "warning_icon iconified"
+    elif state == OnTimeStates.ON_TIME:
+        classes = "good_icon iconified"
+
+    return cell_template % {"classes": classes, "msg": msg}
 
 @register.simple_tag
 def latest_note(supply_point):
@@ -111,3 +92,7 @@ def latest_note(supply_point):
     if notes.count():
         return notes[0]
     return None
+
+@register.simple_tag
+def on_time_percentage(facs, year, month):
+        return float(len(on_time_reporting(facs, year, month))) / float(len(facs))
