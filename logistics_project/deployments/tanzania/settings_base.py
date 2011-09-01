@@ -83,6 +83,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware', 
 )
 
+CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+
+
 TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.auth",
     "django.core.context_processors.debug",
