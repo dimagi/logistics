@@ -1,5 +1,4 @@
 from datetime import datetime,timedelta, time
-from mx.DateTime.DateTime import utctime
 from re import match
 from django.db.models.aggregates import Max
 from logistics_project import settings
