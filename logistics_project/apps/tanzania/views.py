@@ -258,17 +258,15 @@ def reporting(request):
 def supervision(request):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
     return render_to_response("tanzania/supervision.html",
         {
           "location": location,
           "month_pager": mp,
           "districts": _user_districts(request.user),
           "regions": _user_regions(request.user),
-          "facs": dg.submitting(facs, month=mp.month),
-          "dg": dg,
+          "facs": facs,
           "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
-          "supervision_table": SupervisionTable(object_list=dg.submitting(facs, month=mp.month), request=request,
+          "supervision_table": SupervisionTable(object_list=facs, request=request,
                                                 month=mp.month, year=mp.year),
           },
     context_instance=RequestContext(request))
