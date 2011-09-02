@@ -98,7 +98,7 @@ class RandRReportingHistoryTable(MonthTable):
         per_page = 9999
 
 class SupervisionTable(MonthTable):
-    code = Column(value=lambda cell:cell.object.code, name="MSD Code")
+    code = Column(value=lambda cell:cell.object.code, name="MSD Code", titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
     delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
