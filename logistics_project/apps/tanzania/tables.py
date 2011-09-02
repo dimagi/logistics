@@ -83,7 +83,7 @@ class RandRReportingHistoryTable(MonthTable):
                                      value=_randr_value,
                                      format="d M Y P",
                                      css_class=_randr_css_class)
-    contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object))
+    contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object), sort_key_fn=_default_contact)
     lead_time = Column(name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
     @property
     def submitting_group(self):

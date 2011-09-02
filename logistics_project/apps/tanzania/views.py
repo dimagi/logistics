@@ -257,9 +257,9 @@ def reporting(request):
           "reporting_percentage": (float(len(bd.submitted)) / float(len(dg.submitting())) * 100) if len(dg.submitting()) else 0.0,
           "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
           "supervision_table": SupervisionTable(object_list=dg.submitting(), request=request,
-                                                month=mp.month, year=mp.year),
+                                                month=mp.month, year=mp.year, prefix="supervision"),
           "randr_table": RandRReportingHistoryTable(object_list=dg.submitting(), request=request,
-                                                    month=mp.month, year=mp.year),
+                                                    month=mp.month, year=mp.year, prefix="randr"),
         },
         context_instance=RequestContext(request))
 
