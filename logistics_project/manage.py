@@ -10,7 +10,6 @@ sys.path.append(os.path.join(filedir,'..'))
 sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
 sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
 sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
-sys.path.append(os.path.join(filedir,'..','submodules','dimagi-djtables','lib'))
 sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
 sys.path.append(os.path.join(filedir,'..','submodules','tablib'))
 sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
@@ -19,6 +18,8 @@ sys.path.append(os.path.join(filedir,'..','submodules','django-scheduler'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
 sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
+
+sys.path.insert(0, os.path.join(filedir,'..','submodules','dimagi-djtables','lib'))
 
 if __name__ == "__main__":
     import settings
