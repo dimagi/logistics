@@ -70,7 +70,7 @@ def staging():
     env.server_port = '9002'
     env.server_name = 'noneset'
     env.hosts = ['204.232.206.181']
-    env.settings = '%(project)s.localsettings' % env
+    env.settings = '%(project)s.settings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
@@ -83,7 +83,7 @@ def production():
     env.server_port = '9010'
     env.server_name = 'ilsgateway-production'
     env.hosts = ['184.106.171.98']
-    env.settings = '%(project)s.localsettings' % env
+    env.settings = '%(project)s.settings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
 
@@ -182,7 +182,7 @@ def deploy():
         sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
     #update_requirements()
     migrate()
-    collectstatic()
+   # collectstatic()
     start()
 
 
