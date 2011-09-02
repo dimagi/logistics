@@ -36,6 +36,9 @@ def _default_contact(supply_point):
                                contact.default_connection.identity if contact.default_connection else "")
     return None
 
+def _dg(supply_point):
+    return supply_point.groups.all()[0].code if supply_point.groups.exists() else None
+
 def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
     return tz_location_url(cell.object.location)
@@ -45,7 +48,7 @@ class OrderingStatusTable(MonthTable):
     Same as above but includes a column for the HSA
     """
     code = Column()
-    delivery_group = Column(sortable=False, value=lambda cell: cell.object.groups.all()[0] if cell.object.groups.count() else None, name="Delivery Group")
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     name = Column(link=supply_point_link)
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
@@ -79,7 +82,9 @@ def _randr_css_class(cell):
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
-    submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter", 
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+
+    submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter",
                                      value=_randr_value,
                                      format="d M Y P",
                                      css_class=_randr_css_class)
@@ -95,12 +100,14 @@ class RandRReportingHistoryTable(MonthTable):
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
-    supervision_this_quarter = Column(name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
-    date = DateColumn(value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
+    date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
 
 class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
     name = Column(name="Facility Name", value=lambda cell: cell.object.name)
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     last_reported = Column()
 
     class Meta:

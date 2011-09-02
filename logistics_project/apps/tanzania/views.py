@@ -148,7 +148,7 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-            "table": OrderingStatusTable(object_list=facs, request=request, month=mp.month, year=mp.year)
+            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year)
         },
         context_instance=RequestContext(request))
 
@@ -169,7 +169,7 @@ def facility_details(request, facility_id):
         {
             "facility": facility,
             "randr_status": latest_status(facility, SupplyPointStatusTypes.R_AND_R_FACILITY),
-            "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date"), request=request),
+            "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date").select_related(), request=request),
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))
@@ -256,9 +256,9 @@ def reporting(request):
           "on_time": ot,
           "reporting_percentage": (float(len(bd.submitted)) / float(len(dg.submitting())) * 100) if len(dg.submitting()) else 0.0,
           "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
-          "supervision_table": SupervisionTable(object_list=dg.submitting(), request=request,
+          "supervision_table": SupervisionTable(object_list=dg.submitting().select_related(), request=request,
                                                 month=mp.month, year=mp.year, prefix="supervision"),
-          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting(), request=request,
+          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
                                                     month=mp.month, year=mp.year, prefix="randr"),
         },
         context_instance=RequestContext(request))
@@ -275,8 +275,8 @@ def supervision(request):
           "regions": _user_regions(request.user),
           "facs": facs,
           "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
-          "supervision_table": SupervisionTable(object_list=facs, request=request,
-                                                month=mp.month, year=mp.year),
+          "supervision_table": SupervisionTable(object_list=facs.select_related(), request=request,
+                                                month=mp.month, year=mp.year, prefix="supervision"),
           },
     context_instance=RequestContext(request))
 
