@@ -2,6 +2,7 @@ from datetime import datetime
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import DeliveryGroups
+from logistics_project.apps.tanzania.utils import submitted_to_msd
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from utils import sps_with_latest_status
@@ -48,6 +49,7 @@ class SupplyPointStatusBreakdown(object):
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
                                                               status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                                               status_value=SupplyPointStatusValues.REMINDER_SENT))
+
 
         self._submission_chart = None
 

@@ -4,13 +4,15 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.utils.translation import ugettext as _
 from logistics.util import config
+from logistics.models import SupplyPointGroup
 from logistics.decorators import logistics_contact_required
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
-    SupplyPointStatusTypes, SupplyPointStatusValues
+    SupplyPointStatusTypes, SupplyPointStatusValues, DeliveryGroupReport
 from rapidsms.models import Contact
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
+
 
 class RandRHandler(KeywordHandler):
     """
@@ -67,6 +69,17 @@ class RandRHandler(KeywordHandler):
                                      status_value=SupplyPointStatusValues.SUBMITTED,
                                      status_date=self.msg.timestamp)
             self._send_submission_alert_to_msd(sp, submitted_vals)
+
+            # TODO: fix this up to be more flexible.
+
+            a_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[1]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="A"))
+            b_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[3]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="B"))
+            c_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[5]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="C"))
+
+            a_dg.save()
+            b_dg.save()
+            c_dg.save()
+
             self.respond(_(config.Messages.SUBMITTED_REMINDER_DISTRICT))
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
             SupplyPointStatus.objects.create(supply_point=sp,

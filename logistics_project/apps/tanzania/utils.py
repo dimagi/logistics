@@ -3,7 +3,7 @@ from re import match
 from django.db.models.aggregates import Max
 from logistics_project import settings
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
-    SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates
+    SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates, DeliveryGroupReport
 from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
@@ -171,3 +171,12 @@ def soh_on_time_reporting(supply_points, year, month):
 
 def randr_on_time_reporting(supply_points, year, month):
     return [f for f in supply_points if randr_reported_on_time(f, year, month) == OnTimeStates.ON_TIME]
+
+
+def submitted_to_msd(districts, month, year):
+    count = 0
+    for f in districts:
+        dg = DeliveryGroupReport.objects.filter(report_date__month=month, report_date__year=year, supply_point=f).order_by("-date")
+        if dg.exists():
+            count += dg[0].quantity
+    return count
