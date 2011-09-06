@@ -17,7 +17,7 @@ class SupplyPointStatusBreakdown(object):
         else:
             self.month = month
             self.year = year
-        if not facilities:
+        if facilities is None:
             facilities = SupplyPoint.objects.filter(type__code="facility")
         self.dg = DeliveryGroups(month=month)
 
