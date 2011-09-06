@@ -17,7 +17,7 @@
                 </li>
                 <li>
                     <div class="report">Group {{ dg.current_processing_group }}: {% trans 'Processing' %}</div>
-                    <div class="caption">{% blocktrans with monthly_data.randrs_sent_to_msd as processed and dg.processing|length as count %}{{ processed }} of {{ count }} forms sent to MSD{% endblocktrans %}</div>
+                    <div class="caption">{% blocktrans with msd_sub_count as processed and dg.processing|length as count %}{{ processed }} of {{ count }} forms sent to MSD{% endblocktrans %}</div>
                 </li>
                 <li>
                     <div class="report">Group {{ dg.current_delivering_group }}: {% trans "Deliveries" %}</div>

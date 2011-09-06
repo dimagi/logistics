@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
 from models import DeliveryGroups
@@ -86,14 +86,22 @@ def _user_regions(user):
     elif _is_region(location):
         return regions.filter(pk=location.pk)
     return regions
+
+def district_supply_points_below(location, sps):
+    if _is_district(location):
+        return [SupplyPoint.objects.get(location=location)]
+    elif _is_region(location):
+        return sps.filter(location__parent_id=location.id, location__type__name="DISTRICT")
+    else:
+        return sps.filter(location__type__name="DISTRICT")
     
 @place_in_request()
 def dashboard(request):
     mp = MonthPager(request)
     base_facilities, location = _get_facilities_and_location(request)
-
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
+    msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
     return render_to_response("tanzania/dashboard.html",
                               {
                                "sub_data": sub_data,
@@ -101,6 +109,7 @@ def dashboard(request):
                                "graph_height": 300,
                                "dg": dg,
                                "month_pager": mp,
+                               "msd_sub_count": msd_sub_count,
                                "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
                                "districts": _user_districts(request.user),
                                "regions": _user_regions(request.user),
@@ -139,7 +148,7 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-            "table": OrderingStatusTable(object_list=facs, request=request, month=mp.month, year=mp.year)
+            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year)
         },
         context_instance=RequestContext(request))
 
@@ -160,7 +169,7 @@ def facility_details(request, facility_id):
         {
             "facility": facility,
             "randr_status": latest_status(facility, SupplyPointStatusTypes.R_AND_R_FACILITY),
-            "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date"), request=request),
+            "notes_table": NotesTable(object_list=SupplyPointNote.objects.filter(supply_point=facility).order_by("-date").select_related(), request=request),
             "report_types": ['Stock on Hand', 'Months of Stock']
         },
         context_instance=RequestContext(request))
@@ -247,10 +256,10 @@ def reporting(request):
           "on_time": ot,
           "reporting_percentage": (float(len(bd.submitted)) / float(len(dg.submitting())) * 100) if len(dg.submitting()) else 0.0,
           "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
-          "supervision_table": SupervisionTable(object_list=dg.submitting(), request=request,
-                                                month=mp.month, year=mp.year),
-          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting(), request=request,
-                                                    month=mp.month, year=mp.year),
+          "supervision_table": SupervisionTable(object_list=dg.submitting().select_related(), request=request,
+                                                month=mp.month, year=mp.year, prefix="supervision"),
+          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
+                                                    month=mp.month, year=mp.year, prefix="randr"),
         },
         context_instance=RequestContext(request))
 
@@ -258,18 +267,16 @@ def reporting(request):
 def supervision(request):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
     return render_to_response("tanzania/supervision.html",
         {
           "location": location,
           "month_pager": mp,
           "districts": _user_districts(request.user),
           "regions": _user_regions(request.user),
-          "facs": dg.submitting(facs, month=mp.month),
-          "dg": dg,
+          "facs": facs,
           "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
-          "supervision_table": SupervisionTable(object_list=dg.submitting(facs, month=mp.month), request=request,
-                                                month=mp.month, year=mp.year),
+          "supervision_table": SupervisionTable(object_list=facs.select_related(), request=request,
+                                                month=mp.month, year=mp.year, prefix="supervision"),
           },
     context_instance=RequestContext(request))
 
