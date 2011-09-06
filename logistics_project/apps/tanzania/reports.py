@@ -30,10 +30,14 @@ class SupplyPointStatusBreakdown(object):
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED))
-        
-        # everyone else is not responding. TODO optimize/tweak
-        self.submit_not_responding = list(set(self.dg.submitting(facilities)) - set(self.submitted) - set(self.not_submitted))
-        
+
+        self.submit_reminder_sent = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+
+        self.submit_not_responding = list(set(self.submit_reminder_sent) - set(self.submitted) - set(self.not_submitted))
+
         self.delivery_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
@@ -44,7 +48,12 @@ class SupplyPointStatusBreakdown(object):
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_RECEIVED))
 
-        self.delivery_not_responding = list(set(self.dg.delivering(facilities)) - set(self.delivery_received) - set(self.delivery_not_received))
+        self.delivery_reminder_sent = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+
+        self.delivery_not_responding = list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
                                                               status_type=SupplyPointStatusTypes.SOH_FACILITY,
