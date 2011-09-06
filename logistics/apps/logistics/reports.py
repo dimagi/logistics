@@ -296,7 +296,7 @@ class ReportingBreakdown(object):
                 graph_data += [
                         {"display": "Late Reporting",
                          "value": len(self.reported_late),
-                         "color": Colors.MEDIUM_YELLOW,
+                         "color": Colors.PURPLE,
                          "description": "(%s) Late (%s)" % \
                             (len(self.reported_late), self.datespan)
                         }
