@@ -188,7 +188,6 @@ def historical_response_rate(supply_point, type):
     denom = len(status_month_years)
     num = 0
     for s in status_month_years:
-        print s
         f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")[0]
         if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
             num += 1

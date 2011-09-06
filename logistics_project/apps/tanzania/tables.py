@@ -84,6 +84,10 @@ def _hrr_randr(sp):
     r = historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY)
     return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
 
+def _hrr_super(sp):
+    r = historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY)
+    return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
+
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
@@ -109,6 +113,8 @@ class SupervisionTable(MonthTable):
     delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
+    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
+
 
 class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code")
