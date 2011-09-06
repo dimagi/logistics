@@ -1,9 +1,10 @@
 from datetime import datetime
+from django.template.defaultfilters import floatformat
 from djtables import Table, Column
 from djtables.column import DateColumn
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
     DeliveryGroups
-from logistics_project.apps.tanzania.utils import calc_lead_time
+from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate
 from utils import latest_status
 from rapidsms.models import Contact
 from django.template import defaultfilters
@@ -79,6 +80,10 @@ def _randr_css_class(cell):
     else:
         return "good_icon iconified"
 
+def _hrr_randr(sp):
+    r = historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY)
+    return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
+
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
@@ -90,6 +95,7 @@ class RandRReportingHistoryTable(MonthTable):
                                      css_class=_randr_css_class)
     contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object), sort_key_fn=_default_contact)
     lead_time = Column(name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
+    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_randr(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY))
     @property
     def submitting_group(self):
         return DeliveryGroups(self.month).current_submitting_group()

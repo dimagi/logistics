@@ -180,3 +180,17 @@ def submitted_to_msd(districts, month, year):
         if dg.exists():
             count += dg[0].quantity
     return count
+
+def historical_response_rate(supply_point, type):
+    statuses = SupplyPointStatus.objects.filter(supply_point=supply_point, status_type=type).order_by("-status_date")
+    if not statuses.count(): return None
+    status_month_years = set([(x.status_date.month, x.status_date.year) for x in statuses])
+    denom = len(status_month_years)
+    num = 0
+    for s in status_month_years:
+        print s
+        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")[0]
+        if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
+            num += 1
+    return float(num)/float(denom), num, denom
+
