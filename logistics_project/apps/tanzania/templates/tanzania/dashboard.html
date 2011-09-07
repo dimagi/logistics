@@ -4,6 +4,7 @@
 {% load webdesign %} 
 {% load alerts_tags %}
 {% load cache %}
+{% load nav_tags %}
 {% load logistics_report_tags %}
 
 {% block javascripts %}
@@ -20,6 +21,9 @@
 
 
 {% block content %}
+
+<div class="crumbs">{% breadcrumbs location %}</div>
+<div style="clear:both;">&nbsp;</div>
 
 {% include "logistics/partials/selector_form.html" %}
 </div>
