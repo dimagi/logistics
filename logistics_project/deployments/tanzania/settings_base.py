@@ -25,9 +25,9 @@ RAPIDSMS_TABS = [
 #    ("logistics_project.apps.malawi.views.help",       "Help"),
 #    ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
 #    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
-#    ("registration",                          "Registration", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ("registration",                          "Registration", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
 ]
 
 INSTALLED_BACKENDS = {
