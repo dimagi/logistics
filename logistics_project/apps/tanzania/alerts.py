@@ -83,7 +83,7 @@ class DeliveryNotResponding(SupplyPointStatusAlert):
         return '%(count)d facilities did not respond to the SMS asking if they had received their delivery.'
     
     def get_count(self):
-        return len(self.bd.delivery_not_responding)
+        return len(self.bd.delivery_reminder_sent)
 
 @place_in_request()
 @return_if_place_not_set()

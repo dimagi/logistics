@@ -3,10 +3,13 @@ from re import match
 from django.db.models.aggregates import Max
 from logistics_project import settings
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
-    SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates
+    SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates, DeliveryGroupReport
 from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
+import logging
+
+logger = logging.getLogger(__name__)
 
 def chunks(l, n):
     """
@@ -35,26 +38,29 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
         sps = DeliveryGroups(month).submitting(sps, month)
     elif status_type.startswith('del'):
         sps = DeliveryGroups(month).delivering(sps, month)
+    if not sps.count():
+        return SupplyPoint.objects.none()
     inner = sps.filter(supplypointstatus__status_type=status_type,
                        supplypointstatus__status_value=status_value,
                        supplypointstatus__status_date__month=month,
                        supplypointstatus__status_date__year=year)\
-                        .annotate(pk=Max('supplypointstatus__id'))
-    ids = SupplyPointStatus.objects.filter(id__in=inner.values('pk').query)\
+                        .annotate(max_sp_status_id=Max('supplypointstatus__id'))
+    ids = SupplyPointStatus.objects.filter(id__in=inner.values('max_sp_status_id').query)\
                                            .distinct()\
                                             .values_list("supply_point", flat=True)
-    f = SupplyPoint.objects.filter(id__in=ids)
-#    for a in f:
-#        q = latest_status(a, status_type, value=status_value, year=year, month=month)
-#        if q and q.status_type != status_type or q.status_value != status_value:
-#            print "false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value)
-#    for s in sps:
-#        q = latest_status(s, status_type, value=status_value, year=year, month=month)
-#        if q and s not in f:
-#            print "false negative in sps_with_latest_status: %s %s %s" % (s, status_type, status_value)
+    f = sps.filter(id__in=ids)
+
+    # I don't trust this method _at all_.  Here's some debug stuff. -- cternus
+    
+    for a in f:
+        q = latest_status(a, status_type, value=status_value, year=year, month=month)
+        if q and q.status_type != status_type or q.status_value != status_value:
+            logger.error("false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value))
+    for s in sps:
+        q = latest_status(s, status_type, value=status_value, year=year, month=month)
+        if q and s not in f:
+            logger.error("false negative in sps_with_latest_status: %s %s %s" % (s, status_type, status_value))
     return f
-
-
 
 def supply_points_with_latest_status_by_datespan(sps, status_type, status_value, datespan):
     """
@@ -171,3 +177,25 @@ def soh_on_time_reporting(supply_points, year, month):
 
 def randr_on_time_reporting(supply_points, year, month):
     return [f for f in supply_points if randr_reported_on_time(f, year, month) == OnTimeStates.ON_TIME]
+
+
+def submitted_to_msd(districts, month, year):
+    count = 0
+    for f in districts:
+        dg = DeliveryGroupReport.objects.filter(report_date__month=month, report_date__year=year, supply_point=f).order_by("-date")
+        if dg.exists():
+            count += dg[0].quantity
+    return count
+
+def historical_response_rate(supply_point, type):
+    statuses = SupplyPointStatus.objects.filter(supply_point=supply_point, status_type=type).order_by("-status_date")
+    if not statuses.count(): return None
+    status_month_years = set([(x.status_date.month, x.status_date.year) for x in statuses])
+    denom = len(status_month_years)
+    num = 0
+    for s in status_month_years:
+        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")[0]
+        if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
+            num += 1
+    return float(num)/float(denom), num, denom
+

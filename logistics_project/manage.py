@@ -19,6 +19,8 @@ sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
 sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
 
+sys.path.insert(0, os.path.join(filedir,'..','submodules','dimagi-djtables','lib'))
+
 if __name__ == "__main__":
     import settings
     execute_manager(settings)

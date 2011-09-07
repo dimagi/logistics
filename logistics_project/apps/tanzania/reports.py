@@ -2,6 +2,7 @@ from datetime import datetime
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import DeliveryGroups
+from logistics_project.apps.tanzania.utils import submitted_to_msd
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from utils import sps_with_latest_status
@@ -16,7 +17,7 @@ class SupplyPointStatusBreakdown(object):
         else:
             self.month = month
             self.year = year
-        if not facilities:
+        if facilities is None:
             facilities = SupplyPoint.objects.filter(type__code="facility")
         self.dg = DeliveryGroups(month=month)
 
@@ -29,10 +30,14 @@ class SupplyPointStatusBreakdown(object):
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED))
-        
-        # everyone else is not responding. TODO optimize/tweak
-        self.submit_not_responding = list(set(self.dg.submitting(facilities)) - set(self.submitted) - set(self.not_submitted))
-        
+
+        self.submit_reminder_sent = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+
+        self.submit_not_responding = list(set(self.submit_reminder_sent) - set(self.submitted) - set(self.not_submitted))
+
         self.delivery_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
@@ -43,11 +48,17 @@ class SupplyPointStatusBreakdown(object):
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_RECEIVED))
 
-        self.delivery_not_responding = list(set(self.dg.delivering(facilities)) - set(self.delivery_received) - set(self.delivery_not_received))
+        self.delivery_reminder_sent = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+
+        self.delivery_not_responding = list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
                                                               status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                                               status_value=SupplyPointStatusValues.REMINDER_SENT))
+
 
         self._submission_chart = None
 

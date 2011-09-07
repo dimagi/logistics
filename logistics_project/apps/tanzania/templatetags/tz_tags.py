@@ -1,9 +1,10 @@
 from django import template
 from logistics.models import ProductReport
+from django.template.defaultfilters import floatformat
 from django.template.loader import render_to_string
 from logistics.const import Reports
-from logistics_project.apps.tanzania.models import SupplyPointNote, OnTimeStates
-from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, soh_reported_on_time, soh_on_time_reporting
+from logistics_project.apps.tanzania.models import SupplyPointNote, OnTimeStates, SupplyPointStatusTypes
+from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, soh_reported_on_time, soh_on_time_reporting, historical_response_rate
 from datetime import datetime, timedelta, time
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
@@ -95,4 +96,9 @@ def latest_note(supply_point):
 
 @register.simple_tag
 def on_time_percentage(facs, year, month):
-        return float(len(soh_on_time_reporting(facs, year, month))) / float(len(facs))
+    return float(len(soh_on_time_reporting(facs, year, month))) / float(len(facs))
+
+@register.simple_tag
+def soh_historical_response(facility):
+    r = historical_response_rate(facility, SupplyPointStatusTypes.SOH_FACILITY)
+    return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"

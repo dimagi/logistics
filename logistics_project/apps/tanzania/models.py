@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, SupplyPointGroup
 from logistics_project.apps.tanzania.tasks import email_report
+from rapidsms.contrib.messagelog.models import Message
+
 
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
@@ -155,3 +157,13 @@ class SupplyPointNote(models.Model):
 
     def __unicode__(self):
         return "%s at %s on %s: %s" % (self.user.username, self.supply_point.name, self.date, self.text)
+
+class DeliveryGroupReport(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    quantity = models.IntegerField()
+    report_date = models.DateTimeField(auto_now_add=True, default=datetime.now())
+    message = models.ForeignKey(Message)
+    delivery_group = models.ForeignKey(SupplyPointGroup)
+
+    class Meta:
+        ordering = ('-report_date',)
