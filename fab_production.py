@@ -184,7 +184,7 @@ def deploy():
         sudo('git submodule update', user=env.sudo_user)
     #update_requirements()
     migrate()
-   # collectstatic()
+    collectstatic()
     start()
 
 
