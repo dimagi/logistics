@@ -102,8 +102,6 @@ def dashboard(request):
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
-    
-    nav_hide_children = location.type.name == "DISTRICT"
     return render_to_response("tanzania/dashboard.html",
                               {"sub_data": sub_data,
                                "graph_width": 300,
@@ -115,8 +113,8 @@ def dashboard(request):
                                "districts": _user_districts(request.user),
                                "regions": _user_regions(request.user),
                                "location": location,
-                               "destination_url": "tz_dashboard",
-                               "nav_hide_children": nav_hide_children},
+                               "destination_url": "tz_dashboard"
+                               },
                                
                               context_instance=RequestContext(request))
 
