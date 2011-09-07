@@ -26,4 +26,4 @@ def scheduler_heartbeat():
             failures.append(e)
     if failures:            
         raise Exception("Failed to process all celery tasks, errors are: \n%s" % 
-                        "\n".join(["(%(type)s: %(val)s" % {"type": type(e), "val": str(e)} for e in failures])
+                        "\n".join(["(%(type)s: %(val)s" % {"type": type(e), "val": str(e)} for e in failures]))
