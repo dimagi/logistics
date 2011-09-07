@@ -100,6 +100,14 @@ def latest_note(supply_point):
     return None
 
 @register.simple_tag
+def delivery_group(supply_point):
+    group = supply_point.groups.all()[0].code \
+            if supply_point and supply_point.groups.exists() else None
+    if group:
+        return "%s: %s" %(_("Delivery Group"), group)
+    
+    
+@register.simple_tag
 def on_time_percentage(facs, year, month):
     return float(len(soh_on_time_reporting(facs, year, month))) / float(len(facs))
 
