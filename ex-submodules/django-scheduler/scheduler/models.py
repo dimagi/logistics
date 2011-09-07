@@ -291,7 +291,7 @@ class EventSchedule(models.Model):
                                              runtime=asof, 
                                              message=msg)
         
-    def run(self, asof):
+    def run(self, asof, failhard=True):
         """
         Runs the schedule, update the model appropriately, return the results. 
         """
@@ -300,7 +300,7 @@ class EventSchedule(models.Model):
         except Exception, e:
             logging.exception("Problem executing scheduled item %s" % self)
             self.record_failed_execution(asof, str(e))
-            return None
+            if failhard: raise
         self.record_execution(asof)
         return ret
 
