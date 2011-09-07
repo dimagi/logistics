@@ -170,7 +170,6 @@ class StockOnHandTable(MonthTable):
 
     class Meta:
         per_page = 9999
-        order_by = "Delivery Group"
 
 
 def _contact_or_none(cell, attr):
