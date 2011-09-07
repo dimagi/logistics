@@ -34,28 +34,4 @@ class LostAdjusted(KeywordHandler):
             return
     
         else:    
-            logging.error("TODO: check for full product list here")
-#            now = datetime.now()
-#            all_products = []
-#            #TODO: this needs to be fixed not to just check the last 7 days
-#            date_check = datetime.now() + relativedelta(days=-7)
-#            missing_products = Product.objects.filter(Q(activeproduct__service_delivery_point=sdp,
-#                                                        servicedeliverypointproductreport__report_type__sms_code = 'la', 
-#                                                        activeproduct__is_active=True), 
-#                                                      ~Q(servicedeliverypointproductreport__report_date__gt=date_check) )
-#            for dict in missing_products.values('sms_code'):
-#                all_products.append(dict['sms_code'])
-#            missing_product_list = list(set(all_products)-set(reported_products))
-#            if missing_product_list:
-#                kwargs = {'contact_name': self.msg.contact.name,
-#                          'facility_name': sdp.name,
-#                          'product_list': ', '.join(missing_product_list),
-#                          'reply_list': ','.join(reply_list)}
-#                                
-#                
-            
-            if False:
-                kwargs = {} # fix!
-                self.respond(_('Thank you, you reported your losses/adjustments: %(reply_list)s. Still missing %(product_list)s.'), **kwargs)
-            else:
-                self.respond(_(config.Messages.LOSS_ADJUST_CONFIRM))
+            self.respond(_(config.Messages.LOSS_ADJUST_CONFIRM))
