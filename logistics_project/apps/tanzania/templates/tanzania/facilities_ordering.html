@@ -7,14 +7,12 @@
 {% block title %}{% trans "Ordering Status"%}{{ block.super }}{% endblock %}
 
 {% block content %}
-    <div class="crumbs">{% breadcrumbs location %}</div>
-   <div style="clear:both;">&nbsp;</div>
+
 {% include "logistics/partials/month_pager.html" %}
 
-    <div style="clear:both;">
-{% include "logistics/partials/selector_form.html" %}
+<div style="margin-top: 1em; margin-bottom: 1em;">
+{% include "logistics/partials/breadcrumbs.html" %}
 </div>
-    <div style="clear:both;">&nbsp;</div>
 
 <div class="module">
     <h2>{% trans 'Ordering Status' %}</h2>
