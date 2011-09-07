@@ -150,6 +150,7 @@ LOGISTICS_PRODUCT_ALIASES = {'iucd': 'id' ,
 LOGISTICS_USE_DEFAULT_HANDLERS = False
 LOGISTICS_URL_GENERATOR_FUNCTION = "logistics_project.apps.tanzania.views.tz_location_url"
 LOGISTICS_MAP_POPUP_FUNCTION = "logistics_project.apps.tanzania.templatetags.tz_tags.get_map_popup"
+LOGISTICS_USE_LOCATION_SESSIONS = True
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"
