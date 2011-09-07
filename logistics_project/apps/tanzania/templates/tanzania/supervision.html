@@ -9,16 +9,17 @@
 {% endblock %}
 
 {% block content %}
-    <a href="{% url ad_hoc_reports %}?place={{ location.code }}" style="float:right;">ad hoc email settings</a>
-    <div class="crumbs">{% breadcrumbs location %}</div>
 
-    <div style="clear:both;">&nbsp;</div>
+<a href="{% url ad_hoc_reports %}?place={{ location.code }}" style="float:right;">ad hoc email settings</a>
+<div style="clear:both;">&nbsp;</div>
+
 {% include "logistics/partials/month_pager.html" %}
-    <div class="toolbar">
-        {% include "logistics/partials/selector_form.html" %}
-    </div>
 
-    <div class="module">
+<div style="margin-top: 1em; margin-bottom: 1em;">
+    {% include "logistics/partials/breadcrumbs.html" %}
+</div>
+
+<div class="module">
 <a id="supervision"></a>
 {% include "tanzania/partials/supervision_table.html" %}
     </div>

@@ -15,19 +15,9 @@
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
 {% endblock %} 
 
-{% block stylesheets %}{{ block.super }}
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
-{% endblock %}
-
-
 {% block content %}
 
-<div class="crumbs">{% breadcrumbs location %}</div>
-<div style="clear:both;">&nbsp;</div>
-
-{% include "logistics/partials/selector_form.html" %}
-</div>
-</span>
+{% include "logistics/partials/breadcrumbs.html" %}
 
 <div class="module noprint">
     <h2>{% trans 'Alerts' %}</h2>

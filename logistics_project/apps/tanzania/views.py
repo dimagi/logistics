@@ -103,8 +103,7 @@ def dashboard(request):
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
     return render_to_response("tanzania/dashboard.html",
-                              {
-                               "sub_data": sub_data,
+                              {"sub_data": sub_data,
                                "graph_width": 300,
                                "graph_height": 300,
                                "dg": dg,
@@ -113,7 +112,8 @@ def dashboard(request):
                                "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
                                "districts": _user_districts(request.user),
                                "regions": _user_regions(request.user),
-                               "location": location},
+                               "location": location,
+                               "destination_url": "tz_dashboard"},
                                
                               context_instance=RequestContext(request))
 
@@ -157,9 +157,11 @@ def facilities_index(request):
                                'show': show,
                                'districts': _user_districts(request.user),
                                "regions": _user_regions(request.user),
+                               "destination_url": "facilities_index"
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
+    print "foo"
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     return render_to_response(
@@ -169,7 +171,8 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year)
+            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year),
+            "destination_url": "ordering"
         },
         context_instance=RequestContext(request))
 
@@ -284,6 +287,7 @@ def reporting(request):
                                                 month=mp.month, year=mp.year, prefix="supervision"),
           "randr_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
                                                     month=mp.month, year=mp.year, prefix="randr"),
+          "destination_url": "reports"
         },
         context_instance=RequestContext(request))
 
@@ -301,6 +305,7 @@ def supervision(request):
           "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
           "supervision_table": SupervisionTable(object_list=facs.select_related(), request=request,
                                                 month=mp.month, year=mp.year, prefix="supervision"),
+          "destination_url": "supervision"
           },
     context_instance=RequestContext(request))
 
