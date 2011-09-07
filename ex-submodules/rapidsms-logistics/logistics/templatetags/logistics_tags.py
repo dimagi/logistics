@@ -23,3 +23,10 @@ def mp_next_month_link(request, mp):
     qd['month'] = mp.next_month.month
     qd['year'] = mp.next_month.year
     return "%s?%s" % (request.path, qd.urlencode())
+
+@register.simple_tag
+def url_get_replace(request, a, b):
+    print a, b
+    qd = request.GET.copy()
+    qd[a] = b
+    return "%s?%s" % (request.path, qd.urlencode())
