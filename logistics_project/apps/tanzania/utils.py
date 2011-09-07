@@ -183,7 +183,7 @@ def submitted_to_msd(districts, month, year):
     count = 0
     for f in districts:
         dg = DeliveryGroupReport.objects.filter(report_date__month=month, report_date__year=year, supply_point=f).order_by("-date")
-        if dg.exists():
+        if dg and dg.count():
             count += dg[0].quantity
     return count
 
@@ -194,7 +194,8 @@ def historical_response_rate(supply_point, type):
     denom = len(status_month_years)
     num = 0
     for s in status_month_years:
-        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")[0]
+        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")
+        if f.count(): f = f[0]
         if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
             num += 1
     return float(num)/float(denom), num, denom
