@@ -26,7 +26,6 @@ def mp_next_month_link(request, mp):
 
 @register.simple_tag
 def url_get_replace(request, a, b):
-    print a, b
     qd = request.GET.copy()
     qd[a] = b
     return "%s?%s" % (request.path, qd.urlencode())
