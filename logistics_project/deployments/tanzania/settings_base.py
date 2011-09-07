@@ -28,6 +28,8 @@ RAPIDSMS_TABS = [
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
+    ("tz_sms_schedule",       "Help"),
+
 ]
 
 INSTALLED_BACKENDS = {
