@@ -61,6 +61,15 @@ def place_in_request(param="place"):
     def wrapper(f):
         def put_place_on_request(request, *args, **kwargs):
             code = request.GET.get(param, None)
+            if settings.LOGISTICS_USE_LOCATION_SESSIONS:
+                cookie_name = "RAPIDSMS-LOGISTICS-LOCATION"
+                if code:
+                    # if we're using cookies the url overrides them
+                    # so only use it to set it back in the cookie
+                    request.session[cookie_name] = code
+                else:
+                    # check the cookie as well
+                    code = request.session.get(cookie_name, None)
             if code:
                 request.location = Location.objects.get(code=code)
             else:

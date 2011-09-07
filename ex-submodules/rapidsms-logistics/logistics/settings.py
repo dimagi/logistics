@@ -16,3 +16,4 @@ LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
 LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_PRODUCT_ALIASES = {} # you can add aliases for products here.
 LOGISTICS_USE_DEFAULT_HANDLERS = True
+LOGISTICS_USE_LOCATION_SESSIONS = False # keep persistent locations across requests in cookies
