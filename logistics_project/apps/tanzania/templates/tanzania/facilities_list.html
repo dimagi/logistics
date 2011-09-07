@@ -1,4 +1,4 @@
-{% extends "tanzania/base.html" %}
+{% extends base_template %}
 {% load nav_tags %}
 {% load tz_tags %}
 {% load logistics_report_tags %}
@@ -6,13 +6,13 @@
 
 {% block title %}{% trans "Current Stock Status" %}{{ block.super }}{% endblock %}
 {% block javascripts %}{{ block.super }}
-<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/stock_init.js"></script>
+{#<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/stock_init.js"></script>#}
 <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/legend_hider.js"></script>
-<script type="text/javascript">
-    $(function () {
-       stock_init({{ months_minimum|default:"1" }}, {{ months_maximum|default:"3" }});
-    });
-</script>
+{#<script type="text/javascript">#}
+{#    $(function () {#}
+{#       stock_init({{ months_minimum|default:"1" }}, {{ months_maximum|default:"3" }});#}
+{#    });#}
+{#</script>#}
 {% endblock %}
 
 {% block content %}

@@ -98,6 +98,19 @@ def _hrr_soh(sp):
 def _dg_class(cell):
     return "delivery_group group_"+_dg(cell.object)
 
+def _stock_class(cell):
+    mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
+    mos = float(mos)
+    if mos == -1:
+        return "insufficient_data"
+    elif mos == 0.00:
+        return "zero_count stock_iconified"
+    elif mos < 1:
+        return "low_stock stock_iconified"
+    elif mos <= 3:
+        return "adequate_stock stock_iconified"
+    else:
+        return "overstock stock_iconified"
 
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
@@ -140,7 +153,8 @@ class ProductStockColumn(Column):
                                                                                        year,
                                                                                        month, -1),
                                             titleized=False,
-                                            safe=True
+                                            safe=True,
+                                            css_class=_stock_class
        )
 
 class ProductMonthsOfStockColumn(Column):
@@ -157,7 +171,8 @@ class ProductMonthsOfStockColumn(Column):
                                                                                        year,
                                                                                        month, -1),
                                             titleized=False,
-                                            safe=True
+                                            safe=True,
+                                            css_class=_stock_class
        )
 
 
