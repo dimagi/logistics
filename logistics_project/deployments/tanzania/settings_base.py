@@ -96,6 +96,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.stock_cutoffs",
     "logistics.context_processors.google_analytics",
+    "logistics.context_processors.global_nav_mode",
     "logistics_project.apps.tanzania.context_processors.language_in_request",
     "couchlog.context_processors.static_workaround"
 ]
@@ -151,6 +152,7 @@ LOGISTICS_USE_DEFAULT_HANDLERS = False
 LOGISTICS_URL_GENERATOR_FUNCTION = "logistics_project.apps.tanzania.views.tz_location_url"
 LOGISTICS_MAP_POPUP_FUNCTION = "logistics_project.apps.tanzania.templatetags.tz_tags.get_map_popup"
 LOGISTICS_USE_LOCATION_SESSIONS = True
+LOGISTICS_NAVIGATION_MODE = "param" 
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"

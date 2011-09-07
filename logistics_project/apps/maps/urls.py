@@ -8,8 +8,4 @@ urlpatterns = patterns('',
     url(r'^$',
         "logistics_project.apps.maps.views.dashboard",
         name="maps_dashboard"),
-    url(r'^(?P<location_code>[\w-]+)/$',
-        "logistics_project.apps.maps.views.dashboard",
-        name="maps_dashboard"),
-    
 )
