@@ -182,7 +182,7 @@ def randr_on_time_reporting(supply_points, year, month):
 def submitted_to_msd(districts, month, year):
     count = 0
     for f in districts:
-        dg = DeliveryGroupReport.objects.filter(report_date__month=month, report_date__year=year, supply_point=f).order_by("-date")
+        dg = DeliveryGroupReport.objects.filter(report_date__month=month, report_date__year=year, supply_point=f).order_by("-report_date")
         if dg and dg.count():
             count += dg[0].quantity
     return count
