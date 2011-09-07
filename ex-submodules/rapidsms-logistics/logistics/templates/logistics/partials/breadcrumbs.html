@@ -1,4 +1,9 @@
-{# this template seems a little silly, but is DRY #}
 {% include "logistics/partials/breadcrumb_nav.html" %}
-{% include "logistics/partials/breadcrumb_forward.html" %}
+{% if not nav_hide_children %}
+    {% include "logistics/partials/breadcrumb_forward.html" %}
+{% endif %}
+{% if not nav_hide_up %}
+    {% include "logistics/partials/breadcrumb_up.html" %}
+{% endif %}
+<div style="clear:both"></div>
     

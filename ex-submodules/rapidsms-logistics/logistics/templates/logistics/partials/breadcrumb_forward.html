@@ -7,10 +7,6 @@
             $("#zoom_form > #location").val(event.currentTarget.value);
             $("#zoom_form").submit();
         });
-        $(".location_parent").click(function(event) {
-            $("#zoom_form > #location").val("{{location.tree_parent.code}}");
-            $("#zoom_form").submit();
-        });
     });
     //--><!]]>
 </script>
@@ -31,8 +27,4 @@
 	           {% endfor %}
 	    </select>
 {% endif %}
-{% if location.tree_parent %}
-    <a class="location_parent" href="#">Up a level</a>
-{% endif %}
 </form>
-<div style="clear:both"></div>
