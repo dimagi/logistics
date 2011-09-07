@@ -19,6 +19,7 @@
     {% csrf_token %}
     <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
     <input type="hidden" name="location" id="location" value="" />
+    <input type="hidden" name="mode" id="mode" value={{ nav_mode|default:"url" }} />
 {% if location.get_children %}
         &raquo;
 	    <select id="zoom_select" name="zoom_select">
@@ -29,7 +30,6 @@
 	               </option>
 	           {% endfor %}
 	    </select>
-	    
 {% endif %}
 {% if location.tree_parent %}
     <a class="location_parent" href="#">Up a level</a>

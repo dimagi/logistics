@@ -192,8 +192,13 @@ def navigate(request):
         location_code = request.REQUEST['location']
     if 'destination_url' in request.REQUEST: 
         destination = request.REQUEST['destination_url']
-    return HttpResponseRedirect(
-        reverse(destination, args=(location_code, )))
+    mode = request.REQUEST.get("mode", "url")
+    if mode == "url":
+        return HttpResponseRedirect(
+            reverse(destination, args=(location_code, )))
+    elif mode == "param":
+        return HttpResponseRedirect(
+            "%s?place=%s" % (reverse(destination), location_code))
 
 @cache_page(60 * 15)
 @geography_context
