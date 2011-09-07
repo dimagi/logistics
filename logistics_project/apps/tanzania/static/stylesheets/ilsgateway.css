@@ -272,3 +272,17 @@ div.highlightedMessage {
 .error a {color:#8a1f11;}
 .notice a {color:#514721;}
 .success a {color:#264409;}
+
+
+
+.group_A {
+    color: blue;
+}
+
+.group_B {
+    color: green;
+}
+
+.group_C {
+    color: red;
+}
