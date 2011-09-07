@@ -13,6 +13,9 @@ from rapidsms.models import Contact
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
 
+def _send_if_connection(c, message):
+    if c.default_connection is not None:
+        c.message(message)
 
 class RandRHandler(KeywordHandler):
     """
@@ -22,11 +25,11 @@ class RandRHandler(KeywordHandler):
     def _send_submission_alert_to_msd(self, sp, submitted_vals):
         for c in Contact.objects.filter\
             (role__code=config.Roles.MSD):
-            c.message(config.Messages.SUBMITTED_NOTIFICATION_MSD,
-                      district_name=sp.name,
-                      group_a=submitted_vals["a"],
-                      group_b=submitted_vals["b"],
-                      group_c=submitted_vals["c"])
+            _send_if_connection(c, _(config.Messages.SUBMITTED_NOTIFICATION_MSD) %
+                                      {"district_name":sp.name,
+                                       "group_a":submitted_vals["a"],
+                                       "group_b":submitted_vals["b"],
+                                       "group_c":submitted_vals["c"]})
 
     @logistics_contact_required()
     def help(self):
@@ -72,15 +75,15 @@ class RandRHandler(KeywordHandler):
 
             # TODO: fix this up to be more flexible.
 
-            a_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[1]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="A"))
-            b_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[3]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="B"))
-            c_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[5]), message=self.msg, delivery_group=SupplyPointGroup.objects.get(code="C"))
+            a_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[1]), message=self.msg.logger_msg, delivery_group=SupplyPointGroup.objects.get(code="A"))
+            b_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[3]), message=self.msg.logger_msg, delivery_group=SupplyPointGroup.objects.get(code="B"))
+            c_dg = DeliveryGroupReport(supply_point=sp, quantity=int(vals[5]), message=self.msg.logger_msg, delivery_group=SupplyPointGroup.objects.get(code="C"))
 
             a_dg.save()
             b_dg.save()
             c_dg.save()
 
-            self.respond(_(config.Messages.SUBMITTED_REMINDER_DISTRICT))
+            self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
             SupplyPointStatus.objects.create(supply_point=sp,
                                      status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,

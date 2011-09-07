@@ -3,6 +3,7 @@ from logistics.models import ProductReport
 from django.template.defaultfilters import floatformat
 from django.template.loader import render_to_string
 from logistics.const import Reports
+from django.utils.functional import curry
 from logistics_project.apps.tanzania.models import SupplyPointNote, OnTimeStates, SupplyPointStatusTypes
 from logistics_project.apps.tanzania.utils import calc_lead_time, last_stock_on_hand, last_stock_on_hand_before, soh_reported_on_time, soh_on_time_reporting, historical_response_rate
 from datetime import datetime, timedelta, time
@@ -67,13 +68,13 @@ def average_lead_time(supply_point_list, year=None, month=None):
                             {"lead_time": average_time})
     
 @register.simple_tag
-def last_report_cell(supply_point, year, month):
-    cell_template = '<td class="%(classes)s">%(msg)s</td>' 
+def last_report_elem(elem, supply_point, year, month):
+    cell_template = '<%(elem)s class="%(classes)s">%(msg)s</%(elem)s>'
     state = soh_reported_on_time(supply_point, year, month)
     classes = "insufficient_data"
     msg = _("Waiting for reply")
     if state == OnTimeStates.NO_DATA:
-        return cell_template % {"classes": classes, "msg": msg}
+        return cell_template % {"classes": classes, "msg": msg, "elem": elem}
 
     # check from business day to business day
     last_bd_of_the_month = get_business_day_of_month(year, month, -1)
@@ -85,7 +86,11 @@ def last_report_cell(supply_point, year, month):
     elif state == OnTimeStates.ON_TIME:
         classes = "good_icon iconified"
 
-    return cell_template % {"classes": classes, "msg": msg}
+    return cell_template % {"classes": classes, "msg": msg, "elem": elem}
+
+last_report_cell = register.simple_tag(curry(last_report_elem, "td"))
+last_report_span = register.simple_tag(curry(last_report_elem, "span"))
+
 
 @register.simple_tag
 def latest_note(supply_point):

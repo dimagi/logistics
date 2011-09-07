@@ -4,11 +4,14 @@ from djtables import Table, Column
 from djtables.column import DateColumn
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
     DeliveryGroups
+from logistics_project.apps.tanzania.templatetags.tz_tags import last_report_span
 from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate
 from utils import latest_status
 from rapidsms.models import Contact
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
+from logistics.templatetags.logistics_report_tags import historical_stock, historical_months_of_stock
+
 
 class MonthTable(Table):
 
@@ -49,8 +52,8 @@ class OrderingStatusTable(MonthTable):
     Same as above but includes a column for the HSA
     """
     code = Column()
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     name = Column(link=supply_point_link)
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
@@ -88,10 +91,18 @@ def _hrr_super(sp):
     r = historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY)
     return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
 
+def _hrr_soh(sp):
+    r = historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY)
+    return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
+
+def _dg_class(cell):
+    return "delivery_group group_"+_dg(cell.object)
+
+
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell:cell.object.name)
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
 
     submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter",
                                      value=_randr_value,
@@ -110,20 +121,57 @@ class RandRReportingHistoryTable(MonthTable):
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name)
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
 
+class ProductStockColumn(Column):
+    def __init__(self, product, month, year):
+        self.product = product
+        super(ProductStockColumn, self).__init__(name=self.product.sms_code,
+                                            value=lambda cell: historical_stock(cell.object,
+                                                                                       self.product,
+                                                                                       year,
+                                                                                       month,
+                                                                                       "No data"),
+                                            sort_key_fn=lambda sp: historical_stock(sp,
+                                                                                       self.product,
+                                                                                       year,
+                                                                                       month, -1),
+                                            titleized=False,
+                                            safe=True
+       )
+
+class ProductMonthsOfStockColumn(Column):
+    def __init__(self, product, month, year):
+        self.product = product
+        super(ProductMonthsOfStockColumn, self).__init__(name=self.product.sms_code,
+                                            value=lambda cell: historical_months_of_stock(cell.object,
+                                                                                       self.product,
+                                                                                       year,
+                                                                                       month,
+                                                                                       "No data"),
+                                            sort_key_fn=lambda sp: historical_months_of_stock(sp,
+                                                                                       self.product,
+                                                                                       year,
+                                                                                       month, -1),
+                                            titleized=False,
+                                            safe=True
+       )
+
 
 class StockOnHandTable(MonthTable):
-    code = Column(value=lambda cell:cell.object.code, name="MSD Code")
-    name = Column(name="Facility Name", value=lambda cell: cell.object.name)
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
-    last_reported = Column()
+    code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name)
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    last_reported = Column(safe=True, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month))
+    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_soh(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY))
 
     class Meta:
         per_page = 9999
+        order_by = "Delivery Group"
+
 
 def _contact_or_none(cell, attr):
     try:

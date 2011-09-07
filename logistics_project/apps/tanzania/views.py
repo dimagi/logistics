@@ -4,7 +4,7 @@ from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable
+from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
@@ -120,20 +120,41 @@ def dashboard(request):
 def datespan_to_month(datespan):
     return datespan.startdate.month
 
+def _generate_soh_tables(request, facs, mp):
+    show = request.GET.get('show', "")
+    products = Product.objects.all().order_by('name')
+    product_set = chunks(products, PRODUCTS_PER_TABLE)
+    tables = []
+    iter = list(chunks(products, PRODUCTS_PER_TABLE))
+    for prods in iter: # need a new generator
+        # Need to create all the tables first.
+        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year)]
+
+    for count in enumerate(iter):
+        t = tables[count[0]]
+        for prod in count[1]:
+            if show == "months":
+                pc = ProductMonthsOfStockColumn(prod, mp.month, mp.year)
+            else:
+                pc = ProductStockColumn(prod, mp.month, mp.year)
+            t.add_column(pc, "pc_"+prod.sms_code)
+    return tables, products, product_set, show
+
 #@login_required
 @place_in_request()
 def facilities_index(request):
-    # Needs ability to view stock as of a given month.
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
-    products = Product.objects.all().order_by('name')
-    product_set = chunks(products, PRODUCTS_PER_TABLE)
+    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+
     return render_to_response("tanzania/facilities_list.html",
                               {'facs': facs,
                                'product_set': product_set,
                                'products': products,
+                               'tables': tables,
                                'location': location,
                                'month_pager': mp,
+                               'show': show,
                                'districts': _user_districts(request.user),
                                "regions": _user_regions(request.user),
                                }, context_instance=RequestContext(request))
@@ -240,8 +261,9 @@ def reporting(request):
     dg = DeliveryGroups(mp.month, facs=facs)
     bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
     ot = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
-    products = Product.objects.all().order_by('name')
-    product_set = chunks(products, PRODUCTS_PER_TABLE)
+
+    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+
     return render_to_response("tanzania/reports.html",
         {
           "location": location,
@@ -251,6 +273,8 @@ def reporting(request):
           "facs": facs,
           "product_set": product_set,
           "products": products,
+          "tables": tables,
+          "show": show,
           "dg": dg,
           "bd": bd,
           "on_time": ot,
