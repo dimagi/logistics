@@ -17,3 +17,4 @@ LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_PRODUCT_ALIASES = {} # you can add aliases for products here.
 LOGISTICS_USE_DEFAULT_HANDLERS = True
 LOGISTICS_USE_LOCATION_SESSIONS = False # keep persistent locations across requests in cookies
+LOGISTICS_NAVIGATION_MODE = "url" # "url" or "param", depending how your site navigation works 

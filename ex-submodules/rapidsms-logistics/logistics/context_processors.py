@@ -1,5 +1,9 @@
 from rapidsms.conf import settings
 
+def global_nav_mode(request):
+    return {"nav_mode": settings.LOGISTICS_NAVIGATION_MODE }
+
+
 def custom_settings(request):
     return {"excel_export": settings.LOGISTICS_EXCEL_EXPORT_ENABLED,
             "%s_hack" % settings.COUNTRY: True}
