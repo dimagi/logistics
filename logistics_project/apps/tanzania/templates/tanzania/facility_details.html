@@ -13,7 +13,7 @@
     {% breadcrumbs facility.location  %}
 </div>
 <div><h2>{{ facility.name }} ({{ facility.code }}) {% trans 'Group' %} {{ facility.groups.all.0.code }} &raquo; 
-<a href="{% url maps_dashboard facility.code %}">{% trans 'see on map' %}</a></h2></div>
+<a href="{% url maps_dashboard %}?place={{ facility.code }}">{% trans 'see on map' %}</a></h2></div>
 <div class="two-columns toppadded">
     <div class="col-1">
         <div class="module">
