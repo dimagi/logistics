@@ -146,7 +146,12 @@ def _generate_soh_tables(request, facs, mp):
 def facilities_index(request):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
-    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+    
+    # hack - don't show nationally scoped data because it's too slow
+    if location.code == settings.COUNTRY:
+        tables, products, product_set, show = [None, None, None, None]
+    else:
+        tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
 
     return render_to_response("tanzania/facilities_list.html",
                               {'facs': facs,
