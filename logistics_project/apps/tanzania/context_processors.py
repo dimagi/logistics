@@ -8,6 +8,7 @@ def language_in_request(request):
 
 def location_scope_hide_show(request):
     hide = hasattr(request, "location") \
+           and request.location \
            and request.location.type.name == "DISTRICT"
     return {"nav_hide_children": hide}
     
