@@ -33,6 +33,7 @@ RAPIDSMS_TABS = [
     ("logistics.apps.malawi.views.contacts",       "Management", "is_superuser"),
     ("logistics.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
+    ("logistics.apps.groupmessaging.views.group_message", "Group Message", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
@@ -154,6 +155,14 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics.apps.malawi.alerts.hsa_below_emergency_quantity',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics.apps.malawi.alerts.health_center_unable_resupply_emergency',
+]
+
+CONTACT_GROUP_GENERATORS = [
+    "logistics.apps.groupmessaging.views.all_contacts",
+    "logistics.apps.groupmessaging.views.all_contacts_with_all_backends",
+    "logistics.apps.groupmessaging.views.all_contacts_with_all_roles",
+    "logistics.apps.malawi.message_groups.by_district",
+    "logistics.apps.malawi.message_groups.by_facility",
 ]
 
 DATABASE_ENGINE = "mysql"
