@@ -1,0 +1,14 @@
+.char_good {
+    color:green;
+}
+
+.char_warning {
+    color:orange;
+    font-weight:bold;
+}
+
+.char_over {
+    color:red;
+    font-weight: bold;
+    text-decoration: underline;
+}
