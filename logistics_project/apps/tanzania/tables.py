@@ -120,9 +120,10 @@ class RandRReportingHistoryTable(MonthTable):
     submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter",
                                      value=_randr_value,
                                      format="d M Y P",
-                                     css_class=_randr_css_class)
+                                     css_class=_randr_css_class,
+                                     sortable=False)
     contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object), sort_key_fn=_default_contact)
-    lead_time = Column(name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
+    lead_time = Column(sortable=False, name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_randr(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY))
     @property
     def submitting_group(self):
@@ -130,6 +131,7 @@ class RandRReportingHistoryTable(MonthTable):
 
     class Meta:
         per_page = 9999
+        order_by = ["Delivery Group", "Facility Name"]
 
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
