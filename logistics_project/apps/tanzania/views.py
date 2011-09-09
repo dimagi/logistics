@@ -167,7 +167,6 @@ def facilities_index(request):
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
-    print "foo"
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     return render_to_response(
