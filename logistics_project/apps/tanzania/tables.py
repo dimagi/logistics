@@ -52,7 +52,7 @@ class OrderingStatusTable(MonthTable):
     Same as above but includes a column for the HSA
     """
     code = Column()
-    name = Column(link=supply_point_link)
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
@@ -61,8 +61,8 @@ class OrderingStatusTable(MonthTable):
 
     class Meta:
         per_page = 9999
-        order_by = '-code'
-
+        order_by = ["Delivery Group", "Facility Name"]
+    
 class RandRSubmittedColumn(DateColumn):
     # copied and modified from djtables DateColumn
     
@@ -141,6 +141,11 @@ class SupervisionTable(MonthTable):
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
 
+    class Meta:
+        per_page = 9999
+        order_by = ["Delivery Group", "Facility Name"]
+
+
 class ProductStockColumn(Column):
     def __init__(self, product, month, year):
         self.product = product
@@ -187,7 +192,7 @@ class StockOnHandTable(MonthTable):
 
     class Meta:
         per_page = 9999
-
+        order_by = ["Delivery Group", "Facility Name"]
 
 def _contact_or_none(cell, attr):
     try:

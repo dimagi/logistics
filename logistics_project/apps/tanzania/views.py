@@ -129,7 +129,7 @@ def _generate_soh_tables(request, facs, mp):
     iter = list(chunks(products, PRODUCTS_PER_TABLE))
     for prods in iter: # need a new generator
         # Need to create all the tables first.
-        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year)]
+        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year, order_by=["Delivery Group", "Facility Name"])]
 
     for count in enumerate(iter):
         t = tables[count[0]]
