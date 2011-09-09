@@ -24,9 +24,8 @@
                 }
                 {% endfor %}
             };
-            
-            if (true) {
-	            $.plot($("#{{ chartdiv }}"), data,
+            if (hasData(data)) {
+                $.plot($("#{{ chartdiv }}"), data,
 	                {
 	                    series: {
 	                        pie: {
@@ -39,7 +38,8 @@
 	                                    return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
 	                                },
 	                                background: { opacity: 0.8 }
-	                            }
+	                            }, 
+	                            highlight: { opacity: 0 } 
 	                        }
 	                    },
 	                    grid: {
@@ -57,8 +57,8 @@
         })
 	</script>
 {% endblock %}
-<div id="{{ chartdiv }}" style="width:{{graph_width|default:300}}px; height:{{graph_height|default:300}}px" ></div>
-<div id="{{ hoverdiv }}" style="text-align:center;">
+<div id="{{ chartdiv }}" style="margin:auto; width:{{graph_width|default:300}}px; height:{{graph_height|default:300}}px; padding:10px;" ></div>
+<div id="{{ hoverdiv }}" style="text-align:center; margin: auto; padding: 5px;">
     <!-- This div is where the hover text hint shows up -->
     &nbsp;
 </div>
