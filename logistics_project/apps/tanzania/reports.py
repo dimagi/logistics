@@ -1,8 +1,8 @@
 from datetime import datetime
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint
-from logistics_project.apps.tanzania.models import DeliveryGroups
-from logistics_project.apps.tanzania.utils import submitted_to_msd
+from logistics_project.apps.tanzania.models import DeliveryGroups, OnTimeStates
+from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from utils import sps_with_latest_status
@@ -25,6 +25,10 @@ class SupplyPointStatusBreakdown(object):
                                                 year=self.year, month=self.month,
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                 status_value=SupplyPointStatusValues.SUBMITTED))
+
+        self.submitted_on_time = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.submitted)
+
+        self.submitted_late = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.submitted)
 
         self.not_submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
                                                  year=self.year, month=self.month,
@@ -55,6 +59,16 @@ class SupplyPointStatusBreakdown(object):
 
         self.delivery_not_responding = list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
+        self.soh_submitted = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
+                                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
+                                                              status_value=SupplyPointStatusValues.SUBMITTED))
+
+
+        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.soh_submitted)
+
+        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.soh_submitted)
+
+
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
                                                               status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                                               status_value=SupplyPointStatusValues.REMINDER_SENT))
@@ -64,11 +78,17 @@ class SupplyPointStatusBreakdown(object):
 
     def submission_chart(self):
         graph_data = [
-                {"display": _("Submitted"),
-                 "value": len(self.submitted),
+                {"display": _("Submitted On Time"),
+                 "value": len(self.submitted_on_time),
                  "color": Colors.GREEN,
-                 "description": "(%s) Submitted (%s %s)" % \
-                    (len(self.submitted), month_name[self.month], self.year)
+                 "description": "(%s) Submitted On Time (%s %s)" % \
+                    (len(self.submitted_on_time), month_name[self.month], self.year)
+                },
+                {"display": _("Submitted Late"),
+                 "value": len(self.submitted_late),
+                 "color": "orange",
+                 "description": "(%s) Submitted Late (%s %s)" % \
+                    (len(self.submitted_late), month_name[self.month], self.year)
                 },
                 {"display": _("Haven't Submitted"),
                  "value": len(self.not_submitted),
@@ -85,3 +105,51 @@ class SupplyPointStatusBreakdown(object):
             ]
         self._submission_chart = PieChartData(_("R&R Submission Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
         return self._submission_chart
+
+    def delivery_chart(self):
+        graph_data = [
+                {"display": _("Delivery Received"),
+                 "value": len(self.delivery_received),
+                 "color": Colors.GREEN,
+                 "description": "(%s) Delivery Received (%s %s)" % \
+                    (len(self.delivery_received), month_name[self.month], self.year)
+                },
+                {"display": _("Delivery Not Received"),
+                 "value": len(self.delivery_not_received),
+                 "color": Colors.RED,
+                 "description": "(%s) Delivery Not Received (%s %s)" % \
+                    (len(self.delivery_not_received), month_name[self.month], self.year)
+                },
+                {"display": _("Didn't Respond"),
+                 "value": len(self.delivery_not_responding),
+                 "color": Colors.PURPLE,
+                 "description": "(%s) Didn't Respond (%s %s)" % \
+                    (len(self.delivery_not_responding), month_name[self.month], self.year)
+                }
+            ]
+        self._delivery_chart = PieChartData(_("Delivery Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        return self._delivery_chart
+
+    def soh_chart(self):
+        graph_data = [
+                {"display": _("Stock Report On Time"),
+                 "value": len(self.soh_on_time),
+                 "color": Colors.GREEN,
+                 "description": "(%s) SOH On Time (%s %s)" % \
+                    (len(self.soh_on_time), month_name[self.month], self.year)
+                },
+                {"display": _("Stock Report Late"),
+                 "value": len(self.soh_late),
+                 "color": "orange",
+                 "description": "(%s) Submitted Late (%s %s)" % \
+                    (len(self.soh_late), month_name[self.month], self.year)
+                },
+                {"display": _("SOH Not Responding"),
+                 "value": len(self.soh_not_responding),
+                 "color": Colors.PURPLE,
+                 "description": "(%s) Didn't Respond (%s %s)" % \
+                    (len(self.soh_not_responding), month_name[self.month], self.year)
+                }
+            ]
+        self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        return self._soh_chart

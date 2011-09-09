@@ -155,7 +155,7 @@ def _generate_soh_tables(request, facs, mp):
     iter = list(chunks(products, PRODUCTS_PER_TABLE))
     for prods in iter: # need a new generator
         # Need to create all the tables first.
-        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year)]
+        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year, order_by=["Delivery Group", "Facility Name"])]
 
     for count in enumerate(iter):
         t = tables[count[0]]
@@ -193,7 +193,6 @@ def facilities_index(request):
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
-    print "foo"
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     return render_to_response(

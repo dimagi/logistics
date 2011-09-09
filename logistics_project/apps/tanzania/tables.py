@@ -52,7 +52,7 @@ class OrderingStatusTable(MonthTable):
     Same as above but includes a column for the HSA
     """
     code = Column()
-    name = Column(link=supply_point_link)
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
@@ -61,8 +61,8 @@ class OrderingStatusTable(MonthTable):
 
     class Meta:
         per_page = 9999
-        order_by = '-code'
-
+        order_by = ["Delivery Group", "Facility Name"]
+    
 class RandRSubmittedColumn(DateColumn):
     # copied and modified from djtables DateColumn
     
@@ -120,9 +120,10 @@ class RandRReportingHistoryTable(MonthTable):
     submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter",
                                      value=_randr_value,
                                      format="d M Y P",
-                                     css_class=_randr_css_class)
+                                     css_class=_randr_css_class,
+                                     sortable=False)
     contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object), sort_key_fn=_default_contact)
-    lead_time = Column(name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
+    lead_time = Column(sortable=False, name="Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_randr(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY))
     @property
     def submitting_group(self):
@@ -130,6 +131,7 @@ class RandRReportingHistoryTable(MonthTable):
 
     class Meta:
         per_page = 9999
+        order_by = ["Delivery Group", "Facility Name"]
 
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
@@ -138,6 +140,11 @@ class SupervisionTable(MonthTable):
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
+
+    class Meta:
+        per_page = 9999
+        order_by = ["Delivery Group", "Facility Name"]
+
 
 class ProductStockColumn(Column):
     def __init__(self, product, month, year):
@@ -185,7 +192,7 @@ class StockOnHandTable(MonthTable):
 
     class Meta:
         per_page = 9999
-
+        order_by = ["Delivery Group", "Facility Name"]
 
 def _contact_or_none(cell, attr):
     try:
