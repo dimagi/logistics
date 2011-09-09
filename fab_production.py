@@ -82,7 +82,7 @@ def production():
     env.environment = 'production'
     env.server_port = '9010'
     env.server_name = 'ilsgateway-production'
-    env.hosts = ['184.106.171.98']
+    env.hosts = ['ilsgateway@184.106.171.98']
     env.settings = '%(project)s.settings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
