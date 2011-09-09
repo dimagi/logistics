@@ -41,7 +41,7 @@ def get_district_cutoff():
     return get_business_day_of_month_before(now.year, now.month, 13)
 
 def _facility_shared():
-    people = get_facility_people(get_facility_cutoff())
+    people = list(get_facility_people(get_facility_cutoff()))
     send_reminders(people, 
                    config.Messages.REMINDER_R_AND_R_FACILITY)
     update_statuses(people, SupplyPointStatusTypes.R_AND_R_FACILITY,
@@ -64,7 +64,7 @@ def third_facility():
 
     
 def _district_shared():
-    people = get_district_people(get_district_cutoff())
+    people = list(get_district_people(get_district_cutoff()))
     send_reminders(people, 
                    config.Messages.REMINDER_R_AND_R_DISTRICT)
     update_statuses(people, SupplyPointStatusTypes.R_AND_R_DISTRICT,
