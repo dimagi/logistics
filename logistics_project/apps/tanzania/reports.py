@@ -26,9 +26,9 @@ class SupplyPointStatusBreakdown(object):
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                 status_value=SupplyPointStatusValues.SUBMITTED))
 
-        self.submitted_on_time = filter(lambda sp: randr_reported_on_time(sp, year, month) == OnTimeStates.ON_TIME, self.submitted)
+        self.submitted_on_time = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.submitted)
 
-        self.submitted_late = filter(lambda sp: randr_reported_on_time(sp, year, month) == OnTimeStates.LATE, self.submitted)
+        self.submitted_late = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.submitted)
 
         self.not_submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
                                                  year=self.year, month=self.month,
@@ -64,9 +64,9 @@ class SupplyPointStatusBreakdown(object):
                                                               status_value=SupplyPointStatusValues.SUBMITTED))
 
 
-        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, year, month) == OnTimeStates.ON_TIME, self.soh_submitted)
+        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.soh_submitted)
 
-        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, year, month) == OnTimeStates.LATE, self.soh_submitted)
+        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.soh_submitted)
 
 
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
