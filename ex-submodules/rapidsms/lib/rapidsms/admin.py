@@ -15,6 +15,12 @@ class ContactAdmin(admin.ModelAdmin):
         ConnectionInline,
     ]
 
+class ConnectionAdmin(admin.ModelAdmin):
+    model = Connection
+    list_display = ["backend", "identity", "contact"]
+    list_filter = ["backend", "identity", "contact"]
+
+
 admin.site.register(App)
 admin.site.register(Backend)
 admin.site.register(Connection)
