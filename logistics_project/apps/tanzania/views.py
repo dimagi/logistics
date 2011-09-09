@@ -43,6 +43,19 @@ def _is_district(location):
 def _is_region(location):
     return location and location.type.name == "REGION"
 
+def _are_not_related(location, user_loc):
+    # if no user location is specified, then they're "related"
+    if not user_loc:  return False
+        
+    # make sure the user_loc is a parent of the other, or vice versa
+    def is_eventual_parent(loc, parent_candiate):
+        while loc.parent is not None:
+            if parent_candiate == loc.parent: return True
+            loc = loc.parent
+    
+    return not is_eventual_parent(location, user_loc) \
+           and not is_eventual_parent(user_loc, location)
+
 def _get_facilities_and_location(request):
     
     def _filter_facilities_by_location(facilities, location):
@@ -53,14 +66,26 @@ def _get_facilities_and_location(request):
         return facilities
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="facility")
+    
+    user_loc = get_user_location(request.user)
+    
     # filter initial list by location
     filtered_facilities = _filter_facilities_by_location(base_facilities, 
-                                                         get_user_location(request.user))
+                                                         user_loc)
+    
     if request.location:
-        location = request.location
-        filtered_facilities = _filter_facilities_by_location(filtered_facilities, request.location)
+        if _are_not_related(request.location, user_loc):
+            messages.error(request, "You don't have permission to view that. Location reset.")
+            location = user_loc
+        else:    
+            location = request.location
+            filtered_facilities = _filter_facilities_by_location(filtered_facilities, request.location)
+        
+    elif user_loc:
+        location = user_loc
     else:
         location = Location.objects.get(name="MOHSW")
+    request.location = location
     return (filtered_facilities, location)
 
 def _districts():
@@ -99,6 +124,7 @@ def district_supply_points_below(location, sps):
 def dashboard(request):
     mp = MonthPager(request)
     base_facilities, location = _get_facilities_and_location(request)
+    
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
