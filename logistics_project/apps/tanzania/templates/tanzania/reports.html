@@ -2,6 +2,7 @@
 {% load nav_tags %}
 {% load logistics_report_tags %}
 {% load tz_tags %}
+{% load cache %}
 {% load i18n %}
 
 {% block title %}{% trans 'Reports' %} - {{ block.super }}{% endblock %}
@@ -29,15 +30,17 @@
 
     <p>Jump to: <a href="#randr">R&amp;R</a> | <a href="#supervision">Supervision</a> |  <a href="#stock">Stock Levels</a></p> 
 
-
+    {% cache 100000 location month_pager.month month_pager.year %}
     <div>{% average_lead_time dg.submitting month_pager.month month_pager.year %}</div>
+    {% endcache %}
+    {% cache 1000 location month_pager.month month_pager.year %}
     <div class="module">
     <a id="randr"></a>
     <h2>{% trans 'R&amp;R Reporting History' %} &raquo; Group {{ randr_table.submitting_group }}: {% blocktrans with bd.submitted|length as submitted and dg.submitting|length as count %}{{ submitted }} of {{ count }}{% endblocktrans %} {% trans 'submitted' %} ({{ reporting_percentage|floatformat }}%) {% blocktrans with on_time|length as on_time and bd.submitted|length as submitted %}{{ on_time }} of {{ submitted }}{% endblocktrans %} on time ({{ on_time_percentage|floatformat }}%)</h2>
     {{ randr_table.as_html }}
     </div>
     <br><br>
-    
+
     <div class="two-columns toppadded">
 
         <div class="col-1">
@@ -72,4 +75,5 @@
 <a id="supervision"></a>
 {% include "tanzania/partials/supervision_table.html" %}
     </div>
+{% endcache %}
 {% endblock %}
