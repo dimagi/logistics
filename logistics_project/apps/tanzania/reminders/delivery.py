@@ -26,10 +26,8 @@ def get_facility_people(cutoff):
                  status_date__gte=cutoff).exists():
             yield contact
                 
-def get_district_people():
+def get_district_people(cutoff):
     # All people at all Districts get all reminders each month.
-    # TODO, change totally arbitrary cutoff
-    cutoff = datetime.utcnow() - timedelta(days=10)
     for contact in Contact.objects.filter\
             (supply_point__type__code=SupplyPointCodes.DISTRICT):
         if not contact.supply_point.supplypointstatus_set.filter\
