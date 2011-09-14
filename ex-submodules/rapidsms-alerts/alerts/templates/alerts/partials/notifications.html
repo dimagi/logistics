@@ -4,6 +4,7 @@ ALERTS = {{ notif_data|safe }};
 
 function render_alert(alert) {
   var $div = $('#alert-' + alert.id);
+  alert.div = $div;
   $div.find('#msg').text(alert.msg);
   $div.find('#detail').toggle(Boolean(alert.url));
   $div.find('#url').attr('href', alert.url);
@@ -15,22 +16,19 @@ function render_alert(alert) {
   }[alert.status]();
   $div.find('#status').text(status_text);
 
-  var num_comments = 0;
+  alert.num_comments = 0;
   var $comments = $div.find('#comments');
   $(alert.comments).each(function (i, comment) {
-    $comment = $('<div><span id="text"></span> by <span id="author"></span> at <span id="date"></span></div>');
-    $comment.find('#text').text(comment.text);
-    $comment.find('#author').text(comment.author);
-    $comment.find('#date').text(comment.date_fmt);
+    $comment = render_comment(comment, alert);
     $comments.append($comment);
-    if (!comment.is_system) {
-      num_comments++;
-    }
   });
+  $comments.append('<input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span>');
+  $comments.find('#pleasewait').hide();
+  $comments.find('#addcomment').click(function () { add_comment(alert); });
 
   var $toggle = $div.find('#toggle');
   var toggle_text = function(expanded) {
-    var caption = (expanded ? 'hide' : 'show ' + (num_comments > 0 ? 'comments(' + num_comments + ')' : 'history'));
+    var caption = (expanded ? 'hide' : 'show ' + (alert.num_comments > 0 ? 'comments(' + alert.num_comments + ')' : 'history'));
     $toggle.text(caption);
   }
   $toggle.click(function() {
@@ -42,6 +40,32 @@ function render_alert(alert) {
   toggle_text(false);
 }
 
+function render_comment(comment, alert) {
+  $comment = $('<div><span id="text"></span> by <span id="author"></span> at <span id="date"></span></div>');
+  $comment.find('#text').text(comment.text);
+  $comment.find('#author').text(comment.author);
+  $comment.find('#date').text(comment.date_fmt);
+  if (!comment.is_system) {
+    alert.num_comments++;
+  }
+  return $comment;
+}
+
+function add_comment(alert){
+  var comment_text = $.trim(alert.div.find('#newcomment').val());
+  if (!comment_text)
+    return;
+
+  alert.div.find('#addcomment').hide();
+  alert.div.find('#pleasewait').show();
+  $.post('{% url alerts.ajax.add_comment %}', {alert_id: alert.id, text: alert.div.find('#newcomment').val()}, function(data) {
+    alert.div.find('#newcomment').before(render_comment(data, alert));
+    alert.div.find('#newcomment').val('');
+
+    alert.div.find('#addcomment').show();
+    alert.div.find('#pleasewait').hide();
+  }, 'json');
+}
 
 $(document).ready(function() {
   $(ALERTS).each(function(i, alert) {
@@ -57,6 +81,7 @@ $(document).ready(function() {
 <div class="alert error" id="alert-{{ notif.id }}">
 <div style="float: left;">
 <span id="msg"></span> <span id="detail">[<a id="url" href="#">details</a>]</span> &mdash; <span id="status"></span>
+&mdash; <a href="#">follow up</a> &middot; <a href="#">escalate</a> &middot; <a href="#">resolve</a>
 </div>
 <div style="float: right;">
 <a id="toggle" href="#"></a>
