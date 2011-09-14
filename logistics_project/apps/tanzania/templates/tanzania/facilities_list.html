@@ -4,7 +4,7 @@
 {% load logistics_report_tags %}
 {% load i18n %}
 
-{% block title %}{% trans "Current Stock Status" %}{{ block.super }}{% endblock %}
+{% block title %}{% trans "Current Stock Status" %} - {{ block.super }}{% endblock %}
 {% block javascripts %}{{ block.super }}
 {#<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/stock_init.js"></script>#}
 <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/legend_hider.js"></script>
