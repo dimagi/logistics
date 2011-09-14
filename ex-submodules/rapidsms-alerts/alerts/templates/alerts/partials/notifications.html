@@ -1,0 +1,17 @@
+<div id="alertpane" class="scrollable">
+    <ul class="alerts">
+{% for notif in notifs %}
+        <li class="alert error">{{ notif.text }}{% if notif.url %} [<a href="{{ notif.url }}">details</a>]{% endif %}
+&mdash; {{ notif.status }}
+<br>
+{% for comment in notif.comments.all %}
+{{ comment.text}} by {{ comment.user|default:"system" }} at {{ comment.date }}<br>
+{% endfor %}
+
+</li>
+{% empty %}
+        <li class="alert success">No current alerts.</li>
+{% endfor %}
+
+    </ul>
+</div>

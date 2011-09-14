@@ -1,8 +1,23 @@
 from django.conf import settings
 from rapidsms.utils.modules import try_import
+import itertools
+from models import Notification
 
+def load_alert_generator(import_name):
+    import_split = import_name.split('.')
+    module_name = '.'.join(import_split[:-1])
+    method_name = import_split[-1]
 
-def get_alert_functions():
+    module = try_import(module_name)
+    if module is None:
+        raise Exception("Alerts module %s is not defined." % (module_name))
+    
+    try:
+        return getattr(module, method_name)
+    except AttributeError:
+        raise Exception("No function %s in module %s." % (method_name, module_name))
+
+def get_alert_generators(type, *args, **kwargs):
     """
     Return a list of alert generators defined in the LOGISTICS_ALERT_GENERATORS
     setting.
@@ -12,25 +27,28 @@ def get_alert_functions():
     allowed to propagate, to avoid masking errors.
     """
 
-    alert_functions = []
-    if not hasattr(settings, "LOGISTICS_ALERT_GENERATORS"):
+    try:
+        registered_generators = getattr(settings, {
+            'alert': 'LOGISTICS_ALERT_GENERATORS',
+            'notif': 'LOGISTICS_NOTIF_GENERATORS',
+        }[type])
+    except AttributeError:
         # TODO: should this fail harder?
-        return []
+        registered_generators = []
         
-    for alert_method in settings.LOGISTICS_ALERT_GENERATORS:
-        mod = alert_method[0:alert_method.rindex(".")]
-        alerts_module = try_import(mod)
+    return [load_alert_generator(g)(*args, **kwargs) for g in registered_generators]
 
-        if alerts_module is None:
-            raise Exception("Alerts module %s is not defined." % (mod))
-                
-        func = alert_method[alert_method.rindex(".") + 1:]
-        if not hasattr(alerts_module, func):
-            raise Exception("No function %s in module %s." %
-                            (mod, func))
-    
-        alert_functions.append(getattr(alerts_module, func))
-    
-    return alert_functions
+def get_notifications():
+    return itertools.chain(*get_alert_generators('notif'))
 
-
+def trigger_notifications():
+    for notif in get_notifications():
+        try:
+            existing = Notification.objects.get(uid=notif.uid)
+            #alert already generated
+            #todo: add hook for amending or auto-dismissing alerts here (might not be the right place for auto-dismiss)?
+            print 'alert already exists', notif.uid
+        except Notification.DoesNotExist:
+            #new alert; save to db
+            notif.save()
+            print 'new alert', notif
