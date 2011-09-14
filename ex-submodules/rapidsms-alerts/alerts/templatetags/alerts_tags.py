@@ -4,6 +4,7 @@ import itertools
 from django.template.loader import render_to_string
 from alerts.models import Notification
 register = template.Library()
+import json
 
 @register.simple_tag
 def alerts(request):
@@ -15,9 +16,10 @@ def alerts(request):
     
 @register.simple_tag
 def notifications(request):
-
     notifs = Notification.objects.exclude(status='closed')
+    data = json.dumps([notif.json() for notif in notifs])
 
     return render_to_string("alerts/partials/notifications.html",
-                            {"notifs": notifs})
+                            {"notifs": notifs,
+                             "notif_data": data})
     

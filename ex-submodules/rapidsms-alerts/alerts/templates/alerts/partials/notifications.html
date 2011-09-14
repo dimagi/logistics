@@ -1,17 +1,71 @@
+<script type="text/javascript">
+
+ALERTS = {{ notif_data|safe }};
+
+function render_alert(alert) {
+  var $div = $('#alert-' + alert.id);
+  $div.find('#msg').text(alert.msg);
+  $div.find('#detail').toggle(Boolean(alert.url));
+  $div.find('#url').attr('href', alert.url);
+  var status_text = {
+    'new': function() { return 'new'; },
+    'fu': function() { return 'following up by ' + alert.owner; },
+    'esc': function() { return 'escalated to ' + alert.owner; },
+    'closed': function() { return 'closed'; },
+  }[alert.status]();
+  $div.find('#status').text(status_text);
+
+  var num_comments = 0;
+  var $comments = $div.find('#comments');
+  $(alert.comments).each(function (i, comment) {
+    $comment = $('<div><span id="text"></span> by <span id="author"></span> at <span id="date"></span></div>');
+    $comment.find('#text').text(comment.text);
+    $comment.find('#author').text(comment.author);
+    $comment.find('#date').text(comment.date_fmt);
+    $comments.append($comment);
+    if (!comment.is_system) {
+      num_comments++;
+    }
+  });
+
+  var $toggle = $div.find('#toggle');
+  var toggle_text = function(expanded) {
+    var caption = (expanded ? 'hide' : 'show ' + (num_comments > 0 ? 'comments(' + num_comments + ')' : 'history'));
+    $toggle.text(caption);
+  }
+  $toggle.click(function() {
+    var expanded = !$comments.filter(':visible').length;
+    toggle_text(expanded);
+    $comments.slideToggle();
+  });
+  $comments.hide();
+  toggle_text(false);
+}
+
+
+$(document).ready(function() {
+  $(ALERTS).each(function(i, alert) {
+    render_alert(alert);
+  });
+});
+
+</script>
+
 <div id="alertpane" class="scrollable">
-    <ul class="alerts">
+
 {% for notif in notifs %}
-        <li class="alert error">{{ notif.text }}{% if notif.url %} [<a href="{{ notif.url }}">details</a>]{% endif %}
-&mdash; {{ notif.status }}
-<br>
-{% for comment in notif.comments.all %}
-{{ comment.text}} by {{ comment.user|default:"system" }} at {{ comment.date }}<br>
-{% endfor %}
-
-</li>
-{% empty %}
-        <li class="alert success">No current alerts.</li>
-{% endfor %}
-
-    </ul>
+<div class="alert error" id="alert-{{ notif.id }}">
+<div style="float: left;">
+<span id="msg"></span> <span id="detail">[<a id="url" href="#">details</a>]</span> &mdash; <span id="status"></span>
 </div>
+<div style="float: right;">
+<a id="toggle" href="#"></a>
+</div>
+<div style="clear: both;"></div>
+<div id="comments"></div>
+</div>
+{% empty %}
+<div class="alert success">No current alerts.</div>
+{% endfor %}
+</div>
+
