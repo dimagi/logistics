@@ -11,6 +11,7 @@ from fabric import utils
 from fabric.api import *
 from fabric.contrib import files, console
 from fabric.decorators import hosts
+from subprocess import Popen
 
 """
 CONFIGURATION
@@ -21,6 +22,9 @@ PATH_SEP = "/" # necessary to deploy from windows to *nix
 env.code_cleanup = True
 env.db_cleanup = True
 env.db_name = "logistics"
+env.db_user = "root"
+env.local_db_user = "root"
+env.db_type = "mysql"
 env.remote = "origin"
 env.branch = "master"
 env.pathhack = False
@@ -134,6 +138,48 @@ def production():
     env.deploy_dir = '/home/ewsghana'
     env.code_dir = _join(env.deploy_dir, 'logistics')
     env.hosts = ['ewsghana@ewsghana.dyndns.org']
+
+def _local_sudo(command, user=None):
+    if user:
+        return Popen("sudo %s" % command, shell=True)
+    else:
+        return Popen("sudo -u %s %s" % (user, command), shell=True)
+
+def _get_db(dumpname):
+    sudo("gzip /tmp/%s" % dumpname)
+    get("/tmp/%s.gz" % dumpname, local_path="/tmp/%s.gz" % dumpname)
+    local("gunzip /tmp/%s.gz" % dumpname)
+
+
+def sync_postgres_db():
+    """ Untested as of yet. """
+    dumpname = "db_%s_%s.sql" % (env.db_name, datetime.now().isoformat())
+    sudo("pg_dump %(dbname)s > /tmp/%(dumpname)s" % {"dbname": env.db_name, "dumpname": dumpname}, user="postgres")
+    _get_db(dumpname)
+    _local_sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+    _local_sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+    _local_sudo('psql --dbname %(dbname)s < /tmp/%(dumpname)s' % {"dbname":env.db_name, "dumpname":dumpname}) 
+
+def sync_mysql_db():
+    dumpname = "db_%s_%s.sql" % (env.db_name, datetime.now().isoformat())
+    sudo("mysqldump -u %(user)s -p%(password)s %(dbname)s > /tmp/%(dumpname)s" % {"user": env.db_user, "password": env.db_password, "dbname": env.db_name, "dumpname": dumpname}, user="mysql")
+    _get_db(dumpname)
+    local('mysqladmin -u %(user)s -p%(password)s drop %(dbname)s -f' % {"user": env.local_db_user, "password": env.local_db_password, "dbname": env.db_name})
+    local('mysqladmin -u %(user)s -p%(password)s create %(dbname)s' % {"user": env.local_db_user, "password": env.local_db_password, "dbname": env.db_name})
+    local('mysql -u %(user)s -p%(password)s %(dbname)s < /tmp/%(dumpname)s' % {"dbname":env.db_name, "dumpname":dumpname, "user": env.local_db_user, "password": env.local_db_password})
+
+def sync_db():
+    """ Copies a database to your local machine. """
+    require('config', provided_by=('malawi', 'malawi_old'))
+    if not console.confirm('Are you sure you want to wipe out the local %s database?' % env.db_name,
+                               default=False):
+        utils.abort('Deployment aborted.')
+    if env.db_type == "mysql":
+        env.db_password = prompt("Password for remote %s database (user: %s): " % (env.db_name, env.db_user))
+        env.local_db_password = prompt("Password for local %s database (user: %s): " % (env.db_name, env.db_user))
+        sync_mysql_db()
+    elif env.db_type == "postgres":
+        sync_postgres_db()
 
 """
 CAN'T TOUCH THIS
