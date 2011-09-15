@@ -177,15 +177,18 @@ def deploy():
             utils.abort('Production deployment aborted.')
     with settings(warn_only=True):
         stop()
-    with cd(env.code_root):
-        sudo('git pull', user=env.sudo_user)
-        sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
-        sudo('git submodule init', user=env.sudo_user)
-        sudo('git submodule update', user=env.sudo_user)
-    #update_requirements()
-    migrate()
-    collectstatic()
-    start()
+    try:
+        with cd(env.code_root):
+            sudo('git checkout %(code_branch)s' % env, user=env.sudo_user)
+            sudo('git pull', user=env.sudo_user)
+            sudo('git submodule init', user=env.sudo_user)
+            sudo('git submodule update', user=env.sudo_user)
+        #update_requirements()
+        migrate()
+        collectstatic()
+    finally:
+        # hopefully bring the server back to life if anything goes wrong
+        start()
 
 
 def update_requirements():
