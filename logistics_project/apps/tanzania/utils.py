@@ -54,7 +54,7 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
     
     for a in f:
         q = latest_status(a, status_type, value=status_value, year=year, month=month)
-        if q and q.status_type != status_type or q.status_value != status_value:
+        if q and (q.status_type != status_type or q.status_value != status_value):
             logger.error("false positive in sps_with_latest_status: %s %s %s" % (q, status_type, status_value))
     for s in sps:
         q = latest_status(s, status_type, value=status_value, year=year, month=month)
