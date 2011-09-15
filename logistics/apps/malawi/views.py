@@ -63,7 +63,7 @@ def dashboard(request):
     if em_group:
         report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False)#(group == config.Groups.EM))
     else:
-        report = ReportingBreakdown(base_facilities, month.datespan)
+        report = ReportingBreakdown(base_facilities)
 
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
@@ -130,7 +130,7 @@ def hsa(request, code):
         {
             "hsa": hsa,
             "chart_data": chart_data,
-            "stockrequest_table": stockrequest_table 
+            "stockrequest_table": stockrequest_table
         }, context_instance=RequestContext(request)
     )
 
@@ -162,20 +162,30 @@ def facilities(request):
 def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
     assert(facility.type.code == config.SupplyPointCodes.FACILITY)
+    em = group_for_location(facility.location) == config.Groups.EM
+    mp = MonthPager(request)
     context["location"] = facility.location
     facility.location.supervisors = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
     facility.location.in_charges = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.IN_CHARGE)
-    
-    context["stockrequest_table"] = HSAStockRequestTable\
-        (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                     requested_on__gte=request.datespan.startdate, 
-                                     requested_on__lte=request.datespan.enddate)\
-                             .exclude(status=StockRequestStatus.CANCELED), request)
-    
+    if em:
+        context["stockrequest_table"] = HSAStockRequestTable\
+            (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                         requested_on__gte=mp.datespan.startdate,
+                                         requested_on__lte=mp.datespan.enddate)\
+                                 .exclude(status=StockRequestStatus.CANCELED), request)
+    else:
+        context["stockrequest_table"] = HSAStockRequestTable\
+            (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                         requested_on__gte=request.datespan.startdate,
+                                         requested_on__lte=request.datespan.enddate)\
+                                 .exclude(status=StockRequestStatus.CANCELED), request)
+    context["em"] = em
+    context["month_pager"] = mp
     
     return render_to_response("malawi/single_facility.html",
+
         context, context_instance=RequestContext(request))
     
 @permission_required("is_superuser")
