@@ -44,17 +44,17 @@ post_save.connect(create_user_profile, sender=User)
 
 class Product(models.Model):
     """ e.g. oral quinine """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, db_index=True)
     units = models.CharField(max_length=100)
-    sms_code = models.CharField(max_length=10, unique=True)
+    sms_code = models.CharField(max_length=10, unique=True, db_index=True)
     description = models.CharField(max_length=255)
     # product code is NOT currently used. The field is there so that it can
     # be synced up with whatever internal warehousing system is used at the
     # medical facilities later
-    product_code = models.CharField(max_length=100, null=True, blank=True)
+    product_code = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
-    type = models.ForeignKey('ProductType')
+    type = models.ForeignKey('ProductType', db_index=True)
     equivalents = models.ManyToManyField('self', null=True, blank=True)
     
     def __unicode__(self):
@@ -94,18 +94,18 @@ class SupplyPointBase(models.Model):
     Somewhere that maintains and distributes products. 
     e.g. health centers, hsa's, or regional warehouses.
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, db_index=True)
     active = models.BooleanField(default=True)
-    type = models.ForeignKey(SupplyPointType)
+    type = models.ForeignKey(SupplyPointType, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    code = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=100, unique=True, db_index=True)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
-    location = models.ForeignKey(Location)
+    location = models.ForeignKey(Location, db_index=True)
     # we can't rely on the locations hierarchy to indicate the supplying facility
     # since some countries have district medical stores and some don't
     # note also that the supplying facility is often not the same as the 
     # supervising facility
-    supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True)
+    supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
     groups = models.ManyToManyField('SupplyPointGroup')
 
     class Meta:
@@ -372,10 +372,10 @@ class ProductStock(models.Model):
     # is_active indicates whether we are actively trying to prevent stockouts of this product
     # in practice, this means: do we bug people to report on this commodity
     # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
-    is_active = models.BooleanField(default=True)
-    supply_point = models.ForeignKey(SupplyPoint)
+    is_active = models.BooleanField(default=True, db_index=True)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
     quantity = models.IntegerField(blank=True, null=True)
-    product = models.ForeignKey(Product)
+    product = models.ForeignKey(Product, db_index=True)
     days_stocked_out = models.IntegerField(default=0)
     last_modified = models.DateTimeField(default=datetime.utcnow)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
@@ -637,9 +637,9 @@ class StockRequest(models.Model):
     immediately. This object keeps track of those requests. It's sort
     of like a special type of ProductReport with a status flag.
     """
-    product = models.ForeignKey(Product)
-    supply_point = models.ForeignKey(SupplyPoint)
-    status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES)
+    product = models.ForeignKey(Product, db_index=True)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
+    status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES, db_index=True)
     # this second field is added for auditing purposes
     # the status can change, but once set - this one will not
     response_status = models.CharField(blank=True, max_length=20, choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
@@ -801,11 +801,11 @@ class ProductReport(models.Model):
      in a unique report in the database. You can consider these as
      observations or data points.
     """
-    product = models.ForeignKey(Product)
-    supply_point = models.ForeignKey(SupplyPoint)
-    report_type = models.ForeignKey(ProductReportType)
+    product = models.ForeignKey(Product, db_index=True)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
+    report_type = models.ForeignKey(ProductReportType, db_index=True)
     quantity = models.IntegerField()
-    report_date = models.DateTimeField(default=datetime.utcnow)
+    report_date = models.DateTimeField(default=datetime.utcnow, db_index=True)
     # message should only be null if the stock report was provided over the web
     message = models.ForeignKey(message_class, blank=True, null=True)
 
@@ -841,8 +841,8 @@ class StockTransaction(models.Model):
      model is that some ProductReports may be duplicates, invalid, or false reports
      from the field, so how we decide to map reports to transactions may vary 
     """
-    product = models.ForeignKey(Product)
-    supply_point = models.ForeignKey(SupplyPoint)
+    product = models.ForeignKey(Product, db_index=True)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
     quantity = models.IntegerField()
     # we need some sort of 'balance' field, so that we can get a snapshot
     # of balances over time. we add both beginning and ending balance since
