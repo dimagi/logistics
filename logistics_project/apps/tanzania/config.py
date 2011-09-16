@@ -176,8 +176,8 @@ class Messages(object):
     DELIVERY_REMINDER_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     DELIVERY_CONFIRM_DISTRICT = "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
     DELIVERY_LATE_DISTRICT = "Facility deliveries for group %(group_name)s (out of %(group_total)d): %(not_responded_count)d haven't responded and %(not_received_count)d have reported not receiving. See ilsgateway.com"
-    #TODO This doesn't look right
-    DELIVERY_CONFIRM_CHILDREN = "Sending alert to all facilities under %(district_name)s that they received delivery from from MSD"
+    DELIVERY_CONFIRM_CHILDREN = "District %(district_name)s has reported that they sent their R&R forms to MSD."
+
 
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
@@ -222,11 +222,6 @@ class Messages(object):
     TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
     TEST_HANDLER_CONFIRM = "Sent"
 
-    # response to 'help'
-    HELP_TEXT = "Haujasajiliwa,Tafadhali jisajili kwanza kabla ya kupata huduma," + \
-                "Kusajili andika 'sajili<nafasi><jina lako><nafasi><msd code>'. " + \
-                "Mfano 'sajili Peter Juma d34002'"
-                
     REGISTRATION_REQUIRED_MESSAGE = HELP_UNREGISTERED
 
 class Alerts(object):
