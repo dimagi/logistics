@@ -25,7 +25,7 @@ class TestLanguage(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testLanguageUnknown(self):
-        translation.activate("en")
+        translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")
         script = """
             778 > language de

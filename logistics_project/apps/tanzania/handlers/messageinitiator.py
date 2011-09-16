@@ -8,9 +8,9 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
 from datetime import datetime
 from logistics_project.apps.tanzania.reminders import reports
 
-def _send_if_connection(c, message):
+def _send_if_connection(c, message, **kwargs):
     if c.default_connection is not None:
-        c.message(message)
+        c.message(message, **kwargs)
         
 class MessageInitiator(KeywordHandler):
     """
@@ -139,17 +139,17 @@ class MessageInitiator(KeywordHandler):
         if command in ["randr_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                _send_if_connection(c, reports.construct_randr_summary_message(sp_target))
+                _send_if_connection(c, config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY, **reports.construct_randr_summary(sp_target))
             self.respond_success()
         if command in ["soh_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                _send_if_connection(c, reports.construct_soh_summary_message(sp_target))
+                _send_if_connection(c, config.Messages.REMINDER_MONTHLY_SOH_SUMMARY, **reports.construct_soh_summary(sp_target))
             self.respond_success()
         if command in ["delivery_report"]:
             assert(sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT)
             for c in sp_target.active_contact_set:
-                _send_if_connection(c, reports.construct_delivery_summary_message(sp_target))
+                _send_if_connection(c, config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY, **reports.construct_delivery_summary(sp_target))
             self.respond_success()
         if command in ["soh_thank_you"]:
             # test at the facility level for now
