@@ -21,7 +21,7 @@ class Notification(models.Model):
     owner = models.ForeignKey(User, null=True, blank=True)
     status = models.CharField(max_length=10, choices=NOTIF_STATUS, default='new')
 
-    def json(self):
+    def json(self, user=None):
         return {
             'id': self.id,
             'msg': self.text,
@@ -29,7 +29,17 @@ class Notification(models.Model):
             'owner': user_name(self.owner),
             'status': self.status,
             'comments': [cmt.json() for cmt in self.comments.all()],
+            'actions': self.actions(user),
         }
+
+    def actions(self, user):
+        """return the actions this user may currently take on this alert"""
+        if self.status == 'closed':
+            return []
+        elif user == self.owner and self.status == 'fu':
+            return ['resolve']
+        else:
+            return ['fu', 'resolve']
 
     def __unicode__(self):
         return unicode(self.__dict__)

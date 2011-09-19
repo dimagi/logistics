@@ -8,13 +8,8 @@ function render_alert(alert) {
   $div.find('#msg').text(alert.msg);
   $div.find('#detail').toggle(Boolean(alert.url));
   $div.find('#url').attr('href', alert.url);
-  var status_text = {
-    'new': function() { return 'new'; },
-    'fu': function() { return 'following up by ' + alert.owner; },
-    'esc': function() { return 'escalated to ' + alert.owner; },
-    'closed': function() { return 'closed'; },
-  }[alert.status]();
-  $div.find('#status').text(status_text);
+
+  render_status(alert);
 
   alert.num_comments = 0;
   var $comments = $div.find('#comments');
@@ -38,6 +33,49 @@ function render_alert(alert) {
   });
   $comments.hide();
   toggle_text(false);
+}
+
+function render_status(alert) {
+  var status_text = {
+    'new': function() { return 'new'; },
+    'fu': function() { return alert.owner + ' is following up'; },
+    'esc': function() { return 'escalated to ' + alert.owner; },
+    'closed': function() { return 'closed'; },
+  }[alert.status]();
+  alert.div.find('#status').text(status_text);
+
+  var $actions = alert.div.find('#actions');
+  $actions.empty();
+  $(alert.actions).each(function(i, action) {
+    var action_caption = {
+      'fu': 'follow up',
+      'resolve': 'resolve',
+      'esc': 'escalate',
+    }[action];
+    var $action = $('<a href="#">' + action_caption + '</a>');
+    $action.click(function() { take_action(alert, action); });
+    $actions.append($action);
+    if (i < alert.actions.length - 1) {
+      $actions.append(' &middot; ');
+    }
+  });
+}
+
+function take_action(alert, action) {
+  $.post('{% url alerts.ajax.alert_action %}', {alert_id: alert.id, action: action}, function(data) {
+    var mod_alert = clone_alert(alert, data);
+    if (mod_alert.status != 'closed') {
+      render_status(mod_alert);
+    } else {
+      mod_alert.div.slideUp();
+    }
+  }, 'json');
+}
+
+function clone_alert(alert1, alert2) {
+  alert2.div = alert1.div;
+  alert2.num_comments = alert1.num_comments;
+  return alert2;
 }
 
 function render_comment(comment, alert) {
@@ -80,8 +118,7 @@ $(document).ready(function() {
 {% for notif in notifs %}
 <div class="alert error" id="alert-{{ notif.id }}">
 <div style="float: left;">
-<span id="msg"></span> <span id="detail">[<a id="url" href="#">details</a>]</span> &mdash; <span id="status"></span>
-&mdash; <a href="#">follow up</a> &middot; <a href="#">escalate</a> &middot; <a href="#">resolve</a>
+<span id="msg"></span> <span id="detail">[<a id="url" href="#">details</a>]</span> &mdash; <span id="status"></span> &mdash; <span id="actions"></span>
 </div>
 <div style="float: right;">
 <a id="toggle" href="#"></a>
