@@ -41,7 +41,7 @@ function render_alert(alert) {
 }
 
 function render_comment(comment, alert) {
-  $comment = $('<div><span id="text"></span> by <span id="author"></span> at <span id="date"></span></div>');
+  $comment = $('<div><span id="text"></span> <span style="color: #d77;">by</span> <span id="author"></span> <span style="color: #d77;">at</span> <span id="date"></span></div>');
   $comment.find('#text').text(comment.text);
   $comment.find('#author').text(comment.author);
   $comment.find('#date').text(comment.date_fmt);
