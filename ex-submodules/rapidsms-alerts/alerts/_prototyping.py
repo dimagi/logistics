@@ -14,15 +14,6 @@ def notiftest1():
         notif.uid = 'notif-%d' % i
         notif.text = 'This is alert %d' % i
         notif.url = 'http://google.com'
-
-        #comments testing
-        notif.save()
-        for j in range(2):
-            comment = NotificationComment()
-            comment.notification = notif
-            comment.text = 'test comment %d' % j
-            comment.save()
-
         yield notif
 
 def notiftest2():

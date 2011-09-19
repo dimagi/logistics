@@ -1,7 +1,7 @@
 from django.conf import settings
 from rapidsms.utils.modules import try_import
 import itertools
-from models import Notification
+from models import Notification, NotificationComment
 
 def load_alert_generator(import_name):
     import_split = import_name.split('.')
@@ -52,3 +52,6 @@ def trigger_notifications():
             #new alert; save to db
             notif.save()
             print 'new alert', notif
+            #'created' comment
+            comment = NotificationComment(notification=notif, user=None, text='notification created')
+            comment.save()
