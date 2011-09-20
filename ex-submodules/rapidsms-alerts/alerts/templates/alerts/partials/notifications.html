@@ -1,13 +1,24 @@
 <script type="text/javascript">
 
-ALERTS = {{ notif_data|safe }};
+function Alert (div, raw_data) {
+  this.$div = div;
+  for (var k in raw_data) {
+    this[k] = raw_data[k];
+  }
+
+  this._ = function(id) {
+    return this.$div.find('#' + id);
+  }
+
+  this.init_render = function() {
+    this._('msg').text(this.msg);
+    this._('detail').toggle(Boolean(this.url));
+    this._('url').attr('href', this.url);
+
+  }
+}
 
 function render_alert(alert) {
-  var $div = $('#alert-' + alert.id);
-  alert.div = $div;
-  $div.find('#msg').text(alert.msg);
-  $div.find('#detail').toggle(Boolean(alert.url));
-  $div.find('#url').attr('href', alert.url);
 
   render_status(alert);
 
@@ -21,18 +32,29 @@ function render_alert(alert) {
   $comments.find('#pleasewait').hide();
   $comments.find('#addcomment').click(function () { add_comment(alert); });
 
+  $div.find('#pendingaction').toggle(false);
+
   var $toggle = $div.find('#toggle');
   var toggle_text = function(expanded) {
     var caption = (expanded ? 'hide' : 'show ' + (alert.num_comments > 0 ? 'comments(' + alert.num_comments + ')' : 'history'));
     $toggle.text(caption);
   }
-  $toggle.click(function() {
-    var expanded = !$comments.filter(':visible').length;
-    toggle_text(expanded);
-    $comments.slideToggle();
-  });
+  $toggle.click(function() { toggle_alert_detail(alert); });
   $comments.hide();
   toggle_text(false);
+}
+
+function toggle_alert_detail(alert, show) {
+  $detail = alert.div.find('#alertdetail');
+  if (show == null) {
+    var show = !$detail.filter(':visible').length;
+  }
+  //toggle_text(show);
+  if (show) {
+    $detail.slideDown();
+  } else {
+    $detail.slideUp();
+  }
 }
 
 function render_status(alert) {
@@ -53,12 +75,17 @@ function render_status(alert) {
       'esc': 'escalate',
     }[action];
     var $action = $('<a href="#">' + action_caption + '</a>');
-    $action.click(function() { take_action(alert, action); });
+    $action.click(function() { pending_action(alert, action); });
     $actions.append($action);
     if (i < alert.actions.length - 1) {
       $actions.append(' &middot; ');
     }
   });
+}
+
+function pending_action(alert, action) {
+  var $pend = alert.div.find('#pendingaction');
+  $pend.slideToggle(true);
 }
 
 function take_action(alert, action) {
@@ -80,6 +107,9 @@ function clone_alert(alert1, alert2) {
 
 function render_comment(comment, alert) {
   $comment = $('<div><span id="text"></span> <span style="color: #d77;">by</span> <span id="author"></span> <span style="color: #d77;">at</span> <span id="date"></span></div>');
+  if (comment.is_system) {
+    $comment.css('background-color', '#ccf');
+  }
   $comment.find('#text').text(comment.text);
   $comment.find('#author').text(comment.author);
   $comment.find('#date').text(comment.date_fmt);
@@ -105,9 +135,14 @@ function add_comment(alert){
   }, 'json');
 }
 
+ALERTS_RAW = {{ notif_data|safe }};
+ALERTS = [];
+
 $(document).ready(function() {
-  $(ALERTS).each(function(i, alert) {
-    render_alert(alert);
+  $(ALERTS_RAW).each(function(i, raw_alert) {
+    var alert = new Alert($('#alert-' + raw_alert.id, raw_alert));
+    ALERTS.push(alert);
+    alert.init_render();
   });
 });
 
@@ -124,7 +159,16 @@ $(document).ready(function() {
 <a id="toggle" href="#"></a>
 </div>
 <div style="clear: both;"></div>
-<div id="comments"></div>
+
+<div id="alertdetail">
+<div id="pendingaction" style="padding: 10px;">
+add a comment about <span id="commentsnippet"></span>?<br>
+<input id="actioncomment" style="width: 30em;"> (optional)<br>
+<button id="doaction"></button> <a id="cancelaction" href="#" style="margin-left: 1em;">cancel</a>
+</div>
+
+<div id="comments" style="padding: 10px;"></div>
+</div>
 </div>
 {% empty %}
 <div class="alert success">No current alerts.</div>
