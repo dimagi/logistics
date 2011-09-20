@@ -15,7 +15,7 @@ def gdata_required(f):
             scope='https://docs.google.com/feeds/%20https://docs.googleusercontent.com/'
             
             urlbase = Site.objects.get_current().domain
-            next_url='%s%s' %  (urlbase, request.get_full_path())
+            next_url='http://%s%s' %  (urlbase, request.get_full_path())
             session_val='1'
             target_url="%s?next=%s&scope=%s&session=%s" % (base_url, next_url, scope, session_val)
             return HttpResponseRedirect(target_url)
