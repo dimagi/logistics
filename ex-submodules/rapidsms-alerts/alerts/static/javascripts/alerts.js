@@ -12,6 +12,7 @@ function Alert (div, raw_data) {
     this._('url').attr('href', this.url);
     
     this.populate_comments();
+    this.render_status();
 
     this.detail_expanded = false;
     this.showhide_detail(true);
@@ -20,17 +21,20 @@ function Alert (div, raw_data) {
         alert.detail_expanded = !alert.detail_expanded;
         alert.showhide_detail();
       });
+
+    this._('pendingaction').hide();
   }
 
   this.populate_comments = function() {
     this.num_comments = 0;
     var $comments = this._('comments');
+    $comments.empty();
     var alert = this;
     $(this.comments).each(function (i, comment) {
         var $comment = alert.render_comment(comment);
         $comments.append($comment);
       });
-    $comments.append('<input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span>');
+    $comments.append('<div id="_newcomment"><input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span></div>');
     this._('pleasewait').hide();
     var alert = this;
     this._('addcomment').click(function () { alert.add_comment(); });
@@ -68,25 +72,87 @@ function Alert (div, raw_data) {
   }
   
   this.showhide_detail = function(force) {
-    var $detail = this._('alertdetail');
-    var $toggle = this._('toggle');
-
-    var toggle_text = function(expanded) {
-      var caption = (expanded ? 'hide' : 'show ' + (this.num_comments > 0 ? 'comments(' + this.num_comments + ')' : 'history'));
-      $toggle.text(caption);
-    }
-
-    toggle_text(this.detail_expanded);
+    this.set_toggle_text(this.detail_expanded);
     var transition = (this.detail_expanded ?
                       (force ? 'show' : 'slideDown') :
                       (force ? 'hide' : 'slideUp'));
-    $detail[transition]();
+    this._('alertdetail')[transition]();
+  }
+
+  this.set_toggle_text = function(expanded) {
+    var caption = (expanded ? 'hide' : 'show ' + (this.num_comments > 0 ? 'comments(' + this.num_comments + ')' : 'history'));
+    this._('toggle').text(caption);
+  }
+
+  this.render_status = function() {
+    var status_text = {
+      'new': function(a) { return 'new'; },
+      'fu': function(a) { return a.owner + ' is following up'; },
+      'esc': function(a) { return 'escalated to ' + a.owner; },
+      'closed': function(a) { return 'closed'; },
+    }[this.status](this);
+    this._('status').text(status_text);
+
+    var $actions = this._('actions');
+    $actions.empty();
+    var alert = this;
+    $(this.actions).each(function(i, action) {
+        var $action = $('<a id="action-' + action + '" href="#">' + alert.action_caption(action) + '</a>');
+        $action.click(function() { alert.pending_action(action); });
+        $actions.append($action);
+        if (i < alert.actions.length - 1) {
+          $actions.append(' &middot; ');
+        }
+      });
+  }
+
+  this.pending_action = function(action) {
+    if (action == 'fu') {
+      this.commit_action(action);
+    } else {
+      this.enter_pending_mode(action);
+    }
+  }
+
+  this.commit_action = function(action) {
+    var alert = this;
+    $.post(URLS.takeaction, {alert_id: this.id, action: action}, function(data) {
+        alert.update(data);
+        if (alert.status != 'closed') {
+          alert.render_status();
+          alert.populate_comments();
+        } else {
+          //dismiss alert
+          alert.$div.slideUp();
+        }
+      }, 'json');
+  }
+
+  this.enter_pending_mode = function(action) {
+    this._('action-' + action).css('font-weight', 'bold');
+
+    this._('doaction').text(this.action_caption(action));
+    this._('commentsnippet').text({
+        'resolve': 'how this alert was resolved',
+        'esc': 'why this alert is being escalated',
+      }[action]);
+
+    if (this.detail_expanded) {
+      this._('pendingaction').slideDown();
+      this._('_newcomment').slideUp();
+    } else {
+      this._('pendingaction').show();
+      this._('_newcomment').hide();
+      this.detail_expanded = true;
+      this.showhide_detail();
+    }
+
   }
 
   //only updates values naively; UI and calculated values (i.e., # comments) must be updated/maintained separately
   this.update = function(raw) {
     for (var k in raw) {
-      this[k] = raw_data[k];
+      this[k] = raw[k];
     }
   }
 
@@ -94,50 +160,19 @@ function Alert (div, raw_data) {
     return (root == null ? this.$div : root).find('#' + id);
   }
 
-  this.init();
-}
-
-function render_alert(alert) {
-
-  render_status(alert);
-
-
-  $div.find('#pendingaction').toggle(false);
-
-}
-
-
-
-function render_status(alert) {
-  var status_text = {
-    'new': function() { return 'new'; },
-    'fu': function() { return alert.owner + ' is following up'; },
-    'esc': function() { return 'escalated to ' + alert.owner; },
-    'closed': function() { return 'closed'; },
-  }[alert.status]();
-  this._('status').text(status_text);
-
-  var $actions = this._('actions');
-  $actions.empty();
-  $(alert.actions).each(function(i, action) {
-    var action_caption = {
+  this.action_caption = function(action) {
+    return {
       'fu': 'follow up',
       'resolve': 'resolve',
       'esc': 'escalate',
     }[action];
-    var $action = $('<a href="#">' + action_caption + '</a>');
-    $action.click(function() { pending_action(alert, action); });
-    $actions.append($action);
-    if (i < alert.actions.length - 1) {
-      $actions.append(' &middot; ');
-    }
-  });
+  };
+
+  this.init();
 }
 
-function pending_action(alert, action) {
-  var $pend = this._('pendingaction');
-  $pend.slideToggle(true);
-}
+
+
 
 function take_action(alert, action) {
   $.post('{% url alerts.ajax.alert_action %}', {alert_id: alert.id, action: action}, function(data) {

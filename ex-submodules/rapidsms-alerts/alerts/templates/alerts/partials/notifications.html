@@ -3,6 +3,7 @@
 
 URLS = {
   addcomment: '{% url alerts.ajax.add_comment %}',
+  takeaction: '{% url alerts.ajax.alert_action %}',
 }
 
 ALERTS_RAW = {{ notif_data|safe }};
@@ -32,7 +33,7 @@ $(document).ready(function() {
 <div id="pendingaction" style="padding: 10px;">
 add a comment about <span id="commentsnippet"></span>?<br>
 <input id="actioncomment" style="width: 30em;"> (optional)<br>
-<button id="doaction"></button> <a id="cancelaction" href="#" style="margin-left: 1em;">cancel</a>
+<button id="doaction" style="font-weight: bold;"></button> <a id="cancelaction" href="#" style="margin-left: 1em;">cancel</a>
 </div>
 
 <div id="comments" style="padding: 10px;"></div>

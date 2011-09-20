@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from models import Notification, NotificationComment
+from models import Notification, NotificationComment, user_name
 import json
 from django.core.exceptions import SuspiciousOperation
 
@@ -32,5 +32,12 @@ def alert_action(request):
     alert.owner = user
     alert.status = {'fu': 'fu', 'resolve': 'closed'}[action]
     alert.save()
+
+    comment = NotificationComment(
+        notification=alert,
+        user=None,
+        text='%s took action [%s]' % (user_name(user), action)
+    )
+    comment.save()
 
     return HttpResponse(json.dumps(alert.json(user)), 'text/json')

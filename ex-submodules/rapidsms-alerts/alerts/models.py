@@ -39,7 +39,7 @@ class Notification(models.Model):
         elif user == self.owner and self.status == 'fu':
             return ['resolve']
         else:
-            return ['fu', 'resolve']
+            return ['fu', 'esc', 'resolve']
 
     def __unicode__(self):
         return unicode(self.__dict__)
