@@ -1,5 +1,6 @@
 from django import template
 from alerts.utils import get_alert_generators
+from django.template import RequestContext
 import itertools
 from django.template.loader import render_to_string
 from alerts.models import Notification
@@ -21,5 +22,5 @@ def notifications(request):
 
     return render_to_string("alerts/partials/notifications.html",
                             {"notifs": notifs,
-                             "notif_data": data})
+                             "notif_data": data}, context_instance=RequestContext(request))
     
