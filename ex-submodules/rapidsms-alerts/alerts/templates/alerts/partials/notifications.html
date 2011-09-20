@@ -1,13 +1,15 @@
 <script language="javascript" type="text/javascript" src="{{MEDIA_URL}}alerts/javascripts/alerts.js"></script>
 <script language="javascript" type="text/javascript">
 
+URLS = {
+  addcomment: '{% url alerts.ajax.add_comment %}',
+}
+
 ALERTS_RAW = {{ notif_data|safe }};
-ALERTS = [];
 
 $(document).ready(function() {
   $(ALERTS_RAW).each(function(i, raw_alert) {
-    var alert = new Alert($('#alert-' + raw_alert.id, raw_alert));
-    ALERTS.push(alert);
+    var alert = new Alert($('#alert-' + raw_alert.id), raw_alert);
     alert.init_render();
   });
 });

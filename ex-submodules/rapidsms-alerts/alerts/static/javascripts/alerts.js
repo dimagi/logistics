@@ -1,61 +1,112 @@
 
 
 function Alert (div, raw_data) {
-  this.$div = div;
-  for (var k in raw_data) {
-    this[k] = raw_data[k];
-  }
-
-  this._ = function(id) {
-    return this.$div.find('#' + id);
+  this.init = function() {
+    this.$div = div;
+    this.update(raw_data);
   }
 
   this.init_render = function() {
     this._('msg').text(this.msg);
     this._('detail').toggle(Boolean(this.url));
     this._('url').attr('href', this.url);
+    
+    this.populate_comments();
 
+    this.detail_expanded = false;
+    this.showhide_detail(true);
+    var alert = this;
+    this._('toggle').click(function() {
+        alert.detail_expanded = !alert.detail_expanded;
+        alert.showhide_detail();
+      });
   }
+
+  this.populate_comments = function() {
+    this.num_comments = 0;
+    var $comments = this._('comments');
+    var alert = this;
+    $(this.comments).each(function (i, comment) {
+        var $comment = alert.render_comment(comment);
+        $comments.append($comment);
+      });
+    $comments.append('<input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span>');
+    this._('pleasewait').hide();
+    var alert = this;
+    this._('addcomment').click(function () { alert.add_comment(); });
+  }
+
+  this.render_comment = function(comment) {
+    var $comment = $('<div><span id="text"></span> <span style="color: #d77;">by</span> <span id="author"></span> <span style="color: #d77;">at</span> <span id="date"></span></div>');
+    if (comment.is_system) {
+      $comment.css('background-color', '#ccf');
+    }
+    this._('text', $comment).text(comment.text);
+    this._('author', $comment).text(comment.author);
+    this._('date', $comment).text(comment.date_fmt);
+    if (!comment.is_system) {
+      this.num_comments++;
+    }
+    return $comment;
+  }
+
+  this.add_comment = function() {
+    var comment_text = $.trim(this._('newcomment').val());
+    if (!comment_text)
+      return;
+
+    this._('addcomment').hide();
+    this._('pleasewait').show();
+    var alert = this;
+    $.post(URLS.addcomment, {alert_id: this.id, text: this._('newcomment').val()}, function(data) {
+        alert._('newcomment').before(alert.render_comment(data));
+        alert._('newcomment').val('');
+
+        alert._('addcomment').show();
+        alert._('pleasewait').hide();
+      }, 'json');
+  }
+  
+  this.showhide_detail = function(force) {
+    var $detail = this._('alertdetail');
+    var $toggle = this._('toggle');
+
+    var toggle_text = function(expanded) {
+      var caption = (expanded ? 'hide' : 'show ' + (this.num_comments > 0 ? 'comments(' + this.num_comments + ')' : 'history'));
+      $toggle.text(caption);
+    }
+
+    toggle_text(this.detail_expanded);
+    var transition = (this.detail_expanded ?
+                      (force ? 'show' : 'slideDown') :
+                      (force ? 'hide' : 'slideUp'));
+    $detail[transition]();
+  }
+
+  //only updates values naively; UI and calculated values (i.e., # comments) must be updated/maintained separately
+  this.update = function(raw) {
+    for (var k in raw) {
+      this[k] = raw_data[k];
+    }
+  }
+
+  this._ = function(id, root) {
+    return (root == null ? this.$div : root).find('#' + id);
+  }
+
+  this.init();
 }
 
 function render_alert(alert) {
 
   render_status(alert);
 
-  alert.num_comments = 0;
-  var $comments = $div.find('#comments');
-  $(alert.comments).each(function (i, comment) {
-    $comment = render_comment(comment, alert);
-    $comments.append($comment);
-  });
-  $comments.append('<input id="newcomment" style="width: 30em;"> <a id="addcomment" href="#">add comment</a><span id="pleasewait">please wait&hellip;</span>');
-  $comments.find('#pleasewait').hide();
-  $comments.find('#addcomment').click(function () { add_comment(alert); });
 
   $div.find('#pendingaction').toggle(false);
 
-  var $toggle = $div.find('#toggle');
-  var toggle_text = function(expanded) {
-    var caption = (expanded ? 'hide' : 'show ' + (alert.num_comments > 0 ? 'comments(' + alert.num_comments + ')' : 'history'));
-    $toggle.text(caption);
-  }
-  $toggle.click(function() { toggle_alert_detail(alert); });
-  $comments.hide();
-  toggle_text(false);
 }
 
-function toggle_alert_detail(alert, show) {
-  $detail = alert.div.find('#alertdetail');
-  if (show == null) {
-    var show = !$detail.filter(':visible').length;
-  }
-  //toggle_text(show);
-  if (show) {
-    $detail.slideDown();
-  } else {
-    $detail.slideUp();
-  }
-}
+
 
 function render_status(alert) {
   var status_text = {
@@ -64,9 +115,9 @@ function render_status(alert) {
     'esc': function() { return 'escalated to ' + alert.owner; },
     'closed': function() { return 'closed'; },
   }[alert.status]();
-  alert.div.find('#status').text(status_text);
+  this._('status').text(status_text);
 
-  var $actions = alert.div.find('#actions');
+  var $actions = this._('actions');
   $actions.empty();
   $(alert.actions).each(function(i, action) {
     var action_caption = {
@@ -84,7 +135,7 @@ function render_status(alert) {
 }
 
 function pending_action(alert, action) {
-  var $pend = alert.div.find('#pendingaction');
+  var $pend = this._('pendingaction');
   $pend.slideToggle(true);
 }
 
@@ -99,38 +150,3 @@ function take_action(alert, action) {
   }, 'json');
 }
 
-function clone_alert(alert1, alert2) {
-  alert2.div = alert1.div;
-  alert2.num_comments = alert1.num_comments;
-  return alert2;
-}
-
-function render_comment(comment, alert) {
-  $comment = $('<div><span id="text"></span> <span style="color: #d77;">by</span> <span id="author"></span> <span style="color: #d77;">at</span> <span id="date"></span></div>');
-  if (comment.is_system) {
-    $comment.css('background-color', '#ccf');
-  }
-  $comment.find('#text').text(comment.text);
-  $comment.find('#author').text(comment.author);
-  $comment.find('#date').text(comment.date_fmt);
-  if (!comment.is_system) {
-    alert.num_comments++;
-  }
-  return $comment;
-}
-
-function add_comment(alert){
-  var comment_text = $.trim(alert.div.find('#newcomment').val());
-  if (!comment_text)
-    return;
-
-  alert.div.find('#addcomment').hide();
-  alert.div.find('#pleasewait').show();
-  $.post('{% url alerts.ajax.add_comment %}', {alert_id: alert.id, text: alert.div.find('#newcomment').val()}, function(data) {
-    alert.div.find('#newcomment').before(render_comment(data, alert));
-    alert.div.find('#newcomment').val('');
-
-    alert.div.find('#addcomment').show();
-    alert.div.find('#pleasewait').hide();
-  }, 'json');
-}
