@@ -73,6 +73,8 @@ function Alert (div, raw_data) {
       }, 'json');
   }
   
+  //force: true = don't animate
+  //callback: call when animation is finished
   this.showhide_detail = function(force, callback) {
     this.set_toggle_text(this.detail_expanded);
     var transition = (this.detail_expanded ? 'slideDown' : 'slideUp');
@@ -111,6 +113,7 @@ function Alert (div, raw_data) {
       return;
 
     if (action == 'fu') {
+      //action does have 'pending' stage -- commit immediately
       this.exit_pending_mode();
       this.commit_action(action);
     } else {
@@ -121,6 +124,7 @@ function Alert (div, raw_data) {
   this.commit_action = function(action) {
     var action_comment = (this.pending_action_mode ? $.trim(this._('actioncomment').val()) : '');
 
+    //prevent concurrent action-change ajax requests; or else might end up violating data integrity rules on the server
     this.action_commit_in_progress = true;
     this._('doaction').attr('disabled', 'disabled')
 
@@ -132,6 +136,7 @@ function Alert (div, raw_data) {
           alert.populate_comments();
           alert.exit_pending_mode();
 
+          //only safe to reset this AFTER new 'action' links have been rendered
           alert.action_commit_in_progress = false;
           alert._('doaction').attr('disabled', '')
         } else {
