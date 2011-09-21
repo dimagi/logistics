@@ -6,6 +6,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, Suppl
     DeliveryGroups, OnTimeStates
 from logistics_project.apps.tanzania.templatetags.tz_tags import last_report_span, last_report_cell
 from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate, soh_reported_on_time
+from logistics.models import SupplyPoint
 from utils import latest_status
 from rapidsms.models import Contact
 from django.template import defaultfilters
@@ -41,7 +42,7 @@ def _default_contact(supply_point):
     return None
 
 def _dg(supply_point):
-    return supply_point.groups.all()[0].code if supply_point.groups.exists() else None
+    return supply_point.groups.all()[0].code if supply_point.groups.exists() else "?"
 
 def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
@@ -53,7 +54,7 @@ class OrderingStatusTable(MonthTable):
     """
     code = Column()
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
@@ -61,18 +62,18 @@ class OrderingStatusTable(MonthTable):
 
     class Meta:
         per_page = 9999
-        order_by = ["Delivery Group", "Facility Name"]
-    
+        order_by = ["D G", "Facility Name"]
+
 class RandRSubmittedColumn(DateColumn):
     # copied and modified from djtables DateColumn
-    
+
     def render(self, cell):
         val = self.value(cell)
         if val:
             return super(RandRSubmittedColumn, self).render(cell)
         else:
             return _("Not reported")
-    
+
 def _randr_value(cell):
     return _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
 
@@ -96,7 +97,16 @@ def _hrr_soh(sp):
     return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
 
 def _dg_class(cell):
-    return "delivery_group group_"+_dg(cell.object)
+    if _dg(cell.object):
+        return "width_10 delivery_group group_"+_dg(cell.object)
+    else:
+        return "width_10"
+
+def _msd_class(cell):
+    return "msd_code"
+
+def _fac_name_class(cell):
+    return "fac_name"
 
 def _stock_class(cell):
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
@@ -115,7 +125,7 @@ def _stock_class(cell):
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
-    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
 
     submitted = RandRSubmittedColumn(name="R&R Submitted This Quarter",
                                      value=_randr_value,
@@ -131,19 +141,19 @@ class RandRReportingHistoryTable(MonthTable):
 
     class Meta:
         per_page = 9999
-        order_by = ["Delivery Group", "Facility Name"]
+        order_by = ["D G", "Facility Name"]
 
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
-    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
 
     class Meta:
         per_page = 9999
-        order_by = ["Delivery Group", "Facility Name"]
+        order_by = ["D G", "Facility Name"]
 
 
 class ProductStockColumn(Column):
@@ -185,21 +195,22 @@ class ProductMonthsOfStockColumn(Column):
 def _ontime_class(cell):
     state = soh_reported_on_time(cell.object, cell.row.table.year, cell.row.table.month)
     if state == OnTimeStates.LATE:
-        return "warning_icon iconified"
+        return "last_reported warning_icon iconified"
     elif state == OnTimeStates.ON_TIME:
-        return "good_icon iconified"
-
+        return "last_reported good_icon iconified"
+    else:
+        return "last_reported"
 
 class StockOnHandTable(MonthTable):
-    code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
-    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
-    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
+    code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False, css_class=_msd_class)
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link, css_class=_fac_name_class)
+    delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
     last_reported = Column(safe=True, css_class=_ontime_class, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month, format=False))
-    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_soh(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY))
+    response_rate = Column(name="Hist. Resp. Rate", safe=True, value=lambda cell: _hrr_soh(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY))
 
     class Meta:
         per_page = 9999
-        order_by = ["Delivery Group", "Facility Name"]
+        order_by = ["D G", "Facility Name"]
 
 def _contact_or_none(cell, attr):
     try:

@@ -5,7 +5,7 @@
 {% load cache %}
 
 
-{% cache 3600 location month_pager.month month_pager.year show %}
+{#{% cache 3600 location month_pager.month month_pager.year show %}#}
 {% for t in tables %}
     <div class="module">
 	    <h2>{% trans 'Current Stock Status' %} {% ifequal show "months" %}(months){% else %}(inventory){% endifequal %} {% if not forloop.first %} (continued){% endif %}</h2>
@@ -52,4 +52,4 @@
 
     </div>
 {% endfor %}
-{% endcache %}
+{#{% endcache %}#}

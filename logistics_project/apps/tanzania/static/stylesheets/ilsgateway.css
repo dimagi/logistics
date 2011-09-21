@@ -286,3 +286,23 @@ div.highlightedMessage {
 .group_C {
     color: red;
 }
+
+.width_10 {
+    min-width: 15px;
+    max-width: 15px;
+}
+
+.fac_name {
+    min-width: 80px;
+    max-width: 80px;
+}
+
+.msd_code {
+    min-width: 60px;
+    max-width: 60px;
+}
+
+.last_reported {
+    min-width: 110px;
+    max-width: 110px;
+}

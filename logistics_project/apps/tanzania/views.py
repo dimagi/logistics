@@ -26,7 +26,7 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 
-PRODUCTS_PER_TABLE = 12
+PRODUCTS_PER_TABLE = 11
 
 def tz_location_url(location):
     try:
@@ -155,7 +155,7 @@ def _generate_soh_tables(request, facs, mp):
     iter = list(chunks(products, PRODUCTS_PER_TABLE))
     for prods in iter: # need a new generator
         # Need to create all the tables first.
-        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year, order_by=["Delivery Group", "Facility Name"])]
+        tables += [StockOnHandTable(object_list=facs.select_related(), request=request, prefix="soh_"+prods[0].sms_code, month=mp.month, year=mp.year, order_by=["D G", "Facility Name"])]
 
     for count in enumerate(iter):
         t = tables[count[0]]
