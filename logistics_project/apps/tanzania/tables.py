@@ -198,14 +198,12 @@ def _ontime_class(cell):
         return "last_reported warning_icon iconified"
     elif state == OnTimeStates.ON_TIME:
         return "last_reported good_icon iconified"
-    else:
-        return "last_reported"
 
 class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False, css_class=_msd_class)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link, css_class=_fac_name_class)
     delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
-    last_reported = Column(safe=True, css_class=_ontime_class, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month, format=False))
+    last_reported = Column(css_class=_ontime_class, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month, format=False))
     response_rate = Column(name="Hist. Resp. Rate", safe=True, value=lambda cell: _hrr_soh(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY))
 
     class Meta:
