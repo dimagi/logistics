@@ -19,9 +19,11 @@ function Alert (div, raw_data) {
     var alert = this;
     this._('toggle').click(function() {
         alert.detail_expanded = !alert.detail_expanded;
-        alert.showhide_detail();
+        alert.showhide_detail(false, function() { alert.exit_pending_mode(); });
       });
 
+    this.pending_action_mode = false;
+    this.action_commit_in_progress = false;
     this._('pendingaction').hide();
   }
 
@@ -71,12 +73,10 @@ function Alert (div, raw_data) {
       }, 'json');
   }
   
-  this.showhide_detail = function(force) {
+  this.showhide_detail = function(force, callback) {
     this.set_toggle_text(this.detail_expanded);
-    var transition = (this.detail_expanded ?
-                      (force ? 'show' : 'slideDown') :
-                      (force ? 'hide' : 'slideUp'));
-    this._('alertdetail')[transition]();
+    var transition = (this.detail_expanded ? 'slideDown' : 'slideUp');
+    this._('alertdetail')[transition](force ? 0 : 'slow', callback);
   }
 
   this.set_toggle_text = function(expanded) {
@@ -107,7 +107,11 @@ function Alert (div, raw_data) {
   }
 
   this.pending_action = function(action) {
+    if (this.action_commit_in_progress)
+      return;
+
     if (action == 'fu') {
+      this.exit_pending_mode();
       this.commit_action(action);
     } else {
       this.enter_pending_mode(action);
@@ -115,12 +119,21 @@ function Alert (div, raw_data) {
   }
 
   this.commit_action = function(action) {
+    var action_comment = (this.pending_action_mode ? $.trim(this._('actioncomment').val()) : '');
+
+    this.action_commit_in_progress = true;
+    this._('doaction').attr('disabled', 'disabled')
+
     var alert = this;
-    $.post(URLS.takeaction, {alert_id: this.id, action: action}, function(data) {
+    $.post(URLS.takeaction, {alert_id: this.id, action: action, comment: action_comment}, function(data) {
         alert.update(data);
         if (alert.status != 'closed') {
           alert.render_status();
           alert.populate_comments();
+          alert.exit_pending_mode();
+
+          alert.action_commit_in_progress = false;
+          alert._('doaction').attr('disabled', '')
         } else {
           //dismiss alert
           alert.$div.slideUp();
@@ -129,7 +142,9 @@ function Alert (div, raw_data) {
   }
 
   this.enter_pending_mode = function(action) {
-    this._('action-' + action).css('font-weight', 'bold');
+    this.pending_action_mode = true;
+    
+    this.highlight_action(action);
 
     this._('doaction').text(this.action_caption(action));
     this._('commentsnippet').text({
@@ -147,6 +162,40 @@ function Alert (div, raw_data) {
       this.showhide_detail();
     }
 
+    var alert = this;
+    this._('doaction').unbind('click');
+    this._('doaction').click(function() {
+        alert.commit_action(action);
+      });
+    this._('cancelaction').unbind('click');
+    this._('cancelaction').click(function() {
+        if (alert.action_commit_in_progress)
+          return;
+        alert.exit_pending_mode();
+      });
+  }
+
+  this.exit_pending_mode = function() {
+    if (!this.pending_action_mode)
+      return;
+    this.pending_action_mode = false;
+
+    this.highlight_action(null);
+
+    if (this.detail_expanded) {
+      this._('pendingaction').slideUp();
+      this._('_newcomment').slideDown();
+    } else {
+      this._('pendingaction').hide();
+      this._('_newcomment').show();
+    }
+  }
+
+  this.highlight_action = function(action) {
+    this._('actions').find('a').each(function(i, a) {
+        var $a = $(a);
+        $a.css('font-weight', $a.attr('id') == 'action-' + action ? 'bold' : 'normal');
+      });
   }
 
   //only updates values naively; UI and calculated values (i.e., # comments) must be updated/maintained separately

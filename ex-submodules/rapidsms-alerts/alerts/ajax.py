@@ -11,18 +11,13 @@ def add_comment(request):
     if not user.is_authenticated():
         raise SuspiciousOperation('attempt to add comment w/o authenticated user')
 
-    comment = NotificationComment(
-        notification=Notification.objects.get(id=alert_id),
-        user=user,
-        text=text
-    )
-    comment.save()
-
+    comment = add_user_comment(Notification.objects.get(id=alert_id), user, text)
     return HttpResponse(json.dumps(comment.json()), 'text/json')
 
 def alert_action(request):
     alert_id = int(request.POST.get('alert_id'))
     action = request.POST.get('action')
+    action_comment = request.POST.get('comment')
     user = request.user
     if not user.is_authenticated():
         raise SuspiciousOperation('attempt to take action on alert w/o authenticated user')
@@ -30,8 +25,11 @@ def alert_action(request):
     # factor this out somewhere
     alert = Notification.objects.get(id=alert_id)
     alert.owner = user
-    alert.status = {'fu': 'fu', 'resolve': 'closed'}[action]
+    alert.status = {'fu': 'fu', 'esc': 'esc', 'resolve': 'closed'}[action]
     alert.save()
+
+    if action_comment:
+        add_user_comment(alert, user, action_comment)
 
     comment = NotificationComment(
         notification=alert,
@@ -41,3 +39,12 @@ def alert_action(request):
     comment.save()
 
     return HttpResponse(json.dumps(alert.json(user)), 'text/json')
+
+def add_user_comment(alert, user, text):
+    comment = NotificationComment(
+        notification=alert,
+        user=user,
+        text=text
+    )
+    comment.save()
+    return comment

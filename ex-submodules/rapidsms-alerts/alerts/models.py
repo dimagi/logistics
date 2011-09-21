@@ -38,6 +38,9 @@ class Notification(models.Model):
             return []
         elif user == self.owner and self.status == 'fu':
             return ['resolve']
+        #escalation stuff not finalized; just for testing purposes now
+        elif self.status == 'esc':
+            return ['fu', 'resolve']
         else:
             return ['fu', 'esc', 'resolve']
 
