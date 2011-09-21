@@ -68,18 +68,23 @@ def average_lead_time(supply_point_list, year=None, month=None):
                             {"lead_time": average_time})
     
 @register.simple_tag
-def last_report_elem(elem, supply_point, year, month):
+def last_report_elem(elem, supply_point, year, month, format=True):
     cell_template = '<%(elem)s class="%(classes)s">%(msg)s</%(elem)s>'
     state = soh_reported_on_time(supply_point, year, month)
     classes = "insufficient_data"
     msg = _("Waiting for reply")
     if state == OnTimeStates.NO_DATA:
-        return cell_template % {"classes": classes, "msg": msg, "elem": elem}
+        if format:
+            return cell_template % {"classes": classes, "msg": msg, "elem": elem}
+        else:
+            return msg
 
     # check from business day to business day
     last_bd_of_the_month = get_business_day_of_month(year, month, -1)
     last_report = last_stock_on_hand_before(supply_point, last_bd_of_the_month)
     msg = defaultfilters.date(last_report.report_date, "d M Y")
+
+    if not format: return msg
 
     if state == OnTimeStates.LATE:
         classes = "warning_icon iconified"

@@ -3,9 +3,9 @@ from django.template.defaultfilters import floatformat
 from djtables import Table, Column
 from djtables.column import DateColumn
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
-    DeliveryGroups
-from logistics_project.apps.tanzania.templatetags.tz_tags import last_report_span
-from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate
+    DeliveryGroups, OnTimeStates
+from logistics_project.apps.tanzania.templatetags.tz_tags import last_report_span, last_report_cell
+from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate, soh_reported_on_time
 from utils import latest_status
 from rapidsms.models import Contact
 from django.template import defaultfilters
@@ -182,12 +182,19 @@ class ProductMonthsOfStockColumn(Column):
                                             css_class=_stock_class
        )
 
+def _ontime_class(cell):
+    state = soh_reported_on_time(cell.object, cell.row.table.year, cell.row.table.month)
+    if state == OnTimeStates.LATE:
+        return "warning_icon iconified"
+    elif state == OnTimeStates.ON_TIME:
+        return "good_icon iconified"
+
 
 class StockOnHandTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_group = Column(css_class=_dg_class, value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="Delivery Group")
-    last_reported = Column(safe=True, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month))
+    last_reported = Column(safe=True, css_class=_ontime_class, value=lambda cell: last_report_span(cell.object, cell.row.table.year, cell.row.table.month, format=False))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_soh(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SOH_FACILITY))
 
     class Meta:
