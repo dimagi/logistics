@@ -113,8 +113,9 @@ function Alert (div, raw_data) {
       return;
 
     if (action == 'fu') {
-      //action does have 'pending' stage -- commit immediately
+      //action does not have a 'pending' stage -- commit immediately
       this.exit_pending_mode();
+      this.highlight_action(action);
       this.commit_action(action);
     } else {
       this.enter_pending_mode(action);
@@ -148,9 +149,9 @@ function Alert (div, raw_data) {
 
   this.enter_pending_mode = function(action) {
     this.pending_action_mode = true;
-    
-    this.highlight_action(action);
 
+    this.highlight_action(action);
+    
     this._('doaction').text(this.action_caption(action));
     this._('commentsnippet').text({
         'resolve': 'how this alert was resolved',
@@ -225,17 +226,4 @@ function Alert (div, raw_data) {
   this.init();
 }
 
-
-
-
-function take_action(alert, action) {
-  $.post('{% url alerts.ajax.alert_action %}', {alert_id: alert.id, action: action}, function(data) {
-    var mod_alert = clone_alert(alert, data);
-    if (mod_alert.status != 'closed') {
-      render_status(mod_alert);
-    } else {
-      mod_alert.div.slideUp();
-    }
-  }, 'json');
-}
 
