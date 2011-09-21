@@ -65,7 +65,7 @@ function Alert (div, raw_data) {
     this._('pleasewait').show();
     var alert = this;
     $.post(URLS.addcomment, {alert_id: this.id, text: this._('newcomment').val()}, function(data) {
-        alert._('newcomment').before(alert.render_comment(data));
+        alert._('_newcomment').before(alert.render_comment(data));
         alert._('newcomment').val('');
 
         alert._('addcomment').show();
