@@ -97,6 +97,9 @@ def malawi_old():
 def _tz_shared():
     env.pathhack = True # sketchily, this must come before any join calls
     env.config = 'tz'
+    env.db_type = "postgres"
+    env.db_name = "ilsgateway"
+    env.db_user = "postgres"
     env.code_dir = _join(env.deploy_dir, 'logistics')
     env.code_cleanup = False
     env.db_cleanup = False
@@ -122,7 +125,7 @@ def tz_production():
     """
     env.deploy_dir = '/home/dimagi/src'
     env.db_name = "logistics"
-    env.hosts = ['dimagi@ilsgateway.com']
+    env.hosts = ['ilsgateway@ilsgateway.com']
     _tz_shared()
     env.virtualenv_root = "/home/dimagi/src/logistics-env"
 
