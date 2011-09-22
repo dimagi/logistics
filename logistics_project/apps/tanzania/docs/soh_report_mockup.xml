@@ -51,7 +51,7 @@
         <text>Select%20Dates</text>
       </controlProperties>
     </control>
-    <control controlID="52" controlTypeID="com.balsamiq.mockups::DataGrid" x="467" y="475" w="608" h="115" measuredW="485" measuredH="115" zOrder="9" locked="false" isInGroup="-1">
+    <control controlID="52" controlTypeID="com.balsamiq.mockups::DataGrid" x="467" y="670" w="608" h="115" measuredW="485" measuredH="115" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
         <alternateRowColor>15134199</alternateRowColor>
         <text>MSD%20Code%2C%20Name%2C%20Delivery%20Group%2C%20Last%20Reported%2C%20fo%2C%20br%2C%20bz%0A12345%2C%20Foo%20Disp.%2C%20A%2C%209/2/11%2C%2010%2C%2011%2C%20110%0A23456%2C%20Bar%20Health%20Fac..%2C%20A%2C%209/3/11%2C%2014%2C%209%2C%20120%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090</text>
@@ -67,9 +67,30 @@
         <text>Change%20Language%2C%20Logout</text>
       </controlProperties>
     </control>
-    <control controlID="63" controlTypeID="com.balsamiq.mockups::CheckBoxGroup" x="859" y="355" w="-1" h="-1" measuredW="209" measuredH="105" zOrder="12" locked="false" isInGroup="-1">
+    <control controlID="63" controlTypeID="com.balsamiq.mockups::CheckBoxGroup" x="850" y="361" w="-1" h="-1" measuredW="209" measuredH="105" zOrder="12" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Compare%20Products%20%28select%20up%20to%2010%29%0A%5Bx%5D%20fo%20%28Fooefradine%29%0A%5Bx%5D%20br%20%28Bartimether%29%0A%5Bx%5D%20bz%20%28Bazocycline%29%0A%5B%20%5D%20qx%20%28Quxpirin%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="64" controlTypeID="com.balsamiq.mockups::ColumnChart" x="470" y="392" w="358" h="201" measuredW="187" measuredH="175" zOrder="13" locked="false" isInGroup="-1"/>
+    <control controlID="65" controlTypeID="com.balsamiq.mockups::SubTitle" x="470" y="359" w="-1" h="-1" measuredW="305" measuredH="33" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Product%20Availability%20Summary</text>
+      </controlProperties>
+    </control>
+    <control controlID="66" controlTypeID="com.balsamiq.mockups::SubTitle" x="468" y="629" w="-1" h="-1" measuredW="162" measuredH="33" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Stock%20On%20Hand</text>
+      </controlProperties>
+    </control>
+    <control controlID="67" controlTypeID="com.balsamiq.mockups::Label" x="523" y="593" w="-1" h="-1" measuredW="238" measuredH="21" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>fo%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20br%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20bz</text>
+      </controlProperties>
+    </control>
+    <control controlID="68" controlTypeID="com.balsamiq.mockups::Button" x="850" y="481" w="-1" h="-1" measuredW="157" measuredH="28" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20These%20Products</text>
       </controlProperties>
     </control>
   </controls>
