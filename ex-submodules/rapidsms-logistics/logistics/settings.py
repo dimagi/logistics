@@ -17,4 +17,6 @@ LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_PRODUCT_ALIASES = {} # you can add aliases for products here.
 LOGISTICS_USE_DEFAULT_HANDLERS = True
 LOGISTICS_USE_LOCATION_SESSIONS = False # keep persistent locations across requests in cookies
-LOGISTICS_NAVIGATION_MODE = "url" # "url" or "param", depending how your site navigation works 
+LOGISTICS_NAVIGATION_MODE = "url" # "url" or "param", depending how your site navigation works
+LOGISTICS_USE_SPOT_CACHING = False # use spot caches in various places we've found performance hits
+LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60 # spot cache timeout, in seconds, defaults to an hour
