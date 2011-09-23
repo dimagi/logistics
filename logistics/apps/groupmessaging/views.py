@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.functional import curry
-from logistics import settings
+from django.conf import settings
 from logistics.apps.logistics.models import ContactRole
 from rapidsms.models import Contact, Backend
 from rapidsms.utils.modules import try_import
