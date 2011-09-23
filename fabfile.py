@@ -106,6 +106,7 @@ def _tz_shared():
     env.stop_start = True
     env.branch = "tz-dev"
     def tz_extras():
+        run("python manage.py tz_update")
         sudo("/etc/init.d/memcached restart")
     env.extras = tz_extras
 
