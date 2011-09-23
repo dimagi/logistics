@@ -8,6 +8,7 @@ from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 import logging
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +178,11 @@ def submitted_to_msd(districts, month, year):
     return count
 
 def historical_response_rate(supply_point, type):
+    key = "hrr-%(sp)s-%(type)s" % {"sp": supply_point.pk, "type": type}
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        from_cache = cache.get(key)
+        if from_cache: return from_cache
+        
     statuses = SupplyPointStatus.objects.filter(supply_point=supply_point, status_type=type).order_by("-status_date")
     if not statuses.count(): return None
     status_month_years = set([(x.status_date.month, x.status_date.year) for x in statuses])
@@ -187,5 +193,9 @@ def historical_response_rate(supply_point, type):
         if f.count(): f = f[0]
         if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
             num += 1
-    return float(num)/float(denom), num, denom
+    
+    ret = float(num)/float(denom), num, denom
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 

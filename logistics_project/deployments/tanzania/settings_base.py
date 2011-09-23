@@ -87,7 +87,6 @@ MIDDLEWARE_CLASSES = (
 
 CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 
-
 TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.auth",
     "django.core.context_processors.debug",
@@ -156,6 +155,8 @@ LOGISTICS_URL_GENERATOR_FUNCTION = "logistics_project.apps.tanzania.views.tz_loc
 LOGISTICS_MAP_POPUP_FUNCTION = "logistics_project.apps.tanzania.templatetags.tz_tags.get_map_popup"
 LOGISTICS_USE_LOCATION_SESSIONS = True
 LOGISTICS_NAVIGATION_MODE = "param" 
+LOGISTICS_USE_SPOT_CACHING = True
+LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60
 
 LOGO_LEFT_URL="/static/tanzania/img/Tanzania-Flag.png"
 LOGO_RIGHT_URL="/static/tanzania/img/TZ-Ministry-logo.gif"
