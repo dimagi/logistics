@@ -25,6 +25,7 @@ from logistics.const import Reports
 from logistics.util import config, parse_report
 from dimagi.utils.dates import DateSpan, get_day_of_month
 from datetime import timedelta
+from django.core.cache import cache
 
 if hasattr(settings, "MESSAGE_CLASS"):
     message_class = settings.MESSAGE_CLASS
@@ -204,12 +205,25 @@ class SupplyPointBase(models.Model):
         ps.monthly_consumption = rate
         ps.save()
 
+    
     def historical_stock(self, product, year, month, default_value=0):
+        cache_time = 4 * 60 * 60 # cache this for 4 hours
+        def _cache_key():
+            return "%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
+                    {"supply_point": self.code, "product": product.sms_code, 
+                     "year": year, "month": month, "default": default_value}
+        key = _cache_key()
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+            
         srs = transactions_before_or_during(year, month).\
                 filter(supply_point=self, product=product).order_by("-date")
-        if srs.exists():
-            return srs[0].ending_balance
-        return default_value
+        
+        ret = srs[0].ending_balance if srs.exists() else default_value
+        
+        cache.set(key, ret, cache_time)    
+        return ret
 
     def stockout_count(self, product=None, producttype=None):
         return stockout_count(facilities=[self], 
