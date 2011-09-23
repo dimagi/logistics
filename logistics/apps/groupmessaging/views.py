@@ -85,7 +85,7 @@ def group_message(request):
         if not contacts_param in fns:
             messages.error(request, "Invalid contact set selection.")
         else:
-            contacts = set(fns[contacts_param])
+            contacts = set(fns[contacts_param].filter(is_active=True))
             
             for contact in contacts:
                 try:
