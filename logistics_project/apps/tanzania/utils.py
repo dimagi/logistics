@@ -116,8 +116,8 @@ def last_stock_on_hand(facility):
 
 def last_stock_on_hand_before(facility, date):
     def _cache_key():
-            return ("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
-                    {"fac": facility.code, "date": date})
+            return (("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
+                    {"fac": facility.code, "date": date}).replace(" ", "-"))
     key = _cache_key()
     if settings.LOGISTICS_USE_SPOT_CACHING: 
         from_cache = cache.get(key)
