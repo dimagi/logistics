@@ -53,7 +53,8 @@ def _are_not_related(location, user_loc):
             if parent_candiate == loc.parent: return True
             loc = loc.parent
     
-    return not is_eventual_parent(location, user_loc) \
+    return location != user_loc \
+           and not is_eventual_parent(location, user_loc) \
            and not is_eventual_parent(user_loc, location)
 
 def _get_facilities_and_location(request):
