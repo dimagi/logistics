@@ -1,16 +1,13 @@
 from datetime import datetime,timedelta, time
-from re import match
 from django.db.models.aggregates import Max
 from logistics_project import settings
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
     SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates, DeliveryGroupReport
-from logistics.models import SupplyPoint, ProductReport, ProductReportType
+from logistics.models import SupplyPoint, ProductReport
 from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 import logging
 from django.core.cache import cache
-from win32timezone import utcnow
-from logistics_project.apps.malawi.views import facilities
 
 logger = logging.getLogger(__name__)
 
