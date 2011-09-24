@@ -20,6 +20,7 @@ from logistics.config import messagelog
 import logging
 from rapidsms.models import Contact
 from logistics.models import transactions_before_or_during
+from django.core.cache import cache
 
 Message = messagelog.models.Message
 register = template.Library()
@@ -257,10 +258,25 @@ def months_of_stock(supply_point, product, default_value=None):
 
 @register.simple_tag
 def historical_months_of_stock(supply_point, product, year, month, default_value=None):
+    def _cache_key():
+            return ("log-historical_months_of_stock-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
+                    {"supply_point": supply_point.code, "product": product.sms_code, 
+                     "year": year, "month": month, "default": default_value}).replace(" ", "-")
+    key = _cache_key()
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+            
+        
     srs = transactions_before_or_during(year, month).\
                 filter(supply_point=supply_point, product=product).order_by("-date")
     if srs.exists():
         val = ProductStock.objects.get(supply_point=supply_point, product=product)\
                     .calculate_months_remaining(srs[0].ending_balance)
-        return _months_or_default(val, default_value)
-    return default_value
+        ret = _months_or_default(val, default_value)
+    else: 
+        ret = default_value
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
