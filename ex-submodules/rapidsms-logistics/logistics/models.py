@@ -114,7 +114,7 @@ class SupplyPointBase(models.Model):
 
     def __unicode__(self):
         return self.name
-
+    
     @property
     def active_contact_set(self):
         return self.contact_set.filter(is_active=True)
@@ -144,6 +144,25 @@ class SupplyPointBase(models.Model):
     def is_active(self):
         return self.active
     
+    _default_group = None
+    @property 
+    def default_group(self):
+        """
+        The "default" group. This is just the first one found. It mostly
+        assumes that there is only one group per supply point.
+        
+        This property is cached in the object to avoid excessive db
+        calls
+        """
+        if self._default_group is not None:
+            return self._default_group
+        
+        grps = self.groups.all()
+        if grps:
+            self._default_group = grps[0]
+        
+        return self._default_group
+        
     def are_consumptions_set(self):
         consumption_count = ProductStock.objects.filter(supply_point=self).filter(manual_monthly_consumption=None).count()
         if consumption_count > 0:
