@@ -80,12 +80,19 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
-    'johnny.middleware.CommittingTransactionMiddleware',
-    'johnny.middleware.QueryCacheMiddleware',
     'django.middleware.locale.LocaleMiddleware', 
 )
 
-CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
+# 1.3
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
+# 1.2
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
 TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.auth",
