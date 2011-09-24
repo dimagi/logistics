@@ -42,7 +42,8 @@ def _default_contact(supply_point):
     return None
 
 def _dg(supply_point):
-    return supply_point.groups.all()[0].code if supply_point.groups.exists() else "?"
+    group = supply_point.default_group 
+    return group.code if group else "?"
 
 def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
@@ -109,6 +110,7 @@ def _fac_name_class(cell):
     return "fac_name"
 
 def _stock_class(cell):
+    
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
     mos = float(mos)
     if mos == -1:
