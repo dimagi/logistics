@@ -1,0 +1,54 @@
+{% extends base_template %}
+{% load report_tags %}
+
+{% block title %}{{ block.super }} Group Messaging{% endblock %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}groupmessaging/stylesheets/groupmessaging.css" />
+{% endblock %}
+
+{% block javascripts %}
+{{ block.super }}
+    <script type="text/javascript">
+    $(document).ready(function() {
+    $("#msg").keyup(function(){
+        var length = $(this).val().length;
+       $("#charcount").text(length);
+       $("#charcount").toggleClass("char_good", length < 140);
+       $("#charcount").toggleClass("char_warning", (length > 140 && length <= 160));
+       $("#charcount").toggleClass("char_over", length > 160);
+    });
+    $("#messageform").submit(function() {
+       if ($("#msg").val().length > 160){
+           alert("Cannot send message over 160 characters!");
+           return false;
+       }
+    });
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+    <h2>Group Messaging</h2>
+    <form method=post action="" id="messageform">
+    {% csrf_token %}
+    <label for="contact_set">Send Message To:</label>
+    <select id="contact_set" name="contact_set">
+        {% for group in contact_fns %}
+        <optgroup label="{{ group.name }}">
+            {% for name in group.groups %}
+            <option id="group-{{ name }}" num-people="{{ group.groups|dict_lookup:name|length }}" value="{{ name }}">{{ name }} ({{ group.groups|dict_lookup:name|length }} people)</option>
+            {% endfor %}
+        </optgroup>
+        {% endfor %}
+    </select>
+    <div></div>
+    <label for="msg">Message: (<span id="charcount" class="char_good">0</span> characters of 160 used)</label><br/>
+    <textarea name="msg" id="msg" cols=80 rows=2></textarea>
+    <br/>
+    <input type="submit" id="msgsubmit" value="Send SMS To All Selected Contacts" />
+    </form>
+    </div>
+{% endblock %}
