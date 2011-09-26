@@ -3,19 +3,19 @@ from rapidsms.utils.modules import try_import
 import itertools
 from models import Notification, NotificationComment
 
-def load_alert_generator(import_name):
+def dynamic_import(import_name):
     import_split = import_name.split('.')
     module_name = '.'.join(import_split[:-1])
     method_name = import_split[-1]
 
     module = try_import(module_name)
     if module is None:
-        raise Exception("Alerts module %s is not defined." % (module_name))
+        raise Exception("Module %s could not be imported." % (module_name))
     
     try:
         return getattr(module, method_name)
     except AttributeError:
-        raise Exception("No function %s in module %s." % (method_name, module_name))
+        raise Exception("No member %s in module %s." % (method_name, module_name))
 
 def get_alert_generators(type, *args, **kwargs):
     """
@@ -36,7 +36,7 @@ def get_alert_generators(type, *args, **kwargs):
         # TODO: should this fail harder?
         registered_generators = []
         
-    return [load_alert_generator(g)(*args, **kwargs) for g in registered_generators]
+    return [dynamic_import(g)(*args, **kwargs) for g in registered_generators]
 
 def get_notifications():
     return itertools.chain(*get_alert_generators('notif'))

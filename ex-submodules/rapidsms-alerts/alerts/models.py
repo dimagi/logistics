@@ -16,8 +16,8 @@ class Notification(models.Model):
 
     text = models.TextField()
     url = models.TextField(null=True, blank=True)
+    alert_type = models.CharField(max_length=256) #fully-qualified python name of the corresponding AlertType class
 
-    # link to an AlertType?
     owner = models.ForeignKey(User, null=True, blank=True)
     status = models.CharField(max_length=10, choices=NOTIF_STATUS, default='new')
 
@@ -47,6 +47,24 @@ class Notification(models.Model):
     def __unicode__(self):
         return unicode(self.__dict__)
 
+    @property
+    def _type(self):
+        if not hasattr(self, '_type_inst'):
+            from alerts.utils import dynamic_import #warning: circular import! should fix this
+            self._type_inst = dynamic_import(self.alert_type)(self)
+        return self._type_inst
+
+    def __getattribute__(self, name):
+        """delegate out to the associated AlertType; in practice, this will only be done for
+        known methods in the AlertType interface"""
+        try:
+            return super(Notification, self).__getattribute__(name)
+        except AttributeError:
+            if name in dir(self._type) and not name.startswith('_'):
+                return getattr(self._type, name)
+            else:
+                raise
+
 class NotificationComment(models.Model):
     notification = models.ForeignKey(Notification, related_name='comments')
     user = models.ForeignKey(User, null=True, blank=True) #no user is for system-generated entries
@@ -74,3 +92,15 @@ def user_name(user, default=None):
 
 class ResolutionAcknowledgement:
     pass
+
+# not a model! a subclass of this will be dynamically attached to the Notification
+# model, based on the Notification's alert_type
+class NotificationType(object):
+    def __init__(self, notif):
+        self._notif = notif
+
+    def __getattr__(self, name):
+        if not name.startswith('__'):
+            return getattr(self._notif, name)
+        else:
+            raise AttributeError(name)
