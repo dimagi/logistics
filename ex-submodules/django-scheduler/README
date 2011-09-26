@@ -1,8 +1,36 @@
-This scheduler can send outbound SMS at regular intervals, using a web-based cron-inspired interface.
+This is a generic scheduler for django. It offers a cron-inspired interface
+to calling arbitrary functions in python. It was inspired and bulit atop
+the rapidsms scheduler module, but has been (mostly) decoupled from 
+rapidsms.
+
+It uses a celery periodic task to fire a job once a minute that calls
+all database-backed schedules. In order for this to work, both celery and
+celerybeat processes must be running.
 
 INSTALL
-* Apart from enabling this feature, be sure that your system clock is correct and that your settings.py properly specifies the TIME_ZONE as per Django convention (or you're going to be super confused about why everything's coming in in Chicago time)
+* Apart from enabling this feature, be sure that your system clock is correct.
+
+NOTES
+* Timezone support is minimal, all schedules are assumed to be in UTC. Make 
+  sure you manage this appropriately.
 
 FEATURE REQUESTS
-* There is currently no good UI for creating schedules. Right now, the easiest way to do so is in Python, 
-by creating and saving an EventSchedule module.
+* There is currently no good UI for creating schedules. Right now, the easiest
+  way to do so is in Python,by creating and saving an EventSchedule module, or 
+  through the django admin, which mostly works but can cause occassional errors.
+  
+Example:
+
+# in mymodule.py
+
+def callback_func(arg):
+    print "Scheduler called with %s!" % (arg)
+
+schedule = EventSchedule(callback="mymodue.callback_func", \
+                         minutes=[15], hours=ALL_VALUE,
+                         callback_args=["foobar"])
+schedule.save()
+
+This example will print "Scheduler called with foobar!" every hour at 15 past
+the hour.
+            
