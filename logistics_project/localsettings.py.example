@@ -1,0 +1,44 @@
+# you should configure your database here before doing any real work.
+# see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+
+# import your deployment specific settings here.
+from logistics_project.deployments.CHANGEME.settings_base import *
+
+
+# for postgresql:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "ilsgateway",
+        "USER": "postgres",
+        "PASSWORD": "test",
+        "HOST": "localhost",
+    }
+}
+
+TESTING_DATABASES= {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",#
+        "NAME": "logistics.sqlite3",
+    }
+}
+
+INSTALLED_BACKENDS["push"]["password"] = 'CHANGEME'
+
+
+DJANGO_LOG_FILE = "logistics.django.log"
+LOG_SIZE = 1000000
+LOG_LEVEL   = "DEBUG"
+LOG_FILE    = "logistics.log"
+LOG_FORMAT  = "[%(name)s]: %(message)s"
+LOG_BACKUPS = 256 # number of logs to keep
+
+DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
+COUNTRY = "MOHSW-MOHSW"
+TIME_ZONE="Africa/Maputo"
+COUNTRY_DIALLING_CODE = 265
+
+LANGUAGES = (
+  ('sw', 'Swahili'),
+  ('en', 'English'),
+)

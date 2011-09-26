@@ -11,6 +11,7 @@ from fabric import utils
 from fabric.api import *
 from fabric.contrib import files, console
 from fabric.decorators import hosts
+from subprocess import Popen
 
 """
 CONFIGURATION
@@ -21,13 +22,33 @@ PATH_SEP = "/" # necessary to deploy from windows to *nix
 env.code_cleanup = True
 env.db_cleanup = True
 env.db_name = "logistics"
+env.db_user = "root"
+env.local_db_user = "root"
+env.db_type = "mysql"
 env.remote = "origin"
 env.branch = "master"
 env.pathhack = False
 env.stop_start = False
+env.virtualenv_root = None
 
 def do_nothing(): pass
 env.extras = do_nothing
+
+def enter_virtualenv():
+    """
+    modify path to use virtualenv's python
+
+    usage:
+
+        with enter_virtualenv():
+            run('python script.py')
+
+    """
+    if env.virtualenv_root:
+        return prefix('PATH=%(virtualenv_root)s/bin/:PATH' % env)
+    else:
+        # this is just a noop
+        return prefix("pwd")
 
 def _join(*args):
     if env.pathhack:
@@ -52,7 +73,7 @@ def _malawi_shared():
     def malawi_extras():
         run("python manage.py malawi_init")
         run("python manage.py loaddata ../deploy/malawi/initial_data.json")
-	sudo("/etc/init.d/memcached restart")
+        sudo("/etc/init.d/memcached restart")
     env.extras = malawi_extras
 
 def malawi():
@@ -73,6 +94,43 @@ def malawi_old():
     env.hosts = ['sc4ccm@50.56.116.170']
     _malawi_shared()
 
+def _tz_shared():
+    env.pathhack = True # sketchily, this must come before any join calls
+    env.config = 'tz'
+    env.db_type = "postgres"
+    env.db_name = "ilsgateway"
+    env.db_user = "postgres"
+    env.code_dir = _join(env.deploy_dir, 'logistics')
+    env.code_cleanup = False
+    env.db_cleanup = False
+    env.stop_start = True
+    env.branch = "tz-dev"
+    def tz_extras():
+        run("python manage.py tz_update")
+        sudo("/etc/init.d/memcached restart")
+    env.extras = tz_extras
+
+def tz_staging():
+    """
+    TZ configuration (staging)
+    """
+    env.deploy_dir = '/home/dimagivm/src'
+    env.db_name = "logistics"
+    env.hosts = ['dimagivm@ilsstaging.dimagi.com']
+    _tz_shared()
+
+
+def tz_production():
+    """
+    TZ configuration (staging)
+    """
+    env.deploy_dir = '/home/dimagi/src'
+    env.db_name = "logistics"
+    env.hosts = ['ilsgateway@ilsgateway.com']
+    _tz_shared()
+    env.virtualenv_root = "/home/dimagi/src/logistics-env"
+
+
 def staging():
     env.config = 'staging'
     env.deploy_dir = '/home/ewsghana'
@@ -85,6 +143,48 @@ def production():
     env.code_dir = _join(env.deploy_dir, 'logistics')
     env.hosts = ['ewsghana@ewsghana.dyndns.org']
 
+def _local_sudo(command, user=None):
+    if user:
+        return Popen("sudo %s" % command, shell=True)
+    else:
+        return Popen("sudo -u %s %s" % (user, command), shell=True)
+
+def _get_db(dumpname):
+    sudo("gzip /tmp/%s" % dumpname)
+    get("/tmp/%s.gz" % dumpname, local_path="/tmp/%s.gz" % dumpname)
+    local("gunzip /tmp/%s.gz" % dumpname)
+
+
+def sync_postgres_db():
+    """ Untested as of yet. """
+    dumpname = "db_%s_%s.sql" % (env.db_name, datetime.now().isoformat())
+    sudo("pg_dump %(dbname)s > /tmp/%(dumpname)s" % {"dbname": env.db_name, "dumpname": dumpname}, user="postgres")
+    _get_db(dumpname)
+    _local_sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+    _local_sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
+    _local_sudo('psql --dbname %(dbname)s < /tmp/%(dumpname)s' % {"dbname":env.db_name, "dumpname":dumpname}) 
+
+def sync_mysql_db():
+    dumpname = "db_%s_%s.sql" % (env.db_name, datetime.now().isoformat())
+    sudo("mysqldump -u %(user)s -p%(password)s %(dbname)s > /tmp/%(dumpname)s" % {"user": env.db_user, "password": env.db_password, "dbname": env.db_name, "dumpname": dumpname}, user="mysql")
+    _get_db(dumpname)
+    local('mysqladmin -u %(user)s -p%(password)s drop %(dbname)s -f' % {"user": env.local_db_user, "password": env.local_db_password, "dbname": env.db_name})
+    local('mysqladmin -u %(user)s -p%(password)s create %(dbname)s' % {"user": env.local_db_user, "password": env.local_db_password, "dbname": env.db_name})
+    local('mysql -u %(user)s -p%(password)s %(dbname)s < /tmp/%(dumpname)s' % {"dbname":env.db_name, "dumpname":dumpname, "user": env.local_db_user, "password": env.local_db_password})
+
+def sync_db():
+    """ Copies a database to your local machine. """
+    require('config', provided_by=('malawi', 'malawi_old'))
+    if not console.confirm('Are you sure you want to wipe out the local %s database?' % env.db_name,
+                               default=False):
+        utils.abort('Deployment aborted.')
+    if env.db_type == "mysql":
+        env.db_password = prompt("Password for remote %s database (user: %s): " % (env.db_name, env.db_user))
+        env.local_db_password = prompt("Password for local %s database (user: %s): " % (env.db_name, env.db_user))
+        sync_mysql_db()
+    elif env.db_type == "postgres":
+        sync_postgres_db()
+
 """
 CAN'T TOUCH THIS
 """
@@ -96,26 +196,27 @@ def django_tests():
 def update_requirements():
     """ update external dependencies """
     with cd(env.code_dir):
-        run('ls')
-        run('pip install --requirement %s' % _join(env.code_dir, "pip-requires.txt"))
+        with enter_virtualenv():
+            run('pip install -r %s' % _join(env.code_dir, "pip-requires.txt"))
 
-def bootstrap():
+def bootstrap(subdir='logistics'):
     """ run this after you've checked out the code """
     with cd(env.code_dir):
         run('git submodule init')
         run('git submodule update')
-        with cd('logistics'):
-            run('./manage.py syncdb --noinput')
-            run('./manage.py migrate --noinput')
-            # this doesn't seem to exist
-            #run('./bootstrap_db.py')
-            env.extras()
+        update_requirements()
+        with cd(subdir):
+            with enter_virtualenv():
+                run('./manage.py syncdb --noinput')
+                run('./manage.py migrate --noinput')
+                # this doesn't seem to exist
+                #run('./bootstrap_db.py')
+                env.extras()
 
 def deploy():
     """ deploy code to some remote environment """
     require('config', provided_by=('test', 'staging', 'production', 'malawi'))
     if env.stop_start:
-        sudo("/etc/init.d/apache2 stop")
         sudo("supervisorctl stop all")
     if env.config == 'production':
         if not console.confirm('Are you sure you want to deploy production?',
@@ -138,9 +239,9 @@ def deploy():
         sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         
-    bootstrap()
+    bootstrap(subdir='logistics_project' if env.config.startswith('tz') else 'logistics')
     if env.stop_start:
-        sudo("/etc/init.d/apache2 start")
+        sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
     
 

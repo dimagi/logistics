@@ -3,19 +3,21 @@ import sys
 
 filedir = os.path.dirname(__file__)
 
-rootpath = os.path.join(filedir, "..", "logistics") 
-sys.path.append(os.path.join(rootpath))
-sys.path.append(os.path.join(rootpath,'..'))
-sys.path.append(os.path.join(rootpath,'..','rapidsms'))
-sys.path.append(os.path.join(rootpath,'..','rapidsms','lib'))
-sys.path.append(os.path.join(rootpath,'..','rapidsms','lib','rapidsms'))
-sys.path.append(os.path.join(rootpath,'..','rapidsms','lib','rapidsms','contrib'))
-sys.path.append(os.path.join(rootpath,'..','submodules','django-cpserver'))
-sys.path.append(os.path.join(rootpath,'..','submodules','dimagi-utils'))
-sys.path.append(os.path.join(rootpath,'..','submodules','django-tablib'))
-sys.path.append(os.path.join(rootpath,'..','submodules','tablib'))
-sys.path.append(os.path.join(rootpath,'..','submodules','auditcare'))
+filedir = os.path.join(filedir, "..", "logistics_project")     
+sys.path.append(os.path.join(filedir))
+sys.path.append(os.path.join(filedir,'..'))
+sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
+sys.path.append(os.path.join(filedir,'..','submodules','django-cpserver'))
+sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
+sys.path.append(os.path.join(filedir,'..','submodules','dimagi-djtables', 'lib'))
+sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
+sys.path.append(os.path.join(filedir,'..','submodules','tablib'))
+sys.path.append(os.path.join(filedir,'..','submodules','auditcare'))
 sys.path.append(os.path.join(filedir,'..','submodules','couchlog'))
+sys.path.append(os.path.join(filedir,'..','submodules','django-scheduler'))
+sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
+sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
+sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 

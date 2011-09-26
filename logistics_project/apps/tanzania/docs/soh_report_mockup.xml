@@ -1,0 +1,105 @@
+<mockup version="1.0" skin="sketch" measuredW="1069" measuredH="1460" mockupW="991" mockupH="1460">
+  <controls>
+    <control controlID="81" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="78" y="0" w="991" h="1460" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Reports%20-%20ILSGateway%0Ahttp%3A//ilsgateway.com/tz/reports/</text>
+      </controlProperties>
+    </control>
+    <control controlID="82" controlTypeID="com.balsamiq.mockups::TabBar" x="203" y="191" w="719" h="750" measuredW="404" measuredH="100" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <tabHPosition>right</tabHPosition>
+        <text>Dashboard%2C%20Reports%2C%20Message%20Log%2C%20Tester%2C%20Help</text>
+      </controlProperties>
+    </control>
+    <control controlID="83" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="203" y="355" w="724" h="1081" measuredW="200" measuredH="199" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>1</selectedIndex>
+        <text>Delivery%0AStock%20On%20Hand%0AR%26R%0ALead%20Times%0Aetc.</text>
+        <verticalScrollbar>true</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="84" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="296" y="291" w="-1" h="-1" measuredW="206" measuredH="24" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>MOHSW%2C%20Mtwara%2C%20Tandahimba</text>
+      </controlProperties>
+    </control>
+    <control controlID="85" controlTypeID="com.balsamiq.mockups::LinkBar" x="502" y="293" w="-1" h="-1" measuredW="182" measuredH="21" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Up%20a%20Level%2C%20Select%20Location</text>
+      </controlProperties>
+    </control>
+    <control controlID="86" controlTypeID="com.balsamiq.mockups::Title" x="203" y="116" w="226" h="-1" measuredW="226" measuredH="50" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>ILSGateway</text>
+      </controlProperties>
+    </control>
+    <control controlID="87" controlTypeID="com.balsamiq.mockups::Title" x="296" y="237" w="322" h="-1" measuredW="322" measuredH="41" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>32</size>
+        <text>Stock%20On%20Hand%20Report</text>
+      </controlProperties>
+    </control>
+    <control controlID="88" controlTypeID="com.balsamiq.mockups::Title" x="296" y="323" w="183" h="-1" measuredW="183" measuredH="33" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>24</size>
+        <text>September%202011</text>
+      </controlProperties>
+    </control>
+    <control controlID="89" controlTypeID="com.balsamiq.mockups::Link" x="479" y="330" w="-1" h="-1" measuredW="82" measuredH="21" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20Dates</text>
+      </controlProperties>
+    </control>
+    <control controlID="90" controlTypeID="com.balsamiq.mockups::DataGrid" x="296" y="1029" w="615" h="407" measuredW="486" measuredH="475" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <alternateRowColor>15134199</alternateRowColor>
+        <text>MSD%20Code%2C%20Name%2C%20Delivery%20Group%2C%20Last%20Reported%2C%20fo%2C%20br%2C%20bz%0A12345%2C%20Foo%20Disp.%2C%20A%2C%209/2/11%2C%2010%2C%2011%2C%20110%0A23456%2C%20Bar%20Health%20Fac..%2C%20A%2C%209/3/11%2C%2014%2C%209%2C%20120%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090%0A34567%2C%20Baz%20Dist.%20Hosp.%2C%20A%2C%209/7/11%2C%2017%2C%200%2C%2090</text>
+      </controlProperties>
+    </control>
+    <control controlID="91" controlTypeID="com.balsamiq.mockups::DateChooser" x="561" y="323" w="89" h="-1" measuredW="89" measuredH="25" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>9/2011</text>
+      </controlProperties>
+    </control>
+    <control controlID="92" controlTypeID="com.balsamiq.mockups::LinkBar" x="751" y="104" w="-1" h="-1" measuredW="171" measuredH="21" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Change%20Language%2C%20Logout</text>
+      </controlProperties>
+    </control>
+    <control controlID="93" controlTypeID="com.balsamiq.mockups::CheckBoxGroup" x="684" y="420" w="209" h="308" measuredW="209" measuredH="420" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Compare%20Products%20%28select%20up%20to%2010%29%0A%5Bx%5D%20fo%20%28Fooefradine%29%0A%5Bx%5D%20br%20%28Bartimether%29%0A%5Bx%5D%20bz%20%28Bazocycline%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5Bx%5D%20bz%20%28Bazocycline%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5Bx%5D%20bz%20%28Bazocycline%29%0A%5B%20%5D%20qx%20%28Quxpirin%29%0A%5B%20%5D%20qx%20%28Quxpirin%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="94" controlTypeID="com.balsamiq.mockups::ColumnChart" x="316" y="411" w="356" h="267" measuredW="187" measuredH="175" zOrder="14" locked="false" isInGroup="-1"/>
+    <control controlID="95" controlTypeID="com.balsamiq.mockups::SubTitle" x="316" y="373" w="305" h="-1" measuredW="305" measuredH="33" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Product%20Availability%20Summary</text>
+      </controlProperties>
+    </control>
+    <control controlID="96" controlTypeID="com.balsamiq.mockups::SubTitle" x="296" y="996" w="162" h="-1" measuredW="162" measuredH="33" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Stock%20On%20Hand</text>
+      </controlProperties>
+    </control>
+    <control controlID="97" controlTypeID="com.balsamiq.mockups::Label" x="316" y="687" w="283" h="31" measuredW="444" measuredH="21" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>%09%09%09fo%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09%20%20%20%09%09br%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09%09%09%09bz</text>
+      </controlProperties>
+    </control>
+    <control controlID="98" controlTypeID="com.balsamiq.mockups::Button" x="684" y="372" w="157" h="37" measuredW="157" measuredH="28" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20These%20Products</text>
+      </controlProperties>
+    </control>
+    <control controlID="100" controlTypeID="com.balsamiq.mockups::PieChart" x="458" y="758" w="280" h="223" measuredW="180" measuredH="180" zOrder="20" locked="false" isInGroup="-1"/>
+    <control controlID="101" controlTypeID="com.balsamiq.mockups::SubTitle" x="458" y="718" w="-1" h="-1" measuredW="280" measuredH="33" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>SOH%20Submission%20Summary</text>
+      </controlProperties>
+    </control>
+    <control controlID="102" controlTypeID="com.balsamiq.mockups::Canvas" x="316" y="718" w="574" h="278" measuredW="100" measuredH="70" zOrder="18" locked="false" isInGroup="-1"/>
+    <control controlID="103" controlTypeID="com.balsamiq.mockups::Canvas" x="316" y="367" w="577" h="354" measuredW="100" measuredH="70" zOrder="9" locked="false" isInGroup="-1"/>
+  </controls>
+</mockup>
