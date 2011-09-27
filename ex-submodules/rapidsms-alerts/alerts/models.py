@@ -3,14 +3,7 @@ from django.contrib.auth.models import User
 from rapidsms.contrib.locations.models import Location
 from django.conf import settings
 from django.utils.dateformat import format as format_date
-
-#deprecated
-NOTIF_STATUS = (
-    ('new', 'new'),
-    ('fu', 'following up'),
-    ('esc', 'escalated'),
-    ('closed', 'resolved'),
-)
+from alerts.importutil import dynamic_import
 
 class Notification(models.Model):
     uid = models.CharField(max_length=256)
@@ -24,7 +17,8 @@ class Notification(models.Model):
     owner = models.ForeignKey(User, null=True, blank=True)
     is_open = models.BooleanField(default=True)
     escalation_level = models.CharField(max_length=100)
-    visibility = models.ManyToManyField(User, through='NotificationVisibility', related_name='fillmein')
+
+    _type_inst = None #on-demand instantiation of the alert_type class
 
     def json(self, user=None):
         return {
@@ -68,6 +62,15 @@ class Notification(models.Model):
     #not real logic yet -- just for testing
     def actions(self, user):
         """return the actions this user may currently take on this alert"""
+        if not self.is_open:
+            return []
+        else:
+#            esc_level = 
+
+            acts = []
+            
+        
+
         if self.status == 'closed':
             return []
         elif user == self.owner and self.status == 'fu':
@@ -82,8 +85,7 @@ class Notification(models.Model):
 
     @property
     def _type(self):
-        if not hasattr(self, '_type_inst'):
-            from alerts.utils import dynamic_import #warning: circular import! should fix this
+        if not self._type_inst:
             self._type_inst = dynamic_import(self.alert_type)(self)
         return self._type_inst
 
@@ -133,8 +135,9 @@ def user_name(user, default=None):
 # in sync from a scheduled task -- possibly the same one that does the auto-escalation
 # definitely not a priority right now
 class NotificationVisibility(models.Model):
-    notif = models.ForeignKey(Notification)
-    user = models.ForeignKey(User)
+    """many-to-many mapping of which users can see which alerts"""
+    notif = models.ForeignKey(Notification, related_name='visible_to')
+    user = models.ForeignKey(User, related_name='alerts_visible')
     esc_level = models.CharField(max_length=100)
 
 class ResolutionAcknowledgement:
