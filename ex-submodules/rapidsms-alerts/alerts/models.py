@@ -22,7 +22,7 @@ class Notification(models.Model):
     owner = models.ForeignKey(User, null=True, blank=True)
     is_open = models.BooleanField(default=True)
     escalation_level = models.CharField(max_length=100)
-    visibility = models.ManyToManyField(User, through='NotificationVisibility')
+    visibility = models.ManyToManyField(User, through='NotificationVisibility', related_name='fillmein')
 
     def json(self, user=None):
         return {
@@ -43,7 +43,10 @@ class Notification(models.Model):
         self.escalation_level = self.next_escalation_level(self.escalation_level)
         self.reveal_to_users()
 
-    def reveal_to_users():
+    def reveal_to_users(self):
+        if self.id is None:
+            self.save()
+
         for u in self.users_for_escalation_level(self.escalation_level):
             nv = NotificationVisibility(notif=self, user=u, esc_level=self.escalation_level)
             nv.save()

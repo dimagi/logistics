@@ -50,6 +50,7 @@ def trigger_notifications():
             print 'alert already exists', notif.uid
         except Notification.DoesNotExist:
             #new alert; save to db
+            notif.initialize()
             notif.save()
             print 'new alert', notif
             #'created' comment

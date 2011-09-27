@@ -1,5 +1,6 @@
 from alerts import Alert
 from alerts.models import Notification, NotificationComment, NotificationType
+from django.contrib.auth.models import User
 from datetime import timedelta
 
 def alerttest(request):
@@ -30,10 +31,10 @@ class TestAlertType(NotificationType):
     def users_for_escalation_level(self, esc_level):
         if esc_level == 'district':
             #all users with reporting_district = district
-            return []
+            return [User.objects.get(username='droos')]
         elif esc_level == 'moh':
             #all users with group 'moh'
-            return []
+            return [User.objects.get(username='admin')]
 
     def auto_escalation_interval(self, esc_level):
         return timedelta(days=14)

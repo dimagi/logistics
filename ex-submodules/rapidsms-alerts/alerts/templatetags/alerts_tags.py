@@ -17,7 +17,7 @@ def alerts(request):
     
 @register.simple_tag
 def notifications(request):
-    notifs = Notification.objects.exclude(status='closed')
+    notifs = Notification.objects.filter(is_open=True)
     data = json.dumps([notif.json(request.user) for notif in notifs])
 
     return render_to_string("alerts/partials/notifications.html",
