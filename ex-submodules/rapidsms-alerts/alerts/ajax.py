@@ -36,7 +36,7 @@ def alert_action(request):
     comment = NotificationComment(
         notification=alert,
         user=None,
-        text='%s took action [%s]' % (user_name(user), action)
+        text=action_caption(action, alert, user)
     )
     comment.save()
 
@@ -45,6 +45,18 @@ def alert_action(request):
     #time.sleep(1.)
 
     return HttpResponse(json.dumps(alert.json(user)), 'text/json')
+
+def action_caption(action, alert, user):
+    username = user_name(user)
+    if action == 'fu':
+        if alert.status == 'esc':
+            return '%s claimed the escalated issue' % username
+        else:
+            return '%s is following up' % username
+    elif action == 'esc':
+        return '%s escalated the issue to %s' % (username, alert.escalation_level_name(alert.escalation_level)) # alert will have already been escalated
+    elif action == 'resolve':
+        return '%s resolved the issue' % username
 
 def add_user_comment(alert, user, text):
     comment = NotificationComment(
