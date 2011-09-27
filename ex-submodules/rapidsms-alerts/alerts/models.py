@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from rapidsms.contrib.locations.models import Location
 from django.conf import settings
 from django.utils.dateformat import format as format_date
 
@@ -18,6 +19,7 @@ class Notification(models.Model):
     text = models.TextField()
     url = models.TextField(null=True, blank=True)
     alert_type = models.CharField(max_length=256) #fully-qualified python name of the corresponding AlertType class
+    originating_location = models.ForeignKey(Location, blank=True, null=True)
 
     owner = models.ForeignKey(User, null=True, blank=True)
     is_open = models.BooleanField(default=True)
@@ -125,6 +127,11 @@ def user_name(user, default=None):
         lname = user.last_name
         return '%s %s' % (fname, lname) if fname and lname else user.username
 
+# static list of which users can see what alerts. static so that it's fast to query.
+# however, if users are added to/removed from the underlying user classes that should
+# see the alert, those changes won't be reflected here. perhaps we should keep them
+# in sync from a scheduled task -- possibly the same one that does the auto-escalation
+# definitely not a priority right now
 class NotificationVisibility(models.Model):
     notif = models.ForeignKey(Notification)
     user = models.ForeignKey(User)
@@ -140,6 +147,9 @@ class NotificationType(object):
         self._notif = notif
 
     def __getattr__(self, name):
+        #it's important that '__*__' lookups are trapped here. otherwise the
+        #introspection in Notification.__getattribute__ will cause an infinite
+        #loop
         if not name.startswith('__'):
             return getattr(self._notif, name)
         else:
