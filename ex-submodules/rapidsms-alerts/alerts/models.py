@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.dateformat import format as format_date
 
+#deprecated
 NOTIF_STATUS = (
     ('new', 'new'),
     ('fu', 'following up'),
@@ -19,7 +20,9 @@ class Notification(models.Model):
     alert_type = models.CharField(max_length=256) #fully-qualified python name of the corresponding AlertType class
 
     owner = models.ForeignKey(User, null=True, blank=True)
-    status = models.CharField(max_length=10, choices=NOTIF_STATUS, default='new')
+    is_open = models.BooleanField(default=True)
+    escalation_level = models.CharField(max_length=100)
+    visibility = models.ManyToManyField(User, through='NotificationVisibility')
 
     def json(self, user=None):
         return {
@@ -32,13 +35,38 @@ class Notification(models.Model):
             'actions': self.actions(user),
         }
 
+    def initialize(self):
+        self.escalation_level = self.initial_escalation_level
+        self.reveal_to_users()
+
+    def escalate(self):
+        self.escalation_level = self.next_escalation_level(self.escalation_level)
+        self.reveal_to_users()
+
+    def reveal_to_users():
+        for u in self.users_for_escalation_level(self.escalation_level):
+            nv = NotificationVisibility(notif=self, user=u, esc_level=self.escalation_level)
+            nv.save()
+
+    #temporary -- determine if we still need this
+    @property
+    def status(self):
+        if not self.is_open:
+            return 'closed'
+        elif self.escalation_level != self.initial_escalation_level:
+            return 'esc'
+        elif self.owner is None:
+            return 'new'
+        else:
+            return 'fu'
+
+    #not real logic yet -- just for testing
     def actions(self, user):
         """return the actions this user may currently take on this alert"""
         if self.status == 'closed':
             return []
         elif user == self.owner and self.status == 'fu':
             return ['resolve']
-        #escalation stuff not finalized; just for testing purposes now
         elif self.status == 'esc':
             return ['fu', 'resolve']
         else:
@@ -76,8 +104,12 @@ class NotificationComment(models.Model):
             'text': self.text,
             'date_fmt': format_date(self.date, 'M j, H:i'),
             'author': user_name(self.user, default=settings.SYSTEM_USERNAME),
-            'is_system': self.user is None,
+            'is_system': self.is_system,
         }
+
+    @property
+    def is_system(self):
+        return self.user is None
 
     def __unicode__(self):
         return unicode(self.__dict__)
@@ -89,6 +121,11 @@ def user_name(user, default=None):
         fname = user.first_name
         lname = user.last_name
         return '%s %s' % (fname, lname) if fname and lname else user.username
+
+class NotificationVisibility(models.Model):
+    notif = models.ForeignKey(Notification)
+    user = models.ForeignKey(User)
+    esc_level = models.CharField(max_length=100)
 
 class ResolutionAcknowledgement:
     pass
@@ -104,3 +141,47 @@ class NotificationType(object):
             return getattr(self._notif, name)
         else:
             raise AttributeError(name)
+
+    @property
+    def initial_escalation_level(self):
+        return self.next_escalation_level(None)
+
+    @property
+    def is_escalable(self):
+        return self.next_escalation_level(self.escalation_level) is None
+
+    def next_escalation_level(self, esc_level):
+        """return the escalation level that follows esc_level
+        if esc_level is None, return the default (un-escalated) level
+        if alert cannot be escalated further, return None"""
+        levels = self.escalation_levels
+        if esc_level == None:
+            return levels[0]
+        else:
+            try:
+                return levels[levels.index(esc_level)+1]
+            except IndexError:
+                return None
+
+    @property
+    def escalation_levels(self):
+        """list the possible escalation levels for this type of alert,
+        in order"""
+        raise Exception('abstract method')
+
+    def users_for_escalation_level(self, esc_level):
+        """return the set of users responsible for this alert once it
+        reaches the specified escalation level"""
+        raise Exception('abstract method')
+
+    def auto_escalation_interval(self, esc_level):
+        """return the time interval (as a timedelta) the alert has spent
+        at the given level after which it is auto-escalated to the next
+        level"""
+        raise Exception('abstract method')
+        
+    def escalation_level_name(self, esc_level):
+        """human readable name for the given escalation level (i.e.,
+        'district team', 'MoH', 'regional supervisor'"""
+        raise Exception('abstract method')
+        
