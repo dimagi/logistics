@@ -90,7 +90,7 @@ function Alert (div, raw_data) {
     var status_text = {
       'new': function(a) { return 'new'; },
       'fu': function(a) { return a.owner + ' is following up'; },
-      'esc': function(a) { return 'escalated to ' + a.owner; },
+      'esc': function(a) { return 'escalated to ' + a.esc_class + ' (' + (a.owner || 'unclaimed') + ')'; },
       'closed': function(a) { return 'closed'; },
     }[this.status](this);
     this._('status').text(status_text);
@@ -217,7 +217,7 @@ function Alert (div, raw_data) {
 
   this.action_caption = function(action) {
     return {
-      'fu': 'follow up',
+      'fu': (this.status == 'esc' ? 'claim' : 'follow up'),
       'resolve': 'resolve',
       'esc': 'escalate',
     }[action];

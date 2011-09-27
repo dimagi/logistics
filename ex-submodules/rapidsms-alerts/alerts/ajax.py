@@ -22,10 +22,12 @@ def alert_action(request):
     if not user.is_authenticated():
         raise SuspiciousOperation('attempt to take action on alert w/o authenticated user')
 
-    # factor this out somewhere
     alert = Notification.objects.get(id=alert_id)
-    alert.owner = user
-    alert.status = {'fu': 'fu', 'esc': 'esc', 'resolve': 'closed'}[action]
+    {
+        'fu': lambda a: a.followup(user),
+        'esc': lambda a: a.escalate(),
+        'resolve': lambda a: a.resolve(),
+    }[action](alert)
     alert.save()
 
     if action_comment:
@@ -37,6 +39,10 @@ def alert_action(request):
         text='%s took action [%s]' % (user_name(user), action)
     )
     comment.save()
+
+    #simulated delay
+    #import time
+    #time.sleep(1.)
 
     return HttpResponse(json.dumps(alert.json(user)), 'text/json')
 

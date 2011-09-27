@@ -18,7 +18,7 @@ class Notification(models.Model):
     is_open = models.BooleanField(default=True)
     escalation_level = models.CharField(max_length=100)
 
-    _type_inst = None #on-demand instantiation of the alert_type class
+    _type_inst = None #instantiation of the alert_type class; automatically set on demand
 
     def json(self, user=None):
         return {
@@ -27,6 +27,7 @@ class Notification(models.Model):
             'url': self.url,
             'owner': user_name(self.owner),
             'status': self.status,
+            'esc_class': self.escalation_level_name(self.escalation_level),
             'comments': [cmt.json() for cmt in self.comments.all()],
             'actions': self.actions(user),
         }
@@ -35,7 +36,10 @@ class Notification(models.Model):
         self.escalation_level = self.initial_escalation_level
         self.reveal_to_users()
 
-    def escalate(self):
+    def _escalate(self):
+        if not self.is_escalable:
+            raise Exception('alert cannot be escalated further')
+
         self.escalation_level = self.next_escalation_level(self.escalation_level)
         self.reveal_to_users()
 
@@ -47,38 +51,60 @@ class Notification(models.Model):
             nv = NotificationVisibility(notif=self, user=u, esc_level=self.escalation_level)
             nv.save()
 
-    #temporary -- determine if we still need this
+    @property
+    def is_escalated(self):
+        return self.escalation_level != self.initial_escalation_level
+
     @property
     def status(self):
         if not self.is_open:
             return 'closed'
-        elif self.escalation_level != self.initial_escalation_level:
+        elif self.is_escalated:
             return 'esc'
         elif self.owner is None:
             return 'new'
         else:
             return 'fu'
 
-    #not real logic yet -- just for testing
     def actions(self, user):
         """return the actions this user may currently take on this alert"""
         if not self.is_open:
             return []
         else:
-#            esc_level = 
+            user_esc_level = self.user_escalation_level(user)
+            user_level_active = (user_esc_level == self.escalation_level)
 
             acts = []
-            
-        
+            if user_level_active and self.owner != user:
+                acts.append('fu')
+            if user_level_active and self.is_escalable:
+                acts.append('esc')
+            acts.append('resolve')
+            return acts
 
-        if self.status == 'closed':
-            return []
-        elif user == self.owner and self.status == 'fu':
-            return ['resolve']
-        elif self.status == 'esc':
-            return ['fu', 'resolve']
+    def resolve(self):
+        self.is_open = False
+
+    def followup(self, user):
+        self.owner = user
+
+    def escalate(self):
+        self.owner = None
+        self._escalate()
+
+    def user_escalation_level(self, user):
+        vis = self.visible_to.filter(user=user)
+        if len(vis) == 0:
+            raise Exception('alert is not visible to user')
+        elif len(vis) > 1:
+            # somehow the same user is registered to handle the alert at multiple
+            # escalation levels. this shouldn't happen, but we'll just pick a level
+            # TODO: log this
+            v = list(vis)[-1]
         else:
-            return ['fu', 'esc', 'resolve']
+            v = vis[0]
+
+        return v.esc_level
 
     def __unicode__(self):
         return unicode(self.__dict__)
@@ -164,7 +190,7 @@ class NotificationType(object):
 
     @property
     def is_escalable(self):
-        return self.next_escalation_level(self.escalation_level) is None
+        return self.next_escalation_level(self.escalation_level) is not None
 
     def next_escalation_level(self, esc_level):
         """return the escalation level that follows esc_level
