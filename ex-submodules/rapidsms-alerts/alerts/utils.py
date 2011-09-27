@@ -1,6 +1,6 @@
 from django.conf import settings
 import itertools
-from models import Notification, NotificationComment
+from models import Notification, NotificationComment, user_name
 from importutil import dynamic_import
 
 def get_alert_generators(type, *args, **kwargs):
@@ -42,3 +42,52 @@ def trigger_notifications():
             #'created' comment
             comment = NotificationComment(notification=notif, user=None, text='notification created')
             comment.save()
+
+def auto_escalate():
+    for notif in Notification.objects.filter(is_open=True):
+        if notif.autoescalate_due():
+            alert_action(notif, 'esc')
+            print 'autoescalated %s' % str(notif)
+
+def alert_action(alert, action, user=None, comment=None):
+    {
+        'fu': lambda a: a.followup(user),
+        'esc': lambda a: a.escalate(),
+        'resolve': lambda a: a.resolve(),
+    }[action](alert)
+    alert.save()
+
+    if comment:
+        add_user_comment(alert, user, comment)
+    add_user_comment(alert, None, action_caption(action, alert, user))
+
+def action_caption(action, alert, user):
+    username = user_name(user)
+    if action == 'fu':
+        if alert.status == 'esc':
+            return '%s claimed the escalated issue' % username
+        else:
+            return '%s is following up' % username
+    elif action == 'esc':
+        esc_class = alert.escalation_level_name(alert.escalation_level) # alert must have already been escalated
+        if user is None: # auto-escalated by system
+            return 'issue has been automatically escalated to %s, due to how long it has been open' % esc_class
+        else:
+            return '%s escalated the issue to %s' % (username, esc_class)
+    elif action == 'resolve':
+        return '%s resolved the issue' % username
+
+def add_user_comment(alert, user, text):
+    comment = NotificationComment(
+        notification=alert,
+        user=user,
+        text=text
+    )
+    comment.save()
+    return comment
+
+def reconcile_users():
+    """keep the alert userlist in sync with the underlying rules that determine
+    you can see the alerts -- addresses users being added/removed from roles while
+    an alert is active"""
+    pass

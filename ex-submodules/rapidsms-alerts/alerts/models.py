@@ -4,10 +4,12 @@ from rapidsms.contrib.locations.models import Location
 from django.conf import settings
 from django.utils.dateformat import format as format_date
 from alerts.importutil import dynamic_import
+from datetime import datetime
 
 class Notification(models.Model):
     uid = models.CharField(max_length=256)
     created_on = models.DateTimeField(auto_now_add=True)
+    escalated_on = models.DateTimeField()
 
     text = models.TextField()
     url = models.TextField(null=True, blank=True)
@@ -27,29 +29,10 @@ class Notification(models.Model):
             'url': self.url,
             'owner': user_name(self.owner),
             'status': self.status,
-            'esc_class': self.escalation_level_name(self.escalation_level),
             'comments': [cmt.json() for cmt in self.comments.all()],
             'actions': self.actions(user),
+            'esc_class': self.escalation_level_name(self.escalation_level),
         }
-
-    def initialize(self):
-        self.escalation_level = self.initial_escalation_level
-        self.reveal_to_users()
-
-    def _escalate(self):
-        if not self.is_escalable:
-            raise Exception('alert cannot be escalated further')
-
-        self.escalation_level = self.next_escalation_level(self.escalation_level)
-        self.reveal_to_users()
-
-    def reveal_to_users(self):
-        if self.id is None:
-            self.save()
-
-        for u in self.users_for_escalation_level(self.escalation_level):
-            nv = NotificationVisibility(notif=self, user=u, esc_level=self.escalation_level)
-            nv.save()
 
     @property
     def is_escalated(self):
@@ -82,6 +65,9 @@ class Notification(models.Model):
             acts.append('resolve')
             return acts
 
+    def initialize(self):
+        self.set_esc_level(self.initial_escalation_level)
+
     def resolve(self):
         self.is_open = False
 
@@ -89,10 +75,31 @@ class Notification(models.Model):
         self.owner = user
 
     def escalate(self):
+        if not self.is_escalable:
+            raise Exception('alert cannot be escalated further')
+
         self.owner = None
-        self._escalate()
+        self.set_esc_level(self.next_escalation_level(self.escalation_level))
+
+    def reveal_to_users(self):
+        if self.id is None:
+            self.save()
+
+        for u in self.users_for_escalation_level(self.escalation_level):
+            nv = NotificationVisibility(notif=self, user=u, esc_level=self.escalation_level)
+            nv.save()
+
+    def autoescalate_due(self):
+        return (self.is_escalable and datetime.utcnow() - self.escalated_on > self.auto_escalation_interval(self.escalation_level))
+
+    def set_esc_level(self, esc_level):
+        self.escalation_level = esc_level
+        self.escalated_on = datetime.utcnow()
+        self.reveal_to_users()
 
     def user_escalation_level(self, user):
+        """determine at what escalation level this user is affiliated with the
+        alert (determines what actions that user may take"""
         vis = self.visible_to.filter(user=user)
         if len(vis) == 0:
             raise Exception('alert is not visible to user')

@@ -37,7 +37,7 @@ class TestAlertType(NotificationType):
             return [User.objects.get(username='admin')]
 
     def auto_escalation_interval(self, esc_level):
-        return timedelta(days=14)
+        return timedelta(minutes=2) #days=14)
 
     def escalation_level_name(self, esc_level):
         return {
