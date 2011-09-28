@@ -6,6 +6,7 @@ from django.db import models, connection
 from django.db.backends.util import typecast_timestamp
 from django.core.exceptions import ValidationError
 from rapidsms.models import Contact, Connection
+from taggit.managers import TaggableManager
 
 
 DIRECTION_CHOICES = (
@@ -19,6 +20,7 @@ class Message(models.Model):
     direction  = models.CharField(max_length=1, choices=DIRECTION_CHOICES)
     date       = models.DateTimeField()
     text       = models.TextField()
+    tags       = TaggableManager()
 
     def save(self, *args, **kwargs):
         """
