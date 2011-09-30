@@ -8,6 +8,9 @@ from logistics.models import SupplyPoint, ProductReport, ProductReportType
 from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 import logging
+from django.core.cache import cache
+from win32timezone import utcnow
+from logistics_project.apps.malawi.views import facilities
 
 logger = logging.getLogger(__name__)
 
@@ -110,14 +113,29 @@ def get_user_location(user):
                 else None
 
 def last_stock_on_hand(facility):
-    return last_stock_on_hand_before(facility, datetime.utcnow())
+    tomorrow_now = datetime.utcnow() + timedelta(days=1)
+    tomorrow = datetime(tomorrow_now.year, tomorrow_now.month, tomorrow_now.day)
+    return last_stock_on_hand_before(facility, tomorrow)
 
 def last_stock_on_hand_before(facility, date):
+    def _cache_key():
+            return ("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
+                    {"fac": facility.code, "date": date})
+    key = _cache_key()
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+            
+    
     reports = ProductReport.objects.filter(supply_point=facility,
                                            report_type__code=Reports.SOH,
                                            report_date__lt=date)\
                                            .order_by('-report_date')
-    return reports[0] if reports.exists() else None
+    ret = reports[0] if reports.exists() else None
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 
 def last_status_before(facility, date, type, value=None):
     statuses = SupplyPointStatus.objects.filter(supply_point=facility,
@@ -130,6 +148,13 @@ def last_status_before(facility, date, type, value=None):
     return statuses[0] if statuses.exists() else None
 
 def soh_reported_on_time(supply_point, year, month):
+    key = "log_soh_reported_on_time-%(sp)s-%(year)s-%(month)s" % \
+        {"sp": supply_point.code, "year": year, "month": month}
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        from_cache = cache.get(key)
+        if from_cache: return from_cache
+        
+    
     last_bd_of_the_month = get_business_day_of_month(year, month, -1)
     last_report = last_stock_on_hand_before(supply_point, last_bd_of_the_month)
     last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
@@ -138,9 +163,13 @@ def soh_reported_on_time(supply_point, year, month):
                                    last_of_last_month.month,
                                    -1), time())
     if last_report:
-        return _reported_on_time(last_bd_of_last_month, last_report.report_date)
+        ret = _reported_on_time(last_bd_of_last_month, last_report.report_date)
     else:
-        return OnTimeStates.NO_DATA
+        ret = OnTimeStates.NO_DATA
+
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 
 def randr_reported_on_time(supply_point, year, month):
     reminder_date = datetime.combine(get_business_day_of_month_before(year, month, 5), time())
@@ -177,6 +206,11 @@ def submitted_to_msd(districts, month, year):
     return count
 
 def historical_response_rate(supply_point, type):
+    key = "hrr-%(sp)s-%(type)s" % {"sp": supply_point.pk, "type": type}
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        from_cache = cache.get(key)
+        if from_cache: return from_cache
+        
     statuses = SupplyPointStatus.objects.filter(supply_point=supply_point, status_type=type).order_by("-status_date")
     if not statuses.count(): return None
     status_month_years = set([(x.status_date.month, x.status_date.year) for x in statuses])
@@ -187,5 +221,9 @@ def historical_response_rate(supply_point, type):
         if f.count(): f = f[0]
         if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
             num += 1
-    return float(num)/float(denom), num, denom
+    
+    ret = float(num)/float(denom), num, denom
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 

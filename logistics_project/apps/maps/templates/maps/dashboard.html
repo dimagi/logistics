@@ -19,6 +19,7 @@
         var bounds = new google.maps.LatLngBounds();
         
 {% for sp in supply_points %}
+        {% if sp.location.point.latitude and sp.location.point.longitude %}
         {% comment %}
         ##########################################################
         this counter0 stuff is a horrible hack to make sure we have 
@@ -43,6 +44,7 @@
         });
         
         bounds.extend(latlng{{forloop.counter0}});
+        {% endif %}
 {% empty %}
         bounds.extend(latlng);        
 {% endfor %}

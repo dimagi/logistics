@@ -53,6 +53,7 @@ def load_locations(path):
         reader = csv.reader(f, delimiter=',', quotechar='"')
         for row in reader:
             id, name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
+            # for now assumes these are already create
             loc_type = LocationType.objects.get(name__iexact=type)
             
             
@@ -60,18 +61,25 @@ def load_locations(path):
                                           type__name__iexact=parent_type) \
                             if parent_name and parent_type else None
             
-            point = Point.objects.create(longitude=lon, latitude=lat) \
-                            if lat and lon else None
+            if lat and lon:
+                if Point.objects.filter(longitude=lon, latitude=lat).exists():
+                    point = Point.objects.filter(longitude=lon, latitude=lat)[0]
+                else:
+                    point = Point.objects.create(longitude=lon, latitude=lat)
+            else:
+                point = None
             
-            kwargs = {}
-            if parent: kwargs["parent"] = parent
-            if point:  kwargs["point"] = point
-            
-            l = Location.objects.create(name=name,
-                                        code=msd_code if msd_code else _get_code(type, name),
-                                        type=loc_type,
-                                        is_active=string_to_boolean(is_active),
-                                        **kwargs)
+            code = msd_code if msd_code else _get_code(type, name)
+            try:
+                l = Location.objects.get(code=code)
+            except Location.DoesNotExist:
+                l = Location(code=code)
+            l.name = name
+            l.type = loc_type
+            l.is_active = string_to_boolean(is_active)
+            if parent: l.parent = parent
+            if point:  l.point = point
+            l.save()
             
             sp = supply_point_from_location\
                     (l, SupplyPointType.objects.get(name__iexact=type),
