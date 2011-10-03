@@ -1,4 +1,5 @@
 # Create your views here.
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
@@ -95,7 +96,13 @@ def ajax_contact_count(request):
     """
     Called by jQuery to count the filtered contacts in request
     """
-    return HttpResponse(len(post_to_contact_set(request)))
+    contacts = post_to_contact_set(request)
+    ts = []
+    for c in contacts:
+        ts.append("<tr><td>%s</td><td>%s</td></tr>" % (c.phone, c.name))
+    data = {'num': len(contacts),
+            'table': "\n".join(ts)}
+    return HttpResponse(json.dumps(data), mimetype="application/json")
 
 @login_required
 def group_message(request):

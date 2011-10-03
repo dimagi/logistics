@@ -30,12 +30,17 @@
         $(".contactselect").each(function(){
             selectmap[this.name] = $(this).val();
         });
+        $('#contacttable').html("<img src='{{ MEDIA_URL }}groupmessaging/img/ajax-loader.gif'/> Loading...");
         $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
-            $("#contactcount").text(data);
+            $(".contactcount").text(data['num']);
+            $("#contacttable").html(data['table']);
         });
     });
+    $('#contacttable').html("<img src='{{ MEDIA_URL }}groupmessaging/img/ajax-loader.gif'/> Loading...");
+
     $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
-            $("#contactcount").text(data);
+            $(".contactcount").text(data['num']);
+            $("#contacttable").html(data['table']);
     });
     });
     </script>
@@ -43,8 +48,10 @@
 
 {% block content %}
 {#    <div class="two-columns topadded">#}
+{#    <div class="module">#}
+    <div class="two-columns toppadded">
+    <div class="col-1">
     <div class="module">
-
     <h2>Group Messaging</h2>
 
     <form method=post action="" id="messageform">
@@ -52,7 +59,7 @@
 
     {% csrf_token %}
 {#    <label for="contact_set">Send Message To:</label>#}
-    <table>
+    <table width=100%>
     {% for group in contact_fns %}
         <tr>
         <td><label for="select-{{ group.name }}">{{ group.name }}: </label></td>
@@ -65,23 +72,27 @@
         </td>
         </tr>
     {% endfor %}
-    <tr><td>Total:</td> <td><b><span id="contactcount">--</span> people</td></b></tr>
     </table>
-
-{#    <select id="contact_set" name="contact_set">#}
-{#        {% for group in contact_fns %}#}
-{#        <optgroup label="{{ group.name }}">#}
-{#            {% for name in group.groups %}#}
-{#            <option id="group-{{ name }}" num-people="{{ group.groups|dict_lookup:name|length }}" value="{{ name }}">{{ name }} ({{ group.groups|dict_lookup:name|length }} people)</option>#}
-{#            {% endfor %}#}
-{#        </optgroup>#}
-{#        {% endfor %}#}
-{#    </select>#}
     <label for="msg">Message: (<span id="charcount" class="char_good">0</span> characters of 160 used)</label><br/>
     <textarea name="msg" id="msg" cols=40 rows=4></textarea>
     <br/>
     <input type="submit" id="msgsubmit" value="Send SMS To All Selected Contacts" />
     </form>
+    </div>
+    </div>
+    <div class="col-2">
+        <div class="module tableContainer">
+        <h3><span class="contactcount"></span> Recipients</h3>
+        <table>
+            <thead class="fixedHeader">
+            <tr><th>Phone</th><th>Name</th></tr>
+            </thead>
+            <tbody class="scrollContent" id="contacttable">
+            
+            </tbody>
+        </table>
+    </div>
+        </div>
     </div>
 
 {% endblock %}
