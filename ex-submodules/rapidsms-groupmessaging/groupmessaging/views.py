@@ -1,11 +1,13 @@
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models.query_utils import Q
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.functional import curry
 from django.conf import settings
-from logistics.apps.logistics.models import ContactRole
+from logistics.models import ContactRole
 from rapidsms.models import Contact, Backend
 from rapidsms.utils.modules import try_import
 from rapidsms.contrib.messaging.utils import send_message
@@ -13,25 +15,25 @@ from rapidsms.contrib.messaging.utils import send_message
 
 
 def all_contacts():
-    return "Everyone", {"All Active Contacts": Contact.objects.filter(is_active=True)}
+    return "Everyone", {"All Active Contacts": Q(is_active=True)}
 
 def all_contacts_with_backend(backend_name):
-    return {"All %s Contacts" % backend_name: Contact.objects.filter(connection__backend__name=backend_name)}
+    return {"All %s Contacts" % backend_name: Q(connection__backend__name=backend_name)}
 
 def all_contacts_with_all_backends():
     r = {}
     for backend in Backend.objects.all():
         r.update(all_contacts_with_backend(backend))
-    return "SMS Backends", r
+    return "SMS Backend", r
 
 def all_contacts_with_role(role):
-    return {"All %ss" % role.name: Contact.objects.filter(role=role)}
+    return {"All %ss" % role.name: Q(role=role)}
 
 def all_contacts_with_all_roles():
     r = {}
     for role in ContactRole.objects.all():
         r.update(all_contacts_with_role(role))
-    return "Roles", r
+    return "Role", r
 
 
 
@@ -63,30 +65,51 @@ def get_contact_generator_functions():
         fns.append(getattr(contact_module, func))
     return fns
 
-@login_required
-def group_message(request):
-    fns = {}
+def queries_to_contact_set(selected_qs):
+    """
+    Given a set of Q objects, return the contacts that match them
+    """
+    c = Contact.objects.filter(is_active=True)
+    for q in selected_qs:
+        c = c.filter(q)
+    return c
+
+def get_fn_tree():
     fn_tree = []
     for f in get_contact_generator_functions():
         r = f()
         fn_tree.append({"name": r[0],
                         "groups": r[1]})
-        fns.update(r[1])
+    return fn_tree
+
+def post_to_contact_set(request):
+    qs = []
+    for f in get_fn_tree():
+        q = request.POST.get("select-%s" % f['name'])
+        if q and q != "All":
+            qs.append(f['groups'][q])
+    return queries_to_contact_set(qs)
+
+
+def ajax_contact_count(request):
+    """
+    Called by jQuery to count the filtered contacts in request
+    """
+    return HttpResponse(len(post_to_contact_set(request)))
+
+@login_required
+def group_message(request):
+    fn_tree = get_fn_tree()
     success_count = 0
     failures = []
     if request.method == 'POST':
         msg = request.POST.get("msg")
-        contacts_param = request.POST.get("contact_set")
+        contacts = post_to_contact_set(request)
         if not msg:
             messages.error(request, "No message supplied.")
-        elif not contacts_param:
+        elif not contacts:
             messages.error(request, "No contacts selected.")
-        found = ""
-        if not contacts_param in fns:
-            messages.error(request, "Invalid contact set selection.")
         else:
-            contacts = set(fns[contacts_param].filter(is_active=True))
-            
             for contact in contacts:
                 try:
                     send_message(contact.default_connection, msg)

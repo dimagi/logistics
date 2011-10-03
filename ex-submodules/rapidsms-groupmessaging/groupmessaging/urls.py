@@ -2,6 +2,10 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     url(r'^$',
-        "logistics.apps.groupmessaging.views.group_message",
+        "groupmessaging.views.group_message",
         name="group_message"),
+    url(r'^/ajax_contact_count',
+        "groupmessaging.views.ajax_contact_count",
+        name="ajax_contact_count"
+    )
 )

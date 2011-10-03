@@ -25,30 +25,63 @@
            return false;
        }
     });
+    $(".contactselect").change(function(){
+        var selectmap = {};
+        $(".contactselect").each(function(){
+            selectmap[this.name] = $(this).val();
+        });
+        $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
+            $("#contactcount").text(data);
+        });
+    });
+    $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
+            $("#contactcount").text(data);
+    });
     });
     </script>
 {% endblock %}
 
 {% block content %}
+{#    <div class="two-columns topadded">#}
     <div class="module">
+
     <h2>Group Messaging</h2>
+
     <form method=post action="" id="messageform">
+
+
     {% csrf_token %}
-    <label for="contact_set">Send Message To:</label>
-    <select id="contact_set" name="contact_set">
-        {% for group in contact_fns %}
-        <optgroup label="{{ group.name }}">
+{#    <label for="contact_set">Send Message To:</label>#}
+    <table>
+    {% for group in contact_fns %}
+        <tr>
+        <td><label for="select-{{ group.name }}">{{ group.name }}: </label></td>
+        <td><select class="contactselect" id="select-{{ group.name }}" name="select-{{ group.name }}">
+            <option id="___all" selected=true><b>All</b></option>
             {% for name in group.groups %}
-            <option id="group-{{ name }}" num-people="{{ group.groups|dict_lookup:name|length }}" value="{{ name }}">{{ name }} ({{ group.groups|dict_lookup:name|length }} people)</option>
+                <option id="group-{{ name|slugify }}" value="{{ name }}">{{ name }}</option>
             {% endfor %}
-        </optgroup>
-        {% endfor %}
-    </select>
-    <div></div>
+        </select>
+        </td>
+        </tr>
+    {% endfor %}
+    <tr><td>Total:</td> <td><b><span id="contactcount">--</span> people</td></b></tr>
+    </table>
+
+{#    <select id="contact_set" name="contact_set">#}
+{#        {% for group in contact_fns %}#}
+{#        <optgroup label="{{ group.name }}">#}
+{#            {% for name in group.groups %}#}
+{#            <option id="group-{{ name }}" num-people="{{ group.groups|dict_lookup:name|length }}" value="{{ name }}">{{ name }} ({{ group.groups|dict_lookup:name|length }} people)</option>#}
+{#            {% endfor %}#}
+{#        </optgroup>#}
+{#        {% endfor %}#}
+{#    </select>#}
     <label for="msg">Message: (<span id="charcount" class="char_good">0</span> characters of 160 used)</label><br/>
-    <textarea name="msg" id="msg" cols=80 rows=2></textarea>
+    <textarea name="msg" id="msg" cols=40 rows=4></textarea>
     <br/>
     <input type="submit" id="msgsubmit" value="Send SMS To All Selected Contacts" />
     </form>
     </div>
+
 {% endblock %}
