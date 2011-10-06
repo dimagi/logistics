@@ -60,13 +60,13 @@ class SupplyPointStatusBreakdown(object):
         self.delivery_not_responding = list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
         self.soh_submitted = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
-                                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
-                                                              status_value=SupplyPointStatusValues.SUBMITTED))
+                                                         status_type=SupplyPointStatusTypes.SOH_FACILITY,
+                                                         status_value=SupplyPointStatusValues.SUBMITTED))
 
 
-        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.soh_submitted)
+        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, facilities)
 
-        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.soh_submitted)
+        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, facilities)
 
 
         self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
