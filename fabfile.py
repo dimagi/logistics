@@ -71,7 +71,7 @@ def _malawi_shared():
     env.stop_start = True
     env.branch = "malawi-dev"
     def malawi_extras():
-        run("python manage.py malawi_init")
+	run("python manage.py malawi_init")
         run("python manage.py loaddata ../deploy/malawi/initial_data.json")
         sudo("/etc/init.d/memcached restart")
     env.extras = malawi_extras
@@ -100,7 +100,7 @@ def _tz_shared():
     env.db_type = "postgres"
     env.db_name = "ilsgateway"
     env.db_user = "postgres"
-    env.code_dir = _join(env.deploy_dir, 'logistics')
+    env.code_dir = _join(env.deploy_dir, 'logistics_project')
     env.code_cleanup = False
     env.db_cleanup = False
     env.stop_start = True
@@ -115,7 +115,7 @@ def tz_staging():
     TZ configuration (staging)
     """
     env.deploy_dir = '/home/dimagivm/src'
-    env.db_name = "logistics"
+    env.db_name = "logistics_project"
     env.hosts = ['dimagivm@ilsstaging.dimagi.com']
     _tz_shared()
 
@@ -125,7 +125,7 @@ def tz_production():
     TZ configuration (staging)
     """
     env.deploy_dir = '/home/dimagi/src'
-    env.db_name = "logistics"
+    env.db_name = "logistics_project"
     env.hosts = ['ilsgateway@ilsgateway.com']
     _tz_shared()
     env.virtualenv_root = "/home/dimagi/src/logistics-env"
@@ -197,9 +197,9 @@ def update_requirements():
     """ update external dependencies """
     with cd(env.code_dir):
         with enter_virtualenv():
-            run('pip install -r %s' % _join(env.code_dir, "pip-requires.txt"))
+            sudo('pip install -r %s' % _join(env.code_dir, "pip-requires.txt"))
 
-def bootstrap(subdir='logistics'):
+def bootstrap(subdir='logistics_project'):
     """ run this after you've checked out the code """
     with cd(env.code_dir):
         run('git submodule init')
@@ -239,7 +239,7 @@ def deploy():
         sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         
-    bootstrap(subdir='logistics_project' if env.config.startswith('tz') else 'logistics')
+    bootstrap(subdir='logistics_project')
     if env.stop_start:
         sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
