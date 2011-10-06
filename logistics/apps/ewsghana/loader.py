@@ -243,7 +243,7 @@ def init_reminders():
         EventSchedule.objects.get(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on the 28th
-        set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
+        set_monthly_event("logistics.apps.logistics.schedule.reminder_to_submit_RRIRV",7,14,15)
         #EventSchedule.objects.create(callback="logistics.apps.logistics.schedule.reminder_to_submit_RRIRV", 
         #                             minutes='*')
         
