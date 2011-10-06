@@ -1,7 +1,9 @@
 from django import template
 from logistics.util import config
 from django.core.urlresolvers import reverse
-from malawi.util import hsas_below
+from apps.malawi.util import hsas_below
+from logistics.reports import ProductAvailabilitySummary
+from logistics.templatetags.logistics_report_tags import _r_2_s_helper
 
 register = template.Library()
 

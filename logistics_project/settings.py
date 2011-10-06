@@ -48,9 +48,12 @@ BASE_APPS = [
     "logistics",
     "logistics_project.apps.maps",
     "email_reports",
+#    "logistics_project.apps.reports",
+#    "logistics_project.apps.groupmessaging",
     #"django_cpserver", # pip install django-cpserver
     "couchlog",
     "registration",
+    "groupmessaging"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults

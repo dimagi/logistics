@@ -33,6 +33,7 @@ RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
     ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
+    ("groupmessaging.views.group_message", "Group Message", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
@@ -129,6 +130,7 @@ LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
+LOGISTICS_USERS_HAVE_ADMIN_ACCESS = True
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
@@ -149,6 +151,14 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.malawi.alerts.hsa_below_emergency_quantity',
     'logistics_project.apps.malawi.alerts.health_center_unable_resupply_stockout',
     'logistics_project.apps.malawi.alerts.health_center_unable_resupply_emergency',
+]
+
+CONTACT_GROUP_GENERATORS = [
+#    "groupmessaging.views.all_contacts",
+    "groupmessaging.views.all_contacts_with_all_backends",
+    "groupmessaging.views.all_contacts_with_all_roles",
+    "logistics_project.apps.malawi.message_groups.by_district",
+    "logistics_project.apps.malawi.message_groups.by_facility",
 ]
 
 DATABASE_ENGINE = "mysql"

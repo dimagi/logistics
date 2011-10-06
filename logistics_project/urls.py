@@ -31,6 +31,8 @@ urlpatterns = patterns('',
     (r'^maps/', include('logistics_project.apps.maps.urls')),
     (r'^tz/', include('logistics_project.apps.tanzania.urls')),
     
+    (r'^group/', include('groupmessaging.urls')),
+
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
         kwargs={"template_name": settings.LOGISTICS_LOGIN_TEMPLATE}, 

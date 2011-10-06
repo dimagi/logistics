@@ -73,7 +73,33 @@ class TestStockOnHandMalawi(MalawiTestBase):
         # stocks should now be updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 360)
-        
+
+        # Second receipt should increase normally
+
+        c = """
+           16175551000 > rec zi 190 la 345
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(c)
+
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 390)
+        self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 705)
+
+
+    def testReceiptNoRequest(self):
+        hsa = self._setup_users()[0]
+
+        c = """
+           16175551000 > rec zi 190 la 345
+           16175551000 < Thank you, you reported receipts for zi la.
+        """
+        self.runScript(c)
+
+        self.assertEqual(190, ProductStock.objects.get(supply_point__code="261601", product__sms_code='zi').quantity)
+        self.assertEqual(345, ProductStock.objects.get(supply_point__code="261601", product__sms_code='la').quantity)
+
+
+
     def testAppendStockOnHand(self):
         hsa, ic, sh = self._setup_users()[0:3]
         report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")

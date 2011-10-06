@@ -32,36 +32,46 @@ from logistics_project.apps.malawi.reports import ReportInstance, ReportDefiniti
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
+class MonthPager(object):
+    """
+    Utility class to show a month pager, e.g. << August 2011 >>
+    """
+    def __init__(self, request):
+        self.month = int(request.GET.get('month', datetime.utcnow().month))
+        self.year = int(request.GET.get('year', datetime.utcnow().year))
+        self.begin_date = datetime(year=self.year, month=self.month, day=1)
+        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
+        self.prev_month = self.begin_date - timedelta(days=1)
+        self.next_month = self.end_date + timedelta(days=1)
+        self.show_next = True if self.end_date < datetime.utcnow().replace(day=1) else False
+        self.datespan = DateSpan(self.begin_date, self.end_date)
+
 #@cache_page(60 * 15)
 @place_in_request()
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
     em_group = None
-    begin_date = None
-    # district filter
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
         em_group = (group_for_location(request.location) == config.Groups.EM)
     # reporting info
-    report = ReportingBreakdown(base_facilities, DateSpan.since(30))#(group == config.Groups.EM))
+
+    month = MonthPager(request)
+
     if em_group:
-        begin_date = datetime.now().replace(day=1)
-        end_date = datetime.now()
-        d = DateSpan(begin_date, end_date)
-        em_report = ReportingBreakdown(base_facilities, d, include_late = True, MNE=False)#(group == config.Groups.EM))
+        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False)#(group == config.Groups.EM))
     else:
-        em_report = None
+        report = ReportingBreakdown(base_facilities)
+
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
                                "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
                                                                                        role__code="hsa"), request=request),
                                "graph_width": 200,
                                "graph_height": 200,
-                               "em_group": em_group,
-                               "em_report": em_report,
-                               "begin_date": begin_date,
+                               "month_pager": month,
                                "districts": get_districts().order_by("code"),
                                "location": request.location},
                                
@@ -120,7 +130,7 @@ def hsa(request, code):
         {
             "hsa": hsa,
             "chart_data": chart_data,
-            "stockrequest_table": stockrequest_table 
+            "stockrequest_table": stockrequest_table
         }, context_instance=RequestContext(request)
     )
 
@@ -152,20 +162,30 @@ def facilities(request):
 def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
     assert(facility.type.code == config.SupplyPointCodes.FACILITY)
+    em = group_for_location(facility.location) == config.Groups.EM
+    mp = MonthPager(request)
     context["location"] = facility.location
     facility.location.supervisors = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
     facility.location.in_charges = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.IN_CHARGE)
-    
-    context["stockrequest_table"] = HSAStockRequestTable\
-        (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                     requested_on__gte=request.datespan.startdate, 
-                                     requested_on__lte=request.datespan.enddate)\
-                             .exclude(status=StockRequestStatus.CANCELED), request)
-    
+    if em:
+        context["stockrequest_table"] = HSAStockRequestTable\
+            (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                         requested_on__gte=mp.datespan.startdate,
+                                         requested_on__lte=mp.datespan.enddate)\
+                                 .exclude(status=StockRequestStatus.CANCELED), request)
+    else:
+        context["stockrequest_table"] = HSAStockRequestTable\
+            (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                         requested_on__gte=request.datespan.startdate,
+                                         requested_on__lte=request.datespan.enddate)\
+                                 .exclude(status=StockRequestStatus.CANCELED), request)
+    context["em"] = em
+    context["month_pager"] = mp
     
     return render_to_response("malawi/single_facility.html",
+
         context, context_instance=RequestContext(request))
     
 @permission_required("is_superuser")

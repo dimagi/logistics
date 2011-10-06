@@ -19,6 +19,22 @@
             <th colspan="2">EM</th>
             <th colspan="2">EPT</th>
         </tr>
+     <tr>
+        <th></th>
+             {% for d in em_reports %}
+            <th>%</th>
+            <th>Total</th>
+        {% endfor  %}
+             {% for d in ept_reports %}
+            <th>%</th>
+            <th>Total</th>
+        {% endfor  %}
+                 <th>%</th>
+            <th>Total</th>
+                 <th>%</th>
+            <th>Total</th>
+    </tr>
+
     </thead>
     <tbody>
         <tr>

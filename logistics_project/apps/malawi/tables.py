@@ -141,7 +141,7 @@ class FacilityTable(Table):
     district = Column(value=lambda cell: cell.object.parent.name,
                       sortable=False)
     hsas = Column(name="Active HSAs", 
-                  value=lambda cell: len(cell.object.children()),
+                  value=lambda cell: len(cell.object.get_children()),
                   sortable=False)
     class Meta:
         order_by = 'code'
@@ -151,7 +151,7 @@ class DistrictTable(Table):
     name = Column(link=lambda cell: "%s?place=%s" % (reverse("malawi_facilities"), cell.object.code))
     code = Column()
     facilities = Column(name="Number of Facilities", 
-                  value=lambda cell: len(cell.object.children()),
+                  value=lambda cell: len(cell.object.get_children()),
                   sortable=False)
     
     class Meta:
