@@ -33,4 +33,4 @@
 	url = git://github.com/dimagi/djtables.git
 [submodule "submodules/rapidsms-groupmessaging"]
 	path = submodules/rapidsms-groupmessaging
-	url = git://github.com/rapidsms-groupmessaging.git
+	url = git://github.com/dimagi/rapidsms-groupmessaging.git
