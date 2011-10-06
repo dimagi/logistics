@@ -51,7 +51,7 @@
 	                });
             }
             else {
-                  $('#{{ chartdiv }}').html("<h4>No data</h4>");
+                  $('#{{ chartdiv }}').html("<h4>{{ no_data_text|default:'No data' }}</h4>");
             }
             $("#{{ chartdiv }}").bind("plothover", pieHover);
         })
