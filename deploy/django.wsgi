@@ -19,6 +19,9 @@ sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
 sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
 
+sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-groupmessaging'))
+sys.path.append(os.path.join(filedir,'..','submodules','dimagi-djtables'))
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 import django.core.handlers.wsgi
