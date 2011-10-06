@@ -134,8 +134,15 @@ class SupplyPointBase(models.Model):
         return Product.objects.filter(pk__in=\
                     self.productstock_set.filter\
                         (quantity__gt=0).values_list("product", flat=True))
-        
-    
+
+    @property
+    def last_soh(self):
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self).order_by("-report_date")
+        if sohs.exists():
+            return sohs[0].report_date
+        else:
+            return None
+
     @property
     def label(self):
         return unicode(self)
@@ -783,7 +790,7 @@ class StockRequest(models.Model):
                                                   amount_requested=current_stock.maximum_level - stock,
                                                   requested_on=now, 
                                                   is_emergency=is_emergency,
-                                                  balance=current_stock.quantity)
+                                                  balance=stock)
                 requests.append(req)
                 pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
                                                                           product=product).exclude(pk=req.pk)

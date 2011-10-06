@@ -10,10 +10,10 @@ from dimagi.utils.dates import DateSpan
 from logistics.const import Reports
 from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest
-from logistics.tables import ReportingTable
-import logistics.models as logistics_models
-from logistics.const import Reports
-from logistics.util import config
+from .tables import ReportingTable, SOHReportingTable
+import models as logistics_models
+from .const import Reports
+from .util import config
 
 if hasattr(settings, 'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)
@@ -162,11 +162,12 @@ class ReportingBreakdown(object):
             
             # makes an assumption of 1 contact per SP.
             # will need to be revisited
-            try:
-                contact = Contact.objects.get(supply_point=sp)
-            except (Contact.DoesNotExist, Contact.MultipleObjectsReturned):
+            contacts = Contact.objects.filter(supply_point=sp)
+            if contacts.count() == 1:
+                contact = contacts[0]
+            else:
                 contact = None
-            
+                
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
             if contact:
@@ -280,8 +281,8 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", ReportingTable(self.partial)),
-                TableData("Complete Reports", ReportingTable(self.full)),
+        return [TableData("Incomplete Reports", SOHReportingTable(self.partial)),
+                TableData("Complete Reports", SOHReportingTable(self.full)),
                 #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))
                 ]
         
@@ -289,9 +290,9 @@ class ReportingBreakdown(object):
     def on_time_chart(self):
         if self._on_time_chart is None:
             graph_data = [
-                {"display": "On Time",
+                {"display": "On Time" if self.include_late else "Reporting",
                  "value": len(self.on_time),
-                 "color": Colors.LIGHT_GREEN,
+                 "color": Colors.LIGHT_GREEN, 
                  "description": "(%s) On Time (%s)" % \
                     (len(self.on_time), self.datespan)
                 },
@@ -306,7 +307,7 @@ class ReportingBreakdown(object):
                 graph_data += [
                         {"display": "Late Reporting",
                          "value": len(self.reported_late),
-                         "color": Colors.MEDIUM_YELLOW,
+                         "color": Colors.PURPLE,
                          "description": "(%s) Late (%s)" % \
                             (len(self.reported_late), self.datespan)
                         }
@@ -316,12 +317,12 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-             TableData("Late HSAs", ReportingTable(self.reported_late)),
-             TableData("On-Time HSAs", ReportingTable(self.on_time))]
+            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
+             TableData("Late HSAs", SOHReportingTable(self.reported_late)),
+             TableData("On-Time HSAs", SOHReportingTable(self.on_time))]
         else:
-            return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-                    TableData("On-Time HSAs", ReportingTable(self.on_time))]
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
+                    TableData("Reporting HSAs", SOHReportingTable(self.on_time))]
 
 class ProductAvailabilitySummary(object):
 
@@ -532,6 +533,8 @@ class SupplyPointRow():
     def stockout_count(self): return self._call_stock_count("stockout_count")
     def emergency_stock_count(self): return self._call_stock_count("emergency_stock_count")
     def adequate_supply_count(self): return self._call_stock_count("adequate_supply_count")
+    def emergency_plus_low(self): return self._call_stock_count("emergency_plus_low")
+    def good_supply_count(self): return self._call_stock_count("good_supply_count")
     def overstocked_count(self): return self._call_stock_count("overstocked_count")
     
     @property
