@@ -68,12 +68,8 @@ class SupplyPointStatusBreakdown(object):
 
         self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, facilities)
 
-
-        self.soh_not_responding = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
-                                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
-                                                              status_value=SupplyPointStatusValues.REMINDER_SENT))
-
-
+        self.soh_not_responding = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) in (OnTimeStates.NO_DATA, OnTimeStates.INSUFFICIENT_DATA), facilities)
+        
         self._submission_chart = None
 
     def submission_chart(self):
