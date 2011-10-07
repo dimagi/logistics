@@ -31,6 +31,8 @@ from logistics.reports import ReportingBreakdown
 from logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
+from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Backend
 from .tables import FacilityTable, CommodityTable, MessageTable
 
 
@@ -381,6 +383,35 @@ def message_log(req, template="messagelog/index.html"):
             "messages_table": MessageTable(Message.objects.all(), request=req)
         }, context_instance=RequestContext(req)
     )
+
+def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
+    earliest_msg = Message.objects.all().order_by("date")[0].date
+    month = earliest_msg.month
+    year = earliest_msg.year
+    backends = list(Backend.objects.all())
+    counts = {}
+    mdates = []
+    while month <= datetime.now().month and year <= datetime.now().year:
+        d = datetime(year, month, 1)
+        mdates += [d]
+        counts[d] = {}
+        for b in backends:
+            counts[d][b.name] = {}
+            counts[d][b.name]["in"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="I").count()
+            counts[d][b.name]["out"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="O").count()
+        if month == 12:
+            month = 1
+            year += 1
+        else:
+            month += 1
+    mdates.reverse()
+    return render_to_response(template,
+                              {"backends": backends,
+                               "counts": counts,
+                               "mdates": mdates},
+                              context_instance=RequestContext(request))
+
+
 
 
 class MonthPager(object):
