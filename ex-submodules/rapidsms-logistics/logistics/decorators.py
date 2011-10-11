@@ -34,6 +34,22 @@ def logistics_permission_required(operation):
         return require_role
     return wrapper
 
+def managed_products_required():
+    """
+    This decorator currently only works on an instance
+    of a handler object. It also assumes that
+    logistics_contact_required has already been run.
+    """
+    def wrapper(f):
+        def require_role(self, *args, **kwargs):
+            if not self.msg.logistics_contact.commodities.count():
+                self.respond(config.Messages.NO_PRODUCTS_MANAGED)
+            else:
+                return f(self, *args, **kwargs)
+        return require_role
+    return wrapper
+
+
 def logistics_contact_and_permission_required(operation):
     """
     This decorator currently only works on an instance
