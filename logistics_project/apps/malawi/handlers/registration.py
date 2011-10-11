@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
-from logistics import settings
+from django.conf import settings
 from rapidsms.models import Contact
 from logistics.models import ContactRole, SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
