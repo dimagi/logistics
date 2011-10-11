@@ -9,7 +9,6 @@ from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 import logging
 from django.core.cache import cache
-from win32timezone import utcnow
 from logistics_project.apps.malawi.views import facilities
 
 logger = logging.getLogger(__name__)
