@@ -142,7 +142,7 @@ def hsa(request, code):
     )
 
 def deactivate_hsa(request, pk):
-    hsa = get_object_or_404(Contact, pk=code)
+    hsa = get_object_or_404(Contact, pk=pk)
     hsa.is_active = False
     hsa.save()
     if hsa.supply_point and \
