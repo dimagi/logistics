@@ -19,6 +19,9 @@ class SupplyPointStatusBreakdown(object):
             self.year = year
         if facilities is None:
             facilities = SupplyPoint.objects.filter(type__code="facility")
+
+        self.report_month = self.month - 1 if self.month > 1 else 12
+        self.report_year = self.year if self.report_month < 12 else self.year - 1
         self.dg = DeliveryGroups(month=month)
 
         self.submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
@@ -82,28 +85,28 @@ class SupplyPointStatusBreakdown(object):
                  "value": len(self.submitted_on_time),
                  "color": Colors.GREEN,
                  "description": "(%s) Submitted On Time (%s %s)" % \
-                    (len(self.submitted_on_time), month_name[self.month], self.year)
+                    (len(self.submitted_on_time), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Submitted Late"),
                  "value": len(self.submitted_late),
                  "color": "orange",
                  "description": "(%s) Submitted Late (%s %s)" % \
-                    (len(self.submitted_late), month_name[self.month], self.year)
+                    (len(self.submitted_late), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Haven't Submitted"),
                  "value": len(self.not_submitted),
                  "color": Colors.RED,
                  "description": "(%s) Haven't Submitted (%s %s)" % \
-                    (len(self.not_submitted), month_name[self.month], self.year)
+                    (len(self.not_submitted), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Didn't Respond"),
                  "value": len(self.submit_not_responding),
                  "color": Colors.PURPLE,
                  "description": "(%s) Didn't Respond (%s %s)" % \
-                    (len(self.submit_not_responding), month_name[self.month], self.year)
+                    (len(self.submit_not_responding), month_name[self.report_month], self.report_year)
                 }
             ]
-        self._submission_chart = PieChartData(_("R&R Submission Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        self._submission_chart = PieChartData(_("R&R Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._submission_chart
 
     def delivery_chart(self):
@@ -112,22 +115,22 @@ class SupplyPointStatusBreakdown(object):
                  "value": len(self.delivery_received),
                  "color": Colors.GREEN,
                  "description": "(%s) Delivery Received (%s %s)" % \
-                    (len(self.delivery_received), month_name[self.month], self.year)
+                    (len(self.delivery_received), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Delivery Not Received"),
                  "value": len(self.delivery_not_received),
                  "color": Colors.RED,
                  "description": "(%s) Delivery Not Received (%s %s)" % \
-                    (len(self.delivery_not_received), month_name[self.month], self.year)
+                    (len(self.delivery_not_received), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Didn't Respond"),
                  "value": len(self.delivery_not_responding),
                  "color": Colors.PURPLE,
                  "description": "(%s) Didn't Respond (%s %s)" % \
-                    (len(self.delivery_not_responding), month_name[self.month], self.year)
+                    (len(self.delivery_not_responding), month_name[self.report_month], self.report_year)
                 }
             ]
-        self._delivery_chart = PieChartData(_("Delivery Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        self._delivery_chart = PieChartData(_("Delivery Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._delivery_chart
 
     def soh_chart(self):
@@ -136,20 +139,20 @@ class SupplyPointStatusBreakdown(object):
                  "value": len(self.soh_on_time),
                  "color": Colors.GREEN,
                  "description": "(%s) SOH On Time (%s %s)" % \
-                    (len(self.soh_on_time), month_name[self.month], self.year)
+                    (len(self.soh_on_time), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("Stock Report Late"),
                  "value": len(self.soh_late),
                  "color": "orange",
                  "description": "(%s) Submitted Late (%s %s)" % \
-                    (len(self.soh_late), month_name[self.month], self.year)
+                    (len(self.soh_late), month_name[self.report_month], self.report_year)
                 },
                 {"display": _("SOH Not Responding"),
                  "value": len(self.soh_not_responding),
                  "color": Colors.PURPLE,
                  "description": "(%s) Didn't Respond (%s %s)" % \
-                    (len(self.soh_not_responding), month_name[self.month], self.year)
+                    (len(self.soh_not_responding), month_name[self.report_month], self.report_year)
                 }
             ]
-        self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.month], self.year), graph_data)
+        self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._soh_chart
