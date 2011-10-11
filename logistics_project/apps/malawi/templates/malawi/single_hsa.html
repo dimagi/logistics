@@ -28,9 +28,17 @@
         {% breadcrumbs hsa.supply_point.location %}
     </div>
 
+    {% if not hsa.is_active %}
+        <div class="error">
+        This HSA is not active!  To reactivate this HSA, click <a href="{% url reactivate_hsa hsa.supply_point.code hsa.supply_point.name %}">here</a>.<br/>
+        To register a new HSA with this data, have the HSA text "<b>register <i>name</i> {{ id_str }}</b>".
+
+        </div>
+    {% endif %}
+
     <div class="module">
         <span class="noprint">
-            <h2>Historical Months of Stock Levels for {{ hsa.name }}</h2>
+            <h2>Historical Months of Stock Levels for {{ hsa.supply_point.name }}</h2>
             {% if hsa.supply_point.productstock_set.count %}
                 {% if chart_data %}
                     <div id="chart_div"></div>
@@ -73,9 +81,19 @@
                     <td>{{ hsa.phone }}</td>
                 </tr>
                 <tr>
+                    <td class="prompt">Code:</td>
+                    <td>{{ hsa.supply_point.code }}</td>
+                </tr>
+                <tr>
                     <td class="prompt">Products:</td>
                     <td>{% if hsa.commodities.count %}{{ hsa.commodities.all|join:", " }}{% else %}<span
                             class="inline-error">none configured</span>{% endif %}</td></tr>
+                {% if request.user.is_superuser %}
+                <tr>
+                    <td class="prompt"><i>Superuser</i>:</td>
+                    <td><a href="{% url deactivate_hsa hsa.pk %}">Deactivate HSA</a></td>
+                </tr>
+                {% endif %}
             </table>
                 </div>
             </div>

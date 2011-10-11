@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
+from django.contrib import messages
 from django.core.serializers import json
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template.context import RequestContext
 from urllib import urlencode
 from urllib2 import urlopen
@@ -18,7 +19,7 @@ from logistics.models import SupplyPoint, Product, \
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from logistics.view_decorators import filter_context
 from logistics.reports import ReportingBreakdown
@@ -118,7 +119,12 @@ def hsas(request):
     )
     
 def hsa(request, code):
-    hsa = get_object_or_404(Contact, supply_point__code=code)
+    if Contact.objects.filter(supply_point__code=code, is_active=True).count():
+        hsa = get_object_or_404(Contact, supply_point__code=code, is_active=True)
+    elif Contact.objects.filter(supply_point__code=code).count():
+        hsa = Contact.objects.filter(supply_point__code=code)[0]
+    else:
+        return Http404("Contact not found!")
     assert(hsa.supply_point.type.code == config.SupplyPointCodes.HSA)
     
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
@@ -129,10 +135,45 @@ def hsa(request, code):
     return render_to_response("malawi/single_hsa.html",
         {
             "hsa": hsa,
+            "id_str": "%s %s" % (hsa.supply_point.code[-2:], hsa.supply_point.code[:-2]),
             "chart_data": chart_data,
             "stockrequest_table": stockrequest_table
         }, context_instance=RequestContext(request)
     )
+
+def deactivate_hsa(request, pk):
+    hsa = get_object_or_404(Contact, pk=code)
+    hsa.is_active = False
+    hsa.save()
+    if hsa.supply_point and \
+       hsa.supply_point.type == config.hsa_supply_point_type():
+        hsa.supply_point.active = False
+        hsa.supply_point.save()
+        if hsa.supply_point.location:
+            hsa.supply_point.location.is_active = False
+            hsa.supply_point.location.save()
+
+    messages.success(request, "HSA %(name)s deactivated." % {
+        "name": hsa.name,
+    })
+    return redirect('malawi_hsa', code=hsa.supply_point.code)
+
+def reactivate_hsa(request, code, name):
+    hsa = get_object_or_404(Contact, supply_point__code=code, name=name)
+    hsa.is_active = True
+    hsa.save()
+    if hsa.supply_point and \
+       hsa.supply_point.type == config.hsa_supply_point_type():
+        hsa.supply_point.active = True
+        hsa.supply_point.save()
+        if hsa.supply_point.location:
+            hsa.supply_point.location.is_active = True
+            hsa.supply_point.location.save()
+    messages.success(request, "HSA %(name)s reactivated." % {
+        "name": hsa.name,
+    })
+    return redirect('malawi_hsa', code=hsa.supply_point.code)
+
 
 @cache_page(60 * 15)
 @place_in_request()
