@@ -2,7 +2,7 @@ from django.db import transaction
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.models import StockRequest
-from logistics.decorators import logistics_contact_and_permission_required
+from logistics.decorators import logistics_contact_and_permission_required, managed_products_required
 from logistics.shortcuts import create_stock_report
 
 
@@ -16,9 +16,10 @@ class StockReportBaseHandler(RecordResponseHandler):
     
     def send_responses(self):
         raise NotImplemented("This method must be overridden")
-    
+
     @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.REPORT_STOCK)
+    @managed_products_required()
     def handle(self, text):
         """
         Check some preconditions, based on shared assumptions of these handlers.

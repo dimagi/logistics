@@ -5,7 +5,7 @@ from rapidsms.models import Contact
 from logistics.const import Reports
 
 
-def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
+def create_hsa(test_class, phone, name, id="1", facility_code="2616", products=None):
     a = """
            %(phone)s > register %(name)s %(id)s %(code)s
            %(phone)s < %(confirm)s
@@ -15,6 +15,14 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616"):
                      "role": "hsa",
                      "contact_name": name}}
     test_class.runScript(a)
+    if products:
+        b = """
+               %(phone)s > add %(products)s
+               %(phone)s < %(confirm)s
+            """ % {"phone": phone,
+                   "confirm": config.Messages.ADD_SUCCESS_MESSAGE % {"products": products},
+                   "products": products}
+        test_class.runScript(b)
     return Contact.objects.get(name=name)
 
 def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
