@@ -36,7 +36,7 @@ class Location(models.Model):
     def get_children(self):
         """ This signature gets overriden by mptt when mptt is used """
         from rapidsms.contrib.locations.models import Location
-        return Location.objects.filter(parent_id=self.id).order_by('name')
+        return Location.objects.filter(parent_id=self.id, is_active=True).order_by('name')
         
     def get_descendents(self, include_self=False):
         """ This signature gets overriden by mptt when mptt is used
@@ -52,15 +52,15 @@ class Location(models.Model):
         pks = _get_descendent_pks(self)
         if include_self:
             pks.append(self.pk)
-        ret = Location.objects.filter(id__in=pks)
+        ret = Location.objects.filter(id__in=pks, is_active=True)
         return ret
     
     def peers(self):
         from rapidsms.contrib.locations.models import Location
         # rl: is there a better way to do this?
         if 'mptt' in settings.INSTALLED_APPS:
-            return Location.objects.filter(tree_parent=self.tree_parent).order_by('name')
-        return Location.objects.filter(parent_id=self.parent_id).order_by('name')
+            return Location.objects.filter(tree_parent=self.tree_parent, is_active=True).order_by('name')
+        return Location.objects.filter(parent_id=self.parent_id, is_active=True).order_by('name')
         
 
     def child_facilities(self):
