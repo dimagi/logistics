@@ -185,7 +185,9 @@ def deploy():
             sudo('git submodule update', user=env.sudo_user)
         #update_requirements()
         migrate()
+        load_data()
         collectstatic()
+        
     finally:
         # hopefully bring the server back to life if anything goes wrong
         start()
@@ -280,6 +282,15 @@ def collectstatic():
     require('project_root', provided_by=('production', 'demo', 'staging'))
     with cd(env.project_root):
         sudo('%(virtualenv_root)s/bin/python manage.py collectstatic --noinput --settings=%(settings)s' % env, user=env.sudo_user)
+
+
+def load_data():
+    """
+    Loads data specific to TZ. 
+    """
+    require('project_root', provided_by=('production', 'demo', 'staging'))
+    with cd(env.project_root):
+        sudo('%(virtualenv_root)s/bin/python manage.py tz_update_schedules --settings=%(settings)s' % env, user=env.sudo_user)
 
 
 #def reset_local_db():
