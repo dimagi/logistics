@@ -11,6 +11,9 @@ from dimagi.utils.parsing import string_to_boolean
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from scheduler.models import EventSchedule, ALL_VALUE
 from django.core.management import call_command
+from datetime import datetime
+import pytz
+from pytz import timezone
 
 def clear_supplypoints():
     Location.objects.all().delete()
@@ -50,6 +53,7 @@ def load_locations(path):
         reader = csv.reader(f, delimiter=',', quotechar='"')
         for row in reader:
             id, name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
+            # for now assumes these are already create
             loc_type = LocationType.objects.get(name__iexact=type)
             
             
@@ -57,18 +61,25 @@ def load_locations(path):
                                           type__name__iexact=parent_type) \
                             if parent_name and parent_type else None
             
-            point = Point.objects.create(longitude=lon, latitude=lat) \
-                            if lat and lon else None
+            if lat and lon:
+                if Point.objects.filter(longitude=lon, latitude=lat).exists():
+                    point = Point.objects.filter(longitude=lon, latitude=lat)[0]
+                else:
+                    point = Point.objects.create(longitude=lon, latitude=lat)
+            else:
+                point = None
             
-            kwargs = {}
-            if parent: kwargs["parent"] = parent
-            if point:  kwargs["point"] = point
-            
-            l = Location.objects.create(name=name,
-                                        code=msd_code if msd_code else _get_code(type, name),
-                                        type=loc_type,
-                                        is_active=string_to_boolean(is_active),
-                                        **kwargs)
+            code = msd_code if msd_code else _get_code(type, name)
+            try:
+                l = Location.objects.get(code=code)
+            except Location.DoesNotExist:
+                l = Location(code=code)
+            l.name = name
+            l.type = loc_type
+            l.is_active = string_to_boolean(is_active)
+            if parent: l.parent = parent
+            if point:  l.point = point
+            l.save()
             
             sp = supply_point_from_location\
                     (l, SupplyPointType.objects.get(name__iexact=type),
@@ -106,15 +117,28 @@ def load_schedules():
                      "second_district": (8, 0),
                      "third_district": (14, 0)},
                    "logistics_project.apps.tanzania.reminders.stockonhand":
-                   {"first": (2, 0),
+                   {"first": (14, 0),
                     "second": (9, 0),
                     "third": (8, 15)},
+                   "logistics_project.apps.tanzania.reminders.reports":
+                   {"delivery_summary": (15, 0),
+                    "soh_summary": (15, 0),
+                    "randr_summary": (15, 0),
+                    "email_reports": (15, 0)},
                    "logistics_project.apps.tanzania.reminders.test":
                    {"test_email_admins": (12, 0)}}
                      
+    
+    tanzania_tz = timezone("Africa/Dar_es_Salaam") 
+    def _to_tz_time(hours, minutes):
+        localized = tanzania_tz.normalize(tanzania_tz.localize(datetime(2011, 1, 1, hours, minutes)))
+        utced = localized.astimezone(pytz.utc)
+        return (utced.hour, utced.minute)
+    
     for module, funcdict in theschedule.items():
         for func, (hours, minutes) in funcdict.items():
             func_abspath = "%s.%s" % (module, func)
+            hours, minutes = _to_tz_time(hours, minutes)
             try:
                 schedule = EventSchedule.objects.get(callback=func_abspath)
                 schedule.hours = [hours]

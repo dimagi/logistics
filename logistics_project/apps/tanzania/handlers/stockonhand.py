@@ -63,6 +63,11 @@ class StockOnHandHandler(KeywordHandler):
                              reply_list=','.join(sorted(stock_report.reported_products())))
 
             SupplyPointStatus.objects.create(supply_point=sp,
+                                             status_type=SupplyPointStatusTypes.SOH_FACILITY,
+                                             status_value=SupplyPointStatusValues.SUBMITTED,
+                                             status_date=self.msg.timestamp)
+            # this is an artifact of the response generating the l&a reminder
+            SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
                                              status_date=self.msg.timestamp)

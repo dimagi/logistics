@@ -1,9 +1,11 @@
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.tests.util import register_user, add_products
-from logistics.models import Product, ProductStock, ProductReport
+from logistics.models import Product, ProductStock, ProductReport, SupplyPoint
 from logistics.util import config
 from django.utils import translation
 from django.utils.translation import ugettext as _
+from logistics_project.apps.tanzania.models import SupplyPointStatus,\
+    SupplyPointStatusValues, SupplyPointStatusTypes
 
 class TestStockOnHand(TanzaniaTestScriptBase):
         
@@ -11,6 +13,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         super(TestStockOnHand, self).setUp()
         ProductStock.objects.all().delete()
         ProductReport.objects.all().delete()
+        SupplyPointStatus.objects.all().delete()
         
     def testStockOnHand(self):
         translation.activate("sw")
@@ -24,6 +27,16 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         self.runScript(script)
         self.assertEqual(3, ProductReport.objects.count())
         self.assertEqual(3, ProductStock.objects.count())
+        
+        # check created statuses
+        self.assertEqual(2, SupplyPointStatus.objects.count())
+        soh_status = SupplyPointStatus.objects.get(status_type=SupplyPointStatusTypes.SOH_FACILITY)
+        self.assertEqual(contact.supply_point, soh_status.supply_point)
+        self.assertEqual(SupplyPointStatusValues.SUBMITTED, soh_status.status_value)
+        la_status = SupplyPointStatus.objects.get(status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY)
+        self.assertEqual(contact.supply_point, la_status.supply_point)
+        self.assertEqual(SupplyPointStatusValues.REMINDER_SENT, la_status.status_value)
+        
         for ps in ProductStock.objects.all():
             self.assertEqual(contact.supply_point, ps.supply_point)
             self.assertTrue(0 != ps.quantity)

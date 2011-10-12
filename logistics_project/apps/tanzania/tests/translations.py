@@ -11,8 +11,8 @@ class TestTranslations(TanzaniaTestScriptBase):
         translation.activate("sw")
         count = 0
         for key, value in inspect.getmembers(config.Messages, (lambda x: isinstance(x, str))):
-            #print key, value
-            if value == _(value):
+            if (value == _(value)) and \
+               (value != "logistics_project.apps.tanzania.config"):
                 print "No Swahili translation for \"%s\"" % value
                 count+=1
         print "Number of strings w/o translation: %d" % count

@@ -66,10 +66,6 @@ INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
-    # tester
-    "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
-    },
     # twilio
     "twilio": {
         "ENGINE": "rtwilio.backend",

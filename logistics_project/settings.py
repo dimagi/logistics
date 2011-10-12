@@ -29,6 +29,7 @@ BASE_APPS = [
     "django.contrib.sites",
     "django.contrib.auth",
     "django.contrib.admin",
+    "django.contrib.messages",
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     
@@ -52,7 +53,8 @@ BASE_APPS = [
     "registration",
 ]
 
-APPS = []
+PRIORITY_APPS = [] # if you want apps before the defaults
+APPS = []          # if you want apps after the defaults
 
 # -------------------------------------------------------------------- #
 #                         BORING CONFIGURATION                         #
@@ -161,7 +163,7 @@ AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 
 # celery
 CARROT_BACKEND = "django"
-CELERY_HEARTBEAT_FILE = '/tmp/sc4ccm-heartbeat'
+CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
 
 # kannel
 KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
@@ -197,16 +199,18 @@ COUCHDB_APPS=['auditcare','couchlog']
 LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
-LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
-LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
+LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
+LOGISTICS_PASSWORD_CHANGE_TEMPLATE = "logistics/password_reset_form.html"
 LOGISTICS_ALERT_GENERATORS = ['alerts.alerts.empty']
 LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
 LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
 LOGISTICS_APPROVAL_REQUIRED = False
+MAGIC_TOKEN = "changeme"
 
-MAP_DEFAULT_LATITUDE  = 40.726111
-MAP_DEFAULT_LONGITUDE = -73.981389
+MAP_DEFAULT_LATITUDE  = -10.49
+MAP_DEFAULT_LONGITUDE = 39.35
 
 DEBUG=False
 
@@ -249,7 +253,7 @@ if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
             tempfile.gettempdir(),
             "%s.rapidsms.test.sqlite3" % db_name)
 
-INSTALLED_APPS = BASE_APPS + APPS
+INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 
 def get_server_url(server_root, username, password):
     if username and password:

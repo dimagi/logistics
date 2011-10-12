@@ -2,6 +2,7 @@ div.module ul {
     list-style: none;
 }
 
+
 div.module ul.alerts li {
     padding: 7px 0 5px 26px;
     background-image: url(/static/tanzania/img/icons/exclamation_trans_bg_icon.gif);
@@ -39,36 +40,37 @@ div.module h2.contactGroup {
   background-image: none;                    
 }
 
-span.r_and_r_not_submitted_facility_to_district, 
-span.delivery_not_received_facility, 
-span.r_and_r_reminder_sent_facility, 
-span.delivery_received_reminder_sent_facility,
-span.zero_count,
-span.no_delivery_status_reported,
-span.supervision_not_received_facility,
-span.supervision_reminder_sent_facility {
+.r_and_r_not_submitted_facility_to_district, 
+.delivery_not_received_facility, 
+.r_and_r_reminder_sent_facility, 
+.delivery_received_reminder_sent_facility,
+.zero_count,
+.no_delivery_status_reported,
+.supervision_not_received_facility,
+.supervision_reminder_sent_facility {
    color: red;
 }
 
-span.exceeds_max,
-span.supervision_received_facility,
-span.randr_submitted_facility_to_district,
-span.soh_reported_on_time { 
+
+.exceeds_max,
+.supervision_received_facility,
+.randr_submitted_facility_to_district,
+.soh_reported_on_time { 
    color: green;
 }
 
-span.under_min,
-span.soh_not_reported {
+.under_min,
+.soh_not_reported {
    color: red;
 }
 
-span.randr_submitted_facility_to_district_wrong_date,
-span.soh_reported_late {
+.randr_submitted_facility_to_district_wrong_date,
+.soh_reported_late {
    color: orange;
 }
 
-span.not_reported,
-span.insufficient_data {
+.not_reported,
+.insufficient_data {
    color: gray;
 }
 
@@ -244,4 +246,63 @@ div.highlightedMessage {
   font-weight: bold;
   margin: 50px;
   padding: 10px;                        
+}
+
+.messages {
+    list-style-type: none;
+    margin-top: 1em;
+}
+/* alerts, copied from malawi */
+
+.scrollable {     
+    background-color: #f9f9f9;
+    border: 1px solid #aaa;
+}
+    
+#alertpane {
+    height:200px;
+    overflow:auto;  
+}
+
+/* stolen from blueprint */
+.error, .notice, .success {padding:.8em;margin-bottom:1em;border:2px solid #ddd;}
+.error {background:#FBE3E4;color:#8a1f11;border-color:#FBC2C4;}
+.notice {background:#FFF6BF;color:#514721;border-color:#FFD324;}
+.success {background:#E6EFC2;color:#264409;border-color:#C6D880;}
+.error a {color:#8a1f11;}
+.notice a {color:#514721;}
+.success a {color:#264409;}
+
+
+
+.group_A {
+    color: blue;
+}
+
+.group_B {
+    color: green;
+}
+
+.group_C {
+    color: red;
+}
+
+.width_10 {
+    min-width: 15px;
+    max-width: 15px;
+}
+
+.fac_name {
+    min-width: 80px;
+    max-width: 80px;
+}
+
+.msd_code {
+    min-width: 60px;
+    max-width: 60px;
+}
+
+.last_reported {
+    min-width: 110px;
+    max-width: 110px;
 }

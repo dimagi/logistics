@@ -6,13 +6,41 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#placeholders
+msgid "Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
+msgstr "_Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
+
+msgid "To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
+msgstr "_To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
+#end placeholders
+
 #stockout
-msgid "Please send in stockout reports in the form 'so <product>"
+msgid "Please send in stockout reports in the form 'so <product>'"
 msgstr "Tafadhali tuma taarifa za hakuna katika mpangilio ufuatao, 'hakuna <kifaa>'"
 
 msgid "Thank you %(contact_name)s for reporting stockouts of %(product_names)s for %(facility_name)s."
 msgstr "Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_names)s vya %(facility_name)s."
 #end stockout
+
+#district reports#
+msgid "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
+msgstr "Uwasilishaji wa R&R: %(submitted)s/%(total)s wamewasilisha R&R, %(not_submitted)s/%(total)s hawajawasilisha R&R, %(not_responding)s/%(total)s hawajajibu ujumbe"
+       
+msgid "SOH - %(submitted)s/%(total)s reported, %(not_responding)s/%(total)s did not reply"
+msgstr "Hesabu ya mkono: %(submitted)s/%(total)s wametoa taarifa ya hmk, %(not_responding)s/%(total)s hawajajibu ujumbe"
+
+msgid "Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
+msgstr "Upokeaji wa Shehena: %(received)s/%(total)s wamepokea shehena, %(not_received)s/%(total)s hawajapokea shehena, %(not_responding)s/%(total)s hawajajibu ujumbe"
+#end district reports#
+
+msgid "Sent"
+msgstr "Ilitumwa"
+
+msgid "Invalid msd code %(code)s"
+msgstr "Namba ya MSD sio sahihi %(code)s"
+
+msgid "To set your language, send LANGUAGE <CODE>"
+msgstr "Kubadilisha lugha, tuma LUGHA <KIFUPISHO>"
 
 msgid "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
 msgstr "Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
@@ -135,13 +163,18 @@ msgid ""
 msgstr ""
 "Tafadhali tuma hesabu ya mkono ya vifaaa vilivyopo katika mpangilio huu 'hmk <jina la vifaa> <idadi> <jina la vifaa> <idadi>...'"
 
+msgid "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
+msgstr ""
+"Tafadhali tuma hesabu ya mkono ya bidhaa katika mpangilio huu '<namba ya bidha ya MSD><kiasi>'"
+
+msgid "How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  Please respond 'si %(msd_code)s <amount>'"
+msgstr "Kiasi gani cha %(product_name) (namba ya MSD %(msd_code)) ulichonacho?  Tafadhal jibu 'si %(msd_code)s <amount>'"
+
 #: handlers/stockonhand.py:21
-#, fuzzy
 msgid "Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'"
 msgstr "Kutuma taarifa za kupokea vifaa, jibu 'hmk <jina la vifaa> <idadi ya vifaa>...'"
 
 #: handlers/stockonhand.py:42
-#, fuzzy, python-format
 msgid "Sorry, invalid product code %(product_code)s"
 msgstr "Samahani, kodi ya kifaa %(product_code)s sio sahihi"
 
@@ -195,6 +228,10 @@ msgstr ""
 #: templates/change_language.html:17
 msgid "Current language"
 msgstr "Lugha inayotumika"
+
+#: templates/change_language.html:17
+msgid "change language"
+msgstr "Badilisha lugha"
 
 #: templates/facilities_detail.html:18
 msgid "Inventory History"
@@ -283,6 +320,9 @@ msgstr "simu"
 
 msgid "Phone"
 msgstr "Simu"
+
+msgid "Maps"
+msgstr "Ramani"
 
 #: templates/facilities_detail.html:57
 msgid "Email"
@@ -398,50 +438,55 @@ msgstr "Kumbuka"
 msgid "Facilities"
 msgstr "Vituo"
 
+msgid "Message Tester"
+msgstr "Ujumbe mtihani"
+
+msgid "Submission Status"
+msgstr "Kuwasilisha hali"
+
 #: templates/ilsgateway_dashboard.html:81
-msgid "have reported not submitting their R&amp;R form as of today."
-msgstr "vimetoa taarifa kuwa havijatuma R&amp;R fomu za vituo vyao kwa leo"
+msgid "%(count)d facilities have reported not submitting their R&R form as of today."
+msgstr "%(count)d vituo vimetoa taarifa kuwa havijatuma R&R fomu za vituo vyao kwa leo"
 		
 #: templates/ilsgateway_dashboard.html:82
-msgid ""
-"did not respond to the SMS asking if they had submitted their R&amp;R form."
-msgstr "havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
+msgid "%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
 		
 #: templates/ilsgateway_dashboard.html:83
-msgid "have not reported their stock levels for last month."
-msgstr "havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita "
-		
+msgid "%(count)d facilities have not reported their stock levels for last month."
+msgstr "%(count)d vituo havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita"
+
 #: templates/ilsgateway_dashboard.html:84
-msgid "have reported not receiving their deliveries as of today."
-msgstr "vimetoa taarifa leo kuwa havijapokea vifaa"
+msgid "%(count)d facilities have reported not receiving their deliveries as of today."
+msgstr "%(count)d vituo vimetoa taarifa leo kuwa havijapokea vifaa"
 		
 msgid "Deliveries"
 msgstr "Wamepokea"
 
 #: templates/ilsgateway_dashboard.html:85
-msgid "did not respond to the SMS asking if they had received their delivery."
-msgstr "havijajibu ujumbe unaouliza kama vimepokea vifaa"
+msgid "%(count)d facilities did not respond to the SMS asking if they had received their delivery."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimepokea vifaa"
 		
 #: templates/ilsgateway_dashboard.html:87
 #, python-format
-msgid "%(name)s is stocked out of %(product)s"
-msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s"
+msgid "%(name)s is stocked out of %(product)s."
+msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s."
 
 #: templates/ilsgateway_dashboard.html:90
-msgid "has no primary contact"
-msgstr "Hakuna mhusika mkuu kwa kituo cha afya"
+msgid "%(name)s has no primary contact."
+msgstr "%(name)s hakuna mhusika mkuu kwa kituo cha afya."
 
 #: templates/ilsgateway_dashboard.html:90
 msgid "Register someone now"
 msgstr "Sajili mtu sasa"
 
 #: templates/ilsgateway_dashboard.html:98
-msgid "R&amp;R Submission Summary"
+msgid "R&R Submission Summary"
 msgstr "Muhtasari wa R&R"
 
 #: templates/ilsgateway_dashboard.html:100
-msgid "All Reports"
-msgstr "Ripoti zote"
+msgid "Reports"
+msgstr "Ripoti"
 
 #: templates/ilsgateway_dashboard.html:107
 msgid "Product Availability Summary"
@@ -485,6 +530,10 @@ msgstr "Wamepokea vifaa"
 #: templates/message_history.html:4
 msgid "Message History"
 msgstr "Historia ya ujumbe "
+
+msgid "Message Log"
+msgstr "Historia ya ujumbe "
+
 
 #: templates/message_history.html:13 templates/note_history.html:12
 msgid "Sender"
@@ -558,8 +607,16 @@ msgid ""
 msgstr ""
 "Asante kwa kujisajili katika %(sdp_name)s, %(msd_code)s, %(contact_name)s"
 
+msgid ""
+"Thank you for registering at %(sdp_name)s, %(contact_name)s"
+msgstr ""
+"Asante kwa kujisajili katika %(sdp_name)s, %(contact_name)s"
+
 msgid "I will speak to you in %(language)s."
 msgstr "Nitaongea na wewe kwa %(language)s."
+
+msgid "Sorry, I don't speak \"%(language)s\"."
+msgstr "Samahani, sielewi \"[lugha]\""
 
 msgid "Dashboard"
 msgstr "Ubaoni"

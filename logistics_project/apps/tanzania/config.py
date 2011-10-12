@@ -12,7 +12,7 @@ class Languages(object):
     DEFAULT = SWAHILI
 
 
-
+DISTRICT_REG_DELIMITER = ":"
 
 class Roles(object):
     """
@@ -123,11 +123,13 @@ class Messages(object):
     # some semblance of an attempt to start being consistent about this.
     
     # "register" keyword (tz registration)
-    REGISTER_HELP = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
+    REGISTER_HELP = "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"
     REGISTER_BAD_CODE = "I didn't recognize your msd code.  To register, send register <name> <msd code>. example: register Peter Juma d34002"
     REGISTER_UNKNOWN_CODE = "Sorry, can't find the location with MSD CODE %(msd_code)s"
+    REGISTER_UNKNOWN_DISTRICT = "Sorry, can't find the location with the name %(name)s"
     REGISTRATION_CONFIRM = "Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
-    
+    REGISTRATION_CONFIRM_DISTRICT = "Thank you for registering at %(sdp_name)s, %(contact_name)s"
+
     HELP_REGISTERED = 'Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la'
     HELP_UNREGISTERED = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
     
@@ -174,8 +176,8 @@ class Messages(object):
     DELIVERY_REMINDER_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     DELIVERY_CONFIRM_DISTRICT = "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
     DELIVERY_LATE_DISTRICT = "Facility deliveries for group %(group_name)s (out of %(group_total)d): %(not_responded_count)d haven't responded and %(not_received_count)d have reported not receiving. See ilsgateway.com"
-    #TODO This doesn't look right
-    DELIVERY_CONFIRM_CHILDREN = "Sending alert to all facilities under %(district_name)s that they received delivery from from MSD"
+    DELIVERY_CONFIRM_CHILDREN = "District %(district_name)s has reported that they sent their R&R forms to MSD."
+
 
     # not submitted
     NOT_SUBMITTED_CONFIRM = "You have reported that you haven't yet sent in your R&R."
@@ -184,6 +186,7 @@ class Messages(object):
     SUBMITTED_CONFIRM = "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
     SUBMITTED_REMINDER_FACILITY = "Have you sent in your R&R form yet for this quarter? Please reply \"submitted\" or \"not submitted\""
     SUBMITTED_REMINDER_DISTRICT= "How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
+    SUBMITTED_NOTIFICATION_MSD = "%(district_name)s has submitted their R&R forms to MSD: %(group_a)s for Group A, %(group_b)s for Group B, %(group_c)s for Group C"
 
     # reminders
     REMINDER_STOCKONHAND = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
@@ -193,12 +196,18 @@ class Messages(object):
     REMINDER_DELIVERY_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     REMINDER_SUPERVISION = "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
     
+    # reminder reports 
+    REMINDER_MONTHLY_RANDR_SUMMARY = "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
+    REMINDER_MONTHLY_SOH_SUMMARY = "SOH - %(submitted)s/%(total)s reported, %(not_responding)s/%(total)s did not reply" 
+    REMINDER_MONTHLY_DELIVERY_SUMMARY = "Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
+
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_BAD_FORMAT = "Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'"
     SOH_PARTIAL_CONFIRM = 'Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.'
     SOH_CONFIRM = "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     SOH_ADJUSTMENTS_REMINDER = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
+    SOH_THANK_YOU = "Thank you for reporting your stock on hand this month"
 
     # stock inquiry
     STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
@@ -213,10 +222,7 @@ class Messages(object):
     TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
     TEST_HANDLER_CONFIRM = "Sent"
 
-    # response to 'help'
-    HELP_TEXT = "Haujasajiliwa,Tafadhali jisajili kwanza kabla ya kupata huduma," + \
-                "Kusajili andika 'sajili<nafasi><jina lako><nafasi><msd code>'. " + \
-                "Mfano 'sajili Peter Juma d34002'"
+    REGISTRATION_REQUIRED_MESSAGE = HELP_UNREGISTERED
 
 class Alerts(object):
     

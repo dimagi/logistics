@@ -19,6 +19,7 @@
         var bounds = new google.maps.LatLngBounds();
         
 {% for sp in supply_points %}
+        {% if sp.location.point.latitude and sp.location.point.longitude %}
         {% comment %}
         ##########################################################
         this counter0 stuff is a horrible hack to make sure we have 
@@ -34,7 +35,8 @@
             title:"{{ sp.name }}",
             icon: "{% get_map_icon sp request %}"
         });
-        marker{{forloop.counter0}}.infowindow = new google.maps.InfoWindow({content: '{% get_map_popup sp request %}'});
+        var infoWindowContents{{forloop.counter0}} = $('{% get_map_popup sp request %}');
+        marker{{forloop.counter0}}.infowindow = new google.maps.InfoWindow({content: infoWindowContents{{forloop.counter0}}.get(0)});
         google.maps.event.addListener(marker{{forloop.counter0}}, 'click', function(event) {
             if (last_marker != null) { last_marker.infowindow.close(); }
             marker{{forloop.counter0}}.infowindow.open(map, marker{{forloop.counter0}});
@@ -42,20 +44,42 @@
         });
         
         bounds.extend(latlng{{forloop.counter0}});
+        {% endif %}
+{% empty %}
+        bounds.extend(latlng);        
 {% endfor %}
-
-        //map.fitBounds(bounds);
+        // This is needed to set the zoom after fitbounds,
+        // HT: http://stackoverflow.com/questions/2989858/google-maps-v3-enforcing-min-zoom-level-when-using-fitbounds/2990316#2990316 
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+		    zoomChangeBoundsListener = 
+		        google.maps.event.addListener(map, 'bounds_changed', function(event) {
+		            if (this.getZoom() > 10 && this.initialZoom == true) {
+		                // Change max/min zoom here
+		                this.setZoom(10);
+		                this.initialZoom = false;
+		            } else {
+		              // Nothing to worry about here.
+		            }
+		        google.maps.event.removeListener(zoomChangeBoundsListener);
+		    });
+		});
+		map.initialZoom = true;
+        map.fitBounds(bounds);
+        
     });
 </script>
 {% endblock %}
 
 {% block stylesheets %}{{ block.super }}
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}maps/stylesheets/maps.css" />
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 {% endblock %}
 
 {% block content %}
-    <h2>Map</h2>
+    {% include "logistics/partials/breadcrumbs.html" %}
+        
+    <h2>{{ location.name }}</h2>
     <div id="map_legend">
     	<span><img src="{{MEDIA_URL}}logistics/images/stockout.png"></img>&nbsp;</span>All Stockouts
     	<span><img src="{{MEDIA_URL}}logistics/images/warning.png">&nbsp;</span>Some Stockouts

@@ -1,54 +1,34 @@
-{% extends "tanzania/base.html" %}
+{% extends base_template %}
 {% load nav_tags %}
+{% load tz_tags %}
 {% load logistics_report_tags %}
 {% load i18n %}
 
-{% block title %}{% trans "Current Stock Status" %}{{ block.super }}{% endblock %}
+{% block title %}{% trans "Current Stock Status" %} - {{ block.super }}{% endblock %}
+{% block javascripts %}{{ block.super }}
+{#<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/stock_init.js"></script>#}
+<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/legend_hider.js"></script>
+{#<script type="text/javascript">#}
+{#    $(function () {#}
+{#       stock_init({{ months_minimum|default:"1" }}, {{ months_maximum|default:"3" }});#}
+{#    });#}
+{#</script>#}
+{% endblock %}
 
 {% block content %}
 
-<div class="crumbs">{% breadcrumbs location %}</div>
-    <div class="toolbar">
-    {% include "logistics/partials/selector_form.html" %}
-    </div>
-<div style="clear:both;">&nbsp;</div>
-<p><a href="{{ previous_month_link }}">&laquo; previous month</a><span style="font-weight:bold;font-size:1.5em;"> {{ report_date|date:"F" }} {{ report_date|date:"Y" }} </span>{% if show_next_month %}<a href="{{ next_month_link }}">next month &raquo;</a>{% else %}<span style="color:gray;">next month &raquo;</span>{% endif %} </p>
-<p>Stock levels for the month prior reported between {{ start_time }} and {{ end_time }}</p>
-{% for products in product_set %}
-    <div class="module">
-	    <h2>{% trans 'Current Stock Status' %}{% if not forloop.first %} (continued){% endif %}</h2>
-	    <div class="toolbar">
-	        {% if view_type == 'inventory' %}<a href="{{ mos_link }}">{% trans 'Show months of stock' %}</a>{% else %}<a href="{{ inv_link }}">{% trans 'Show inventory' %}</a>{% endif %}
-	    </div>    
-        <table>
-            <thead><tr>
 
-                <th>MSD Code</th>
-                <th>Delivery Group</th>
-                <th>Name</th>
+{% include "logistics/partials/month_pager.html" %}
+<div style="margin-top: 1em; margin-bottom: 1em;">
+{% include "logistics/partials/breadcrumbs.html" %}
+</div>
 
-            {% for p in products %}
-                <th>{{ p.name }}</th>
-            {% endfor %}
-            </tr>
-                </thead>
-                <tbody>
-                {% for fac in facs %}
-            <tr>
-                <td>{{ fac.code }}</td>
-                <td>{{ fac.groups.all|first }}</td>
-                <td>{{ fac.name }}</td>
-                {% for p in products %}
-                    <td>{% stock fac p %}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
-
-    </div>
-{% endfor %}
-
-
+{% average_lead_time facs %}
+    
+{% include "logistics/partials/combined_legend.html" %}
+{% if tables %}
+{% include "tanzania/partials/soh_table.html" %}
+{% else %}
+<p style="margin-top: 1em;" class="notice">In order to view data, please first select a region.</p>
+{% endif %}
 {% endblock %}

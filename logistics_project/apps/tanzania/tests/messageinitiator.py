@@ -277,7 +277,7 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusTypes.SOH_FACILITY, sps.status_type)
 
 
-    def testMessageInitiatorSOHFacility(self):
+    def testMessageInitiatorSupervisionFacility(self):
         translation.activate("sw")
         register_user(self, "32000", "Trainer", )
         register_user(self, "32347", "Person 1", "d31049", "CHIDEDE DISP")
@@ -301,5 +301,19 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         self.assertEqual(SupplyPointStatusValues.REMINDER_SENT, sps.status_value)
         self.assertEqual(SupplyPointStatusTypes.SUPERVISION_FACILITY, sps.status_type)
 
+    def testMessageInitiatorThankYouDistrict(self):
+        translation.activate("sw")
+        register_user(self, "32000", "Trainer", )
+        register_user(self, "32347", "Person 1", "d31049", "CHIDEDE DISP")
+        register_user(self, "32348", "Person 2", "d31049", "CHIDEDE DISP")
+        register_user(self, "32349", "Person 3", "d31049", "CHIDEDE DISP")
 
-
+        script = """
+            32000 > test soh_thank_you d31049
+            32000 < %(test_handler_confirm)s
+            32347 < %(response)s
+            32348 < %(response)s
+            32349 < %(response)s
+            """ % {"test_handler_confirm":_(config.Messages.TEST_HANDLER_CONFIRM),
+                   "response":_(config.Messages.SOH_THANK_YOU)}
+        self.runScript(script)

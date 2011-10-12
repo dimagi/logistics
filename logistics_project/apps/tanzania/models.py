@@ -1,49 +1,75 @@
+from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
-from logistics.models import SupplyPoint
-from logistics.util import config
+from logistics.models import SupplyPoint, SupplyPointGroup
+from logistics_project.apps.tanzania.tasks import email_report
+from rapidsms.contrib.messagelog.models import Message
+
 
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
 
+    def __init__(self, month=None, facs = None):
+        self.month = month if month else datetime.utcnow().month
+        self.facs = facs
+        
     # Current submitting group: Jan = A
-    # Current processing group: Jan = B
-    # Current delivering group: Jan = C
+    # Current processing group: Jan = C
+    # Current delivering group: Jan = B
 
-    @classmethod
-    def current_submitting_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.GROUPS[(month + 2) % 3]
+    def current_submitting_group(self, month=None):
+        month = month if month else self.month
+        return self.GROUPS[(month + 2) % 3]
 
-    @classmethod
-    def current_processing_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.current_submitting_group(month=(month+1))
+    def current_processing_group(self, month=None):
+        month = month if month else self.month
+        return self.current_submitting_group(month=(month+2))
 
-    @classmethod
-    def current_delivering_group(cls, month=None):
-        if month is None:  month = datetime.utcnow().month
-        return cls.current_submitting_group(month=(month+2))
+    def current_delivering_group(self, month=None):
+        month = month if month else self.month
+        return self.current_submitting_group(month=(month+1))
 
-    @classmethod
-    def facilities_by_group(cls, month=datetime.now().month):
+    def delivering(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return SupplyPoint.objects.none()
+        return facs.filter(groups__code=self.current_delivering_group(month))
+
+    def processing(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return SupplyPoint.objects.none()
+        return facs.filter(groups__code=self.current_processing_group(month))
+
+    def submitting(self, facs=None, month=None):
+        if not facs: facs = self.facs
+        if not facs: return SupplyPoint.objects.none()
+        return facs.filter(groups__code=self.current_submitting_group(month))
+
+    def total(self):
+        return self.facs.filter(groups__code__in=self.GROUPS)
+
+    def facilities_by_group(self, month=datetime.utcnow().month):
         groups = {}
-        facs = SupplyPoint.objects.filter(type__code="facility")
-        groups['submitting'] = [f for f in facs if f.groups.filter(code=cls.current_submitting_group(month)).count()]
-        groups['processing'] = [f for f in facs if f.groups.filter(code=cls.current_processing_group(month)).count()]
-        groups['delivering'] = [f for f in facs if f.groups.filter(code=cls.current_delivering_group(month)).count()]
+        facs = self.facs if self.facs else SupplyPoint.objects.filter(type__code="facility")
+        groups['submitting'] = self.submitting(facs, month)
+        groups['processing'] = self.processing(facs, month)
+        groups['delivering'] = self.delivering(facs, month)
         groups['total'] = list(facs)
         return groups
+
+class OnTimeStates(object):
+    ON_TIME = "on time"
+    LATE = "late"
+    NO_DATA = "no data"
+    INSUFFICIENT_DATA = "insufficient data"
 
 class SupplyPointStatusValues(object):
     RECEIVED = "received"
     NOT_RECEIVED = "not_received"
-    QUANTITIES_REPORTED = "quantities_reported"
     SUBMITTED = "submitted"
     NOT_SUBMITTED = "not_submitted"
     REMINDER_SENT = "reminder_sent"
     ALERT_SENT = "alert_sent"
-    CHOICES = [RECEIVED, NOT_RECEIVED, QUANTITIES_REPORTED, SUBMITTED,
+    CHOICES = [RECEIVED, NOT_RECEIVED, SUBMITTED,
                NOT_SUBMITTED, REMINDER_SENT, ALERT_SENT]
     
 class SupplyPointStatusTypes(object):
@@ -60,7 +86,6 @@ class SupplyPointStatusTypes(object):
     CHOICE_MAP = {
         DELIVERY_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                             SupplyPointStatusValues.RECEIVED: "Delivery received",
-                            SupplyPointStatusValues.QUANTITIES_REPORTED: "Delivery quantities reported",
                             SupplyPointStatusValues.NOT_RECEIVED: "Delivery Not Received"},
         DELIVERY_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
                            SupplyPointStatusValues.RECEIVED: "Delivery received",
@@ -70,7 +95,8 @@ class SupplyPointStatusTypes(object):
                            SupplyPointStatusValues.NOT_SUBMITTED: "R&R Not Submitted"},
         R_AND_R_DISTRICT: {SupplyPointStatusValues.REMINDER_SENT: "R&R Reminder Sent to District",
                            SupplyPointStatusValues.SUBMITTED: "R&R Submitted from District to MSD"},
-        SOH_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Stock on hand reminder sent to Facility"},
+        SOH_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Stock on hand reminder sent to Facility",
+                       SupplyPointStatusValues.SUBMITTED: "Stock on hand Submitted"},
         SUPERVISION_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Supervision Reminder Sent",
                                SupplyPointStatusValues.RECEIVED: "Supervision Received",
                                SupplyPointStatusValues.NOT_RECEIVED: "Supervision Not Received"},
@@ -103,8 +129,41 @@ class SupplyPointStatus(models.Model):
     def __unicode__(self):
         return "%s: %s" % (self.status_type, self.status_value)
 
+    @property
+    def name(self):
+        return SupplyPointStatusTypes.get_display_name(self.status_type, self.status_value)
+
     class Meta:
         verbose_name = "Facility Status"
         verbose_name_plural = "Facility Statuses"
         get_latest_by = "status_date"
         ordering = ('-status_date',)
+        
+class AdHocReport(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    recipients = models.TextField(help_text="Use a list of email addresses separated by commas")
+    
+    def get_recipients(self):
+        return [email.strip() for email in self.recipients.split(",")]
+    
+    def send(self):
+        email_report.delay(self.supply_point.code, self.get_recipients())
+
+class SupplyPointNote(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    date = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User)
+    text = models.TextField()
+
+    def __unicode__(self):
+        return "%s at %s on %s: %s" % (self.user.username, self.supply_point.name, self.date, self.text)
+
+class DeliveryGroupReport(models.Model):
+    supply_point = models.ForeignKey(SupplyPoint)
+    quantity = models.IntegerField()
+    report_date = models.DateTimeField(auto_now_add=True, default=datetime.now())
+    message = models.ForeignKey(Message)
+    delivery_group = models.ForeignKey(SupplyPointGroup)
+
+    class Meta:
+        ordering = ('-report_date',)
