@@ -78,18 +78,27 @@ class SOHReportingTable(Table):
     class Meta:
         order_by = '-last_reported'
 
+def _parent_or_nothing(location):
+    if location is None or \
+       location.tree_parent is None:
+        return None
+    return location.tree_parent
 def _facility(cell):
     if cell.object.contact is None or \
      cell.object.contact.supply_point is None:
         return None
     return cell.object.contact.supply_point
 def _district(cell):
-    facility = _facility(cell)
-    if facility is None or \
-      facility.location is None or \
-      facility.location.tree_parent is None:
-        return None
-    return facility.location.tree_parent.name
+    fac = _facility(cell)
+    if fac:
+        dist = _parent_or_nothing(fac.location)
+        return dist
+def _district_name(cell):
+    d = _district(cell)
+    return d.name if d else ""
+def _region(cell):
+    r = _parent_or_nothing(_district(cell))
+    return r.name if r else ""
 def _connection(cell):
     return cell.object.connection.identity
 class MessageTable(Table):
@@ -100,7 +109,8 @@ class MessageTable(Table):
     date = DateColumn(format="H:i d/m")
     text = Column(css_class="message")
     facility = Column(value=_facility)
-    location = Column(value=_district)
+    district = Column(value=_district)
+    region = Column(value=_region)
 
     class Meta:
         order_by = '-date'
