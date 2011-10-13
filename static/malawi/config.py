@@ -216,6 +216,7 @@ class Messages(object):
     APPROVAL_HSA = "Congratulations, your registration has been approved. Welcome to the cStock system, %(hsa)s."
 
     # Other  Messages (usually for error conditions)
+    NO_PRODUCTS_MANAGED = "Please add the products you manage before reporting. Text 'add <code> <code>...' for all products you manage, then send your report again."
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
     UNKNOWN_LOCATION = "Sorry, can't find the facility with CODE %(code)s. Please double check the facility code and try again."
     REGISTRATION_REQUIRED_MESSAGE = "Sorry, you have to be registered with the system to do that. For help, please contact your supervisor"

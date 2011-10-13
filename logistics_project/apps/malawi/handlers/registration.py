@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.utils.translation import ugettext as _
-from logistics import settings
+from django.conf import settings
 from rapidsms.models import Contact
 from logistics.models import ContactRole, SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
@@ -54,9 +54,11 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         if SupplyPoint.objects.filter(code=hsa_id, type=config.hsa_supply_point_type(), active=False).exists():
             # We have a previously deactivated HSA.  Reassociate.
             sp = SupplyPoint.objects.get(code=hsa_id, type=config.hsa_supply_point_type(), active=False)
+            sp.name = self.contact_name
             sp.active = True
             sp.save()
             sp.location.is_active=True
+            sp.location.name = self.contact_name
             sp.location.save()
         else:
             hsa_loc = Location.objects.create(name=self.contact_name, type=config.hsa_location_type(),

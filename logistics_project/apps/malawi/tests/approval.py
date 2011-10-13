@@ -1,4 +1,4 @@
-from logistics import settings
+from django.conf import settings
 from logistics_project.apps.malawi import loader
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.base import MalawiTestBase

@@ -180,7 +180,7 @@ class TestHSARegister(MalawiTestBase):
         self.assertNotEqual(contact.supply_point.id, spi)
 
     def testManagerLeave(self):
-        hsa = create_hsa(self, "555555", "somehsa")
+        hsa = create_hsa(self, "555555", "somehsa", products="la zi")
         ic = create_manager(self, "666666", "somemanager")
         super = create_manager(self, "777777", "somesuper", config.Roles.HSA_SUPERVISOR)
         report_stock(self, hsa, "zi 10 la 15", [ic, super], "zi 190, la 345")

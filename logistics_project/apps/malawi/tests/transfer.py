@@ -11,7 +11,7 @@ class TestTransfer(MalawiTestBase):
     
     def testBadRoles(self):
         create_manager(self, "16175551234", "cindy")
-        create_hsa(self, "16175551235", "alex")
+        create_hsa(self, "16175551235", "alex", products="zi")
         a = """
            16175551234 > give 261601 zi 20 
            16175551234 < %(bad_role)s
@@ -21,8 +21,8 @@ class TestTransfer(MalawiTestBase):
         self.runScript(a)
         
     def testBasicTransfer(self):
-        create_hsa(self, "16175551000", "wendy")
-        create_hsa(self, "16175551001", "steve", id="2")
+        create_hsa(self, "16175551000", "wendy", products="zi")
+        create_hsa(self, "16175551001", "steve", id="2", products="zi")
         a = """
            16175551000 > soh zi 100
            16175551000 < %(no_super)s

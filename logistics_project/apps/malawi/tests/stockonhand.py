@@ -10,13 +10,23 @@ from logistics_project.apps.malawi.tests.base import MalawiTestBase
 class TestStockOnHandMalawi(MalawiTestBase):
     
     def testNoInCharge(self):
-        create_hsa(self, "16175551234", "stella")
+        create_hsa(self, "16175551234", "stella", products="zi")
         a = """
            16175551234 > soh zi 10
            16175551234 < %(no_super)s
            """ % {"no_super": config.Messages.NO_IN_CHARGE % {"supply_point": "Ntaja"}}
         self.runScript(a)
-        
+
+
+    def testNoProductsAdded(self):
+        hsa = create_hsa(self, "16175551000", "wendy", products="")
+        ic = create_manager(self, "16175551001", "sally")
+        a = """
+           16175551000 > soh zi 10
+           16175551000 < %(no_products)s
+           """ % {"no_products": config.Messages.NO_PRODUCTS_MANAGED}
+        self.runScript(a)
+
     def testBasicSupplyFlow(self):
         hsa, ic, sh = self._setup_users()[0:3]
         report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
@@ -316,7 +326,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
 
     def _setup_users(self):
-        hsa = create_hsa(self, "16175551000", "wendy")
+        hsa = create_hsa(self, "16175551000", "wendy", products="la lb zi")
         ic = create_manager(self, "16175551001", "sally")
         sh = create_manager(self, "16175551004", "robert", config.Roles.HSA_SUPERVISOR)
         im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")

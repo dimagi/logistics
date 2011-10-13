@@ -1,4 +1,4 @@
-from logistics import settings
+from django.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics_project.apps.malawi import loader
 from rapidsms.contrib.messagelog.models import Message
