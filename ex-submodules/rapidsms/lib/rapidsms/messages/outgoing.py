@@ -60,11 +60,19 @@ class OutgoingMessage(MessageBase):
 
     @property
     def text(self):
-        return unicode(" ".join([
+
+        t =  (" ".join([
             self._render_part(template, **kwargs)
             for template, kwargs in self._parts
         ]))
 
+        # Encoding hack
+        # We try to decode the message in the regular way (with 'ascii' encoding)
+        # When this does not work, we try to decode it using utf-8
+        try:
+            return unicode(t)
+        except UnicodeDecodeError:
+            return t.decode('utf-8')
 
     @property
     def date(self):
