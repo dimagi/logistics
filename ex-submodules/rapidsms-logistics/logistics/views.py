@@ -190,9 +190,9 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
 def navigate(request):
     location_code = settings.COUNTRY
     destination = "logistics_dashboard"
-    if 'location' in request.REQUEST: 
+    if 'location' in request.REQUEST and request.REQUEST['location']: 
         location_code = request.REQUEST['location']
-    if 'destination_url' in request.REQUEST: 
+    if 'destination_url' in request.REQUEST and request.REQUEST['destination_url']: 
         destination = request.REQUEST['destination_url']
     mode = request.REQUEST.get("mode", "url")
     if mode == "url":
