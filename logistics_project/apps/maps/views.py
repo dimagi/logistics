@@ -19,5 +19,6 @@ def dashboard(request, location_code=None):
                                "default_longitude": settings.MAP_DEFAULT_LONGITUDE,
                                "location": location,
                                "destination_url": "maps_dashboard",
+                               "nav_hide": True, 
                                },                             
                               context_instance=RequestContext(request))

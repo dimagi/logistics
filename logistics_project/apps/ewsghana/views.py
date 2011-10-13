@@ -23,6 +23,7 @@ from logistics.util import config
 
 """ Usage-Related Views """
 @geography_context
+@location_context
 def reporting(request, location_code=None, context={}, template="ewsghana/reporting.html"):
     return logistics_reporting(request=request, location_code=location_code, 
                                context=context, template=template, 
