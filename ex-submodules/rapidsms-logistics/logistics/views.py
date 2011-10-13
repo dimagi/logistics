@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from logistics.const import Reports
 
-import json
+import csv, json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
@@ -268,6 +268,26 @@ def get_location_children(location, commodity_filter, commoditytype_filter):
     children.extend(location.facilities())
     children.extend(location.get_children())
     return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
+
+def export_reporting(request, location_code=None):
+    if location_code is None:
+        location_code = settings.COUNTRY
+    location = get_object_or_404(Location, code=location_code)
+    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendents(include_self=True)).order_by('report_date')
+    response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
+    response['Content-Disposition'] = 'attachment; filename=reporting.xls'
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Location Grandparent', 'Location Parent', 'Facility', 
+                     'Commodity', 'Report Type', 
+                     'Quantity', 'Date',  'Message'])
+    for q in queryset:
+        writer.writerow([q.id, 
+                         q.supply_point.location.parent.parent, 
+                         q.supply_point.location.parent, 
+                         q.supply_point, 
+                         q.product, q.report_type, 
+                         q.quantity, q.report_date, q.message])
+    return response    
 
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
     class ProductReportDataset(ModelDataset):

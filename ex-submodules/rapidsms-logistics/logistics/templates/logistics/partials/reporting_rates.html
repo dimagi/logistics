@@ -12,7 +12,7 @@
 {% include "logistics/partials/pie_reporting.html" %}
 {% if excel_export %}
 <div class="toolbar">
-    <a href="{% url export_reporting %}" class="add">{% trans "Export to Excel" %}</a>
+    <a href="{% url export_reporting location.code %}" class="add">{% trans "Export to Excel" %}</a>
 </div>
 {% endif %}
 <div id="report-content">
