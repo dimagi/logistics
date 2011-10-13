@@ -57,13 +57,6 @@ def mk_notifiable_disease_alert(disease, alert_type, reporting_period, val, loc)
     return notif
 
 def notifiable_disease_test():
-
-    #debug stub -- can't get the real function to work currently
-    def total_attribute_value(type, start, end, master_loc):
-        return [
-            (Location.objects.get(code='MS'), 5),
-        ] 
-
     METRICS = {
         'malaria': {
             'threshold': 3,
@@ -85,7 +78,10 @@ def notifiable_disease_test():
     for metric, info in METRICS.iteritems():
         #todo: is the end date inclusive or exclusive?
         data = total_attribute_value(info['slug'], period_start, period_end, Location.objects.get(name='Uganda'))
-        for loc, val in data:
+        for total in data:
+            loc = Location.objects.get(id=total['location_id'])
+            val = total['value']
+
             if val > info['threshold']:
                 # trigger alert
                 yield info['gen'](metric, 'alerts._prototyping.NotifiableDiseaseThresholdAlert', reporting_period, val, loc)
