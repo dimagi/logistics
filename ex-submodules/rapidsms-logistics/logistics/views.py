@@ -20,6 +20,7 @@ from django.views.decorators.cache import cache_page
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
+from dimagi.utils.decorators.datespan import datespan_in_request
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
 from logistics.models import ProductStock, \
@@ -168,6 +169,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 @cache_page(60 * 15)
 @geography_context
 @filter_context
+@datespan_in_request(default_days=7)
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
               destination_url="reporting"):
     """ which facilities have reported on time and which haven't """
@@ -176,10 +178,6 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-    # should probably move this to sql queries
-    on_time_facilities, late_facilities = get_reporting_and_nonreporting_facilities(deadline, location)
-    context['late_facilities'] = late_facilities
-    context['on_time_facilities'] = on_time_facilities
     context['destination_url'] = destination_url
     return render_to_response(
         template, context, context_instance=RequestContext(request)

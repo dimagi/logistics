@@ -60,13 +60,14 @@ class ReportingBreakdown(object):
     """
     
     def __init__(self, supply_points, datespan=None, include_late=False,
-                 days_for_late=5, MNE=False):
+                 days_for_late=5, MNE=False, request=None):
         self.supply_points = supply_points
         
         if not datespan:
             datespan = DateSpan.since(30)
         self.datespan = datespan
         
+        self._request = request
         self.include_late = include_late
         self.days_for_late = days_for_late
         date_for_late = datespan.startdate + timedelta(days=days_for_late)
@@ -160,20 +161,9 @@ class ReportingBreakdown(object):
         stockouts_avg_duration_p = {}
         for sp in reported.all():
             
-            # makes an assumption of 1 contact per SP.
-            # will need to be revisited
-            contacts = Contact.objects.filter(supply_point=sp)
-            if contacts.count() == 1:
-                contact = contacts[0]
-            else:
-                contact = None
-                
             found_reports = reports_in_range.filter(supply_point=sp)
             found_products = set(found_reports.values_list("product", flat=True).distinct())
-            if contact:
-                needed_products = set([c.pk for c in contact.commodities.all()])
-            else:
-                needed_products = None
+            needed_products = set([c.pk for c in sp.commodities_stocked()])
             if needed_products:
                 if needed_products - found_products:
                     partial.append(sp)
@@ -235,8 +225,10 @@ class ReportingBreakdown(object):
             self.totals_p = totals_p
             self.stockouts_duration_p = stockouts_duration_p
             self.stockouts_avg_duration_p = stockouts_avg_duration_p
-        self.full = full
-        self.partial = partial
+        # ro 10/14/11 - not sure why querysets are necessary. 
+        # something changed in the djtables tables spec with the new ordering features?
+        self.full = SupplyPoint.objects.filter(pk__in=[f.pk for f in full])
+        self.partial = SupplyPoint.objects.filter(pk__in=[p.pk for p in partial])
         self.unconfigured = unconfigured
         
         self.non_reporting = non_reporting
@@ -281,9 +273,9 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(self.partial)),
-                TableData("Complete Reports", SOHReportingTable(self.full)),
-                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))
+        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, request=self._request)),
+                TableData("Complete Reports", SOHReportingTable(self.full, request=self._request))
+                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
                 ]
         
     _on_time_chart = None
@@ -317,12 +309,12 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
-             TableData("Late HSAs", SOHReportingTable(self.reported_late)),
-             TableData("On-Time HSAs", SOHReportingTable(self.on_time))]
+            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, request=self._request)),
+             TableData("Late HSAs", SOHReportingTable(self.reported_late, request=self._request)),
+             TableData("On-Time HSAs", SOHReportingTable(self.on_time, request=self._request))]
         else:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting)),
-                    TableData("Reporting HSAs", SOHReportingTable(self.on_time))]
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, request=self._request)),
+                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, request=self._request))]
 
 class ProductAvailabilitySummary(object):
 

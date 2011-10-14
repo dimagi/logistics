@@ -25,11 +25,14 @@ from django.core.cache import cache
 Message = messagelog.models.Message
 register = template.Library()
 
-def _r_2_s_helper(template, dict):
+def _context_helper(context):
     extras = {"MEDIA_URL": settings.MEDIA_URL}
-    dict.update(extras)
-    dict.update(custom_settings(None))
-    return render_to_string(template, dict)
+    context.update(extras)
+    context.update(custom_settings(None))
+    return context
+    
+def _r_2_s_helper(template, dict):
+    return render_to_string(template, _context_helper(dict))
     
 @register.simple_tag
 def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
@@ -77,22 +80,23 @@ def reporting_rates(locations, type=None, days=30):
     return "" # no data, no report
 
 
-@register.simple_tag
-def reporting_breakdown(locations, type=None, datespan=None):
+@register.inclusion_tag("logistics/partials/reporting_breakdown.html", takes_context=True)
+def reporting_breakdown(context, locations, type=None, datespan=None):
     # with a list of locations - display reporting
     # rates associated with those locations
+    request = context['request']
     if locations:
         base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
-        if type is not None:
+        if type is not None and type:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, datespan)
-            return _r_2_s_helper("logistics/partials/reporting_breakdown.html", 
-                                 {"report": report,
-                                  "graph_width": 200,
-                                  "graph_height": 200,
-                                  "datespan": datespan,
-                                  "table_class": "minor_table" })
+            report = ReportingBreakdown(base_points, datespan, request=request)
+            context = {"report": report,
+                       "graph_width": 200,
+                       "graph_height": 200,
+                       "datespan": datespan,
+                       "table_class": "minor_table" }
+            return _context_helper(context)
                                      
     return "" # no data, no report
 

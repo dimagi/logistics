@@ -55,6 +55,10 @@ class Location(models.Model):
         ret = Location.objects.filter(id__in=pks, is_active=True)
         return ret
     
+    def get_descendents_plus_self(self):
+        # utility to facilitate calling function from django template
+        return self.get_descendents(include_self=True)
+    
     def peers(self):
         from rapidsms.contrib.locations.models import Location
         # rl: is there a better way to do this?

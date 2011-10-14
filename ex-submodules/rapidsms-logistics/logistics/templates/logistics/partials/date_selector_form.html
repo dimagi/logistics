@@ -1,0 +1,10 @@
+
+{% if request.datespan %}&nbsp;
+<span class="noprint">
+	<form method="get" id="selector">
+	Change Report Dates: {% include "logistics/partials/date_selector.html" %}
+	<input type="submit" value="Go!" />
+	</form>
+</span>	
+{% endif %}
+
