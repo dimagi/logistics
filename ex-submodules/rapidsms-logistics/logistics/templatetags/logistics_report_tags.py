@@ -182,8 +182,8 @@ def stockonhand_table(supply_point, datespan=None):
     end_date = datetime.now() if datespan is None else datespan.enddate
     sohs = supply_point.productstock_set.all().order_by('product__name')
     # update the stock quantities to match whatever reporting period has been specified
-    for soh in sohs:
-        soh.quantity = supply_point.historical_stock(soh.product, year=end_date.year, month=end_date.month)
+    for soh in sohs: 
+        soh.quantity = supply_point.historical_stock_by_date(soh.product, end_date)
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
                          {"stockonhands": sohs})
     

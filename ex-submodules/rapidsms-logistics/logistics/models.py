@@ -3,7 +3,7 @@
 
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
@@ -232,24 +232,31 @@ class SupplyPointBase(models.Model):
         ps.save()
 
     
+    def historical_stock_by_date(self, product, date, default_value=0):
+        cache_key = ("log-hs-%(supply_point)s-%(product)s-%(datetime)s-%(default)s" % \
+                    {"supply_point": self.code, "product": product.sms_code, 
+                     "datetime": date, "default": default_value}).replace(" ", "-")
+        return self._historical_stock(product, cache_key, date.year, date.month, 
+                                      date.day, default_value)
+        
     def historical_stock(self, product, year, month, default_value=0):
         def _cache_key():
             return ("log-hs-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
                     {"supply_point": self.code, "product": product.sms_code, 
                      "year": year, "month": month, "default": default_value}).replace(" ", "-")
-        key = _cache_key()
+        return self._historical_stock(product, _cache_key(), year, month, 
+                                      default_value=default_value)
+    
+    def _historical_stock(self, product, cache_key, year, month, day=None, default_value=0):
         if settings.LOGISTICS_USE_SPOT_CACHING: 
-            from_cache = cache.get(key)
+            from_cache = cache.get(cache_key)
             if from_cache:
                 return from_cache
-                
-        srs = transactions_before_or_during(year, month).\
+        srs = transactions_before_or_during(year, month, day).\
                 filter(supply_point=self, product=product).order_by("-date")
-        
         ret = srs[0].ending_balance if srs.exists() else default_value
-        
         if settings.LOGISTICS_USE_SPOT_CACHING: 
-            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+            cache.set(cache_key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
         return ret
 
     def stockout_count(self, product=None, producttype=None):
@@ -1425,9 +1432,10 @@ def consumption(facilities=None, product=None, producttype=None):
     consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
     return consumption
 
-
-def transactions_before_or_during(year, month):
-    last_of_the_month = get_day_of_month(year, month, -1)
-    first_of_the_next_month = last_of_the_month + timedelta(days=1)
-    return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
-    
+def transactions_before_or_during(year, month, day=None):
+    if day is None:
+        last_of_the_month = get_day_of_month(year, month, -1)
+        first_of_the_next_month = last_of_the_month + timedelta(days=1)
+        return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
+    deadline = date(year, month, day)
+    return StockTransaction.objects.filter(date__lte=deadline).order_by("-date")
