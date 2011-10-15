@@ -13,6 +13,7 @@
     <div class="module">
         <div class="topbar noprint">
         {% include "logistics/partials/breadcrumbs.html" %}
+        {% include "logistics/partials/date_selector_form.html" %}
         </div>
         {% if not excel_export %}
 	        <!-- only room for one toprighttoolbar in this town... -->
@@ -36,7 +37,7 @@
                 <div id="chart_div" class="noprint"></div>
                 {% endif %}
                 
-                {% stockonhand_table facility %}
+                {% stockonhand_table facility request.datespan %}
                 
                 <br/>
                 {% if request.user.is_superuser %}
