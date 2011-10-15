@@ -122,6 +122,7 @@ class JSONDateEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
 
 @geography_context
+@datespan_in_request(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
 def stockonhand_facility(request, facility_code, context={}, template="logistics/stockonhand_facility.html"):
     """
      this view currently only shows the current stock on hand for a given facility
@@ -169,7 +170,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 @cache_page(60 * 15)
 @geography_context
 @filter_context
-@datespan_in_request(default_days=7)
+@datespan_in_request(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
               destination_url="reporting"):
     """ which facilities have reported on time and which haven't """
