@@ -93,6 +93,12 @@ TESTING_DATABASES= {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
