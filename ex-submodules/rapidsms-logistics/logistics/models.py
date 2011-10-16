@@ -470,6 +470,10 @@ class ProductStock(models.Model):
         days = 0
         prior = trans[0]
         for tr in trans[1:]:
+            # BUG: by ignoring all the non-consumption transactions,
+            # we often end up omitting days
+            # i.e. if one reports receipts & consumption together every week
+            # then the days diff between 'tr' and 'prior' will always be zero
             if tr.quantity < 0: # consumption
                 quantity -= tr.quantity # negative number
                 delta = tr.date - prior.date
