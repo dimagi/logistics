@@ -268,11 +268,13 @@ def get_location_children(location, commodity_filter, commoditytype_filter):
     children.extend(location.get_children())
     return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
 
+@cache_page(60 * 15)
 def export_reporting(request, location_code=None):
     if location_code is None:
         location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
-    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendents(include_self=True)).order_by('report_date')
+    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendents(include_self=True))\
+      .select_related().order_by('report_date')
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
     response['Content-Disposition'] = 'attachment; filename=reporting.xls'
     writer = csv.writer(response)

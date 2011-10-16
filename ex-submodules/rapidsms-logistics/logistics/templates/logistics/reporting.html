@@ -15,6 +15,11 @@
         {% include "logistics/partials/breadcrumbs.html" %}
         {% include "logistics/partials/date_selector_form.html" %}
         <div id="main">
+			{% if excel_export %}
+			<div class="toolbar">
+			    <a href="{% url export_reporting location.code %}" class="add">{% trans "Export to Excel" %}</a>
+			</div>
+			{% endif %}
             {% reporting_breakdown location.get_descendents_plus_self 0 request.datespan %}
         </div>
     </div>
