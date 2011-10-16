@@ -1,3 +1,14 @@
+########################
+# MODULE CONFIG
+########################
+from rapidsms.conf import settings
+# annoyingly, settings.x throws a valueerror when x is not set
+if hasattr(settings,'MESSAGELOG_APP'):
+    # rl: not sure why i have to specifically list submodules...
+    messagelog = __import__(settings.MESSAGELOG_APP, fromlist = ['models'])
+else:
+    import rapidsms.contrib.messagelog as messagelog
+
 class Roles(object):
     """
     Roles go here
@@ -21,6 +32,10 @@ class Responsibilities(object):
     """
     STOCK_ON_HAND_RESPONSIBILITY = 'reporter'
     REPORTEE_RESPONSIBILITY = 'reportee'
+    ALL = {
+        STOCK_ON_HAND_RESPONSIBILITY: 'report stock on hand',
+        REPORTEE_RESPONSIBILITY: 'respond to reports of stock on hand'
+    }
 
 class Operations(object):
     FILL_ORDER = "fill"
@@ -44,6 +59,14 @@ class SupplyPointCodes(object):
     HEALTH_CENTER = "hc"
     CHPS = "chps"
     CLINIC = "c"
+    ALL = {
+        REGIONAL_MEDICAL_STORE: "regional medical store",
+        REGIONAL_HOSPITAL: "regional hospital",
+        HOSPITAL: "hospital",
+        HEALTH_CENTER: "health center",
+        CHPS: "chps",
+        CLINIC: "clinic",
+    }
 
 class LocationCodes(object):
     """
@@ -58,7 +81,7 @@ def has_permissions_to(contact, operation):
     # one might want to use the responsibilities framework to manage
     # this but currently it seems strange that we'd have such tight
     # coupling between app logic and database logic, so it's here
-    from logistics.apps.logistics.models import ContactRole
+    from logistics.models import ContactRole
     if not contact.is_active:
         return False
     if operation == Operations.REPORT_STOCK:
@@ -79,7 +102,7 @@ def hsa_supply_point_type():
     """
     The supply point type for HSAs
     """
-    from logistics.apps.logistics.models import SupplyPointType
+    from logistics.models import SupplyPointType
     return SupplyPointType.objects.get(pk=HSA)
 
 def hsa_location_type():

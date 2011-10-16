@@ -1,0 +1,78 @@
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+{% load report_tags %}
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="{{ em_reports|length|times:2 }}" >EM</th>
+            <th colspan="{{ ept_reports|length|times:2 }}" >EPT</th>
+            <th colspan="4">Totals</th>
+        </tr>
+        <tr>
+            <th>Category</th>
+{% for d in em_reports %}
+            <th colspan=2>{{ d.name }}</th>
+{% endfor %}
+{% for d in ept_reports %}
+            <th colspan=2>{{ d.name }}</th>
+{% endfor %}
+            <th colspan=2>EM</th>
+            <th colspan=2>EPT</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in product_codes %}
+        <tr>
+            <td>% HSAs who manage {% commodity_code_to_name p %} with no stockouts</td>
+        {% for r in em_reports.values %}
+            {% if p in r.no_stockouts_p %}
+                {% with r.no_stockouts_p|dict_lookup:p as num %}
+                {% with r.totals_p|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
+                {% else %}
+                <td colspan=2><span style="color:gray">n/a</span></td>
+             {% endif %}
+{% endfor %}
+        {% for r in ept_reports.values %}
+            {% if p in r.no_stockouts_p %}
+                {% with r.no_stockouts_p|dict_lookup:p as num %}
+                {% with r.totals_p|dict_lookup:p as denom %}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
+                {% else %}
+                <td colspan="2"><span style="color:gray">n/a</span></td>
+             {% endif %}
+            {% endfor %}
+
+           {% if p in em_totals.no_stockouts_p %}
+            {%  with em_totals.no_stockouts_p|dict_lookup:p as num%}
+            {%  with em_totals.totals_p|dict_lookup:p as denom%}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
+                        {% else %}
+                        <td colspan="2"> <span style="color:gray">n/a</span>        </td>
+             {% endif %}
+
+           {% if p in ept_totals.no_stockouts_p %}
+            {%  with ept_totals.no_stockouts_p|dict_lookup:p as num%}
+            {%  with ept_totals.totals_p|dict_lookup:p as denom%}
+                {% percent_cell num denom %}
+                {% endwith %}
+                {% endwith %}
+                        {% else %}
+                        <td colspan="2"> <span style="color:gray">n/a</span>        </td>
+             {% endif %}
+
+
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<div><span style="color:gray">n/a: no HSAs manage this product</span></div>
