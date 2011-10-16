@@ -1441,5 +1441,5 @@ def transactions_before_or_during(year, month, day=None):
         last_of_the_month = get_day_of_month(year, month, -1)
         first_of_the_next_month = last_of_the_month + timedelta(days=1)
         return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
-    deadline = date(year, month, day)
+    deadline = date(year, month, day+1)
     return StockTransaction.objects.filter(date__lte=deadline).order_by("-date")
