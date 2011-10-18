@@ -276,7 +276,9 @@ def export_reporting(request, location_code=None):
         location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
     queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendents(include_self=True))\
-      .select_related().order_by('report_date')
+      .select_related("supply_point__name", "supply_point__location__parent__name", 
+                      "supply_point__location__parent__parent__name", 
+                      "product__name", "report_type__name", "message__text").order_by('report_date')
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
     response['Content-Disposition'] = 'attachment; filename=reporting.xls'
     writer = csv.writer(response)
@@ -284,12 +286,15 @@ def export_reporting(request, location_code=None):
                      'Commodity', 'Report Type', 
                      'Quantity', 'Date',  'Message'])
     for q in queryset:
+        parent = q.supply_point.location.parent.name if q.supply_point.location.parent else None
+        grandparent = q.supply_point.location.parent.parent.name if q.supply_point.location.parent.parent else None
+        message = q.message.text if q.message else None
         writer.writerow([q.id, 
-                         q.supply_point.location.parent.parent, 
-                         q.supply_point.location.parent, 
-                         q.supply_point, 
-                         q.product, q.report_type, 
-                         q.quantity, q.report_date, q.message])
+                         grandparent, 
+                         parent, 
+                         q.supply_point.name, 
+                         q.product.name, q.report_type.name, 
+                         q.quantity, q.report_date, message])
     return response    
 
 def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
