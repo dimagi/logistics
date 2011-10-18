@@ -1,0 +1,13 @@
+{% extends "tanzania/reports-base.html" %}
+
+{% block report_content %}
+    <div class="module">
+        <h2>R&amp;R Status</h2>
+        {{ randr_status_table.as_html }}
+    </div>
+
+    <div class="module">
+        <h2>R&amp;R Reporting History</h2>
+        {{ randr_history_table.as_html }}
+    </div>
+{% endblock %}

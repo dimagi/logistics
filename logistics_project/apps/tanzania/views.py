@@ -4,7 +4,7 @@ from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import OrderingStatusTable, SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
@@ -26,7 +26,7 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 
-PRODUCTS_PER_TABLE = 11
+PRODUCTS_PER_TABLE = 7
 
 def tz_location_url(location):
     try:
@@ -148,9 +148,9 @@ def dashboard(request):
 def datespan_to_month(datespan):
     return datespan.startdate.month
 
-def _generate_soh_tables(request, facs, mp):
+def _generate_soh_tables(request, facs, mp, products=None):
     show = request.GET.get('show', "")
-    products = Product.objects.all().order_by('name')
+    if not products: products = Product.objects.all().order_by('name')
     product_set = chunks(products, PRODUCTS_PER_TABLE)
     tables = []
     iter = list(chunks(products, PRODUCTS_PER_TABLE))
@@ -203,7 +203,7 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year),
+#            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year),
             "destination_url": "ordering"
         },
         context_instance=RequestContext(request))
@@ -299,7 +299,7 @@ def reporting(request):
 
     tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
 
-    return render_to_response("tanzania/reports.html",
+    return render_to_response("tanzania/new-reports.html",
         {
           "location": location,
           "month_pager": mp,
@@ -317,10 +317,89 @@ def reporting(request):
           "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
           "supervision_table": SupervisionTable(object_list=dg.submitting().select_related(), request=request,
                                                 month=mp.month, year=mp.year, prefix="supervision"),
-          "randr_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
-                                                    month=mp.month, year=mp.year, prefix="randr"),
+          "randr_status_table": RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year),
+          "delivery_status_table": DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year),
+          "randr_history_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
+                                                    month=mp.month, year=mp.year, prefix="randr_history"),
           "destination_url": "reports"
         },
+        context_instance=RequestContext(request))
+
+
+REPORT_LIST = [
+    {"name": "Stock on Hand",
+     "view": "soh_report",
+     },
+    {"name": "R&R",
+     "view": "randr_report",
+     },
+    {"name": "Delivery",
+     "view": "delivery_report",
+     },
+    {"name": "Supervision",
+     "view": "supervision_report",
+     },
+]
+
+def new_reports(request):
+    return render_to_response("tanzania/reports-base.html", {}, context_instance=RequestContext(request))
+
+def _get_report_context(request):
+    facs, location = _get_facilities_and_location(request)
+    mp = MonthPager(request)
+    dg = DeliveryGroups(mp.month, facs=facs)
+    return {
+        "facs": facs,
+        "month_pager": mp,
+        "location": location,
+        "dg": dg,
+        "report_list": REPORT_LIST
+    }, mp, dg, facs
+
+@place_in_request()
+def randr_report(request):
+    context, mp, dg, facs = _get_report_context(request)
+    context["randr_status_table"] = RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year)
+    context["on_time"] = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
+    context["randr_history_table"] = RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
+                                                    month=mp.month, year=mp.year, prefix="randr_history")
+    print context
+    return render_to_response("tanzania/reports/randr.html",
+        context,
+        context_instance=RequestContext(request)
+    )
+
+@place_in_request()
+def soh_report(request):
+    context, mp, dg, facs = _get_report_context(request)
+    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+    context.update({
+        'tables': tables,
+        'products': products,
+        'product_set': product_set,
+        'show': show
+    })
+    return render_to_response("tanzania/reports/soh.html",
+        context,
+        context_instance=RequestContext(request)
+    )
+
+@place_in_request()
+def supervision_report(request):
+    context, mp, dg, facs = _get_report_context(request)
+    context["supervision_table"] = SupervisionTable(object_list=dg.submitting().select_related(), request=request,
+                                                month=mp.month, year=mp.year, prefix="supervision")
+    return render_to_response("tanzania/reports/supervision.html",
+        context,
+        context_instance=RequestContext(request))
+
+@place_in_request()
+def delivery_report(request):
+    context, mp, dg, facs = _get_report_context(request)
+    context["delivery_table"] = DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year)
+
+    return render_to_response("tanzania/reports/delivery.html",
+        context,
         context_instance=RequestContext(request))
 
 @place_in_request()

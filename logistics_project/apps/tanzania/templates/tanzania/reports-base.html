@@ -1,0 +1,57 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load logistics_report_tags %}
+{% load tz_tags %}
+{% load cache %}
+{% load i18n %}
+
+{% block title %}{% trans 'Reports' %} - {{ block.super }}{% endblock %}
+{% block stylesheets %}
+    {{ block.super }}
+    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" />
+    <link type="text/css" rel="stylesheet" href="http://jquery-ui.googlecode.com/svn/trunk/ui/jquery.ui.tabs.js" />
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}tanzania/stylesheets/reports.css" />
+{% endblock %}
+
+{% block javascripts %}{{ block.super }}
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://jquery-ui.googlecode.com/svn/trunk/ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/stock_init.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/legend_hider.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
+
+
+    <script type="text/javascript">
+        $(function () {
+            stock_init({{ months_minimum|default:"1" }}, {{ months_maximum|default:"3" }});
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+
+    <div style="margin-top: 1em; margin-bottom: 1em;">
+        {% include "logistics/partials/breadcrumbs.html" %}
+    </div>
+
+    {% include "logistics/partials/month_pager.html" %}
+
+    <div class="side-tabs">
+        <ul>
+{#            <li>Test</li>#}
+            {% for report in report_list %}
+                <li class="report {% ifequal report_name report.name %}selected{% endifequal %}"><a href="{% reverse_url_string report.view %}">{{ report.name }}</a></li>
+            {% endfor %}
+        </ul>
+
+    </div>
+    <div class="report-content">
+    {% block report_content %}
+    
+    {% endblock %}
+    </div>
+
+{% endblock %}

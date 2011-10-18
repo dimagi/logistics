@@ -49,21 +49,32 @@ def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
     return tz_location_url(cell.object.location)
 
-class OrderingStatusTable(MonthTable):
+class RandRStatusTable(MonthTable):
     """
     Same as above but includes a column for the HSA
     """
     code = Column()
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
-    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
+#    delivery_group = Column(value=lambda cell: _dg(cell.object), sort_key_fn=_dg, name="D G")
     randr_status = Column(sortable=False, name="R&R Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "name"))
     randr_date = DateColumn(sortable=False, name="R&R Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date"))
+    
+    class Meta:
+        per_page = 9999
+        order_by = ["Facility Name"]
+
+class DeliveryStatusTable(MonthTable):
+    """
+    Same as above but includes a column for the HSA
+    """
+    code = Column()
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
 
     class Meta:
         per_page = 9999
-        order_by = ["D G", "Facility Name"]
+        order_by = ["Facility Name"]
 
 class RandRSubmittedColumn(DateColumn):
     # copied and modified from djtables DateColumn
@@ -114,15 +125,15 @@ def _stock_class(cell):
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
     mos = float(mos)
     if mos == -1:
-        return "insufficient_data"
+        return "insufficient_data prod-%s" % cell.column.product.sms_code
     elif mos == 0.00:
-        return "zero_count stock_iconified"
+        return "zero_count stock_iconified prod-%s" % cell.column.product.sms_code
     elif mos < 1:
-        return "low_stock stock_iconified"
+        return "low_stock stock_iconified prod-%s" % cell.column.product.sms_code
     elif mos <= 3:
-        return "adequate_stock stock_iconified"
+        return "adequate_stock stock_iconified prod-%s" % cell.column.product.sms_code
     else:
-        return "overstock stock_iconified"
+        return "overstock stock_iconified prod-%s" % cell.column.product.sms_code
 
 class RandRReportingHistoryTable(MonthTable):
     code = Column()

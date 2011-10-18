@@ -1,5 +1,6 @@
 from django import template
 from logistics.models import ProductReport
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import floatformat
 from django.template.loader import render_to_string
 from logistics.const import Reports
@@ -120,3 +121,7 @@ def on_time_percentage(facs, year, month):
 def soh_historical_response(facility):
     r = historical_response_rate(facility, SupplyPointStatusTypes.SOH_FACILITY)
     return "<span title='%d of %d'>%s%%</span>" % (r[1], r[2], floatformat(r[0]*100.0)) if r else "No data"
+
+@register.simple_tag
+def reverse_url_string(url):
+    return reverse(url)
