@@ -176,6 +176,8 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
     """ which facilities have reported on time and which haven't """
     if location_code is None:
         location_code = settings.COUNTRY
+    if location_code == settings.COUNTRY:
+        context['excel_export'] = False
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
     deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
