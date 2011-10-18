@@ -5,7 +5,7 @@ from djtables.column import DateColumn
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
     DeliveryGroups, OnTimeStates
 from logistics_project.apps.tanzania.templatetags.tz_tags import last_report_span, last_report_cell
-from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate, soh_reported_on_time
+from logistics_project.apps.tanzania.utils import calc_lead_time, historical_response_rate, soh_reported_on_time, avg_past_lead_time
 from logistics.models import SupplyPoint
 from utils import latest_status
 from rapidsms.models import Contact
@@ -71,6 +71,8 @@ class DeliveryStatusTable(MonthTable):
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
+    last_lead_time = Column(sortable=False, name="Last Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
+    average_lead_time = Column(sortable=False, name="Average Lead Time", value=lambda cell: avg_past_lead_time(cell.object))
 
     class Meta:
         per_page = 9999
