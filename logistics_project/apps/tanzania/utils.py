@@ -90,7 +90,7 @@ def calc_lead_time(supply_point, year=None, month=None):
                                           SupplyPointStatusTypes.DELIVERY_DISTRICT],
                          status_value=SupplyPointStatusValues.RECEIVED).order_by("-status_date")
     if year and month:
-        deliveries.filter(status_date__month=month, status_date__year=year)
+        deliveries = deliveries.filter(status_date__month=month, status_date__year=year)
     ret = None
 
     if deliveries:
@@ -109,6 +109,31 @@ def calc_lead_time(supply_point, year=None, month=None):
     if settings.LOGISTICS_USE_SPOT_CACHING:
         cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
     return ret
+
+def avg_past_lead_time(supply_point):
+    if not SupplyPointStatus.objects.filter(supply_point=supply_point).count(): return None
+    earliest = SupplyPointStatus.objects.filter(supply_point=supply_point).order_by('status_date')[0]
+
+    earliest_year = earliest.status_date.year
+    earliest_month = earliest.status_date.month
+    now_year = datetime.now().year
+    now_month = datetime.now().month
+
+    total_time = timedelta(days=0)
+    count = 0
+
+    while now_year != earliest_year and now_month != earliest_month:
+        ltime = calc_lead_time(supply_point, year=now_year, month=now_month)
+        if ltime is not None:
+            total_time += ltime
+            count += 1
+        if now_month == 1:
+            now_month = 12
+            now_year -= 1
+        else:
+            now_month -= 1
+
+    return total_time / count if count else None
 
 def get_user_location(user):
     """
