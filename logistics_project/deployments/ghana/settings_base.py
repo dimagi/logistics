@@ -115,6 +115,8 @@ import os
 filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
 
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_AUTO_CONSUMPTION = True

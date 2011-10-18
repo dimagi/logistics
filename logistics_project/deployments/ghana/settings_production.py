@@ -102,6 +102,7 @@ INSTALLED_BACKENDS = {
     },
 }
 
+DEFAULT_BACKEND = 'smsgh'
 STATIC_ROOT="/opt/logistics_project/src/logistics/logistics/static"
 
 # email settings used for sending out email reports
@@ -117,6 +118,8 @@ EMAIL_HOST_USER='sender@gmail.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
