@@ -103,7 +103,7 @@ INSTALLED_BACKENDS = {
 }
 
 DEFAULT_BACKEND = 'smsgh'
-STATIC_ROOT="/opt/logistics_project/src/logistics/logistics/static"
+STATIC_ROOT="/opt/logistics_project/src/logistics/logistics_project/static"
 
 # email settings used for sending out email reports
 EMAIL_LOGIN="sender@gmail.com"
