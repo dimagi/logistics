@@ -9,7 +9,7 @@
 .ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 75%;}
 
 .side-tabs {
-    width: 15%;
+    width: 140px;
     float:left;
     overflow: visible;
     /*padding: .2em;*/
@@ -78,9 +78,10 @@
     border: 1px solid lightgray;
     /*border-top: 1px solid black*/
     float:right;
-    width: 84.9%;
+    width: 794px;
     /*margin-left:-1px;*/
     -webkit-border-radius:5px;
+    -moz-border-radius:5px;
 }
 
 .report-content .inner {
