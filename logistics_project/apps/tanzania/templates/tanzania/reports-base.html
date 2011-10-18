@@ -43,15 +43,17 @@
         <ul>
 {#            <li>Test</li>#}
             {% for report in report_list %}
-                <li class="report {% ifequal report_name report.name %}selected{% endifequal %}"><a href="{% reverse_url_string report.view %}">{{ report.name }}</a></li>
+                <li class="report {% ifequal report_name report.view %}selected{% endifequal %}"><a href="{% reverse_url_string report.view %}">{{ report.name }}</a></li>
             {% endfor %}
         </ul>
 
     </div>
     <div class="report-content">
+    <div class="inner">
     {% block report_content %}
     
     {% endblock %}
+    </div>
     </div>
 
 {% endblock %}

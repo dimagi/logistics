@@ -152,3 +152,4 @@ class SupplyPointStatusBreakdown(object):
             ]
         self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._soh_chart
+
