@@ -344,7 +344,7 @@ REPORT_LIST = [
 def new_reports(request):
     return render_to_response("tanzania/reports-base.html", {}, context_instance=RequestContext(request))
 
-def _get_report_context(request):
+def _get_report_context(request, report_name=None):
     facs, location = _get_facilities_and_location(request)
     mp = MonthPager(request)
     dg = DeliveryGroups(mp.month, facs=facs)
@@ -353,17 +353,18 @@ def _get_report_context(request):
         "month_pager": mp,
         "location": location,
         "dg": dg,
-        "report_list": REPORT_LIST
+        "report_list": REPORT_LIST,
+        "report_name": report_name,
+        "destination_url": report_name,
     }, mp, dg, facs
 
 @place_in_request()
 def randr_report(request):
-    context, mp, dg, facs = _get_report_context(request)
+    context, mp, dg, facs = _get_report_context(request, report_name="randr_report")
     context["randr_status_table"] = RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year)
     context["on_time"] = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
     context["randr_history_table"] = RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
                                                     month=mp.month, year=mp.year, prefix="randr_history")
-    print context
     return render_to_response("tanzania/reports/randr.html",
         context,
         context_instance=RequestContext(request)
@@ -371,13 +372,15 @@ def randr_report(request):
 
 @place_in_request()
 def soh_report(request):
-    context, mp, dg, facs = _get_report_context(request)
+    context, mp, dg, facs = _get_report_context(request, report_name="soh_report")
     tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
     context.update({
         'tables': tables,
         'products': products,
         'product_set': product_set,
-        'show': show
+        'show': show,
+        'bd': bd
     })
     return render_to_response("tanzania/reports/soh.html",
         context,
@@ -386,7 +389,7 @@ def soh_report(request):
 
 @place_in_request()
 def supervision_report(request):
-    context, mp, dg, facs = _get_report_context(request)
+    context, mp, dg, facs = _get_report_context(request, report_name="supervision_report")
     context["supervision_table"] = SupervisionTable(object_list=dg.submitting().select_related(), request=request,
                                                 month=mp.month, year=mp.year, prefix="supervision")
     return render_to_response("tanzania/reports/supervision.html",
@@ -395,7 +398,7 @@ def supervision_report(request):
 
 @place_in_request()
 def delivery_report(request):
-    context, mp, dg, facs = _get_report_context(request)
+    context, mp, dg, facs = _get_report_context(request, report_name="delivery_report")
     context["delivery_table"] = DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year)
 
     return render_to_response("tanzania/reports/delivery.html",
