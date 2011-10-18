@@ -2,7 +2,7 @@
 
 {% block report_content %}
     <div class="module">
-        <h2>Delivery Status</h2>
+        <h2>Delivery Status: Group {{ dg.current_delivering_group }}</h2>
     {{ delivery_table.as_html }}
     </div>
 {% endblock %}
