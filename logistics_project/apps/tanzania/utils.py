@@ -75,6 +75,15 @@ def calc_lead_time(supply_point, year=None, month=None):
     The days elapsed from the day they respond "submitted" to the day they 
     respond "delivered". Only include the last period for now
     """
+    def _cache_key():
+            return (("log-lead-time-%(fac)s-%(month)s-%(year)s" % \
+                    {"fac": supply_point.code, "month": month, "year":year}).replace(" ", "-"))
+    key = _cache_key()
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+
     deliveries = SupplyPointStatus.objects.filter\
                         (supply_point=supply_point, 
                          status_type__in=[SupplyPointStatusTypes.DELIVERY_FACILITY,
@@ -82,6 +91,7 @@ def calc_lead_time(supply_point, year=None, month=None):
                          status_value=SupplyPointStatusValues.RECEIVED).order_by("-status_date")
     if year and month:
         deliveries.filter(status_date__month=month, status_date__year=year)
+    ret = None
 
     if deliveries:
         latest_delivery = deliveries[0]
@@ -95,7 +105,10 @@ def calc_lead_time(supply_point, year=None, month=None):
             lead_time = latest_delivery.status_date - previous_submissions[0].status_date
             if lead_time < timedelta(days=100):
                 # if it's more than 100 days it's likely the wrong cycle
-                return lead_time
+                ret = lead_time
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 
 def get_user_location(user):
     """
@@ -116,8 +129,8 @@ def last_stock_on_hand(facility):
 
 def last_stock_on_hand_before(facility, date):
     def _cache_key():
-            return (("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
-                    {"fac": facility.code, "date": date}).replace(" ", "-"))
+        return (("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
+                {"fac": facility.code, "date": date}).replace(" ", "-"))
     key = _cache_key()
     if settings.LOGISTICS_USE_SPOT_CACHING: 
         from_cache = cache.get(key)
@@ -131,7 +144,7 @@ def last_stock_on_hand_before(facility, date):
                                            .order_by('-report_date')
     ret = reports[0] if reports.exists() else None
     if settings.LOGISTICS_USE_SPOT_CACHING: 
-            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
     return ret
 
 def last_status_before(facility, date, type, value=None):
