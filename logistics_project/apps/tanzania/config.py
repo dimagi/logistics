@@ -131,11 +131,11 @@ class Messages(object):
     REGISTRATION_CONFIRM_DISTRICT = "Thank you for registering at %(sdp_name)s, %(contact_name)s"
 
     HELP_REGISTERED = 'Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la'
-    HELP_UNREGISTERED = "To register, send register <name> <msd code>. Example: register 'john patel d34002'"
+    HELP_UNREGISTERED = REGISTER_HELP
     
     # language keyword
     LANGUAGE_HELP = "To set your language, send LANGUAGE <CODE>"
-    LANGUAGE_CONTACT_REQUIRED = "You must JOIN or IDENTIFY yourself before you can set your language preference."
+    LANGUAGE_CONTACT_REQUIRED = "You must JOIN or IDENTIFY yourself before you can set your language preference"
     LANGUAGE_CONFIRM = "I will speak to you in %(language)s."
     LANGUAGE_UNKNOWN = 'Sorry, I don\'t speak "%(language)s".'
     
@@ -176,7 +176,7 @@ class Messages(object):
     DELIVERY_REMINDER_DISTRICT = "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
     DELIVERY_CONFIRM_DISTRICT = "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
     DELIVERY_LATE_DISTRICT = "Facility deliveries for group %(group_name)s (out of %(group_total)d): %(not_responded_count)d haven't responded and %(not_received_count)d have reported not receiving. See ilsgateway.com"
-    DELIVERY_CONFIRM_CHILDREN = "District %(district_name)s has reported that they sent their R&R forms to MSD."
+    DELIVERY_CONFIRM_CHILDREN = "District %(district_name)s has reported that they sent their R&R forms to MSD"
 
 
     # not submitted
@@ -211,7 +211,7 @@ class Messages(object):
 
     # stock inquiry
     STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
-    STOCK_INQUIRY_CONFIRM = 'Thank you, you reported you have %(quantity)s     %(product_name)s. If incorrect, please resend.'
+    STOCK_INQUIRY_CONFIRM = 'Thank you, you reported you have %(quantity)s %(product_name)s. If incorrect, please resend.'
     STOCK_INQUIRY_MESSAGE = "How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  Please respond 'si %(msd_code)s <amount>'"
     STOCK_INQUIRY_NOT_A_FACILITY_ERROR = "Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
 

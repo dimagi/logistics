@@ -33,6 +33,12 @@ msgid "Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s 
 msgstr "Upokeaji wa Shehena: %(received)s/%(total)s wamepokea shehena, %(not_received)s/%(total)s hawajapokea shehena, %(not_responding)s/%(total)s hawajajibu ujumbe"
 #end district reports#
 
+msgid "%(district_name)s has submitted their R&R forms to MSD: %(group_a)s for Group A, %(group_b)s for Group B, %(group_c)s for Group C"
+msgstr "%(district_name)s imetuma R&R fomu kwenda MSD: %(group_a)s kwa ajili ya Kundi A, %(group_b)s kwa ajili ya Kundi B %(group_c)s kwa ajili ya Kundi C"
+
+msgid "District %(district_name)s has reported that they sent their R&R forms to MSD"
+msgstr "Wilaya %(district_name) imetoa taarifa kuwa fomu za R&R zimewasilishwa MSD"
+
 msgid "Sent"
 msgstr "Ilitumwa"
 
@@ -62,6 +68,9 @@ msgstr "Umetoa taarifa kuwa haujafanyiwa usimazi kwa mwezi huu."
 
 msgid "Thank you for reporting that you have received supervision this month."
 msgstr "Asante, umetoa taarifa kuwa 'usimamizi ndiyo'"
+
+msgid "Thank you for reporting your stock on hand this month"
+msgstr "Asante kwa kutoa taarifa za hesabu ya mkono kwa mwezi huu"
 
 msgid "help"
 msgstr "msaada"
@@ -98,7 +107,10 @@ msgstr "Asante. Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 
 
 msgid "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
 msgstr "Asante, umetoa taarifa kuwa umepokea %(reply_list)s. Kama sio sahihi, tafadhali tuma tena taarifa sahihi."
-	    
+
+msgid "Thank you, you reported you have %(quantity)s %(product_name)s. If incorrect, please resend."
+msgstr "'Asante, umetoa taarifa ya kuwa na %(quantity)s %(product_name)s. Kama sio sahihi tafadhali tuma tena."
+
 #: handlers/confirmrandrsubmitted.py:17
 msgid "Please respond in the format \"submitted A <number of group A forms> B <number of group B forms> C <number of group C forms>.\""
 msgstr "Tafadhali, jibu kwa mpangilio huu 'nimetuma a <idadi ya R&R form za group a> b <idadi ya R&R form za group b> c <idadi ya R&R form za group c>'"
@@ -136,17 +148,17 @@ msgstr "Samahani, Unatakiwa kujisajili kwanza"
 msgid "Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la"
 msgstr "Karibu kwenye mfumo wa ILSGateway.maneno yaliyopo ya kuambrisha ni hmk, nimepokea, sijapokea, nimetuma, sijatuma, lugha sw, lugha en, acha, usimamizi, um"
 
-#: handlers/help.py:15
-msgid ""
-"To register, send register <name> <msd code>. Example: register 'john patel "
-"d34002'"
-msgstr "Haujasajiliwa,Tafadhali jisajili kwanza kabla ya kupata huduma,Kusajili andika 'sajili<nafasi><jina lako><nafasi><msd code>'. Mfano 'sajili Peter Juma d34002'"
-		
+msgid "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"
+msgstr "Kujisajili tuma sajili <Jina> <namba ya MSD> au sajili <jina> kwa <jina la wilaya>. Mfano: sajili John Patel d34002 au sajili John Patel : tandahimba"
+
 #: handlers/not.py:18 handlers/not.py:33
 msgid ""
 "If you haven't submitted your R&R, respond \"not submitted\". If you haven't "
 "received your delivery, respond \"not delivered\""
 msgstr "Kama haujatuma R&R fomu yako jibu \"sijatuma\", kama haujapokea vifaa jibu \"sijapokea\""
+
+msgid "You must JOIN or IDENTIFY yourself before you can set your language preference"
+msgstr "Lazima kujiunga kwanza kabla ya kuchagua lugha unayotaka"
 
 #: handlers/not.py:22
 msgid "You have reported that you haven't yet received your delivery."
@@ -601,6 +613,9 @@ msgstr "msd code yako haitambuliki, Kujisajili, andika 'sajili<nafasi><jina lako
 
 msgid "Sorry, can't find the location with MSD CODE %(msd_code)s"
 msgstr "Samahani, Eneo lenye MSD CODE %(msd_code)s halipo"
+
+msgid "Sorry, can't find the location with the name %(name)s"
+msgstr "Samahani sioni jina linaloendana na eneo %(name)s"
 
 msgid ""
 "Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
