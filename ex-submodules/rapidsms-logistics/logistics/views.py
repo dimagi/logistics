@@ -204,6 +204,9 @@ def navigate(request):
     elif mode == "param":
         return HttpResponseRedirect(
             "%s?place=%s" % (reverse(destination), location_code))
+    elif mode == "direct-param":
+        return HttpResponseRedirect(
+            "%s?place=%s" % (destination, location_code))
 
 @cache_page(60 * 15)
 @geography_context

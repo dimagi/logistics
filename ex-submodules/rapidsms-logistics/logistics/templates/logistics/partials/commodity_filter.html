@@ -11,6 +11,15 @@
 </script>
 
 <form id="commodity_form" method="GET">
+    {% if request.location %}
+    <input type="hidden" name="location" value="{{ request.location }}" />
+    {% endif %}
+    {% if month_pager %}
+    <input type="hidden" name="month" value="{{ mp.month }}" />
+    <input type="hidden" name="year" value="{{ mp.year }}" />
+    {% endif %}
+
+
     {%  csrf_token %}
     <input class="product_list" type="radio" name="commodity" value="all"
         {% if not commoditytype_filter %}checked{% endif %}
