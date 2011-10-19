@@ -62,7 +62,7 @@ def dashboard(request):
     month = MonthPager(request)
 
     if em_group:
-        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False)#(group == config.Groups.EM))
+        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)#(group == config.Groups.EM))
     else:
         report = ReportingBreakdown(base_facilities)
 

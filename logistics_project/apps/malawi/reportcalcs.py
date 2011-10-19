@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.conf import settings
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
 from logistics.models import ProductStock, StockRequest
@@ -173,7 +174,7 @@ def em_late_reporting(instance):
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
                                 instance.datespan, 
                                 include_late=True,
-                                days_for_late=2,
+                                days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT,
                                 MNE=True)
         reports[d] = _to_totals(bd)
         _update_dict(totals, reports[d])
