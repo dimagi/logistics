@@ -15,9 +15,10 @@ APPS = [
 
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard",       "Dashboard"),
-    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
-    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
-    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
+#    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
+#    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
+#    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
+#    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
 #    ("logistics_project.apps.tanzania.views.reporting",       "Reports"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
 
@@ -182,3 +183,5 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")
+
+REPORT_FOLDER = "tanzania/reports"

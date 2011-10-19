@@ -43,6 +43,9 @@ def _is_district(location):
 def _is_region(location):
     return location and location.type.name == "REGION"
 
+def _is_national(location):
+    return location and location.type.name == "REGION"
+
 def _are_not_related(location, user_loc):
     # if no user location is specified, then they're "related"
     if not user_loc:  return False
@@ -57,7 +60,7 @@ def _are_not_related(location, user_loc):
            and not is_eventual_parent(location, user_loc) \
            and not is_eventual_parent(user_loc, location)
 
-def _get_facilities_and_location(request):
+def get_facilities_and_location(request):
     
     def _filter_facilities_by_location(facilities, location):
         if _is_region(location):
@@ -124,7 +127,7 @@ def district_supply_points_below(location, sps):
 @place_in_request()
 def dashboard(request):
     mp = MonthPager(request)
-    base_facilities, location = _get_facilities_and_location(request)
+    base_facilities, location = get_facilities_and_location(request)
     
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
@@ -171,7 +174,7 @@ def _generate_soh_tables(request, facs, mp, products=None):
 #@login_required
 @place_in_request()
 def facilities_index(request):
-    facs, location = _get_facilities_and_location(request)
+    facs, location = get_facilities_and_location(request)
     mp = MonthPager(request)
     
     # hack - don't show nationally scoped data because it's too slow
@@ -194,7 +197,7 @@ def facilities_index(request):
                                }, context_instance=RequestContext(request))
 @place_in_request()
 def facilities_ordering(request):
-    facs, location = _get_facilities_and_location(request)
+    facs, location = get_facilities_and_location(request)
     mp = MonthPager(request)
     return render_to_response(
         "tanzania/facilities_ordering.html",
@@ -291,7 +294,7 @@ def change_language_real(request):
 
 @place_in_request()
 def reporting(request):
-    facs, location = _get_facilities_and_location(request)
+    facs, location = get_facilities_and_location(request)
     mp = MonthPager(request)
     dg = DeliveryGroups(mp.month, facs=facs)
     bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
@@ -324,104 +327,6 @@ def reporting(request):
           "destination_url": "reports"
         },
         context_instance=RequestContext(request))
-
-
-REPORT_LIST = [
-    {"name": "Stock on Hand",
-     "view": "soh_report",
-     },
-    {"name": "R&R",
-     "view": "randr_report",
-     },
-    {"name": "Delivery",
-     "view": "delivery_report",
-     },
-    {"name": "Supervision",
-     "view": "supervision_report",
-     },
-]
-
-def new_reports(request):
-    return render_to_response("tanzania/reports-base.html", {}, context_instance=RequestContext(request))
-
-def _get_report_context(request, report_name=None):
-    facs, location = _get_facilities_and_location(request)
-    mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
-    return {
-        "facs": facs,
-        "month_pager": mp,
-        "location": location,
-        "dg": dg,
-        "report_list": REPORT_LIST,
-        "report_name": report_name,
-        "destination_url": report_name,
-    }, mp, dg, facs
-
-@place_in_request()
-def randr_report(request):
-    context, mp, dg, facs = _get_report_context(request, report_name="randr_report")
-    context["randr_status_table"] = RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year)
-    context["on_time"] = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
-    context["randr_history_table"] = RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
-                                                    month=mp.month, year=mp.year, prefix="randr_history")
-    return render_to_response("tanzania/reports/randr.html",
-        context,
-        context_instance=RequestContext(request)
-    )
-
-@place_in_request()
-def soh_report(request):
-    context, mp, dg, facs = _get_report_context(request, report_name="soh_report")
-    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
-    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
-    context.update({
-        'tables': tables,
-        'products': products,
-        'product_set': product_set,
-        'show': show,
-        'bd': bd
-    })
-    return render_to_response("tanzania/reports/soh.html",
-        context,
-        context_instance=RequestContext(request)
-    )
-
-@place_in_request()
-def supervision_report(request):
-    context, mp, dg, facs = _get_report_context(request, report_name="supervision_report")
-    context["supervision_table"] = SupervisionTable(object_list=dg.submitting().select_related(), request=request,
-                                                month=mp.month, year=mp.year, prefix="supervision")
-    return render_to_response("tanzania/reports/supervision.html",
-        context,
-        context_instance=RequestContext(request))
-
-@place_in_request()
-def delivery_report(request):
-    context, mp, dg, facs = _get_report_context(request, report_name="delivery_report")
-    context["delivery_table"] = DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year)
-
-    return render_to_response("tanzania/reports/delivery.html",
-        context,
-        context_instance=RequestContext(request))
-
-@place_in_request()
-def supervision(request):
-    facs, location = _get_facilities_and_location(request)
-    mp = MonthPager(request)
-    return render_to_response("tanzania/supervision.html",
-        {
-          "location": location,
-          "month_pager": mp,
-          "districts": _user_districts(request.user),
-          "regions": _user_regions(request.user),
-          "facs": facs,
-          "bd": SupplyPointStatusBreakdown(facs, mp.year, mp.month),
-          "supervision_table": SupervisionTable(object_list=facs.select_related(), request=request,
-                                                month=mp.month, year=mp.year, prefix="supervision"),
-          "destination_url": "supervision"
-          },
-    context_instance=RequestContext(request))
 
 @place_in_request()
 @magic_token_required()
