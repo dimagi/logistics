@@ -120,6 +120,8 @@ def load_schedules():
                    {"first": (14, 0),
                     "second": (9, 0),
                     "third": (8, 15)},
+                   "logistics_project.apps.tanzania.reminders.stockonhandthankyou":
+                   {"first": (16, 0)},
                    "logistics_project.apps.tanzania.reminders.reports":
                    {"delivery_summary": (15, 0),
                     "soh_summary": (15, 0),
