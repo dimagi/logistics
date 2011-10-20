@@ -8,6 +8,7 @@
         <th class="stock_col">{% trans "Monthly Consumption" %}</th>
         <th class="stock_col">{% trans "Emergency Level" %}</th>
         <th class="stock_col">{% trans "Maximum Level" %}</th>
+        <th class="stock_col">{% trans "Date of Last Report" %}</th>
     </tr></thead>
     <tbody>
     {% for stockonhand in stockonhands %}
@@ -22,6 +23,7 @@
         </td>
         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
         <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
+        <td>{{ stockonhand.last_modified|date:"M d" }}</td>
         </tr>
     {% endfor %}
     </tbody>
