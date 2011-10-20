@@ -186,7 +186,9 @@ class ProductStockColumn(Column):
                                                                                        month, -1),
                                             titleized=False,
                                             safe=True,
-                                            css_class=_stock_class
+                                            css_class=_stock_class,
+                                            header_class = "prod-%s" % product.sms_code
+
        )
 
 class ProductMonthsOfStockColumn(Column):
@@ -204,7 +206,8 @@ class ProductMonthsOfStockColumn(Column):
                                                                                        month, -1),
                                             titleized=False,
                                             safe=True,
-                                            css_class=_stock_class
+                                            css_class=_stock_class,
+                                            header_class = "prod-%s" % product.sms_code
        )
 
 def _ontime_class(cell):

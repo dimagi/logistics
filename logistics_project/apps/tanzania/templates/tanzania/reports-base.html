@@ -5,7 +5,7 @@
 {% load cache %}
 {% load i18n %}
 
-{% block title %}{% trans 'Report' %} - {{ block.super }}{% endblock %}
+{% block title %}{{ name }} {% trans 'Report' %} - {{ block.super }}{% endblock %}
 {% block stylesheets %}
     {{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}tanzania/stylesheets/reports.css" />
