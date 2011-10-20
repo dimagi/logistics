@@ -1,11 +1,13 @@
 from datetime import datetime
 from logistics.reports import Colors, PieChartData
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ProductReport
+from django.utils.functional import curry
 from logistics_project.apps.tanzania.models import DeliveryGroups, OnTimeStates
-from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time
+from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time, facilities_below
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
-from utils import sps_with_latest_status
+from rapidsms.contrib.locations.models import Location
+from utils import sps_with_latest_status, avg_past_lead_time
 from calendar import month_name
 
 class SupplyPointStatusBreakdown(object):
@@ -19,61 +21,126 @@ class SupplyPointStatusBreakdown(object):
             self.year = year
         if facilities is None:
             facilities = SupplyPoint.objects.filter(type__code="facility")
-
+        self.facilities = facilities
         self.report_month = self.month - 1 if self.month > 1 else 12
         self.report_year = self.year if self.report_month < 12 else self.year - 1
         self.dg = DeliveryGroups(month=month)
+        self._submission_chart = None
 
-        self.submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
+    @property
+    def submitted(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
                                                 year=self.year, month=self.month,
                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                 status_value=SupplyPointStatusValues.SUBMITTED))
+    @property
+    def submitted_on_time(self):
+        return filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.submitted)
 
-        self.submitted_on_time = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.submitted)
+    @property
+    def submitted_late(self):
+        return filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.submitted)
 
-        self.submitted_late = filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.submitted)
-
-        self.not_submitted = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
+    @property
+    def not_submitted(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_SUBMITTED))
 
-        self.submit_reminder_sent = list(sps_with_latest_status(sps=self.dg.submitting(facilities),
+    @property
+    def submit_reminder_sent(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT))
+    @property
+    def submit_not_responding(self):
+        return list(set(self.submit_reminder_sent) - set(self.submitted) - set(self.not_submitted))
 
-        self.submit_not_responding = list(set(self.submit_reminder_sent) - set(self.submitted) - set(self.not_submitted))
 
-        self.delivery_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
+    @property
+    def no_randr_data(self):
+        return list(set(self.dg.submitting(self.facilities)) -
+                    set(self.submitted_on_time) -
+                    set(self.submitted_late) -
+                    set(self.not_submitted) -
+                    set(self.submit_not_responding))
+    @property
+    def delivery_received(self):
+        return list(sps_with_latest_status(sps=self.dg.delivering(self.facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.RECEIVED))
-                                 
-        self.delivery_not_received = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
+
+    @property
+    def delivery_not_received(self):
+        return list(sps_with_latest_status(sps=self.dg.delivering(self.facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.NOT_RECEIVED))
 
-        self.delivery_reminder_sent = list(sps_with_latest_status(sps=self.dg.delivering(facilities),
+
+    @property
+    def delivery_reminder_sent(self):
+        return list(sps_with_latest_status(sps=self.dg.delivering(self.facilities),
                                                  year=self.year, month=self.month,
                                                  status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  status_value=SupplyPointStatusValues.REMINDER_SENT))
 
-        self.delivery_not_responding = list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
+    @property
+    def delivery_not_responding(self):
+        return list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
-        self.soh_submitted = list(sps_with_latest_status(sps=facilities, year=self.year, month=self.month,
+    @property
+    def soh_submitted(self):
+        return list(sps_with_latest_status(sps=self.facilities, year=self.year, month=self.month,
                                                          status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                                          status_value=SupplyPointStatusValues.SUBMITTED))
 
+    @property
+    def soh_on_time(self):
+        print self.facilities, self.year, self.month
+        return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.facilities)
 
-        self.soh_on_time = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, facilities)
+    @property
+    def soh_late(self):
+        return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.facilities)
+        return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.facilities)
 
-        self.soh_late = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, facilities)
+    @property
+    def soh_not_responding(self):
+        return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) in (OnTimeStates.NO_DATA, OnTimeStates.INSUFFICIENT_DATA), self.facilities)
 
-        self.soh_not_responding = filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) in (OnTimeStates.NO_DATA, OnTimeStates.INSUFFICIENT_DATA), facilities)
-        
-        self._submission_chart = None
+    @property
+    def avg_lead_time(self):
+        if not self.facilities: return None
+        return sum(map(avg_past_lead_time, self.facilities)) / float(len(self.facilities))
+
+    def _percent(self, fn=None, of=None):
+        if not of:
+            of= len(self.facilities)
+        else:
+            of = len(getattr(self.dg, of)(self.facilities))
+        if not of or not fn: return "<span class='no_data'>No Data</span>"
+        return "<span title='%s of %s'>%.1f%%</span>" % (len(getattr(self, fn)), of, (len(getattr(self, fn)) / float(of)  * 100))
+
+    percent_randr_on_time = curry(_percent, fn='submitted_on_time', of='submitting')
+    percent_randr_late = curry(_percent, fn='submitted_late', of='submitting')
+    percent_randr_not_submitted = curry(_percent, fn='not_submitted', of='submitting')
+    percent_randr_reminder_sent = curry(_percent, fn='submit_reminder_sent', of='submitting')
+    percent_randr_not_responding = curry(_percent, fn='submit_not_responding', of='submitting')
+    percent_randr_no_data = curry(_percent, fn='no_randr_data', of='submitting')
+
+    percent_soh_on_time = curry(_percent, fn='soh_on_time')
+    percent_soh_late = curry(_percent, fn='soh_late')
+    percent_soh_not_responding = curry(_percent, fn='soh_not_responding')
+
+    @property
+    def stockouts_in_month(self):
+        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity=0, report_date__month=self.month, report_date__year=self.year).count()]
+
+    percent_stockouts_in_month = curry(_percent, fn='stockouts_in_month')
 
     def submission_chart(self):
         graph_data = [
@@ -153,3 +220,24 @@ class SupplyPointStatusBreakdown(object):
         self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._soh_chart
 
+class LocationAggregate(object):
+    def __init__(self, location=None, month=None, year=None, view=None):
+        self.location = location
+        self.breakdown = SupplyPointStatusBreakdown(facilities=facilities_below(location), month=month, year=year)
+
+    def __unicode__(self):
+        return "%s" % self.name
+
+    @property
+    def name(self):
+        return self.location.name
+
+    def url(self):
+        pass
+
+def national_aggregate(year=None, month=None):
+    location = Location.objects.get(type__name="MOHSW")
+    return location_aggregates(location, year=year, month=month)
+
+def location_aggregates(location, year=None, month=None):
+    return [LocationAggregate(location=x, month=month, year=year) for x in location.get_children()]

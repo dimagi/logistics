@@ -1,5 +1,7 @@
 from datetime import datetime
+from django.core.urlresolvers import reverse
 from django.template.defaultfilters import floatformat
+from django.utils.functional import curry
 from djtables import Table, Column
 from djtables.column import DateColumn
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues,\
@@ -48,6 +50,9 @@ def _dg(supply_point):
 def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
     return tz_location_url(cell.object.location)
+
+def reports_link(object, report_name):
+    return "%s?place=%s" % (reverse('new_reports', args=(report_name,)), object.location.code)
 
 class RandRStatusTable(MonthTable):
     """
@@ -244,3 +249,21 @@ class NotesTable(Table):
     class Meta:
         per_page = 5
         order_by = "-date"
+
+class AggregateRandRTable(Table):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell: reports_link(cell.object, 'randr'))
+    percent_on_time = Column(value=lambda cell: cell.object.breakdown.percent_randr_on_time(), name="% Facilities Submitting R&R On Time", safe=True)
+    percent_late = Column(value=lambda cell: cell.object.breakdown.percent_randr_late(), name="% Facilities Submitting R&R Late", safe=True)
+    percent_not_submitted = Column(value=lambda cell: cell.object.breakdown.percent_randr_not_submitted(), name="% Facilities with R&R Not Submitted", safe=True)
+#    percent_reminder_sent = Column(value=lambda cell: cell.object.breakdown.percent_randr_reminder_sent(), name="% Facilities with R&R Reminder Sent", safe=True)
+    percent_not_responding = Column(value=lambda cell: cell.object.breakdown.percent_randr_not_responding(), name="% Facilities Not Responding to R&R Reminder", safe=True)
+    percent_no_data = Column(value=lambda cell: cell.object.breakdown.percent_randr_no_data(), name="% Facilities with No R&R Data", safe=True)
+
+class AggregateSOHTable(Table):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell:reports_link(cell.object, 'soh'))
+    percent_on_time = Column(value=lambda cell: cell.object.breakdown.percent_soh_on_time(), name="% Facilities Submitting SOH On Time", safe=True)
+    percent_late = Column(value=lambda cell: cell.object.breakdown.percent_soh_late(), name="% Facilities Submitting SOH Late", safe=True)
+    percent_not_responding = Column(value=lambda cell: cell.object.breakdown.percent_soh_not_responding(), name="% Facilities Not Responding to SOH", safe=True)
+    percent_with_stockouts = Column(value=lambda cell: cell.object.breakdown.percent_stockouts_in_month(), name="% Facilities with 1 or More Stockouts", safe=True)
+
+

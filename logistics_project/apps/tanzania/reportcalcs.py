@@ -3,8 +3,8 @@ from views import get_facilities_and_location, _generate_soh_tables, _is_distric
 from logistics.decorators import place_in_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable
+from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from models import DeliveryGroups
 from logistics.views import MonthPager
@@ -21,7 +21,6 @@ class TanzaniaReport(object):
     slug = ""
     name = ""
     def __init__(self, request, base_context={}):
-        print "getting new request"
         self.request = request
         self.base_context = base_context
 
@@ -61,18 +60,22 @@ class TanzaniaReport(object):
     def view_name(self):
         pass
 
+    @property
+    def level(self):
+        return self.location.type.name.lower()
+
     def template(self):
-        return "%s/%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)
+        return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
 
     def as_view(self):
         self.reset_context()
         self.common_report()
         try:
-            if self.location.type.name == 'MOHSW':
+            if self.level == 'mohsw':
                 self.national_report()
-            elif self.location.type.name == 'REGION':
+            elif self.level == 'region':
                 self.regional_report()
-            elif self.location.type.name == 'DISTRICT':
+            elif self.level == 'district':
                 self.district_report()
         except NotImplementedError:
             return render_to_response("%s/unimplemented.html" % getattr(settings, 'REPORT_FOLDER'), self.context, context_instance=RequestContext(self.request))
@@ -82,6 +85,12 @@ class TanzaniaReport(object):
 class RandRReport(TanzaniaReport):
     name = "R&R"
     slug = "randr"
+
+    def national_report(self):
+        self.context['randr_table'] = AggregateRandRTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request)
+
+    def regional_report(self):
+        self.context['randr_table'] = AggregateRandRTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request)
 
     def district_report(self):
         self.context["randr_status_table"] = RandRStatusTable(object_list=self.dg.submitting().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
@@ -94,15 +103,22 @@ class SOHReport(TanzaniaReport):
     name = "Stock On Hand"
     slug = "soh"
 
+    def common_report(self):
+        self.context['bd'] = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
+
+    def national_report(self):
+        self.context['soh_table'] = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request)
+
+    def regional_report(self):
+        self.context['soh_table'] = AggregateSOHTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request)
+
     def district_report(self):
         tables, products, product_set, show = _generate_soh_tables(self.request, self.facs, self.mp)
-        bd = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
         self.context.update({
             'tables': tables,
             'products': products,
             'product_set': product_set,
             'show': show,
-            'bd': bd
         })
 
 

@@ -87,3 +87,7 @@
 .report-content .inner {
     margin: 5px;
 }
+
+.no_data {
+    color:#ccc;
+}

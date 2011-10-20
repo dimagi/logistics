@@ -1,5 +1,6 @@
 from datetime import datetime,timedelta, time
 from django.db.models.aggregates import Max
+from django.db.models.query_utils import Q
 from logistics_project import settings
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroups,\
     SupplyPointStatusValues, SupplyPointStatusTypes, OnTimeStates, DeliveryGroupReport
@@ -19,6 +20,16 @@ def chunks(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
 
+def supply_points_below(location):
+    if not location: return None
+        # covers facility->district->region->national
+    return SupplyPoint.objects.filter(Q(location=location) | \
+                             Q(supplied_by__location=location) | \
+                             Q(supplied_by__supplied_by__location=location) | \
+                             Q(supplied_by__supplied_by__supplied_by__location=location))
+
+def facilities_below(location):
+    if supply_points_below(location): return supply_points_below(location).filter(type__code='facility')
 
 def latest_status(sp, type, value=None, month=None, year=None):
     qs = sp.supplypointstatus_set.filter(status_type=type)
