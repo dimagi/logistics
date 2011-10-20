@@ -14,7 +14,7 @@ from logistics.views import get_location_children
 from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
-    HSASupplyPointRow, FacilitySupplyPointRow
+    HSASupplyPointRow, FacilitySupplyPointRow, DynamicProductAvailabilitySummaryByFacilitySP
 from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
@@ -231,6 +231,15 @@ def product_availability_summary_by_facility_sp(location, year, month):
         pass
     summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
     c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
+                         {"summary": summary})
+    return c
+
+@register.simple_tag
+def dynamic_pas_facility_sp(location, year, month):
+    if not location:
+        pass
+    summary = DynamicProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
+    c =  _r_2_s_helper("logistics/partials/dynamic_product_availability_summary.html",
                          {"summary": summary})
     return c
 

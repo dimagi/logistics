@@ -413,6 +413,60 @@ class ProductAvailabilitySummary(object):
                 
         return self._flot_data
 
+class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
+
+
+    @property
+    def height(self):
+        return self._width
+    @property
+    def width(self):
+        return self._height
+
+    @property
+    def flot_data(self):
+#        print "gettin' flot data"
+#        print self.data
+        with_stock = []
+        without_stock = []
+        without_data = []
+        products = []
+        map = {}
+        for i, product_summary in enumerate(self.data):
+            index = i + 1
+            with_stock.append([product_summary["with_stock"], index])
+            without_stock.append([product_summary["without_stock"], index])
+            without_data.append([product_summary["without_data"], index])
+            map[product_summary['product'].sms_code] = {"index": index,
+                                                        "name": product_summary["product"].name,
+                                                        "with_stock": product_summary['with_stock'],
+                                                        "without_stock": product_summary['without_stock'],
+                                                        "without_data": product_summary['without_data'],
+                                                        "tick": "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)
+                                                        }
+#            map[product_summary['product'].sms_code].update(product_summary)
+
+        bar_data = [{"data" : [],
+                     "label": "Stocked out",
+                     "bars": { "show" : "true"},
+                     "color": Colors.DARK_RED,
+                    },
+                    {"data" : [],
+                     "label": "Not Stocked out",
+                     "bars": { "show" : "true"},
+                     "color": Colors.MEDIUM_GREEN,
+                    },
+                    {"data" : [],
+                     "label": "No Stock Data",
+                     "bars": { "show" : "true"},
+                     "color": Colors.MEDIUM_YELLOW,
+                    }]
+
+        self._flot_data = {"data": json.dumps(bar_data),
+#                           "ticks": json.dumps(products),
+                           "dmap": json.dumps(map)}
+        return self._flot_data
+
 class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
     
     def __init__(self, facilities, width=900, height=300):
@@ -476,6 +530,11 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
                          "without_stock": without_stock,
                          "without_data": without_data})
         self.data = data
+
+class DynamicProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummaryByFacilitySP, SidewaysProductAvailabilitySummary):
+
+    def __init__(self, facilities, width=900, height=300, month=None, year=None):
+        super(DynamicProductAvailabilitySummaryByFacilitySP, self).__init__(facilities, width, height, month, year)
 
 class SupplyPointRow():
         
