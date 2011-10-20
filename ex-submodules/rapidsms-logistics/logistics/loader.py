@@ -77,6 +77,7 @@ def generate_codes_for_locations(log_to_console=False):
 def _generate_location_code(name):
     from rapidsms.contrib.locations.models import Location
     code = name.lower().replace(' ','_')
+    code = code.replace('-','_')
     code = code.replace('().&,','')
     postfix = ''
     existing = Location.objects.filter(code=code)
