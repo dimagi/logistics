@@ -411,11 +411,16 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
                                "location": request.location},
                               context_instance=RequestContext(request))
 
-def message_log(req, template="messagelog/index.html"):
+@datespan_in_request()
+def message_log(request, template="messagelog/index.html"):
+    messages = Message.objects.all()
+    if request.datespan is not None and request.datespan:
+        messages = messages.filter(date__gte=request.datespan.startdate)\
+          .filter(date__lte=request.datespan.enddate+timedelta(1))
     return render_to_response(
         template, {
-            "messages_table": MessageTable(Message.objects.all(), request=req)
-        }, context_instance=RequestContext(req)
+            "messages_table": MessageTable(messages, request=request)
+        }, context_instance=RequestContext(request)
     )
 
 def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
