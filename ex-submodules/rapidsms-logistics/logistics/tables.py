@@ -108,9 +108,9 @@ class MessageTable(Table):
     direction = Column()
     date = DateColumn(format="H:i d/m")
     text = Column(css_class="message")
-    facility = Column(value=_facility)
-    district = Column(value=_district)
-    region = Column(value=_region)
+    facility = Column(value=_facility, sortable=False)
+    district = Column(value=_district, sortable=False)
+    region = Column(value=_region, sortable=False)
 
     class Meta:
         order_by = '-date'
