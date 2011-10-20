@@ -26,7 +26,7 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 
-PRODUCTS_PER_TABLE = 7
+PRODUCTS_PER_TABLE = 100 #7
 
 def tz_location_url(location):
     try:
