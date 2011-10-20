@@ -37,9 +37,10 @@ class FacilityDetailTable(FacilityTable):
     name = Column(link=_facility_view)
     type = Column(value=_facility_type)
     supervisor = Column(value=_supervisor)
-    consumption = Column(value=_consumption)
-    reporters = Column(value=_reporters)
-    commodities_assigned = Column(value=_commodities_stocked)
+    consumption = Column(value=_consumption, name='Average Monthly Consumption', titleized=False)
+    reporters = Column(value=_reporters, name='SMS Users')
+    commodities_assigned = Column(value=_commodities_stocked, titleized=False, 
+                                  name='Registered to Report These Commodities via SMS')
 
     class Meta:
         order_by = 'location'
