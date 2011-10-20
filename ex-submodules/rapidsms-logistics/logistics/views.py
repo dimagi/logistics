@@ -413,6 +413,10 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
 
 @datespan_in_request()
 def message_log(request, template="messagelog/index.html"):
+    """
+    NOTE: this truncates the messagelog by default to the last 30 days. 
+    To get the complete message log, web users should export to excel 
+    """
     messages = Message.objects.all()
     if request.datespan is not None and request.datespan:
         messages = messages.filter(date__gte=request.datespan.startdate)\
