@@ -30,7 +30,7 @@
                 $('.prod-'+d).hide();
             }
 
-            box = box + "id='"+d+"'>"+dmap[d].name+"</input>\n<br />";
+            box = box + "id='"+d+"'> ["+d+"] "+dmap[d].name+"</input>\n<br />";
             $('#product-selector').append(box);
             i = i + 1;
         }
@@ -55,8 +55,8 @@
                     $('.prod-'+d).fadeOut('slow');
                 }
             }
-            cur_data[0].data = withstock;
-            cur_data[1].data = withoutstock;
+            cur_data[1].data = withstock;
+            cur_data[0].data = withoutstock;
             cur_data[2].data = nodata;
             bar_options.yaxis.ticks = ticks;
             height = 10 * index + "px";
