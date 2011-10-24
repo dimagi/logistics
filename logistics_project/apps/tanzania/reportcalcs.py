@@ -168,10 +168,10 @@ REPORT_LIST = [
 ]
 
 @place_in_request()
-def new_reports(request, slug):
+def new_reports(request, slug=None):
     for r in REPORT_LIST:
         if r.slug == slug:
             ri = r(request)
             return ri.as_view()
-    ri = SOHReport(request)
+    ri = REPORT_LIST[0](request)
     return ri.as_view()
