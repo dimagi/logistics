@@ -10,6 +10,7 @@
 {% block content %}
     <div class="module">
         {% include "logistics/partials/breadcrumbs.html" %}
+        {% include "logistics/partials/date_selector_form.html" %}
         <div id="main">
             <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
             <div class="right">
@@ -18,7 +19,7 @@
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div id="report-content">
-                {% aggregate_table location commodity_filter commoditytype_filter %}
+                {% aggregate_table location commodity_filter commoditytype_filter request.datespan %}
             </div>
         </div>
     </div>

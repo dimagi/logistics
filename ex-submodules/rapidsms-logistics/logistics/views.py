@@ -134,7 +134,6 @@ def stockonhand_facility(request, facility_code, context={}, template="logistics
     if transactions:
         context['last_reported'] = last_reports[0].report_date
         context['chart_data'] = stocklevel_plot(transactions)
-
     context['facility'] = facility
     context["location"] = facility.location
     context["destination_url"] = "aggregate"
@@ -225,6 +224,7 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
 @cache_page(60 * 15)
 @geography_context
 @filter_context
+@datespan_in_request()
 def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
     """
     The aggregate view of all children within a geographical region
@@ -244,7 +244,7 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
         template, context, context_instance=RequestContext(request)
     )
 
-def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
+def _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan=None):
     rows = []
     for child in children:
         row = {}
@@ -257,24 +257,28 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter):
         else:
             row['url'] = reverse('logistics_dashboard', args=[child.code])
         row['stockout_count'] = child.stockout_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
+                                                     producttype=commoditytype_filter, 
+                                                     datespan=datespan)
         row['emergency_plus_low'] = child.emergency_plus_low(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
+                                                     producttype=commoditytype_filter, 
+                                                     datespan=datespan)
         row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
+                                                     producttype=commoditytype_filter, 
+                                                     datespan=datespan)
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter)
+                                                     producttype=commoditytype_filter, 
+                                                     datespan=datespan)
         if commodity_filter is not None:
             row['consumption'] = child.consumption(product=commodity_filter, 
                                                    producttype=commoditytype_filter)
         rows.append(row)
     return rows
 
-def get_location_children(location, commodity_filter, commoditytype_filter):
+def get_location_children(location, commodity_filter, commoditytype_filter, datespan=None):
     children = []
     children.extend(location.facilities())
     children.extend(location.get_children())
-    return _get_rows_from_children(children, commodity_filter, commoditytype_filter)
+    return _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan)
 
 @cache_page(60 * 15)
 def export_reporting(request, location_code=None):
@@ -420,7 +424,7 @@ def message_log(request, template="messagelog/index.html"):
     messages = Message.objects.all()
     if request.datespan is not None and request.datespan:
         messages = messages.filter(date__gte=request.datespan.startdate)\
-          .filter(date__lte=request.datespan.enddate+timedelta(1))
+          .filter(date__lte=request.datespan.end_of_end_day)
     return render_to_response(
         template, {
             "messages_table": MessageTable(messages, request=request)

@@ -264,47 +264,47 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                 {"key": key, "supplypoint": self.code, "product": product, 
                  "producttype": producttype, "datetime": datetime}).replace(" ", "-")
 
-    def _get_stock_count(self, name, product, producttype):
+    def _get_stock_count(self, name, product, producttype, datespan=None):
         """ 
         pulls requested value from cache. refresh cache if necessary
         """
-        return self._get_stock_count_for_facilities([self], name, product, producttype)
+        return self._get_stock_count_for_facilities([self], name, product, producttype, datespan)
     
-    def stockout_count(self, product=None, producttype=None):
-        return self._get_stock_count("stockout_count", product, producttype)
+    def stockout_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("stockout_count", product, producttype, datespan)
 
-    def emergency_stock_count(self, product=None, producttype=None):
+    def emergency_stock_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return self._get_stock_count("emergency_stock_count", product, producttype)
+        return self._get_stock_count("emergency_stock_count", product, producttype, datespan)
         
-    def low_stock_count(self, product=None, producttype=None):
+    def low_stock_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return self._get_stock_count("low_stock_count", product, producttype)
+        return self._get_stock_count("low_stock_count", product, producttype, datespan)
 
-    def emergency_plus_low(self, product=None, producttype=None):
+    def emergency_plus_low(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return self._get_stock_count("emergency_plus_low", product, producttype)
+        return self._get_stock_count("emergency_plus_low", product, producttype, datespan)
         
-    def good_supply_count(self, product=None, producttype=None):
+    def good_supply_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return self._get_stock_count("good_supply_count", product, producttype)
+        return self._get_stock_count("good_supply_count", product, producttype, datespan)
     
-    def adequate_supply_count(self, product=None, producttype=None):
+    def adequate_supply_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return self._get_stock_count("adequate_supply_count", product, producttype)
+        return self._get_stock_count("adequate_supply_count", product, producttype, datespan)
     
-    def overstocked_count(self, product=None, producttype=None):
-        return self._get_stock_count("overstocked_count", product, producttype)
+    def overstocked_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("overstocked_count", product, producttype, datespan)
     
     def consumption(self, product=None, producttype=None):
         return self._get_stock_count("consumption", product, producttype)

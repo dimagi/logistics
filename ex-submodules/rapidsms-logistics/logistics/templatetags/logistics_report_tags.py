@@ -35,11 +35,11 @@ def _r_2_s_helper(template, dict):
     return render_to_string(template, _context_helper(dict))
     
 @register.simple_tag
-def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
+def aggregate_table(location, commodity_filter=None, commoditytype_filter=None, datespan=None):
     context = { "location": location, 
                 "commodity_filter": commodity_filter,
                 "commoditytype_filter": commoditytype_filter }
-    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter)
+    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter, datespan)
     return _r_2_s_helper("logistics/partials/aggregate_table.html", context)
 
 @register.simple_tag
