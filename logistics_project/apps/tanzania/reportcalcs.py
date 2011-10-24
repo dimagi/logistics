@@ -19,8 +19,8 @@ class TanzaniaReport(object):
 
 
     """
-    slug = ""
-    name = ""
+    slug = "foo"
+    name = "bar"
     def __init__(self, request, base_context={}):
         self.request = request
         self.base_context = base_context
@@ -32,7 +32,7 @@ class TanzaniaReport(object):
         self.mp = MonthPager(self.request)
         self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
         self.bd = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
-
+        report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] # hack to get around 1.3 brokenness
         self.context.update({
             "facs": self.facs,
             "month_pager": self.mp,
@@ -40,7 +40,7 @@ class TanzaniaReport(object):
             "level": self.location.type.name,
             "dg": self.dg,
             "bd": self.bd,
-            "report_list": REPORT_LIST,
+            "report_list": report_list,
             "slug": self.slug,
             "name": self.name,
             "destination_url": reverse('new_reports', args=(self.slug,)),
@@ -169,7 +169,10 @@ REPORT_LIST = [
 
 @place_in_request()
 def new_reports(request, slug=None):
+    print slug
+    
     for r in REPORT_LIST:
+        print r.slug
         if r.slug == slug:
             ri = r(request)
             return ri.as_view()

@@ -41,6 +41,8 @@
                 {% if report.slug %}
                     <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{% url new_reports report.slug %}?month={{ month_pager.month }}&year={{ month_pager.year }}">{{ report.name }}</a></li>
                 {% endif %}
+             {% empty %}
+                <div class="error">No reports found!</div>
             {% endfor %}
         </ul>
 
