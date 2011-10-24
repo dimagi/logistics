@@ -28,9 +28,9 @@ class StockCacheMixin():
         adequate_supply_count = 0
         overstocked_count = 0    
         for stock in stocks:
-            #if datespan:
-            #    historical_stock = stock.supply_point.historical_stock_by_date(stock.product, datespan.end_of_end_day)
-            #    stock.quantity = historical_stock
+            if datespan:
+                historical_stock = stock.supply_point.historical_stock_by_date(stock.product, datespan.end_of_end_day)
+                stock.quantity = historical_stock
             if stock.quantity == 0:
                 stockout_count = stockout_count + 1
             if stock.is_below_emergency_level():
