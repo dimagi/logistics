@@ -2,30 +2,30 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 import re
+import uuid
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.signals import post_save
+from django.db.models.fields import PositiveIntegerField
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
 from rapidsms.models import Contact, ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
+from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved
 from logistics.errors import *
-from django.db.models.fields import PositiveIntegerField
-import uuid
 from logistics.const import Reports
 from logistics.util import config, parse_report
-from dimagi.utils.dates import DateSpan, get_day_of_month
-from datetime import timedelta
-from django.core.cache import cache
+from logistics.mixin import StockCacheMixin
 
 if hasattr(settings, "MESSAGE_CLASS"):
     message_class = settings.MESSAGE_CLASS
@@ -90,7 +90,7 @@ class SupplyPointType(models.Model):
     def __unicode__(self):
         return self.name
 
-class SupplyPointBase(models.Model):
+class SupplyPointBase(models.Model, StockCacheMixin):
     """
     Somewhere that maintains and distributes products. 
     e.g. health centers, hsa's, or regional warehouses.
@@ -244,7 +244,7 @@ class SupplyPointBase(models.Model):
             return ("log-hs-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
                     {"supply_point": self.code, "product": product.sms_code, 
                      "year": year, "month": month, "default": default_value}).replace(" ", "-")
-        return self._historical_stock(product, _cache_key(), year, month, 
+        return self._historical_stock(product, self._cache_key(), year, month, 
                                       default_value=default_value)
     
     def _historical_stock(self, product, cache_key, year, month, day=None, default_value=0):
@@ -259,58 +259,63 @@ class SupplyPointBase(models.Model):
             cache.set(cache_key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
         return ret
 
+    def _cache_key(self, key, product, producttype, datetime=None):
+        return ("SP-%(supplypoint)s-%(key)-%(product)s-%(producttype)s-%(datetime)s" % \
+                {"key": key, "supplypoint": self.code, "product": product, 
+                 "producttype": producttype, "datetime": datetime}).replace(" ", "-")
+
+    def _get_stock_count(self, name, product, producttype):
+        """ 
+        pulls requested value from cache. refresh cache if necessary
+        """
+        return self._get_stock_count_for_facilities([self], name, product, producttype)
+    
     def stockout_count(self, product=None, producttype=None):
-        return stockout_count(facilities=[self], 
-                              product=product, 
-                              producttype=producttype)
+        return self._get_stock_count("stockout_count", product, producttype)
 
     def emergency_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return emergency_stock_count(facilities=[self], 
-                                     product=product, 
-                                     producttype=producttype)
+        return self._get_stock_count("emergency_stock_count", product, producttype)
         
     def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return low_stock_count(facilities=[self], 
-                               product=product, 
-                               producttype=producttype)
+        return self._get_stock_count("low_stock_count", product, producttype)
 
     def emergency_plus_low(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return emergency_plus_low(facilities=[self], 
-                                  product=product, 
-                                  producttype=producttype)
+        return self._get_stock_count("emergency_plus_low", product, producttype)
         
     def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        return good_supply_count(facilities=[self], 
-                                 product=product, 
-                                 producttype=producttype)
+        return self._get_stock_count("good_supply_count", product, producttype)
     
     def adequate_supply_count(self, product=None, producttype=None):
-        return adequate_supply_count(facilities=[self], 
-                                     product=product, 
-                                     producttype=producttype)
+        """ This indicates all stock below reorder levels,
+            including all stock below emergency supply levels
+        """
+        return self._get_stock_count("adequate_supply_count", product, producttype)
     
     def overstocked_count(self, product=None, producttype=None):
-        return overstocked_count(facilities=[self], 
-                                 product=product, 
-                                 producttype=producttype)
-
+        return self._get_stock_count("overstocked_count", product, producttype)
+    
     def consumption(self, product=None, producttype=None):
-        return consumption(facilities=[self], 
+        def _consumption(facilities=None, product=None, producttype=None):
+            stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
+            # TOOD: this needs to be fixed to work with auto_monthly_consumption
+            consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
+            return consumption
+        return _consumption(facilities=[self], 
                            product=product, 
                            producttype=producttype)
-
+    
     def report(self, product, report_type, quantity, message=None, date=None):
         if date:
             npr = ProductReport(product=product, report_type=report_type,
@@ -1318,123 +1323,6 @@ def get_geography():
         raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)
-
-def _filtered_stock(product, producttype):
-    results = ProductStock.objects.filter(is_active=True)
-    if product is not None:
-        results = results.filter(product__sms_code=product)
-    elif producttype is not None:
-        results = results.filter(product__type__code=producttype)
-    return results
-
-def stockout_count(facilities=None, product=None, producttype=None):
-    results = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity=0)#.select_related('product','product__equivalent_to')
-    return results.count()
-    """
-    Note: this code is untested&unused for now, until we get better requirements definitions from ghana
-    if not getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-        return results.count()
-    stockouts = []
-    for result in results:
-        if result.product.equivalents.count()>0:
-            equivalents = result.product.equivalents.all()
-            for equivalent in equivalents:
-                eps = ProductStock.objects.filter(supply_point=result.supply_point,product=equivalent)
-                if not eps.is_above_low_supply():
-                    stockouts.append(result)
-    return len(stockouts)
-    """
-
-def emergency_stock_count(facilities=None, product=None, producttype=None):
-    """ This indicates all stock below reorder levels,
-        including all stock below emergency supply levels
-    """
-    emergency_stock = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_below_emergency_level():
-            """
-            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
-
-            if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-                # check for equivalents
-                if stock.product.equivalents.count()>0:
-                    for equivalent in stock.product.equivalents.all():
-                        eps = ProductStock.objects.get(product=equivalent, supply_point=stock.supply_point)
-                        if eps.is_above_low_supply():
-                            # if we wanted to support multiple equivalents, we could do a recurisve search here
-                            continue
-            """
-            emergency_stock = emergency_stock + 1
-    return emergency_stock
-
-def low_stock_count(facilities=None, product=None, producttype=None):
-    """ This indicates all stock below reorder levels,
-        including all stock below emergency supply levels
-    """
-    low_stock_count = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_below_low_supply_but_above_emergency_level():
-            """
-            Note: this code is untested&unused for now, until we get better requirements definitions from ghana
-            if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-                # check for equivalents
-                if stock.product.equivalents.count()>0:
-                    for e in stock.product.equivalents.all():
-                        eps = ProductStock.objects.get(product=e, supply_point=stock.supply_point)
-                        if eps.is_above_low_supply():
-                            # if we wanted to support multiple equivalents, we could do a recurisve search here
-                            continue
-            """
-            low_stock_count = low_stock_count + 1
-    return low_stock_count
-
-def emergency_plus_low(facilities=None, product=None, producttype=None):
-    """ This indicates all stock below reorder levels,
-        including all stock below emergency supply levels
-    """
-    count = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_below_low_supply():
-            count = count + 1
-    return count
-
-def good_supply_count(facilities=None, product=None, producttype=None):
-    """ This indicates all stock below reorder levels,
-        including all stock below emergency supply levels
-    """
-    good_supply_count = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_in_good_supply():
-            good_supply_count = good_supply_count + 1
-    return good_supply_count
-
-def adequate_supply_count(facilities=None, product=None, producttype=None):
-    """ This indicates all stock between emergency and full levels
-    """
-    supply_count = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_in_adequate_supply():
-            supply_count = supply_count + 1
-    return supply_count
-
-def overstocked_count(facilities=None, product=None, producttype=None):
-    overstock_count = 0
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities).filter(quantity__gt=0)
-    for stock in stocks:
-        if stock.is_overstocked():
-            overstock_count = overstock_count + 1
-    return overstock_count
-
-def consumption(facilities=None, product=None, producttype=None):
-    stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-    # TOOD: this needs to be fixed to work with auto_monthly_consumption
-    consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
-    return consumption
 
 def transactions_before_or_during(year, month, day=None):
     if day is None:

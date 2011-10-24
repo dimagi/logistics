@@ -3,8 +3,9 @@ import uuid
 from django.db import models
 from django.db.models import Q
 from django.conf import settings
+from logistics.mixin import StockCacheMixin
 
-class Location(models.Model):
+class Location(models.Model, StockCacheMixin):
     """
     Location - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
     This could/should be broken out into subclasses.
@@ -88,46 +89,47 @@ class Location(models.Model):
         locations = self.get_descendents()
         return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
         
+    def _cache_key(self, key, product, producttype, datetime=None):
+        return ("LOC-%(location)s-%(key)-%(product)s-%(producttype)s-%(datetime)s" % \
+                {"key": key, "location": self.code, "product": product, 
+                 "producttype": producttype, "datetime": datetime}).replace(" ", "-")
+    
+    def _get_stock_count(self, name, product, producttype):
+        """ 
+        pulls requested value from cache. refresh cache if necessary
+        """
+        return self._get_stock_count_for_facilities(self.all_facilities(), name, product, producttype)
+    
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None):
-        from logistics.models import stockout_count
-        return stockout_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("stockout_count", product, producttype)
 
     def emergency_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import emergency_stock_count
-        return emergency_stock_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("emergency_stock_count", product, producttype)
 
     def low_stock_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import low_stock_count
-        return low_stock_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("low_stock_count", product, producttype)
 
     def emergency_plus_low(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import emergency_plus_low
-        return emergency_plus_low(self.all_facilities(), product, producttype)
+        return self._get_stock_count("emergency_plus_low", product, producttype)
 
     def good_supply_count(self, product=None, producttype=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import good_supply_count
-        return good_supply_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("good_supply_count", product, producttype)
 
     def overstocked_count(self, product=None, producttype=None):
-        from logistics.models import overstocked_count
-        return overstocked_count(self.all_facilities(), product, producttype)
-
-    def consumption(self, product=None, producttype=None):
-        from logistics.models import consumption
-        return consumption(self.all_facilities(), product, producttype)
+        return self._get_stock_count("overstocked_count", product, producttype)
 
     def deprecate(self, new_code=None):
         """
