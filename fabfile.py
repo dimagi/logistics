@@ -100,11 +100,11 @@ def _tz_shared():
     env.db_type = "postgres"
     env.db_name = "ilsgateway"
     env.db_user = "postgres"
-    env.code_dir = _join(env.deploy_dir, 'logistics_project')
+    env.code_dir = _join(env.deploy_dir, 'logistics')
     env.code_cleanup = False
     env.db_cleanup = False
     env.stop_start = True
-    env.branch = "tz-dev"
+    env.branch = "tz-new-reports"
     def tz_extras():
         run("python manage.py tz_update")
         sudo("/etc/init.d/memcached restart")
@@ -230,6 +230,7 @@ def deploy():
         run('git clone git://github.com/dimagi/logistics.git')
     else:
         with cd(env.code_dir):
+            run('git fetch')
             run('git checkout %(branch)s' % {"branch": env.branch})
             run('git pull %(repo)s %(branch)s' % {"repo": env.remote, "branch": env.branch})
     if env.db_cleanup:
