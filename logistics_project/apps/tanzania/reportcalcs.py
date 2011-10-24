@@ -169,10 +169,7 @@ REPORT_LIST = [
 
 @place_in_request()
 def new_reports(request, slug=None):
-    print slug
-    
     for r in REPORT_LIST:
-        print r.slug
         if r.slug == slug:
             ri = r(request)
             return ri.as_view()
