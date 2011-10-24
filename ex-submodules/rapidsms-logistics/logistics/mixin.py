@@ -62,9 +62,11 @@ class StockCacheMixin():
         refresh cache if necessary
         returns integer
         """
-        from_cache = cache.get(self._cache_key(name, product, producttype))
-        if from_cache:
-            return from_cache
+        if settings.LOGISTICS_USE_SPOT_CACHING:
+            from_cache = cache.get(self._cache_key(name, product, producttype))
+            if from_cache:
+                return from_cache
+        # if LOGISTICS_USE_SPOT_CACHING is not enabled, we refresh the cache each time
         self._populate_stock_cache(facilities, product, producttype)
         return cache.get(self._cache_key(name, product, producttype))
 

@@ -260,7 +260,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return ret
 
     def _cache_key(self, key, product, producttype, datetime=None):
-        return ("SP-%(supplypoint)s-%(key)-%(product)s-%(producttype)s-%(datetime)s" % \
+        return ("SP-%(supplypoint)s-%(key)s-%(product)s-%(producttype)s-%(datetime)s" % \
                 {"key": key, "supplypoint": self.code, "product": product, 
                  "producttype": producttype, "datetime": datetime}).replace(" ", "-")
 

@@ -90,7 +90,7 @@ class Location(models.Model, StockCacheMixin):
         return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
         
     def _cache_key(self, key, product, producttype, datetime=None):
-        return ("LOC-%(location)s-%(key)-%(product)s-%(producttype)s-%(datetime)s" % \
+        return ("LOC-%(location)s-%(key)s-%(product)s-%(producttype)s-%(datetime)s" % \
                 {"key": key, "location": self.code, "product": product, 
                  "producttype": producttype, "datetime": datetime}).replace(" ", "-")
     
