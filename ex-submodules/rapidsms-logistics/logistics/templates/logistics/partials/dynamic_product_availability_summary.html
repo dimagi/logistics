@@ -20,8 +20,10 @@
                   autoHighlight:false}
         };
         var dmap = {{ summary.flot_data.dmap|safe }};
+        var products = {{ summary.flot_data.products|safe }};
         var i = 1;
-        for (var d in dmap) {
+        for (var p in products) {
+            d = products[p];
             box = "<input type='checkbox' class='prod-selector'";
             if (i <= 6) {
                 $('.prod-'+d).show();
@@ -42,15 +44,15 @@
             var ticks = [];
             var cur_data = {{ summary.flot_data.data|safe }};
             var index = 1;
-            for (var d in dmap) {
+            for (var p in products) {
+                d = products[p];
                 if ($('#product-selector #'+d)[0].checked) {
                     $('.prod-'+d).fadeIn(1000);
-                    dmap[d].index = index;
+                    withstock.push([dmap[d].with_stock, index]);
+                    withoutstock.push([dmap[d].without_stock, index + 1]);
+                    nodata.push([dmap[d].without_data, index + 2]);
+                    ticks.push([index + 1, dmap[d].tick]);
                     index = index + 4;
-                    withstock.push([dmap[d].with_stock, dmap[d].index]);
-                    withoutstock.push([dmap[d].without_stock, dmap[d].index + 1]);
-                    nodata.push([dmap[d].without_data, dmap[d].index + 2]);
-                    ticks.push([dmap[d].index + 1, dmap[d].tick]);
                 } else {
                     $('.prod-'+d).fadeOut('slow');
                 }

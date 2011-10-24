@@ -328,7 +328,7 @@ class ProductAvailabilitySummary(object):
         self._width = width
         self._height = height
         
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('sms_code')
         data = []
         for p in products:
             supplying = contacts.filter(commodities=p)
@@ -444,8 +444,7 @@ class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
                                                         "without_data": product_summary['without_data'],
                                                         "tick": "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)
                                                         }
-#            map[product_summary['product'].sms_code].update(product_summary)
-
+            products.append(product_summary['product'].sms_code)
         bar_data = [{"data" : [],
                      "label": "Stocked out",
                      "bars": { "show" : "true"},
@@ -463,7 +462,7 @@ class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
                     }]
 
         self._flot_data = {"data": json.dumps(bar_data),
-#                           "ticks": json.dumps(products),
+                           "products": json.dumps(products),
                            "dmap": json.dumps(map)}
         return self._flot_data
 
@@ -477,7 +476,7 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
         self._width = width
         self._height = height
         
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('sms_code')
         data = []
         for p in products:
             supplying_facilities = facilities.filter(contact__commodities=p).distinct()
@@ -509,7 +508,7 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
 
         total = facilities.count()
 
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('sms_code')
         data = []
         for p in products:
             # TODO This is ludicrously inefficient.
