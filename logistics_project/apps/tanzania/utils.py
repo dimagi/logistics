@@ -20,6 +20,12 @@ def chunks(l, n):
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
 
+
+def format_percent(a, b):
+    if not a or not b: return "<span class='no_data'>No Data</span>"
+    return "<span title='%s of %s'>%.1f%%</span>" % (a, b, (float(a)/float(b))*100.0)
+
+
 def supply_points_below(location):
     if not location: return None
         # covers facility->district->region->national

@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint, ProductReport
 from django.utils.functional import curry
 from logistics_project.apps.tanzania.models import DeliveryGroups, OnTimeStates
-from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time, facilities_below
+from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time, facilities_below, historical_response_rate, format_percent
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
@@ -92,6 +92,59 @@ class SupplyPointStatusBreakdown(object):
     def delivery_not_responding(self):
         return list(set(self.delivery_reminder_sent) - set(self.delivery_received) - set(self.delivery_not_received))
 
+
+    @property
+    def supervision_received(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                                                 status_value=SupplyPointStatusValues.RECEIVED))
+
+    @property
+    def supervision_not_received(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                                                 status_value=SupplyPointStatusValues.NOT_RECEIVED))
+
+    @property
+    def supervision_reminder_sent(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+
+    @property
+    def supervision_not_responding(self):
+        return list(set(self.supervision_reminder_sent) - set(self.supervision_received) - set(self.supervision_not_received))
+
+
+    @property
+    def no_supervision_data(self):
+        return list(set(self.dg.submitting(self.facilities)) -
+                    set(self.supervision_received) -
+                    set(self.supervision_not_received) -
+                    set(self.supervision_reminder_sent) -
+                    set(self.supervision_not_responding))
+
+    @property
+    def not_submitted(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                 status_value=SupplyPointStatusValues.NOT_SUBMITTED))
+
+    @property
+    def submit_reminder_sent(self):
+        return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
+                                                 year=self.year, month=self.month,
+                                                 status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                 status_value=SupplyPointStatusValues.REMINDER_SENT))
+    @property
+    def submit_not_responding(self):
+        return list(set(self.submit_reminder_sent) - set(self.submitted) - set(self.not_submitted))
+
+
     @property
     def soh_submitted(self):
         return list(sps_with_latest_status(sps=self.facilities, year=self.year, month=self.month,
@@ -100,12 +153,10 @@ class SupplyPointStatusBreakdown(object):
 
     @property
     def soh_on_time(self):
-        print self.facilities, self.year, self.month
         return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.facilities)
 
     @property
     def soh_late(self):
-        return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.facilities)
         return filter(lambda sp: soh_reported_on_time(sp, self.year, self.month) == OnTimeStates.LATE, self.facilities)
 
     @property
@@ -114,16 +165,23 @@ class SupplyPointStatusBreakdown(object):
 
     @property
     def avg_lead_time(self):
-        if not self.facilities: return None
-        return sum(map(avg_past_lead_time, self.facilities)) / float(len(self.facilities))
+        if not self.facilities: return "<span class='no_data'>No data</span>"
+        sum = timedelta(0)
+        count = 0
+        for f in self.facilities:
+            lt = avg_past_lead_time(f)
+            if lt:
+                sum += lt
+                count += 1
+        if not count: return "<span class='no_data'>No data</span>"
+        return sum / count
 
     def _percent(self, fn=None, of=None):
         if not of:
             of= len(self.facilities)
         else:
             of = len(getattr(self.dg, of)(self.facilities))
-        if not of or not fn: return "<span class='no_data'>No Data</span>"
-        return "<span title='%s of %s'>%.1f%%</span>" % (len(getattr(self, fn)), of, (len(getattr(self, fn)) / float(of)  * 100))
+        return format_percent(len(getattr(self, fn)), of)
 
     percent_randr_on_time = curry(_percent, fn='submitted_on_time', of='submitting')
     percent_randr_late = curry(_percent, fn='submitted_late', of='submitting')
@@ -136,11 +194,42 @@ class SupplyPointStatusBreakdown(object):
     percent_soh_late = curry(_percent, fn='soh_late')
     percent_soh_not_responding = curry(_percent, fn='soh_not_responding')
 
+    percent_supervision_received = curry(_percent, fn='supervision_received', of='submitting')
+    percent_supervision_not_received = curry(_percent, fn='supervision_not_received', of='submitting')
+    percent_supervision_reminder_sent = curry(_percent, fn='supervision_reminder_sent', of='submitting')
+    percent_supervision_not_responding = curry(_percent, fn='supervision_not_responding', of='submitting')
+
     @property
     def stockouts_in_month(self):
         return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity=0, report_date__month=self.month, report_date__year=self.year).count()]
 
     percent_stockouts_in_month = curry(_percent, fn='stockouts_in_month')
+
+    def stocked_out_of(self, product=None, month=None, year=None):
+        return [f for f in self.facilities if f.historical_stock(product, year, month, default_value=None) == 0]
+
+    def stocked_out_of(self, product=None, month=None, year=None):
+        return [f for f in self.facilities if f.historical_stock(product, year, month, default_value=None) == 0]
+
+    def percent_stocked_out(self, product, year, month):
+        # Is this pattern confusing?
+        return format_percent(len(self.stocked_out_of(product=product, year=year, month=month)), len(self.facilities))
+
+    def _response_rate(self, type=None):
+        num = 0.0
+        denom = 0.0
+        for f in self.dg.submitting(self.facilities):
+            hrr = historical_response_rate(f, type)
+            if hrr:
+                num += hrr[0]
+                denom += 1
+        if denom:
+            return "%.1f%%" % ((num / denom) * 100.0)
+        else:
+            return "<span class='no_data'>No Data</span>"
+
+    supervision_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.SUPERVISION_FACILITY)
+    randr_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.R_AND_R_FACILITY)
 
     def submission_chart(self):
         graph_data = [
@@ -218,6 +307,30 @@ class SupplyPointStatusBreakdown(object):
                 }
             ]
         self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
+        return self._soh_chart
+
+    def supervision_chart(self):
+        graph_data = [
+                {"display": _("Supervision Received"),
+                 "value": len(self.supervision_received),
+                 "color": Colors.GREEN,
+                 "description": "(%s) Supervision Received (%s %s)" % \
+                    (len(self.supervision_received), month_name[self.report_month], self.report_year)
+                },
+                {"display": _("Supervision Not Received"),
+                 "value": len(self.supervision_not_received),
+                 "color": Colors.RED,
+                 "description": "(%s) Supervision Not Received (%s %s)" % \
+                    (len(self.supervision_not_received), month_name[self.report_month], self.report_year)
+                },
+                {"display": _("Supervision Not Responding"),
+                 "value": len(self.supervision_not_responding),
+                 "color": Colors.PURPLE,
+                 "description": "(%s) Didn't Respond (%s %s)" % \
+                    (len(self.supervision_not_responding), month_name[self.report_month], self.report_year)
+                }
+            ]
+        self._soh_chart = PieChartData(_("Supervision Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._soh_chart
 
 class LocationAggregate(object):

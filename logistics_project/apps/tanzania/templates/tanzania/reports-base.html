@@ -39,7 +39,7 @@
         <ul>
 {#            <li>Test</li>#}
             {% for report in report_list %}
-                <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{% url new_reports report.slug %}">{{ report.name }}</a></li>
+                <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{% url new_reports report.slug %}?month={{ month_pager.month }}&year={{ month_pager.year }}">{{ report.name }}</a></li>
             {% endfor %}
         </ul>
 

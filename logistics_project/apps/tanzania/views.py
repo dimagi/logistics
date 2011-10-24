@@ -153,7 +153,7 @@ def datespan_to_month(datespan):
 
 def _generate_soh_tables(request, facs, mp, products=None):
     show = request.GET.get('show', "")
-    if not products: products = Product.objects.all().order_by('name')
+    if not products: products = Product.objects.all().order_by('sms_code')
     product_set = chunks(products, PRODUCTS_PER_TABLE)
     tables = []
     iter = list(chunks(products, PRODUCTS_PER_TABLE))

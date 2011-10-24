@@ -51,8 +51,8 @@ def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
     return tz_location_url(cell.object.location)
 
-def reports_link(object, report_name):
-    return "%s?place=%s" % (reverse('new_reports', args=(report_name,)), object.location.code)
+def reports_link(cell, report_name):
+    return "%s?place=%s&year=%s&month=%s" % (reverse('new_reports', args=(report_name,)), cell.object.location.code, cell.row.table.year, cell.row.table.month)
 
 class RandRStatusTable(MonthTable):
     """
@@ -142,6 +142,9 @@ def _stock_class(cell):
     else:
         return "overstock stock_iconified prod-%s" % cell.column.product.sms_code
 
+def _prod_class(cell):
+    return "prod-%s" % cell.column.product.sms_code
+
 class RandRReportingHistoryTable(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
@@ -162,7 +165,7 @@ class RandRReportingHistoryTable(MonthTable):
     class Meta:
         per_page = 9999
         order_by = ["D G", "Facility Name"]
-
+  
 class SupervisionTable(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
@@ -215,6 +218,20 @@ class ProductMonthsOfStockColumn(Column):
                                             header_class = "prod-%s" % product.sms_code
        )
 
+class AggregateStockoutPercentColumn(Column):
+    def __init__(self, product, month, year):
+        self.product = product
+        super(AggregateStockoutPercentColumn, self).__init__(#name=self.product.sms_code,
+                                            value=lambda cell: cell.object.breakdown.percent_stocked_out(self.product, year, month),
+                                            sort_key_fn=lambda obj: object.breakdown.percent_stocked_out(self.product, year, month),
+                                            name="%s stock outs this month" % product.sms_code,
+                                            titleized=False,
+                                            safe=True,
+                                            css_class=_prod_class,
+                                            header_class = "prod-%s" % product.sms_code
+
+       )
+
 def _ontime_class(cell):
     state = soh_reported_on_time(cell.object, cell.row.table.year, cell.row.table.month)
     if state == OnTimeStates.LATE:
@@ -250,20 +267,32 @@ class NotesTable(Table):
         per_page = 5
         order_by = "-date"
 
-class AggregateRandRTable(Table):
-    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell: reports_link(cell.object, 'randr'))
+class AggregateRandRTable(MonthTable):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell: reports_link(cell, 'randr'))
     percent_on_time = Column(value=lambda cell: cell.object.breakdown.percent_randr_on_time(), name="% Facilities Submitting R&R On Time", safe=True)
     percent_late = Column(value=lambda cell: cell.object.breakdown.percent_randr_late(), name="% Facilities Submitting R&R Late", safe=True)
     percent_not_submitted = Column(value=lambda cell: cell.object.breakdown.percent_randr_not_submitted(), name="% Facilities with R&R Not Submitted", safe=True)
-#    percent_reminder_sent = Column(value=lambda cell: cell.object.breakdown.percent_randr_reminder_sent(), name="% Facilities with R&R Reminder Sent", safe=True)
     percent_not_responding = Column(value=lambda cell: cell.object.breakdown.percent_randr_not_responding(), name="% Facilities Not Responding to R&R Reminder", safe=True)
     percent_no_data = Column(value=lambda cell: cell.object.breakdown.percent_randr_no_data(), name="% Facilities with No R&R Data", safe=True)
+    historical_response_rate = Column(value=lambda cell: cell.object.breakdown.randr_response_rate(), name = "Historical Response Rate", safe=True)
 
-class AggregateSOHTable(Table):
-    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell:reports_link(cell.object, 'soh'))
+
+class AggregateSOHTable(MonthTable):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell:reports_link(cell, 'soh'))
     percent_on_time = Column(value=lambda cell: cell.object.breakdown.percent_soh_on_time(), name="% Facilities Submitting SOH On Time", safe=True)
     percent_late = Column(value=lambda cell: cell.object.breakdown.percent_soh_late(), name="% Facilities Submitting SOH Late", safe=True)
     percent_not_responding = Column(value=lambda cell: cell.object.breakdown.percent_soh_not_responding(), name="% Facilities Not Responding to SOH", safe=True)
-    percent_with_stockouts = Column(value=lambda cell: cell.object.breakdown.percent_stockouts_in_month(), name="% Facilities with 1 or More Stockouts", safe=True)
+    percent_with_stockouts = Column(value=lambda cell: cell.object.breakdown.percent_stockouts_in_month(), name="% Facilities with 1 or More Stockouts This Month", safe=True)
+
+    
+class AggregateSupervisionTable(MonthTable):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell:reports_link(cell, 'supervision'))
+    percent_received = Column(value=lambda cell: cell.object.breakdown.percent_supervision_received(), name="% Supervision Received", safe=True)
+    percent_not_received = Column(value=lambda cell: cell.object.breakdown.percent_supervision_not_received(), name="% Supervision Not Received", safe=True)
+    percent_not_responding = Column(value=lambda cell: cell.object.breakdown.percent_supervision_not_responding(), name="% Supervision Not Responding", safe=True)
+    historical_response_rate = Column(value=lambda cell: cell.object.breakdown.supervision_response_rate(), name = "Historical Response Rate", safe=True)
 
 
+class AggregateDeliveryTable(MonthTable):
+    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda cell: cell.object.name, link=lambda cell:reports_link(cell, 'delivery'))
+    average_lead_time = Column(value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time", safe=True)
