@@ -131,6 +131,9 @@ class Location(models.Model, StockCacheMixin):
     def overstocked_count(self, product=None, producttype=None):
         return self._get_stock_count("overstocked_count", product, producttype)
 
+    def consumption(self, product=None, producttype=None):
+        return self._get_stock_count("consumption", product, producttype)
+
     def deprecate(self, new_code=None):
         """
         Deprecates a location, by changing the code and deactivating it.

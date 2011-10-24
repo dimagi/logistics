@@ -307,14 +307,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return self._get_stock_count("overstocked_count", product, producttype)
     
     def consumption(self, product=None, producttype=None):
-        def _consumption(facilities=None, product=None, producttype=None):
-            stocks = _filtered_stock(product, producttype).filter(supply_point__in=facilities)
-            # TOOD: this needs to be fixed to work with auto_monthly_consumption
-            consumption = stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
-            return consumption
-        return _consumption(facilities=[self], 
-                           product=product, 
-                           producttype=producttype)
+        return self._get_stock_count("consumption", product, producttype)
     
     def report(self, product, report_type, quantity, message=None, date=None):
         if date:

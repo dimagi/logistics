@@ -1,5 +1,6 @@
 from rapidsms.conf import settings
 from django.core.cache import cache
+from django.db.models import Sum
 
 class StockCacheMixin():
     """
@@ -51,7 +52,10 @@ class StockCacheMixin():
                   adequate_supply_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)       
         cache.set(self._cache_key('overstocked_count', product, producttype), 
                   overstocked_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        
+        consumption = all_stocks.exclude(manual_monthly_consumption=None).aggregate(consumption=Sum('manual_monthly_consumption'))['consumption']
+        cache.set(self._cache_key('consumption', product, producttype), 
+                  consumption, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    
     def _get_stock_count_for_facilities(self, facilities, name, product, producttype):
         """ 
         pulls requested stock value for a given set of facilities from the cache
