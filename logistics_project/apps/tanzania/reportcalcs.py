@@ -164,7 +164,7 @@ REPORT_LIST = [
     SOHReport,
     RandRReport,
     SupervisionReport,
-    DeliveryReport,
+    DeliveryReport
 ]
 
 @place_in_request()
