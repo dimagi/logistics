@@ -327,6 +327,10 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         report_type = ProductReportType.objects.get(code=Reports.SOH)
         return self.report(product, report_type, quantity)
 
+    def report_receipt(self, product, quantity, message=None):
+        report_type = ProductReportType.objects.get(code=Reports.REC)
+        return self.report(product, report_type, quantity)
+
     def reporters(self):
         reporters = Contact.objects.filter(supply_point=self)
         reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
@@ -463,27 +467,25 @@ class ProductStock(models.Model):
 
     @property
     def daily_consumption(self):
-        trans = StockTransaction.objects.filter(supply_point=self.supply_point,
-                                                product=self.product).order_by('date')
-        if len(trans) < 2:
+        # we only care about negative transactions
+        txs = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                                product=self.product,
+                                                quantity__lt=0).order_by('-date')
+
+        if txs.count() < settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION:
             # not enough data
             return None
-        quantity = 0
-        days = 0
-        prior = trans[0]
-        for tr in trans[1:]:
-            # BUG: by ignoring all the non-consumption transactions,
-            # we often end up omitting days
-            # i.e. if one reports receipts & consumption together every week
-            # then the days diff between 'tr' and 'prior' will always be zero
-            if tr.quantity < 0: # consumption
-                quantity -= tr.quantity # negative number
-                delta = tr.date - prior.date
-                days += delta.days
-            prior = tr
+        # this is a tiny bit inaccurate, since technically we should be looking
+        # for the first stock level report. for now, we take the hit in exchange for performance
+        oldest_date = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                                      product=self.product)\
+                                                      .order_by('date')[0].date
+        newest_date = txs[0].date
+        days = (newest_date - oldest_date).days
         if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
             return None
-        return quantity / days
+        quantity = txs.aggregate(quantity=Sum('quantity'))['quantity']
+        return abs(float(quantity) / float(days))
 
     @property
     def emergency_reorder_level(self):
