@@ -170,11 +170,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         
         return self._default_group
         
-    def are_consumptions_set(self):
-        consumption_count = ProductStock.objects.filter(supply_point=self).filter(manual_monthly_consumption=None).count()
-        if consumption_count > 0:
-            return False
-        return True
+    def consumptions_available(self):
+        stocks = self.product_stocks()
+        available = 0
+        for stock in stocks:
+            if stock.monthly_consumption is not None:
+                available = available + 1
+        return available
         
     def commodities_stocked(self):
         return Product.objects.filter(reported_by__supply_point=self).distinct()
