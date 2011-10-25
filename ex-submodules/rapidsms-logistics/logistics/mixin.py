@@ -1,3 +1,4 @@
+from datetime import timedelta
 from rapidsms.conf import settings
 from django.core.cache import cache
 from django.db.models import Sum
@@ -16,7 +17,8 @@ class StockCacheMixin():
         returns None
         """
         stocks = self._filtered_stock(product, producttype)\
-                  .filter(supply_point__in=facilities)
+                  .filter(supply_point__in=facilities)\
+                  .select_related("supply_point", "product")
         # TODO: when datespan is None, stockouts can be queried more efficiently 
         # at the db level. 
         #nonzero_stocks = all_stocks.filter(quantity__gt=0)
@@ -29,8 +31,11 @@ class StockCacheMixin():
         overstocked_count = 0    
         for stock in stocks:
             if datespan:
-                historical_stock = stock.supply_point.historical_stock_by_date(stock.product, datespan.end_of_end_day)
-                stock.quantity = historical_stock
+                historical_stock = stock.supply_point.historical_stock_by_date(stock.product, 
+                                                                               datespan.end_of_end_day - timedelta(days=1), 
+                                                                               default_value=None)
+                if historical_stock is not None:
+                    stock.quantity = historical_stock
             if stock.quantity == 0:
                 stockout_count = stockout_count + 1
             if stock.is_below_emergency_level():
@@ -71,8 +76,6 @@ class StockCacheMixin():
         refresh cache if necessary
         returns integer
         """
-        #TEMPORARY
-        self._populate_stock_cache(facilities, product, producttype, datespan)
         if settings.LOGISTICS_USE_SPOT_CACHING:
             from_cache = cache.get(self._cache_key(name, product, producttype, datespan))
             if from_cache:
