@@ -181,7 +181,6 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
         context['excel_export'] = False
     location = get_object_or_404(Location, code=location_code)
     context['location'] = location
-    deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     context['destination_url'] = destination_url
     return render_to_response(
         template, context, context_instance=RequestContext(request)

@@ -235,6 +235,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     
     def historical_stock_by_date(self, product, date, default_value=0):
+        """ assume the 'date' is standardized to utc """
         cache_key = ("log-hs-%(supply_point)s-%(product)s-%(datetime)s-%(default)s" % \
                     {"supply_point": self.code, "product": product.sms_code, 
                      "datetime": date, "default": default_value}).replace(" ", "-")
@@ -242,6 +243,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                                       date.day, default_value)
         
     def historical_stock(self, product, year, month, default_value=0):
+        """ assume the 'date' is standardized to utc """
         def _cache_key():
             return ("log-hs-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
                     {"supply_point": self.code, "product": product.sms_code, 
@@ -388,7 +390,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def data_unavailable(self):
         # hm, not sure what interval should be considered 'data unavailable'?
         # for now, we'll make it a setting
-        deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE)
+        deadline = datetime.utcnow() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE)
         if self.last_reported is None or self.last_reported < deadline:
             return True
         return False
