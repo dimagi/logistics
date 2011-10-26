@@ -74,7 +74,7 @@ def last_report_elem(elem, supply_point, year, month, format=True):
     state = soh_reported_on_time(supply_point, year, month)
     classes = "insufficient_data"
     msg = _("Waiting for reply")
-    if state == OnTimeStates.NO_DATA:
+    if state == OnTimeStates.NO_DATA or state == OnTimeStates.INSUFFICIENT_DATA:
         if format:
             return cell_template % {"classes": classes, "msg": msg, "elem": elem}
         else:

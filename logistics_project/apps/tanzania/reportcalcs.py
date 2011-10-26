@@ -107,6 +107,7 @@ class SOHReport(TanzaniaReport):
     slug = "soh"
 
     def common_report(self):
+        self.context['max_products'] = 6
         self.context['summary'] = DynamicProductAvailabilitySummaryByFacilitySP(facilities_below(self.location).filter(contact__is_active=True).distinct(), year=self.mp.year, month=self.mp.month)
     
     def national_report(self):
