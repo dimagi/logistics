@@ -1,4 +1,5 @@
 from django.template.loader import get_template
+from logistics.reports import DynamicProductAvailabilitySummaryByFacilitySP
 from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
 from logistics.decorators import place_in_request
 from logistics.models import Product
@@ -6,7 +7,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below
 from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
@@ -96,7 +97,6 @@ class RandRReport(TanzaniaReport):
         self.context['randr_table'] = AggregateRandRTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
-        self.context["randr_status_table"] = RandRStatusTable(object_list=self.dg.submitting().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
         self.context["on_time"] = randr_on_time_reporting(self.dg.submitting(), self.mp.year, self.mp.month)
         self.context["randr_history_table"] = RandRReportingHistoryTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                                         month=self.mp.month, year=self.mp.year, prefix="randr_history")
@@ -105,6 +105,9 @@ class RandRReport(TanzaniaReport):
 class SOHReport(TanzaniaReport):
     name = "Stock On Hand"
     slug = "soh"
+
+    def common_report(self):
+        self.context['summary'] = DynamicProductAvailabilitySummaryByFacilitySP(facilities_below(self.location).filter(contact__is_active=True).distinct(), year=self.mp.year, month=self.mp.month)
     
     def national_report(self):
         table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
