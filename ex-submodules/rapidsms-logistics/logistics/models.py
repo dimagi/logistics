@@ -459,7 +459,7 @@ class ProductStock(models.Model):
             if d is None:
                 return _manual_consumption()
 
-            return d * 30
+            return int(d * 30)
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):
@@ -485,7 +485,7 @@ class ProductStock(models.Model):
         if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
             return None
         quantity = txs.aggregate(quantity=Sum('quantity'))['quantity']
-        return abs(float(quantity) / float(days))
+        return round(abs(float(quantity) / float(days)),2)
 
     @property
     def emergency_reorder_level(self):
