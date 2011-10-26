@@ -1,4 +1,5 @@
 {% extends "tanzania/reports-base.html" %}
+{% load djtables_tags %}
 
 {% block report_content %}
 
@@ -13,6 +14,13 @@
 
     <div class="module">
         <h2>Lead Time History</h2>
-        {{ delivery_table.as_html }}
+                {% with delivery_table as table %}
+        <table width="100%">
+    {% table_cols table %}
+    {% table_head table %}
+    {% table_body table %}
+    {% table_foot table %}
+            </table>
+    {% endwith %}
     </div>
 {% endblock %}
