@@ -25,7 +25,7 @@
         for (var p in products) {
             d = products[p];
             box = "<input type='checkbox' class='prod-selector'";
-            if (i <= 6) {
+            if (i < {{ max_products }}) {
                 $('.prod-'+d).show();
                 box = box + " checked=true ";
             } else {
@@ -44,6 +44,7 @@
             var ticks = [];
             var cur_data = {{ summary.flot_data.data|safe }};
             var index = 1;
+            var checked_count = 0;
             for (var p in products) {
                 d = products[p];
                 if ($('#product-selector #'+d)[0].checked) {
@@ -53,9 +54,21 @@
                     nodata.push([dmap[d].without_data, index + 2]);
                     ticks.push([index + 1, dmap[d].tick]);
                     index = index + 4;
+                    checked_count = checked_count + 1;
                 } else {
                     $('.prod-'+d).fadeOut('slow');
                 }
+            }
+
+            if (checked_count >= {{ max_products }}) {
+                for (var p in products) {
+                    d = products[p];
+                    if (!($('#product-selector #'+d)[0].checked)) {
+                        $('#product-selector #'+d).attr('disabled', true);
+                    }
+                }
+            } else {
+                $('#product-selector input').removeAttr("disabled");
             }
             cur_data[1].data = withstock;
             cur_data[0].data = withoutstock;
