@@ -201,7 +201,8 @@ class SupplyPointStatusBreakdown(object):
 
     @property
     def stockouts_in_month(self):
-        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity=0, report_date__month=self.month, report_date__year=self.year).count()]
+        # NOTE: Uses the report month/year, not the current month/year.
+        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity=0, report_date__month=self.report_month, report_date__year=self.report_year).count()]
 
     percent_stockouts_in_month = curry(_percent, fn='stockouts_in_month')
 
