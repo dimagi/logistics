@@ -39,7 +39,7 @@
                             {% if stock.is_active %}checked="checked"{% endif %}/>
                         </td>
                         {% else %}
-                        <td>{{ stock.monthly_consumption|default_if_none:'unknown' }}</td>
+                        <td>{{ stock.manual_monthly_consumption|default_if_none:'unknown' }}</td>
                         {% endif %}
                     </tr>
                 {% endfor %}

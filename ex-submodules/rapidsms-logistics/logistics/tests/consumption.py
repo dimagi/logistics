@@ -19,6 +19,7 @@ class TestConsumption (TestScript):
 
     def testConsumption(self):
         self.sp.report_stock(self.pr, 200) 
+        self.ps.update_auto_monthly_consumption()
 
         # Not enough data.
         self.assertEquals(None, self.ps.daily_consumption)
@@ -30,6 +31,7 @@ class TestConsumption (TestScript):
         st.date = st.date - timedelta(days=5)
         st.save()
         self.sp.report_stock(self.pr, 150)
+        self.ps.update_auto_monthly_consumption()
 
         # 5 days still aren't enough to compute.
         self.assertEquals(None, self.ps.daily_consumption)
@@ -40,6 +42,7 @@ class TestConsumption (TestScript):
             st.date = st.date - timedelta(days=5)
             st.save()
         self.sp.report_stock(self.pr, 100)
+        self.ps.update_auto_monthly_consumption()
 
         # 10 days is enough.
         self.assertEquals(10, self.ps.daily_consumption) # 200 in stock 10 days ago, 150 in stock 5 days ago
@@ -50,6 +53,7 @@ class TestConsumption (TestScript):
             st.date = st.date - timedelta(days=10)
             st.save()
         self.sp.report_stock(self.pr, 50) # 200 in stock 20 days ago, 150 in stock 15 days ago, 50 in stock now
+        self.ps.update_auto_monthly_consumption()
 
         # Another data point.
         self.assertEquals(7.5, round(self.ps.daily_consumption, 1))
@@ -61,6 +65,7 @@ class TestConsumption (TestScript):
             st.date = st.date - timedelta(days=10)
             st.save()
         self.sp.report_stock(self.pr, 100)
+        self.ps.update_auto_monthly_consumption()
 
         # Reporting higher stock shouldn't change the daily consumption
         # since we have no way of knowing how much was received vs dispensed.
@@ -126,6 +131,7 @@ class TestConsumption (TestScript):
             return
         trans.date = trans.date - timedelta(days=days_ago)
         trans.save()
+        self.ps.update_auto_monthly_consumption()
 
     def tearDown(self):
         Location.objects.all().delete()
@@ -133,5 +139,5 @@ class TestConsumption (TestScript):
         Product.objects.all().delete()
         ProductStock.objects.all().delete()
         StockTransaction.objects.all().delete()
+        ProductReport.objects.all().delete()
         TestScript.tearDown(self)
-
