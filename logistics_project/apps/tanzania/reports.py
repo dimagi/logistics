@@ -20,11 +20,11 @@ class SupplyPointStatusBreakdown(object):
             self.month = month
             self.year = year
         if facilities is None:
-            facilities = SupplyPoint.objects.filter(type__code="facility")
+            facilities = SupplyPoint.objects.filter(type__code="facility", contact__is_active=True).distinct()
         self.facilities = facilities
         self.report_month = self.month - 1 if self.month > 1 else 12
         self.report_year = self.year if self.report_month < 12 else self.year - 1
-        self.dg = DeliveryGroups(month=month)
+        self.dg = DeliveryGroups(month=month, facs=self.facilities)
         self._submission_chart = None
 
     @property
@@ -230,6 +230,8 @@ class SupplyPointStatusBreakdown(object):
 
     supervision_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.SUPERVISION_FACILITY)
     randr_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.R_AND_R_FACILITY)
+
+
 
     def submission_chart(self):
         graph_data = [
