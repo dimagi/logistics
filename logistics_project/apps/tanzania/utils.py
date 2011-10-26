@@ -35,7 +35,9 @@ def supply_points_below(location):
                              Q(supplied_by__supplied_by__supplied_by__location=location))
 
 def facilities_below(location):
-    if supply_points_below(location): return supply_points_below(location).filter(type__code='facility')
+    c = supply_points_below(location)
+    if c: return c.filter(type__code="facility", groups__code__in=DeliveryGroups.GROUPS).distinct()
+    return SupplyPoint.objects.none()
 
 def latest_status(sp, type, value=None, month=None, year=None):
     qs = sp.supplypointstatus_set.filter(status_type=type)
