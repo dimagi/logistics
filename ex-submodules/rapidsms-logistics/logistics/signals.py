@@ -12,6 +12,15 @@ def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resol
                                                         exclude=exclude_list)
     
 @transaction.commit_on_success
+def post_save_stock_transaction(sender, instance, created, **kwargs):
+    """ Every time we see a new transaction, update the 
+    auto_monthly_consumption field if appropriate """
+    from logistics.models import ProductStock
+    ps = ProductStock.objects.get(supply_point=instance.supply_point, 
+                                  product=instance.product)
+    ps.update_auto_monthly_consumption()
+
+@transaction.commit_on_success
 def post_save_product_report(sender, instance, created, **kwargs):
     """
     Every time a product report is created,
