@@ -228,7 +228,8 @@ def soh_reported_on_time(supply_point, year, month):
 def randr_reported_on_time(supply_point, year, month):
     reminder_date = datetime.combine(get_business_day_of_month_before(year, month, 5), time())
 #    last_report = last_status_before(supply_point, get_business_day_of_month(year, month, -1), SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
-    last_report = last_status_before(supply_point, datetime(year=year, month=month+1, day=1)-timedelta(days=1), SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
+    last_day_of_the_month = (datetime(year=year, month=month, day=1)+timedelta(days=32)).replace(day=1)-timedelta(seconds=1)
+    last_report = last_status_before(supply_point, last_day_of_the_month, SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
     if last_report:
         return _reported_on_time(reminder_date, last_report.status_date)
 
