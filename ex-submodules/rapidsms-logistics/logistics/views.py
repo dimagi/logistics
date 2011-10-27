@@ -99,6 +99,10 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
                     rms.activate_product(stock.product)
                 else:
                     rms.deactivate_product(stock.product)
+                if "%s_use_auto_consumption" % stock.product.sms_code in request.POST:
+                    rms.activate_auto_consumption(stock.product)
+                else:
+                    rms.deactivate_auto_consumption(stock.product)
             except ValueError, e:
                 errors = errors + unicode(e)
         if not errors:

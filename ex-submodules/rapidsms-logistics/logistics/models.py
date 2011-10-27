@@ -376,6 +376,18 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             ps.is_active = False
             ps.save()
 
+    def activate_auto_consumption(self, product):
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if not ps.use_auto_consumption:
+            ps.use_auto_consumption = True
+            ps.save()
+
+    def deactivate_auto_consumption(self, product):
+        ps, created = ProductStock.objects.get_or_create(supply_point=self, product=product)
+        if ps.use_auto_consumption:
+            ps.use_auto_consumption = False
+            ps.save()
+
     def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
         """ stockouts_resolved is a dictionary of code to product """
         to_notify = SupplyPoint.objects.filter(supplied_by=self, active=True).distinct()
