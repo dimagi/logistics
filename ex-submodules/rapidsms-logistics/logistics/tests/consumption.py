@@ -15,7 +15,15 @@ class TestConsumption (TestScript):
         self.sp = Facility.objects.all()[0]
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.ps.use_auto_consumption = True
-        self.ps.save
+        self.ps.save()
+       
+    def testBasicConsumption(self):
+        # now enable auto_monthly_consumption
+        self._report(30, 30, Reports.SOH) 
+        self._report(20, 20, Reports.SOH) 
+        self._report(10, 10, Reports.SOH) 
+        self.assertEquals(1, self.ps.daily_consumption)
+        self.assertEquals(30, self.ps.monthly_consumption)
 
     def testConsumption(self):
         self.sp.report_stock(self.pr, 200) 
@@ -114,6 +122,35 @@ class TestConsumption (TestScript):
         self._report(20, 30, Reports.SOH)
         self.assertEquals(2, round(self.ps.daily_consumption)) # 40/20
         self.assertEquals(57, round(self.ps.monthly_consumption))
+
+    def testAutoVsManualConsumption(self):
+        # test all combinations of use_auto_consumption, 
+        # manual_consumption, and auto_consumption
+        self.ps.unset_auto_consumption()
+        self.assertEquals(5, self.ps.monthly_consumption)
+        self.ps.set_auto_consumption()
+        self.assertEquals(5, self.ps.monthly_consumption)
+        self.ps.manual_monthly_consumption = 8
+        self.ps.save()
+        # auto consumption falls back to manual when auto is none
+        self.assertEquals(8, self.ps.monthly_consumption)
+        self.ps.unset_auto_consumption()
+        self.assertEquals(8, self.ps.monthly_consumption)
+        
+        # now enable auto_monthly_consumption
+        self._report(30, 30, Reports.SOH) 
+        self._report(20, 20, Reports.SOH) 
+        self._report(10, 10, Reports.SOH) 
+        self.ps.manual_monthly_consumption = None
+        self.ps.save()
+        self.assertEquals(5, self.ps.monthly_consumption)
+        self.ps.set_auto_consumption()
+        self.assertEquals(30, self.ps.monthly_consumption)
+        self.ps.manual_monthly_consumption = 8
+        self.ps.save()
+        self.assertEquals(30, self.ps.monthly_consumption)
+        self.ps.unset_auto_consumption()
+        self.assertEquals(8, self.ps.monthly_consumption)
 
     def _report(self, amount, days_ago, report_type):
         if report_type == Reports.SOH:

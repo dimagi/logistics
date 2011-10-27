@@ -572,6 +572,14 @@ class ProductStock(models.Model):
             if self.quantity > self.maximum_level:
                 return True
         return False
+    
+    def set_auto_consumption(self):
+        self.use_auto_consumption = True
+        self.save()
+        
+    def unset_auto_consumption(self):
+        self.use_auto_consumption = False
+        self.save()
 
 class StockTransferStatus(object):
     """Basically a const for our choices"""
