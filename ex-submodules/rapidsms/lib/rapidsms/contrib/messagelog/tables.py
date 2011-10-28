@@ -16,6 +16,7 @@ class MessageTable(Table):
     direction = Column()
     date = DateColumn(format="H:i d/m/Y")
     text = Column(css_class="message")
+    tags = Column(sortable = False, value = lambda cell: cell.object.get_tags_for_display())
 
     class Meta:
         #model = Message

@@ -65,3 +65,21 @@ class Message(models.Model):
 
         to_from = (self.direction == "I") and "from" or "to"
         return "%s (%s %s)" % (str, to_from, self.who)
+    
+    """
+    Returns a string showing all tags for this Message,
+    separated by a comma. If this Message does not have any
+    tags, an empty string is returned.
+    """
+    def get_tags_for_display(self):
+        tag_list = []
+        for tag in self.tags.all():
+            tag_list.append(tag.name)
+        tag_list.sort()
+        
+        display = ""
+        if len(tag_list) > 0:
+            display = ", ".join(tag_list)
+        
+        return display
+

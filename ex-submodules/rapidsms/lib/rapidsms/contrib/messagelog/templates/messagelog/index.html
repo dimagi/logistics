@@ -23,6 +23,20 @@
         <label for="search">Search: </label>
         <input type="text" name="search" id="search" value="{% if search %}{{ search }}{% endif %}"></input>
         <input type="submit" value="Filter" />
+        <br /><br />
+        [<input type="radio" name="tag_filter_flag" value="Y" {% if tag_filter_flag == "Y" %}checked="checked"{% endif %}>Filter</input>
+        <input type="radio" name="tag_filter_flag" value="N" {% if tag_filter_flag == "N" %}checked="checked"{% endif %}>Do not filter</input>]
+        for messages tagged by
+        [<input type="radio" name="tag_filter_style" value="any" {% if tag_filter_style == "any" %}checked="checked"{% endif %}>Any</input>
+        <input type="radio" name="tag_filter_style" value="all" {% if tag_filter_style == "all" %}checked="checked"{% endif %}>All</input>]
+        of the following:
+        <br /><br />
+        <select name="selected_tags" id="selected_tags" multiple="multiple" size="4">
+        {% for tag in all_tags %}
+            <option value="{{ tag }}" {% if tag in selected_tags %}selected{% endif %}>{{ tag }}</option>
+        {% endfor %}
+        </select>
+        <input type="submit" value="Filter" />
         </form>
     {% endblock %}
 	{{ messages_table.as_html }}
