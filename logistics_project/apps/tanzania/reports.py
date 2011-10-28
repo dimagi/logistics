@@ -165,7 +165,7 @@ class SupplyPointStatusBreakdown(object):
 
     @property
     def avg_lead_time(self):
-        if not self.facilities: return "<span class='no_data'>No data</span>"
+        if not self.facilities: return "<span class='no_data'>None</span>"
         sum = timedelta(0)
         count = 0
         for f in self.facilities:
@@ -173,7 +173,7 @@ class SupplyPointStatusBreakdown(object):
             if lt:
                 sum += lt
                 count += 1
-        if not count: return "<span class='no_data'>No data</span>"
+        if not count: return "<span class='no_data'>None</span>"
         return sum / count
 
     def _percent(self, fn=None, of=None):
