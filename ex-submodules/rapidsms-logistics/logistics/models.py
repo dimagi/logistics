@@ -21,7 +21,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
 from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.signals import post_save_product_report, create_user_profile,\
-    stockout_resolved
+    stockout_resolved, post_save_stock_transaction
 from logistics.errors import *
 from logistics.const import Reports
 from logistics.util import config, parse_report
@@ -463,15 +463,15 @@ class ProductStock(models.Model):
                 return self.product.average_monthly_consumption
             return None
         
-        if not self.use_auto_consumption:
-            return _manual_consumption()
-        
-        else:
-            d = self.daily_consumption
-            if d is None:
-                return _manual_consumption()
-
-            return int(d * 30)
+        if self.use_auto_consumption and self.auto_monthly_consumption:
+            return self.auto_monthly_consumption
+        return _manual_consumption()
+    
+    def update_auto_consumption(self):
+        d = self.daily_consumption
+        if d:
+            self.auto_monthly_consumption = int(d * 30)
+            self.save()
 
     @monthly_consumption.setter
     def monthly_consumption(self,value):
@@ -1342,6 +1342,7 @@ def get_geography():
         raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 
 post_save.connect(post_save_product_report, sender=ProductReport)
+post_save.connect(post_save_stock_transaction, sender=StockTransaction)
 
 def transactions_before_or_during(year, month, day=None):
     if day is None:
