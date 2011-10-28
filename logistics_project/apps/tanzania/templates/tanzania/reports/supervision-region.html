@@ -9,8 +9,16 @@
                 {% include "logistics/partials/pie_reporting_generic.html" %}
             {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
     </div>
-    <div class="module">
+
+        <div class="module">
         <h2>Supervision (Group {{ dg.current_submitting_group }})</h2>
-        {{ supervision_table.as_html }}
+                        {% with supervision_table as table %}
+        <table width="100%">
+    {% table_cols table %}
+    {% table_head table %}
+    {% table_body table %}
+    {% table_foot table %}
+            </table>
+    {% endwith %}
     </div>
 {% endblock %}
