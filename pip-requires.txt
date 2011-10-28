@@ -1,4 +1,4 @@
-Django>=1.2.1
+Django==1.2.1
 south>=0.7.2
 django-nose>=0.1
 djappsettings==0.1.0
@@ -11,10 +11,11 @@ virtualenv==1.4.5
 django-celery
 django-kombu
 django-registration
-couchdbkit>=0.5.4
+couchdbkit==0.5.4
 supervisor
 twilio
 johnny-cache
 python-memcached
 psycopg2
 gdata
+django-taggit

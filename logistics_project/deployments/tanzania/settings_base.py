@@ -3,14 +3,14 @@
 import os
 LOGISTICS_CONFIG = 'logistics_project.apps.tanzania.config'
 
-PRIORITY_APPS = [ "logistics_project.apps.migration" ]
+PRIORITY_APPS = [ "auditcare","logistics_project.apps.migration" ]
     
                  
 APPS = [
-    "auditcare",
     "django.contrib.webdesign",
     "logistics_project.apps.tanzania",
     "scheduler",
+    "taggit",
 ]
 
 RAPIDSMS_TABS = [
