@@ -273,8 +273,12 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, request=self._request)),
-                TableData("Complete Reports", SOHReportingTable(self.full, request=self._request))
+        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, 
+                                                                  request=self._request,
+                                                                  prefix='inc-')),
+                TableData("Complete Reports", SOHReportingTable(self.full, 
+                                                                request=self._request,
+                                                                  prefix='comp-'))
                 #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
                 ]
         
@@ -309,12 +313,22 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, request=self._request)),
-             TableData("Late HSAs", SOHReportingTable(self.reported_late, request=self._request)),
-             TableData("On-Time HSAs", SOHReportingTable(self.on_time, request=self._request))]
+            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+                                                               request=self._request, 
+                                                               prefix='nonreport-')),
+             TableData("Late HSAs", SOHReportingTable(self.reported_late, 
+                                                      request=self._request, 
+                                                      prefix='late-')),
+             TableData("On-Time HSAs", SOHReportingTable(self.on_time, 
+                                                         request=self._request, 
+                                                         prefix='ontime-'))]
         else:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, request=self._request)),
-                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, request=self._request))]
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+                                                                      request=self._request, 
+                                                                      prefix='nonreport-')),
+                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, 
+                                                                  request=self._request,
+                                                                  prefix='report-'))]
 
 class ProductAvailabilitySummary(object):
 
