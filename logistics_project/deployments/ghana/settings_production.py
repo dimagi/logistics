@@ -23,6 +23,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.middleware.CachedTemplateMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
