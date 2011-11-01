@@ -19,7 +19,11 @@
         <td {% ifequal stockonhand.monthly_consumption None %}
                 class="big_error"
             {% endifequal %}>
-            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+            {% if stockonhand.use_auto_consumption %}
+	            {{ stockonhand.monthly_consumption|default_if_none:"not enough data" }}
+            {% else %}
+	            {{ stockonhand.monthly_consumption|default_if_none:"not set" }}
+            {% endif %}
         </td>
         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
         <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
