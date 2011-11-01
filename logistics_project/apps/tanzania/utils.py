@@ -64,7 +64,9 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
                        supplypointstatus__status_date__month=month,
                        supplypointstatus__status_date__year=year)\
                         .annotate(max_sp_status_id=Max('supplypointstatus__id'))
-    ids = SupplyPointStatus.objects.filter(id__in=inner.values('max_sp_status_id').query)\
+    ids = SupplyPointStatus.objects.filter(status_type=status_type,
+                                           status_value=status_value,
+                                           id__in=inner.values('max_sp_status_id').query)\
                                            .distinct()\
                                             .values_list("supply_point", flat=True)
     f = sps.filter(id__in=ids)
