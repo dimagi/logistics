@@ -60,7 +60,6 @@ def sps_with_latest_status(sps, status_type, status_value, year, month):
     if not sps.count():
         return SupplyPoint.objects.none()
     inner = sps.filter(supplypointstatus__status_type=status_type,
-                       supplypointstatus__status_value=status_value,
                        supplypointstatus__status_date__month=month,
                        supplypointstatus__status_date__year=year)\
                         .annotate(max_sp_status_id=Max('supplypointstatus__id'))
