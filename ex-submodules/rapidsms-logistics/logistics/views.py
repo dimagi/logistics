@@ -95,10 +95,6 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
                             errors = ", ".join([errors, stock.product.name])
                             continue
                         prh.add_product_consumption(stock.product, consumption)
-                if "%s_is_active" % stock.product.sms_code in request.POST:
-                    rms.activate_product(stock.product)
-                else:
-                    rms.deactivate_product(stock.product)
                 if "%s_use_auto_consumption" % stock.product.sms_code in request.POST:
                     rms.activate_auto_consumption(stock.product)
                 else:

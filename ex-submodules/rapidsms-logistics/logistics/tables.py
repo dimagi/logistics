@@ -104,7 +104,7 @@ def _connection(cell):
 class MessageTable(Table):
     # this is temporary, until i fix ModelTable!
     contact = Column()
-    mobile_number = Column(value=_connection)
+    mobile_number = Column(value=_connection, sortable=False)
     direction = Column()
     date = DateColumn(format="H:i d/m")
     text = Column(css_class="message")
