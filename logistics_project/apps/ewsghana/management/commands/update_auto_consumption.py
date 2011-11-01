@@ -11,5 +11,7 @@ class Command(BaseCommand):
         from logistics.models import ProductStock
         stocks = ProductStock.objects.all()
         for stock in stocks:
+            stock.use_auto_consumption = True
             stock.update_auto_consumption()
-    
+            stock.save()
+   
