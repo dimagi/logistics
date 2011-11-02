@@ -14,11 +14,12 @@ def message_log(req, template="messagelog/index.html"):
     messages = Message.objects.all()
     contact = None
     search = None
-    all_tags = []           # A distinct list of all tags pertaining to any Messages in the Message Log
-    selected_tags = None    # The tags selected by the user by which to filter the Messages
-    tag_filter_flag = None  # "Y" if the user chose to do tag filtering, "N" otherwise
-    tag_filter_style = None # Tag filtering style: "any" to show Messages which match any of the selected_tags,
-                            #                      "all" to show Messages which match all of the selected tags
+    show_advanced_filter = None # "Y" to show the advanced filter, "N" to hide it
+    all_tags = []               # A distinct list of all tags pertaining to any Messages in the Message Log
+    selected_tags = None        # The tags selected by the user by which to filter the Messages
+    tag_filter_flag = None      # "Y" if the user chose to do tag filtering, "N" otherwise
+    tag_filter_style = None     # Tag filtering style: "any" to show Messages which match any of the selected_tags,
+                                #                      "all" to show Messages which match all of the selected tags
     if 'contact' in req.GET:
         if req.GET['contact'] == '':
             contact=None
@@ -47,6 +48,12 @@ def message_log(req, template="messagelog/index.html"):
     else:
         tag_filter_flag = "N"
 
+    # Retrieve advanced filter flag
+    if ("show_advanced_filter" in req.GET and req.GET["show_advanced_filter"] == "Y") or (tag_filter_flag == "Y"):
+        show_advanced_filter = "Y"
+    else:
+        show_advanced_filter = "N"
+
     # Retrieve tag filter style (default to "any")
     if "tag_filter_style" in req.GET and req.GET["tag_filter_style"] == "all":
         tag_filter_style = req.GET["tag_filter_style"]
@@ -71,6 +78,7 @@ def message_log(req, template="messagelog/index.html"):
             "search": search,
             "contact": contact,
             "contacts": Contact.objects.all().order_by("name"),
+            "show_advanced_filter": show_advanced_filter,
             "all_tags": all_tags,
             "selected_tags": selected_tags,
             "tag_filter_flag": tag_filter_flag,
