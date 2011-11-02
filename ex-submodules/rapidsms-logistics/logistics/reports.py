@@ -546,7 +546,7 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
 
 class DynamicProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummaryByFacilitySP, SidewaysProductAvailabilitySummary):
 
-    def __init__(self, facilities, width=900, height=300, month=None, year=None):
+    def __init__(self, facilities, width=900, height=360, month=None, year=None):
         super(DynamicProductAvailabilitySummaryByFacilitySP, self).__init__(facilities, width, height, month, year)
 
 class SupplyPointRow():

@@ -234,15 +234,6 @@ def product_availability_summary_by_facility_sp(location, year, month):
                          {"summary": summary})
     return c
 
-@register.simple_tag
-def dynamic_pas_facility_sp(location, year, month):
-    if not location:
-        pass
-    summary = DynamicProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
-    c =  _r_2_s_helper("logistics/partials/dynamic_product_availability_summary.html",
-                         {"summary": summary})
-    return c
-
 
 def commodity_filter(commodities, can_select_all=True):
     return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
