@@ -255,7 +255,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             return ("log-hs-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
                     {"supply_point": self.code, "product": product.sms_code, 
                      "year": year, "month": month, "default": default_value}).replace(" ", "-")
-        return self._historical_stock(product, self._cache_key(), year, month, 
+        return self._historical_stock(product, _cache_key(), year, month, 
                                       default_value=default_value)
     
     def _historical_stock(self, product, cache_key, year, month, day=None, default_value=0):
