@@ -10,8 +10,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         from logistics.models import ProductReport, StockTransaction, SupplyPoint, Product
-        prs = ProductReport.objects.all()
-        print "Total ProductReports Count: %s" % prs.count()
         
         txs_created_count = 0
         last_transaction_created = None
@@ -34,9 +32,6 @@ class Command(BaseCommand):
                                 # we generated a transaction where it's not needed
                                 break
                             if (st.date - last_transaction.date) > timedelta(minutes=1):
-                                if st.beginning_balance == 0:
-                                    # if this is the first transaction, well whatever, we can ignore it
-                                    break
                                 print "ERROR: transaction generated in a time period after transactions were activated!!!!"
                                 print "  %s %s %s" % (facility, product, report.pk)
                                 print "  old tx beg (%s) end (%s) %s" % (last_transaction.beginning_balance, last_transaction.ending_balance, last_transaction.date)
@@ -68,5 +63,6 @@ class Command(BaseCommand):
                         print "  %s, %s" % (facility, product)
                         print "  new tx %s %s %s" % (generated_transaction.beginning_balance, generated_transaction.ending_balance, generated_transaction.date)
                         print "  old tx %s %s %s" % (last_transaction.beginning_balance, last_transaction.ending_balance, last_transaction.date)
-        print "%s transactions generated!" % txs_created_count
+        txs_count = StockTransaction.objects.count()
+        print "%s transactions generated! new transaction count is %s" % (txs_created_count, txs_count)
         print "newest transaction created at %s %s" % (last_transaction_created.date, last_transaction_created.pk)
