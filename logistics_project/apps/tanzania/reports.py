@@ -227,7 +227,7 @@ class SupplyPointStatusBreakdown(object):
         if denom:
             return "%.1f%%" % ((num / denom) * 100.0)
         else:
-            return "<span class='no_data'>No Data</span>"
+            return "<span class='no_data'>None</span>"
 
     supervision_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.SUPERVISION_FACILITY)
     randr_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.R_AND_R_FACILITY)
