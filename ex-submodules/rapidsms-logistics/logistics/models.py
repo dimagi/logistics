@@ -178,6 +178,12 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                 available = available + 1
         return available
         
+    def are_consumptions_set(self):
+        consumption_count = ProductStock.objects.filter(supply_point=self).filter(manual_monthly_consumption=None).count()
+        if consumption_count > 0:
+            return False
+        return True
+
     def commodities_stocked(self):
         return Product.objects.filter(reported_by__supply_point=self).distinct()
     
@@ -206,6 +212,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         except ProductStock.DoesNotExist:
             productstock = ProductStock(is_active=settings.LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS, 
                                         supply_point=self, product=product)
+        productstock.last_modified = datetime.utcnow()
         productstock.quantity = quantity
         productstock.save()
         return productstock

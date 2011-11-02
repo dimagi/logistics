@@ -30,7 +30,7 @@ class StockCacheMixin():
         adequate_supply_count = 0
         overstocked_count = 0    
         for stock in stocks:
-            if datespan and datespan.is_default:
+            if datespan and not datespan.is_default:
                 historical_stock = stock.supply_point.historical_stock_by_date(stock.product, 
                                                                                datespan.end_of_end_day - timedelta(days=1), 
                                                                                default_value=None)

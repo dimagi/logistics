@@ -77,7 +77,7 @@ class ReportingBreakdown(object):
         reports_in_range = ProductReport.objects.filter\
             (report_type__code=Reports.SOH,
              report_date__gte=datespan.startdate,
-             report_date__lte=datespan.enddate,
+             report_date__lte=datespan.enddate_param,
              supply_point__in=supply_points,
              supply_point__active=True)
         
