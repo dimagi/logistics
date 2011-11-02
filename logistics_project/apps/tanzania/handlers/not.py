@@ -1,4 +1,5 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 import datetime
 import re
 from django.utils.translation import ugettext_noop as _
@@ -7,7 +8,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.decorators import logistics_contact_required
         
-class Not(KeywordHandler):
+class Not(KeywordHandler,TaggingHandler):
     """
     Simple "not"
     """
@@ -37,4 +38,5 @@ class Not(KeywordHandler):
                  status_date=self.msg.timestamp)
             self.respond(_(config.Messages.NOT_SUBMITTED_CONFIRM))
         else:
+            self.add_tag("Error")
             self.help()

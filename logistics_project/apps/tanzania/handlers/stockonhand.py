@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from logistics.util import config
@@ -17,7 +18,7 @@ from logistics.models import ProductStock, Product
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
 
-class StockOnHandHandler(KeywordHandler):
+class StockOnHandHandler(KeywordHandler,TaggingHandler):
     """
     """
     keyword = "soh|hmk"
@@ -36,7 +37,7 @@ class StockOnHandHandler(KeywordHandler):
                                            self.msg.timestamp)
         
         if stock_report.errors:
-            self.respond(_(config.Messages.SOH_BAD_FORMAT))
+            self.respond_error(_(config.Messages.SOH_BAD_FORMAT))
             return
     
         else:    

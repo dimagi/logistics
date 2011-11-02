@@ -1,11 +1,12 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext_noop as _
 from logistics.util import config
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.decorators import logistics_contact_required
 
-class NotDelivered(KeywordHandler):
+class NotDelivered(KeywordHandler,TaggingHandler):
     
     keyword = "sijapokea"
 
@@ -23,6 +24,7 @@ class NotDelivered(KeywordHandler):
             st = SupplyPointStatusTypes.DELIVERY_FACILITY
         else:
             # TODO be graceful
+            self.add_tag("Error")
             raise Exception("bad location type: %s" % sp.type.name)
 
         SupplyPointStatus.objects.create(status_type=st,

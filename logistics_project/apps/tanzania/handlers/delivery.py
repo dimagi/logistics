@@ -3,6 +3,7 @@
 
 from datetime import datetime, timedelta
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from logistics.util import config
@@ -18,7 +19,7 @@ from logistics.errors import UnknownCommodityCodeError
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
 
-class DeliveryHandler(KeywordHandler):
+class DeliveryHandler(KeywordHandler,TaggingHandler):
     """
     """
     keyword = "delivered|dlvd|nimepokea"
@@ -50,6 +51,7 @@ class DeliveryHandler(KeywordHandler):
             self.respond(_(config.Messages.DELIVERY_PARTIAL_CONFIRM))
         else:
             # TODO be graceful
+            self.add_tag("Error")
             raise Exception("bad location type: %s" % sp.type.name)
 
     @logistics_contact_required()
@@ -64,9 +66,9 @@ class DeliveryHandler(KeywordHandler):
         if stock_report.errors:
             for e in stock_report.errors:
                 if isinstance(e, UnknownCommodityCodeError):
-                    self.respond(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": e})
+                    self.respond_error(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": e})
                     return
-            self.respond(_(config.Messages.DELIVERY_BAD_FORMAT))
+            self.respond_error(_(config.Messages.DELIVERY_BAD_FORMAT))
             return
 
         else:

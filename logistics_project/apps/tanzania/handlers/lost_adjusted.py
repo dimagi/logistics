@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from logistics.decorators import logistics_contact_required
@@ -9,7 +10,7 @@ from logistics.shortcuts import create_stock_report
 from logistics.const import Reports
 import logging
 
-class LostAdjusted(KeywordHandler):
+class LostAdjusted(KeywordHandler,TaggingHandler):
     """
     Losses and adjustments
     """
@@ -30,7 +31,7 @@ class LostAdjusted(KeywordHandler):
                                            timestamp=self.msg.timestamp)
         
         if stock_report.errors:
-            self.respond(_(config.Messages.LOSS_ADJUST_BAD_FORMAT))
+            self.respond_error(_(config.Messages.LOSS_ADJUST_BAD_FORMAT))
             return
     
         else:    

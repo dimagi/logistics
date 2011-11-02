@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from logistics.models import SupplyPointGroup
@@ -17,7 +18,7 @@ def _send_if_connection(c, message):
     if c.default_connection is not None:
         c.message(message)
 
-class RandRHandler(KeywordHandler):
+class RandRHandler(KeywordHandler,TaggingHandler):
     """
     """
     keyword = "submitted|nimetuma"
@@ -54,6 +55,7 @@ class RandRHandler(KeywordHandler):
             self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
         else:
             # TODO be graceful
+            self.add_tag("Error")
             raise Exception("bad location type: %s" % sdp.type.name)
 
     @logistics_contact_required()
@@ -92,6 +94,7 @@ class RandRHandler(KeywordHandler):
             self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
         else:
             # TODO be graceful
+            self.add_tag("Error")
             raise Exception("bad location type: %s" % sdp.type.name)
 
 
