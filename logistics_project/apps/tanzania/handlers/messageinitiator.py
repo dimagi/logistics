@@ -1,4 +1,5 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from logistics.decorators import logistics_contact_required
@@ -12,7 +13,7 @@ def _send_if_connection(c, message, **kwargs):
     if c.default_connection is not None:
         c.message(message, **kwargs)
         
-class MessageInitiator(KeywordHandler):
+class MessageInitiator(KeywordHandler,TaggingHandler):
     """
     Initiate test messages for trainings.
     """
@@ -40,7 +41,7 @@ class MessageInitiator(KeywordHandler):
                 sp_target = SupplyPoint.objects.get(name__iexact=rest)
             except SupplyPoint.DoesNotExist:
                 # fail
-                self.respond(_(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":msd_code})
+                self.respond_error(_(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":msd_code})
                 return True
         
         # target guaranteed to be set by here
@@ -77,7 +78,7 @@ class MessageInitiator(KeywordHandler):
             try:
                 product = Product.objects.get(product_code=pc)
             except Product.DoesNotExist:
-                self.respond(_(config.Messages.INVALID_PRODUCT_CODE ) % {"product_code": pc})
+                self.respond_error(_(config.Messages.INVALID_PRODUCT_CODE ) % {"product_code": pc})
                 return True
             #facility only - SMS usage
             if sp_target.type.code.lower() == config.SupplyPointCodes.FACILITY:
@@ -86,7 +87,7 @@ class MessageInitiator(KeywordHandler):
                                                                           "msd_code":product.product_code})
                 self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
             else:
-                self.respond(_("Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s") % {"location_name":"changeme",
+                self.respond_error(_("Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s") % {"location_name":"changeme",
                                                                                                                                                 "location_type":"changeme"})
         if command in ["randr"]:
             if sp_target.type.code.lower() == config.SupplyPointCodes.DISTRICT:

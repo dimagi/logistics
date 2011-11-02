@@ -1,4 +1,5 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext_noop as _
 import re
 from logistics.util import config
@@ -6,7 +7,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.decorators import logistics_contact_required
         
-class Supervision(KeywordHandler):
+class Supervision(KeywordHandler,TaggingHandler):
     """
     Supervision handler for responses to supervision inquiries
     """
@@ -34,4 +35,5 @@ class Supervision(KeywordHandler):
                  status_date=self.msg.timestamp)
             self.respond(_(config.Messages.SUPERVISION_CONFIRM_YES))
         else:
+            self.add_tag("Error")
             self.help()

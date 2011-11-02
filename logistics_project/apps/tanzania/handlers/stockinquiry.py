@@ -2,13 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from logistics.const import Reports
 from logistics.decorators import logistics_contact_required
 from logistics.models import Product, ProductReportsHelper
 
-class StockInquiryHandler(KeywordHandler):
+class StockInquiryHandler(KeywordHandler,TaggingHandler):
     """
     """
     keyword = "si"

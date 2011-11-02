@@ -7,9 +7,10 @@ from rapidsms.contrib.locations.models import Location
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 import re
 
-class ILSRegistrationHandler(KeywordHandler):
+class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
     """
     Registration for ILS Gateway
     """
@@ -27,7 +28,7 @@ class ILSRegistrationHandler(KeywordHandler):
         if text.find(config.DISTRICT_REG_DELIMITER) != -1:
             phrases = [x.strip() for x in text.split(":")]
             if len(phrases) != 2:
-                self.respond(_(config.Messages.REGISTER_HELP))
+                self.respond_error(_(config.Messages.REGISTER_HELP))
                 return True
             name = phrases[0]
             sp_name = phrases[1]
@@ -35,11 +36,11 @@ class ILSRegistrationHandler(KeywordHandler):
                 sdp = SupplyPoint.objects.get(type__code="district", name__istartswith=sp_name)
             except SupplyPoint.DoesNotExist:
                 kwargs = {'name': sp_name}
-                self.respond(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
+                self.respond_error(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
                 return True
             except SupplyPoint.MultipleObjectsReturned:
                 kwargs = {'name': sp_name}
-                self.respond(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
+                self.respond_error(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
                 return True
 
         else:
@@ -55,7 +56,7 @@ class ILSRegistrationHandler(KeywordHandler):
             name = " ".join(names)
 
             if len(msd_codes) != 1:
-                self.respond(_(config.Messages.REGISTER_HELP))
+                self.respond_error(_(config.Messages.REGISTER_HELP))
                 return True
             else:
                 [msd_code] = msd_codes
@@ -63,7 +64,7 @@ class ILSRegistrationHandler(KeywordHandler):
                     sdp = SupplyPoint.objects.get(code__iexact=msd_code)
                 except SupplyPoint.DoesNotExist:
                     kwargs = {'msd_code': msd_code}
-                    self.respond(_(config.Messages.REGISTER_UNKNOWN_CODE), **kwargs )
+                    self.respond_error(_(config.Messages.REGISTER_UNKNOWN_CODE), **kwargs )
                     return True
         
         # Default to Facility in-charge or District Pharmacist for now
@@ -73,6 +74,7 @@ class ILSRegistrationHandler(KeywordHandler):
             role = ContactRole.objects.get(code__iexact=config.Roles.IN_CHARGE)
         else:
             # TODO be graceful
+            self.add_tag("Error")
             raise Exception("bad location type: %s" % sdp.type.name)
             
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()

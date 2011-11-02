@@ -1,9 +1,10 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.conf import settings
 from logistics.util import config
 
 
-class LanguageHandler(KeywordHandler):
+class LanguageHandler(KeywordHandler,TaggingHandler):
     """
     Allow remote users to set their preferred language, by updating the
     ``language`` field of the Contact associated with their connection.
