@@ -275,7 +275,10 @@ def historical_response_rate(supply_point, type):
     for s in status_month_years:
         f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")
         if f.count(): f = f[0]
-        if f.status_value == SupplyPointStatusValues.SUBMITTED or f.status_value == SupplyPointStatusValues.RECEIVED:
+        if f.status_value == SupplyPointStatusValues.SUBMITTED or \
+           f.status_value == SupplyPointStatusValues.RECEIVED or \
+           f.status_value == SupplyPointStatusValues.NOT_SUBMITTED or \
+           f.status_value == SupplyPointStatusValues.NOT_RECEIVED:
             num += 1
     
     ret = float(num)/float(denom), num, denom
