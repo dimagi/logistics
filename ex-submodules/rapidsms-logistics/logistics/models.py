@@ -257,7 +257,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             if from_cache:
                 return from_cache
         srs = transactions_before_or_during(year, month, day).\
-                filter(supply_point=self, product=product).order_by("-date")
+                filter(supply_point=self, product=product).order_by("-date","-pk")
         ret = srs[0].ending_balance if srs.exists() else default_value
         if settings.LOGISTICS_USE_SPOT_CACHING: 
             cache.set(cache_key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
