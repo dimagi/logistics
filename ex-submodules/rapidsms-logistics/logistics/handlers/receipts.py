@@ -3,6 +3,7 @@
 
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
+from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from logistics.models import ProductReportsHelper, \
     StockRequest, StockTransfer
 from logistics.decorators import logistics_contact_and_permission_required
@@ -10,7 +11,7 @@ from logistics.const import Reports
 from logistics.util import config
 from logistics.handlers import logistics_keyword
 
-class ReceiptHandler(KeywordHandler):
+class ReceiptHandler(KeywordHandler,TaggingHandler):
     """
     Allows SMS reporters to send in "rec jd 10 mc 30" to report 10 jadelle and 30 male condoms received
     """
