@@ -10,6 +10,7 @@ class Notification(models.Model):
     uid = models.CharField(max_length=256)
     created_on = models.DateTimeField(auto_now_add=True)
     escalated_on = models.DateTimeField()
+    modified_on = models.DateTimeField(auto_now=True)
 
     text = models.TextField()
     url = models.TextField(null=True, blank=True)
@@ -208,7 +209,7 @@ class NotificationType(object):
             return levels[0]
         else:
             try:
-                return levels[levels.index(esc_level)+1]
+                return levels[levels.index(esc_level) + 1]
             except IndexError:
                 return None
 
@@ -228,9 +229,9 @@ class NotificationType(object):
         at the given level after which it is auto-escalated to the next
         level"""
         raise Exception('abstract method')
-        
+
     def escalation_level_name(self, esc_level):
         """human readable name for the given escalation level (i.e.,
         'district team', 'MoH', 'regional supervisor'"""
         raise Exception('abstract method')
-        
+
