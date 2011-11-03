@@ -103,32 +103,32 @@ def load_schedules():
     # everything is daily.
     # we convert from TZ time to UTC
     theschedule = {"logistics_project.apps.tanzania.reminders.delivery":
-                   {"first_facility": (14, 0),
-                    "second_facility": (14, 0),
-                    "third_facility": (14, 0),
-                    "first_district": (14, 0),
-                    "second_district": (14, 0),
-                    "third_district": (14, 0)},
+                   {"first_facility": (9, 0),
+                    "second_facility": (9, 0),
+                    "third_facility": (9, 0),
+                    "first_district": (9, 0),
+                    "second_district": (9, 0),
+                    "third_district": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.randr":
-                    {"first_facility": (8, 0),
-                     "second_facility": (8, 0),
-                     "third_facility": (8, 0),
-                     "first_district": (8, 0),
-                     "second_district": (8, 0),
-                     "third_district": (14, 0)},
+                    {"first_facility": (9, 0),
+                     "second_facility": (9, 0),
+                     "third_facility": (9, 0),
+                     "first_district": (9, 0),
+                     "second_district": (9, 0),
+                     "third_district": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.stockonhand":
-                   {"first": (14, 0),
+                   {"first": (9, 0),
                     "second": (9, 0),
-                    "third": (8, 15)},
+                    "third": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.stockonhandthankyou":
-                   {"first": (16, 0)},
+                   {"first": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.reports":
-                   {"delivery_summary": (15, 0),
-                    "soh_summary": (15, 0),
-                    "randr_summary": (15, 0),
-                    "email_reports": (15, 0)},
+                   {"delivery_summary": (9, 0),
+                    "soh_summary": (9, 0),
+                    "randr_summary": (9, 0),
+                    "email_reports": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.test":
-                   {"test_email_admins": (12, 0)}}
+                   {"test_email_admins": (9, 0)}}
                      
     
     tanzania_tz = timezone("Africa/Dar_es_Salaam") 
