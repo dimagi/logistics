@@ -14,17 +14,19 @@ def _facility_view(cell):
 def _facility_type(cell):
     return cell.object.type
 def _consumption(cell):
-    are_consumptions_set = cell.object.are_consumptions_set()
-    if are_consumptions_set:
-        return "INCOMPLETE"
-    return "Complete"
+    available = cell.object.consumptions_available()
+    total = cell.object.commodities_stocked().count()
+    return "%s of %s (%s)" % (available, 
+                              total, 
+                              'complete' if available == total 
+                              else 'INCOMPLETE')
 def _supervisor(cell):
-    supervisors = cell.object.reportees()#Contact.objects.filter(supply_point=cell.object).filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY)
+    supervisors = cell.object.reportees()
     if supervisors:
         return supervisors[0].name
     return "None"
 def _reporters(cell):
-    reporters = cell.object.reporters()#Contact.objects.filter(supply_point=cell.object).filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY)
+    reporters = cell.object.reporters()
     if reporters:
         return ", ".join([r.name for r in reporters])
     return "None"
@@ -37,9 +39,12 @@ class FacilityDetailTable(FacilityTable):
     name = Column(link=_facility_view)
     type = Column(value=_facility_type)
     supervisor = Column(value=_supervisor)
-    consumption = Column(value=_consumption, name='Average Monthly Consumption', titleized=False)
+    consumption = Column(value=_consumption, 
+                         name='Average Monthly Consumption', 
+                         titleized=False)
     reporters = Column(value=_reporters, name='SMS Users')
-    commodities_assigned = Column(value=_commodities_stocked, titleized=False, 
+    commodities_assigned = Column(value=_commodities_stocked, 
+                                  titleized=False, 
                                   name='Registered to Report These Commodities via SMS')
 
     class Meta:

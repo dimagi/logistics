@@ -16,6 +16,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.middleware.CachedTemplateMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -122,6 +123,8 @@ LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
+LOGISTICS_USE_SPOT_CACHING = True
+LOGISTICS_SPOT_CACHE_TIMEOUT = 60*60
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
