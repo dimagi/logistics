@@ -31,3 +31,6 @@
 [submodule "submodules/dimagi-djtables"]
 	path = submodules/dimagi-djtables
 	url = git://github.com/dimagi/djtables.git
+[submodule "submodules/rapidsms-groupmessaging"]
+	path = submodules/rapidsms-groupmessaging
+	url = git://github.com/dimagi/rapidsms-groupmessaging
