@@ -273,14 +273,12 @@ def historical_response_rate(supply_point, type):
     denom = len(status_month_years)
     num = 0
     for s in status_month_years:
-        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).order_by("-status_date")
-        if f.count(): f = f[0]
-        if f.status_value == SupplyPointStatusValues.SUBMITTED or \
-           f.status_value == SupplyPointStatusValues.RECEIVED or \
-           f.status_value == SupplyPointStatusValues.NOT_SUBMITTED or \
-           f.status_value == SupplyPointStatusValues.NOT_RECEIVED:
-            num += 1
-    
+        f = statuses.filter(status_date__month=s[0], status_date__year=s[1]).filter(
+            Q(status_value=SupplyPointStatusValues.SUBMITTED) |
+            Q(status_value=SupplyPointStatusValues.NOT_SUBMITTED) |
+            Q(status_value=SupplyPointStatusValues.RECEIVED) |
+            Q(status_value=SupplyPointStatusValues.NOT_RECEIVED)).order_by("-status_date")
+        if f.count(): num += 1
     ret = float(num)/float(denom), num, denom
     if settings.LOGISTICS_USE_SPOT_CACHING:
         cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
