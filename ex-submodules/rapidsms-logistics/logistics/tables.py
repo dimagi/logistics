@@ -41,9 +41,17 @@ class CommodityTable(Table):
 class ShortMessageTable(Table):
 
     date = DateColumn(format="H:i d/m/Y", sortable=False)
+    direction = Column(sortable=False)
     text = Column(css_class="message", sortable=False)
 
-    
+class FullMessageTable(Table):
+    contact = Column(value=lambda cell:cell.object.contact.name)
+    direction = Column(sortable=False)
+    role = Column(value=lambda cell:cell.object.contact.role.name)
+    number = Column(value=lambda cell:cell.object.contact.phone)
+    date = DateColumn(format="H:i d/m/Y", sortable=False)
+    text = Column(css_class="message", sortable=False)
+
 class ReportingTable(Table):
     name = Column(sortable=False)
     last_reported = DateColumn(name="Last Reported on",
@@ -51,8 +59,58 @@ class ReportingTable(Table):
                                     if cell.object.last_reported else "never",
                                format="M d, h:m A", 
                                sortable=False,
+                               sort_key_fn=lambda obj: obj.last_reported,
                                css_class="tabledate")
     
     class Meta:
         order_by = '-last_reported'
 
+
+class SOHReportingTable(Table):
+    name = Column(sortable=False)
+    last_reported = DateColumn(name="Last Stock Report Received",
+                               value=lambda cell: cell.object.last_soh \
+                                    if cell.object.last_soh else "never",
+                               format="M d, h:m A",
+                               sortable=False,
+                               css_class="tabledate")
+
+    class Meta:
+        order_by = '-last_reported'
+
+def _parent_or_nothing(location):
+    if location is None or \
+       location.tree_parent is None:
+        return None
+    return location.tree_parent
+def _facility(cell):
+    if cell.object.contact is None or \
+     cell.object.contact.supply_point is None:
+        return None
+    return cell.object.contact.supply_point
+def _district(cell):
+    fac = _facility(cell)
+    if fac:
+        dist = _parent_or_nothing(fac.location)
+        return dist
+def _district_name(cell):
+    d = _district(cell)
+    return d.name if d else ""
+def _region(cell):
+    r = _parent_or_nothing(_district(cell))
+    return r.name if r else ""
+def _connection(cell):
+    return cell.object.connection.identity
+class MessageTable(Table):
+    # this is temporary, until i fix ModelTable!
+    contact = Column()
+    mobile_number = Column(value=_connection, sortable=False)
+    direction = Column()
+    date = DateColumn(format="H:i d/m")
+    text = Column(css_class="message")
+    facility = Column(value=_facility, sortable=False)
+    district = Column(value=_district, sortable=False)
+    region = Column(value=_region, sortable=False)
+
+    class Meta:
+        order_by = '-date'

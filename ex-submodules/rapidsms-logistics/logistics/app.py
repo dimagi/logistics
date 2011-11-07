@@ -141,6 +141,17 @@ class App(AppBase):
             raise
 
     def default(self, message):
+        """
+        If this implementation of RapidSMS supports message tagging,
+        tag the message with a default tag.
+        """
+        if hasattr(message.logger_msg, "tags"):
+            message.logger_msg.tags.add("Handler_DefaultHandler")
+            if message.connection.contact:
+                message.logger_msg.tags.add("RegisteredContact")
+            else:
+                message.logger_msg.tags.add("UnregisteredContact")
+        
         """ There's probably a better way to do this, but for now,
         this is what the folks in the field want 
         """

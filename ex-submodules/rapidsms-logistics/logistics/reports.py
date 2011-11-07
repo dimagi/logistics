@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.db.models import Q, Sum
@@ -10,12 +10,12 @@ from dimagi.utils.dates import DateSpan
 from logistics.const import Reports
 from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest
-from logistics.tables import ReportingTable
-import logistics.models as logistics_models
-from logistics.const import Reports
-from logistics.util import config
+from .tables import ReportingTable, SOHReportingTable
+import models as logistics_models
+from .const import Reports
+from .util import config
 
-if hasattr(settings,'LOGISTICS_CONFIG'):
+if hasattr(settings, 'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)
 else:
     import config
@@ -47,20 +47,27 @@ class TableData(object):
         self.title = title
         self.table = table
 
+def _seconds(td):
+    """
+    Because timedelta.total_seconds() is 2.7+ only.
+    """
+    return td.days * 24 * 60 * 60 + td.seconds
+
 class ReportingBreakdown(object):
     """
     Given a query set of supply points, get an object for displaying reporting
     information.
     """
     
-    def __init__(self, supply_points, datespan=None, include_late=False, 
-                 days_for_late=5, MNE=False):
+    def __init__(self, supply_points, datespan=None, include_late=False,
+                 days_for_late=5, MNE=False, request=None):
         self.supply_points = supply_points
         
         if not datespan:
             datespan = DateSpan.since(30)
         self.datespan = datespan
         
+        self._request = request
         self.include_late = include_late
         self.days_for_late = days_for_late
         date_for_late = datespan.startdate + timedelta(days=days_for_late)
@@ -70,7 +77,7 @@ class ReportingBreakdown(object):
         reports_in_range = ProductReport.objects.filter\
             (report_type__code=Reports.SOH,
              report_date__gte=datespan.startdate,
-             report_date__lte=datespan.enddate,
+             report_date__lte=datespan.enddate_param,
              supply_point__in=supply_points,
              supply_point__active=True)
         
@@ -103,7 +110,6 @@ class ReportingBreakdown(object):
             discrepancies_list = discrepancies.values_list("product", flat=True) #not distinct!
             orders_list = filled_requests.values_list("product", flat=True)
 
-
             # We could save a lot of time here if the primary key for Product were its sms_code.
             # Unfortunately, it isn't, so we have to remap keys->codes.
             _p = {}
@@ -120,12 +126,12 @@ class ReportingBreakdown(object):
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len([x for x in discrepancies_list if x is product])
+                self.discrepancies_p[product] = len([x for x in discrepancies_list if x == product])
 
                 z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
                 if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
-                self.filled_orders_p[product] = len([x for x in orders_list if x is product])
+                self.filled_orders_p[product] = len([x for x in orders_list if x == product])
                 self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
@@ -139,7 +145,7 @@ class ReportingBreakdown(object):
             self.req_times = []
             if filled_requests:
                 secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
-                self.avg_req_time = timedelta(seconds=(sum(secs)/len(secs)))
+                self.avg_req_time = timedelta(seconds=(sum(secs) / len(secs)))
                 self.req_times = secs
 
         # fully reporting / non reporting
@@ -151,6 +157,8 @@ class ReportingBreakdown(object):
         no_stockouts_p = {}
         stockouts_p = {}
         totals_p = {}
+        stockouts_duration_p = {}
+        stockouts_avg_duration_p = {}
         for sp in reported.all():
             
             found_reports = reports_in_range.filter(supply_point=sp)
@@ -177,6 +185,25 @@ class ReportingBreakdown(object):
 
                 if found_reports.filter(quantity=0):
                     stockouts.append(sp.pk)
+#                    prods = found_reports.values_list("product", flat=True).distinct()
+                    for p in prods:
+                        duration = 0
+                        count = 0
+                        last_stockout = None
+                        ordered_reports = found_reports.filter(product=p).order_by("report_date")
+                        for r in ordered_reports:
+                            if last_stockout and r.quantity > 0: # Stockout followed by receipt.
+                                duration += _seconds(r.report_date - last_stockout)
+                                last_stockout = None
+                                count += 1
+                            elif not last_stockout and not r.quantity: # Beginning of a stockout period.
+                                last_stockout = r.report_date
+                            else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
+                                pass
+                        if p.sms_code in stockouts_duration_p and duration:
+                            stockouts_duration_p[p.sms_code] += [duration]
+                        elif duration:
+                            stockouts_duration_p[p.sms_code] = [duration]
                 else:
                     no_stockouts.append(sp.pk)
         if MNE:
@@ -186,6 +213,8 @@ class ReportingBreakdown(object):
                 if totals_p[key] > 0:
                     no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
+            for key in stockouts_duration_p:
+                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key]) / len(stockouts_duration_p[key]))
 
             self.stockouts = stockouts
             self.emergency = emergency_requesters
@@ -194,8 +223,12 @@ class ReportingBreakdown(object):
             self.no_stockouts_pct_p = no_stockouts_pct_p
             self.no_stockouts_p = no_stockouts_p
             self.totals_p = totals_p
-        self.full = full
-        self.partial = partial
+            self.stockouts_duration_p = stockouts_duration_p
+            self.stockouts_avg_duration_p = stockouts_avg_duration_p
+        # ro 10/14/11 - not sure why querysets are necessary. 
+        # something changed in the djtables tables spec with the new ordering features?
+        self.full = SupplyPoint.objects.filter(pk__in=[f.pk for f in full])
+        self.partial = SupplyPoint.objects.filter(pk__in=[p.pk for p in partial])
         self.unconfigured = unconfigured
         
         self.non_reporting = non_reporting
@@ -240,18 +273,22 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", ReportingTable(self.partial)),
-                TableData("Complete Reports", ReportingTable(self.full)),
-                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured))
+        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, 
+                                                                  request=self._request,
+                                                                  prefix='inc-')),
+                TableData("Complete Reports", SOHReportingTable(self.full, 
+                                                                request=self._request,
+                                                                  prefix='comp-'))
+                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
                 ]
         
     _on_time_chart = None
     def on_time_chart(self):
         if self._on_time_chart is None:
             graph_data = [
-                {"display": "On Time",
+                {"display": "On Time" if self.include_late else "Reporting",
                  "value": len(self.on_time),
-                 "color": Colors.LIGHT_GREEN,
+                 "color": Colors.LIGHT_GREEN, 
                  "description": "(%s) On Time (%s)" % \
                     (len(self.on_time), self.datespan)
                 },
@@ -266,7 +303,7 @@ class ReportingBreakdown(object):
                 graph_data += [
                         {"display": "Late Reporting",
                          "value": len(self.reported_late),
-                         "color": Colors.MEDIUM_YELLOW,
+                         "color": Colors.PURPLE,
                          "description": "(%s) Late (%s)" % \
                             (len(self.reported_late), self.datespan)
                         }
@@ -276,12 +313,22 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-             TableData("Late HSAs", ReportingTable(self.reported_late)),
-             TableData("On-Time HSAs", ReportingTable(self.on_time))]
+            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+                                                               request=self._request, 
+                                                               prefix='nonreport-')),
+             TableData("Late HSAs", SOHReportingTable(self.reported_late, 
+                                                      request=self._request, 
+                                                      prefix='late-')),
+             TableData("On-Time HSAs", SOHReportingTable(self.on_time, 
+                                                         request=self._request, 
+                                                         prefix='ontime-'))]
         else:
-            return [TableData("Non-Reporting HSAs", ReportingTable(self.non_reporting)),
-                    TableData("On-Time HSAs", ReportingTable(self.on_time))]
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+                                                                      request=self._request, 
+                                                                      prefix='nonreport-')),
+                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, 
+                                                                  request=self._request,
+                                                                  prefix='report-'))]
 
 class ProductAvailabilitySummary(object):
 
@@ -295,7 +342,7 @@ class ProductAvailabilitySummary(object):
         self._width = width
         self._height = height
         
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('sms_code')
         data = []
         for p in products:
             supplying = contacts.filter(commodities=p)
@@ -357,27 +404,80 @@ class ProductAvailabilitySummary(object):
                 with_stock.append([index, product_summary["with_stock"]])
                 without_stock.append([index, product_summary["without_stock"]])
                 without_data.append([index, product_summary["without_data"]])
-                products.append([index, product_summary["product"].sms_code])
+                products.append([index, "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)])
 
             bar_data = [{"data" : without_stock,
-                         "label": "Stocked out", 
+                         "label": "Stocked out",
                          "bars": { "show" : "true"},
                          "color": Colors.DARK_RED,
                         },
                         {"data" : with_stock,
-                         "label": "Not Stocked out", 
-                         "bars": { "show" : "true"}, 
+                         "label": "Not Stocked out",
+                         "bars": { "show" : "true"},
                          "color": Colors.MEDIUM_GREEN,
                          
                         },
                         {"data" : without_data,
-                         "label": "No Stock Data", 
+                         "label": "No Stock Data",
                          "bars": { "show" : "true"},
                          "color": Colors.MEDIUM_YELLOW,
                         }]
-            self._flot_data = {"data": json.dumps(bar_data), 
+            self._flot_data = {"data": json.dumps(bar_data),
                                "ticks": json.dumps(products)}
                 
+        return self._flot_data
+
+class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
+
+
+    @property
+    def height(self):
+        return self._width
+    @property
+    def width(self):
+        return self._height
+
+    @property
+    def flot_data(self):
+#        print "gettin' flot data"
+#        print self.data
+        with_stock = []
+        without_stock = []
+        without_data = []
+        products = []
+        map = {}
+        for i, product_summary in enumerate(self.data):
+            index = i + 1
+            with_stock.append([product_summary["with_stock"], index])
+            without_stock.append([product_summary["without_stock"], index])
+            without_data.append([product_summary["without_data"], index])
+            map[product_summary['product'].sms_code] = {"index": index,
+                                                        "name": product_summary["product"].name,
+                                                        "with_stock": product_summary['with_stock'],
+                                                        "without_stock": product_summary['without_stock'],
+                                                        "without_data": product_summary['without_data'],
+                                                        "tick": "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)
+                                                        }
+            products.append(product_summary['product'].sms_code)
+        bar_data = [{"data" : [],
+                     "label": "Stocked out",
+                     "bars": { "show" : "true"},
+                     "color": Colors.DARK_RED,
+                    },
+                    {"data" : [],
+                     "label": "Not Stocked out",
+                     "bars": { "show" : "true"},
+                     "color": Colors.MEDIUM_GREEN,
+                    },
+                    {"data" : [],
+                     "label": "No Stock Data",
+                     "bars": { "show" : "true"},
+                     "color": Colors.MEDIUM_YELLOW,
+                    }]
+
+        self._flot_data = {"data": json.dumps(bar_data),
+                           "products": json.dumps(products),
+                           "dmap": json.dumps(map)}
         return self._flot_data
 
 class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
@@ -390,7 +490,7 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
         self._width = width
         self._height = height
         
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('sms_code')
         data = []
         for p in products:
             supplying_facilities = facilities.filter(contact__commodities=p).distinct()
@@ -406,6 +506,48 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
                              "without_stock": without_stock,
                              "without_data": without_data})
         self.data = data
+
+class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
+
+    def __init__(self, facilities, width=900, height=300, month=None, year=None):
+        """
+        facilities should be a query set of facilities that you care about
+        the product availability for.
+        """
+        if not (month and year):
+            year = datetime.utcnow().year
+            month = datetime.utcnow().month
+        self._width = width
+        self._height = height
+
+        total = facilities.count()
+
+        products = Product.objects.all().order_by('sms_code')
+        data = []
+        for p in products:
+            # TODO This is ludicrously inefficient.
+            with_stock = 0
+            without_stock = 0
+            without_data = 0
+            for f in facilities:
+                stock = f.historical_stock(p, year, month, default_value=-1)
+                if stock > 0:
+                    with_stock += 1
+                elif stock == 0:
+                    without_stock += 1
+                else:
+                    without_data += 1
+            data.append({"product": p,
+                         "total": total,
+                         "with_stock": with_stock,
+                         "without_stock": without_stock,
+                         "without_data": without_data})
+        self.data = data
+
+class DynamicProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummaryByFacilitySP, SidewaysProductAvailabilitySummary):
+
+    def __init__(self, facilities, width=900, height=360, month=None, year=None):
+        super(DynamicProductAvailabilitySummaryByFacilitySP, self).__init__(facilities, width, height, month, year)
 
 class SupplyPointRow():
         
@@ -455,6 +597,8 @@ class SupplyPointRow():
     def stockout_count(self): return self._call_stock_count("stockout_count")
     def emergency_stock_count(self): return self._call_stock_count("emergency_stock_count")
     def adequate_supply_count(self): return self._call_stock_count("adequate_supply_count")
+    def emergency_plus_low(self): return self._call_stock_count("emergency_plus_low")
+    def good_supply_count(self): return self._call_stock_count("good_supply_count")
     def overstocked_count(self): return self._call_stock_count("overstocked_count")
     
     @property
@@ -488,7 +632,7 @@ class FacilitySupplyPointRow(SupplyPointRow):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
 
-def calc_percentage(a,b):
+def calc_percentage(a, b):
     if not (a and b):
         return 0 # Don't return ugly NaN
     return int((float(a) / float(b)) * 100.0)
@@ -501,5 +645,5 @@ def get_reporting_and_nonreporting_facilities(deadline, location):
         return None, None
     facilities = location.all_facilities()
     on_time_facilities = facilities.filter(last_reported__gte=deadline, active=True)
-    late_facilities = facilities.filter(Q(last_reported=None)|Q(last_reported__lt=deadline), active=True)
+    late_facilities = facilities.filter(Q(last_reported=None) | Q(last_reported__lt=deadline), active=True)
     return on_time_facilities, late_facilities

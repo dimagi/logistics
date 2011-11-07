@@ -1,11 +1,26 @@
 {% extends "logistics/reports_base.html" %}
+{% load logistics_report_tags %}
 {% load i18n %}
+
+{% block javascripts %}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
+    {{ block.super }}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
+{% endblock %} 
+
 {% block content %}
     <div class="module">
-        {% include "logistics/partials/breadcrumb_nav.html" %}
-        {% include "logistics/partials/breadcrumb_forward.html" %}
+        {% include "logistics/partials/breadcrumbs.html" %}
+        {% include "logistics/partials/date_selector_form.html" %}
         <div id="main">
-        {% include "logistics/partials/reporting_rates.html" %}
+			{% if excel_export %}
+			<div class="toolbar">
+			    <a href="{% url export_reporting location.code %}" class="add">{% trans "Export to Excel" %}</a>
+			</div>
+			{% endif %}
+            {% reporting_breakdown location.get_descendents_plus_self 0 request.datespan %}
         </div>
     </div>
 {% endblock %}

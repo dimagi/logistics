@@ -5,9 +5,11 @@ from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.models import Product
 from logistics.util import config
+from logistics.handlers import logistics_keyword
 
 class Help(KeywordHandler):
-    keyword = "help"
+    keyword = logistics_keyword("help")
+
 
     def help(self):
         self.respond(config.Messages.HELP_TEXT)

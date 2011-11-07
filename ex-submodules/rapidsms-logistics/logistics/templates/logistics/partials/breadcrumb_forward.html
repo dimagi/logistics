@@ -1,8 +1,34 @@
 {% load geonav_tags %}
-
-{% if location.get_children %}
-    <form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
-	    ->&nbsp;
+{% block internaljs %}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    {% if not nav_hide_children %}
+    $(document).ready(function(){
+        $("#zoom_select").change(function(event) {
+            $("#zoom_form > #location").val(event.currentTarget.value);
+            $("#zoom_form").submit();
+        });
+    });
+    {% endif %}
+    {% if not nav_hide_up %}
+    $(document).ready(function(){
+        $(".location_parent").click(function(event) {
+            $("#zoom_form > #location").val("{{location.tree_parent.code}}");
+            $("#zoom_form").submit();
+        });
+    });
+    {% endif %}
+    //--><!]]>
+</script>
+{% endblock %}
+<form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
+    {% csrf_token %}
+    <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
+    <input type="hidden" name="location" id="location" value="" />
+    <input type="hidden" name="mode" id="mode" value={{ nav_mode|default:"url" }} />
+{% if not nav_hide_children %}
+    {% if location.get_children %}
+        &raquo;
 	    <select id="zoom_select" name="zoom_select">
 	        <option selected disabled>-----------</option>
 	           {% for child in location.get_children %}
@@ -11,21 +37,9 @@
 	               </option>
 	           {% endfor %}
 	    </select>
-	    <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
-	    <input type="hidden" name="location" id="location" value="" />
-	    {% csrf_token %}
-    </form>
+    {% endif %}
 {% endif %}
-
-<div style="clear:both"></div>
-
-<script type="text/javascript">
-    <!--//--><![CDATA[//><!--
-    $(document).ready(function(){
-        $("#zoom_select").change(function(event) {
-            $("#zoom_form > #location").val(event.currentTarget.value);
-            $("#zoom_form").submit();
-        });
-    });
-    //--><!]]>
-</script>
+{% if not nav_hide_up %}
+    <a class="location_parent breadcrumb" href="#up">Up a level</a>
+{% endif %}
+</form>

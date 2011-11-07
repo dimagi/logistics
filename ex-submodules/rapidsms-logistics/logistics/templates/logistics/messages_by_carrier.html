@@ -1,0 +1,51 @@
+{% extends "logistics/reports_base.html" %}
+{% load i18n %}
+{% load report_tags %}
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+
+{% block content %}
+<div class="module">
+
+<h2>Messages by Carrier</h2>
+
+<table>
+    <thead>
+    <tr>
+
+        <th colspan="2"></th>
+
+        {% for backend in backends %}
+        <th colspan=2>{{ backend.name }}</th>
+        {% endfor %}
+    </tr>
+    <tr>
+        <th><b>Year</b></th>
+        <th><b>Month</b></th>
+        {% for backend in backends %}
+        <th>In</th>
+        <th>Out</th>
+        {% endfor %}
+    </tr>
+    </thead>
+<tbody>
+{% for d in mdates %}
+<tr>
+    <td>{{ d.year }}</td>
+<td>{{ d.month }}</td>
+    {% with counts|dict_lookup:d as dcount %}
+    {% for backend in backends %}
+        {% with dcount|dict_lookup:backend.name as bcount %}
+            <td>{{ bcount.in }}</td>
+            <td>{{ bcount.out }}</td>
+        {% endwith %}
+        {% endfor %}
+    {% endwith %}
+{% endfor %}
+</tr>
+</tbody>
+</table>
+
+</div>
+
+{% endblock %}

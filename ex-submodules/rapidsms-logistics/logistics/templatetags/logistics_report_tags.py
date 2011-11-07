@@ -4,7 +4,8 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.models import SupplyPoint, StockRequest,\
-    StockRequestStatus, Product, ProductStock
+    StockRequestStatus, Product, ProductStock, StockTransaction
+from logistics.const import Reports
 from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
@@ -12,25 +13,33 @@ from logistics.context_processors import custom_settings
 from logistics.views import get_location_children
 from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
-    ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, \
-    HSASupplyPointRow, FacilitySupplyPointRow
-from dimagi.utils.dates import DateSpan
+    ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
+    HSASupplyPointRow, FacilitySupplyPointRow, DynamicProductAvailabilitySummaryByFacilitySP
+from dimagi.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
+import logging
+from rapidsms.models import Contact
+from logistics.models import transactions_before_or_during
+from django.core.cache import cache
+
 Message = messagelog.models.Message
 register = template.Library()
 
-def _r_2_s_helper(template, dict):
+def _context_helper(context):
     extras = {"MEDIA_URL": settings.MEDIA_URL}
-    dict.update(extras)
-    dict.update(custom_settings(None))
-    return render_to_string(template, dict)
+    context.update(extras)
+    context.update(custom_settings(None))
+    return context
+    
+def _r_2_s_helper(template, dict):
+    return render_to_string(template, _context_helper(dict))
     
 @register.simple_tag
-def aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
+def aggregate_table(location, commodity_filter=None, commoditytype_filter=None, datespan=None):
     context = { "location": location, 
                 "commodity_filter": commodity_filter,
                 "commoditytype_filter": commoditytype_filter }
-    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter)
+    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter, datespan)
     return _r_2_s_helper("logistics/partials/aggregate_table.html", context)
 
 @register.simple_tag
@@ -71,22 +80,23 @@ def reporting_rates(locations, type=None, days=30):
     return "" # no data, no report
 
 
-@register.simple_tag
-def reporting_breakdown(locations, type=None, datespan=None):
+@register.inclusion_tag("logistics/partials/reporting_breakdown.html", takes_context=True)
+def reporting_breakdown(context, locations, type=None, datespan=None):
     # with a list of locations - display reporting
     # rates associated with those locations
+    request = context['request']
     if locations:
         base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
-        if type is not None:
+        if type is not None and type:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, datespan)
-            return _r_2_s_helper("logistics/partials/reporting_breakdown.html", 
-                                 {"report": report,
-                                  "graph_width": 200,
-                                  "graph_height": 200,
-                                  "datespan": datespan,
-                                  "table_class": "minor_table" })
+            report = ReportingBreakdown(base_points, datespan, request=request)
+            context = {"report": report,
+                       "graph_width": 200,
+                       "graph_height": 200,
+                       "datespan": datespan,
+                       "table_class": "minor_table" }
+            return _context_helper(context)
                                      
     return "" # no data, no report
 
@@ -168,23 +178,63 @@ def order_fill_stats(locations, type=None, datespan=None):
     return "" # no data, no report
 
 @register.simple_tag
-def stockonhand_table(supply_point):
+def stockonhand_table(supply_point, datespan=None):
+    end_date = datetime.utcnow() if datespan is None else datespan.end_of_end_day
+    sohs = supply_point.productstock_set.all().order_by('product__name')
+    # update the stock quantities to match whatever reporting period has been specified
+    for soh in sohs: 
+        soh.quantity = supply_point.historical_stock_by_date(soh.product, end_date)
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
-                         {"stockonhands": supply_point.productstock_set.all().order_by('product__name')})
+                         {"stockonhands": sohs})
     
 @register.simple_tag
 def recent_messages(contact, limit=5):
-    # shouldn't this be ordered by something?
-    return ShortMessageTable(Message.objects.filter(contact=contact, direction="I")[:limit]).as_html()
+    mdates = Message.objects.filter(contact=contact).order_by("-date").distinct().values_list("date", flat=True)
+    if limit:
+        mdates = list(mdates)[:limit]
+    messages = Message.objects.filter(contact=contact, date__in=mdates).order_by("-date")
+    return ShortMessageTable(messages).as_html()
+
+@register.simple_tag
+def recent_messages_sp(sp, limit=5):
+    mdates = Message.objects.filter(contact__in=sp.contact_set.all).order_by("-date").distinct().values_list("date", flat=True)
+    if limit:
+        mdates = list(mdates)[:limit]
+    messages = Message.objects.filter(contact__in=sp.contact_set.all, date__in=mdates).order_by("-date")
+    return ShortMessageTable(messages).as_html()
+
+
+@register.simple_tag
+def product_availability_summary(location):
+    if not location:
+        # TODO: probably want to disable this if things get slow
+        contacts = Contact.objects
+    else:
+        contacts = Contact.objects.filter(supply_point__location=location)
+    
+    summary = ProductAvailabilitySummary(contacts)
+    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+                         {"summary": summary})
 
 @register.simple_tag
 def product_availability_summary_by_facility(location):
     if not location:
         pass
     summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities())
-    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+    c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
                          {"summary": summary})
-    
+    return c
+
+@register.simple_tag
+def product_availability_summary_by_facility_sp(location, year, month):
+    if not location:
+        pass
+    summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
+    c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
+                         {"summary": summary})
+    return c
+
+
 def commodity_filter(commodities, can_select_all=True):
     return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
                                                                          "can_select_all": can_select_all})
@@ -197,5 +247,45 @@ def commodity_code_to_name(code):
         return "Unknown Commodity"
 
 @register.simple_tag
-def stock(supply_point, product):
-    return supply_point.stock(product)
+def stock(supply_point, product, default_value=0):
+    return supply_point.stock(product, default_value)
+
+@register.simple_tag
+def historical_stock(supply_point, product, year, month, default_value=0):
+    return supply_point.historical_stock(product, year, month, default_value)
+
+def _months_or_default(val, default_value):
+    try:
+        return "%0.2f" % val 
+    except TypeError:
+        return default_value
+
+@register.simple_tag
+def months_of_stock(supply_point, product, default_value=None):
+    val = supply_point.months_of_stock(product, default_value)
+    return _months_or_default(val, default_value)
+
+@register.simple_tag
+def historical_months_of_stock(supply_point, product, year, month, default_value=None):
+    def _cache_key():
+            return ("log-historical_months_of_stock-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
+                    {"supply_point": supply_point.code, "product": product.sms_code, 
+                     "year": year, "month": month, "default": default_value}).replace(" ", "-")
+    key = _cache_key()
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+            
+        
+    srs = transactions_before_or_during(year, month).\
+                filter(supply_point=supply_point, product=product).order_by("-date")
+    if srs.exists():
+        val = ProductStock.objects.get(supply_point=supply_point, product=product)\
+                    .calculate_months_remaining(srs[0].ending_balance)
+        ret = _months_or_default(val, default_value)
+    else: 
+        ret = default_value
+    if settings.LOGISTICS_USE_SPOT_CACHING: 
+            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret

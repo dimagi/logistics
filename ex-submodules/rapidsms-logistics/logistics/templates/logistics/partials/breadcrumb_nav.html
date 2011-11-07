@@ -2,18 +2,35 @@
 
 REQUIRES:
 'destination_url': a url with a 'location_code' argument
+'mode': either "url" or "param". 
+ - url will use django's reverse function to find a match. 
+ - param will add a param "place" to the request and call the function with no match.
+ - direct-param will accept the provided destination url without reversing and append the location param.
 
 {% endcomment %}
 
 
 {% load geonav_tags %}
+{% block internaljs %}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(".location_select").change(function(event) {
+			$("#location").val(event.currentTarget.value)
+            $("#location_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+{% endblock %}
 
 <div id="topnav">
 <form style="border-style:none;" id="location_form" method="POST" action="{% url navigate %}">
 	{% csrf_token %}
 	{% render_bread_nav location %}
-	<input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
-	<input type="hidden" name="location" id="location" value="" />
+	<input type="hidden" name="destination_url" id="destination_url" value="{{ destination_url }}" />
+	<input type="hidden" name="mode" id="mode" value="{{ nav_mode|default:"url" }}" />
+    <input type="hidden" name="location" id="location" value="" />
 </form>
 </div>
 

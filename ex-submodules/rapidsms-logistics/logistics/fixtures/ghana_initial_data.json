@@ -2056,7 +2056,7 @@
     },
     {
         "pk": 1, 
-        "model": "reports.reportsubscription", 
+        "model": "email_reports.reportsubscription", 
         "fields": {
             "report": "aggregate", 
             "_view_args": "", 
@@ -2068,7 +2068,7 @@
     }, 
     {
         "pk": 1, 
-        "model": "reports.dailyreportsubscription", 
+        "model": "email_reports.dailyreportsubscription", 
         "fields": {
             "hours": 11, 
             "users": [

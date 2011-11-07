@@ -26,6 +26,8 @@ class ProductStockAdmin(admin.ModelAdmin):
 
 class ProductReportAdmin(admin.ModelAdmin):
     model = ProductReport
+    list_display = ('product', 'supply_point', 'report_type', 'quantity','report_date', 'message')
+    list_filter = ('product', 'supply_point', 'report_type')
 
 class ProductReportTypeAdmin(admin.ModelAdmin):
     model = ProductReportType
@@ -43,13 +45,22 @@ class SupplyPointAdmin(admin.ModelAdmin):
 class StockRequestAdmin(admin.ModelAdmin):
     model = StockRequest
     list_display = ('product', 'supply_point', 'status', 'requested_on','amount_requested', 'amount_approved', 'amount_received')
+    list_filter = ('product', 'supply_point', 'status')
 
 class StockTransactionAdmin(admin.ModelAdmin):
     model = StockTransaction
+    
+    list_display = ('product', 'supply_point', 'date', 'quantity','beginning_balance', 'ending_balance')
+    list_filter = ('product', 'supply_point')
 
 class LogisticsContactAdmin(admin.ModelAdmin):
     model = Contact
     list_display = ('name', 'supply_point', 'role', 'is_active')
+
+class NagRecordAdmin(admin.ModelAdmin):
+    model = NagRecord
+    list_display = ("supply_point", "report_date", "warning", "nag_type")
+    list_filter = ("supply_point", "warning", "nag_type")
 
 
 admin.site.unregister(Contact)
@@ -68,4 +79,4 @@ admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
-
+admin.site.register(NagRecord, NagRecordAdmin)

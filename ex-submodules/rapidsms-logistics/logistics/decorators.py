@@ -1,4 +1,4 @@
-from logistics import settings
+from rapidsms.conf import settings
 from logistics.util import config
 from rapidsms.contrib.locations.models import Location
 
@@ -34,6 +34,22 @@ def logistics_permission_required(operation):
         return require_role
     return wrapper
 
+def managed_products_required():
+    """
+    This decorator currently only works on an instance
+    of a handler object. It also assumes that
+    logistics_contact_required has already been run.
+    """
+    def wrapper(f):
+        def require_role(self, *args, **kwargs):
+            if not self.msg.logistics_contact.commodities.count():
+                self.respond(config.Messages.NO_PRODUCTS_MANAGED)
+            else:
+                return f(self, *args, **kwargs)
+        return require_role
+    return wrapper
+
+
 def logistics_contact_and_permission_required(operation):
     """
     This decorator currently only works on an instance
@@ -61,6 +77,15 @@ def place_in_request(param="place"):
     def wrapper(f):
         def put_place_on_request(request, *args, **kwargs):
             code = request.GET.get(param, None)
+            if settings.LOGISTICS_USE_LOCATION_SESSIONS:
+                cookie_name = "RAPIDSMS-LOGISTICS-LOCATION"
+                if code:
+                    # if we're using cookies the url overrides them
+                    # so only use it to set it back in the cookie
+                    request.session[cookie_name] = code
+                else:
+                    # check the cookie as well
+                    code = request.session.get(cookie_name, None)
             if code:
                 request.location = Location.objects.get(code=code)
             else:

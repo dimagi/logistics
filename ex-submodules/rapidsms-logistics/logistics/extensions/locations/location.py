@@ -2,14 +2,16 @@ from __future__ import absolute_import
 import uuid
 from django.db import models
 from django.db.models import Q
-from rapidsms.conf import settings
+from django.conf import settings
+from logistics.mixin import StockCacheMixin
 
-class Location(models.Model):
+class Location(models.Model, StockCacheMixin):
     """
     Location - the main concept of a location.  Currently covers MOHSW, Regions, Districts and Facilities.
     This could/should be broken out into subclasses.
     """
     code = models.CharField(max_length=100, blank=False, null=False)
+    name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     
     class Meta:
@@ -26,12 +28,17 @@ class Location(models.Model):
     def tree_parent(self):
         """ This signature gets overriden by mptt when mptt is used """
         return self.parent
-        
+    
+    @tree_parent.setter
+    def tree_parent(self, value):
+        """ This signature gets overriden by mptt when mptt is used """
+        self.parent = value
+            
     def get_children(self):
         """ This signature gets overriden by mptt when mptt is used """
         from rapidsms.contrib.locations.models import Location
-        return Location.objects.filter(parent_id=self.id).order_by('name')
-    
+        return Location.objects.filter(parent_id=self.id, is_active=True).order_by('name')
+        
     def get_descendents(self, include_self=False):
         """ This signature gets overriden by mptt when mptt is used
         It must return a queryset
@@ -46,15 +53,19 @@ class Location(models.Model):
         pks = _get_descendent_pks(self)
         if include_self:
             pks.append(self.pk)
-        ret = Location.objects.filter(id__in=pks)
+        ret = Location.objects.filter(id__in=pks, is_active=True)
         return ret
+    
+    def get_descendents_plus_self(self):
+        # utility to facilitate calling function from django template
+        return self.get_descendents(include_self=True)
     
     def peers(self):
         from rapidsms.contrib.locations.models import Location
         # rl: is there a better way to do this?
         if 'mptt' in settings.INSTALLED_APPS:
-            return Location.objects.filter(tree_parent=self.tree_parent).order_by('name')
-        return Location.objects.filter(parent_id=self.parent_id).order_by('name')
+            return Location.objects.filter(tree_parent=self.tree_parent, is_active=True).order_by('name')
+        return Location.objects.filter(parent_id=self.parent_id, is_active=True).order_by('name')
         
 
     def child_facilities(self):
@@ -78,46 +89,50 @@ class Location(models.Model):
         locations = self.get_descendents()
         return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
         
+    def _cache_key(self, key, product, producttype, datetime=None):
+        return ("LOC-%(location)s-%(key)s-%(product)s-%(producttype)s-%(datetime)s" % \
+                {"key": key, "location": self.code, "product": product, 
+                 "producttype": producttype, "datetime": datetime}).replace(" ", "-")
+    
+    def _get_stock_count(self, name, product, producttype, datespan=None):
+        """ 
+        pulls requested value from cache. refresh cache if necessary
+        """
+        return self._get_stock_count_for_facilities(self.all_facilities(), name, product, producttype, datespan)
+    
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
-    def stockout_count(self, product=None, producttype=None):
-        from logistics.models import stockout_count
-        return stockout_count(self.all_facilities(), product, producttype)
+    def stockout_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("stockout_count", product, producttype, datespan)
 
-    def emergency_stock_count(self, product=None, producttype=None):
+    def emergency_stock_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import emergency_stock_count
-        return emergency_stock_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("emergency_stock_count", product, producttype, datespan)
 
-    def low_stock_count(self, product=None, producttype=None):
+    def low_stock_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import low_stock_count
-        return low_stock_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("low_stock_count", product, producttype, datespan)
 
-    def emergency_plus_low(self, product=None, producttype=None):
+    def emergency_plus_low(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import emergency_plus_low
-        return emergency_plus_low(self.all_facilities(), product, producttype)
+        return self._get_stock_count("emergency_plus_low", product, producttype, datespan)
 
-    def good_supply_count(self, product=None, producttype=None):
+    def good_supply_count(self, product=None, producttype=None, datespan=None):
         """ This indicates all stock below reorder levels,
             including all stock below emergency supply levels
         """
-        from logistics.models import good_supply_count
-        return good_supply_count(self.all_facilities(), product, producttype)
+        return self._get_stock_count("good_supply_count", product, producttype, datespan)
 
-    def overstocked_count(self, product=None, producttype=None):
-        from logistics.models import overstocked_count
-        return overstocked_count(self.all_facilities(), product, producttype)
+    def overstocked_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("overstocked_count", product, producttype, datespan)
 
     def consumption(self, product=None, producttype=None):
-        from logistics.models import consumption
-        return consumption(self.all_facilities(), product, producttype)
+        return self._get_stock_count("consumption", product, producttype)
 
     def deprecate(self, new_code=None):
         """

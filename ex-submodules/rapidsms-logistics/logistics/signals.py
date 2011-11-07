@@ -12,6 +12,13 @@ def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resol
                                                         exclude=exclude_list)
     
 @transaction.commit_on_success
+def post_save_stock_transaction(sender, instance, created, **kwargs):
+    from logistics.models import ProductStock
+    ps = ProductStock.objects.get(supply_point=instance.supply_point, 
+                                  product=instance.product)
+    ps.update_auto_consumption()
+
+@transaction.commit_on_success
 def post_save_product_report(sender, instance, created, **kwargs):
     """
     Every time a product report is created,
@@ -26,13 +33,13 @@ def post_save_product_report(sender, instance, created, **kwargs):
     from logistics.models import StockTransaction
     
     # 1. Update the facility report date information 
-    instance.supply_point.last_reported = datetime.now()
+    instance.supply_point.last_reported = datetime.utcnow()
     instance.supply_point.save()
     # 2. update the stock information at the given facility """
     beginning_balance = instance.supply_point.stock(instance.product)
     if instance.report_type.code in [Reports.SOH, Reports.EMERGENCY_SOH]:
         instance.supply_point.update_stock(instance.product, instance.quantity)
-    elif instance.report_type.code == Reports.REC:
+    elif instance.report_type.code in [Reports.REC, Reports.LOSS_ADJUST]:
         # receipts are additive
         instance.supply_point.update_stock(instance.product, beginning_balance + instance.quantity)
     elif instance.report_type.code == Reports.GIVE:

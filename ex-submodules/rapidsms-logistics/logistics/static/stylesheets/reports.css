@@ -18,6 +18,7 @@
     padding: 0.3em;
 }
 
+/* 
 .stockout, .emergency, .low_supply, 
 .good_supply, .overstock {
     background: none;
@@ -43,10 +44,11 @@
     background-color: green;
 }
 
-.overstock {
+.over_stock {
     background-color: purple;
 }
 
+*/
 .stock_col{
     width:12%;
 }
