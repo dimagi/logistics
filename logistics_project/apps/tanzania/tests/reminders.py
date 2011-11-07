@@ -1,12 +1,12 @@
 from logistics_project.apps.tanzania.reminders import stockonhand , delivery,\
-    randr, stockonhandthankyou
+    randr, stockonhandthankyou, supervision
 from logistics_project.apps.tanzania.tests.util import register_user
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from logistics.models import SupplyPoint, ProductReport, SupplyPointGroup
 from rapidsms.models import Contact
 from datetime import datetime 
-from logistics_project.apps.tanzania.models import DeliveryGroups
+from logistics_project.apps.tanzania.models import DeliveryGroups, SupplyPointStatus, SupplyPointStatusTypes, SupplyPointStatusValues
 
 class TestStockOnHandReminders(TanzaniaTestScriptBase):
 
@@ -140,6 +140,50 @@ class TestRandRReminder(TanzaniaTestScriptBase):
         self.runScript(script)
         self.assertEqual(0, len(list(randr.get_facility_people(now))))
         self.assertEqual(1, len(list(randr.get_facility_people(datetime.utcnow()))))
+
+
+
+
+class TestSupervisionStatusSet(TanzaniaTestScriptBase):
+
+    def setUp(self):
+        super(TestSupervisionStatusSet, self).setUp()
+        Contact.objects.all().delete()
+        ProductReport.objects.all().delete()
+        self.contact = register_user(self, "778", "someone")
+        sp = self.contact.supply_point
+        sp.groups = (SupplyPointGroup.objects.get\
+                     (code=DeliveryGroups().current_submitting_group()),)
+        sp.save()
+
+    def testReminderSet(self):
+        people = list(randr.get_facility_people(datetime.utcnow()))
+        self.assertEqual(1, len(people))
+        for person in people:
+            self.assertEqual(self.contact, person)
+
+        sp = self.contact.supply_point
+        sp.groups = (SupplyPointGroup.objects.get\
+                     (code=DeliveryGroups().current_delivering_group()),)
+        sp.save()
+        self.assertEqual(1, len(list(supervision.get_people())))
+
+        supervision.set_supervision_statuses()
+
+        self.assertEqual(0, len(list(supervision.get_people())))
+
+
+        SupplyPointStatus.objects.all().delete()
+
+        self.assertEqual(1, len(list(supervision.get_people())))
+
+        s = SupplyPointStatus(supply_point=sp,
+                              status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                              status_value=SupplyPointStatusValues.RECEIVED)
+        s.save()
+
+        self.assertEqual(0, len(list(supervision.get_people())))
+
 
 class TestSOHThankYou(TanzaniaTestScriptBase):
 
