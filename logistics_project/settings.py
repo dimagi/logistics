@@ -53,7 +53,8 @@ BASE_APPS = [
     #"django_cpserver", # pip install django-cpserver
     "couchlog",
     "registration",
-    "groupmessaging"
+    "groupmessaging",
+    "taggit"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
