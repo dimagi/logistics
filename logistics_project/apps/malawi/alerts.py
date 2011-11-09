@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.db.models.expressions import F
 from alerts import Alert
 from logistics.models import StockRequest, SupplyPoint,\
-    SupplyPointType, _filtered_stock, ProductStock, StockRequestStatus
+    SupplyPointType, ProductStock, StockRequestStatus
 from django.db.models.aggregates import Max
 from django.core.urlresolvers import reverse
 from logistics.util import config
