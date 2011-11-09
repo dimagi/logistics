@@ -20,7 +20,7 @@ REC_DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 REC_DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 4
 
 EM_REPORTING_DAY = 1 # First of the month
-WARNING_DAYS = 2 # Advance warning days before report is officially late
+WARNING_DAYS = 1 # Advance warning days before report is officially late
 
 MIN_NAG_INTERVAL = 24 # The minimum time between nags, to avoid spam in edge/bug/logic change cases
 
@@ -225,7 +225,7 @@ def nag_hsas_em():
     # For the EM group, nag them to report around a (configurable) day of month
     # We send nags at 9am UTC/11am malawi time
     since = datetime.utcnow().replace(day=EM_REPORTING_DAY,
-                                      hour=9,minute=0,second=0) - timedelta(days=WARNING_DAYS)
+                                      hour=19,minute=0,second=0) - timedelta(days=WARNING_DAYS)
     
     # make sure the date is in the past
     if since > datetime.utcnow():
