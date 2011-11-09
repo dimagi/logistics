@@ -107,7 +107,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
-    groups = models.ManyToManyField('SupplyPointGroup')
+    groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
 
     class Meta:
         abstract = True
