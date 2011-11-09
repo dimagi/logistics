@@ -60,3 +60,21 @@
     background-image: url("../images/overstock.png");
 }
 
+#input_stock tr.inactive{
+    color: #909090;
+    font-weight: bold;
+    font-weight: normal;
+}
+
+.stock tr.inactive{
+    color: #909090;
+    font-weight: normal;
+    background-color: white;
+}
+
+.stock tr.inactive .big_error{
+	/* the duplicate font-weight=normal is necessary to 
+	override the big red bold 'not set' under consumption */
+    color: #909090;
+    font-weight: normal;
+}

@@ -12,7 +12,7 @@
             </div>
             <div>
             {% csrf_token %}
-            <table>
+            <table id="input_stock">
             <thead>
             <tr>
                 <th>{% trans "Commodity" %}</th>
@@ -22,12 +22,13 @@
                 <th>{% trans "Average Monthly Consumption" %}</th>
                 {% if perms.logistics %}
                 <th>{% trans "Use Automatic Consumption?" %}</th>
+                <th>{% trans "Is Active?" %}</th>
                 {% endif %}
             </tr>
             </thead>
             <tbody>
                 {% for stock in productstocks %}
-                    <tr>
+                    <tr {% if not stock.is_active %}class='inactive'{% endif %}>
                         <td>{{ stock.product }}</td>
                         <td><input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity|default_if_none:'' }}"/></td>
                         <td><input type="text" name="{{ stock.product.sms_code }}_receipt" id="id_{{ stock.product }}_receipt" value="0"/></td>
@@ -37,6 +38,10 @@
                         <td>
                             <input type="checkbox" name="{{ stock.product.sms_code }}_use_auto_consumption" id="id_{{ stock.product.sms_code }}__use_auto_consumption"
                             {% if stock.use_auto_consumption %}checked="checked"{% endif %}/>
+                        </td>
+                        <td>
+                            <input type="checkbox" name="{{ stock.product.sms_code }}_is_active" id="id_{{ stock.product.sms_code }}_is_active"
+                            {% if stock.is_active %}checked="checked"{% endif %}/>
                         </td>
                         {% else %}
                         <td>{{ stock.manual_monthly_consumption|default_if_none:'unknown' }}</td>
