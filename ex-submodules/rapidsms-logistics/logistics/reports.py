@@ -590,7 +590,9 @@ class SupplyPointRow():
     def _call_stock_count(self, name):
         if name in self._cached_stock:
             return self._cached_stock[name]
-        val = getattr(logistics_models, name)(self.facility_list, self.commodity_filter, self.commoditytype_filter)
+        
+        val = sum(getattr(f, name)(product=self.commodity_filter,
+                                   producttype=self.commoditytype_filter) for f in self.facility_list)
         self._cached_stock[name] = val
         return val
     
