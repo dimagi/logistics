@@ -169,13 +169,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             self._default_group = grps[0]
         
         return self._default_group
-    
-    def unreported(self):
-        commodities = self.commodities_stocked()
-        stocks = ProductStock.objects.filter(supply_point=self, 
-                                             is_active=True)\
-                                             .exclude(product__in=commodities)
-        return [stock.product for stock in stocks]
         
     def consumptions_available(self):
         stocks = self.product_stocks()
@@ -449,8 +442,9 @@ class ProductStock(models.Model):
     Indicates supply point-specific information about a product (such as monthly consumption rates)
     A ProductStock should exist for each product for each supply point
     """
-    # is_active is currently used on the webview, to determine which 
-    # stockouts/low stocks etc are highlighted. 
+    # is_active indicates whether we are actively trying to prevent stockouts of this product
+    # in practice, this means: do we bug people to report on this commodity
+    # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
     is_active = models.BooleanField(default=True, db_index=True)
     supply_point = models.ForeignKey(SupplyPoint, db_index=True)
     quantity = models.IntegerField(blank=True, null=True)
