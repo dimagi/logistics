@@ -185,6 +185,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return True
 
     def commodities_stocked(self):
+        return self.commodities_reported()
+    
+    def commodities_reported(self):
         return Product.objects.filter(reported_by__supply_point=self).distinct()
     
     def product_stocks(self):
