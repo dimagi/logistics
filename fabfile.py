@@ -71,7 +71,7 @@ def _malawi_shared():
     env.stop_start = True
     env.branch = "malawi-dev"
     def malawi_extras():
-	run("python manage.py malawi_init")
+        run("python manage.py malawi_init")
         run("python manage.py loaddata ../deploy/malawi/initial_data.json")
         sudo("/etc/init.d/memcached restart")
     env.extras = malawi_extras
