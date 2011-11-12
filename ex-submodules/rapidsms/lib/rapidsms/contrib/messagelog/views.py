@@ -8,7 +8,7 @@ from rapidsms.models import Contact
 from .tables import MessageTable
 from .models import Message
 from taggit.models import Tag, TaggedItem
-
+import re
 
 def message_log(req, template="messagelog/index.html"):
     messages = Message.objects.all()
@@ -29,7 +29,7 @@ def message_log(req, template="messagelog/index.html"):
 
     if 'search' in req.GET and req.GET['search'] != '':
         search = req.GET['search']
-        messages = messages.filter(text__iregex=search)
+        messages = messages.filter(text__iregex=re.escape(search))
     
     # Extract and sort all tag names
     for tag in TaggedItem.tags_for(Message):
