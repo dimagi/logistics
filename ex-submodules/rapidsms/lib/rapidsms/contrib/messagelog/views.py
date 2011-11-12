@@ -9,6 +9,7 @@ from .tables import MessageTable
 from .models import Message
 from taggit.models import Tag, TaggedItem
 import re
+from django.db.models import Q
 
 def message_log(req, template="messagelog/index.html"):
     messages = Message.objects.all()
@@ -29,7 +30,8 @@ def message_log(req, template="messagelog/index.html"):
 
     if 'search' in req.GET and req.GET['search'] != '':
         search = req.GET['search']
-        messages = messages.filter(text__iregex=re.escape(search))
+        messages = messages.filter(Q(text__iregex=re.escape(search)) |\
+                                   Q(connection__identity__iregex=re.escape(search)))
     
     # Extract and sort all tag names
     for tag in TaggedItem.tags_for(Message):
