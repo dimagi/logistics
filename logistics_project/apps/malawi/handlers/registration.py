@@ -9,6 +9,7 @@ from logistics_project.apps.malawi.handlers.abstract.register import Registratio
 from rapidsms.contrib.locations.models import Location
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics.util import config
+from logistics_project.apps.malawi.util import format_id
 from static.malawi.config import Roles
 
 class HSARegistrationHandler(RegistrationBaseHandler):
@@ -28,15 +29,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         # default to HSA
         role = ContactRole.objects.get(code=config.Roles.HSA)
         
-        def format_id(code, id):
-            try:
-                id_num = int(id)
-                if id_num < 1 or id_num >= 100:
-                    raise IdFormatException("id must be a number between 1 and 99. %s is out of range" % id)
-                return "%s%02d" % (code, id_num)
-            except ValueError:
-                raise IdFormatException("id must be a number between 1 and 99. %s is not a number" % id)
-        
+
         try:
             hsa_id = format_id(self.supply_point.code, self.extra)
         except IdFormatException, e:

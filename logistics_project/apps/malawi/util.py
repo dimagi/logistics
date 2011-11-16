@@ -1,10 +1,19 @@
 from rapidsms.models import Contact
 from logistics.models import SupplyPoint
 from logistics.util import config
-from logistics_project.apps.malawi.exceptions import MultipleHSAException
+from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
 from django.db.models.query_utils import Q
 
+def format_id(code, id):
+    try:
+        id_num = int(id)
+        if id_num < 1 or id_num >= 100:
+            raise IdFormatException("id must be a number between 1 and 99. %s is out of range" % id)
+        return "%s%02d" % (code, id_num)
+    except ValueError:
+        raise IdFormatException("id must be a number between 1 and 99. %s is not a number" % id)
+        
 
 def get_hsa(hsa_id):
     """

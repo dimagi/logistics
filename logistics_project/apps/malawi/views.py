@@ -15,8 +15,8 @@ from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocat
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.models import SupplyPoint, Product, \
-    StockTransaction, StockRequestStatus, StockRequest, ProductReport
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location
+    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -29,7 +29,7 @@ from dimagi.utils.decorators.datespan import datespan_in_request
 from django.contrib.auth.decorators import permission_required
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
-
+from rapidsms.models import Backend, Connection
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 
@@ -327,3 +327,67 @@ def scmgr_receiver(request):
     else:
         ret = "Got no data -- ending update."
         return HttpResponse(ret)
+
+def verify_ajax(request):
+    field = request.GET.get('field', None)
+    val = request.GET.get('val', None)
+    if not (field and val): return json.dump(False)
+    if field == 'facility_code':
+        if SupplyPoint.objects.filter(type__code='hf', code=val).exists():
+            return json.dump(True)
+
+@permission_required("is_superuser")
+def register_user(request, template="malawi/register-user.html"):
+    context = dict()
+    context['facilities'] = SupplyPoint.objects.filter(type__code="hf").order_by('code')
+    context['backends'] = Backend.objects.all()
+    context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
+    if request.method != 'POST':
+        print "no input"
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    id = request.POST.get("id", None)
+    facility = request.POST.get("facility", None)
+    name = request.POST.get("name", None)
+    number = request.POST.get("number", None)
+    backend = request.POST.get("backend", None)
+
+    print id, facility, name, number, backend
+    if not (id and facility and name and number and backend):
+        messages.error(request, "All fields must be filled in.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+    hsa_id = format_id(facility, id)
+    print hsa_id
+    try:
+        parent = SupplyPoint.objects.get(code=facility)
+        print "parent is %s" % parent
+    except SupplyPoint.DoesNotExist:
+        messages.error(request, "No facility with that ID.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    if Location.objects.filter(code=hsa_id).exists():
+        messages.error(request, "HSA with that code already exists.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+
+    hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
+                                          code=hsa_id, parent=parent.location)
+    sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=config.hsa_supply_point_type(),
+                                        location=hsa_loc, supplied_by=parent, active=True)
+    sp.save()
+    contact = Contact()
+    contact.name = name
+    contact.supply_point = sp
+    contact.role = ContactRole.objects.get(code=config.Roles.HSA)
+    contact.is_active = True
+    contact.save()
+
+    connection = Connection()
+    connection.backend = Backend.objects.get(pk=int(backend))
+    connection.identity = "+%s%s" % (settings.COUNTRY_DIALLING_CODE, number) #TODO: Check validity of numbers
+    connection.contact = contact
+    connection.save()
+
+    messages.success(request, "HSA added!")
+
+    return render_to_response(template, context, context_instance=RequestContext(request))

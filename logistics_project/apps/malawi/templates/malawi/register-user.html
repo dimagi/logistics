@@ -1,0 +1,31 @@
+{% extends base_template %}
+
+{% block content %}
+
+    <div class="module">
+        <h2>Register User</h2>
+
+        <form method="POST" action="">
+                <table>
+        {% csrf_token %}
+
+         <tr><td><label for="name">HSA Name:</label></td><td><input type="text" id="name" name="name"/><br /></tr>
+            <tr><td><label for="id">HSA ID:</label></td><td><input type="text" id="id" name="id"/><br /></tr>
+            <tr><td><label for="number">Phone:</label></td><td>+{{ dialing_code }}<input type="text" id="number" name="number" ><br /></tr>
+            <tr><td><label for="facility">Facility:</label></td><td><select id="facility" name="facility">
+                {% for f in facilities %}
+                    <option value="{{ f.code }}">{{ f.name }} ({{ f.code }})</option>
+                {% endfor %}
+            </select><br /></tr>
+        <tr><td><label for="backend">Backend:</label></td><td>
+            <select id="backend" name="backend">
+                {% for b in backends %}
+                    <option value="{{ b.pk }}">{{ b.name }}</option>
+                {% endfor %}
+            </select><br /></tr>
+            <tr><td></td><td><input type="submit" /></tr>
+                </table>
+
+        </form>
+    </div>
+{% endblock %}
