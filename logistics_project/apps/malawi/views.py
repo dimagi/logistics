@@ -9,6 +9,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 import logging
 from django.views.decorators.vary import vary_on_cookie
+from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable
@@ -354,7 +355,13 @@ def register_user(request, template="malawi/register-user.html"):
     if not (id and facility and name and number and backend):
         messages.error(request, "All fields must be filled in.")
         return render_to_response(template, context, context_instance=RequestContext(request))
-    hsa_id = format_id(facility, id)
+    hsa_id = None
+    try:
+        hsa_id = format_id(facility, id)
+    except IdFormatException:
+        messages.error(request, "HSA ID must be a number between 0 and 99.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
     try:
         parent = SupplyPoint.objects.get(code=facility)
     except SupplyPoint.DoesNotExist:
@@ -365,6 +372,11 @@ def register_user(request, template="malawi/register-user.html"):
         messages.error(request, "HSA with that code already exists.")
         return render_to_response(template, context, context_instance=RequestContext(request))
 
+    try:
+        number = int(number)
+    except ValueError:
+        messages.error(request, "Phone number must contain only numbers.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
 
     hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
                                           code=hsa_id, parent=parent.location)
