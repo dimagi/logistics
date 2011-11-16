@@ -343,7 +343,6 @@ def register_user(request, template="malawi/register-user.html"):
     context['backends'] = Backend.objects.all()
     context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
     if request.method != 'POST':
-        print "no input"
         return render_to_response(template, context, context_instance=RequestContext(request))
 
     id = request.POST.get("id", None)
@@ -352,15 +351,12 @@ def register_user(request, template="malawi/register-user.html"):
     number = request.POST.get("number", None)
     backend = request.POST.get("backend", None)
 
-    print id, facility, name, number, backend
     if not (id and facility and name and number and backend):
         messages.error(request, "All fields must be filled in.")
         return render_to_response(template, context, context_instance=RequestContext(request))
     hsa_id = format_id(facility, id)
-    print hsa_id
     try:
         parent = SupplyPoint.objects.get(code=facility)
-        print "parent is %s" % parent
     except SupplyPoint.DoesNotExist:
         messages.error(request, "No facility with that ID.")
         return render_to_response(template, context, context_instance=RequestContext(request))
