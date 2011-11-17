@@ -1,6 +1,6 @@
 {% load i18n %}
 {# this is ugly but we can live with it #}
-<div id="stock_on_hand"> 
+<div id="stock_on_hand" style="max-height:350px;">
     {# the quote escapes here are super sketchy but they work inside a normal template and in gmaps #}
     <p>{% trans "Stock on Hand" %} (<a onclick="$(&quot;#stock_on_hand&quot;).hide(); $(&quot;#months_of_stock&quot;).show();">{% trans "show months of stock" %}</a>)</p>
     <table style="margin-top: 1em; width: 100%">
@@ -24,7 +24,7 @@
 	    {% endfor %}                
 	</table>
 </div>
-<div id="months_of_stock" style="display:none;">
+<div id="months_of_stock" style="display:none;max-height:350px;">
     <p>{% trans "Months of stock" %} (<a onclick="$(&quot;#months_of_stock&quot;).hide(); $(&quot;#stock_on_hand&quot;).show();">{% trans "show stock on hand" %}</a>)</p>
     <table style="margin-top: 1em; width: 100%">
         {% for product_stock in product_stocks %}
