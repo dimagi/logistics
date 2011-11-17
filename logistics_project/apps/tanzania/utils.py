@@ -44,7 +44,10 @@ def latest_status(sp, type, value=None, month=None, year=None):
     if value:
         qs = qs.filter(status_value=value)
     if month and year:
-        qs = qs.filter(status_date__month=month, status_date__year=year)
+        rw = reporting_window(type, year, month)
+        qs = qs.filter(status_date__gt=rw[0], status_date__lte=rw[1])
+    if qs.exclude(status_value="reminder_sent").exists(): # HACK around bad data.
+        qs = qs.exclude(status_value="reminder_sent")
     qs = qs.order_by("-status_date")
     return qs[0] if qs.count() else None
 
