@@ -28,6 +28,6 @@ def last_yearmonth():
 @businessday_before(20)
 def first():
     """Last business day before the 20th at 4:00 PM"""
-    people = get_facility_people(get_cutoff(*last_yearmonth()))
+    people = get_people(get_cutoff(*last_yearmonth()))
     send_reminders(people,
                    config.Messages.SOH_THANK_YOU)
