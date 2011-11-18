@@ -21,7 +21,7 @@ PATH_SEP = "/" # necessary to deploy from windows to *nix
 
 env.code_cleanup = True
 env.db_cleanup = True
-env.db_name = "logistics"
+env.db_name = "logistics_production"
 env.db_user = "root"
 env.local_db_user = "root"
 env.db_type = "mysql"
@@ -125,10 +125,10 @@ def tz_production():
     TZ configuration (staging)
     """
     env.deploy_dir = '/home/dimagi/src'
-    env.db_name = "logistics_project"
     env.hosts = ['ilsgateway@ilsgateway.com']
-    _tz_shared()
     env.virtualenv_root = "/home/dimagi/src/logistics-env"
+    _tz_shared()
+    env.db_name = "logistics_production"
 
 
 def staging():

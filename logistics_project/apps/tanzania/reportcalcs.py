@@ -1,3 +1,4 @@
+from django.db.models.query_utils import Q
 from django.template.loader import get_template
 from logistics.reports import DynamicProductAvailabilitySummaryByFacilitySP
 from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
@@ -6,13 +7,14 @@ from logistics.models import Product
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
 from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.conf import settings
+from rapidsms.contrib.messagelog.models import Message
 
 class TanzaniaReport(object):
     """
@@ -164,11 +166,26 @@ class DeliveryReport(TanzaniaReport):
         self.context["delivery_table"] = DeliveryStatusTable(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
 
+class UnrecognizedMessagesReport(TanzaniaReport):
+    name = "Unrecognized SMS"
+    slug = "unrecognized"
+
+    def national_report(self):
+        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(date__month=self.mp.month,
+                                                                                                                   date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
+    def regional_report(self):
+        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
+                                                                                                                   date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
+    def district_report(self):
+        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
+                                                                                                                   date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
+
 REPORT_LIST = [
     SOHReport,
     RandRReport,
     SupervisionReport,
-    DeliveryReport
+    DeliveryReport,
+    UnrecognizedMessagesReport
 ]
 
 @place_in_request()

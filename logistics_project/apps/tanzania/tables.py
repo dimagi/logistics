@@ -51,6 +51,10 @@ def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
     return tz_location_url(cell.object.location)
 
+def msg_supply_point_link(cell):
+    from logistics_project.apps.tanzania.views import tz_location_url
+    return tz_location_url(cell.object.contact.supply_point.location)
+
 def reports_link(cell, report_name):
     return "%s?place=%s&year=%s&month=%s" % (reverse('new_reports', args=(report_name,)), cell.object.location.code, cell.row.table.year, cell.row.table.month)
 
@@ -300,3 +304,10 @@ class AggregateDeliveryTable(MonthTable):
 
     class Meta:
         per_page = 9999
+
+class UnrecognizedMessagesTable(Table):
+    code = Column(value=lambda cell:cell.object.contact.supply_point.code, name="MSD Code", sort_key_fn=lambda obj: obj.supply_point.code, titleized=False, css_class=_msd_class)
+    facility = Column(value=lambda cell: cell.object.contact.supply_point.name, link=msg_supply_point_link)
+    contact = Column(sortable=False, value=lambda cell: cell.object.contact.name)
+    date = DateColumn(format="H:i M d")
+    text = Column()

@@ -55,15 +55,15 @@ def reporting_window(status_type, year, month):
     """
     Returns the range of time when people are supposed to report
     """
-    if status_type == SupplyPointStatusTypes.SUPERVISION_FACILITY or \
-       status_type == SupplyPointStatusTypes.SOH_FACILITY:
-        last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
-        last_bd_of_last_month = datetime.combine\
-            (get_business_day_of_month(last_of_last_month.year,
-                                   last_of_last_month.month,
-                                   -1), time())
-        last_bd_of_the_month = get_business_day_of_month(year, month, -1)
-        return last_bd_of_last_month, last_bd_of_the_month
+#    if status_type == SupplyPointStatusTypes.SUPERVISION_FACILITY or \
+#       status_type == SupplyPointStatusTypes.SOH_FACILITY:
+    last_of_last_month = datetime(year, month, 1) - timedelta(days=1)
+    last_bd_of_last_month = datetime.combine\
+        (get_business_day_of_month(last_of_last_month.year,
+                               last_of_last_month.month,
+                               -1), time())
+    last_bd_of_the_month = get_business_day_of_month(year, month, -1)
+    return last_bd_of_last_month, last_bd_of_the_month
 
 
 
