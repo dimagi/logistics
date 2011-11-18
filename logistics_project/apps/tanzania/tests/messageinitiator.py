@@ -61,7 +61,7 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         contact = register_user(self, "32349", "Person 3", "d31049", "CHIDEDE DISP")
 
         script = """
-            32000 > test fw d31049 %(test_message)s
+            32000 > test fw D31049 %(test_message)s
             32000 < %(test_handler_confirm)s
             32347 < %(test_message)s
             32348 < %(test_message)s
@@ -71,6 +71,7 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testMessageInitiatorStockInquiryIndividualLocation(self):
+        raise Exception("This feature hasn't been implemented yet")
         translation.activate("sw")
         contact = register_user(self, "32000", "Trainer", )
         contact = register_user(self, "32347", "Person 1", "d31049", "CHIDEDE DISP")
@@ -86,6 +87,9 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         sp.save()
 
         translation.activate("sw")
+
+        print p.name
+        print p.product_code
 
         script = """
             32000 > test si d31049 m11112
@@ -115,7 +119,7 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
         script = """
             778 > test la d5000000
             778 < %(test_bad_code)s
-            """ % {"test_bad_code": _(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":"D5000000"}}
+            """ % {"test_bad_code": _(config.Messages.TEST_HANDLER_BAD_CODE) % {"code":"d5000000"}}
         self.runScript(script)
 
     def testMessageInitiatorRandRFacility(self):

@@ -32,9 +32,10 @@ class MessageInitiator(KeywordHandler,TaggingHandler):
         
         command = result[0]
         rest = " ".join(result[1:])
-        
+        msd_code = result[1]
+        fw_message = " ".join(result[2:])
         try:
-            sp_target = SupplyPoint.objects.get(code__iexact=rest)
+            sp_target = SupplyPoint.objects.get(code__iexact=msd_code)
         except SupplyPoint.DoesNotExist:
             # maybe it's a district, get by name
             try:
@@ -63,7 +64,7 @@ class MessageInitiator(KeywordHandler,TaggingHandler):
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["fw"]:
             for c in sp_target.active_contact_set:
-                _send_if_connection(c, ' '.join(result))
+                _send_if_connection(c, fw_message)
             self.respond(_(config.Messages.TEST_HANDLER_CONFIRM))
         if command in  ["supervision"]:
             for c in sp_target.active_contact_set:
