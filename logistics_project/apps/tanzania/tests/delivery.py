@@ -85,25 +85,29 @@ class TestDelivery(TanzaniaTestScriptBase):
     def testDeliveryDistrictReceived(self):
         #Should record a SupplyPointStatus and send out a notification to all the District's sub-facilities.
 
-        contact = register_user(self, "32345", "RandR Tester")
-
-        # submitted successfully
-        translation.activate("sw")
+        # district contact
+        self.contact = register_user(self, "778", "someone")
         sp = SupplyPoint.objects.get(name="TANDAHIMBA")
-        contact.supply_point = sp
-        contact.save()
+        self.contact.supply_point = sp
+        self.contact.save()
 
+        #facility contacts
         contact = register_user(self, "32346", "Person 1", "d30701", "CHAUME DISP")
         contact = register_user(self, "32347", "Person 2", "d31049", "CHIDEDE DISP")
 
+                # submitted successfully
+        translation.activate("sw")
+
         script = """
-          32345 > nimepokea
-          32345 < %(submitted_message)s
+          778 > nimepokea
+          778 < %(submitted_message)s
           32346 < %(delivery_confirm_children)s
           32347 < %(delivery_confirm_children)s
-        """ % {"submitted_message": _(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":"RandR Tester",
-                                                                                    "facility_name":"TANDAHIMBA"},
-               "delivery_confirm_children":_(config.Messages.DELIVERY_CONFIRM_CHILDREN % {"district_name":"TANDAHIMBA"})}
+        """ % {"submitted_message":         _(config.Messages.DELIVERY_CONFIRM_DISTRICT) %
+                                                {"contact_name":  "someone",
+                                                "facility_name":  "TANDAHIMBA"},
+               "delivery_confirm_children": _(config.Messages.DELIVERY_CONFIRM_CHILDREN) %
+                                                {"district_name": sp.name} }
         self.runScript(script)
 
         sps = SupplyPointStatus.objects.filter(supply_point=sp,

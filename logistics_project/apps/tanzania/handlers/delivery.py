@@ -19,6 +19,10 @@ from logistics.errors import UnknownCommodityCodeError
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
 
+def _send_if_connection(c, message):
+    if c.default_connection is not None:
+        c.message(message)
+
 class DeliveryHandler(KeywordHandler,TaggingHandler):
     """
     """
@@ -27,8 +31,8 @@ class DeliveryHandler(KeywordHandler,TaggingHandler):
     def _send_delivery_alert_to_facilities(self, sp):
         for child in sp.children():
             for c in child.active_contact_set:
-                c.message(config.Messages.DELIVERY_CONFIRM_CHILDREN,
-                                   district_name="TANDAHIMBA")
+                _send_if_connection(c, _(config.Messages.DELIVERY_CONFIRM_CHILDREN) %
+                                            {"district_name": sp.name} )
 
     @logistics_contact_required()
     def help(self):
