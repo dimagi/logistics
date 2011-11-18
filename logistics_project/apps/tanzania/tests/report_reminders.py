@@ -5,6 +5,9 @@ from logistics.models import ProductReport, SupplyPoint, SupplyPointGroup
 from logistics_project.apps.tanzania.tests.util import register_user
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from logistics_project.apps.tanzania.models import DeliveryGroups
+from django.utils.translation import ugettext as _
+from logistics.util import config
+from django.utils import translation
 
 class TestReportGroups(TanzaniaTestScriptBase):
 
@@ -248,13 +251,19 @@ class TestSoHSummary(TestReportSummaryBase):
             self.assertEqual(1 + i, result["submitted"])
 
     def testMessageInitiation(self):
-        # todo: translations
+        translation.activate("sw")
+
         script = """
             777 > test soh_report TEST DISTRICT
-            777 < SOH - 0/3 reported, 3/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY) %
+                                            {"submitted": 0,
+                                             "total": 3,
+                                             "not_responding": 3} }
         self.runScript(script)
-        
+
         script = """
             778 > Hmk Id 400 Dp 569 Ip 678
             779 > Hmk Id 400 Dp 569 Ip 678
@@ -263,7 +272,12 @@ class TestSoHSummary(TestReportSummaryBase):
         
         script = """
             777 > test soh_report TEST DISTRICT
-            777 < SOH - 2/3 reported, 1/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_SOH_SUMMARY) %
+                                            {"submitted": 2,
+                                             "total": 3,
+                                             "not_responding": 1} }
         self.runScript(script)
 
