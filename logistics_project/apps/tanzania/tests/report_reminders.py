@@ -135,13 +135,20 @@ class TestRandRSummary(TestReportSummaryBase):
 
     def testMessageInitiation(self):
         
-        # todo: translations
+        translation.activate("sw")
+
         script = """
             777 > test randr_report TEST DISTRICT
-            777 < R&R - 0/3 submitted, 0/3 did not submit, 3/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY) %
+                                            {"submitted": 0,
+                                             "total": 3,
+                                             "not_submitted": 0,
+                                             "not_responding": 3} }
         self.runScript(script)
-        
+
         script = """
             778 > nimetuma
             779 > sijatuma
@@ -150,8 +157,14 @@ class TestRandRSummary(TestReportSummaryBase):
         
         script = """
             777 > test randr_report TEST DISTRICT
-            777 < R&R - 1/3 submitted, 1/3 did not submit, 1/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_RANDR_SUMMARY) %
+                                            {"submitted": 1,
+                                             "total": 3,
+                                             "not_submitted": 1,
+                                             "not_responding": 1} }
         self.runScript(script)
 
 class TestDeliverySummary(TestReportSummaryBase):
@@ -207,11 +220,18 @@ class TestDeliverySummary(TestReportSummaryBase):
             self.assertEqual(self.relevant_count - 1 - i, result["received"])
 
     def testMessageInitiation(self):
-        # todo: translations
+        translation.activate("sw")
+
         script = """
             777 > test delivery_report TEST DISTRICT
-            777 < Deliveries - 0/3 received, 0/3 did not receive, 3/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY) %
+                                            {"received": 0,
+                                             "total": 3,
+                                             "not_received": 0,
+                                             "not_responding": 3} }
         self.runScript(script)
         
         script = """
@@ -222,8 +242,14 @@ class TestDeliverySummary(TestReportSummaryBase):
         
         script = """
             777 > test delivery_report TEST DISTRICT
-            777 < Deliveries - 1/3 received, 1/3 did not receive, 1/3 did not reply
-        """
+            777 < %(test_handler_confirm)s
+            777 < %(report_results)s
+        """ % {"test_handler_confirm": _(config.Messages.TEST_HANDLER_CONFIRM),
+               "report_results":       _(config.Messages.REMINDER_MONTHLY_DELIVERY_SUMMARY) %
+                                            {"received": 1,
+                                             "total": 3,
+                                             "not_received": 1,
+                                             "not_responding": 1} }
         self.runScript(script)
 
 class TestSoHSummary(TestReportSummaryBase):
