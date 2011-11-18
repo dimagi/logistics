@@ -33,10 +33,11 @@ class TestRandR(TanzaniaTestScriptBase):
           22345 < %(submitted_message)s
           22346 < %(submitted_notification_msd)s
         """ % {'submitted_message': _(config.Messages.SUBMITTED_REMINDER_DISTRICT),
-               'submitted_notification_msd': config.Messages.SUBMITTED_NOTIFICATION_MSD % {"district_name":"TANDAHIMBA",
-                                                                                           "group_a": 0,
-                                                                                           "group_b": 0,
-                                                                                           "group_c": 0}}
+               'submitted_notification_msd': _(config.Messages.SUBMITTED_NOTIFICATION_MSD) %
+                                                  {"district_name":"TANDAHIMBA",
+                                                   "group_a": 0,
+                                                   "group_b": 0,
+                                                   "group_c": 0} }
         self.runScript(script)
 
         sps = SupplyPointStatus.objects.filter(supply_point=sp,
@@ -64,8 +65,10 @@ class TestRandR(TanzaniaTestScriptBase):
           22345 > nimetuma a 10 b 11 c 12
           22345 < %(submitted_message)s
           22346 < %(submitted_notification_msd)s
-        """ % {'submitted_message': _(config.Messages.SUBMITTED_REMINDER_DISTRICT),
-               'submitted_notification_msd': config.Messages.SUBMITTED_NOTIFICATION_MSD % {"district_name":"TANDAHIMBA",
+        """ % {'submitted_message': _(config.Messages.SUBMITTED_CONFIRM) %
+                                         {"contact_name": contact.name,
+                                          "sdp_name": sp.name},
+               'submitted_notification_msd': _(config.Messages.SUBMITTED_NOTIFICATION_MSD) % {"district_name":"TANDAHIMBA",
                                                                                            "group_a": 10,
                                                                                            "group_b": 11,
                                                                                            "group_c": 12}}
