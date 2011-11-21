@@ -5,27 +5,91 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
-    depends_on = (
-        ("logistics", "0009_auto__add_field_supplypoint_is_supervising_facility"),
-    )
 
     def forwards(self, orm):
-        
-        # Adding field 'Product.emergency_order_level'
-        db.add_column('logistics_product', 'emergency_order_level', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True), keep_default=False)
+        # 1 LogisticsProfile
+        db.delete_column('logistics_logisticsprofile', 'facility_id')
+        # 3 productreport
+        db.delete_column('logistics_productreport', 'facility_id')
+        # 4 requisition report
+        db.delete_column('logistics_requisitionreport', 'facility_id')
+        # 5 stocktransaction
+        db.delete_column('logistics_stocktransaction', 'facility_id')
+        # 6 productstock
+        db.delete_unique('logistics_productstock', ['facility_id', 'product_id'])
+        db.delete_column('logistics_productstock', 'facility_id')
 
-        # Adding field 'NagRecord.nag_type'
-        db.add_column('logistics_nagrecord', 'nag_type', self.gf('django.db.models.fields.CharField')(default='soh', max_length=30), keep_default=False)
+        db.delete_table('logistics_facility')
+        db.delete_table('logistics_facilitytype')
 
+        # Adding model 'StockRequest'
+        db.create_table('logistics_stockrequest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Product'])),
+            ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
+            ('status', self.gf('django.db.models.fields.CharField')(max_length=20)),
+            ('response_status', self.gf('django.db.models.fields.CharField')(max_length=20, blank=True)),
+            ('is_emergency', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('requested_on', self.gf('django.db.models.fields.DateTimeField')()),
+            ('responded_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('received_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('requested_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='requested_by', null=True, to=orm['rapidsms.Contact'])),
+            ('responded_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='responded_by', null=True, to=orm['rapidsms.Contact'])),
+            ('received_by', self.gf('django.db.models.fields.related.ForeignKey')(related_name='received_by', null=True, to=orm['rapidsms.Contact'])),
+            ('amount_requested', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('amount_approved', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('amount_received', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
+            ('canceled_for', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.StockRequest'], null=True)),
+        ))
+        db.send_create_signal('logistics', ['StockRequest'])
+
+        # Adding model 'NagRecord'
+        db.create_table('logistics_nagrecord', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
+            ('report_date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.utcnow)),
+            ('warning', self.gf('django.db.models.fields.IntegerField')(default=1)),
+        ))
+        db.send_create_signal('logistics', ['NagRecord'])
+
+        # Adding model 'StockTransfer'
+        db.create_table('logistics_stocktransfer', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('giver', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='giver', null=True, to=orm['logistics.SupplyPoint'])),
+            ('giver_unknown', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True)),
+            ('receiver', self.gf('django.db.models.fields.related.ForeignKey')(related_name='receiver', to=orm['logistics.SupplyPoint'])),
+            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Product'])),
+            ('amount', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
+            ('status', self.gf('django.db.models.fields.CharField')(max_length=10)),
+            ('initiated_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('closed_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+        ))
+        db.send_create_signal('logistics', ['StockTransfer'])
+
+        # Adding field 'Product.average_monthly_consumption'
+        db.add_column('logistics_product', 'average_monthly_consumption', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True, default=None), keep_default=False)
+
+        # Deleting field 'ProductStock.monthly_consumption'
+        db.delete_column('logistics_productstock', 'monthly_consumption')
+
+        # Adding unique constraint on 'ProductStock', fields ['supply_point', 'product']
+        db.create_unique('logistics_productstock', ['supply_point_id', 'product_id'])
 
     def backwards(self, orm):
-        
-        # Deleting field 'Product.emergency_order_level'
-        db.delete_column('logistics_product', 'emergency_order_level')
+        # Removing unique constraint on 'ProductStock', fields ['supply_point', 'product']
+        db.delete_unique('logistics_productstock', ['supply_point_id', 'product_id'])
 
-        # Deleting field 'NagRecord.nag_type'
-        db.delete_column('logistics_nagrecord', 'nag_type')
+        # Deleting model 'StockRequest'
+        db.delete_table('logistics_stockrequest')
 
+        # Deleting model 'NagRecord'
+        db.delete_table('logistics_nagrecord')
+
+        # Deleting model 'StockTransfer'
+        db.delete_table('logistics_stocktransfer')
+
+        # Adding field 'ProductStock.monthly_consumption'
+        db.add_column('logistics_productstock', 'monthly_consumption', self.gf('django.db.models.fields.IntegerField')(default=None, null=True, blank=True), keep_default=False)
 
     models = {
         'auth.group': {
@@ -93,17 +157,20 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'responsibilities': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['logistics.Responsibility']", 'null': 'True', 'blank': 'True'})
         },
+        'logistics.facility': {
+            'Meta': {'object_name': 'Facility', '_ormbases': ['logistics.SupplyPoint']},
+            'supplypoint_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['logistics.SupplyPoint']", 'unique': 'True', 'primary_key': 'True'})
+        },
         'logistics.logisticsprofile': {
             'Meta': {'object_name': 'LogisticsProfile'},
+            'facility': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Facility']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
-            'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
         },
         'logistics.nagrecord': {
-            'Meta': {'object_name': 'NagRecord'},
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'NagRecord'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'nag_type': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
             'warning': ('django.db.models.fields.IntegerField', [], {'default': '1'})
@@ -112,8 +179,6 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Product'},
             'average_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'emergency_order_level': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'equivalents': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'equivalents_rel_+'", 'null': 'True', 'to': "orm['logistics.Product']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'product_code': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
@@ -122,7 +187,7 @@ class Migration(SchemaMigration):
             'units': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'logistics.productreport': {
-            'Meta': {'object_name': 'ProductReport'},
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'ProductReport'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['messagelog.Message']", 'null': 'True', 'blank': 'True'}),
             'product': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.Product']"}),
@@ -157,7 +222,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'logistics.requisitionreport': {
-            'Meta': {'object_name': 'RequisitionReport'},
+            'Meta': {'ordering': "('-report_date',)", 'object_name': 'RequisitionReport'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['messagelog.Message']"}),
             'report_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
@@ -190,7 +255,7 @@ class Migration(SchemaMigration):
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"})
         },
         'logistics.stocktransaction': {
-            'Meta': {'object_name': 'StockTransaction'},
+            'Meta': {'ordering': "('-date',)", 'object_name': 'StockTransaction'},
             'beginning_balance': ('django.db.models.fields.IntegerField', [], {}),
             'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.utcnow'}),
             'ending_balance': ('django.db.models.fields.IntegerField', [], {}),
@@ -218,7 +283,6 @@ class Migration(SchemaMigration):
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_supervising_facility': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'last_reported': ('django.db.models.fields.DateTimeField', [], {'default': 'None', 'null': 'True', 'blank': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
@@ -256,7 +320,6 @@ class Migration(SchemaMigration):
             'commodities': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'reported_by'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['logistics.Product']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'language': ('django.db.models.fields.CharField', [], {'max_length': '6', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'needs_reminders': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),

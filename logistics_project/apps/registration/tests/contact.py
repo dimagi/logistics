@@ -7,12 +7,12 @@ class TestContact(TestScript):
     def setUp(self):
         Connection.objects.all().delete()
         Contact.objects.all().delete()
-        Backend.objects.create(name="smsgh")
+        Backend.objects.create(name=settings.DEFAULT_BACKEND)
         
     def tearDown(self):
         Connection.objects.all().delete()
         Contact.objects.all().delete()
-        Backend.objects.get(name="smsgh").delete()
+        Backend.objects.get(name=settings.DEFAULT_BACKEND).delete()
       
     def test_set_default_connection_nodefaultbefore_newconnection(self):
         #create new connection

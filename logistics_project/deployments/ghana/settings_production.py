@@ -1,8 +1,8 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-ADMINS = (('Rowena','rluk+ewsghana-admin@dimagi.com'), )
-MANAGERS = (('Rowena','rluk+ewsghana-manager@dimagi.com'), )
+ADMINS = (('Rowena','ews-dev@dimagi.com'), )
+MANAGERS = (('Rowena','ews-dev@dimagi.com'), )
 SEND_BROKEN_LINK_EMAILS = True
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
@@ -12,6 +12,7 @@ APPS = [
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
+    "cpserver",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -22,6 +23,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.middleware.CachedTemplateMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -101,7 +103,8 @@ INSTALLED_BACKENDS = {
     },
 }
 
-STATIC_ROOT="/opt/logistics_project/src/logistics/logistics/static"
+DEFAULT_BACKEND = 'smsgh'
+STATIC_ROOT="/opt/logistics_project/src/logistics/logistics_project/static"
 
 # email settings used for sending out email reports
 EMAIL_LOGIN="sender@gmail.com"
@@ -116,11 +119,14 @@ EMAIL_HOST_USER='sender@gmail.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
-AUDITCARE_LOG_ERRORS=False
+LOGISTICS_USE_SPOT_CACHING = True
+LOGISTICS_SPOT_CACHE_TIMEOUT = 60*60
 
 AUDITCARE_LOG_ERRORS = False
 
@@ -151,3 +157,10 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 GOOGLE_ANALYTICS_ID = "123"
+
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'deployments.ghana.migrations.rapidsms',
+    'logistics': 'deployments.ghana.migrations.logistics',
+    'ewsghana': 'deployments.ghana.migrations.ewsghana',
+    'email_reports': 'deployments.ghana.migrations.email_reports',
+}

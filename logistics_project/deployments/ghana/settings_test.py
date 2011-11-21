@@ -124,3 +124,9 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'deployments.ghana.migrations.rapidsms',
+    'logistics': 'deployments.ghana.migrations.logistics',
+    'ewsghana': 'deployments.ghana.migrations.ewsghana',
+    'email_reports': 'deployments.ghana.migrations.email_reports',
+}

@@ -94,6 +94,12 @@ TESTING_DATABASES= {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
@@ -137,3 +143,9 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': foo,
 }
 
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'deployments.ghana.migrations.rapidsms',
+    'logistics': 'deployments.ghana.migrations.logistics',
+    'ewsghana': 'deployments.ghana.migrations.ewsghana',
+    'email_reports': 'deployments.ghana.migrations.email_reports',
+}

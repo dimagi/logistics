@@ -16,6 +16,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics.middleware.CachedTemplateMiddleware',
 )
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -93,6 +94,12 @@ TESTING_DATABASES= {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
@@ -109,10 +116,15 @@ import os
 filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "ghana", "Facilities.csv")
 
+LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
+LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
 LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
+LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
+LOGISTICS_USE_SPOT_CACHING = True
+LOGISTICS_SPOT_CACHE_TIMEOUT = 60*60
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
@@ -139,3 +151,10 @@ LOGISTICS_ALERT_GENERATORS = [
 
 DEFAULT_BACKEND='message_tester'
 DEBUG=True
+
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'deployments.ghana.migrations.rapidsms',
+    'logistics': 'deployments.ghana.migrations.logistics',
+    'ewsghana': 'deployments.ghana.migrations.ewsghana',
+    'email_reports': 'deployments.ghana.migrations.email_reports',
+}

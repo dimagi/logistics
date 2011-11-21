@@ -1,6 +1,7 @@
 import csv
 import random
 from rapidsms.conf import settings
+from logistics import loader as logistics_loader
 
 class LoaderException(Exception):
     pass
@@ -14,6 +15,7 @@ def init_static_data(demo=False):
               "to a csv list of Facilities."
         return
     facilities_file = getattr(settings, "STATIC_LOCATIONS")
+    logistics_loader.init_supply_point_types()
     LoadFacilities(facilities_file)
     LoadProductsIntoFacilities(demo)
     init_reminders()
@@ -243,9 +245,7 @@ def init_reminders():
         EventSchedule.objects.get(callback="logistics.schedule.reminder_to_submit_RRIRV")
     except EventSchedule.DoesNotExist:
         # 2:15 pm on the 28th
-        set_monthly_event("logistics.schedule.reminder_to_submit_RRIRV",28,14,15)
-        #EventSchedule.objects.create(callback="logistics.schedule.reminder_to_submit_RRIRV", 
-        #                             minutes='*')
+        set_monthly_event("logistics_project.apps.ewsghana.schedule.reminder_to_submit_RRIRV",7,14,15)
         
 
 def _get_or_create_region_rms(region_name, region):
