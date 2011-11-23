@@ -27,6 +27,7 @@ class AdminRegistersUserForm(RegistrationForm):
     def __init__(self, *args, **kwargs):
         self.edit_user = None
         if 'user' in kwargs and kwargs['user'] is not None:
+            # display the provided user's information on page load
             self.edit_user = kwargs['user']
             initial = {}
             if 'initial' in kwargs:
@@ -121,3 +122,16 @@ class AdminRegistersUserFormActiveAdmin(AdminRegistersUserForm):
         user.save()
         return user
 
+class UserSelfRegistrationForm(RegistrationForm): 
+    designation = forms.CharField(required=False)
+    
+    def save(self, profile_callback=None):
+        new_user = RegistrationProfile.objects.create_inactive_user(username=self.cleaned_data['username'],
+                                                                    password=self.cleaned_data['password1'],
+                                                                    email=self.cleaned_data['email'], 
+                                                                    profile_callback=profile_callback)
+        if 'designation' in self.cleaned_data and self.cleaned_data['designation']:
+            profile = new_user.get_profile()
+            profile.designation = self.cleaned_data['designation']
+            profile.save()
+        return new_user
