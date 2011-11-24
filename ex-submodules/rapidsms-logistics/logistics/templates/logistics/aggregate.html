@@ -13,8 +13,8 @@
         {% include "logistics/partials/date_selector_form.html" %}
         <div id="main">
             <h2 id="report-title">{{ location.name }} {% trans "Aggregate Stock Report" %}</h2>
-            <div class="right">
-                <div  class="filter">Filter by:</div>
+            <div class="right noprint">
+                <div class="filter">Filter by:</div>
                 {% include "logistics/partials/commoditytype_filter.html" %}
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>

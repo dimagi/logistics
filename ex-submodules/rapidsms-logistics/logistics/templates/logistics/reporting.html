@@ -16,7 +16,7 @@
         {% include "logistics/partials/date_selector_form.html" %}
         <div id="main">
 			{% if excel_export %}
-			<div class="toolbar">
+			<div class="toolbar noprint">
 			    <a href="{% url export_reporting location.code %}" class="add">{% trans "Export to Excel" %}</a>
 			</div>
 			{% endif %}
