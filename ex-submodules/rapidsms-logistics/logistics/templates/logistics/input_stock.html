@@ -22,7 +22,6 @@
                 <th>{% trans "Average Monthly Consumption" %}</th>
                 {% if perms.logistics %}
                 <th>{% trans "Use Automatic Consumption?" %}</th>
-                <th>{% trans "Is Active?" %}</th>
                 {% endif %}
             </tr>
             </thead>
@@ -38,10 +37,6 @@
                         <td>
                             <input type="checkbox" name="{{ stock.product.sms_code }}_use_auto_consumption" id="id_{{ stock.product.sms_code }}__use_auto_consumption"
                             {% if stock.use_auto_consumption %}checked="checked"{% endif %}/>
-                        </td>
-                        <td>
-                            <input type="checkbox" name="{{ stock.product.sms_code }}_is_active" id="id_{{ stock.product.sms_code }}_is_active"
-                            {% if stock.is_active %}checked="checked"{% endif %}/>
                         </td>
                         {% else %}
                         <td>{{ stock.manual_monthly_consumption|default_if_none:'unknown' }}</td>
