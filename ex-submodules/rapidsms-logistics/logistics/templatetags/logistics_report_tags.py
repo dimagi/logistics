@@ -179,11 +179,12 @@ def order_fill_stats(locations, type=None, datespan=None):
 
 @register.simple_tag
 def stockonhand_table(supply_point, datespan=None):
-    end_date = datetime.utcnow() if datespan is None else datespan.end_of_end_day
+    if datespan is None:
+        DateSpan.since(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
     sohs = supply_point.productstock_set.all().order_by('product__name')
     # update the stock quantities to match whatever reporting period has been specified
     for soh in sohs: 
-        soh.quantity = supply_point.historical_stock_by_date(soh.product, end_date)
+        soh.quantity = supply_point.historical_stock_by_date(soh.product, datespan.end_of_end_day)
     return _r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
                          {"stockonhands": sohs})
     
