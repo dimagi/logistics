@@ -130,15 +130,15 @@ def init_supply_point_types():
 
 def init_test_location_and_supplypoints():
     from rapidsms.contrib.locations.models import Location
-    hctype = SupplyPointType.objects.get(code=config.SupplyPointCodes.CLINIC)
-    rmstype = SupplyPointType.objects.get(code=config.SupplyPointCodes.HOSPITAL)
+    hctype, created = SupplyPointType.objects.get_or_create(code="clinic")
+    rmstype, created = SupplyPointType.objects.get_or_create(code="hospital")
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 
                                                   code='gar')
     location.set_parent(gar)
     try:
-        country = Location.objects.get(code__icontains=settings.COUNTRY)
+        country = Location.objects.get(code=settings.COUNTRY)
     except Location.DoesNotExist:
         country, created = Location.objects.get_or_create(code=settings.COUNTRY, 
                                                           name=settings.COUNTRY)

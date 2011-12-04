@@ -34,3 +34,13 @@ REQUIRES:
 </form>
 </div>
 
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(".location_select").change(function(event) {
+			$("#location").val(event.currentTarget.value)
+            $("#location_form").submit();
+        });
+    });
+    //--><!]]>
+</script>

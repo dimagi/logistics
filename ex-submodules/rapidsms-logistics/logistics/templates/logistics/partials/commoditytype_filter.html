@@ -22,3 +22,13 @@
     {% endfor %}
 </form>
 {% endif %}
+
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commoditytype']").click(function() {
+              $("#commoditytype_form").submit();
+        });
+    });
+    //--><!]]>
+</script>

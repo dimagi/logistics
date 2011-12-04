@@ -59,3 +59,53 @@
         &nbsp;
     </div>
 </div>
+
+<!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
+<script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+<script language="javascript">
+    $(document).ready(function() {
+        var data = [
+            { label: "{% trans 'On Time' %}",  data: {{ on_time_facilities|length }}, color: "green"},
+            { label: "{% blocktrans %}Late{% endblocktrans %}",  data: {{ late_facilities|length }}, color: "red" },
+        ]
+        function pieHover(event, pos, obj)
+        {
+            percent = parseFloat(obj.series.percent).toFixed(0);
+            if(obj.series.label=="{% trans 'On Time' %}"){
+                $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% On Time in last {{days|default:7}} days ({{ on_time_facilities|length }})</span>');
+            }
+            else if(obj.series.label=="{% blocktrans %}Late{% endblocktrans %}"){
+                $("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% Late in last {{days|default:7}} days ({{ late_facilities|length }})</span>');
+            }
+        }
+        if({{ 100 }} > 0){
+            $.plot($("#reporting_chart"), data,
+            {
+                series: {
+                    pie: {
+                        show: true,
+                        radius: 1,
+                        label: {
+                            show: true,
+                            radius: .5,
+                            formatter: function(label, series){
+                                return '<div style="font-size:8pt;text-align:center;padding:2px;color:white;">'+label+'<br/>'+Math.round(series.percent)+'%</div>';
+                            },
+                            background: { opacity: 0.8 }
+                        }
+                    }
+                },
+                grid: {
+                    hoverable: true
+                },
+                legend: {
+                    show: false
+                }
+            });
+        }else{
+              $('#reporting_chart').html("<h4>No Facilities Submitted Reports for this period</h4>");
+        };
+        $("#reporting_chart").bind("plothover", pieHover);
+    })
+</script>

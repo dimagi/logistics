@@ -15,8 +15,8 @@
     <input type="hidden" name="location" value="{{ request.location }}" />
     {% endif %}
     {% if month_pager %}
-    <input type="hidden" name="month" value="{{ mp.month }}" />
-    <input type="hidden" name="year" value="{{ mp.year }}" />
+    <input type="hidden" name="month" value="{{ month_pager.month }}" />
+    <input type="hidden" name="year" value="{{ month_pager.year }}" />
     {% endif %}
 
 
@@ -36,4 +36,15 @@
     <br>
     {% endfor %}
 </form>
+
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commodity']").click(function() {
+              $("#commodity_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+
 {% endif %}
