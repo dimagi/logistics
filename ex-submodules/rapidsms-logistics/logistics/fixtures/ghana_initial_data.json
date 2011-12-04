@@ -2053,28 +2053,6 @@
             "identity": "16176023315",
             "backend": 1
         }
-    },
-    {
-        "pk": 1, 
-        "model": "email_reports.reportsubscription", 
-        "fields": {
-            "report": "aggregate", 
-            "_view_args": "", 
-            "users": [
-                2
-            ],
-            "_view_args": "{\"location_code\": \"ghana\"}"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "email_reports.dailyreportsubscription", 
-        "fields": {
-            "hours": 11, 
-            "users": [
-                2
-            ]
-        }
     }
 ]
 
