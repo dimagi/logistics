@@ -125,8 +125,8 @@ def load_schedules():
                    "logistics_project.apps.tanzania.reminders.reports":
                    {"delivery_summary": (9, 0),
                     "soh_summary": (9, 0),
-                    "randr_summary": (9, 0),
-                    "email_reports": (9, 0)},
+                    "randr_summary": (9, 0)},
+#                    "email_reports": (9, 0)},
                    "logistics_project.apps.tanzania.reminders.test":
                    {"test_email_admins": (9, 0)}}
                      
