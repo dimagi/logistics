@@ -19,8 +19,6 @@ from rapidsms.contrib.messagelog.models import Message
 class TanzaniaReport(object):
     """
     Framework object for an ILSGateway report.
-
-
     """
     slug = "foo"
     name = "bar"
@@ -171,13 +169,13 @@ class UnrecognizedMessagesReport(TanzaniaReport):
     slug = "unrecognized"
 
     def national_report(self):
-        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(date__month=self.mp.month,
+        self.context['table'] = UnrecognizedMessagesTable(request=self.request, object_list=Message.objects.exclude(contact=None).filter(date__month=self.mp.month,
                                                                                                                    date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
     def regional_report(self):
-        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
+        self.context['table'] = UnrecognizedMessagesTable(request=self.request, object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
                                                                                                                    date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
     def district_report(self):
-        self.context['table'] = UnrecognizedMessagesTable(object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
+        self.context['table'] = UnrecognizedMessagesTable(request=self.request, object_list=Message.objects.exclude(contact=None).filter(contact__supply_point__in=supply_points_below(self.location), date__month=self.mp.month,
                                                                                                                    date__year=self.mp.year).filter(Q(tags__name__in=["Handler_DefaultHandler"]) | Q(tags__name__in=["Error"])))
 
 REPORT_LIST = [

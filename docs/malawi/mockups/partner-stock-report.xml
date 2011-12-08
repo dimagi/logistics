@@ -1,0 +1,96 @@
+<mockup version="1.0" skin="sketch" measuredW="1510" measuredH="750" mockupW="1358" mockupH="733">
+  <controls>
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="342" y="17" w="959" h="733" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>cStock%0Ahttp%3A//cstock.jsi.com</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::Title" x="379" y="123" w="-1" h="-1" measuredW="126" measuredH="50" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>cStock</text>
+      </controlProperties>
+    </control>
+    <control controlID="41" controlTypeID="com.balsamiq.mockups::HRule" x="357" y="112" w="929" h="-1" measuredW="100" measuredH="5" zOrder="2" locked="false" isInGroup="-1"/>
+    <control controlID="42" controlTypeID="com.balsamiq.mockups::TabBar" x="357" y="173" w="929" h="534" measuredW="729" measuredH="100" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <selectedIndex>4</selectedIndex>
+        <tabHPosition>right</tabHPosition>
+        <text>Dashboard%2C%20Facilities%2C%20HSAs%2C%20Help%2C%20Stock%20Tracking%2C%20Management%2C%20M%26E%2C%20Message%20Log%2C%20Message%20Tester</text>
+      </controlProperties>
+    </control>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::Link" x="1165" y="91" w="-1" h="-1" measuredW="121" measuredH="21" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Log%20out%20cstockadmin</text>
+      </controlProperties>
+    </control>
+    <control controlID="49" controlTypeID="com.balsamiq.mockups::DataGrid" x="373" y="327" w="884" h="357" measuredW="308" measuredH="175" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Facility%2C%20la%2C%20co%2C%20zi%2C%20cm%2C%20cf%0A%5BNkhotakota%20DHO%5D%2C%20100%2C%20200%2C%20100%2C%2050%2C%20300%0A%5BAlinafe%5D%2C%20200%2C%20400%2C%2020%2C%20100%2C%20300%0A%5BKapiri%5D%2C%20435%2C%2053%2C88%2C123%2C20%0A%5BKasitu%5D%2C%20435%2C%2053%2C88%2C123%2C20%0A%28etc.%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="50" controlTypeID="com.balsamiq.mockups::StickyNote" x="152" y="423" w="172" h="153" measuredW="109" measuredH="123" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>One%20column%20per%20product%20for%20each%20product%20supplied%20by%20partner%0AOne%20row%20per%20facility%20that%20received%20any%20product%20from%20that%20partner</text>
+      </controlProperties>
+    </control>
+    <control controlID="52" controlTypeID="com.balsamiq.mockups::Arrow" x="223" y="356" w="-1" h="-1" measuredW="150" measuredH="100" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13369344</color>
+        <direction>bottom</direction>
+        <leftArrow>false</leftArrow>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="53" controlTypeID="com.balsamiq.mockups::Title" x="373" y="203" w="-1" h="-1" measuredW="548" measuredH="50" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Partner%20Stock%20Report%3A%20UNICEF</text>
+      </controlProperties>
+    </control>
+    <control controlID="54" controlTypeID="com.balsamiq.mockups::Link" x="927" y="218" w="-1" h="-1" measuredW="92" measuredH="21" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>change%20partner</text>
+      </controlProperties>
+    </control>
+    <control controlID="55" controlTypeID="com.balsamiq.mockups::StickyNote" x="1313" y="239" w="197" h="118" measuredW="109" measuredH="123" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Only%20admins%20can%20see%20all%20partners%2C%20partner%20stakeholders%20should%20only%20see%20their%20stock</text>
+      </controlProperties>
+    </control>
+    <control controlID="56" controlTypeID="com.balsamiq.mockups::Arrow" x="1035" y="224" w="299" h="58" measuredW="150" measuredH="100" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13369344</color>
+        <curvature>0</curvature>
+        <leftArrow>true</leftArrow>
+        <rightArrow>false</rightArrow>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="57" controlTypeID="com.balsamiq.mockups::ButtonBar" x="373" y="291" w="-1" h="-1" measuredW="660" measuredH="29" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Stock%20Received%2C%20Stock%20Distributed%2C%20Consumption%2C%20Current%20Stock%20on%20Hand%2C%20Months%20of%20Stock</text>
+      </controlProperties>
+    </control>
+    <control controlID="58" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="373" y="254" w="-1" h="-1" measuredW="151" measuredH="27" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Malawi%2C%20Nkhotakota</text>
+      </controlProperties>
+    </control>
+    <control controlID="59" controlTypeID="com.balsamiq.mockups::DateChooser" x="539" y="254" w="-1" h="-1" measuredW="99" measuredH="25" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>9/1/2011</text>
+      </controlProperties>
+    </control>
+    <control controlID="60" controlTypeID="com.balsamiq.mockups::DateChooser" x="658" y="254" w="-1" h="-1" measuredW="104" measuredH="25" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>11/1/2011</text>
+      </controlProperties>
+    </control>
+    <control controlID="61" controlTypeID="com.balsamiq.mockups::Label" x="638" y="255" w="-1" h="-1" measuredW="20" measuredH="24" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>to</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
