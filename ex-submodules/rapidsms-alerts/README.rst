@@ -19,7 +19,8 @@ This app currently supports two modes of alerts:
   comments. Notifications will not go away unless explicitly (or
   auto-) resolved.
 
-== ALERTS ==
+Alerts
+------
 
 A simple alert consists of a notification message and an optional url
 (which presumably takes you to a page to resolve the alert).
@@ -27,13 +28,13 @@ A simple alert consists of a notification message and an optional url
 Alerts are produced via alert generators, and these generators are
 registered via the LOGISTICS_ALERT_GENERATORS django settings.
 
-LOGISTICS_ALERT_GENERATORS = (
-    'my_app.alerts.demo_alert',
-)
+  LOGISTICS_ALERT_GENERATORS = (
+      'my_app.alerts.demo_alert',
+  )
 
-def demo_alert(request):
-    yield Alert('Mary\'s stock report is late', 'http://example.com/reports/stock/dashboard/')
-    yield Alert('intruder alert! intruder alert!')
+  def demo_alert(request):
+      yield Alert('Mary\'s stock report is late', 'http://example.com/reports/stock/dashboard/')
+      yield Alert('intruder alert! intruder alert!')
 
 Note the 'request' parameter, which lets you tailor the list of alerts
 generated.
@@ -45,26 +46,32 @@ intensive.
 
 There are no database objects associated with simple alerts.
 
-== NOTIFICATIONS ==
+Notifications
+-------------
 
 Similar to simple alerts, notifications are also produced via
 generators.
 
-LOGISTICS_NOTIF_GENERATORS = (
-    'my_app.alerts.trigger_notifications',
-)
+  LOGISTICS_NOTIF_GENERATORS = (
+      'my_app.alerts.trigger_notifications',
+  )
 
 However, whereas for simple alerts the generators are invoked on page
 render, notification generators must be called via cron or celery task.
 The trigger_alerts management command facilitates this.
 
 Notification objects contain:
+
 * a text caption
+
 * a url (links to a detail page or somewhere the user can act on the
   alert) (optional)
+
 * a notification type (fully-qualified class name of a
   NotificationType class)
+
 * an originating location (optional)
+
 * a key that uniquely defines the alert condition
 
 Since notifications are triggered via cron, the key is important to
@@ -77,31 +84,31 @@ The NotificationType is a class containing custom logic that defines
 the life-cycle of the notification, i.e., escalation levels, which
 users can see the alert at each level, and the schedule for escalation.
 
-class DemoAlertType(NotificationType):
-    # notification starts out at the first level, and can be
-    # escalated to each subsequent level
-    escalation_levels = ['district', 'region', 'moh']
+  class DemoAlertType(NotificationType):
+      # notification starts out at the first level, and can be
+      # escalated to each subsequent level
+      escalation_levels = ['district', 'region', 'moh']
 
-    # which users can see the alert at each level
-    def users_for_escalation_level(self, esc_level):
-        if esc_level == 'district':
-            # return all users with reporting_district = district
-        elif esc_level == 'region':
-            # return designated follow-up person at regional level
-        elif esc_level == 'moh':
-            # return all users with group 'moh'
+      # which users can see the alert at each level
+      def users_for_escalation_level(self, esc_level):
+          if esc_level == 'district':
+              # return all users with reporting_district = district
+          elif esc_level == 'region':
+              # return designated follow-up person at regional level
+          elif esc_level == 'moh':
+              # return all users with group 'moh'
 
-    # how long the alert can be at the given level before it is
-    # auto-escalated to the next level
-    def auto_escalation_interval(self, esc_level):
-        return timedelta(days=14)
+      # how long the alert can be at the given level before it is
+      # auto-escalated to the next level
+      def auto_escalation_interval(self, esc_level):
+          return timedelta(days=14)
 
-    # return a human-readable name for each escalation level
-    def escalation_level_name(self, esc_level):
-        return {
-            'district': 'district team',
-            'moh': 'ministry of health',
-        }[esc_level]
+      # return a human-readable name for each escalation level
+      def escalation_level_name(self, esc_level):
+          return {
+              'district': 'district team',
+              'moh': 'ministry of health',
+          }[esc_level]
 
 Active notifications are displayed with the {% notifications %}
 template tag. Any user that can see the alert can take action on it,
@@ -117,9 +124,11 @@ to configure what username is shown with these comment entries.
 Auto-escalation must be triggered by a separate cron job. The
 'alert_maintenance' management command handles this.
 
-== WISHLIST ==
+Wishlist
+--------
 
 * SMS subscription by alert type/priority
+
 * Monthyl aggregation and summaries
 
 
