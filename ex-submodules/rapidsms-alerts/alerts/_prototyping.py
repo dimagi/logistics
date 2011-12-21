@@ -9,7 +9,7 @@ from cvs.utils import total_attribute_value
 def alerttest(request):
     """
     Example method for adding alerts to your application. This one
-    just returns a single empty alert.skype:carterpowers
+    just returns a single empty alert.
     """
     return [Alert('intruder alert! intruder alert!', 'http://google.com')]
 
