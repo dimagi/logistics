@@ -28,6 +28,8 @@ A simple alert consists of a notification message and an optional url
 Alerts are produced via alert generators, and these generators are
 registered via the LOGISTICS_ALERT_GENERATORS django settings.
 
+::
+
   LOGISTICS_ALERT_GENERATORS = (
       'my_app.alerts.demo_alert',
   )
@@ -51,6 +53,8 @@ Notifications
 
 Similar to simple alerts, notifications are also produced via
 generators.
+
+::
 
   LOGISTICS_NOTIF_GENERATORS = (
       'my_app.alerts.trigger_notifications',
@@ -83,6 +87,8 @@ generated notifications yourself.
 The NotificationType is a class containing custom logic that defines
 the life-cycle of the notification, i.e., escalation levels, which
 users can see the alert at each level, and the schedule for escalation.
+
+::
 
   class DemoAlertType(NotificationType):
       # notification starts out at the first level, and can be
