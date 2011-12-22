@@ -135,6 +135,6 @@ Wishlist
 
 * SMS subscription by alert type/priority
 
-* Monthyl aggregation and summaries
+* Monthly aggregation and summaries
 
 
