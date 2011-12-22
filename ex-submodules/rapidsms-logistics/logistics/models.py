@@ -320,6 +320,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def overstocked_count(self, product=None, producttype=None, datespan=None):
         return self._get_stock_count("overstocked_count", product, producttype, datespan)
     
+    def other_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("other_count", product, producttype, datespan)
+    
     def consumption(self, product=None, producttype=None):
         return self._get_stock_count("consumption", product, producttype)
     
@@ -581,6 +584,11 @@ class ProductStock(models.Model):
         if self.maximum_level is not None and self.reorder_level is not None:
             if self.quantity > self.reorder_level and self.quantity <= self.maximum_level:
                 return True
+        return False
+
+    def is_other(self):
+        if self.monthly_consumption is None and self.quantity > 0:
+            return True
         return False
 
     def is_in_adequate_supply(self):
