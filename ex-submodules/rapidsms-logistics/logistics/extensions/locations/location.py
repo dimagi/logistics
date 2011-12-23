@@ -11,6 +11,7 @@ class Location(models.Model, StockCacheMixin):
     This could/should be broken out into subclasses.
     """
     code = models.CharField(max_length=100, blank=False, null=False)
+    name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     
     class Meta:
