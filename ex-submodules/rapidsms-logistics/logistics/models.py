@@ -27,8 +27,8 @@ from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
 
-if hasattr(settings, "MESSAGE_CLASS"):
-    message_class = settings.MESSAGE_CLASS
+if hasattr(settings, "MESSAGELOG_APP"):
+    message_class = "%s.Message" % settings.MESSAGELOG_APP
 else:
     message_class = "messagelog.Message"
 
