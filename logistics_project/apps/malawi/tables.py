@@ -41,7 +41,8 @@ class HSATable(Table):
                          value=list_commodities,
                          sortable=False)
     stocked_out = Column(name="Products stocked out",
-                         value=lambda cell: cell.object.supply_point.stockout_count())
+                         value=lambda cell: cell.object.supply_point.stockout_count(),
+                         sortable=False)
     emergency = Column(name="Products in emergency",
                          value=lambda cell: cell.object.supply_point.emergency_stock_count(),
                          sortable=False)
