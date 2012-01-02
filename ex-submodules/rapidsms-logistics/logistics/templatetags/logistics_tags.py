@@ -15,6 +15,8 @@ def mp_prev_month_link(request, mp):
     qd = request.GET.copy()
     qd['month'] = mp.prev_month.month
     qd['year'] = mp.prev_month.year
+    if 'page' in qd:
+        qd['page'] = 1
     return "%s?%s" % (request.path, qd.urlencode())
 
 @register.simple_tag
@@ -22,6 +24,8 @@ def mp_next_month_link(request, mp):
     qd = request.GET.copy()
     qd['month'] = mp.next_month.month
     qd['year'] = mp.next_month.year
+    if 'page' in qd:
+        qd['page'] = 1
     return "%s?%s" % (request.path, qd.urlencode())
 
 @register.simple_tag
