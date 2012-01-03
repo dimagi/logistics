@@ -14,7 +14,7 @@
 <div class="module">
     {% if location %}
 
-    <h2>Facilities in {{ location.name }}</h2>
+    <h2>{{ location.name }}</h2>
         {% cache 86400 facility_aggregate_table location %}
         {% facility_aggregate_table location %}
            {% include "logistics/partials/icon_legend.html" %}
@@ -25,4 +25,14 @@
     {{ table.as_html }}
     {% endif %}
 </div>
+
+    <div class="module toppadded">
+
+    {% if consumption_table %}
+    <h2>Stock Data</h2>
+
+        {{ consumption_table.as_html }}
+    {% endif %}
+    </div>
+
 {% endblock %}

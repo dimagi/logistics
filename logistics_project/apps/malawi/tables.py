@@ -157,3 +157,11 @@ class DistrictTable(Table):
     
     class Meta:
         order_by = 'code'
+
+
+class ConsumptionDataTable(Table):
+    product = Column(value=lambda cell: cell.object.product.name, sortable=False)
+    total_consumption = Column(name="Total Monthly Consumption", value=lambda cell: cell.object.total_consumption, sortable=False)
+    average_consumption = Column(name="Average Monthly Consumption", value=lambda cell: cell.object.average_consumption, sortable=False)
+    total_stock = Column(name="Total Stock On Hand", value=lambda cell: cell.object.total_stock, sortable=False)
+    total_mos = Column(name="Average Months of Stock", value=lambda cell: ("%.2f" % cell.object.average_months_of_stock) if cell.object.average_months_of_stock else None, sortable=False)

@@ -1,5 +1,5 @@
 from rapidsms.models import Contact
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ProductStock
 from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
@@ -108,6 +108,32 @@ def facility_supply_points_below(location):
     return facs
 
 
+class ConsumptionData(object):
+    def __init__(self, product, sps):
+        self.product = product
+        self.sps = sps
+        self.ps = ProductStock.objects.filter(supply_point__in=self.sps, product=self.product)
 
-def get_facility_supply_points():
-    return SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.FACILITY)
+    def _consumption(self):
+        if not self.ps: return [0]
+        return [p.monthly_consumption for p in self.ps]
+
+    @property
+    def total_consumption(self):
+        return sum(self._consumption())
+
+    @property
+    def average_consumption(self):
+        q = self._consumption()
+        if not q: return None
+        return sum(q)/len(q)
+
+    @property
+    def total_stock(self):
+        if not self.ps: return None
+        return sum(filter(lambda x: x is not None, [p.quantity for p in self.ps]))
+
+    @property
+    def average_months_of_stock(self):
+        mos = filter(lambda x: x is not None, [p.months_remaining for p in self.ps])
+        return sum(mos)/len(mos) if len(mos) else None

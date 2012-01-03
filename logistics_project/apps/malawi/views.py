@@ -12,12 +12,12 @@ from django.views.decorators.vary import vary_on_cookie
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
-    HSAStockRequestTable, DistrictTable
+    HSAStockRequestTable, DistrictTable, ConsumptionDataTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.models import SupplyPoint, Product, \
     StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -176,26 +176,34 @@ def reactivate_hsa(request, code, name):
     return redirect('malawi_hsa', code=hsa.supply_point.code)
 
 
+
 @cache_page(60 * 15)
 @place_in_request()
 @vary_on_cookie
 def facilities(request):
     facilities = get_facilities().order_by("parent_id", "code")
-    
+    consumption_table = None
     if request.location:
         if request.location.type.slug == "district":
             table = None # nothing to do, handled by aggregate
+            sps = hsa_supply_points_below(request.location)
+            products = Product.objects.all()
+            consumption_table = ConsumptionDataTable(object_list=[ConsumptionData(p, sps) for p in products], request=request)
+
         else:
             assert(request.location.type.slug == "facility")
             return HttpResponseRedirect(reverse("malawi_facility", args=[request.location.code]))
     else:
         table = DistrictTable(get_districts(), request=request)
+
+
     return render_to_response("malawi/facilities.html",
         {
             "location": request.location,
             "facilities": facilities,
             "table": table,
-            "districts": get_districts().order_by("code")
+            "districts": get_districts().order_by("code"),
+            "consumption_table": consumption_table
         }, context_instance=RequestContext(request))
 
 @cache_page(60 * 15)
