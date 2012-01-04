@@ -107,6 +107,8 @@ def facility_supply_points_below(location):
                            Q(location__parent_id=location.pk))
     return facs
 
+def get_facility_supply_points():
+    return SupplyPoint.objects.filter(active=True, type='hf')
 
 class ConsumptionData(object):
     def __init__(self, product, sps):
