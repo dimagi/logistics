@@ -417,6 +417,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         if self.last_reported is None or self.last_reported < deadline:
             return True
         return False
+    
+    def set_type_from_string(self, type_string):
+        try:
+            type_, created = SupplyPointType.objects.get_or_create(code=type_string)
+        except HealthFacilityType.DoesNotExist:
+            type_, created = SupplyPointType.objects.get_or_create(code='UNKNOWN')
+        self.type = type_
 
 class SupplyPoint(SupplyPointBase):
     __metaclass__ = ExtensibleModelBase
