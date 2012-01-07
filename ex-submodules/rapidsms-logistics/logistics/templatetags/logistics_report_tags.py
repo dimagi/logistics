@@ -148,10 +148,10 @@ def order_fill_stats(locations, type=None, datespan=None):
         if type is not None:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            base_reqs = StockRequest.objects.filter(supply_point__in=base_points, 
+            base_reqs = StockRequest.objects.filter(supply_point__in=base_points,
                                                     requested_on__gte=datespan.startdate, 
                                                     requested_on__lte=datespan.enddate, 
-                                                    status__in=StockRequestStatus.CHOICES_CLOSED)
+                                                    status=StockRequestStatus.RECEIVED)
             totals = base_reqs.values('product').annotate(total=Count('pk'))
             stocked_out = base_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
             not_stocked_out = base_reqs.filter(amount_received__gt=0).exclude(response_status=StockRequestStatus.STOCKED_OUT)

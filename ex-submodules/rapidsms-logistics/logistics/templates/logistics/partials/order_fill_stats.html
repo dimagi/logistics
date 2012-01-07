@@ -4,7 +4,7 @@
     <thead>
         <tr>
 	        <th>Product</th>
-	        <th>Total Requests Received</th>
+	        <th>Total Requests Filled</th>
 	        <th>Stocked Out</th>
 	        <th>Partially Filled</th>
 	        <th>Completely Filled</th>
@@ -23,7 +23,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" class="empty">no data</td>
+            <td colspan="6" class="empty">No orders were filled during this time.</td>
         </tr>
         {% endfor %}
     </tbody>
