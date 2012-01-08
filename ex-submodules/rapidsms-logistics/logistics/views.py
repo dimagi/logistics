@@ -22,7 +22,7 @@ from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
-from logistics_project.decorators import magic_token_required
+from email_reports.decorators import magic_token_required
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
 from logistics.models import ProductStock, \
