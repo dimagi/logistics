@@ -19,7 +19,7 @@ msgstr ""
 #: apps/logistics/templates/logistics/partials/pie_reporting.html:10
 #: apps/logistics/templates/logistics/partials/pie_reporting.html:16
 msgid "On Time"
-msgstr "Reporting"
+msgstr "On Time Reporting"
 
 #: apps/logistics/templates/logistics/partials/pie_reporting.html:11
 #: apps/logistics/templates/logistics/partials/pie_reporting.html:19
