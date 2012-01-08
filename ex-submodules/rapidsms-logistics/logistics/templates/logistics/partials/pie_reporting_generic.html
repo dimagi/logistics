@@ -4,7 +4,7 @@
         $(document).ready(function() {
             var data = [
             {% for point in chart_data %}
-                { label: "{{ point.display }}",  data: {{ point.value }}, color: "{{ point.color }}"},
+                { label: "{% trans point.display %}",  data: {{ point.value }}, color: "{{ point.color }}"},
             {% endfor %}
             ];
             function hasData(data) {
@@ -19,7 +19,7 @@
             {
                 percent = parseFloat(obj.series.percent).toFixed(0);
                 {% for point in chart_data %}
-                if(obj.series.label=="{{ point.display }}") {
+                if(obj.series.label=="{% trans point.display %}") {
                     $("#{{ hoverdiv }}").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+percent+'% {{ point.description }}</span>');
                 }
                 {% endfor %}
