@@ -43,7 +43,7 @@ urlpatterns = patterns('',
          'success_url': 'admin_web_registration'},     
        name='admin_web_registration'),
     # modify my account
-    url(r'^register/web/me/?$',  my_web_registration,
+    url(r'^me/?$',  my_web_registration,
         {'template':'ewsghana/my_web_registration.html', 
          'success_url': 'my_web_registration'}, 
         name='my_web_registration'),
