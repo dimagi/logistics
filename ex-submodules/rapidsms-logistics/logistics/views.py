@@ -188,6 +188,7 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
         template, context, context_instance=RequestContext(request)
     )
 
+@csrf_exempt
 @cache_page(60 * 15)
 @require_POST
 def navigate(request):
