@@ -21,7 +21,7 @@
     //--><!]]>
 </script>
 {% endblock %}
-<form id="zoom_form" method="POST" action="{% url navigate %}" class="breadcrumb">
+<form id="zoom_form" class="noprint" method="POST" action="{% url navigate %}" class="breadcrumb">
     {% csrf_token %}
     <input type="hidden" name="destination_url" id="destination_url" value={{ destination_url }} />
     <input type="hidden" name="location" id="location" value="" />

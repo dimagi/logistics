@@ -131,6 +131,9 @@ class Location(models.Model, StockCacheMixin):
     def overstocked_count(self, product=None, producttype=None, datespan=None):
         return self._get_stock_count("overstocked_count", product, producttype, datespan)
 
+    def other_count(self, product=None, producttype=None, datespan=None):
+        return self._get_stock_count("other_count", product, producttype, datespan)
+
     def consumption(self, product=None, producttype=None):
         return self._get_stock_count("consumption", product, producttype)
 

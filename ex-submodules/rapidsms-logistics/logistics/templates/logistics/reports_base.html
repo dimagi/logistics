@@ -2,6 +2,7 @@
 
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+	<link type="text/css" rel="stylesheet" media="print" href="{{ MEDIA_URL }}logistics/stylesheets/print.css">
 {% endblock %}
 
 {% block title %}Logistics - {{ block.super }}{% endblock %}

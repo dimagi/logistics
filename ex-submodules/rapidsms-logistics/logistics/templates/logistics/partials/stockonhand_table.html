@@ -12,7 +12,7 @@
     </tr></thead>
     <tbody>
     {% for stockonhand in stockonhands %}
-        <tr>
+        <tr {% if not stockonhand.is_active %}class='inactive'{% endif %}>
         <td>{{ stockonhand.product.name }}</td>
         {% highlight_months stockonhand MEDIA_URL %}
         <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>

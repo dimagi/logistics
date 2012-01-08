@@ -22,6 +22,7 @@ from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
+from logistics_project.decorators import magic_token_required
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
 from logistics.models import ProductStock, \
@@ -171,6 +172,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
 @cache_page(60 * 15)
 @geography_context
 @filter_context
+@magic_token_required()
 @datespan_in_request(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
 def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
               destination_url="reporting"):
@@ -206,6 +208,7 @@ def navigate(request):
         return HttpResponseRedirect(
             "%s?place=%s" % (destination, location_code))
 
+@csrf_exempt
 @cache_page(60 * 15)
 @geography_context
 @filter_context
@@ -223,6 +226,7 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
 @cache_page(60 * 15)
 @geography_context
 @filter_context
+@magic_token_required()
 @datespan_in_request()
 def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
     """
