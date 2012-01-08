@@ -253,13 +253,13 @@ class ReportingBreakdown(object):
             graph_data = [
                 {"display": "Comp. Reports",
                  "value": len(self.full),
-                 "color": Colors.LIGHT_GREEN,
+                 "color": Colors.GREEN,
                  "description": "(%s) %s in %s" % \
                     (len(self.full), "Complete Reports", self.datespan)
                 },
                 {"display": "Inc. Reports",
                  "value": len(self.partial),
-                 "color": Colors.MEDIUM_PURPLE,
+                 "color": Colors.PURPLE,
                  "description": "(%s) %s in %s" % \
                     (len(self.partial), "Incomplete Reports", self.datespan)
                 },
@@ -288,7 +288,7 @@ class ReportingBreakdown(object):
             graph_data = [
                 {"display": "On Time" if self.include_late else "Reporting",
                  "value": len(self.on_time),
-                 "color": Colors.LIGHT_GREEN, 
+                 "color": Colors.GREEN, 
                  "description": "(%s) On Time (%s)" % \
                     (len(self.on_time), self.datespan)
                 },
@@ -313,7 +313,7 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
                                                                request=self._request, 
                                                                prefix='nonreport-')),
              TableData("Late HSAs", SOHReportingTable(self.reported_late, 
