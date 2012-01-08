@@ -12,7 +12,7 @@
             </div>
             <div>
             {% csrf_token %}
-            <table>
+            <table id="input_stock">
             <thead>
             <tr>
                 <th>{% trans "Commodity" %}</th>
@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 {% for stock in productstocks %}
-                    <tr>
+                    <tr {% if not stock.is_active %}class='inactive'{% endif %}>
                         <td>{{ stock.product }}</td>
                         <td><input type="text" name="{{ stock.product.sms_code }}" id="id_{{ stock.product }}" value="{{ stock.quantity|default_if_none:'' }}"/></td>
                         <td><input type="text" name="{{ stock.product.sms_code }}_receipt" id="id_{{ stock.product }}_receipt" value="0"/></td>

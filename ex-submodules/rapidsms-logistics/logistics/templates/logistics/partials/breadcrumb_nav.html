@@ -24,7 +24,7 @@ REQUIRES:
 </script>
 {% endblock %}
 
-<div id="topnav">
+<div id="topnav" class="noprint">
 <form style="border-style:none;" id="location_form" method="POST" action="{% url navigate %}">
 	{% csrf_token %}
 	{% render_bread_nav location %}

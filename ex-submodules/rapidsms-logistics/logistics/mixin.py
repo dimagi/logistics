@@ -23,12 +23,14 @@ class StockCacheMixin():
         # at the db level. 
         #nonzero_stocks = all_stocks.filter(quantity__gt=0)
         stockout_count = 0
+        stocked_count = 0
         emergency_stock_count = 0
         low_stock_count = 0
         emergency_plus_low = 0
         good_supply_count = 0
         adequate_supply_count = 0
-        overstocked_count = 0    
+        overstocked_count = 0
+        other_count = 0
         for stock in stocks:
             if datespan and not datespan.is_default:
                 historical_stock = stock.supply_point.historical_stock_by_date(stock.product, 
@@ -38,6 +40,10 @@ class StockCacheMixin():
                     stock.quantity = historical_stock
             if stock.quantity == 0:
                 stockout_count = stockout_count + 1
+            elif stock.quantity > 0:
+                stocked_count = stocked_count + 1
+            if stock.is_other():
+                other_count = other_count + 1
             if stock.is_below_emergency_level():
                 emergency_stock_count = emergency_stock_count + 1
             if stock.is_below_low_supply_but_above_emergency_level():
@@ -50,8 +56,12 @@ class StockCacheMixin():
                 adequate_supply_count = adequate_supply_count + 1
             if stock.is_overstocked():
                 overstocked_count = overstocked_count + 1
+        cache.set(self._cache_key('stocked_count', product, producttype, datespan), 
+                  stocked_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)       
+        cache.set(self._cache_key('other_count', product, producttype, datespan), 
+                  other_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)       
         cache.set(self._cache_key('stockout_count', product, producttype, datespan), 
-                  stockout_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)       
+                  stockout_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
         cache.set(self._cache_key('emergency_stock_count', product, producttype, datespan), 
                   emergency_stock_count, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)       
         cache.set(self._cache_key('low_stock_count', product, producttype, datespan), 

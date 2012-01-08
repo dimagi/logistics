@@ -1,25 +1,25 @@
 {% load i18n %}
-<h2>{{ report.on_time_chart.title }}</h2>
 <div class="two-columns toppadded">
     <div class="col-1">
+<h2>{{ report.on_time_chart.title }}</h2>
 {% with report.on_time_chart.data as chart_data %}{% with "on_time_chart" as chartdiv %}{% with "on_time_hover" as hoverdiv %}
 {% include "logistics/partials/pie_reporting_generic.html" %}
 {% endwith %}{% endwith %}{% endwith %}
     </div>
 
-    <div class="col-2 fullwidth">
-{% with report.on_time_groups as groups %}
-{% include "logistics/partials/table_reporting_generic.html" %}
-{% endwith %}
-    </div>
-</div>
-&nbsp;
+    <div class="col-2">
 <h2>{{ report.breakdown_chart.title }}</h2>
-<div class="two-columns toppadded">
-    <div class="col-1">
 {% with report.breakdown_chart.data as chart_data %}{% with "breakdown_chart" as chartdiv %}{% with "breakdown_hover" as hoverdiv %}
 {% include "logistics/partials/pie_reporting_generic.html" %}
 {% endwith %}{% endwith %}{% endwith %}
+    </div>
+</div>
+&nbsp;
+<div class="two-columns toppadded">
+    <div class="col-1 fullwidth">
+{% with report.on_time_groups as groups %}
+{% include "logistics/partials/table_reporting_generic.html" %}
+{% endwith %}
     </div>
     <div class="col-2 fullwidth">
 {% with report.breakdown_groups as groups %}
