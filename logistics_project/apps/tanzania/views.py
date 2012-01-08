@@ -21,7 +21,7 @@ from dimagi.utils.parsing import string_to_datetime
 from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
-from logistics_project.decorators import magic_token_required
+from email_reports.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
