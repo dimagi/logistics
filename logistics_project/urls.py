@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.contrib.auth.views import login as django_login
 from django.contrib.auth.views import logout as django_logout
 from django.contrib.auth.views import password_change as django_password_change
+from registration.views import register
+from logistics_project.apps.web_registration.forms import UserSelfRegistrationForm
 
 admin.autodiscover()
 
@@ -44,6 +46,10 @@ urlpatterns = patterns('',
         kwargs={"template_name": settings.LOGISTICS_PASSWORD_CHANGE_TEMPLATE,
                 "post_change_redirect": settings.LOGIN_REDIRECT_URL },
         name='rapidsms-password-change'),
+    url(r'^accounts/register/$', register, 
+        kwargs={"template_name": "registration/registration_form.html", 
+                'form_class': UserSelfRegistrationForm },
+        name='registration_register'),
     
     # 3rd party django app URLs
     (r'^accounts/', include('registration.urls')),
