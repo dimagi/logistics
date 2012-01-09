@@ -103,7 +103,7 @@ def randr_summary():
             send_message(contact.default_connection,
                          construct_randr_summary_message(contact.supply_point))
             
-@businessday(6)
+#@businessday(6)
 def email_reports():    
     """
     6th business day of the month @ 3pm
