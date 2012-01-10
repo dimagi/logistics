@@ -927,6 +927,36 @@ class ProductReport(models.Model):
         if parent_location is None or parent_location.tree_parent is None:
             return None
         return parent_location.tree_parent
+    
+    def post_save(self, created=True):
+        """
+        Every time a product report is created,
+        1. Update the facility report date information
+        2. update the stock information at the given facility
+        3. Generate a stock transaction
+        
+        I guess 1+3 could go on a stocktransaction signal. 
+        Something to consider if we start saving stocktransactions anywhere else.
+        """
+        if not created:             return
+        # 1. Update the facility report date information 
+        self.supply_point.last_reported = datetime.utcnow()
+        self.supply_point.save()
+        # 2. update the stock information at the given facility """
+        beginning_balance = self.supply_point.stock(self.product)
+        if self.report_type.code in [Reports.SOH, Reports.EMERGENCY_SOH]:
+            self.supply_point.update_stock(self.product, self.quantity)
+        elif self.report_type.code in [Reports.REC, Reports.LOSS_ADJUST]:
+            # receipts are additive
+            self.supply_point.update_stock(self.product, beginning_balance + self.quantity)
+        elif self.report_type.code == Reports.GIVE:
+            # gives are subtractitive, if that were a word
+            self.supply_point.update_stock(self.product, beginning_balance - self.quantity)
+    
+        # 3. Generate a stock transaction    
+        st = StockTransaction.from_product_report(self, beginning_balance)
+        if st is not None:
+            st.save()
 
 class StockTransaction(models.Model):
     """
