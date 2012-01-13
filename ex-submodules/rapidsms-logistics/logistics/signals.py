@@ -29,26 +29,7 @@ def post_save_product_report(sender, instance, created, **kwargs):
     I guess 1+3 could go on a stocktransaction signal. 
     Something to consider if we start saving stocktransactions anywhere else.
     """
-    if not created:             return
-    from logistics.models import StockTransaction
-    
-    # 1. Update the facility report date information 
-    instance.supply_point.last_reported = datetime.utcnow()
-    instance.supply_point.save()
-    # 2. update the stock information at the given facility """
-    beginning_balance = instance.supply_point.stock(instance.product)
-    if instance.report_type.code in [Reports.SOH, Reports.EMERGENCY_SOH]:
-        instance.supply_point.update_stock(instance.product, instance.quantity)
-    elif instance.report_type.code in [Reports.REC, Reports.LOSS_ADJUST]:
-        # receipts are additive
-        instance.supply_point.update_stock(instance.product, beginning_balance + instance.quantity)
-    elif instance.report_type.code == Reports.GIVE:
-        # gives are subtractitive, if that were a word
-        instance.supply_point.update_stock(instance.product, beginning_balance - instance.quantity)
-    
-    st = StockTransaction.from_product_report(instance, beginning_balance)
-    if st is not None:
-        st.save()
+    instance.post_save(created)
 
 def create_user_profile(sender, instance, created, **kwargs):
     """Create a matching profile whenever a User is created."""
