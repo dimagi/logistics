@@ -6,16 +6,23 @@ from logistics.models import Location, SupplyPointType, SupplyPoint, \
 from logistics.models import SupplyPoint as Facility
 from logistics.tests.util import load_test_data
 from logistics.const import Reports
+from django.conf import settings
 
 class TestConsumption (TestScript):
     def setUp(self):
         TestScript.setUp(self)
+
         load_test_data()
+        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 10
+        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.ps.use_auto_consumption = True
         self.ps.save()
+
+
        
     def testBasicConsumption(self):
         # now enable auto_monthly_consumption
@@ -91,6 +98,73 @@ class TestConsumption (TestScript):
         # when we get the soh report after the receipt.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.assertEquals(7.5, round(self.ps.daily_consumption, 1))
+
+    def testConsumptionWithMultipleReports(self):
+        self.ps = ProductStock.objects.get(supply_point=self.sp,
+                                           product=self.pr)
+        self.ps.use_auto_consumption = True
+        self.ps.save()
+                    
+        self.ps = self._report(40, 60, Reports.SOH) # 60 days ago we had 40 in stock. 
+        self.assertEquals(None, self.ps.daily_consumption)
+
+        self.ps = self._report(30, 50, Reports.REC) # 50 days ago, we received 30
+        self.assertEquals(None, self.ps.daily_consumption) # consumption unchanged
+
+        self.ps = self._report(20, 50, Reports.SOH) # 50 days ago, we had 20 in stock (so we've consumed 50)
+        self.assertEquals(5, self.ps.daily_consumption) # 50/10 days
+
+        self.ps = self._report(10, 40, Reports.SOH) # 40 days ago we had 10 in stock (so we've consume 60 over 20 days)
+        self.assertEquals(3, self.ps.daily_consumption)
+
+    def testFloatingPointAccuracy(self):
+        self.ps = self._report(10, 51, Reports.REC)
+        self.assertEquals(None, self.ps.daily_consumption) # consumption unchanged
+
+        self.ps = self._report(50, 50, Reports.SOH) 
+        self.assertEquals(None, self.ps.daily_consumption)
+
+#        self.ps = self._report(10, 41, Reports.REC)
+        self.assertEquals(None, self.ps.daily_consumption) # consumption unchanged
+
+        self.ps = self._report(30, 40, Reports.SOH)
+        self.assertEquals(2, round(self.ps.daily_consumption))
+
+        self.ps = self._report(10, 30, Reports.SOH)
+
+        self.assertEquals(2, round(self.ps.daily_consumption)) # 20/10 days
+        self.assertEquals(60, round(self.ps.monthly_consumption))
+
+        self.ps = self._report(20, 25, Reports.REC)
+        self.assertEquals(2, round(self.ps.daily_consumption)) # consumption unchanged
+        self.assertEquals(60, round(self.ps.monthly_consumption))
+
+        self.ps = self._report(0, 0, Reports.SOH)
+        self.assertEquals(2, round(self.ps.daily_consumption)) # ending with a stockout shouldn't change anything
+        self.assertEquals(60, round(self.ps.monthly_consumption))
+
+    def testStockoutPeriodsNotIncluded(self):
+
+        self.ps = self._report(50, 100, Reports.SOH)
+        self.assertEquals(None, self.ps.daily_consumption)
+
+        self.ps = self._report(40, 90, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+
+        self.ps = self._report(30, 80, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+
+        self.ps = self._report(0, 70, Reports.SOH) # now introduce a stockout period
+        self.assertEquals(1.0, self.ps.daily_consumption)
+
+        self.ps = self._report(60, 60, Reports.REC)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+
+        self.ps = self._report(50, 50, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+
+        self.ps = self._report(40, 40, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
 
     def testAutoVsManualConsumption(self):
         # test all combinations of use_auto_consumption, 
@@ -173,7 +247,7 @@ class TestConsumption (TestScript):
         self.ps = self._report(5, 91, Reports.REC)
         self.ps = self._report(95, 90, Reports.SOH)
         self.ps = self._report(5, 81, Reports.REC)
-        self.assertEquals(None, self.ps.daily_consumption) # not enough data
+        self.assertEquals(1, self.ps.daily_consumption)
         self.ps = self._report(90, 80, Reports.SOH)
         self.assertEquals(1, self.ps.daily_consumption)
         self.ps = self._report(5, 71, Reports.REC)
@@ -219,10 +293,10 @@ class TestConsumption (TestScript):
         # only once the stockout is resolved do consumption update again
         self.ps = self._report(1, 50, Reports.SOH) 
         self.assertEquals(2, self.ps.daily_consumption)
-        self.ps = self._report(191, 40, Reports.REC) 
+        self.ps = self._report(180, 40, Reports.REC)
         self.assertEquals(2, self.ps.daily_consumption)
         self.ps = self._report(1, 40, Reports.SOH) 
-        self.assertEquals(10, self.ps.daily_consumption) # 200 / 20 days
+        self.assertEquals(10, round(self.ps.daily_consumption, 0))
                 
     def testNonReporting(self):
         """ For now, we don't do anything special about non-reporting"""
@@ -242,9 +316,20 @@ class TestConsumption (TestScript):
         # even though we received no reports between day 90 and day 50
         # the consumption gets updated all the same
         self.ps = self._report(490, 50, Reports.REC) 
-        self.ps = self._report(100, 60, Reports.SOH) 
+        self.ps = self._report(100, 50, Reports.SOH)
         self.assertEquals(10, self.ps.daily_consumption)
     
+    def testAutoConsumptionSettings(self):
+        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 25
+        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+        self.ps = self._report(30, 30, Reports.SOH)
+        self.ps = self._report(20, 20, Reports.SOH)
+        self.ps = self._report(10, 10, Reports.SOH)
+        self.assertEquals(None, self.ps.daily_consumption)
+        self.ps = self._report(5, 5, Reports.SOH)
+        self.assertEquals(1, self.ps.daily_consumption)
+
+
     def _report(self, amount, days_ago, report_type):
         if report_type == Reports.SOH:
             report = self.sp.report_stock(self.pr, amount)
