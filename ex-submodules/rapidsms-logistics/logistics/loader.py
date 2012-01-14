@@ -1,6 +1,7 @@
 import os
 import sys
 from django.conf import settings
+from django.db.models import Q
 from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
     ProductReportType, Product, ProductType
 from logistics.util import config
@@ -10,16 +11,12 @@ def load_products_into_facilities(demo=False):
     from logistics.models import SupplyPoint, ProductStock, Product
     facilities = SupplyPoint.objects.order_by('type')
     if demo:
-        RMS_consumption = 100
-        max_RMS_consumption = 330
         facility_consumption = 10
         max_facility_consumption = 33
     else:
-        RMS_consumption = None
-        max_RMS_consumption = 0
         facility_consumption = None
-        max_facility_consumption = 0
     for fac in facilities:
+        ps_loaded = 0
         products = Product.objects.all()
         for product in products:
             try:
@@ -28,7 +25,8 @@ def load_products_into_facilities(demo=False):
                 # no preexisting product stock, which is fine.
                 pass
             else:
-                ps.delete()
+                # don't touch product stocks which exist already
+                continue
             # facilities get all products by default active, 10 stock
             quantity = None
             if demo:
@@ -38,7 +36,9 @@ def load_products_into_facilities(demo=False):
                          supply_point=fac,
                          product=product,
                          monthly_consumption=facility_consumption).save()
-        print "Loaded products into %(fac)s" % {'fac':fac.name}
+            ps_loaded += 1
+        if ps_loaded > 0:
+            print "Loaded %(count)s stocks into %(fac)s" % {'count':ps_loaded, 'fac':fac.name}
 
 
 def load_products(log_to_console=False):
@@ -65,14 +65,13 @@ def generate_codes_for_locations(log_to_console=False):
     assumes that location does, so we generate codes where they are missing
       """
     from rapidsms.contrib.locations.models import Location
-    locs = Location.objects.all().order_by('name')
+    locs = Location.objects.filter(Q(code=None)|Q(code='')).order_by('name')
     for loc in locs:
-        if loc.code is None or len(loc.code) == 0:
-            loc.code = _generate_location_code(loc.name)
-            loc.save()
-            if log_to_console:
-                print "  %(name)s's code is %(code)s" % {'name':loc.name,
-                                                         'code':loc.code}
+        loc.code = _generate_location_code(loc.name)
+        loc.save()
+        if log_to_console:
+            print "  %(name)s's code is %(code)s" % {'name':loc.name,
+                                                     'code':loc.code}
 
 def _generate_location_code(name):
     from rapidsms.contrib.locations.models import Location
