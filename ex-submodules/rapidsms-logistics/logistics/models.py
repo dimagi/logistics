@@ -86,9 +86,28 @@ class SupplyPointType(models.Model):
     """
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
+    default_monthly_consumptions = models.ManyToManyField(Product, 
+                                                  through='DefaultMonthlyConsumption', 
+                                                  null=True, 
+                                                  blank=True)
 
     def __unicode__(self):
         return self.name
+    
+    def monthly_consumption_by_product(self, product):
+        try:
+            return DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
+        except DefaultMonthlyConsumption.DoesNotExist:
+            return None
+    
+    def monthly_consumption_by_product_code(self, code):
+        product = Product.objects.get(code=code)
+        return monthly_consumption_by_product(product)
+    
+class DefaultMonthlyConsumption(models.Model):
+    supply_point_type = models.ForeignKey(SupplyPointType)
+    product = models.ForeignKey(Product)
+    default_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
 
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
@@ -474,18 +493,22 @@ class ProductStock(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
+    def _manual_consumption(self):
+        if self.manual_monthly_consumption is not None:
+            return self.manual_monthly_consumption
+        consumption_by_sptype = self.supply_point.type.monthly_consumption_by_product(self.product)
+        if consumption_by_sptype is not None:
+            return consumption_by_sptype
+        elif self.product.average_monthly_consumption is not None:
+            return self.product.average_monthly_consumption
+        return None
+
     @property
     def monthly_consumption(self):
-        def _manual_consumption():
-            if self.manual_monthly_consumption is not None:
-                return self.manual_monthly_consumption
-            elif self.product.average_monthly_consumption is not None:
-                return self.product.average_monthly_consumption
-            return None
         
         if self.use_auto_consumption and self.auto_monthly_consumption:
             return self.auto_monthly_consumption
-        return _manual_consumption()
+        return self._manual_consumption()
     
     def update_auto_consumption(self):
         d = self.daily_consumption
