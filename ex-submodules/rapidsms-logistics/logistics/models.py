@@ -87,9 +87,9 @@ class SupplyPointType(models.Model):
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
     default_monthly_consumptions = models.ManyToManyField(Product, 
-                                                  through='DefaultMonthlyConsumption', 
-                                                  null=True, 
-                                                  blank=True)
+                                                          through='DefaultMonthlyConsumption', 
+                                                          null=True, 
+                                                          blank=True)
 
     def __unicode__(self):
         return self.name
@@ -108,6 +108,9 @@ class DefaultMonthlyConsumption(models.Model):
     supply_point_type = models.ForeignKey(SupplyPointType)
     product = models.ForeignKey(Product)
     default_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
+
+    class Meta:
+        unique_together = (("supply_point_type", "product"),)
 
 class SupplyPointBase(models.Model, StockCacheMixin):
     """

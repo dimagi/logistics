@@ -17,9 +17,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('logistics', ['DefaultMonthlyConsumption'])
 
+        # Adding unique constraint on 'DefaultMonthlyConsumption', fields ['supply_point_type', 'product']
+        db.create_unique('logistics_defaultmonthlyconsumption', ['supply_point_type_id', 'product_id'])
 
     def backwards(self, orm):
         
+        # Removing unique constraint on 'DefaultMonthlyConsumption', fields ['supply_point_type', 'product']
+        db.delete_unique('logistics_defaultmonthlyconsumption', ['supply_point_type_id', 'product_id'])
+
         # Deleting model 'DefaultMonthlyConsumption'
         db.delete_table('logistics_defaultmonthlyconsumption')
 
