@@ -73,23 +73,27 @@ def generate_codes_for_locations(log_to_console=False):
             print "  %(name)s's code is %(code)s" % {'name':loc.name,
                                                      'code':loc.code}
 
-def _generate_location_code(name):
+def _generate_location_code(name, lower=True, check_existing=True):
     from rapidsms.contrib.locations.models import Location
-    code = name.lower().replace(' ','_')
+    if lower:
+        name = name.lower()
+    code = name.replace(' ','_')
     code = code.replace('-','_')
+    code = code.replace('/','_')
     code = code.replace('().&,','')
     postfix = ''
-    existing = Location.objects.filter(code=code)
-    if existing:
-        count = 1
-        postfix = str(count)
-        try:
-            while True:
-                Location.objects.get(code=(code + postfix))
-                count = count + 1
-                postfix = str(count)
-        except Location.DoesNotExist:
-            pass
+    if check_existing:
+        existing = Location.objects.filter(code=code).count()
+        if existing:
+            count = 1
+            postfix = str(count)
+            try:
+                while True:
+                    Location.objects.get(code=(code + postfix))
+                    count = count + 1
+                    postfix = str(count)
+            except Location.DoesNotExist:
+                pass
     return code + postfix
 
 def init_reports(log_to_console=False):
