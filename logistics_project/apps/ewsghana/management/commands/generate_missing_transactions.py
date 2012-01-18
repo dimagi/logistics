@@ -65,4 +65,5 @@ class Command(BaseCommand):
                         print "  old tx %s %s %s" % (last_transaction.beginning_balance, last_transaction.ending_balance, last_transaction.date)
         txs_count = StockTransaction.objects.count()
         print "%s transactions generated! new transaction count is %s" % (txs_created_count, txs_count)
-        print "newest transaction created at %s %s" % (last_transaction_created.date, last_transaction_created.pk)
+        if last_transaction_created is not None:
+            print "newest transaction created at %s %s" % (last_transaction_created.date, last_transaction_created.pk)
