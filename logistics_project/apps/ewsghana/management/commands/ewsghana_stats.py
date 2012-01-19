@@ -11,11 +11,25 @@ class Command(BaseCommand):
     help = "Set ProductStock.use_auto_consumption to be True, and update all auto_monthly_consumptions"
 
     def handle(self, *args, **options):
-        #self.number_of_missing_consumption_values()
-        #self.stocks_unreported_for_x_months()
-        #self.default_consumptions_per_facility_types()
+        self.list_stockouts_by_commodity()
+        self.number_of_missing_consumption_values()
+        self.stocks_unreported_for_x_months()
+        self.default_consumptions_per_facility_types()
         self.unregistered_commodities()
         
+    def list_stockouts_by_commodity(self):
+        products = Product.objects.all().order_by('name')
+        stockouts = {}
+        for prod in products:
+            stockouts[prod.name] = ProductStock.objects.filter(product=prod, quantity=0, is_active=True).count()
+        product_names = [prod.name for prod in products]
+        sorted_products = sorted(product_names, key=stockouts.__getitem__)
+        total_stockouts = 0
+        for sorted_product in sorted_products:
+            print "%s, %s" % (sorted_product, stockouts[sorted_product])
+            total_stockouts += stockouts[sorted_product]
+        print "Total stockouts: %s" % (total_stockouts)
+
     def number_of_missing_consumption_values(self):
         facs = SupplyPoint.objects.all().order_by('name')
         stock_count = 0
