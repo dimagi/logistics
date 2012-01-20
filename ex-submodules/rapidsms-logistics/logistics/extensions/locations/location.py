@@ -93,11 +93,12 @@ class Location(models.Model, StockCacheMixin):
                 {"key": key, "location": self.code, "product": product, 
                  "producttype": producttype, "datetime": datetime}).replace(" ", "-")
     
-    def _get_stock_count(self, name, product, producttype, datespan=None):
+    def _get_stock_count(self, operation, product, producttype, datespan=None):
         """ 
         pulls requested value from cache. refresh cache if necessary
         """
-        return self._get_stock_count_for_facilities(self.all_facilities(), name, product, producttype, datespan)
+        return self._get_stock_count_for_facilities(self.all_facilities(), operation, 
+                                                    product, producttype, datespan)
     
     """ The following methods express AGGREGATE counts, of all subsumed facilities"""
     def stockout_count(self, product=None, producttype=None, datespan=None):

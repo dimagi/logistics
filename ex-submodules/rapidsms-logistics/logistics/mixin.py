@@ -80,19 +80,19 @@ class StockCacheMixin():
         cache.set(self._cache_key('consumption', product, producttype, datespan), 
                   consumption, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
     
-    def _get_stock_count_for_facilities(self, facilities, name, product, producttype, datespan=None):
+    def _get_stock_count_for_facilities(self, facilities, operation, product, producttype, datespan=None):
         """ 
         pulls requested stock value for a given set of facilities from the cache
         refresh cache if necessary
         returns integer
         """
         if settings.LOGISTICS_USE_SPOT_CACHING:
-            from_cache = cache.get(self._cache_key(name, product, producttype, datespan))
+            from_cache = cache.get(self._cache_key(operation, product, producttype, datespan))
             if from_cache:
                 return from_cache
         # if LOGISTICS_USE_SPOT_CACHING is not enabled, we refresh the cache each time
         self._populate_stock_cache(facilities, product, producttype, datespan)
-        return cache.get(self._cache_key(name, product, producttype, datespan))
+        return cache.get(self._cache_key(operation, product, producttype, datespan))
 
     def _filtered_stock(self, product, producttype):
         """ 
