@@ -95,10 +95,24 @@ class SupplyPointType(models.Model):
         return self.name
     
     def monthly_consumption_by_product(self, product):
+        # we need to supply a non-None cache value since the
+        # actual value to store here will often be 'None'
+        NONE_VALUE = 'x'
+        cache_key = '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype':self.code, 
+                                                                            'product':product.code}
+        if settings.LOGISTICS_USE_SPOT_CACHING: 
+            from_cache = cache.get(cache_key)
+            if from_cache != NONE_VALUE:
+                return from_cache
         try:
-            return DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
+            dmc = DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
         except DefaultMonthlyConsumption.DoesNotExist:
-            return None
+            dmc = None
+        if dmc is None:
+            cache.set(cache_key, NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+        else:
+            cache.set(cache_key, dmc, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+        return dmc 
     
     def monthly_consumption_by_product_code(self, code):
         product = Product.objects.get(code=code)
@@ -502,10 +516,8 @@ class ProductStock(models.Model):
         consumption_by_sptype = self.supply_point.type.monthly_consumption_by_product(self.product)
         if consumption_by_sptype is not None:
             return consumption_by_sptype
-        elif self.product.average_monthly_consumption is not None:
-            return self.product.average_monthly_consumption
-        return None
-
+        return self.product.average_monthly_consumption
+    
     @property
     def monthly_consumption(self):
         
