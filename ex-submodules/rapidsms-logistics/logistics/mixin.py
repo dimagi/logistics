@@ -88,7 +88,7 @@ class StockCacheMixin():
         """
         if settings.LOGISTICS_USE_SPOT_CACHING:
             from_cache = cache.get(self._cache_key(operation, product, producttype, datespan))
-            if from_cache:
+            if from_cache is not None:
                 return from_cache
         # if LOGISTICS_USE_SPOT_CACHING is not enabled, we refresh the cache each time
         self._populate_stock_cache(facilities, product, producttype, datespan)
