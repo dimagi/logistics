@@ -159,7 +159,7 @@ def facilities_by_product(request, location_code, context={}, template="logistic
     else:
         raise HttpResponse('Must specify "commodity"')
     location = get_object_or_404(Location, code=location_code)
-    stockonhands = ProductStock.objects.filter(Q(supply_point__location__in=location.get_descendents(include_self=True)))
+    stockonhands = ProductStock.objects.filter(Q(supply_point__location__in=location.get_descendants(include_self=True)))
     context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
     context['location'] = location
     context['hide_product_link'] = True
@@ -288,7 +288,7 @@ def export_reporting(request, location_code=None):
     if location_code is None:
         location_code = settings.COUNTRY
     location = get_object_or_404(Location, code=location_code)
-    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendents(include_self=True))\
+    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendants(include_self=True))\
       .select_related("supply_point__name", "supply_point__location__parent__name", 
                       "supply_point__location__parent__parent__name", 
                       "product__name", "report_type__name", "message__text").order_by('report_date')

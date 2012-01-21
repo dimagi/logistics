@@ -38,7 +38,7 @@ class Location(models.Model, StockCacheMixin):
         from rapidsms.contrib.locations.models import Location
         return Location.objects.filter(parent_id=self.id, is_active=True).order_by('name')
         
-    def get_descendents(self, include_self=False):
+    def get_descendants(self, include_self=False):
         """ This signature gets overriden by mptt when mptt is used
         It must return a queryset
         """
@@ -55,9 +55,9 @@ class Location(models.Model, StockCacheMixin):
         ret = Location.objects.filter(id__in=pks, is_active=True)
         return ret
     
-    def get_descendents_plus_self(self):
+    def get_descendants_plus_self(self):
         # utility to facilitate calling function from django template
-        return self.get_descendents(include_self=True)
+        return self.get_descendants(include_self=True)
     
     def peers(self):
         from rapidsms.contrib.locations.models import Location
@@ -80,12 +80,12 @@ class Location(models.Model, StockCacheMixin):
 
     def all_facilities(self):
         from logistics.models import SupplyPoint
-        locations = self.get_descendents(include_self=True)
+        locations = self.get_descendants(include_self=True)
         return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
     
     def all_child_facilities(self):
         from logistics.models import SupplyPoint
-        locations = self.get_descendents()
+        locations = self.get_descendants()
         return SupplyPoint.objects.filter(location__in=locations, active=True).order_by('name')
         
     def _cache_key(self, key, product, producttype, datetime=None):
