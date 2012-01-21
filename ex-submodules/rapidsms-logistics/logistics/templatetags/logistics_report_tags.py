@@ -180,7 +180,7 @@ def order_fill_stats(locations, type=None, datespan=None):
 @register.simple_tag
 def stockonhand_table(supply_point, datespan=None):
     if datespan is None:
-        DateSpan.since(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
+        datespan = DateSpan.since(settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
     sohs = supply_point.productstock_set.all().order_by('product__name')
     # update the stock quantities to match whatever reporting period has been specified
     for soh in sohs: 
