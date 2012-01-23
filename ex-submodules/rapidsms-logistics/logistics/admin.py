@@ -38,9 +38,6 @@ class RequisitionReportAdmin(admin.ModelAdmin):
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
-class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
-    model = DefaultMonthlyConsumption
-
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code")
     model = SupplyPoint
@@ -83,4 +80,3 @@ admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 admin.site.register(NagRecord, NagRecordAdmin)
-admin.site.register(DefaultMonthlyConsumption, DefaultMonthlyConsumptionAdmin)

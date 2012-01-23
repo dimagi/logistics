@@ -86,45 +86,9 @@ class SupplyPointType(models.Model):
     """
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
-    default_monthly_consumptions = models.ManyToManyField(Product, 
-                                                          through='DefaultMonthlyConsumption', 
-                                                          null=True, 
-                                                          blank=True)
 
     def __unicode__(self):
         return self.name
-    
-    def monthly_consumption_by_product(self, product):
-        # we need to supply a non-None cache value since the
-        # actual value to store here will often be 'None'
-        NONE_VALUE = 'x'
-        cache_key = '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype':self.code, 
-                                                                            'product':product.code}
-        if settings.LOGISTICS_USE_SPOT_CACHING: 
-            from_cache = cache.get(cache_key)
-            if from_cache != NONE_VALUE:
-                return from_cache
-        try:
-            dmc = DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
-        except DefaultMonthlyConsumption.DoesNotExist:
-            dmc = None
-        if dmc is None:
-            cache.set(cache_key, NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        else:
-            cache.set(cache_key, dmc, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        return dmc 
-    
-    def monthly_consumption_by_product_code(self, code):
-        product = Product.objects.get(code=code)
-        return monthly_consumption_by_product(product)
-    
-class DefaultMonthlyConsumption(models.Model):
-    supply_point_type = models.ForeignKey(SupplyPointType)
-    product = models.ForeignKey(Product)
-    default_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
-
-    class Meta:
-        unique_together = (("supply_point_type", "product"),)
 
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
@@ -510,20 +474,18 @@ class ProductStock(models.Model):
     def __unicode__(self):
         return "%s-%s" % (self.supply_point.name, self.product.name)
 
-    def _manual_consumption(self):
-        if self.manual_monthly_consumption is not None:
-            return self.manual_monthly_consumption
-        consumption_by_sptype = self.supply_point.type.monthly_consumption_by_product(self.product)
-        if consumption_by_sptype is not None:
-            return consumption_by_sptype
-        return self.product.average_monthly_consumption
-    
     @property
     def monthly_consumption(self):
+        def _manual_consumption():
+            if self.manual_monthly_consumption is not None:
+                return self.manual_monthly_consumption
+            elif self.product.average_monthly_consumption is not None:
+                return self.product.average_monthly_consumption
+            return None
         
         if self.use_auto_consumption and self.auto_monthly_consumption:
             return self.auto_monthly_consumption
-        return self._manual_consumption()
+        return _manual_consumption()
     
     def update_auto_consumption(self):
         d = self.daily_consumption
