@@ -20,7 +20,7 @@ def get_facility_people(cutoff):
     
     for contact in Contact.objects.filter\
             (supply_point__type__code=SupplyPointCodes.FACILITY,
-             supply_point__groups__code__in=current_group):
+             supply_point__groups__code__in=current_group, is_active=True):
         if not contact.supply_point.supplypointstatus_set.filter\
                 (status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                  status_date__gte=cutoff).exists():
@@ -29,7 +29,8 @@ def get_facility_people(cutoff):
 def get_district_people(cutoff):
     # All people at all Districts get all reminders each month.
     for contact in Contact.objects.filter\
-            (supply_point__type__code=SupplyPointCodes.DISTRICT):
+            (supply_point__type__code=SupplyPointCodes.DISTRICT,
+             is_active=True):
         if not contact.supply_point.supplypointstatus_set.filter\
                 (status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
                  status_date__gte=cutoff).exists():
