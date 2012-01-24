@@ -7,8 +7,7 @@ from logistics_project.apps.tanzania.reminders.randr import get_facility_cutoff
 from rapidsms.models import Contact
 
 def get_people():
-    for contact in Contact.objects.filter(supply_point__type__code=SupplyPointCodes.FACILITY):
-        print contact.supply_point.supplypointstatus_set.all()
+    for contact in Contact.objects.filter(supply_point__type__code=SupplyPointCodes.FACILITY, is_active=True):
         if not contact.supply_point.supplypointstatus_set.filter\
                 (status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                  status_date__gte=get_facility_cutoff()).exists():

@@ -73,7 +73,6 @@ def _malawi_shared():
     def malawi_extras():
         run("python manage.py malawi_init")
         run("python manage.py loaddata ../deploy/malawi/initial_data.json")
-        sudo("/etc/init.d/memcached restart")
     env.extras = malawi_extras
 
 def malawi():
@@ -244,6 +243,7 @@ def deploy():
     if env.stop_start:
         sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
+        sudo("service memcached restart")
     
 
 def test_and_deploy():
