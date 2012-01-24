@@ -15,7 +15,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus
 
 def send_reminders(contacts, message):
     for contact in contacts:
-        if contact.default_connection:
+        if contact.default_connection and contact.is_active:
             send_message(contact.default_connection, _(message))
         
 def update_statuses(contacts, type, value):

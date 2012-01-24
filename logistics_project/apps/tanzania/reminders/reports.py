@@ -17,7 +17,7 @@ from logistics_project.apps.tanzania.tasks import email_report
 
 def get_district_people():
     for contact in Contact.objects.filter\
-            (supply_point__type__code=SupplyPointCodes.DISTRICT):
+            (supply_point__type__code=SupplyPointCodes.DISTRICT, is_active=True):
         yield contact
         
 def _construct_status_dict(status_type, status_values, supply_points, datespan):

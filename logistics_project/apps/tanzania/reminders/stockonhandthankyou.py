@@ -11,7 +11,7 @@ def get_people(cutoff):
     # these go out every month to every active person at all facilities
     # who has reported this month
     for contact in Contact.objects.filter\
-            (supply_point__type__code=SupplyPointCodes.FACILITY):
+            (supply_point__type__code=SupplyPointCodes.FACILITY, is_active=True):
         if contact.supply_point.productreport_set.filter\
                 (report_type__code=Reports.SOH,
                  report_date__gte=cutoff).exists():

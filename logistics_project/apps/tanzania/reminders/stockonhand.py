@@ -15,7 +15,7 @@ def get_people(cutoff):
     # unless they've already submitted a SOH report this month.
     
     for contact in Contact.objects.filter\
-            (supply_point__type__code=SupplyPointCodes.FACILITY):
+            (supply_point__type__code=SupplyPointCodes.FACILITY, is_active=True):
         if not contact.supply_point.productreport_set.filter\
                 (report_type__code=Reports.SOH,
                  report_date__gte=cutoff).exists():
