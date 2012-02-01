@@ -2,6 +2,7 @@ import os
 import sys
 from django.conf import settings
 from django.db.models import Q
+from django.template.defaultfilters import slugify
 from rapidsms.contrib.locations.models import Location
 from logistics.models import SupplyPoint, SupplyPointType, ProductStock, \
     ProductReportType, Product, ProductType
@@ -77,10 +78,7 @@ def generate_codes_for_locations(log_to_console=False):
 def _generate_location_code(name, lower=True, check_existing=True, kls=Location):
     if lower:
         name = name.lower()
-    code = name.replace(' ','_')
-    code = code.replace('-','_')
-    code = code.replace('/','_')
-    code = code.replace('().&,','')
+    code = slugify(name)
     postfix = ''
     if check_existing:
         existing = kls.objects.filter(code=code).count()

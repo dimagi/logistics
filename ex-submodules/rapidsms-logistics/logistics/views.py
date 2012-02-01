@@ -220,7 +220,8 @@ def dashboard(request, location_code=None, context={}, template="logistics/aggre
     # if the location has no children, and 1 supply point treat it like
     # a stock on hand request. Otherwise treat it like an aggregate.
     if location.get_children().count() == 0 and location.facilities().count() == 1:
-        return stockonhand_facility(request, location_code, context=context)
+        facility = location.facilities()[0]
+        return stockonhand_facility(request, facility.code, context=context)
     return aggregate(request, location_code, context=context)
 
 @csrf_exempt
