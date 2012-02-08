@@ -144,7 +144,7 @@ class ReportingBreakdown(object):
             self.avg_req_time = None
             self.req_times = []
             if filled_requests:
-                secs = [(f.received_on - f.requested_on).seconds for f in filled_requests]
+                secs = [_seconds(f.received_on - f.requested_on) for f in filled_requests]
                 self.avg_req_time = timedelta(seconds=(sum(secs) / len(secs)))
                 self.req_times = secs
 
