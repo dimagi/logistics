@@ -38,11 +38,11 @@ RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
     ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
     ("logistics_project.apps.malawi.views.help",       "Help"),
-   ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
-    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
+   ("logistics_project.apps.malawi.views.contacts",       "Management", "admin_read"),
+    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "admin_read"),
 #    ("registration",                          "Registration", "is_superuser"),
 #    ("groupmessaging.views.group_message", "Group Message", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "admin_read"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
 
