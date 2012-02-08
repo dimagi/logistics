@@ -238,13 +238,13 @@ def facility(request, code, context={}):
 
         context, context_instance=RequestContext(request))
     
-@permission_required("admin_read")
+@permission_required("auth.admin_read")
 def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
 @cache_page(60 * 15)
-@permission_required("admin_read")
+@permission_required("auth.admin_read")
 @datespan_in_request()
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
@@ -274,7 +274,7 @@ def monitoring_report_ajax(): pass
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
 
-@permission_required("is_superuser")
+@permission_required("auth.admin_read")
 def status(request):
     #TODO Put these settings in localsettings, probably
     f = urlopen(settings.KANNEL_URL)
@@ -289,7 +289,7 @@ def _sort_date(x,y):
     if x['registered'] > y['registered']: return 1
     return 0
 
-@permission_required("admin_read")
+@permission_required("auth.admin_read")
 def airtel_numbers(request):
     airtelcontacts = Contact.objects.select_related().filter(connection__backend__name='airtel-smpp')
     users = []
