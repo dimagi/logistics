@@ -125,7 +125,7 @@ def hsa(request, code):
     elif Contact.objects.filter(supply_point__code=code).count():
         hsa = Contact.objects.filter(supply_point__code=code)[0]
     else:
-        return Http404("Contact not found!")
+        raise Http404("Contact not found!")
     assert(hsa.supply_point.type.code == config.SupplyPointCodes.HSA)
     
     transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
