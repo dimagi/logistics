@@ -188,9 +188,9 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 0 badcode 10
+           16176023315 > lf 0 badcode 10
            16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO for assistance.
-           16176023315 > soh badcode 10
+           16176023315 > badcode 10
            16176023315 < badcode is not a recognized commodity code. Please contact your DHIO for assistance.
            16176023315 > soh lf 10 m20
            16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO for assistance.
