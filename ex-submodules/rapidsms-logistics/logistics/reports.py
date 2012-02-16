@@ -62,7 +62,6 @@ class ReportingBreakdown(object):
     def __init__(self, supply_points, datespan=None, include_late=False,
                  days_for_late=5, MNE=False, request=None):
         self.supply_points = supply_points
-        
         if not datespan:
             datespan = DateSpan.since(30)
         self.datespan = datespan
@@ -273,12 +272,18 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, 
+        return [TableData("Incomplete Reports", SOHReportingTable(object_list=self.partial,
                                                                   request=self._request,
-                                                                  prefix='inc-')),
-                TableData("Complete Reports", SOHReportingTable(self.full, 
+                                                                  prefix='inc-',
+            month=self.datespan.enddate.month,
+            year=self.datespan.enddate.year,
+            day=self.datespan.enddate.day)),
+                TableData("Complete Reports", SOHReportingTable(object_list=self.full,
                                                                 request=self._request,
-                                                                  prefix='comp-'))
+                                                                  prefix='comp-',
+                    month=self.datespan.enddate.month,
+                    year=self.datespan.enddate.year,
+                    day=self.datespan.enddate.day))
                 #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
                 ]
         
@@ -313,22 +318,38 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
                                                                request=self._request, 
-                                                               prefix='nonreport-')),
-             TableData("Late HSAs", SOHReportingTable(self.reported_late, 
+                                                               prefix='nonreport-',
+            month=self.datespan.enddate.month,
+            year=self.datespan.enddate.year,
+                day=self.datespan.enddate.day)),
+             TableData("Late HSAs", SOHReportingTable(object_list=self.reported_late,
                                                       request=self._request, 
-                                                      prefix='late-')),
-             TableData("On-Time HSAs", SOHReportingTable(self.on_time, 
+                                                      prefix='late-',
+                 month=self.datespan.enddate.month,
+                 year=self.datespan.enddate.year,
+                 day=self.datespan.enddate.day)),
+             TableData("On-Time HSAs", SOHReportingTable(object_list=self.on_time,
                                                          request=self._request, 
-                                                         prefix='ontime-'))]
+                                                         prefix='ontime-',
+                 month=self.datespan.enddate.month,
+                 year=self.datespan.enddate.year,
+                 day=self.datespan.enddate.day))]
         else:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
                                                                       request=self._request, 
-                                                                      prefix='nonreport-')),
-                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, 
+                                                                      prefix='nonreport-',
+                month=self.datespan.enddate.month,
+                year=self.datespan.enddate.year,
+                day=self.datespan.enddate.day)),
+                    TableData("Reporting HSAs", SOHReportingTable(object_list=self.on_time,
                                                                   request=self._request,
-                                                                  prefix='report-'))]
+                                                                  prefix='report-',
+                        month=self.datespan.enddate.month,
+                        year=self.datespan.enddate.year,
+                        day=self.datespan.enddate.day
+                    ))]
 
 class ProductAvailabilitySummary(object):
 
@@ -439,8 +460,6 @@ class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
 
     @property
     def flot_data(self):
-#        print "gettin' flot data"
-#        print self.data
         with_stock = []
         without_stock = []
         without_data = []

@@ -1,11 +1,29 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
+
+
+class MonthTable(Table):
+
+    def __init__(self, *args, **kwargs):
+        if 'month' in kwargs and 'year' in kwargs:
+            self.month = kwargs['month']
+            self.year = kwargs['year']
+            self.day = kwargs['day']
+            del kwargs['month'], kwargs['year'], kwargs['day']
+
+        else:
+            self.month = datetime.utcnow().month
+            self.year = datetime.utcnow().year
+            self.day = datetime.utcnow().day
+
+        super(MonthTable, self).__init__(**kwargs)
 
 def _edit_facility_link(cell):
     return reverse(
@@ -66,11 +84,11 @@ class ReportingTable(Table):
         order_by = '-last_reported'
 
 
-class SOHReportingTable(Table):
+class SOHReportingTable(MonthTable):
     name = Column(sortable=False)
     last_reported = DateColumn(name="Last Stock Report Received",
-                               value=lambda cell: cell.object.last_soh \
-                                    if cell.object.last_soh else "never",
+                               value=lambda cell: cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) \
+                                    if cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) else "never",
                                format="M d, h:m A",
                                sortable=False,
                                css_class="tabledate")

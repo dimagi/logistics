@@ -183,6 +183,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         else:
             return None
 
+    def last_soh_before(self, date):
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self, report_date__lt=date).order_by("-report_date")
+        if sohs.exists():
+            return sohs[0].report_date
+        else:
+            return None
+
     @property
     def label(self):
         return unicode(self)
