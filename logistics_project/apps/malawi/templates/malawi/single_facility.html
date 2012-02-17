@@ -60,7 +60,7 @@
         </div>
         <div style="clear:right; padding-top:3em;">
             {% if em %}
-            {% reporting_breakdown location.get_children "hsa" month_pager.datespan True %}
+            {% reporting_breakdown location.get_children "hsa" month_pager.datespan trueval %}
             {% else %}
             {% reporting_breakdown location.get_children "hsa" request.datespan %}
             {% endif %}

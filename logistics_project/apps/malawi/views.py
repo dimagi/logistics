@@ -232,6 +232,7 @@ def facility(request, code, context={}):
                                          requested_on__lte=request.datespan.enddate)\
                                  .exclude(status=StockRequestStatus.CANCELED), request)
     context["em"] = em
+    context["trueval"] = True # We've been reduced to this. http://stackoverflow.com/questions/3259279/django-templates
     context["month_pager"] = mp
     
     return render_to_response("malawi/single_facility.html",
