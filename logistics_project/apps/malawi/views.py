@@ -65,7 +65,7 @@ def dashboard(request):
     if em_group:
         report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)#(group == config.Groups.EM))
     else:
-        report = ReportingBreakdown(base_facilities, month.datespan)
+        report = ReportingBreakdown(base_facilities)
 
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
