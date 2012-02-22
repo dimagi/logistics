@@ -20,6 +20,9 @@ class MalawiContactExtension(models.Model):
         exact supply point.
         """
         from logistics.models import SupplyPoint
+
+        if not self.supply_point: return None
+
         if self.is_hsa:
             return SupplyPoint.objects.get(location=self.supply_point.location.parent)
         return self.supply_point
