@@ -45,7 +45,8 @@ class MonthPager(object):
         self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
         self.prev_month = self.begin_date - timedelta(days=1)
         self.next_month = self.end_date + timedelta(days=1)
-        self.show_next = True if self.end_date < datetime.utcnow().replace(day=1) else False
+        self.show_next = self.end_date < datetime.utcnow().replace(day=1)
+        self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
         self.datespan = DateSpan(self.begin_date, self.end_date)
 
 #@cache_page(60 * 15)
@@ -65,7 +66,10 @@ def dashboard(request):
     if em_group:
         report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)#(group == config.Groups.EM))
     else:
-        report = ReportingBreakdown(base_facilities)
+        if month.is_current_month:
+            report = ReportingBreakdown(base_facilities)
+        else:
+            report = ReportingBreakdown(base_facilities, month.datespan)
 
     return render_to_response("malawi/dashboard.html",
                               {"reporting_data": report,
