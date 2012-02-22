@@ -34,6 +34,9 @@ class MalawiContactExtension(models.Model):
     @property
     def hsa_id(self):
         if self.is_hsa:
-            return self.supply_point.code
+            if self.supply_point:
+                return self.supply_point.code
+            else:
+                return ""
         else:
             return ""
