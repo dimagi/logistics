@@ -26,6 +26,7 @@ from logistics.view_decorators import filter_context
 from logistics.reports import ReportingBreakdown
 from logistics.util import config
 from dimagi.utils.dates import DateSpan
+from dimagi.utils.django.permission_required import permission_required_with_403
 from dimagi.utils.decorators.datespan import datespan_in_request
 from django.contrib.auth.decorators import permission_required
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
@@ -243,13 +244,13 @@ def facility(request, code, context={}):
 
         context, context_instance=RequestContext(request))
     
-@permission_required("auth.admin_read")
+@permission_required_with_403("auth.admin_read")
 def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
 @cache_page(60 * 15)
-@permission_required("auth.admin_read")
+@permission_required_with_403("auth.admin_read")
 @datespan_in_request()
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
