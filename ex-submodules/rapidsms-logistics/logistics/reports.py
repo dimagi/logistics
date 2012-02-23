@@ -190,15 +190,35 @@ class ReportingBreakdown(object):
                         count = 0
                         last_stockout = None
                         ordered_reports = found_reports.filter(product=p).order_by("report_date")
+                        if ordered_reports.count():
+                            # Check if a stockout carried over from last period.
+                            last_prev_report = ProductReport.objects.filter(product=p,
+                                                                            supply_point=sp,
+                                                                            report_date__lt=ordered_reports[0].report_date).order_by("-report_date")
+                            if last_prev_report.count() and last_prev_report[0].quantity == 0:
+                                last_stockout = datespan.startdate
+
+                            # Check if a stockout carries over into next period.
+
+
                         for r in ordered_reports:
                             if last_stockout and r.quantity > 0: # Stockout followed by receipt.
                                 duration += _seconds(r.report_date - last_stockout)
                                 last_stockout = None
                                 count += 1
-                            elif not last_stockout and not r.quantity: # Beginning of a stockout period.
+                            elif not last_stockout and r.quantity == 0: # Beginning of a stockout period.
                                 last_stockout = r.report_date
                             else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
                                 pass
+
+                        if last_stockout:
+                            first_next_report = ProductReport.objects.filter(product=p,
+                                supply_point=sp,
+                                quantity__gt=0,
+                                report_date__gt=ordered_reports.order_by("-report_date")[0].report_date)
+                            if first_next_report.count() and first_next_report[0].quantity > 0:
+                                duration += _seconds(datespan.enddate - last_stockout)
+
                         if p.sms_code in stockouts_duration_p and duration:
                             stockouts_duration_p[p.sms_code] += [duration]
                         elif duration:
