@@ -443,28 +443,21 @@ def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
     backends = list(Backend.objects.all())
     counts = {}
     mdates = []
-    while month <= datetime.now().month and year <= datetime.now().year:
-        d = datetime(year, month, 1)
+    d = datetime(year, month, 1) + relativedelta(months=1)-relativedelta(seconds=1)
+    while d <= datetime.utcnow() + relativedelta(months=1):
         mdates += [d]
         counts[d] = {}
         for b in backends:
             counts[d][b.name] = {}
-            counts[d][b.name]["in"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="I").count()
-            counts[d][b.name]["out"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="O").count()
-        if month == 12:
-            month = 1
-            year += 1
-        else:
-            month += 1
+            counts[d][b.name]["in"] = Message.objects.filter(connection__backend=b, date__month=d.month, date__year=d.year, direction="I").count()
+            counts[d][b.name]["out"] = Message.objects.filter(connection__backend=b, date__month=d.month, date__year=d.year, direction="O").count()
+        d += relativedelta(months=1)
     mdates.reverse()
     return render_to_response(template,
                               {"backends": backends,
                                "counts": counts,
                                "mdates": mdates},
                               context_instance=RequestContext(request))
-
-
-
 
 class MonthPager(object):
     """
