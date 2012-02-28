@@ -119,19 +119,23 @@ class ReportingBreakdown(object):
                     nd[_p[d]] = dict[d]
                 return nd
 
+            # Discrepancies are defined as a difference of 20% or more in an order.
+
             self.discrepancies_p = {}
             self.discrepancies_tot_p = {}
             self.discrepancies_pct_p = {}
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len([x for x in discrepancies_list if x == product])
+                self.discrepancies_p[product] = len(filter(lambda r: (r.amount_received >= (1.2 * r.amount_requested) or
+                                                                         r.amount_received <= (.8 * r.amount_requested)), [x for x in discrepancies if x.product.pk == product]))
 
                 z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
                 if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
                 self.filled_orders_p[product] = len([x for x in orders_list if x == product])
                 self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
+
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
             self.discrepancies_tot_p = _map_codes(self.discrepancies_tot_p)
