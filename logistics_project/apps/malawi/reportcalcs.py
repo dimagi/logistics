@@ -236,7 +236,7 @@ def emergency_orders(instance):
 
 def order_discrepancies(instance):
     """
-    HSA orders with discrepancy between order and receipt by product, by District and group
+    HSA orders with more than 20% under/over discrepancy between order and receipt by product, by District and group (last 30 days)
     """
     d = _district_breakdown(instance.datespan)
     d['product_codes'] = PRODUCT_CODES
