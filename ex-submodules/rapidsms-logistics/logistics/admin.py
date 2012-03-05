@@ -40,6 +40,8 @@ class SupplyPointTypeAdmin(admin.ModelAdmin):
 
 class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
     model = DefaultMonthlyConsumption
+    list_display = ('product', 'supply_point_type', 'default_monthly_consumption')
+    list_filter = ('product', 'supply_point_type')
 
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code")

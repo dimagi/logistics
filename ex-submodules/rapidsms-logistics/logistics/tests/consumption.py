@@ -1,12 +1,14 @@
 from datetime import timedelta
-from logistics.const import Reports
+from django.conf import settings
+from django.core.cache import cache
 from rapidsms.tests.scripted import TestScript
+from logistics.const import Reports
 from logistics.models import Location, SupplyPointType, SupplyPoint, \
-    Product, ProductType, ProductStock, StockTransaction, ProductReport, ProductReportType
+    Product, ProductType, ProductStock, StockTransaction, ProductReport, \
+    ProductReportType, DefaultMonthlyConsumption
 from logistics.models import SupplyPoint as Facility
 from logistics.tests.util import load_test_data
 from logistics.const import Reports
-from django.conf import settings
 
 class TestConsumption (TestScript):
     def setUp(self):
@@ -21,8 +23,6 @@ class TestConsumption (TestScript):
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.ps.use_auto_consumption = True
         self.ps.save()
-
-
        
     def testBasicConsumption(self):
         # now enable auto_monthly_consumption
@@ -328,6 +328,39 @@ class TestConsumption (TestScript):
         self.assertEquals(None, self.ps.daily_consumption)
         self.ps = self._report(5, 5, Reports.SOH)
         self.assertEquals(1, self.ps.daily_consumption)
+
+    def testFacilityTypeConsumption(self):
+        # verify that, for different states of the cache, the right value gets returned
+        MONTHLY_CONSUMPTION = 13
+        cache_key = self.sp.type._cache_key(self.pr.code)
+        self.pr, self.sp
+        self.ps.manual_monthly_consumption = None
+        self.ps.save()
+        dmc = DefaultMonthlyConsumption(supply_point_type = self.sp.type,
+                                        product = self.pr, 
+                                        default_monthly_consumption = MONTHLY_CONSUMPTION)
+        dmc.save()
+        # test case 1: empty cache, make sure it gets populated
+        cache.delete(cache_key)
+        self.assertEquals(None, cache.get(cache_key))
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, MONTHLY_CONSUMPTION)
+        self.assertEquals(cache.get(cache_key), MONTHLY_CONSUMPTION)
+        # test case 2: populate cache, returns the value, no cache refresh.
+        self.assertEquals(cache.get(cache_key), MONTHLY_CONSUMPTION)
+
+        # test case 3: populate the cache with none, return None
+        dmc = DefaultMonthlyConsumption.objects.get(supply_point_type = self.sp.type,
+                                                    product = self.pr)
+        dmc.delete()
+        cache.delete(cache_key)
+        self.assertEquals(None, cache.get(cache_key))
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, None)
+        # self.assertEquals(cache.get(cache_key), NONE_VALUE) 
+        # test case 4: cache populated with None, continues to return None
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, None)
 
 
     def _report(self, amount, days_ago, report_type):
