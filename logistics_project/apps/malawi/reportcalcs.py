@@ -1,13 +1,16 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.conf import settings
+from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from logistics.models import ProductStock, StockRequest
+from logistics.models import ProductStock, StockRequest, Product
 from logistics.reports import ReportingBreakdown, calc_percentage
+from logistics_project.apps.ewsghana.extensions.logistics.supplypoint import SupplyPoint
 from logistics_project.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts, facility_supply_points_below
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
+from logistics.charts import amc_plot
 
 PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb', 'dm', 'pa'] # Amox?
 
@@ -348,6 +351,17 @@ def hsas_with_stock(instance):
                                      'ept_totals':ept_totals,
                                      'em_total_u':em_total_u,
                                      'ept_total_u':ept_total_u})
+
+def amc_over_time(instance):
+    """
+    Average monthly consumption, plotted over time
+    """
+    data, data_rows = amc_plot(SupplyPoint.objects.filter(active=True), instance.datespan)
+    products = Product.objects.all().order_by('sms_code')
+    return _common_report(instance, {'chart_data': data,
+                                     'data_rows': data_rows,
+                                     'products': products,
+                                     'datetimes': [datetime(m, y, 1) for m, y in instance.datespan.months_iterator()]})
 
 def average_discrepancies(instance):
     """

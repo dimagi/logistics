@@ -1,0 +1,38 @@
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+{% load report_tags %}
+
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type='text/javascript'>
+    google.load('visualization', '1', {'packages':['annotatedtimeline']});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+    {{ chart_data|safe }}
+        var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+        chart.draw(chart_data, {legendPosition:"newRow", displayRangeSelector:false, wmode:"transparent"});
+    }
+</script>
+
+{% if chart_data %}
+    <div id="chart_div"></div>
+
+
+    <table>
+        <tr><td></td>
+            {% for p in products %}
+                <td><span title="{{ p.name }}" style="cursor: pointer; border-bottom: 1px blue dotted;">{{ p.sms_code }}</span></td>
+            {% endfor %}
+        </tr>
+        {% for dt in datetimes %}
+            <tr><td>{{ dt.month }} {{ dt.year }}</td>
+                {% with data_rows|dict_lookup:dt as value %}
+                    {% for p in products %}
+                        <td>{{ value|dict_lookup:p.sms_code|floatformat }}</td>
+                    {% endfor %}
+                {% endwith %}
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div><p><i>The calculated values are the average monthly consumption across all HSAs over a three-month window ending in the month specified.</i></p></div>
+{% endif %}
