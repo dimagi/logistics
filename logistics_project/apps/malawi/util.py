@@ -53,7 +53,7 @@ def hsa_supply_points_below(location):
     
     This method returns SupplyPoints
     """
-    hsa_sps = SupplyPoint.objects.filter(type__code="hsa", active=True)
+    hsa_sps = SupplyPoint.objects.filter(type__code="hsa", active=True, contact__is_active=True)
     if location:
         # support up to 3 levels of parentage. this covers
         # hsa->facility-> district, which is all we allow you to select
