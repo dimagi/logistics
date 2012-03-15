@@ -557,6 +557,9 @@ class ProductStock(models.Model):
 
     @property
     def daily_consumption(self):
+        return self.get_daily_consumption()
+
+    def get_daily_consumption(self, datespan=None):
         """
         Calculate daily consumption through the following algorithm:
 
@@ -575,8 +578,11 @@ class ProductStock(models.Model):
         time = timedelta(0)
         quantity = 0
         txs = StockTransaction.objects.filter(supply_point=self.supply_point,
-                                                product=self.product,
+                                                product=self.product
                                                 ).order_by('date')
+        if datespan:
+            txs = txs.filter(date__gte=datespan.startdate,
+                             date__lte=datespan.enddate)
         if txs.count() < settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION:
             return None
         period_receipts = 0
