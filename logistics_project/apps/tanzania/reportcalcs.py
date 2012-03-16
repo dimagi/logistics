@@ -81,6 +81,8 @@ class TanzaniaReport(object):
                 self.regional_report()
             elif self.level == 'district':
                 self.district_report()
+            elif self.level == 'facility':
+                raise NotImplementedError
         except NotImplementedError:
             return render_to_response("%s/unimplemented.html" % getattr(settings, 'REPORT_FOLDER'), self.context, context_instance=RequestContext(self.request))
         return render_to_response(self.template(), self.context, context_instance=RequestContext(self.request))
