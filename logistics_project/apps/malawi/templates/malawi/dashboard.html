@@ -71,7 +71,7 @@
     {%endcache%}
 </div>
 <div class="module toppadded">
-    <h2>Product Availability Summary</h2>
+    <h2>Product Availability Summary (as of today)</h2>
     {% cache 1000 product_availability location %}
         {% product_availability_summary location %}
     {% endcache %}
