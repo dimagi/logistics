@@ -111,6 +111,9 @@ def group_message(request):
     failures = []
     if request.method == 'POST':
         msg = request.POST.get("msg")
+
+        msg = msg.replace("%", "%%") # workaround bug in RapidSMS
+
         contacts = post_to_contact_set(request)
         if not msg:
             messages.error(request, "No message supplied.")
