@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from logistics.const import Reports
 
-import json
+import csv, json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
@@ -22,7 +22,6 @@ from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
-from dimagi.utils.csv import UnicodeWriter
 from email_reports.decorators import magic_token_required
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
@@ -297,7 +296,7 @@ def export_reporting(request, location_code=None):
                       "product__name", "report_type__name", "message__text").order_by('report_date')
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
     response['Content-Disposition'] = 'attachment; filename=reporting.xls'
-    writer = UnicodeWriter(response)
+    writer = csv.writer(response)
     writer.writerow(['ID', 'Location Grandparent', 'Location Parent', 'Facility', 
                      'Commodity', 'Report Type', 
                      'Quantity', 'Date',  'Message'])
