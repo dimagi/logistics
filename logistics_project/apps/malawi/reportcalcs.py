@@ -361,7 +361,8 @@ def amc_over_time(instance):
     return _common_report(instance, {'chart_data': data,
                                      'data_rows': data_rows,
                                      'products': products,
-                                     'datetimes': [datetime(m, y, 1) for m, y in instance.datespan.months_iterator()]})
+                                     'datetimes': [datetime(m, y, 1) for m, y in instance.datespan.months_iterator()],
+                                     'datespan': instance.datespan})
 
 def average_discrepancies(instance):
     """

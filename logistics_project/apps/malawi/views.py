@@ -34,6 +34,8 @@ from logistics_project.apps.malawi.reports import ReportInstance, ReportDefiniti
 from rapidsms.models import Backend, Connection
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
+from dimagi.utils.csv import UnicodeWriter
+from logistics.charts import amc_plot
 
 class MonthPager(object):
     """
@@ -350,6 +352,25 @@ def verify_ajax(request):
     if field == 'facility_code':
         if SupplyPoint.objects.filter(type__code='hf', code=val).exists():
             return json.dump(True)
+
+@datespan_in_request()
+def export_amc_csv(request):
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=amc.csv'
+    writer = UnicodeWriter(response)
+    _, data_rows = amc_plot(SupplyPoint.objects.filter(active=True), request.datespan)
+    datetimes = [datetime(m, y, 1) for m, y in request.datespan.months_iterator()]
+    products = Product.objects.order_by('sms_code')
+    row = ['Year', 'Month']
+    row.extend([p.sms_code for p in products])
+    writer.writerow(row)
+    for dt in datetimes:
+        row = [dt.year, dt.month]
+        v = data_rows[dt]
+        for p in products:
+            row.append(v[p.sms_code])
+        writer.writerow(row)
+    return response
 
 @permission_required("is_superuser")
 def register_user(request, template="malawi/register-user.html"):

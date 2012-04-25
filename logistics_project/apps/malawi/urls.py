@@ -55,7 +55,10 @@ urlpatterns = patterns('',
         name="malawi_monitoring"),
     url("^monitoring/(?P<report_slug>[\w_]+)/$", 
         "logistics_project.apps.malawi.views.monitoring_report",
-        name="malawi_monitoring_report")
+        name="malawi_monitoring_report"),
+    url(r'^export_amc/$',
+        "logistics_project.apps.malawi.views.export_amc_csv",
+        name="export_amc_csv"),
 ) 
 
 
