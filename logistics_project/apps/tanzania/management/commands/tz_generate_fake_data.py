@@ -15,6 +15,7 @@ from logistics_project.apps.tanzania.models import DeliveryGroups, SupplyPointSt
 from logistics_project.apps.tanzania.utils import supply_points_below
 
 SUBMIT_CHANCE = .8
+START_YEAR = 2012
 
 class Command(BaseCommand):
     help = "Generate fake data "
@@ -126,12 +127,17 @@ class Command(BaseCommand):
         print "router running."
         cleanup()
         print "Populating facilities..."
-        populate_facilities(datetime(2010,1,1))
+        populate_facilities(datetime(START_YEAR,1,1))
+
+        for c in Contact.objects.all():
+            c.language = 'en'
+            c.save()
 
         print "Generating fake data..."
-        dates = map(lambda x: datetime(x[0], x[1], 1), (zip(range(2010,datetime.now().year) * 12, range(1,13) * 3)))
+        dates = map(lambda x: datetime(x[0], x[1], 1), (zip(range(START_YEAR,datetime.now().year+1) * 12, range(1,13) * 3)))
 
         for date in dates:
+            if date > datetime.now(): break
             facs = SupplyPoint.objects.filter(type__code='facility')
             for fac in facs:
                 if random() < .1:
