@@ -40,6 +40,7 @@ BASE_APPS = [
     #"rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
+    "rapidsms.contrib.locations.nested",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "alerts",
