@@ -56,11 +56,15 @@ def load_locations(path):
             # for now assumes these are already create
             loc_type = LocationType.objects.get(name__iexact=type)
             
-            
-            parent = Location.objects.get(name__iexact=parent_name, 
-                                          type__name__iexact=parent_type) \
-                            if parent_name and parent_type else None
-            
+            try:
+                parent = Location.objects.get(name__iexact=parent_name,
+                                              type__name__iexact=parent_type) \
+                                if parent_name and parent_type else None
+
+            except:
+                print "Couldn't find parent %s %s (continuing)" % (parent_name, parent_type)
+                continue
+
             if lat and lon:
                 if Point.objects.filter(longitude=lon, latitude=lat).exists():
                     point = Point.objects.filter(longitude=lon, latitude=lat)[0]
