@@ -160,6 +160,16 @@ def calc_lead_time(supply_point, year=None, month=None):
     return ret
 
 def avg_past_lead_time(supply_point):
+    def _cache_key():
+        return (("log-avg-past-lead-time-%(fac)s" %\
+                 {"fac": supply_point.code}).replace(" ", "-"))
+    key = _cache_key()
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        from_cache = cache.get(key)
+        if from_cache:
+            return from_cache
+
+
     if not SupplyPointStatus.objects.filter(supply_point=supply_point).count(): return None
     earliest = SupplyPointStatus.objects.filter(supply_point=supply_point).order_by('status_date')[0]
 
@@ -182,7 +192,10 @@ def avg_past_lead_time(supply_point):
         else:
             now_month -= 1
 
-    return total_time / count if count else None
+    ret = total_time / count if count else None
+    if settings.LOGISTICS_USE_SPOT_CACHING:
+        cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+    return ret
 
 def get_user_location(user):
     """
