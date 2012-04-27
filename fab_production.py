@@ -64,12 +64,12 @@ def setup_dirs():
 
 def staging():
     """ use staging environment on remote host"""
-    env.code_branch = 'tz-dev'
+    env.code_branch = 'tz-master'
     env.sudo_user = 'ilsgateway'
     env.environment = 'staging'
     env.server_port = '9002'
     env.server_name = 'noneset'
-    env.hosts = ['204.232.206.181']
+    env.hosts = ['ilsgateway@108.166.86.217']
     env.settings = '%(project)s.settings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
