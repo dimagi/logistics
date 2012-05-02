@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from random import randint, choice, random
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, LabelCommand, CommandError
 from rapidsms.models import Connection, Contact, Backend
 from logistics.models import *
 from logistics_project.apps.tanzania.loader import init_static_data
@@ -14,17 +14,20 @@ from logistics_project.apps.tanzania.migration import check_router
 from logistics_project.apps.tanzania.models import DeliveryGroups, SupplyPointStatus, SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics_project.apps.tanzania.utils import supply_points_below
 
-SUBMIT_CHANCE = .8
-START_YEAR = 2012
-
-class Command(BaseCommand):
+class Command(LabelCommand):
     help = "Generate fake data "
+    args = "<start_year>, <submit_chance>"
+    label = "start year for data generation, average likelihood of submission per facility"
+    
 
     def handle(self, *args, **options):
-        """
-        """
-        init_static_data()
-
+        if len(args) < 1: raise CommandError('Please specify %s.' % self.label.split(",")[0])
+            
+        start_year = int(args[0])
+        submit_chance = float(args[1]) if len(args) > 1 else .8
+        assert submit_chance > 0, "Submit chance must be a number between 0 and 1"
+        assert submit_chance <= 1, "Submit chance must be a number between 0 and 1"
+        
         def cleanup():
             Contact.objects.all().delete()
             Connection.objects.all().delete()
@@ -77,7 +80,7 @@ class Command(BaseCommand):
             return _report(fac, date, text)
 
         def report_delivery(fac, date):
-            if random() > SUBMIT_CHANCE:
+            if random() > submit_chance:
                 return _report(fac, date, "not delivered")
             products = [p.sms_code for p in Product.objects.all()]
             reports = []
@@ -92,7 +95,7 @@ class Command(BaseCommand):
             products = [p.sms_code for p in Product.objects.all()]
             reports = []
             for p in products:
-                if random() < SUBMIT_CHANCE: continue # Chance of not reporting on a product
+                if random() < submit_chance: continue # Chance of not reporting on a product
                 quantity = randint(-200, 200)
                 reports.append("%s %s" % (p, quantity))
             text = "la %s" % " ".join(reports)
@@ -127,15 +130,15 @@ class Command(BaseCommand):
         print "router running."
         cleanup()
         print "Populating facilities..."
-        populate_facilities(datetime(START_YEAR,1,1))
+        populate_facilities(datetime(start_year,1,1))
 
         for c in Contact.objects.all():
             c.language = 'en'
             c.save()
 
-        print "Generating fake data..."
-        dates = map(lambda x: datetime(x[0], x[1], 1), (zip(range(START_YEAR,datetime.now().year+1) * 12, range(1,13) * 3)))
-
+        print "Generating fake data from %s..." % start_year
+        dates = map(lambda x: datetime(x[0], x[1], 1), (zip(range(start_year,datetime.now().year + 1) * 12, range(1,13) * 3)))
+        print dates
         for date in dates:
             if date > datetime.now(): break
             facs = SupplyPoint.objects.filter(type__code='facility')
@@ -152,13 +155,13 @@ class Command(BaseCommand):
                     status_type=SupplyPointStatusTypes.SOH_FACILITY,
                     status_value=SupplyPointStatusValues.REMINDER_SENT,
                     status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_soh(fac, date)
                 SupplyPointStatus.objects.create(supply_point=fac,
                         status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                         status_value=SupplyPointStatusValues.REMINDER_SENT,
                         status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_la(fac, date)
 
             for fac in dgs.delivering():
@@ -166,7 +169,7 @@ class Command(BaseCommand):
                     status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
                     status_value=SupplyPointStatusValues.REMINDER_SENT,
                     status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_delivery(fac, date + timedelta(days=randint(1,20), seconds=randint(0, 86400)))
 
             for fac in dgs.submitting():
@@ -174,14 +177,14 @@ class Command(BaseCommand):
                     status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                     status_value=SupplyPointStatusValues.REMINDER_SENT,
                     status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_randr(fac, date + timedelta(days=randint(1,20), seconds=randint(0, 86400)))
 
                 SupplyPointStatus.objects.create(supply_point=fac,
                     status_type=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                     status_value=SupplyPointStatusValues.REMINDER_SENT,
                     status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_supervision(fac, date + timedelta(days=randint(0,20), seconds=randint(0, 86400)))
 
             dists = SupplyPoint.objects.filter(type__code='district')
@@ -190,12 +193,12 @@ class Command(BaseCommand):
                     status_type=SupplyPointStatusTypes.R_AND_R_DISTRICT,
                     status_value=SupplyPointStatusValues.REMINDER_SENT,
                     status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_district_randr(dist, date + timedelta(days=randint(0,28), seconds=randint(0, 86400)))
 
                 SupplyPointStatus.objects.create(supply_point=dist,
                         status_type=SupplyPointStatusTypes.DELIVERY_DISTRICT,
                         status_value=SupplyPointStatusValues.REMINDER_SENT,
                         status_date=date)
-                if random() < SUBMIT_CHANCE:
+                if random() < submit_chance:
                     report_district_delivery(dist, date+ timedelta(days=randint(0,28), seconds=randint(0, 86400)))
