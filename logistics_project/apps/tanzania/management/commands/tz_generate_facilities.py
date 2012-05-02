@@ -10,7 +10,7 @@ from logistics_project.apps.tanzania.loader import load_locations
 
 class Command(LabelCommand):
     help = "Generate dummy facilities."
-    args = "<num_facilities>, <output_location>"
+    args = "<num_facilities>, <facilities_per_districtx>"
     label = "number of facilities to generate, number of facilities per district"
     
     def handle(self, *args, **options):
