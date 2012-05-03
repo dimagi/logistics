@@ -1341,7 +1341,7 @@ class HistoricalStockCache(models.Model):
     product = models.ForeignKey(Product, null=True)
     year = models.PositiveIntegerField()
     month = models.PositiveIntegerField()
-    stock = models.PositiveIntegerField()
+    stock = models.IntegerField(null=True)
     
 
 def get_geography():
