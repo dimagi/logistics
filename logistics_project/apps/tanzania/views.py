@@ -25,6 +25,8 @@ from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
+from dimagi.utils.decorators.profile import profile
+
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -124,11 +126,15 @@ def district_supply_points_below(location, sps):
     else:
         return sps.filter(location__type__name="DISTRICT")
     
+# @profile("/Users/jpwagner/Desktop/")
 @place_in_request()
 def dashboard(request):
     mp = MonthPager(request)
+
     base_facilities, location = get_facilities_and_location(request)
-    
+
+    # assert False
+
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
