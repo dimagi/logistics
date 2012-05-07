@@ -184,13 +184,21 @@ class TestDeliverySummary(TestReportSummaryBase):
         script = """
             %(phone)s > nimepokea
         """
+        not_responding = 0
+        not_received = 0
+        received = 0
+
         for i, contact in enumerate(self.facility_contacts):
             self.runScript(script % {"phone": contact.default_connection.identity})
             result = reports.construct_delivery_summary(self.district_contact.supply_point)
+            not_responding += result["not_responding"]
+            not_received += result["not_received"]
+            received += result["received"]
+
             self.assertEqual(self.relevant_count, result["total"])
-            self.assertEqual(self.relevant_count - 1 - i, result["not_responding"])
-            self.assertEqual(0, result["not_received"])
-            self.assertEqual(1 + i, result["received"])
+            self.assertEqual(self.relevant_count - 1 - i, not_responding)
+            self.assertEqual(0 + i, not_received)
+            self.assertEqual(1 + i, received)
 
     def testNegativeResponses(self):
         script = """

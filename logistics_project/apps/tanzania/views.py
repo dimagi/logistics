@@ -133,8 +133,6 @@ def dashboard(request):
 
     base_facilities, location = get_facilities_and_location(request)
 
-    # assert False
-
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)

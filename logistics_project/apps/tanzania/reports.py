@@ -13,6 +13,8 @@ from calendar import month_name
 class SupplyPointStatusBreakdown(object):
 
     def __init__(self, facilities=None, year=None, month=None):
+        # write to db instead
+
         if not (year and month):
             self.month = datetime.utcnow().month
             self.year = datetime.utcnow().year
