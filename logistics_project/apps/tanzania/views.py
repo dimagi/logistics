@@ -332,6 +332,18 @@ def reporting(request):
         },
         context_instance=RequestContext(request))
 
+@place_in_request
+def reporting2(request):
+    facs, location = get_facilities_and_location(request)
+    mp = MonthPager(request)
+    dg = DeliveryGroups(mp.month, facs=facs)
+    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
+    ot = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
+
+    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+
+
+
 @place_in_request()
 @magic_token_required()
 def reporting_pdf(request):
