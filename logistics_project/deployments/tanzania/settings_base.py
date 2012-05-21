@@ -9,6 +9,7 @@ PRIORITY_APPS = [ "auditcare","logistics_project.apps.migration" ]
 APPS = [
     "django.contrib.webdesign",
     "logistics_project.apps.tanzania",
+    "logistics_project.apps.tanzania.reporting",    
     "scheduler",
     "taggit",
 ]

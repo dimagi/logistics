@@ -186,6 +186,19 @@ class SupplyPointStatusBreakdown(object):
         if not count: return "<span class='no_data'>None</span>"
         return sum / count
 
+    @property
+    def avg_lead_time2(self):
+        if not self.facilities: return 0
+        sum = timedelta(0)
+        count = 0
+        for f in self.facilities:
+            lt = avg_past_lead_time(f)
+            if lt:
+                sum += lt
+                count += 1
+        if count==0: return count
+        return sum / count    
+
     def _percent(self, fn=None, of=None):
         if not of:
             of= len(self.facilities)
@@ -242,7 +255,21 @@ class SupplyPointStatusBreakdown(object):
     supervision_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.SUPERVISION_FACILITY)
     randr_response_rate = curry(_response_rate, type=SupplyPointStatusTypes.R_AND_R_FACILITY)
 
+    def _response_rate2(self, type=None):
+        num = 0.0
+        denom = 0.0
+        for f in self.dg.submitting(self.facilities):
+            hrr = historical_response_rate(f, type)
+            if hrr:
+                num += hrr[0]
+                denom += 1
+        if denom:
+            return ((num / denom) * 100.0)
+        else:
+            return 0
 
+    randr_response_rate2 = curry(_response_rate2, type=SupplyPointStatusTypes.R_AND_R_FACILITY)
+    supervision_response_rate2 = curry(_response_rate2, type=SupplyPointStatusTypes.SUPERVISION_FACILITY)
 
     def submission_chart(self):
         on_time = len(self.submitted_on_time)

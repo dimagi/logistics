@@ -152,6 +152,32 @@ def dashboard(request):
                                
                               context_instance=RequestContext(request))
 
+# @profile("/Users/jpwagner/Desktop/")
+@place_in_request()
+def dashboard2(request):
+    mp = MonthPager(request)
+
+    base_facilities, location = get_facilities_and_location(request)
+
+    dg = DeliveryGroups(mp.month, facs=base_facilities)
+    sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
+    msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
+    return render_to_response("tanzania/dashboard2.html",
+                              {"sub_data": sub_data,
+                               "graph_width": 300,
+                               "graph_height": 300,
+                               "dg": dg,
+                               "month_pager": mp,
+                               "msd_sub_count": msd_sub_count,
+                               "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
+                               "districts": _user_districts(request.user),
+                               "regions": _user_regions(request.user),
+                               "location": location,
+                               "destination_url": "tz_dashboard"
+                               },
+                               
+                              context_instance=RequestContext(request))
+
 def datespan_to_month(datespan):
     return datespan.startdate.month
 
@@ -332,6 +358,7 @@ def reporting(request):
         },
         context_instance=RequestContext(request))
 
+# TODO:
 @place_in_request
 def reporting2(request):
     facs, location = get_facilities_and_location(request)

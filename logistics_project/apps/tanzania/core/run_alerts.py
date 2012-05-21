@@ -8,8 +8,6 @@ from logistics_project.apps.tanzania.core.models import UserProfile, Organizatio
                                                         DeliveryResponse, SOHSubmission, RRSubmission,
                                                         SupervisionSubmission,
 
-def clear_out_reports():
-    pass
     
-def populate_report_data():
+def populate_alerts():
     pass
