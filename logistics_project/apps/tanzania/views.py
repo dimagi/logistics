@@ -1,3 +1,4 @@
+import json
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
 from django.db.models.query_utils import Q
@@ -26,6 +27,8 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
+
+from logistics_project.apps.tanzania.reporting.models import *
 
 
 PRODUCTS_PER_TABLE = 100 #7
@@ -129,6 +132,7 @@ def district_supply_points_below(location, sps):
 # @profile("/Users/jpwagner/Desktop/")
 @place_in_request()
 def dashboard(request):
+
     mp = MonthPager(request)
 
     base_facilities, location = get_facilities_and_location(request)
@@ -157,13 +161,32 @@ def dashboard(request):
 def dashboard2(request):
     mp = MonthPager(request)
 
+    ds = DistrictSummary.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+    pie_charts = PieCharts.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+    pas = ProductAvailabilitySummary.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+
+    summary = pas
+    summary.flot_data = json.loads(pas.flot_data)
+    summary.data = json.loads(pas.data)
+
     base_facilities, location = get_facilities_and_location(request)
 
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
+
+    # breakthis
+
     return render_to_response("tanzania/dashboard2.html",
-                              {"sub_data": sub_data,
+                              {"soh_title": pie_charts.soh_title,
+                               "soh_json": json.loads(pie_charts.soh_json),
+                               "randr_title": pie_charts.randr_title,
+                               "randr_json": json.loads(pie_charts.randr_json),
+                               "delivery_title": pie_charts.delivery_title,
+                               "delivery_json": json.loads(pie_charts.delivery_json),
+                               "supervision_title": pie_charts.supervision_title,
+                               "supervision_json": json.loads(pie_charts.supervision_json),
+                               "sub_data": sub_data,
                                "graph_width": 300,
                                "graph_height": 300,
                                "dg": dg,
@@ -173,7 +196,8 @@ def dashboard2(request):
                                "districts": _user_districts(request.user),
                                "regions": _user_regions(request.user),
                                "location": location,
-                               "destination_url": "tz_dashboard"
+                               "destination_url": "tz_dashboard",
+                               "summary": summary
                                },
                                
                               context_instance=RequestContext(request))

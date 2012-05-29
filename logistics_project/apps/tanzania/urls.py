@@ -3,6 +3,9 @@ from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
     url(r'^dashboard/$', 'logistics_project.apps.tanzania.views.dashboard', name="tz_dashboard"),
+
+    url(r'^dashboard2/$', 'logistics_project.apps.tanzania.views.dashboard2', name="tz_dashboard2"),
+
     url('^facilities/index/$', 'logistics_project.apps.tanzania.views.facilities_index', name="facilities_index"),
     url(r'^facilities/(?P<facility_id>\d+)/message_history/$', 'logistics_project.apps.tanzania.views.facility_messages', name="facility_messages"),
 #    (r'^facilities/(?P<facility_id>\d+)/note_history/$', 'ilsgateway.views.note_history'),

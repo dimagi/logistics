@@ -31,16 +31,33 @@
 
     <div class="col-1">
         <div class="module">
-         <h2>{{ sub_data.submission_chart.title }}</h2>
-        {% with sub_data.submission_chart.data as chart_data %}{% with "submission_chart" as chartdiv %}{% with "submission_hover" as hoverdiv %}
-        {% with "No facilities are due to submit R&R's this month" as no_data_text %}
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-        </div>
 
+
+        <h2>{{ randr_title }}</h2>
+
+        {% with randr_json as chart_data %}
+        {% with "submission_chart" as chartdiv %}
+        {% with "submission_hover" as hoverdiv %}
+        {% with "No facilities are due to submit R&R's this month" as no_data_text %}
+        
+
+        {% include "logistics/partials/pie_reporting_generic.html" %}
+        
+        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+
+
+        </div>
     </div>
     <div class="col-2">
+
+
+
+
         {% include "tanzania/partials/district-summary.html" %}
+    
+
+
+
     </div>
     <div class="clear-hack"></div>
 </div>
@@ -48,20 +65,38 @@
 {#{% cache 10000 sub_data location month_pager.month month_pager.year %}#}
     <div class="col-1">
         <div class="module">
-         <h2>{{ sub_data.soh_chart.title }}</h2>
-        {% with sub_data.soh_chart.data as chart_data %}{% with "soh_chart" as chartdiv %}{% with "soh_hover" as hoverdiv %}
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}
-        </div>
 
+
+        <h2>{{ soh_title }}</h2>
+        {% with soh_json as chart_data %}
+        {% with "soh_chart" as chartdiv %}
+        {% with "soh_hover" as hoverdiv %}
+        
+        {% include "logistics/partials/pie_reporting_generic.html" %}
+        
+        {% endwith %}{% endwith %}{% endwith %}
+
+
+        </div>
     </div>
     <div class="col-2">
         <div class="module">
-         <h2>{{ sub_data.delivery_chart.title }}</h2>
-        {% with sub_data.delivery_chart.data as chart_data %}{% with "delivery_chart" as chartdiv %}{% with "delivery_hover" as hoverdiv %}
+
+
+
+        <h2>{{ delivery_title }}</h2>
+        {% with delivery_json as chart_data %}
+        {% with "delivery_chart" as chartdiv %}
+        {% with "delivery_hover" as hoverdiv %}
         {% with "No facilities are reporting deliveries this month" as no_data_text %}
+        
         {% include "logistics/partials/pie_reporting_generic.html" %}
+        
         {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+        
+
+
+
         </div>
     </div>
     <div class="clear-hack"></div>
@@ -70,6 +105,10 @@
 
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
-        {% product_availability_summary_by_facility_sp location month_pager.year month_pager.month %}
+
+
+        {% include "logistics/partials/product_availability_summary.html" %}
+
+
 </div>
 {% endblock %}
