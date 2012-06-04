@@ -176,3 +176,7 @@ CONTACT_GROUP_GENERATORS = [
 
 DATABASE_ENGINE = "mysql"
 
+
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'logistics_project.migrations.malawi',
+}

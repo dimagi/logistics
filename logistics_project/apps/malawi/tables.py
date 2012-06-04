@@ -27,9 +27,20 @@ class MalawiContactTable(Table):
     commodities = Column(name="Responsible For These Commodities", 
                          value=list_commodities,
                          sortable=False)
-
+    organization = Column()
+    
     class Meta:
         order_by = 'supply_point__code'
+
+def _edit_org_link(cell):
+    return reverse("malawi_edit_organization", args=[cell.row.pk])
+    
+class OrganizationTable(Table):
+    name     = Column(link=_edit_org_link)
+    
+    class Meta:
+        order_by = 'name'
+
 
 class HSATable(Table):
     facility = Column(value=lambda cell: cell.object.supply_point.supplied_by,

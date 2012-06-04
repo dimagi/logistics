@@ -1,0 +1,11 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Organizations - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h2>{{ is_new|yesno:"New,Edit" }} Organization</h2>
+    <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save" />
+</form> 
+</div>
+{% endblock %}

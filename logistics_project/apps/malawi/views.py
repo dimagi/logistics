@@ -12,7 +12,7 @@ from django.views.decorators.vary import vary_on_cookie
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
-    HSAStockRequestTable, DistrictTable, ConsumptionDataTable
+    HSAStockRequestTable, DistrictTable, ConsumptionDataTable, OrganizationTable
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from logistics.models import SupplyPoint, Product, \
@@ -36,6 +36,11 @@ from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from django.conf import settings
 from dimagi.utils.csv import UnicodeWriter
 from logistics.charts import amc_plot
+from logistics_project.apps.malawi.models import Organization
+from logistics_project.apps.malawi.forms import OrganizationForm
+from rapidsms.contrib.messagelog.models import Message
+from django.db.models.aggregates import Count
+from collections import defaultdict
 
 class MonthPager(object):
     """
@@ -100,6 +105,13 @@ def contacts(request):
         }, context_instance=RequestContext(request)
     )
     
+def organizations(request):
+    return render_to_response("malawi/organizations.html",
+        {
+            "organization_table": OrganizationTable(Organization.objects, request=request)
+        }, context_instance=RequestContext(request)
+    )
+    
 def products(request):
     return render_to_response("malawi/products.html",
         {
@@ -107,6 +119,38 @@ def products(request):
         }, context_instance=RequestContext(request)
     )
 
+def edit_organization(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    if request.method == 'POST': 
+        form = OrganizationForm(request.POST, instance=org) 
+        if form.is_valid(): 
+            org = form.save()
+            messages.success(request, "Organization '%s' was successfully saved"  % org.name)
+            return HttpResponseRedirect(reverse('malawi_organizations'))
+    else:
+        form = OrganizationForm(instance=org) 
+
+    return render_to_response('malawi/edit_organization.html', {
+        'form': form,
+        'is_new': False
+    }, context_instance=RequestContext(request))
+    
+def new_organization(request):
+    if request.method == 'POST': 
+        form = OrganizationForm(request.POST) 
+        if form.is_valid(): 
+            new_org = form.save()
+            messages.success(request, "Organization '%s' was successfully created"  % new_org.name)
+            return HttpResponseRedirect(reverse('malawi_organizations'))
+    else:
+        form = OrganizationForm() 
+
+    return render_to_response('malawi/edit_organization.html', {
+        'form': form,
+        'is_new': True
+    }, context_instance=RequestContext(request))
+    
+    
 @cache_page(60 * 15)
 @place_in_request()
 @vary_on_cookie
@@ -434,3 +478,42 @@ def register_user(request, template="malawi/register-user.html"):
     messages.success(request, "HSA added!")
 
     return render_to_response(template, context, context_instance=RequestContext(request))
+
+@datespan_in_request()
+def sms_tracking(request):
+    
+    class ContactCache(object):
+        def __init__(self):
+            self.contacts = {}
+        
+        def get(self, pk):
+            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
+    
+    orgs = dict(zip(Organization.objects.all(), 
+                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
+    # if I was smarter I'd figure out a way to do this query with django aggregates,
+    # but for now we'll just do it all in memory
+    all_messages = Message.objects.filter(date__gte=request.datespan.startdate,
+                                          date__lte=request.datespan.enddate)
+    inbound_counts = all_messages.filter(direction="I").\
+                        values('contact').annotate(messages=Count("contact"))
+    outbound_counts = all_messages.filter(direction="O").\
+                        values('contact').annotate(messages=Count("contact"))
+    
+    cache = ContactCache()
+    def _update(key, row):
+        if row["contact"] is not None:
+            contact = cache.get(row["contact"])
+            if contact.organization:
+                orgs[contact.organization][key] = row["messages"]
+        
+    for row in inbound_counts:
+        _update("inbound", row)
+    for row in outbound_counts:
+        _update("outbound", row)
+    
+    return render_to_response("malawi/sms_tracking.html",
+                              {"organizations": orgs},
+                              context_instance=RequestContext(request))
+
+    
