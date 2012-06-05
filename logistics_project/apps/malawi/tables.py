@@ -10,6 +10,7 @@ from logistics_project.apps.registration.tables import list_commodities,\
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import yesno
 from logistics.models import StockRequestStatus
+from rapidsms.models import Contact
 
 
 class MalawiContactTable(Table):
@@ -37,6 +38,7 @@ def _edit_org_link(cell):
     
 class OrganizationTable(Table):
     name     = Column(link=_edit_org_link)
+    members  = Column(value=lambda cell: Contact.objects.filter(organization=cell.object).count())
     
     class Meta:
         order_by = 'name'
