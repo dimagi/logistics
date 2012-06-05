@@ -273,14 +273,14 @@ def facility(request, code, context={}):
     if em:
         context["stockrequest_table"] = HSAStockRequestTable\
             (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                         requested_on__gte=mp.datespan.startdate,
-                                         requested_on__lte=mp.datespan.enddate)\
+                                         requested_on__gte=mp.datespan.computed_startdate,
+                                         requested_on__lte=mp.datespan.computed_enddate)\
                                  .exclude(status=StockRequestStatus.CANCELED), request)
     else:
         context["stockrequest_table"] = HSAStockRequestTable\
             (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                         requested_on__gte=request.datespan.startdate,
-                                         requested_on__lte=request.datespan.enddate)\
+                                         requested_on__gte=request.datespan.computed_startdate,
+                                         requested_on__lte=request.datespan.computed_enddate)\
                                  .exclude(status=StockRequestStatus.CANCELED), request)
     context["em"] = em
     context["trueval"] = True # We've been reduced to this. http://stackoverflow.com/questions/3259279/django-templates
@@ -493,8 +493,8 @@ def sms_tracking(request):
                     [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
     # if I was smarter I'd figure out a way to do this query with django aggregates,
     # but for now we'll just do it all in memory
-    all_messages = Message.objects.filter(date__gte=request.datespan.startdate,
-                                          date__lte=request.datespan.enddate)
+    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
+                                          date__lte=request.datespan.computed_enddate)
     inbound_counts = all_messages.filter(direction="I").\
                         values('contact').annotate(messages=Count("contact"))
     outbound_counts = all_messages.filter(direction="O").\
