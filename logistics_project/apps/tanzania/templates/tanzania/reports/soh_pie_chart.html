@@ -1,0 +1,9 @@
+<h2>SOH Submission Summary ({{ last_month|date:"F Y" }})</h2>
+{% with soh_json as chart_data %}
+{% with "soh_chart" as chartdiv %}
+{% with "soh_hover" as hoverdiv %}
+
+{% include "logistics/partials/pie_reporting_generic.html" %}
+
+{% endwith %}{% endwith %}{% endwith %}
+

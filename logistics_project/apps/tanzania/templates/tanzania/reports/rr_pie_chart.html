@@ -1,0 +1,11 @@
+<h2>R&R Submission Summary ({{ last_month|date:"F Y" }})</h2>
+
+{% with rr_json as chart_data %}
+{% with "submission_chart" as chartdiv %}
+{% with "submission_hover" as hoverdiv %}
+{% with "No facilities are due to submit R&R's this month" as no_data_text %}
+
+
+{% include "logistics/partials/pie_reporting_generic.html" %}
+
+{% endwith %}{% endwith %}{% endwith %}{% endwith %}

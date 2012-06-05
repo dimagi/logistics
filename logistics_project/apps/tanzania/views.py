@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
 from django.db.models.query_utils import Q
@@ -160,47 +161,176 @@ def dashboard(request):
 @place_in_request()
 def dashboard2(request):
     mp = MonthPager(request)
+    last_month = datetime(datetime.fromordinal(mp.begin_date.toordinal()-1).year, datetime.fromordinal(mp.begin_date.toordinal()-1).month,1)
 
-    ds = DistrictSummary.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
-    pie_charts = PieCharts.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
-    pas = ProductAvailabilitySummary.objects.get(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+    org = request.GET.get('place')
+    if not org:
+        # TODO: Get this from config
+        org = 'MOHSW-MOHSW'
 
-    summary = pas
-    summary.flot_data = json.loads(pas.flot_data)
-    summary.data = json.loads(pas.data)
+    org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
 
-    base_facilities, location = get_facilities_and_location(request)
+    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
+    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
+    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
+    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=request.location.code)
 
-    dg = DeliveryGroups(mp.month, facs=base_facilities)
-    sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
-    msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
+    soh_json, soh_total, soh_complete = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
+    rr_json, submit_total, submit_complete, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
+    delivery_json, delivery_total, delivery_complete, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
+    processing_total, processing_complete, processing_group = prepare_processing_info(process_data)
+
+    total = org_summary.total_orgs
+    avg_lead_time = org_summary.average_lead_time_in_days
+
+    # product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+    # product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+
+    # product_json = convert_product_data_to_dashboard(product_availability, product_dashboard)
+
+    location = Location.objects.get(code=org)
+    #######
 
     # breakthis
 
     return render_to_response("tanzania/dashboard2.html",
-                              {"soh_title": pie_charts.soh_title,
-                               "soh_json": json.loads(pie_charts.soh_json),
-                               "randr_title": pie_charts.randr_title,
-                               "randr_json": json.loads(pie_charts.randr_json),
-                               "delivery_title": pie_charts.delivery_title,
-                               "delivery_json": json.loads(pie_charts.delivery_json),
-                               "supervision_title": pie_charts.supervision_title,
-                               "supervision_json": json.loads(pie_charts.supervision_json),
-                               "sub_data": sub_data,
+                              {"month_pager": mp,
+                               "last_month": last_month,
+                               "soh_json": soh_json,
+                               "rr_json": rr_json,
+                               "delivery_json": delivery_json,
+                               "processing_total": soh_total,
+                               "processing_complete": soh_complete,
+                               "submitting_total": submit_total,
+                               "submitting_complete": submit_complete,
+                               "delivery_total": delivery_total,
+                               "delivery_complete": delivery_complete,
+                               "delivery_group": delivery_group,
+                               "submitting_group": submitting_group,
+                               "processing_group": processing_group,
+                               "total": total,
+                               "avg_lead_time": avg_lead_time,
+
                                "graph_width": 300,
                                "graph_height": 300,
-                               "dg": dg,
-                               "month_pager": mp,
-                               "msd_sub_count": msd_sub_count,
-                               "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
-                               "districts": _user_districts(request.user),
-                               "regions": _user_regions(request.user),
                                "location": location,
-                               "destination_url": "tz_dashboard",
-                               "summary": summary
+                               "destination_url": "tz_dashboard2"
                                },
                                
                               context_instance=RequestContext(request))
+
+def prepare_processing_info(data):
+    total = 0
+    complete = 0
+    for result in data:
+        entry = {}
+        number = int(result.number)
+        total += number
+        entry['value'] = number
+        if result.complete:
+            complete += number
+    return total, complete, data[0].group_code
+
+def convert_soh_data_to_pie_chart(data, date):
+    ret_json = []
+    total = 0
+    complete = 0
+    for result in data:
+        entry = {}
+        number = int(result.number)
+        total += number
+        entry['value'] = number
+        if result.complete:
+            complete += number
+        if result.label=='not_responding':
+            entry['color'] = '#8b198b'
+            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'SOH Not Responding'
+            ret_json.append(entry)
+        elif result.label=='on_time':
+            entry['color'] = 'green'
+            entry['description'] = "(%s) SOH On Time (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Stock Report On Time'
+            ret_json.append(entry)
+        elif result.label=='late':
+            entry['color'] = 'orange'
+            entry['description'] = "(%s) Submitted Late (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Stock Report Late'
+            ret_json.append(entry)
+    return ret_json, total, complete
+
+def convert_rr_data_to_pie_chart(data, date):
+    ret_json = []
+    total = 0
+    complete = 0
+    for result in data:
+        entry = {}
+        number = int(result.number)
+        total += number
+        entry['value'] = number
+        if result.complete:
+            complete += number
+        if result.label=='not_responding':
+            entry['color'] = '#8b198b'
+            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u"Didn't Respond"
+            ret_json.append(entry)
+        elif result.label=='not_submitted':
+            entry['color'] = 'red'
+            entry['description'] = "(%s) Haven't Submitted (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u"Haven't Submitted"
+            ret_json.append(entry)
+        elif result.label=='on_time':
+            entry['color'] = 'green'
+            entry['description'] = "(%s) SOH On Time (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Submitted On Time'
+            ret_json.append(entry)
+        elif result.label=='late':
+            entry['color'] = 'orange'
+            entry['description'] = "(%s) Submitted Late (%s)" % (result.number, date.strftime("%b %Y"))
+            entry['display'] = u'Submitted Late'
+            ret_json.append(entry)
+    return ret_json, total, complete, data[0].group_code
+
+def convert_delivery_data_to_pie_chart(data, date):
+    ret_json = []
+    total = 0
+    complete = 0
+    for result in data:
+        entry = {}
+        number = int(result.number)
+        total += number
+        entry['value'] = number
+        if result.complete:
+            complete += number
+        if result.label=='not_responding':
+            entry['color'] = '#8b198b'
+            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u"Didn't Respond"
+            ret_json.append(entry)
+        elif result.label=='received':
+            entry['color'] = 'green'
+            entry['description'] = "(%s) Delivery Received (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Delivery Received'
+            ret_json.append(entry)
+        elif result.label=='not_received':
+            entry['color'] = 'red'
+            entry['description'] = "(%s) Delivery Not Received (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Delivery Not Received'
+            ret_json.append(entry)
+    return ret_json, total, complete, data[0].group_code
+
+def convert_product_data_to_dashboard(data, chart_info):
+    ret_json = {}
+    ret_json['ticks'] = []
+    ret_json['data'] = []
+    count = 0
+    for product in data:
+        count += 1
+        ret_json['ticks'].append([count, '<span title=%s>%s</span' % (product.product.name, product.product.code)])
+        for bar in chart_info:
+            ret_json['data'].append({'color':bar.color, 'label':bar.label, 'data': 0}) # need to figure out better structure than one previously used
+    return ret_json
 
 def datespan_to_month(datespan):
     return datespan.startdate.month

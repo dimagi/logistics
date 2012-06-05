@@ -32,32 +32,16 @@
     <div class="col-1">
         <div class="module">
 
-
-        <h2>{{ randr_title }}</h2>
-
-        {% with randr_json as chart_data %}
-        {% with "submission_chart" as chartdiv %}
-        {% with "submission_hover" as hoverdiv %}
-        {% with "No facilities are due to submit R&R's this month" as no_data_text %}
-        
-
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-
+            {% include "tanzania/reports/rr_pie_chart.html" %}
 
         </div>
     </div>
     <div class="col-2">
-
-
-
-
-        {% include "tanzania/partials/district-summary.html" %}
-    
-
-
-
+        <div class="module">
+            
+            {% include "tanzania/reports/district_summary_dashboard.html" %}
+        
+        </div>
     </div>
     <div class="clear-hack"></div>
 </div>
@@ -66,37 +50,15 @@
     <div class="col-1">
         <div class="module">
 
-
-        <h2>{{ soh_title }}</h2>
-        {% with soh_json as chart_data %}
-        {% with "soh_chart" as chartdiv %}
-        {% with "soh_hover" as hoverdiv %}
-        
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        
-        {% endwith %}{% endwith %}{% endwith %}
-
+            {% include "tanzania/reports/soh_pie_chart.html" %}
 
         </div>
     </div>
     <div class="col-2">
         <div class="module">
 
-
-
-        <h2>{{ delivery_title }}</h2>
-        {% with delivery_json as chart_data %}
-        {% with "delivery_chart" as chartdiv %}
-        {% with "delivery_hover" as hoverdiv %}
-        {% with "No facilities are reporting deliveries this month" as no_data_text %}
+            {% include "tanzania/reports/delivery_pie_chart.html" %}
         
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-        
-
-
-
         </div>
     </div>
     <div class="clear-hack"></div>
@@ -106,8 +68,7 @@
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
 
-
-        {% include "logistics/partials/product_availability_summary.html" %}
+    {% include "tanzania/reports/product_availability_dashboard.html" %}
 
 
 </div>
