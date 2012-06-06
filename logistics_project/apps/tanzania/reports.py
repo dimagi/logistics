@@ -197,7 +197,7 @@ class SupplyPointStatusBreakdown(object):
                 sum += lt
                 count += 1
         if count==0: return count
-        return sum / count    
+        return sum.days / count
 
     def _percent(self, fn=None, of=None):
         if not of:
