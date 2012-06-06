@@ -52,6 +52,7 @@ class ProductAvailabilityData(ReportingModel):
 class ProductAvailabilityDashboardChart(ReportingModel):
     label = models.TextField()
     color = models.TextField()
+
     width = models.PositiveIntegerField(default=900)
     height = models.PositiveIntegerField(default=300)
     div = models.TextField()
@@ -59,44 +60,13 @@ class ProductAvailabilityDashboardChart(ReportingModel):
     xaxistitle = models.TextField()
     yaxistitle = models.TextField()
 
-
-# class SOHPie(ReportingModel):
-#     on_time = models.PositiveIntegerField(default=0)
-#     late = models.PositiveIntegerField(default=0)
-#     not_responding = models.PositiveIntegerField(default=0)
-
-# class RRPie(ReportingModel):
-#     on_time = models.PositiveIntegerField(default=0)
-#     late = models.PositiveIntegerField(default=0)
-#     not_submitted = models.PositiveIntegerField(default=0)
-#     not_responding = models.PositiveIntegerField(default=0)
-#     historical_response_rate = models.FloatField(default=0)
-
-# class SupervisionPie(ReportingModel):
-#     received = models.PositiveIntegerField(default=0)
-#     not_received = models.PositiveIntegerField(default=0)
-#     not_responding = models.PositiveIntegerField(default=0)
-#     historical_response_rate = models.FloatField(default=0)
-
-# class DeliveryPie(ReportingModel):
-#     received = models.PositiveIntegerField(default=0)
-#     not_received = models.PositiveIntegerField(default=0)
-#     not_responding = models.PositiveIntegerField(default=0)
-#     average_lead_time_in_days = models.FloatField(default=0)
+class Alert(ReportingModel):
+    text = models.TextField()
+    url = models.TextField()
+    expires = models.DateTimeField()
 
 #########################
 
-# class PieCharts(ReportingModel):
-#     soh_title = models.TextField()
-#     soh_json = models.TextField()
-#     randr_title = models.TextField()
-#     randr_json = models.TextField()
-#     supervision_title = models.TextField()
-#     supervision_json = models.TextField()
-#     delivery_title = models.TextField()
-#     delivery_json = models.TextField()
-
-# # this might be better
 # class PieChartType(ReportingModel):
 #     name = models.TextField()
 # 

@@ -1,5 +1,5 @@
 <h2>Delivery Summary ({{ last_month|date:"F Y" }})</h2>
-{% with delivery_json as chart_data %}
+{% with chart_data as chart_data %}
 {% with "delivery_chart" as chartdiv %}
 {% with "delivery_hover" as hoverdiv %}
 {% with "No facilities are reporting deliveries this month" as no_data_text %}

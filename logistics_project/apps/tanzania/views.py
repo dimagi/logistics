@@ -161,19 +161,20 @@ def dashboard(request):
 @place_in_request()
 def dashboard2(request):
     mp = MonthPager(request)
-    last_month = datetime(datetime.fromordinal(mp.begin_date.toordinal()-1).year, datetime.fromordinal(mp.begin_date.toordinal()-1).month,1)
 
     org = request.GET.get('place')
     if not org:
         # TODO: Get this from config
         org = 'MOHSW-MOHSW'
 
+    alerts = Alert.objects.filter(organization__code=org,expires__gt=mp.end_date).order_by('-id')
+
     org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
 
-    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
-    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
-    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=org)
-    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary__date__range=(mp.begin_date,mp.end_date),group_summary__org_summary__organization__code=request.location.code)
+    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
+    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
+    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
+    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary=org_summary)
 
     soh_json, soh_total, soh_complete = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
     rr_json, submit_total, submit_complete, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
@@ -183,10 +184,13 @@ def dashboard2(request):
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
 
-    # product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
-    # product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=request.location.code)
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+    product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
 
-    # product_json = convert_product_data_to_dashboard(product_availability, product_dashboard)
+    product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
+
+    # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
+    chart_info = product_dashboard[0]
 
     location = Location.objects.get(code=org)
     #######
@@ -195,7 +199,7 @@ def dashboard2(request):
 
     return render_to_response("tanzania/dashboard2.html",
                               {"month_pager": mp,
-                               "last_month": last_month,
+                               "alerts": alerts,
                                "soh_json": soh_json,
                                "rr_json": rr_json,
                                "delivery_json": delivery_json,
@@ -210,8 +214,9 @@ def dashboard2(request):
                                "processing_group": processing_group,
                                "total": total,
                                "avg_lead_time": avg_lead_time,
-
-                               "graph_width": 300,
+                               "product_json": product_json,
+                               "chart_info": chart_info,
+                               "graph_width": 300, # used in pie_reporting_generic
                                "graph_height": 300,
                                "location": location,
                                "destination_url": "tz_dashboard2"
@@ -320,16 +325,28 @@ def convert_delivery_data_to_pie_chart(data, date):
             ret_json.append(entry)
     return ret_json, total, complete, data[0].group_code
 
-def convert_product_data_to_dashboard(data, chart_info):
+def convert_product_data_to_stack_chart(data, chart_info):
     ret_json = {}
     ret_json['ticks'] = []
     ret_json['data'] = []
     count = 0
     for product in data:
         count += 1
-        ret_json['ticks'].append([count, '<span title=%s>%s</span' % (product.product.name, product.product.code)])
-        for bar in chart_info:
-            ret_json['data'].append({'color':bar.color, 'label':bar.label, 'data': 0}) # need to figure out better structure than one previously used
+        ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code)])
+    for bar in chart_info:
+        count = 0
+        datalist = []
+        for product in data:
+            count += 1
+            if bar.label=='No Stock Data':
+                datalist.append([count, product.without_data])
+            elif bar.label=='Stocked out':
+                datalist.append([count, product.without_stock])
+            elif bar.label=='Not Stocked out':
+                datalist.append([count, product.with_stock])
+        ret_json['data'].append({'color':bar.color, 'label':bar.label, 'data': datalist })
+    ret_json['ticks'] = json.dumps(ret_json['ticks'])
+    ret_json['data'] = json.dumps(ret_json['data'])
     return ret_json
 
 def datespan_to_month(datespan):

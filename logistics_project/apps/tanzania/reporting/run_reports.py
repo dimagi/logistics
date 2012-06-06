@@ -1,11 +1,14 @@
 import json
 from datetime import datetime
 
-from logistics.models import SupplyPoint, Product, StockTransaction
+from django.core.urlresolvers import reverse
+
+from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
 from logistics_project.apps.tanzania.models import SupplyPointStatus
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
+
 from logistics_project.apps.tanzania.reporting.models import *
 
 
@@ -43,18 +46,22 @@ def populate_report_data(start_date, end_date):
             return child_orgs
 
         child_orgs = get_children(org.id)
+        child_orgs.append(org.id)
 
         for year in range(start_date.year,end_date.year + 1):
             for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
 
                 print datetime(year,month,1).strftime("%Y-%m")
                 
-                report_data = SupplyPointStatusBreakdown(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year,month)
+                populate_no_primary_alerts(org, datetime(year,month,1), child_orgs)                
+                report_data = SupplyPointStatusBreakdown(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
                 product_data = ProductAvailabilitySummaryByFacilitySP(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
-                populate_group_data(org, datetime(year,month,1), report_data)
+                populate_group_data_plus_alerts(org, datetime(year,month,1), report_data)
                 populate_product_data(org,datetime(year,month,1),product_data)
+                populate_stockout_alerts(org, datetime(year,month,1), child_orgs)
 
-def populate_group_data(org, date, data):
+
+def populate_group_data_plus_alerts(org, date, data):
     org_summary = OrganizationSummary(organization=org, date=date)
     org_summary.total_orgs = data.dg.total().count()
     org_summary.average_lead_time_in_days = data.avg_lead_time2
@@ -76,7 +83,10 @@ def populate_group_data(org, date, data):
                     group_data.number = len(data.soh_late)
                     group_data.complete = True
                 elif fac_action == 'not_responding':
-                    group_data.number = len(data.soh_not_responding)
+                    temp = len(data.soh_not_responding)
+                    group_data.number = temp
+                    if temp > 0:
+                        create_alert(org, date, 'soh_not_responding',{'number': temp})
                 create_object(group_data)
         elif group_action == 'rr_submit':
             group_summary.historical_response_rate = data.randr_response_rate2()
@@ -92,9 +102,15 @@ def populate_group_data(org, date, data):
                     group_data.number = len(data.submitted_late)
                     group_data.complete = True
                 elif fac_action == 'not_submitted':
-                    group_data.number = len(data.not_submitted)
+                    temp = len(data.not_submitted)
+                    group_data.number = temp
+                    if temp > 0:
+                        create_alert(org, date, 'rr_not_submitted',{'number': temp})
                 elif fac_action == 'not_responding':
-                    group_data.number = len(data.submit_not_responding)
+                    temp = len(data.submit_not_responding)
+                    group_data.number = temp
+                    if temp > 0:
+                        create_alert(org, date, 'rr_not_responded',{'number': temp})
                 create_object(group_data)
         elif group_action == 'process':
             group_summary.historical_response_rate = data.supervision_response_rate2()
@@ -114,9 +130,15 @@ def populate_group_data(org, date, data):
                     group_data.number = len(data.delivery_received)
                     group_data.complete = True
                 elif fac_action == 'not_received':
-                    group_data.number = len(data.delivery_not_received)
+                    temp = len(data.delivery_not_received)
+                    group_data.number = temp
+                    if temp > 0:
+                        create_alert(org, date, 'delivery_not_received',{'number': temp})
                 elif fac_action == 'not_responding':
-                    group_data.number = len(data.delivery_not_responding)
+                    temp = len(data.delivery_not_responding)
+                    group_data.number = temp
+                    if temp > 0:
+                        create_alert(org, date, 'delivery_not_responding',{'number': temp})
                 create_object(group_data)
         elif group_action == 'supervision':
             group_summary.historical_response_rate = data.supervision_response_rate2()
@@ -158,6 +180,38 @@ def populate_product_data(org,date,data):
         product_availability.without_data = max(product['without_data'],0)
         create_object(product_availability)
 
+def populate_no_primary_alerts(org, date, child_orgs):
+    no_primary = SupplyPoint.objects.filter(id__in=child_orgs, contact=None)
+    for problem in no_primary:
+        create_alert(org,date,'no_primary_contact',{'org': problem})
+
+def populate_stockout_alerts(org, date, child_orgs):
+    stockouts = ProductStock.objects.filter(supply_point__id__in=child_orgs, quantity=0)
+    for problem in stockouts:
+        create_alert(org,date,'product_stockout',{'org': problem.supply_point, 'product': problem.product})
+
+def create_alert(org, date, type, details):
+    alert = Alert(organization=org, date=date)
+    alert.expires = datetime.fromordinal(date.toordinal()+32)
+    alert.url = ''
+
+    if type=='rr_not_submitted':
+        alert.text = '%d facilities have reported not submitting their R&R form as of today.' % details['number']
+    elif type=='rr_not_responded':
+        alert.text = '%d facilities did not respond to the SMS asking if they had submitted their R&R form.' % details['number']
+    elif type=='delivery_not_received':
+        alert.text = '%d facilities have reported not receiving their deliveries as of today.' % details['number']
+    elif type=='delivery_not_responding':
+        alert.text = '%d facilities did not respond to the SMS asking if they had received their delivery.' % details['number']        
+    elif type=='soh_not_responding':
+        alert.text = '%d facilities have not reported their stock levels for last month.' % details['number']
+        alert.url = reverse('facilities_index')
+    elif type=='product_stockout':
+        alert.text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
+    elif type=='no_primary_contact':
+        alert.text = '%s has no primary contact.' % details['org'].name
+
+    create_object(alert)
 
 ##########
 # temporary for testing
