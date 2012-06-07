@@ -192,10 +192,8 @@ def dashboard2(request):
     # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
     chart_info = product_dashboard[0]
 
+    # TODO: don't use location like this (district summary)
     location = Location.objects.get(code=org)
-    #######
-
-    # breakthis
 
     return render_to_response("tanzania/dashboard2.html",
                               {"month_pager": mp,

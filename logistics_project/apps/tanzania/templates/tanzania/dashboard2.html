@@ -1,7 +1,6 @@
 {% extends base_template %}
 {% load i18n %}
 {% load webdesign %} 
-
 {% load nav_tags %}
 
 {% block javascripts %}
@@ -14,13 +13,13 @@
 
 {% block content %}
 
-<!-- this is ugly -->
+<!-- TODO: this is ugly -->
 {% include "logistics/partials/breadcrumbs.html" %} 
 
 <div class="module noprint">
     <h2>{% trans 'Alerts' %}</h2>
     {% with alerts as alerts %}
-    {% include "alerts/partials/alerts.html" %}
+        {% include "alerts/partials/alerts.html" %}
     {% endwith %}
 </div>
 
@@ -33,7 +32,7 @@
 
             {% with rr_json as chart_data %}
             {% with month_pager.prev_month as last_month %}
-            {% include "tanzania/reports/rr_pie_chart.html" %}
+                {% include "tanzania/reports/rr_pie_chart.html" %}
             {% endwith %}{% endwith %}
 
         </div>
@@ -41,6 +40,7 @@
     <div class="col-2">
         <div class="module">
             
+            <!-- TODO: with what? -->
             {% include "tanzania/reports/district_summary_dashboard.html" %}
         
         </div>
@@ -53,7 +53,7 @@
 
             {% with soh_json as chart_data %}
             {% with month_pager.prev_month as last_month %}
-            {% include "tanzania/reports/soh_pie_chart.html" %}
+                {% include "tanzania/reports/soh_pie_chart.html" %}
             {% endwith %}{% endwith %}
 
         </div>
@@ -63,7 +63,7 @@
 
             {% with delivery_json as chart_data %}
             {% with month_pager.prev_month as last_month %}
-            {% include "tanzania/reports/delivery_pie_chart.html" %}
+                {% include "tanzania/reports/delivery_pie_chart.html" %}
             {% endwith %}{% endwith %}
 
         </div>
@@ -77,7 +77,7 @@
     {% with product_json as summary %}
     {% with chart_info as chart_info %}
     {% with total as max_value %}
-    {% include "tanzania/reports/product_availability_dashboard.html" %}
+        {% include "tanzania/reports/product_availability_dashboard.html" %}
     {% endwith %}{% endwith %}{% endwith %}
 
 </div>
