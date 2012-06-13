@@ -38,7 +38,8 @@ def _edit_org_link(cell):
     
 class OrganizationTable(Table):
     name     = Column(link=_edit_org_link)
-    members  = Column(value=lambda cell: Contact.objects.filter(organization=cell.object).count())
+    members  = Column(value=lambda cell: Contact.objects.filter(organization=cell.object).count(),
+                      sortable=False)
     
     class Meta:
         order_by = 'name'
