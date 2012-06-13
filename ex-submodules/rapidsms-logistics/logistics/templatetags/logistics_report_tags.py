@@ -1,6 +1,6 @@
 from django import template
 from django.template.loader import render_to_string
-from django.conf import settings
+from rapidsms.conf import settings
 from datetime import datetime, timedelta
 from django.db.models.query_utils import Q
 from logistics.models import SupplyPoint, StockRequest,\
@@ -89,7 +89,8 @@ def reporting_breakdown(context, locations, type=None, datespan=None, include_la
         if type is not None and type:
             base_points = base_points.filter(type__code=type)
         if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, datespan, request=request, include_late=include_late)
+            report = ReportingBreakdown(base_points, datespan, request=request, include_late=include_late,
+                                        days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
             context = {"report": report,
                        "graph_width": 200,
                        "graph_height": 200,
