@@ -14,8 +14,11 @@ from logistics.models import Product
 from logistics.views import MonthPager
 
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateRandRTable2, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
+
+from logistics_project.apps.tanzania.reporting.models import *
+from logistics_project.apps.tanzania.views import *
 
 from models import DeliveryGroups
 from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
@@ -36,26 +39,72 @@ class TanzaniaReport(object):
         self.context = self.base_context.copy()
         self.mp = MonthPager(self.request)
 
-        self.facs, self.location = get_facilities_and_location(self.request)
-        self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
-        self.bd = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
+        # self.facs, self.location = get_facilities_and_location(self.request)
+        # self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
+        # self.bd = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
+        request = self.request
+        mp = self.mp
+
+        org = request.GET.get('place')
+        if not org:
+            if request.user.get_profile() is not None:
+                if request.user.get_profile().location is not None:
+                    org = request.user.get_profile().location.code
+                elif request.user.get_profile().supply_point is not None:
+                    org = request.user.get_profile().supply_point.code
+        if not org:
+            # TODO: Get this from config
+            org = 'MOHSW-MOHSW'
+
+        self.location = Location.objects.get(code=org)
+
+        org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+
+        soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
+        rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
+        delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
+        supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
+
+        soh_json, soh_total, soh_complete = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
+        rr_json, submit_total, submit_complete, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
+        delivery_json, delivery_total, delivery_complete, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
+        supervision_json, supervision_total, supervision_complete = convert_supervision_data_to_pie_chart(supervision_data, mp.begin_date)
+
+        total = org_summary.total_orgs
+        avg_lead_time = org_summary.average_lead_time_in_days
+
+        product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
+        product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+
+        product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
+
+        # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
+        chart_info = product_dashboard[0]
+
+        # TODO: don't use location like this (district summary)
 
         report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] # hack to get around 1.3 brokenness
+
+        self.rr_data = (submit_complete / submit_total) * 100
+
         self.context.update({
             "month_pager": self.mp,
-
-            "facs": self.facs,
             "location": self.location,
+            "level": self.level,
 
-            "level": self.location.type.name,
+            # "facs": self.facs,
 
-            "dg": self.dg,
-            "bd": self.bd,
+            "rr_json": rr_json,
+            "graph_width": 300, # used in pie_reporting_generic
+            "graph_height": 300,
+
+            # "dg": self.dg,
+            # "bd": self.bd,
 
             "report_list": report_list,
             "slug": self.slug,
             "name": self.name,
-            "destination_url": reverse('new_reports', args=(self.slug,)),
+            "destination_url": reverse('new_reports2', args=(self.slug,)),
             "nav_mode": "direct-param",
         })
 
@@ -80,7 +129,9 @@ class TanzaniaReport(object):
         return self.location.type.name.lower()
 
     def template(self):
-        return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
+        if self.slug == 'randr':
+            return "%s/%s-%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
+        return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)        
 
     def as_view(self):
         self.reset_context()
@@ -104,7 +155,8 @@ class RandRReport(TanzaniaReport):
     slug = "randr"
     
     def national_report(self):
-        self.context['randr_table'] = AggregateRandRTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        # self.context['randr_table'] = AggregateRandRTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['randr_table'] = AggregateRandRTable2(object_list=national_aggregate(month=self.mp.month, year=self.mp.year, data=self.rr_data), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def regional_report(self):
         self.context['randr_table'] = AggregateRandRTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)

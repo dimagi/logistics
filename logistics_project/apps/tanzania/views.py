@@ -164,6 +164,12 @@ def dashboard2(request):
 
     org = request.GET.get('place')
     if not org:
+        if request.user.get_profile() is not None:
+            if request.user.get_profile().location is not None:
+                org = request.user.get_profile().location.code
+            elif request.user.get_profile().supply_point is not None:
+                org = request.user.get_profile().supply_point.code
+    if not org:
         # TODO: Get this from config
         org = 'MOHSW-MOHSW'
 
@@ -184,7 +190,7 @@ def dashboard2(request):
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
 
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
     product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
@@ -201,8 +207,8 @@ def dashboard2(request):
                                "soh_json": soh_json,
                                "rr_json": rr_json,
                                "delivery_json": delivery_json,
-                               "processing_total": soh_total,
-                               "processing_complete": soh_complete,
+                               "processing_total": processing_total,
+                               "processing_complete": processing_complete,
                                "submitting_total": submit_total,
                                "submitting_complete": submit_complete,
                                "delivery_total": delivery_total,
@@ -323,6 +329,35 @@ def convert_delivery_data_to_pie_chart(data, date):
             ret_json.append(entry)
     return ret_json, total, complete, data[0].group_code
 
+def convert_supervision_data_to_pie_chart(data, date):
+    ret_json = []
+    total = 0
+    complete = 0
+    for result in data:
+        entry = {}
+        number = int(result.number)
+        total += number
+        entry['value'] = number
+        if result.complete:
+            complete += number
+        if result.label=='not_responding':
+            entry['color'] = '#8b198b'
+            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Supervision Not Responding'
+            ret_json.append(entry)
+        elif result.label=='received':
+            entry['color'] = 'green'
+            entry['description'] = "(%s) Supervision Received (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Supervision Received'
+            ret_json.append(entry)
+        elif result.label=='not_received':
+            entry['color'] = 'orange'
+            entry['description'] = "(%s) Supervision Not Received (%s)" % (number, date.strftime("%b %Y"))
+            entry['display'] = u'Supervision Not Received'
+            ret_json.append(entry)
+    return ret_json, total, complete
+
+
 def convert_product_data_to_stack_chart(data, chart_info):
     ret_json = {}
     ret_json['ticks'] = []
@@ -330,7 +365,7 @@ def convert_product_data_to_stack_chart(data, chart_info):
     count = 0
     for product in data:
         count += 1
-        ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code)])
+        ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code.lower())])
     for bar in chart_info:
         count = 0
         datalist = []
@@ -528,16 +563,68 @@ def reporting(request):
         context_instance=RequestContext(request))
 
 # TODO:
-@place_in_request
-def reporting2(request):
-    facs, location = get_facilities_and_location(request)
+# @place_in_request
+def reports2(request, slug='soh'):
     mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
-    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
-    ot = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
 
-    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
+    org = request.GET.get('place')
+    if not org:
+        if request.user.get_profile() is not None:
+            if request.user.get_profile().location is not None:
+                org = request.user.get_profile().location.code
+            elif request.user.get_profile().supply_point is not None:
+                org = request.user.get_profile().supply_point.code
+    if not org:
+        # TODO: Get this from config
+        org = 'MOHSW-MOHSW'
 
+    alerts = Alert.objects.filter(organization__code=org,expires__gt=mp.end_date).order_by('-id')
+
+    org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+
+    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
+    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
+    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
+    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary=org_summary)
+    supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
+
+    soh_json, soh_total, soh_complete = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
+    rr_json, submit_total, submit_complete, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
+    delivery_json, delivery_total, delivery_complete, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
+    supervision_json, supervision_total, supervision_complete = convert_supervision_data_to_pie_chart(supervision_data, mp.begin_date)
+
+    processing_total, processing_complete, processing_group = prepare_processing_info(process_data)
+
+    total = org_summary.total_orgs
+    avg_lead_time = org_summary.average_lead_time_in_days
+
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
+    product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+
+    product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
+
+    # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
+    chart_info = product_dashboard[0]
+
+    # TODO: don't use location like this (district summary)
+    location = Location.objects.get(code=org)
+
+    return render_to_response("tanzania/new-reports2.html",
+        {
+          "graph_width": 300, # used in pie_reporting_generic
+          "graph_height": 300,
+
+          "location": location,
+          "month_pager": mp,
+
+          "soh_json": soh_json,
+          "rr_json": rr_json,
+          "delivery_json": delivery_json,
+          "supervision_json": supervision_json,
+
+          "destination_url": "new_reports2"
+        },
+        context_instance=RequestContext(request))
 
 
 @place_in_request()

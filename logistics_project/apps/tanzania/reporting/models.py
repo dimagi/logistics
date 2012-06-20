@@ -11,10 +11,12 @@ from logistics.models import SupplyPoint, Product
 
 class ReportingModel(models.Model):
     organization = models.ForeignKey(SupplyPoint) # viewing organization
+    # start_date = models.DateTimeField() # viewing time period
+    # end_date = models.DateTimeField() # viewing time period
     date = models.DateTimeField() # viewing time period
 
-    create_date = models.DateTimeField(editable=False, auto_now_add=True)
-    update_date = models.DateTimeField(editable=False, auto_now=True)
+    create_date = models.DateTimeField(editable=False)
+    update_date = models.DateTimeField(editable=False)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -41,6 +43,7 @@ class GroupData(models.Model):
     label = models.TextField() # on_time
     number = models.FloatField(default=0) # 45
     complete = models.BooleanField(default=False) # True
+
 
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)

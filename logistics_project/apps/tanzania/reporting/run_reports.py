@@ -8,9 +8,11 @@ from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
 from logistics_project.apps.tanzania.models import SupplyPointStatus
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
+from logistics_project.apps.tanzania.utils import submitted_to_msd
 
 from logistics_project.apps.tanzania.reporting.models import *
 
+TESTING = True
 
 # @task
 def generate():
@@ -22,20 +24,23 @@ def generate():
     populate_report_data(start_date, end_date)
 
 def clear_out_reports(start_date, end_date):
-    org_summary = OrganizationSummary.objects.filter(date__range=(start_date,end_date))
-    group_summary = GroupSummary.objects.filter(org_summary__date__range=(start_date,end_date))
-    group_data = GroupData.objects.filter(group_summary__org_summary__date__range=(start_date,end_date))
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(start_date,end_date))
-    product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(start_date,end_date))
+    if TESTING:
+        pass
+    else:
+        org_summary = OrganizationSummary.objects.filter(date__range=(start_date,end_date))
+        group_summary = GroupSummary.objects.filter(org_summary__date__range=(start_date,end_date))
+        group_data = GroupData.objects.filter(group_summary__org_summary__date__range=(start_date,end_date))
+        product_availability = ProductAvailabilityData.objects.filter(date__range=(start_date,end_date))
+        product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(start_date,end_date))
 
-    org_summary.delete()
-    group_summary.delete()
-    group_data.delete()
-    product_availability.delete()
-    product_dashboard.delete()
+        org_summary.delete()
+        group_summary.delete()
+        group_data.delete()
+        product_availability.delete()
+        product_dashboard.delete()
     
 def populate_report_data(start_date, end_date):
-    for org in SupplyPoint.objects.iterator():
+    for org in SupplyPoint.objects.all().order_by('name'):
 
         print org.name
         
@@ -56,12 +61,13 @@ def populate_report_data(start_date, end_date):
                 populate_no_primary_alerts(org, datetime(year,month,1), child_orgs)                
                 report_data = SupplyPointStatusBreakdown(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
                 product_data = ProductAvailabilitySummaryByFacilitySP(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
-                populate_group_data_plus_alerts(org, datetime(year,month,1), report_data)
+                msd_data = submitted_to_msd(child_orgs, month, year)
+                populate_group_data_plus_alerts(org, datetime(year,month,1), report_data, msd_data)
                 populate_product_data(org,datetime(year,month,1),product_data)
                 populate_stockout_alerts(org, datetime(year,month,1), child_orgs)
 
 
-def populate_group_data_plus_alerts(org, date, data):
+def populate_group_data_plus_alerts(org, date, data, msd_data):
     org_summary = OrganizationSummary(organization=org, date=date)
     org_summary.total_orgs = data.dg.total().count()
     org_summary.average_lead_time_in_days = data.avg_lead_time2
@@ -115,10 +121,21 @@ def populate_group_data_plus_alerts(org, date, data):
         elif group_action == 'process':
             group_summary.historical_response_rate = data.supervision_response_rate2()
             create_object(group_summary)
-            group_data = GroupData(group_summary=group_summary)
-            group_data.group_code = data.dg.current_processing_group()
-            group_data.label = fac_action
-            create_object(group_data)
+            for status in ['complete', 'incomplete']:
+                if status == 'complete':
+                    group_data = GroupData(group_summary=group_summary)
+                    group_data.complete = True
+                    group_data.number = msd_data
+                    group_data.group_code = data.dg.current_processing_group()
+                    group_data.label = fac_action
+                    create_object(group_data)
+                elif status == 'incomplete':
+                    group_data = GroupData(group_summary=group_summary)
+                    group_data.complete = False
+                    group_data.number = len(data.dg.processing()) - msd_data
+                    group_data.group_code = data.dg.current_processing_group()
+                    group_data.label = fac_action
+                    create_object(group_data)                    
         elif group_action == 'deliver':
             group_summary.historical_response_rate = data.supervision_response_rate2()
             create_object(group_summary)
@@ -216,8 +233,8 @@ def create_alert(org, date, type, details):
 ##########
 # temporary for testing
 ##########
-def create_object(obj, testing=False):
-    if testing:
+def create_object(obj):
+    if TESTING:
         pass
     else:
         obj.save()

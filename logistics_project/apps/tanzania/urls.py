@@ -16,6 +16,10 @@ urlpatterns = patterns('',
 #    url(r'^reports/$', 'logistics_project.apps.tanzania.views.new_reports', name='reports'),
     url(r'^reports/(?P<slug>\w+)/$', 'logistics_project.apps.tanzania.reportcalcs.new_reports', name='new_reports'),
     url(r'^reports/$', 'logistics_project.apps.tanzania.reportcalcs.new_reports', name='new_reports'),
+
+    url(r'^reports2/(?P<slug>\w+)/$', 'logistics_project.apps.tanzania.reportcalcs2.new_reports', name='new_reports2'),
+    url(r'^reports2/$', 'logistics_project.apps.tanzania.reportcalcs2.new_reports', name='new_reports2'),
+
 #    url(r'^reports/pdf/$', 'logistics_project.apps.tanzania.views.reporting_pdf', name="tz_pdf_reports"),
 #    url(r'^reports/adhoc/$', 'logistics_project.apps.tanzania.views.ad_hoc_reports',
 #        name='ad_hoc_reports'),
