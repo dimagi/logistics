@@ -1,0 +1,36 @@
+{% extends "tanzania/reports-base.html" %}
+{% load nav_tags %}
+{% load logistics_report_tags %}
+{% load tz_tags %}
+
+{% block report_content %}
+
+    <div class="module toppadded">
+            {% with soh_json as chart_data %}
+            {% with month_pager.prev_month as last_month %}
+                {% include "tanzania/reports/soh_pie_chart.html" %}
+            {% endwith %}{% endwith %}
+    </div>
+
+    <div class="two-columns">
+        <div class="col-1">
+            <div class="module">
+
+                <h2>Product Availability</h2>
+                {% include "logistics/partials/dynamic_product_availability_summary.html" %}
+            
+            </div>
+        </div>
+
+        <div class="col-2">
+
+           {% include "tanzania/partials/product-selector.html" %}
+
+        </div>
+    </div>
+    <div class="module toppadded" style="clear:both;">
+        <a id="stock"></a>
+        {{ soh_table.as_html }}
+    </div>
+
+{% endblock %}

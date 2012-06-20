@@ -391,10 +391,9 @@ class SupplyPointStatusBreakdown(object):
         return self._soh_chart
 
 class LocationAggregate(object):
-    def __init__(self, location=None, month=None, year=None, view=None, data=None):
+    def __init__(self, location=None, month=None, year=None, view=None):
         self.location = location
-        # self.breakdown = SupplyPointStatusBreakdown(facilities=facilities_below(location), month=month, year=year)
-        self.breakdown = data
+        self.breakdown = SupplyPointStatusBreakdown(facilities=facilities_below(location), month=month, year=year)
 
     def __unicode__(self):
         return "%s" % self.name
@@ -406,9 +405,9 @@ class LocationAggregate(object):
     def url(self):
         pass
 
-def national_aggregate(year=None, month=None, data=None):
+def national_aggregate(year=None, month=None):
     location = Location.objects.get(type__name="MOHSW")
-    return location_aggregates(location, year=year, month=month, data=data)
+    return location_aggregates(location, year=year, month=month)
 
-def location_aggregates(location, year=None, month=None, data=None):
-    return [LocationAggregate(location=x, month=month, year=year, data=data) for x in location.get_children()]
+def location_aggregates(location, year=None, month=None):
+    return [LocationAggregate(location=x, month=month, year=year) for x in location.get_children()]

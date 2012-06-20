@@ -1,0 +1,9 @@
+{% extends "tanzania/reports-base.html" %}
+{% load djtables_tags %}
+
+{% block report_content %}
+    <div class="module">
+        <h2>Unrecognized Messages</h2>
+            {{ table.as_html }}
+    </div>
+{% endblock %}

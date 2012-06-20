@@ -278,17 +278,6 @@ class AggregateRandRTable(MonthTable):
     class Meta:
         per_page = 9999
 
-class AggregateRandRTable2(MonthTable):
-    name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell: reports_link(cell, 'randr'))
-    percent_on_time = Column(sortable=False, value=lambda cell: cell.object.breakdown, name="% Facilities Submitting R&R On Time", safe=True)
-    percent_late = Column(sortable=False, value=lambda cell: cell.object.breakdown, name="% Facilities Submitting R&R Late", safe=True)
-    percent_not_submitted = Column(sortable=False, value=lambda cell: cell.object.breakdown, name="% Facilities with R&R Not Submitted", safe=True)
-    percent_not_responding = Column(sortable=False, value=lambda cell: cell.object.breakdown, name="% Facilities Not Responding to R&R Reminder", safe=True)
-    historical_response_rate = Column(sortable=False, value=lambda cell: cell.object.breakdown, name = "Historical Response Rate", safe=True)
-
-    class Meta:
-        per_page = 9999
-
 class AggregateSOHTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'soh'))
     percent_on_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.percent_soh_on_time(), name="% Facilities Submitting SOH On Time", safe=True)
