@@ -410,6 +410,17 @@ def convert_product_data_to_stack_chart(data, chart_info):
     ret_json['data'] = json.dumps(ret_json['data'])
     return ret_json
 
+def convert_product_data_to_sideways_chart(data, chart_info):
+    ret_json = {}
+    codes = []
+    for d in data:
+        name = str(d.product.name)
+        code = str(d.product.code.lower())
+        ret_json[code] = {'product': name, 'code': code, 'total': d.total, 'with_stock': d.with_stock, 'without_stock': d.without_stock, 'without_data': d.without_data, 'tick': '<span title=%s>%s</span>' % (name, code)}
+        codes.append(code)
+
+    return ret_json, codes
+
 def datespan_to_month(datespan):
     return datespan.startdate.month
 
@@ -587,70 +598,6 @@ def reporting(request):
           "randr_history_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
                                                     month=mp.month, year=mp.year, prefix="randr_history"),
           "destination_url": "reports"
-        },
-        context_instance=RequestContext(request))
-
-# TODO:
-# @place_in_request
-def reports2(request, slug='soh'):
-    mp = MonthPager(request)
-
-    org = request.GET.get('place')
-    if not org:
-        if request.user.get_profile() is not None:
-            if request.user.get_profile().location is not None:
-                org = request.user.get_profile().location.code
-            elif request.user.get_profile().supply_point is not None:
-                org = request.user.get_profile().supply_point.code
-    if not org:
-        # TODO: Get this from config
-        org = 'MOHSW-MOHSW'
-
-    alerts = Alert.objects.filter(organization__code=org,expires__gt=mp.end_date).order_by('-id')
-
-    org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
-
-    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
-    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
-    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
-    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary=org_summary)
-    supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
-
-    soh_json, soh_total, soh_complete = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
-    rr_json, submit_total, submit_complete, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
-    delivery_json, delivery_total, delivery_complete, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
-    supervision_json, supervision_total, supervision_complete = convert_supervision_data_to_pie_chart(supervision_data, mp.begin_date)
-
-    processing_total, processing_complete, processing_group = prepare_processing_info(process_data)
-
-    total = org_summary.total_orgs
-    avg_lead_time = org_summary.average_lead_time_in_days
-
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
-    product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
-
-    product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
-
-    # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
-    chart_info = product_dashboard[0]
-
-    # TODO: don't use location like this (district summary)
-    location = Location.objects.get(code=org)
-
-    return render_to_response("tanzania/new-reports2.html",
-        {
-          "graph_width": 300, # used in pie_reporting_generic
-          "graph_height": 300,
-
-          "location": location,
-          "month_pager": mp,
-
-          "soh_json": soh_json,
-          "rr_json": rr_json,
-          "delivery_json": delivery_json,
-          "supervision_json": supervision_json,
-
-          "destination_url": "new_reports2"
         },
         context_instance=RequestContext(request))
 

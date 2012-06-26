@@ -1,0 +1,92 @@
+{% load i18n %}
+{% block javascripts %}
+    <script language="javascript">
+    $(document).ready(function() {
+        // Bar chart
+        bar_options = {                     
+           series: {
+             lines: { show: false, steps: false },
+             bars: { show: true, barWidth: 0.75, align: 'center', horizontal: true }
+           },
+           yaxis: {   //product codes go here         
+                  },
+           legend: {show: true, container: $("#{{ chart_info.legenddiv }}"), noColumns: 3},
+           xaxis: {max: {{ max_value }},
+                   tickDecimals: 0 },
+           grid: {show: true,
+                  tickColor: 'gray',
+                  backgroundColor: '#FFFFFF',
+                  hoverable: false,
+                  autoHighlight:false}
+        };
+        
+        var summary = {{ summary|safe }};
+        var codes = {{ codes|safe }}
+
+        var i = 1;
+        for (k in codes) {
+            box = "<input type='checkbox' class='prod-selector'";
+            if (i < {{ max_products }}) {
+                $('.prod-'+codes[k]).show();
+                box = box + " checked=true ";
+            } else {
+                $('.prod-'+codes[k]).hide();
+            }
+            box = box + "id='"+codes[k]+"'> ["+codes[k]+"] "+ summary[codes[k]]['product'] +"</input>\n<br />";
+            $('#product-selector').append(box);
+            i = i + 1;
+        }
+
+        var update_pas = function(){
+            var withstock = [];
+            var withoutstock = [];
+            var nodata = [];
+            var ticks = [];
+            var cur_data = [];
+            var index = 1;
+            var checked_count = 0;
+
+            for (k in codes){
+                if ($('#product-selector #'+codes[k])[0].checked) {
+                    $('.prod-'+codes[k]).fadeIn(1000);
+                    withstock.push([summary[codes[k]]['with_stock'], index]);
+                    withoutstock.push([summary[codes[k]]['without_stock'], index + 1]);
+                    nodata.push([summary[codes[k]]['without_data'], index + 2]);
+                    ticks.push([index + 1, summary[codes[k]]['tick']]);
+                    index += 4;
+                    checked_count += 1;
+                }
+                else{
+                    $('.prod-'+codes[k]).fadeOut('slow');                    
+                }
+            }
+            if (checked_count >= {{ max_products }}) {
+                for (k in codes) {
+                    if (!($('#product-selector #'+codes[k])[0].checked)) {
+                        $('#product-selector #'+codes[k]).attr('disabled', true);
+                    }
+                }
+            } else {
+                $('#product-selector input').removeAttr("disabled");
+            }
+
+            cur_data.push(withoutstock);
+            cur_data.push(withstock);
+            cur_data.push(nodata);
+
+            bar_options.yaxis.ticks = ticks;
+            height = 10 * index + "px";
+            $("#{{ chart_info.div }}")[0].style.height = height;
+            $.plot($("#{{ chart_info.div }}"), cur_data, bar_options);
+        };        
+
+        $('.prod-selector').change(update_pas);
+        update_pas();
+    });
+	</script>
+{% endblock %}
+
+
+<div id="{{ chart_info.legenddiv }}" style="width:100%"></div>
+<div id="{{ chart_info.div }}" style="width: 100%; height:{{ chart_info.height }}px" ></div>
+<p style="text-align:center; width:{{ chart_info.width }}px;">Facilities</p>

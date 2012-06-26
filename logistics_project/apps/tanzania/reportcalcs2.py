@@ -60,12 +60,18 @@ class TanzaniaReport(object):
         self.bd = SupplyPointStatusBreakdown(self.location.code, self.mp.year, self.mp.month)
 
         date = mp.begin_date
-        
+
+        product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
+        product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+        product_json, product_codes = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
+
         org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
         soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
         rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
         delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
         supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
+
+        total = org_summary.total_orgs
 
         soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, date)
         rr_json, submit_numbers, submitting_group = convert_rr_data_to_pie_chart(rr_data, date)
@@ -79,7 +85,6 @@ class TanzaniaReport(object):
             "location": self.location,
             "level": self.level,
 
-            # "facs": self.facs,
             "submitting_group": submitting_group,
             "soh_json": soh_json,
             "rr_json": rr_json,
@@ -88,8 +93,10 @@ class TanzaniaReport(object):
             "graph_width": 300, # used in pie_reporting_generic
             "graph_height": 300,
 
-            # "dg": self.dg,
-            # "bd": self.bd,
+            "chart_info": product_dashboard[0],
+            "product_json": product_json,
+            "product_codes": product_codes,
+            "total": total,
 
             "report_list": report_list,
             "slug": self.slug,
@@ -160,7 +167,7 @@ class SOHReport(TanzaniaReport):
 
     def common_report(self):
         self.context['max_products'] = 6
-        self.context['summary'] = DynamicProductAvailabilitySummaryByFacilitySP(facilities_below(self.location).filter(contact__is_active=True).distinct(), year=self.mp.year, month=self.mp.month)
+        # self.context['summary'] = DynamicProductAvailabilitySummaryByFacilitySP(facilities_below(self.location).filter(contact__is_active=True).distinct(), year=self.mp.year, month=self.mp.month)
     
     def national_report(self):
         table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)

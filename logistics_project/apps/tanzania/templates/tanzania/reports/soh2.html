@@ -17,15 +17,20 @@
             <div class="module">
 
                 <h2>Product Availability</h2>
-                {% include "logistics/partials/dynamic_product_availability_summary.html" %}
-            
+                {% with product_codes as codes %}
+                {% with product_json as summary %}
+                {% with chart_info as chart_info %}
+                {% with total as max_value %}
+                {% with max_products as max_products %}
+                    {% include "tanzania/reports/dynamic_product_availability_summary.html" %}
+                {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
             </div>
         </div>
 
         <div class="col-2">
-
-           {% include "tanzania/partials/product-selector.html" %}
-
+            {% with max_products as max_products %}
+                {% include "tanzania/partials/product-selector.html" %}
+            {% endwith %}
         </div>
     </div>
     <div class="module toppadded" style="clear:both;">
