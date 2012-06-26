@@ -35,7 +35,6 @@ class Contact(models.Model):
 
     @default_connection.setter
     def default_connection(self, identity):
-        # when you re-assign default connection, should you delete the unused connection? probably.
         from rapidsms.models import Connection
         backend = self.default_backend
         default = self.default_connection
@@ -43,7 +42,11 @@ class Contact(models.Model):
             if default.identity == identity and default.backend == backend:
                 # our job is done
                 return
-            default.delete()
+            # when you re-assign default connection, 
+            # should you delete the unused connection? 
+            # probably not because who knows what else will get deleted in the
+            # cascade
+            # default.delete()
         try:
             conn = Connection.objects.get(backend=backend, identity=identity)
         except Connection.DoesNotExist:
