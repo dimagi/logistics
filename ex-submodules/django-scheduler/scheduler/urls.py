@@ -3,7 +3,7 @@
 
 import os
 from django.conf.urls.defaults import *
-import .views as views
+from . import views 
 
 urlpatterns = patterns('',
     url(r'^$', views.index, name="scheduler"),
