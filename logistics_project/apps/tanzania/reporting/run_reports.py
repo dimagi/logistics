@@ -12,7 +12,7 @@ from logistics_project.apps.tanzania.utils import submitted_to_msd
 
 from logistics_project.apps.tanzania.reporting.models import *
 
-TESTING = True
+TESTING = False
 
 # @task
 def generate():
