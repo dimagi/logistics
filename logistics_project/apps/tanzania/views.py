@@ -190,7 +190,7 @@ def dashboard2(request):
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
 
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
     product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
@@ -415,11 +415,27 @@ def convert_product_data_to_sideways_chart(data, chart_info):
     codes = []
     for d in data:
         name = str(d.product.name)
-        code = str(d.product.code.lower())
+        code = str(d.product.sms_code.lower())
         ret_json[code] = {'product': name, 'code': code, 'total': d.total, 'with_stock': d.with_stock, 'without_stock': d.without_stock, 'without_data': d.without_data, 'tick': '<span title=%s>%s</span>' % (name, code)}
         codes.append(code)
 
-    return ret_json, codes
+    bar_data = [{"data" : [],
+                 "label": "Stocked out",
+                 "bars": { "show" : "true"},
+                 "color": "#a30808",
+                },
+                {"data" : [],
+                 "label": "Not Stocked out",
+                 "bars": { "show" : "true"},
+                 "color": "#7aaa7a",
+                },
+                {"data" : [],
+                 "label": "No Stock Data",
+                 "bars": { "show" : "true"},
+                 "color": "#efde7f",
+                }]
+
+    return ret_json, codes, bar_data
 
 def datespan_to_month(datespan):
     return datespan.startdate.month

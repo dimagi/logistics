@@ -34,8 +34,10 @@ class SupplyPointStatusBreakdown(object):
         if org is None:
             org = 'MOHSW-MOHSW'
 
+
         location = Location.objects.get(code=org)
         self.facilities=facilities_below(location)
+        self.supply_point = SupplyPoint.objects.get(code=org)
 
         self.report_month = self.month - 1 if self.month > 1 else 12
         self.report_year = self.year if self.report_month < 12 else self.year - 1
@@ -151,12 +153,15 @@ class SupplyPointStatusBreakdown(object):
     def stocked_out_of(self, product=None, month=None, year=None):
         return [f for f in self.facilities if f.historical_stock(product, year, month, default_value=None) == 0]
 
-    def stocked_out_of(self, product=None, month=None, year=None):
-        return [f for f in self.facilities if f.historical_stock(product, year, month, default_value=None) == 0]
-
     def percent_stocked_out(self, product, year, month):
-        # Is this pattern confusing?
         return format_percent(len(self.stocked_out_of(product=product, year=year, month=month)), len(self.facilities))
+    
+    def percent_stocked_out2(self, year, month):
+        ret = {}
+        ps = ProductAvailabilityData.objects.filter(organization=self.supply_point, date=datetime(year,month,1))
+        for p in ps:
+            ret[p.product] = format_percent(p.without_stock,p.total)
+        return ret
 
     def supervision_response_rate(self):
         return self.supervision_response

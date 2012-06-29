@@ -13,12 +13,12 @@ from logistics.decorators import place_in_request
 from logistics.models import Product
 from logistics.views import MonthPager
 
-from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
-
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics_project.apps.tanzania.views import *
+
+from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable, AggregateStockoutPercentColumn2
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
 
 from models import DeliveryGroups
 from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
@@ -57,13 +57,13 @@ class TanzaniaReport(object):
 
         self.location = Location.objects.get(code=org)
 
-        self.bd = SupplyPointStatusBreakdown(self.location.code, self.mp.year, self.mp.month)
+        self.bd = SupplyPointStatusBreakdown(org=org, year=self.mp.year, month=self.mp.month)
 
         date = mp.begin_date
 
         product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
         product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
-        product_json, product_codes = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
+        product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
 
         org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
         soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
@@ -94,6 +94,7 @@ class TanzaniaReport(object):
             "graph_height": 300,
 
             "chart_info": product_dashboard[0],
+            "bar_data": bar_data,
             "product_json": product_json,
             "product_codes": product_codes,
             "total": total,
@@ -171,10 +172,15 @@ class SOHReport(TanzaniaReport):
     
     def national_report(self):
         table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
-        products = Product.objects.all().order_by('sms_code')
-        for product in products:
-            pc = AggregateStockoutPercentColumn(product, self.mp.month, self.mp.year)
-            table.add_column(pc, "pc_"+product.sms_code)
+        pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
+        for p in pso_data.keys():
+            pc = AggregateStockoutPercentColumn2(p, pso_data[p])
+            table.add_column(pc, "pc_"+p.sms_code)            
+
+        # products = Product.objects.all().order_by('sms_code')
+        # for product in products:
+        #     pc = AggregateStockoutPercentColumn(product, self.mp.month, self.mp.year)
+        #     table.add_column(pc, "pc_"+product.sms_code)
         self.context['soh_table'] = table
 
     def regional_report(self):

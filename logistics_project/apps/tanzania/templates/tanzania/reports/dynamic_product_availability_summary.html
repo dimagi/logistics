@@ -42,7 +42,7 @@
             var withoutstock = [];
             var nodata = [];
             var ticks = [];
-            var cur_data = [];
+            var cur_data = {{ bar_data|safe }};
             var index = 1;
             var checked_count = 0;
 
@@ -70,9 +70,9 @@
                 $('#product-selector input').removeAttr("disabled");
             }
 
-            cur_data.push(withoutstock);
-            cur_data.push(withstock);
-            cur_data.push(nodata);
+            cur_data[0].data = withoutstock;
+            cur_data[1].data = withstock;
+            cur_data[2].data = nodata;
 
             bar_options.yaxis.ticks = ticks;
             height = 10 * index + "px";

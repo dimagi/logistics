@@ -232,6 +232,20 @@ class AggregateStockoutPercentColumn(Column):
 
        )
 
+class AggregateStockoutPercentColumn2(Column):
+    def __init__(self, product, percent):
+        self.product = product
+        super(AggregateStockoutPercentColumn2, self).__init__(#name=self.product.sms_code,
+                                            value=lambda cell: percent,
+                                            sort_key_fn=lambda obj: percent,
+                                            name="%s stock outs this month" % product.sms_code,
+                                            titleized=False,
+                                            safe=True,
+                                            css_class=_prod_class,
+                                            header_class = "prod-%s" % product.sms_code
+
+       )   
+
 def _ontime_class(cell):
     state = soh_reported_on_time(cell.object, cell.row.table.year, cell.row.table.month)
     if state == OnTimeStates.LATE:
