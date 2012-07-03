@@ -31,11 +31,13 @@ class ReportingModel(models.Model):
 class OrganizationSummary(ReportingModel):
     total_orgs = models.PositiveIntegerField(default=0) # 176
     average_lead_time_in_days = models.FloatField(default=0) # 28
+    # lead_time_data_points = models.PositiveIntegerField(default=0)
 
 class GroupSummary(models.Model):
     org_summary = models.ForeignKey('OrganizationSummary')
     title = models.TextField() # SOH
     historical_response_rate = models.FloatField(default=0) # 0.432
+    # response_rate_data_points = models.PositiveIntegerField(default=0)
 
 class GroupData(models.Model):
     group_summary = models.ForeignKey('GroupSummary')
@@ -67,6 +69,12 @@ class Alert(ReportingModel):
     text = models.TextField()
     url = models.TextField()
     expires = models.DateTimeField()
+
+# class ReportRun(models.Model):
+#     start_time = models.DateTimeField()
+#     end_time = models.DateTimeField()
+#     complete = models.BooleanField(default=False)
+#     has_error = models.BooleanField(default=False)
 
 #########################
 
