@@ -28,6 +28,7 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
+from logistics_project.apps.tanzania.models import NoDataError
 
 from logistics_project.apps.tanzania.reporting.models import *
 
@@ -173,9 +174,26 @@ def dashboard2(request):
         # TODO: Get this from config
         org = 'MOHSW-MOHSW'
 
+    # TODO: don't use location like this (district summary)
+    location = Location.objects.get(code=org)
+
     alerts = Alert.objects.filter(organization__code=org,expires__gt=mp.end_date).order_by('-id')
 
-    org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+    try:
+        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+        if len(org_summary) > 0:
+            org_summary = org_summary[0]
+        else:
+            raise NoDataError
+    except NoDataError:
+        return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'), 
+                              {"month_pager": mp,
+                               "alerts": alerts,
+                               "graph_width": 300, # used in pie_reporting_generic
+                               "graph_height": 300,
+                               "location": location,
+                               "destination_url": "tz_dashboard2"
+                               }, context_instance=RequestContext(request))
 
     soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
     rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
@@ -197,9 +215,6 @@ def dashboard2(request):
 
     # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
     chart_info = product_dashboard[0]
-
-    # TODO: don't use location like this (district summary)
-    location = Location.objects.get(code=org)
 
     return render_to_response("tanzania/dashboard2.html",
                               {"month_pager": mp,
