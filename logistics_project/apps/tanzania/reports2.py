@@ -13,10 +13,12 @@ from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_report
 
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics_project.apps.tanzania.views import *
+from logistics_project.apps.tanzania.models import NoDataError
 
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from utils import sps_with_latest_status, avg_past_lead_time
 from calendar import month_name
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class SupplyPointStatusBreakdown(object):
@@ -44,8 +46,13 @@ class SupplyPointStatusBreakdown(object):
 
         date = datetime(self.year, self.month,1)
 
-        org_summary = OrganizationSummary.objects.get(date__range=(date,datetime.fromordinal(date.toordinal()+29)),organization__code=org)
-
+        try:
+            org_summary = OrganizationSummary.objects.get\
+                (date__range=(date,datetime.fromordinal(date.toordinal()+29)),
+                 organization__code=org)
+        except ObjectDoesNotExist:
+            raise NoDataError()
+        
         soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
         rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
         delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)

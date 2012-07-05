@@ -19,9 +19,11 @@ from logistics_project.apps.tanzania.views import *
 from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable, AggregateStockoutPercentColumn2
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
+from logistics_project.apps.tanzania.models import NoDataError
 
 from models import DeliveryGroups
 from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class TanzaniaReport(object):
@@ -34,28 +36,47 @@ class TanzaniaReport(object):
         self.request = request
         self.base_context = base_context
 
-    def reset_context(self):
+    def shared_context(self):
         # Stuff common to all the reports.
+        # This should always be available even if the data isn't 
+        # found
         self.context = self.base_context.copy()
         self.mp = MonthPager(self.request)
+        org = self.request.GET.get('place')
+        if not org:
+            if self.request.user.get_profile() is not None:
+                if self.request.user.get_profile().location is not None:
+                    org = self.request.user.get_profile().location.code
+                elif self.request.user.get_profile().supply_point is not None:
+                    org = self.request.user.get_profile().supply_point.code
+        if not org:
+            # TODO: Get this from config
+            org = 'MOHSW-MOHSW'
+        
+        self.organization_code = org
+        self.location = Location.objects.get(code=org)
+        # hack to get around 1.3 brokenness
+        report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] 
+        self.context.update({
+            "month_pager": self.mp,
+            "location": self.location,
+            "level": self.level,
 
+            "report_list": report_list,
+            "slug": self.slug,
+            "name": self.name,
+            "destination_url": reverse('new_reports2', args=(self.slug,)),
+            "nav_mode": "direct-param",
+        })
+
+        
+    def reset_context(self):
+        self.shared_context()
+        org = self.organization_code
         # self.facs, self.location = get_facilities_and_location(self.request)
         # self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
         request = self.request
         mp = self.mp
-
-        org = request.GET.get('place')
-        if not org:
-            if request.user.get_profile() is not None:
-                if request.user.get_profile().location is not None:
-                    org = request.user.get_profile().location.code
-                elif request.user.get_profile().supply_point is not None:
-                    org = request.user.get_profile().supply_point.code
-        if not org:
-            # TODO: Get this from config
-            org = 'MOHSW-MOHSW'
-
-        self.location = Location.objects.get(code=org)
 
         self.bd = SupplyPointStatusBreakdown(org=org, year=self.mp.year, month=self.mp.month)
 
@@ -65,7 +86,9 @@ class TanzaniaReport(object):
         product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
         product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
 
-        org_summary = OrganizationSummary.objects.get(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+        org_summary = OrganizationSummary.objects.get\
+            (date__range=(mp.begin_date,mp.end_date),organization__code=org)
+        
         soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
         rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
         delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
@@ -78,13 +101,9 @@ class TanzaniaReport(object):
         delivery_json, delivery_numbers, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, date)
         supervision_json, supervision_numbers = convert_supervision_data_to_pie_chart(supervision_data, date)
 
-        report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] # hack to get around 1.3 brokenness
-
+        
         self.context.update({
-            "month_pager": self.mp,
-            "location": self.location,
-            "level": self.level,
-
+            
             "submitting_group": submitting_group,
             "soh_json": soh_json,
             "rr_json": rr_json,
@@ -98,12 +117,6 @@ class TanzaniaReport(object):
             "product_json": product_json,
             "product_codes": product_codes,
             "total": total,
-
-            "report_list": report_list,
-            "slug": self.slug,
-            "name": self.name,
-            "destination_url": reverse('new_reports2', args=(self.slug,)),
-            "nav_mode": "direct-param",
         })
 
     def common_report(self):
@@ -130,8 +143,12 @@ class TanzaniaReport(object):
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
 
     def as_view(self):
-        self.reset_context()
-        self.common_report()
+        try:
+            self.reset_context()
+            self.common_report()
+        except NoDataError:
+            return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'), 
+                                      self.context, context_instance=RequestContext(self.request))
         try:
             if self.level == 'mohsw':
                 self.national_report()

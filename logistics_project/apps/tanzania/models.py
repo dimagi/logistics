@@ -6,6 +6,8 @@ from logistics_project.apps.tanzania.tasks import email_report
 from rapidsms.contrib.messagelog.models import Message
 
 
+class NoDataError(Exception): pass
+
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
 
