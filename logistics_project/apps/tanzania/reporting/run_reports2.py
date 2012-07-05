@@ -35,7 +35,7 @@ def generate():
     populate_report_data(start_date, end_date)
 
     # complete run
-    new_run.end_time=datetime.utcnow()
+    new_run.end_time = datetime.utcnow()
     new_run.complete = True
     create_object(new_run)
 
@@ -65,9 +65,9 @@ def clear_out_reports(start_date, end_date):
         product_dashboard.delete()
     
 def populate_report_data(start_date, end_date):
-    for org in SupplyPoint.objects.all().order_by('name'):
+    for org in SupplyPoint.objects.all(): # .order_by('name'):
 
-        print org.name
+        print org.name + ' (' + str(org.id) + ')'
         
         def get_children(sp, num_levels=4, child_orgs=[]):
             for s in SupplyPoint.objects.filter(supplied_by__id=sp):

@@ -94,7 +94,7 @@ class SupplyPointStatusBreakdown(object):
                                         - supervision_numbers['received'] \
                                         - supervision_numbers['not_responding'] \
                                         - supervision_numbers['not_received'])
-
+        self.supervising = [''] * supervision_numbers['total']
         self.supervision_reminder_sent = []
 
         self.soh_submitted = [''] * soh_numbers['complete']
@@ -108,13 +108,13 @@ class SupplyPointStatusBreakdown(object):
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
         if len(supervision_data) > 0:
-            self.supervision_response = supervision_data[0].group_summary.historical_response_rate
+            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_response_rate)
         else:
-            self.supervision_response = 0
+            self.supervision_response = "<span class='no_data'>None</span>"
         if len(rr_data) > 0:
-            self.randr_response = rr_data[0].group_summary.historical_response_rate
+            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_response_rate)
         else:
-            self.randr_response = 0
+            self.randr_response = "<span class='no_data'>None</span>"
 
         self._submission_chart = None
         # self.dg = DeliveryGroups(month=month, facs=self.facilities)
