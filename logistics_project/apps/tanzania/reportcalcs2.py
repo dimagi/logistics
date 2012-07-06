@@ -65,7 +65,7 @@ class TanzaniaReport(object):
             "report_list": report_list,
             "slug": self.slug,
             "name": self.name,
-            "destination_url": reverse('new_reports2', args=(self.slug,)),
+            "destination_url": reverse('new_reports', args=(self.slug,)),
             "nav_mode": "direct-param",
         })
 

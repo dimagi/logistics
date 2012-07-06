@@ -19,7 +19,7 @@ import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
-from dimagi.utils.parsing import string_to_datetime
+from dimagi.utils.parsing import string_to_datetime, string_to_boolean
 from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
@@ -31,7 +31,6 @@ from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
 
 from logistics_project.apps.tanzania.reporting.models import *
-
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -131,7 +130,25 @@ def district_supply_points_below(location, sps):
     else:
         return sps.filter(location__type__name="DISTRICT")
     
-# @profile("/Users/jpwagner/Desktop/")
+def _render_warehouseable(request, normal_view, warehouse_view, *args, **kwargs):
+    use_warehouse = string_to_boolean(request.REQUEST["warehouse"]) \
+        if "warehouse" in request.REQUEST \
+        else settings.LOGISTICS_USE_WAREHOUSE_TABLES 
+    if use_warehouse:
+        return warehouse_view(request, *args, **kwargs)
+    else:
+        return normal_view(request, *args, **kwargs)
+
+@place_in_request()
+def dashboard_shared(request):
+    return _render_warehouseable(request, dashboard, dashboard2)
+
+@place_in_request()
+def reports_shared(request, slug=None):
+    from logistics_project.apps.tanzania.reportcalcs import new_reports as old_reports
+    from logistics_project.apps.tanzania.reportcalcs2 import new_reports as warehouse_reports
+    return _render_warehouseable(request, old_reports, warehouse_reports, slug=slug)
+
 @place_in_request()
 def dashboard(request):
 
@@ -192,7 +209,7 @@ def dashboard2(request):
                                "graph_width": 300, # used in pie_reporting_generic
                                "graph_height": 300,
                                "location": location,
-                               "destination_url": "tz_dashboard2"
+                               "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
 
     soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
@@ -238,7 +255,7 @@ def dashboard2(request):
                                "graph_width": 300, # used in pie_reporting_generic
                                "graph_height": 300,
                                "location": location,
-                               "destination_url": "tz_dashboard2"
+                               "destination_url": "tz_dashboard"
                                },
                                
                               context_instance=RequestContext(request))
