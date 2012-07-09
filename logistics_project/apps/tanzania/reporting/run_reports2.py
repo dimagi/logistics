@@ -6,15 +6,15 @@ from django.core.urlresolvers import reverse
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
-from logistics_project.apps.tanzania.models import SupplyPointStatus
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.utils import submitted_to_msd
 
+from logistics_project.apps.tanzania.utils import calc_lead_time
+from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 
-TESTING = True
-
-# initial population
+TESTING = False
+HISTORICAL_DAYS = 900
 
 # @task
 def generate():
@@ -24,12 +24,13 @@ def generate():
 
     # start new run
     new_run = ReportRun(start_time=datetime.utcnow())
+    new_run.end_time = datetime.utcnow()    
     create_object(new_run)
 
-    start_date = datetime.fromordinal(datetime.utcnow().toordinal()-90) # make this configurable?
+    start_date = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS) # make this configurable?
     last_run = ReportRun.objects.all().order_by('-start_time')
-    if (last_run) > 0:
-        start_date = last_run[0].start_time
+    # if len(last_run) > 0:
+    #     start_date = last_run[0].start_time
     end_date = datetime.utcnow()
 
     populate_report_data(start_date, end_date)
@@ -40,13 +41,12 @@ def generate():
     create_object(new_run)
 
 def cleanup():
-    clean_up_since = datetime.fromordinal(datetime.utcnow().toordinal()-90)
+    clean_up_since = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
 
     start_date = clean_up_since
     end_date = datetime.utcnow()
 
     clear_out_reports(start_date, end_date)
-    populate_report_data(start_date, end_date)
 
 def clear_out_reports(start_date, end_date):
     if TESTING:
@@ -57,15 +57,17 @@ def clear_out_reports(start_date, end_date):
         group_data = GroupData.objects.filter(group_summary__org_summary__date__range=(start_date,end_date))
         product_availability = ProductAvailabilityData.objects.filter(date__range=(start_date,end_date))
         product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(start_date,end_date))
+        alerts = Alert.objects.filter(expires__range=(start_date,end_date))
 
         org_summary.delete()
         group_summary.delete()
         group_data.delete()
         product_availability.delete()
         product_dashboard.delete()
+        alerts.delete()
     
 def populate_report_data(start_date, end_date):
-    for org in SupplyPoint.objects.all(): # .order_by('name'):
+    for org in SupplyPoint.objects.all().order_by('id'):
 
         print org.name + ' (' + str(org.id) + ')'
         
@@ -78,53 +80,72 @@ def populate_report_data(start_date, end_date):
         child_orgs = get_children(org.id)
         child_orgs.append(org.id)
 
-        new_trans = StockTransaction.objects.filter(supplypoint_id__in=child_orgs, date__gte=start_date)
-        new_statuses = SupplyPointStatus.objects.filter(supplypoint_id__in=child_orgs, status_date__gte=start_date)
+        for year in range(start_date.year,end_date.year + 1):
+            for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
+                org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(year,month,1))[0]
+                org_summary.total_orgs = len(child_orgs)
+                avg_lt = []
+                for ch_org in child_orgs:
+                    lt = calc_lead_time(SupplyPoint.objects.get(id=ch_org),year=year,month=month)
+                    if lt: 
+                        avg_lt.append(lt)
+                org_summary.average_lead_time_in_days = sum(avg_lt)/len(avg_lt) if avg_lt else 0
 
-        process_statuses(org, new_statuses)
-        process_trans(org, new_trans)
+                create_object(org_summary)
 
-        # run_alerts(org, datetime(year,month,1), child_orgs)
+        new_statuses = SupplyPointStatus.objects.filter(supply_point__id__in=child_orgs, status_date__gte=start_date)
+        new_trans = StockTransaction.objects.filter(supply_point__id__in=child_orgs, date__gte=start_date)
 
-        # for year in range(start_date.year,end_date.year + 1):
-        #     for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):                
-        #         populate_no_primary_alerts(org, datetime(year,month,1), child_orgs)                
-        #         report_data = SupplyPointStatusBreakdown(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
-        #         product_data = ProductAvailabilitySummaryByFacilitySP(SupplyPoint.objects.filter(id__in=child_orgs, type__code='facility', active=True),year=year,month=month)
-        #         msd_data = submitted_to_msd(child_orgs, month, year)
-        #         populate_group_data_plus_alerts(org, datetime(year,month,1), report_data, msd_data)
-        #         populate_product_data(org,datetime(year,month,1),product_data)
-        #         populate_stockout_alerts(org, datetime(year,month,1), child_orgs)
+        statuses = process_statuses(org, new_statuses)
+        trans = process_trans(org, new_trans)
+
+        populate_no_primary_alerts(org, datetime(year,month,1), child_orgs)
+        # other alerts
+        populate_stockout_alerts(org, datetime(year,month,1), child_orgs)
 
 def process_statuses(org, statuses):
+    processed = []
     for status in statuses:
-        date = status.status_date
-        status_type = status.status_type
-        status_value = status.status_value
         sp = status.supply_point
-        group_data.objects.filter(group_summary__org_summary__organization=sp.supplied_by)
-        for gd in group_data:
-            if gd.label==status_value: # almost
-                gd.number += 1
-                create_object(gd)
-                # gs = gd.group_summary
-                # gs.historical_response_rate
-                # create_object(gs)
+        if sp.groups.all():
+            sp_code = sp.groups.all()[0].code
+        else:
+            sp_code = ''
+        org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=status.status_date)[0]
+        group_summary = GroupSummary.objects.get_or_create(org_summary=org_summary, title=status.status_type)[0]
+        group_summary.historical_response_rate += 1
+        create_object(group_summary)
+        group_data = GroupData.objects.get_or_create(group_summary=group_summary, group_code=sp_code, label=status.status_value)[0]
+        group_data.number += 1
+        group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, SupplyPointStatusValues.RECEIVED]
+        create_object(group_data)
+
+        processed.append(group_data.id)
+    return processed
 
 def process_trans(org, trans):
+    processed = []
     for tran in trans:
         date = tran.date
-        product_data = ProductAvailabilityData.objects.get_or_create(product=tran.product, organization=org, date=datetime(date.year, date.month, 1))
+        product_data = ProductAvailabilityData.objects.get_or_create(product=tran.product, organization=org, date=datetime(date.year, date.month, 1))[0]
         if tran.ending_balance <= 0:
             product_data.without_stock += 1
         else:
             product_data.with_stock += 1
         product_data.total += 1
-        # duplicates
-        # without data
         create_object(product_data)
 
+        processed.append(product_data.id)
+    return processed
+
 def populate_group_data_plus_alerts(org, date, data, msd_data):
+    # soh not responding
+    # rr not submitted
+    # rr not responding
+    # delivery not received
+    # delivery not responding
+
+
     org_summary = OrganizationSummary(organization=org, date=date)
     org_summary.total_orgs = data.dg.total().count()
     org_summary.average_lead_time_in_days = data.avg_lead_time2
@@ -298,5 +319,6 @@ def create_object(obj):
 
 
 print datetime.now()
+cleanup()
 generate()
 print datetime.now()
