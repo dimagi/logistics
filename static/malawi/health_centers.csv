@@ -117,6 +117,6 @@ District CODE,District,CODE,ID in District,Health Centers,HSAs/HC
 10,Kasungu,1015,22,Simlemba,5
 10,Kasungu,1013,23,Nkhamenya,6
 10,Kasungu,1018,24,Kasalika,0
-99,Test District,9901,01,Test Facility 1,5
-99,Test District,9902,02,Test Facility 1,4
-99,Test District,9903,03,Test Facility 1,7
+99,Test,9901,01,Test Facility 1,5
+99,Test,9902,02,Test Facility 2,4
+99,Test,9903,03,Test Facility 3,7
