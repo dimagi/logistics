@@ -31,12 +31,20 @@ class OrganizationSummary(ReportingModel):
     average_lead_time_in_days = models.FloatField(default=0) # 28
 
 class GroupSummary(models.Model):
+    """
+    Warehouse data related to a particular category of reporting 
+    (e.g. stock on hand summary)
+    """
     org_summary = models.ForeignKey('OrganizationSummary')
     title = models.CharField(max_length=50, blank=True, null=True) # SOH
     historical_responses = models.FloatField(default=0) # 43
     no_responses = models.FloatField(default=0) # 32
 
 class GroupData(models.Model):
+    """
+    Warehouse data related to how a particular category of reporting 
+    (e.g. stock on hand) was filled in (e.g. responded, not responded)
+    """
     group_summary = models.ForeignKey('GroupSummary')
     group_code = models.CharField(max_length=2, blank=True, null=True) # A
     label = models.CharField(max_length=50, blank=True, null=True) # on_time
