@@ -29,7 +29,7 @@ from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote,
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
-
+import os
 from logistics_project.apps.tanzania.reporting.models import *
 
 PRODUCTS_PER_TABLE = 100 #7
@@ -732,4 +732,10 @@ def ad_hoc_reports(request):
         "form": form,
     }, context_instance=RequestContext(request))
     
+def supervision(request):
 
+    files = os.listdir("apps/tanzania/static/downloads/supervision_documents")
+    
+    return render_to_response("tanzania/supervision-docs.html", {
+        "links": files,
+    }, context_instance=RequestContext(request))

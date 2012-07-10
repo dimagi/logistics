@@ -1,0 +1,19 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load cache %}
+{% load i18n %}
+
+{% block title %}Supervision Documents {{ block.super }}{% endblock %}
+{% block content %}
+<h2>{% trans "Supervision Documents" %}</h2>
+
+<div class="module">
+	<br>
+	{% for link in links %}
+		<br>
+		<a href="/static/tanzania/downloads/supervision_documents/{{ link }}">{{ link }}</a>
+		<br>
+	{% endfor %}
+	<br>
+</div>
+{% endblock %}

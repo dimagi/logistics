@@ -73,8 +73,8 @@ class TanzaniaReport(object):
     def reset_context(self):
         self.shared_context()
         org = self.organization_code
-        # self.facs, self.location = get_facilities_and_location(self.request)
-        # self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
+        self.facs, self.location = get_facilities_and_location(self.request)
+        self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
         request = self.request
         mp = self.mp
 
@@ -124,6 +124,8 @@ class TanzaniaReport(object):
         return self.location.type.name.lower()
 
     def template(self):
+        if self.level == 'district':
+            return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
 
     def as_view(self):
