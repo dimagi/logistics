@@ -7,15 +7,13 @@ from django.db.models.query_utils import Q
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
-from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.utils import submitted_to_msd
-
 from logistics_project.apps.tanzania.utils import calc_lead_time
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 
 TESTING = False
 HISTORICAL_DAYS = 900
+
 # log instead of print
 # initial vs ongoing
 
@@ -86,8 +84,8 @@ def populate_report_data(start_date, end_date):
         new_statuses = SupplyPointStatus.objects.filter(supply_point__in=child_objs, status_date__gte=start_date).order_by('id')
         new_trans = StockTransaction.objects.filter(supply_point__in=child_objs, date__gte=start_date).order_by('id')
 
-        statuses = process_statuses(org, new_statuses)
-        trans = process_trans(org, new_trans)
+        statuses = process_statuses(org, new_statuses, child_objs)
+        trans = process_trans(org, new_trans, child_objs)
 
         for year in range(start_date.year,end_date.year + 1):
             for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
@@ -102,20 +100,9 @@ def populate_report_data(start_date, end_date):
 
                 create_object(org_summary)
                 populate_no_primary_alerts(org, datetime(year,month,1), child_objs)
-                # other alerts go here
                 populate_stockout_alerts(org, datetime(year,month,1), child_objs)
 
                 not_responding(org_summary, child_objs)
-                no_product_data(org, child_orgs, datetime(year, month, 1), start_date)
-
-def no_product_data(org, child_orgs, date, start_date):
-    for child in child_orgs:
-        for product in Product.objects.all():
-            if not StockTransaction.objects.filter(supply_point__id=child, product=product, date__range=(date,start_date)).count():
-                product_data = ProductAvailabilityData.objects.get_or_create(product=product, organization=org, date=date)[0]
-                product_data.without_data += 1
-                product_data.total = product_data.with_stock + product_data.without_stock + product_data.without_data
-                create_object(product_data)
 
 def not_responding(org_summary, child_objs):
     dg = DeliveryGroups(month=org_summary.date.month)
@@ -134,16 +121,23 @@ def not_responding(org_summary, child_objs):
         new_gd = GroupData.objects.get_or_create(group_summary=gsum, label='not_responding')[0]
         if gsum.title == SupplyPointStatusTypes.SOH_FACILITY:
             new_gd.number = len(child_objs) - total
+            if new_gd.number:
+                create_alert(org_summary.organization, org_summary.date, 'soh_not_responding',{'number': new_gd.number})
         if gsum.title == SupplyPointStatusTypes.SUPERVISION_FACILITY:
             new_gd.number = len(child_objs) - total
         if gsum.title == SupplyPointStatusTypes.R_AND_R_FACILITY:
             new_gd.number = len(submitting) - total
+            if new_gd.number:
+                create_alert(org_summary.organization, org_summary.date, 'rr_not_responded',{'number': new_gd.number})        
         if gsum.title == SupplyPointStatusTypes.DELIVERY_FACILITY:
             new_gd.number = len(delivering) - total
+            if new_gd.number:
+                create_alert(org_summary.organization, org_summary.date, 'delivery_not_responding',{'number': new_gd.number})
+
 
         create_object(new_gd)
 
-def process_statuses(org, statuses):
+def process_statuses(org, statuses, child_objs):
     processed = []
     def recent_reminder(sp, date, type):
         recent_statuses = SupplyPointStatus.objects.filter(supply_point=sp, status_type=type, 
@@ -170,11 +164,14 @@ def process_statuses(org, statuses):
             if recent_reminder(sp, status.status_date, status.status_type):
                 group_data.on_time = True
         create_object(group_data)
-
+        if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
+            create_alert(org, status.status_date, 'rr_not_submitted',{'number': group_data.number})
+        if status.status_value==SupplyPointStatusValues.NOT_RECEIVED and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
+            create_alert(org, status.status_date, 'delivery_not_received',{'number': group_data.number})
         processed.append(group_data.id)
     return processed
 
-def process_trans(org, trans):
+def process_trans(org, trans, child_objs):
     processed = []
     for tran in trans:
         date = tran.date
@@ -192,7 +189,8 @@ def process_trans(org, trans):
                     data.without_data = max(0, data.without_data - 1)
                 else:                    
                     data.without_stock = max(0, data.without_stock - 1)
-        data.total = data.with_stock + data.without_stock + data.without_data
+        data.total = len(child_objs)
+        data.without_data = data.total - (data.with_stock + data.without_stock)
         create_object(data)
 
         processed.append(data.id)
@@ -204,118 +202,6 @@ def previously_without_data(transaction):
     if trans > 1:
         return False
     return True
-
-def populate_group_data_plus_alerts(org, date, data, msd_data):
-    # alerts in here:
-    #   soh not responding
-    #   rr not submitted
-    #   rr not responding
-    #   delivery not received
-    #   delivery not responding
-
-    org_summary = OrganizationSummary(organization=org, date=date)
-    org_summary.total_orgs = data.dg.total().count()
-    org_summary.average_lead_time_in_days = data.avg_lead_time2
-
-    create_object(org_summary)
-
-    for group_action in ['soh_submit','rr_submit','process','deliver','supervision']:
-        group_summary = GroupSummary(org_summary=org_summary)
-        group_summary.title = group_action
-        if group_action == 'soh_submit':
-            create_object(group_summary)
-            for fac_action in ['on_time','late','not_responding']:
-                group_data = GroupData(group_summary=group_summary)
-                group_data.label = fac_action
-                if fac_action == 'on_time':
-                    group_data.number = len(data.soh_on_time)
-                    group_data.complete = True
-                elif fac_action == 'late':
-                    group_data.number = len(data.soh_late)
-                    group_data.complete = True
-                elif fac_action == 'not_responding':
-                    temp = len(data.soh_not_responding)
-                    group_data.number = temp
-                    if temp > 0:
-                        create_alert(org, date, 'soh_not_responding',{'number': temp})
-                create_object(group_data)
-        elif group_action == 'rr_submit':
-            group_summary.historical_response_rate = data.randr_response_rate2()
-            create_object(group_summary)
-            for fac_action in ['on_time','late','not_submitted','not_responding']:
-                group_data = GroupData(group_summary=group_summary)
-                group_data.group_code = data.dg.current_submitting_group()
-                group_data.label = fac_action
-                if fac_action == 'on_time':
-                    group_data.number = len(data.submitted_on_time)
-                    group_data.complete = True
-                elif fac_action == 'late':
-                    group_data.number = len(data.submitted_late)
-                    group_data.complete = True
-                elif fac_action == 'not_submitted':
-                    temp = len(data.not_submitted)
-                    group_data.number = temp
-                    if temp > 0:
-                        create_alert(org, date, 'rr_not_submitted',{'number': temp})
-                elif fac_action == 'not_responding':
-                    temp = len(data.submit_not_responding)
-                    group_data.number = temp
-                    if temp > 0:
-                        create_alert(org, date, 'rr_not_responded',{'number': temp})
-                create_object(group_data)
-        elif group_action == 'process':
-            group_summary.historical_response_rate = data.supervision_response_rate2()
-            create_object(group_summary)
-            for status in ['complete', 'incomplete']:
-                if status == 'complete':
-                    group_data = GroupData(group_summary=group_summary)
-                    group_data.complete = True
-                    group_data.number = msd_data
-                    group_data.group_code = data.dg.current_processing_group()
-                    group_data.label = fac_action
-                    create_object(group_data)
-                elif status == 'incomplete':
-                    group_data = GroupData(group_summary=group_summary)
-                    group_data.complete = False
-                    group_data.number = len(data.dg.processing()) - msd_data
-                    group_data.group_code = data.dg.current_processing_group()
-                    group_data.label = fac_action
-                    create_object(group_data)                    
-        elif group_action == 'deliver':
-            group_summary.historical_response_rate = data.supervision_response_rate2()
-            create_object(group_summary)
-            for fac_action in ['received','not_received','not_responding']:
-                group_data = GroupData(group_summary=group_summary)
-                group_data.group_code = data.dg.current_delivering_group()
-                group_data.label = fac_action
-                if fac_action == 'received':
-                    group_data.number = len(data.delivery_received)
-                    group_data.complete = True
-                elif fac_action == 'not_received':
-                    temp = len(data.delivery_not_received)
-                    group_data.number = temp
-                    if temp > 0:
-                        create_alert(org, date, 'delivery_not_received',{'number': temp})
-                elif fac_action == 'not_responding':
-                    temp = len(data.delivery_not_responding)
-                    group_data.number = temp
-                    if temp > 0:
-                        create_alert(org, date, 'delivery_not_responding',{'number': temp})
-                create_object(group_data)
-        elif group_action == 'supervision':
-            group_summary.historical_response_rate = data.supervision_response_rate2()
-            create_object(group_summary)
-            for fac_action in ['received','not_recieved','not_responding']:
-                group_data = GroupData(group_summary=group_summary)
-                group_data.label = fac_action
-                if fac_action == 'received':
-                    group_data.number = len(data.supervision_received)
-                    group_data.complete = True
-                elif fac_action == 'not_recieved':
-                    group_data.number = len(data.supervision_not_received)
-                elif fac_action == 'not_responding':
-                    group_data.number = len(data.supervision_not_responding)
-                create_object(group_data)
 
 def populate_no_primary_alerts(org, date, child_objs):
     no_primary = child_objs.filter(contact=None).order_by('-name')
