@@ -15,19 +15,21 @@ from logistics_project.apps.tanzania.reporting.models import *
 
 TESTING = False
 HISTORICAL_DAYS = 900
+# log instead of print
+# initial vs ongoing
 
 # @task
 def generate():
     running = ReportRun.objects.filter(complete=False)
     if len(running) > 0:
-        return "Already running..."
+        print "Already running..."
+        return
 
     # start new run
     new_run = ReportRun(start_time=datetime.utcnow())
-    new_run.end_time = datetime.utcnow()    
     create_object(new_run)
 
-    start_date = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS) # make this configurable?
+    start_date = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
     last_run = ReportRun.objects.all().order_by('-start_time')
     # if len(last_run) > 0:
     #     start_date = last_run[0].start_time
@@ -56,14 +58,12 @@ def clear_out_reports(start_date, end_date):
         group_summary = GroupSummary.objects.filter(org_summary__date__range=(start_date,end_date))
         group_data = GroupData.objects.filter(group_summary__org_summary__date__range=(start_date,end_date))
         product_availability = ProductAvailabilityData.objects.filter(date__range=(start_date,end_date))
-        product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(start_date,end_date))
-        alerts = Alert.objects.filter(expires__range=(start_date,end_date))
+        alerts = Alert.objects.filter(expires__range=(start_date,datetime.fromordinal(end_date.toordinal()+60)))
 
         org_summary.delete()
         group_summary.delete()
         group_data.delete()
         product_availability.delete()
-        product_dashboard.delete()
         alerts.delete()
     
 def populate_report_data(start_date, end_date):
@@ -80,28 +80,30 @@ def populate_report_data(start_date, end_date):
         child_orgs = get_children(org.id)
         child_orgs.append(org.id)
 
+        child_objs = SupplyPoint.objects.filter(id__in=child_orgs, active=True, type__code='facility')
+
         for year in range(start_date.year,end_date.year + 1):
             for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
                 org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(year,month,1))[0]
-                org_summary.total_orgs = len(child_orgs)
+                org_summary.total_orgs = len(child_objs)
                 avg_lt = []
-                for ch_org in child_orgs:
-                    lt = calc_lead_time(SupplyPoint.objects.get(id=ch_org),year=year,month=month)
+                for ch_org in child_objs:
+                    lt = calc_lead_time(ch_org,year=year,month=month)
                     if lt: 
                         avg_lt.append(lt)
                 org_summary.average_lead_time_in_days = sum(avg_lt)/len(avg_lt) if avg_lt else 0
 
                 create_object(org_summary)
+                populate_no_primary_alerts(org, datetime(year,month,1), child_objs)
+                # other alerts go here
+                populate_stockout_alerts(org, datetime(year,month,1), child_objs)
 
-        new_statuses = SupplyPointStatus.objects.filter(supply_point__id__in=child_orgs, status_date__gte=start_date)
-        new_trans = StockTransaction.objects.filter(supply_point__id__in=child_orgs, date__gte=start_date)
+        new_statuses = SupplyPointStatus.objects.filter(supply_point__in=child_objs, status_date__gte=start_date)
+        new_trans = StockTransaction.objects.filter(supply_point__in=child_objs, date__gte=start_date)
 
         statuses = process_statuses(org, new_statuses)
         trans = process_trans(org, new_trans)
-
-        populate_no_primary_alerts(org, datetime(year,month,1), child_orgs)
-        # other alerts
-        populate_stockout_alerts(org, datetime(year,month,1), child_orgs)
+        # no responses
 
 def process_statuses(org, statuses):
     processed = []
@@ -111,9 +113,9 @@ def process_statuses(org, statuses):
             sp_code = sp.groups.all()[0].code
         else:
             sp_code = ''
-        org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=status.status_date)[0]
+        org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(status.status_date.year, status.status_date.month, 1))[0]
         group_summary = GroupSummary.objects.get_or_create(org_summary=org_summary, title=status.status_type)[0]
-        group_summary.historical_response_rate += 1
+        group_summary.historical_responses += 1
         create_object(group_summary)
         group_data = GroupData.objects.get_or_create(group_summary=group_summary, group_code=sp_code, label=status.status_value)[0]
         group_data.number += 1
@@ -139,12 +141,12 @@ def process_trans(org, trans):
     return processed
 
 def populate_group_data_plus_alerts(org, date, data, msd_data):
-    # soh not responding
-    # rr not submitted
-    # rr not responding
-    # delivery not received
-    # delivery not responding
-
+    # alerts in here:
+    #   soh not responding
+    #   rr not submitted
+    #   rr not responding
+    #   delivery not received
+    #   delivery not responding
 
     org_summary = OrganizationSummary(organization=org, date=date)
     org_summary.total_orgs = data.dg.total().count()
@@ -250,63 +252,40 @@ def populate_group_data_plus_alerts(org, date, data, msd_data):
                     group_data.number = len(data.supervision_not_responding)
                 create_object(group_data)
 
-
-def populate_product_data(org,date,data):
-    
-    for chart in json.loads(data.flot_data['data']):
-        product_dashboard = ProductAvailabilityDashboardChart(organization=org, date=date,
-                                                              width=data.width,
-                                                              height=data.height,
-                                                              div=data.div,
-                                                              legenddiv=data.legenddiv,
-                                                              xaxistitle=data.xaxistitle,
-                                                              yaxistitle=data.yaxistitle)    
-    
-        product_dashboard.label = chart['label']
-        product_dashboard.color = chart['color']
-        create_object(product_dashboard)
-
-    for product in data.data:
-        product_availability = ProductAvailabilityData(organization=org, date=date)
-        product_availability.product = product['product']
-        product_availability.total = product['total']
-        product_availability.with_stock = max(product['with_stock'],0)
-        product_availability.without_stock = max(product['without_stock'],0)
-        product_availability.without_data = max(product['without_data'],0)
-        create_object(product_availability)
-
-def populate_no_primary_alerts(org, date, child_orgs):
-    no_primary = SupplyPoint.objects.filter(id__in=child_orgs, contact=None)
+def populate_no_primary_alerts(org, date, child_objs):
+    no_primary = child_objs.filter(contact=None).order_by('-name')
     for problem in no_primary:
         create_alert(org,date,'no_primary_contact',{'org': problem})
 
-def populate_stockout_alerts(org, date, child_orgs):
-    stockouts = ProductStock.objects.filter(supply_point__id__in=child_orgs, quantity=0)
+def populate_stockout_alerts(org, date, child_objs):
+    stockouts = ProductStock.objects.filter(supply_point__in=child_objs, quantity=0)
     for problem in stockouts:
         create_alert(org,date,'product_stockout',{'org': problem.supply_point, 'product': problem.product})
 
 def create_alert(org, date, type, details):
-    alert = Alert(organization=org, date=date)
-    alert.expires = datetime.fromordinal(date.toordinal()+32)
-    alert.url = ''
+    text = ''
+    url = ''
+    expires = datetime.fromordinal(date.toordinal()+32)
+
 
     if type=='rr_not_submitted':
-        alert.text = '%d facilities have reported not submitting their R&R form as of today.' % details['number']
+        text = '%d facilities have reported not submitting their R&R form as of today.' % details['number']
     elif type=='rr_not_responded':
-        alert.text = '%d facilities did not respond to the SMS asking if they had submitted their R&R form.' % details['number']
+        text = '%d facilities did not respond to the SMS asking if they had submitted their R&R form.' % details['number']
     elif type=='delivery_not_received':
-        alert.text = '%d facilities have reported not receiving their deliveries as of today.' % details['number']
+        text = '%d facilities have reported not receiving their deliveries as of today.' % details['number']
     elif type=='delivery_not_responding':
-        alert.text = '%d facilities did not respond to the SMS asking if they had received their delivery.' % details['number']        
+        text = '%d facilities did not respond to the SMS asking if they had received their delivery.' % details['number']        
     elif type=='soh_not_responding':
-        alert.text = '%d facilities have not reported their stock levels for last month.' % details['number']
-        alert.url = reverse('facilities_index')
+        text = '%d facilities have not reported their stock levels for last month.' % details['number']
+        url = reverse('facilities_index')
     elif type=='product_stockout':
-        alert.text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
+        text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
     elif type=='no_primary_contact':
-        alert.text = '%s has no primary contact.' % details['org'].name
+        text = '%s has no primary contact.' % details['org'].name
 
-    create_object(alert)
+    alert = Alert.objects.get_or_create(organization=org, date=date, text=text, url=url, expires=expires)
+
 
 ##########
 # temporary for testing

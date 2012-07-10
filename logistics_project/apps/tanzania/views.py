@@ -212,9 +212,9 @@ def dashboard2(request):
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
 
-    soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
-    rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
-    delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
+    soh_data = GroupData.objects.filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
+    rr_data = GroupData.objects.filter(Q(group_summary__title='rr_fac') | Q(group_summary__title='rr_dist'),group_summary__org_summary=org_summary)
+    delivery_data = GroupData.objects.filter(Q(group_summary__title='del_fac') | Q(group_summary__title='del_dist'),group_summary__org_summary=org_summary)
     process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary=org_summary)
 
     soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
@@ -226,12 +226,9 @@ def dashboard2(request):
     avg_lead_time = org_summary.average_lead_time_in_days
 
     product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
-    product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+    product_dashboard = ProductAvailabilityDashboardChart()
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
-
-    # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
-    chart_info = product_dashboard[0]
 
     return render_to_response("tanzania/dashboard2.html",
                               {"month_pager": mp,
@@ -251,7 +248,7 @@ def dashboard2(request):
                                "total": total,
                                "avg_lead_time": avg_lead_time,
                                "product_json": product_json,
-                               "chart_info": chart_info,
+                               "chart_info": product_dashboard,
                                "graph_width": 300, # used in pie_reporting_generic
                                "graph_height": 300,
                                "location": location,
@@ -269,7 +266,7 @@ def prepare_processing_info(data):
         numbers['total'] += number
         if result.complete:
             numbers['complete'] += number
-    return numbers, data[0].group_code
+    return numbers, 'B' #data[0].group_code
 
 def convert_soh_data_to_pie_chart(data, date):
     ret_json = []
@@ -426,18 +423,18 @@ def convert_product_data_to_stack_chart(data, chart_info):
     for product in data:
         count += 1
         ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code.lower())])
-    for bar in chart_info:
+    for k in chart_info.label_color.keys():
         count = 0
         datalist = []
         for product in data:
             count += 1
-            if bar.label=='No Stock Data':
+            if k=='No Stock Data':
                 datalist.append([count, product.without_data])
-            elif bar.label=='Stocked out':
+            elif k=='Stocked out':
                 datalist.append([count, product.without_stock])
-            elif bar.label=='Not Stocked out':
+            elif k=='Not Stocked out':
                 datalist.append([count, product.with_stock])
-        ret_json['data'].append({'color':bar.color, 'label':bar.label, 'data': datalist })
+        ret_json['data'].append({'color':chart_info.label_color[k], 'label':k, 'data': datalist })
     ret_json['ticks'] = json.dumps(ret_json['ticks'])
     ret_json['data'] = json.dumps(ret_json['data'])
     return ret_json

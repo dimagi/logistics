@@ -83,16 +83,16 @@ class TanzaniaReport(object):
         date = mp.begin_date
 
         product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
-        product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
+        product_dashboard = ProductAvailabilityDashboardChart()
         product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
 
         org_summary = OrganizationSummary.objects.get\
             (date__range=(mp.begin_date,mp.end_date),organization__code=org)
         
-        soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
-        rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
-        delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
-        supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
+        soh_data = GroupData.objects.filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
+        rr_data = GroupData.objects.filter(Q(group_summary__title='rr_fac') | Q(group_summary__title='rr_dist'),group_summary__org_summary=org_summary)
+        delivery_data = GroupData.objects.filter(Q(group_summary__title='del_fac') | Q(group_summary__title='del_dist'),group_summary__org_summary=org_summary)
+        supervision_data = GroupData.objects.filter(group_summary__title='super_fac',group_summary__org_summary=org_summary)
 
         total = org_summary.total_orgs
 
@@ -112,7 +112,7 @@ class TanzaniaReport(object):
             "graph_width": 300, # used in pie_reporting_generic
             "graph_height": 300,
 
-            "chart_info": product_dashboard[0],
+            "chart_info": product_dashboard,
             "bar_data": bar_data,
             "product_json": product_json,
             "product_codes": product_codes,

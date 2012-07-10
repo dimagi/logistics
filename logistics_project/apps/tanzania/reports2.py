@@ -115,11 +115,11 @@ class SupplyPointStatusBreakdown(object):
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
         if len(supervision_data) > 0:
-            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_response_rate)
+            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_responses / supervision_data[0].group_summary.historical_responses)
         else:
             self.supervision_response = "<span class='no_data'>None</span>"
         if len(rr_data) > 0:
-            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_response_rate)
+            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_responses / rr_data[0].group_summary.historical_responses)
         else:
             self.randr_response = "<span class='no_data'>None</span>"
 
