@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django.utils.functional import curry
 from django.utils.translation import ugettext as _
+from django.db.models.query_utils import Q
 
 from rapidsms.contrib.locations.models import Location
 
@@ -136,11 +137,11 @@ class SupplyPointStatusBreakdown(object):
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
         if len(supervision_data) > 0:
-            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_responses / supervision_data[0].group_summary.historical_responses)
+            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_responses / supervision_data[0].group_summary.groupdata_set.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT)).count())
         else:
             self.supervision_response = "<span class='no_data'>None</span>"
         if len(rr_data) > 0:
-            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_responses / rr_data[0].group_summary.historical_responses)
+            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_responses / rr_data[0].group_summary.groupdata_set.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT)).count())
         else:
             self.randr_response = "<span class='no_data'>None</span>"
 

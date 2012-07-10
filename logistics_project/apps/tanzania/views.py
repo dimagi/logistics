@@ -457,7 +457,7 @@ def convert_product_data_to_stack_chart(data, chart_info):
     for product in data:
         count += 1
         ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code.lower())])
-    for k in chart_info.label_color.keys():
+    for k in ['Stocked out', 'Not Stocked out', 'No Stock Data']:
         count = 0
         datalist = []
         for product in data:

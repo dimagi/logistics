@@ -155,15 +155,18 @@ def process_statuses(org, statuses, child_objs):
             sp_code = ''
         org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(status.status_date.year, status.status_date.month, 1))[0]
         group_summary = GroupSummary.objects.get_or_create(org_summary=org_summary, title=status.status_type)[0]
-        group_summary.historical_responses += 1
         create_object(group_summary)
         group_data = GroupData.objects.get_or_create(group_summary=group_summary, group_code=sp_code, label=status.status_value)[0]
+        if group_data.label not in [SupplyPointStatusValues.REMINDER_SENT, SupplyPointStatusValues.ALERT_SENT]:
+            group_summary.historical_responses += 1
+        create_object(group_summary)
         group_data.number += 1
         group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, SupplyPointStatusValues.RECEIVED]
         if group_data.complete:
             if recent_reminder(sp, status.status_date, status.status_type):
                 group_data.on_time = True
         create_object(group_data)
+        # alerts
         if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
             create_alert(org, status.status_date, 'rr_not_submitted',{'number': group_data.number})
         if status.status_value==SupplyPointStatusValues.NOT_RECEIVED and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
@@ -185,12 +188,10 @@ def process_trans(org, trans, child_objs):
         else:
             data.with_stock += 1
             if not subtract and tran.beginning_balance <=0:
-                if previously_without_data(tran):
-                    data.without_data = max(0, data.without_data - 1)
-                else:                    
+                if not previously_without_data(tran):
                     data.without_stock = max(0, data.without_stock - 1)
         data.total = len(child_objs)
-        data.without_data = data.total - (data.with_stock + data.without_stock)
+        data.without_data = max(0, data.total - (data.with_stock + data.without_stock))
         create_object(data)
 
         processed.append(data.id)
