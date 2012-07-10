@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
+from django.db.models.query_utils import Q
 
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
@@ -82,6 +83,12 @@ def populate_report_data(start_date, end_date):
 
         child_objs = SupplyPoint.objects.filter(id__in=child_orgs, active=True, type__code='facility')
 
+        new_statuses = SupplyPointStatus.objects.filter(supply_point__in=child_objs, status_date__gte=start_date).order_by('id')
+        new_trans = StockTransaction.objects.filter(supply_point__in=child_objs, date__gte=start_date).order_by('id')
+
+        statuses = process_statuses(org, new_statuses)
+        trans = process_trans(org, new_trans)
+
         for year in range(start_date.year,end_date.year + 1):
             for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
                 org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(year,month,1))[0]
@@ -98,15 +105,54 @@ def populate_report_data(start_date, end_date):
                 # other alerts go here
                 populate_stockout_alerts(org, datetime(year,month,1), child_objs)
 
-        new_statuses = SupplyPointStatus.objects.filter(supply_point__in=child_objs, status_date__gte=start_date)
-        new_trans = StockTransaction.objects.filter(supply_point__in=child_objs, date__gte=start_date)
+                not_responding(org_summary, child_objs)
+                no_product_data(org, child_orgs, datetime(year, month, 1), start_date)
 
-        statuses = process_statuses(org, new_statuses)
-        trans = process_trans(org, new_trans)
-        # no responses
+def no_product_data(org, child_orgs, date, start_date):
+    for child in child_orgs:
+        for product in Product.objects.all():
+            if not StockTransaction.objects.filter(supply_point__id=child, product=product, date__range=(date,start_date)).count():
+                product_data = ProductAvailabilityData.objects.get_or_create(product=product, organization=org, date=date)[0]
+                product_data.without_data += 1
+                product_data.total = product_data.with_stock + product_data.without_stock + product_data.without_data
+                create_object(product_data)
+
+def not_responding(org_summary, child_objs):
+    dg = DeliveryGroups(month=org_summary.date.month)
+    submitting_group = dg.current_submitting_group()
+    delivery_group = dg.current_delivering_group()
+    submitting = child_objs.filter(groups__code=submitting_group)
+    delivering = child_objs.filter(groups__code=delivery_group)
+    group_summary = GroupSummary.objects.filter(org_summary=org_summary)
+    for gsum in group_summary:
+        total = 0
+        group_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT)\
+                                             | Q(label=SupplyPointStatusValues.ALERT_SENT)\
+                                             | Q(label='not_responding')).filter(group_summary=gsum)
+        for g in group_data:
+            total += g.number
+        new_gd = GroupData.objects.get_or_create(group_summary=gsum, label='not_responding')[0]
+        if gsum.title == SupplyPointStatusTypes.SOH_FACILITY:
+            new_gd.number = len(child_objs) - total
+        if gsum.title == SupplyPointStatusTypes.SUPERVISION_FACILITY:
+            new_gd.number = len(child_objs) - total
+        if gsum.title == SupplyPointStatusTypes.R_AND_R_FACILITY:
+            new_gd.number = len(submitting) - total
+        if gsum.title == SupplyPointStatusTypes.DELIVERY_FACILITY:
+            new_gd.number = len(delivering) - total
+
+        create_object(new_gd)
 
 def process_statuses(org, statuses):
     processed = []
+    def recent_reminder(sp, date, type):
+        recent_statuses = SupplyPointStatus.objects.filter(supply_point=sp, status_type=type, 
+                                            status_date__gte=datetime.fromordinal(date.toordinal()-5))
+        for status in recent_statuses:
+            if status.status_value == SupplyPointStatusValues.REMINDER_SENT:
+                return True
+        return False
+
     for status in statuses:
         sp = status.supply_point
         if sp.groups.all():
@@ -120,6 +166,9 @@ def process_statuses(org, statuses):
         group_data = GroupData.objects.get_or_create(group_summary=group_summary, group_code=sp_code, label=status.status_value)[0]
         group_data.number += 1
         group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, SupplyPointStatusValues.RECEIVED]
+        if group_data.complete:
+            if recent_reminder(sp, status.status_date, status.status_type):
+                group_data.on_time = True
         create_object(group_data)
 
         processed.append(group_data.id)
@@ -129,16 +178,32 @@ def process_trans(org, trans):
     processed = []
     for tran in trans:
         date = tran.date
-        product_data = ProductAvailabilityData.objects.get_or_create(product=tran.product, organization=org, date=datetime(date.year, date.month, 1))[0]
+        product_data = ProductAvailabilityData.objects.get_or_create(product=tran.product, organization=org, date=datetime(date.year, date.month, 1))
+        subtract = product_data[1]
+        data = product_data[0]
         if tran.ending_balance <= 0:
-            product_data.without_stock += 1
+            data.without_stock += 1
+            if not subtract and tran.beginning_balance > 0:
+                data.with_stock = max(0, data.with_stock - 1)
         else:
-            product_data.with_stock += 1
-        product_data.total += 1
-        create_object(product_data)
+            data.with_stock += 1
+            if not subtract and tran.beginning_balance <=0:
+                if previously_without_data(tran):
+                    data.without_data = max(0, data.without_data - 1)
+                else:                    
+                    data.without_stock = max(0, data.without_stock - 1)
+        data.total = data.with_stock + data.without_stock + data.without_data
+        create_object(data)
 
-        processed.append(product_data.id)
+        processed.append(data.id)
     return processed
+
+def previously_without_data(transaction):
+    trans = StockTransaction.objects.filter(product=transaction.product, supply_point=transaction.supply_point, 
+                                            date__range=(transaction.date,datetime.fromordinal(datetime(transaction.date.year,transaction.date.month%12+1,1).toordinal()-1))).count()
+    if trans > 1:
+        return False
+    return True
 
 def populate_group_data_plus_alerts(org, date, data, msd_data):
     # alerts in here:
@@ -265,8 +330,7 @@ def populate_stockout_alerts(org, date, child_objs):
 def create_alert(org, date, type, details):
     text = ''
     url = ''
-    expires = datetime.fromordinal(date.toordinal()+32)
-
+    expires = datetime(date.year, (date.month%12)+1, 1)
 
     if type=='rr_not_submitted':
         text = '%d facilities have reported not submitting their R&R form as of today.' % details['number']

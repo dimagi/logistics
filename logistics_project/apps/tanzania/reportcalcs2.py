@@ -85,30 +85,14 @@ class TanzaniaReport(object):
         product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
         product_dashboard = ProductAvailabilityDashboardChart()
         product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
-
-        org_summary = OrganizationSummary.objects.get\
-            (date__range=(mp.begin_date,mp.end_date),organization__code=org)
-        
-        soh_data = GroupData.objects.filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
-        rr_data = GroupData.objects.filter(Q(group_summary__title='rr_fac') | Q(group_summary__title='rr_dist'),group_summary__org_summary=org_summary)
-        delivery_data = GroupData.objects.filter(Q(group_summary__title='del_fac') | Q(group_summary__title='del_dist'),group_summary__org_summary=org_summary)
-        supervision_data = GroupData.objects.filter(group_summary__title='super_fac',group_summary__org_summary=org_summary)
-
-        total = org_summary.total_orgs
-
-        soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, date)
-        rr_json, submit_numbers, submitting_group = convert_rr_data_to_pie_chart(rr_data, date)
-        delivery_json, delivery_numbers, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, date)
-        supervision_json, supervision_numbers = convert_supervision_data_to_pie_chart(supervision_data, date)
-
         
         self.context.update({
             
-            "submitting_group": submitting_group,
-            "soh_json": soh_json,
-            "rr_json": rr_json,
-            "delivery_json": delivery_json,
-            "supervision_json": supervision_json,
+            "submitting_group": self.bd.submitting_group,
+            "soh_json": self.bd.soh_json,
+            "rr_json": self.bd.rr_json,
+            "delivery_json": self.bd.delivery_json,
+            "supervision_json": self.bd.supervision_json,
             "graph_width": 300, # used in pie_reporting_generic
             "graph_height": 300,
 
@@ -116,7 +100,7 @@ class TanzaniaReport(object):
             "bar_data": bar_data,
             "product_json": product_json,
             "product_codes": product_codes,
-            "total": total,
+            "total": self.bd.total,
         })
 
     def common_report(self):

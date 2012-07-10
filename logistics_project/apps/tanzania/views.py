@@ -10,7 +10,7 @@ from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReport
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
-from models import DeliveryGroups
+from models import DeliveryGroups, SupplyPointStatusValues
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -194,7 +194,7 @@ def dashboard2(request):
     # TODO: don't use location like this (district summary)
     location = Location.objects.get(code=org)
 
-    alerts = Alert.objects.filter(organization__code=org,expires__gt=mp.end_date).order_by('-id')
+    alerts = Alert.objects.filter(organization__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
 
     try:
         org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),organization__code=org)
@@ -212,18 +212,26 @@ def dashboard2(request):
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
 
-    soh_data = GroupData.objects.filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
-    rr_data = GroupData.objects.filter(Q(group_summary__title='rr_fac') | Q(group_summary__title='rr_dist'),group_summary__org_summary=org_summary)
-    delivery_data = GroupData.objects.filter(Q(group_summary__title='del_fac') | Q(group_summary__title='del_dist'),group_summary__org_summary=org_summary)
-    process_data = GroupData.objects.filter(group_summary__title='process',group_summary__org_summary=org_summary)
-
-    soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
-    rr_json, submit_numbers, submitting_group = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
-    delivery_json, delivery_numbers, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
-    processing_numbers, processing_group = prepare_processing_info(process_data)
-
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
+
+    soh_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                .filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
+    rr_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                .filter(group_summary__title='rr_fac',group_summary__org_summary=org_summary)
+    delivery_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                .filter(group_summary__title='del_fac',group_summary__org_summary=org_summary)
+
+    dg = DeliveryGroups(month=mp.end_date.month)
+
+    submitting_group = dg.current_submitting_group(month=mp.end_date.month)
+    processing_group = dg.current_processing_group(month=mp.end_date.month)
+    delivery_group = dg.current_delivering_group(month=mp.end_date.month)
+
+    soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
+    rr_json, submit_numbers = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
+    delivery_json, delivery_numbers = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
+    processing_numbers = prepare_processing_info([total, submit_numbers, delivery_numbers])
 
     product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
     product_dashboard = ProductAvailabilityDashboardChart()
@@ -259,14 +267,9 @@ def dashboard2(request):
 
 def prepare_processing_info(data):
     numbers = {}
-    numbers['total'] = 0
+    numbers['total'] = data[0] - (data[1]['total'] + data[2]['total'])
     numbers['complete'] = 0
-    for result in data:
-        number = int(result.number)
-        numbers['total'] += number
-        if result.complete:
-            numbers['complete'] += number
-    return numbers, 'B' #data[0].group_code
+    return numbers 
 
 def convert_soh_data_to_pie_chart(data, date):
     ret_json = []
@@ -277,30 +280,37 @@ def convert_soh_data_to_pie_chart(data, date):
     numbers['late'] = 0
     numbers['not_responding'] = 0
     for result in data:
-        entry = {}
         number = int(result.number)
         numbers['total'] += number
-        entry['value'] = number
         if result.complete:
             numbers['complete'] += number
+            if result.on_time:
+                numbers['on_time'] += number
+            else:
+                numbers['late'] += number
         if result.label=='not_responding':
             numbers['not_responding'] += number
-            entry['color'] = '#8b198b'
-            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'SOH Not Responding'
-            ret_json.append(entry)
-        elif result.label=='on_time':
-            numbers['on_time'] += number
-            entry['color'] = 'green'
-            entry['description'] = "(%s) SOH On Time (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Stock Report On Time'
-            ret_json.append(entry)
-        elif result.label=='late':
-            numbers['late'] += number
-            entry['color'] = 'orange'
-            entry['description'] = "(%s) Submitted Late (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Stock Report Late'
-            ret_json.append(entry)
+    if numbers['on_time']:
+        entry = {}
+        entry['value'] = numbers['on_time']
+        entry['color'] = 'green'
+        entry['description'] = "(%s) SOH On Time (%s)" % (numbers['on_time'], date.strftime("%b %Y"))
+        entry['display'] = u'Stock Report On Time'
+        ret_json.append(entry)
+    if numbers['late']:
+        entry = {}
+        entry['value'] = numbers['late']
+        entry['color'] = 'orange'
+        entry['description'] = "(%s) Submitted Late (%s)" % (numbers['late'], date.strftime("%b %Y"))
+        entry['display'] = u'Stock Report Late'
+        ret_json.append(entry)
+    if numbers['not_responding']:
+        entry = {}
+        entry['value'] = numbers['not_responding']
+        entry['color'] = '#8b198b'
+        entry['description'] = "(%s) Didn't Respond (%s)" % (numbers['not_responding'], date.strftime("%b %Y"))
+        entry['display'] = u'SOH Not Responding'
+        ret_json.append(entry)
     return ret_json, numbers
 
 def convert_rr_data_to_pie_chart(data, date):
@@ -313,37 +323,47 @@ def convert_rr_data_to_pie_chart(data, date):
     numbers['not_submitted'] = 0
     numbers['not_responding'] = 0
     for result in data:
-        entry = {}
         number = int(result.number)
         numbers['total'] += number
-        entry['value'] = number
         if result.complete:
             numbers['complete'] += number
-        if result.label=='not_responding':
-            numbers['not_responding'] += number
-            entry['color'] = '#8b198b'
-            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u"Didn't Respond"
-            ret_json.append(entry)
-        elif result.label=='not_submitted':
+            if result.on_time:
+                numbers['on_time'] += number
+            else:
+                numbers['late'] += number
+        if result.label=='not_submitted':
             numbers['not_submitted'] += number
-            entry['color'] = 'red'
-            entry['description'] = "(%s) Haven't Submitted (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u"Haven't Submitted"
-            ret_json.append(entry)
-        elif result.label=='on_time':
-            numbers['on_time'] += number
-            entry['color'] = 'green'
-            entry['description'] = "(%s) SOH On Time (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Submitted On Time'
-            ret_json.append(entry)
-        elif result.label=='late':
-            numbers['late'] += number
-            entry['color'] = 'orange'
-            entry['description'] = "(%s) Submitted Late (%s)" % (result.number, date.strftime("%b %Y"))
-            entry['display'] = u'Submitted Late'
-            ret_json.append(entry)
-    return ret_json, numbers, data[0].group_code
+        elif result.label=='not_responding':
+            numbers['not_responding'] += number
+    if numbers['on_time']:
+        entry = {}
+        entry['value'] = numbers['on_time']
+        entry['color'] = 'green'
+        entry['description'] = "(%s) Submitted On Time (%s)" % (numbers['on_time'], date.strftime("%b %Y"))
+        entry['display'] = u'Submitted On Time'
+        ret_json.append(entry)
+    if numbers['late']:
+        entry = {}
+        entry['value'] = numbers['late']
+        entry['color'] = 'orange'
+        entry['description'] = "(%s) Submitted Late (%s)" % (numbers['late'], date.strftime("%b %Y"))
+        entry['display'] = u'Submitted Late'
+        ret_json.append(entry)
+    if numbers['not_submitted']:
+        entry = {}
+        entry['value'] = numbers['not_submitted']
+        entry['color'] = 'red'
+        entry['description'] = "(%s) Haven't Submitted (%s)" % (numbers['not_submitted'], date.strftime("%b %Y"))
+        entry['display'] = u"Haven't Submitted"
+        ret_json.append(entry)
+    if numbers['not_responding']:
+        entry = {}
+        entry['value'] = numbers['not_responding']
+        entry['color'] = '#8b198b'
+        entry['description'] = "(%s) Didn't Respond (%s)" % (numbers['not_responding'], date.strftime("%b %Y"))
+        entry['display'] = u"Didn't Respond"
+        ret_json.append(entry)
+    return ret_json, numbers 
 
 def convert_delivery_data_to_pie_chart(data, date):
     ret_json = []
@@ -354,31 +374,38 @@ def convert_delivery_data_to_pie_chart(data, date):
     numbers['not_received'] = 0
     numbers['not_responding'] = 0
     for result in data:
-        entry = {}
         number = int(result.number)
         numbers['total'] += number
-        entry['value'] = number
         if result.complete:
             numbers['complete'] += number
-        if result.label=='not_responding':
-            numbers['not_responding'] += number
-            entry['color'] = '#8b198b'
-            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u"Didn't Respond"
-            ret_json.append(entry)
-        elif result.label=='received':
+        if result.label=='received':
             numbers['received'] += number
-            entry['color'] = 'green'
-            entry['description'] = "(%s) Delivery Received (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Delivery Received'
-            ret_json.append(entry)
         elif result.label=='not_received':
             numbers['not_received'] += number
-            entry['color'] = 'red'
-            entry['description'] = "(%s) Delivery Not Received (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Delivery Not Received'
-            ret_json.append(entry)
-    return ret_json, numbers, data[0].group_code
+        elif result.label=='not_responding':
+            numbers['not_responding'] += number
+    if numbers['received']:
+        entry = {}
+        entry['value'] = numbers['received']
+        entry['color'] = 'green'
+        entry['description'] = "(%s) Delivery Received (%s)" % (numbers['received'], date.strftime("%b %Y"))
+        entry['display'] = u'Delivery Received'
+        ret_json.append(entry)
+    if numbers['not_received']:
+        entry = {}
+        entry['value'] = numbers['not_received']
+        entry['color'] = 'red'
+        entry['description'] = "(%s) Delivery Not Received (%s)" % (numbers['not_received'], date.strftime("%b %Y"))
+        entry['display'] = u'Delivery Not Received'
+        ret_json.append(entry)        
+    if numbers['not_responding']:
+        entry = {}
+        entry['value'] = numbers['not_responding']
+        entry['color'] = '#8b198b'
+        entry['description'] = "(%s) Didn't Respond (%s)" % (numbers['not_responding'], date.strftime("%b %Y"))
+        entry['display'] = u"Didn't Respond"
+        ret_json.append(entry)
+    return ret_json, numbers 
 
 def convert_supervision_data_to_pie_chart(data, date):
     ret_json = []
@@ -389,30 +416,37 @@ def convert_supervision_data_to_pie_chart(data, date):
     numbers['not_received'] = 0
     numbers['not_responding'] = 0
     for result in data:
-        entry = {}
         number = int(result.number)
         numbers['total'] += number
-        entry['value'] = number
         if result.complete:
             numbers['complete'] += number
-        if result.label=='not_responding':
-            numbers['not_responding'] += number
-            entry['color'] = '#8b198b'
-            entry['description'] = "(%s) Didn't Respond (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Supervision Not Responding'
-            ret_json.append(entry)
-        elif result.label=='received':
+        if result.label=='received':
             numbers['received'] += number
-            entry['color'] = 'green'
-            entry['description'] = "(%s) Supervision Received (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Supervision Received'
-            ret_json.append(entry)
         elif result.label=='not_received':
             numbers['not_received'] += number
-            entry['color'] = 'orange'
-            entry['description'] = "(%s) Supervision Not Received (%s)" % (number, date.strftime("%b %Y"))
-            entry['display'] = u'Supervision Not Received'
-            ret_json.append(entry)
+        elif result.label=='not_responding':
+            numbers['not_responding'] += number
+    if numbers['received']:
+        entry = {}
+        entry['value'] = numbers['received']
+        entry['color'] = 'green'
+        entry['description'] = "(%s) Supervision Received (%s)" % (numbers['received'], date.strftime("%b %Y"))
+        entry['display'] = u'Supervision Received'
+        ret_json.append(entry)
+    if numbers['not_received']:
+        entry = {}
+        entry['value'] = numbers['not_received']
+        entry['color'] = 'orange'
+        entry['description'] = "(%s) Supervision Not Received (%s)" % (numbers['not_received'], date.strftime("%b %Y"))
+        entry['display'] = u'Supervision Not Received'
+        ret_json.append(entry)
+    if numbers['not_responding']:
+        entry = {}
+        entry['value'] = numbers['not_responding']
+        entry['color'] = '#8b198b'
+        entry['description'] = "(%s) Didn't Respond (%s)" % (numbers['not_responding'], date.strftime("%b %Y"))
+        entry['display'] = u'Supervision Not Responding'
+        ret_json.append(entry)
     return ret_json, numbers
 
 def convert_product_data_to_stack_chart(data, chart_info):

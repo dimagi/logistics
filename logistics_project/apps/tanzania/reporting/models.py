@@ -42,7 +42,7 @@ class GroupData(models.Model):
     label = models.CharField(max_length=50, blank=True, null=True) # on_time
     number = models.FloatField(default=0) # 45
     complete = models.BooleanField(default=False) # True
-
+    on_time = models.BooleanField(default=False) # True
 
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)

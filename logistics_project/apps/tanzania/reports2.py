@@ -52,27 +52,48 @@ class SupplyPointStatusBreakdown(object):
                  organization__code=org)
         except ObjectDoesNotExist:
             raise NoDataError()
+
+        soh_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                    .filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
+        rr_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                    .filter(group_summary__title='rr_fac',group_summary__org_summary=org_summary)
+        delivery_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                    .filter(group_summary__title='del_fac',group_summary__org_summary=org_summary)
+        supervision_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
+                                    .filter(group_summary__title='super_fac',group_summary__org_summary=org_summary)
         
-        soh_data = GroupData.objects.filter(group_summary__title='soh_submit',group_summary__org_summary=org_summary)
-        rr_data = GroupData.objects.filter(group_summary__title='rr_submit',group_summary__org_summary=org_summary)
-        delivery_data = GroupData.objects.filter(group_summary__title='deliver',group_summary__org_summary=org_summary)
-        supervision_data = GroupData.objects.filter(group_summary__title='supervision',group_summary__org_summary=org_summary)
+        dg = DeliveryGroups(month=self.month)
+
+        submitting_group = dg.current_submitting_group(month=self.month)
+        processing_group = dg.current_processing_group(month=self.month)
+        delivery_group = dg.current_delivering_group(month=self.month)
 
         soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, date)
-        rr_json, submit_numbers, submitting_group = convert_rr_data_to_pie_chart(rr_data, date)
-        delivery_json, delivery_numbers, delivery_group = convert_delivery_data_to_pie_chart(delivery_data, date)
+        rr_json, submit_numbers = convert_rr_data_to_pie_chart(rr_data, date)
+        delivery_json, delivery_numbers = convert_delivery_data_to_pie_chart(delivery_data, date)
         supervision_json, supervision_numbers = convert_supervision_data_to_pie_chart(supervision_data, date)
 
         total = org_summary.total_orgs
         avg_lead_time = org_summary.average_lead_time_in_days
 
-        # product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__name')
-        # product_dashboard = ProductAvailabilityDashboardChart.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('id')
-
-        # product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
-
-        # # TODO: fix this so it makes more sense.  chart info probably shouldnt be in db
-        # chart_info = product_dashboard[0]
+        self.org_summary = org_summary
+        self.soh_data = soh_data
+        self.rr_data = rr_data
+        self.delivery_data = delivery_data
+        self.supervision_data = supervision_data
+        self.submitting_group = submitting_group
+        self.processing_group = processing_group
+        self.delivery_group = delivery_group
+        self.soh_json = soh_json
+        self.soh_numbers = soh_numbers
+        self.rr_json = rr_json
+        self.submit_numbers = submit_numbers
+        self.delivery_json = delivery_json
+        self.delivery_numbers = delivery_numbers
+        self.supervision_json = supervision_json
+        self.supervision_numbers = supervision_numbers
+        self.total = total
+        self.avg_lead_time = avg_lead_time
 
         self.submitted = [''] * submit_numbers['complete']
         self.submitted_on_time = [''] * submit_numbers['on_time']
