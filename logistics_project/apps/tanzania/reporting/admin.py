@@ -19,7 +19,14 @@ class GroupDataAdmin(admin.ModelAdmin):
     model = GroupData
     list_display = ('group_summary', 'label', 'number')
     list_filter = ('group_summary', 'label')
+
+class ProductAvailabilityDataAdmin(admin.ModelAdmin):
+    model = ProductAvailabilityData
+    list_display = ('organization', 'date', 'product', 'total', 'with_stock', 
+                    'without_stock', 'without_data')
+    list_filter = ('organization', 'date', 'product')
     
 admin.site.register(OrganizationSummary, OrganizationSummaryAdmin)
 admin.site.register(GroupSummary, GroupSummaryAdmin)
 admin.site.register(GroupData, GroupDataAdmin)
+admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
