@@ -8,7 +8,7 @@ from logistics.models import SupplyPoint, Product, StockTransaction, ProductStoc
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
 from logistics_project.apps.tanzania.utils import calc_lead_time
-from logistics_project.apps.tanzania.models import *
+from logistics_project.apps.tanzania.models import *, SupplyPointStatusTypes
 from logistics_project.apps.tanzania.reporting.models import *
 from dimagi.utils.dates import months_between
 from django.db import transaction
@@ -242,8 +242,10 @@ def process_facility_statuses(facility, statuses):
         group_summary = GroupSummary.objects.get_or_create\
             (org_summary=org_summary, title=status.status_type)[0]
         
-        # we've responded to this query
-        group_summary.historical_responses = 1
+        if status.status_type not in (SupplyPointStatusValues.REMINDER_SENT,
+                                      SupplyPointStatusValues.ALERT_SENT):
+            # we've responded to this query
+            group_summary.historical_responses = 1
         create_object(group_summary)
         
         group_data = GroupData.objects.get_or_create\
