@@ -8,7 +8,7 @@ from logistics.models import SupplyPoint, Product, StockTransaction, ProductStoc
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
 from logistics_project.apps.tanzania.utils import calc_lead_time
-from logistics_project.apps.tanzania.models import *, SupplyPointStatusTypes
+from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 from dimagi.utils.dates import months_between
 from django.db import transaction
@@ -27,19 +27,19 @@ NEEDED_STATUS_TYPES = [SupplyPointStatusTypes.DELIVERY_FACILITY,
 # initial vs ongoing
 
 # @task
-def generate():
+def generate(start_date=None):
     ReportRun.objects.all().delete()
     running = ReportRun.objects.filter(complete=False)
     if len(running) > 0:
         print "Already running..."
         return
 
+    start_date = start_date or datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
     # start new run
     now = datetime.utcnow()
     new_run = ReportRun(start_time=now)
     create_object(new_run)
     try: 
-        start_date = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
         last_run = ReportRun.objects.all().order_by('-start_time')
         # if len(last_run) > 0:
         #     start_date = last_run[0].start_time
@@ -53,8 +53,8 @@ def generate():
         new_run.complete = True
         create_object(new_run)
 
-def cleanup():
-    clean_up_since = datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
+def cleanup(since=None):
+    clean_up_since = since or datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
 
     start_date = clean_up_since
     end_date = datetime.utcnow()
@@ -80,7 +80,7 @@ def clear_out_reports(start_date, end_date):
 def populate_report_data(start_date, end_date):
     # first populate all the warehouse tables for all facilities
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility')
-    if False:
+    if True:
         for fac in facilities:
             print "processing facility %s (%s)" % (fac.name, str(fac.id))
             

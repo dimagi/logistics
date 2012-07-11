@@ -12,6 +12,6 @@ class Command(LabelCommand):
 
     def handle(self, *args, **options):
         print "Start time: %s" % datetime.now()
-        # cleanup()
-        generate()
+        cleanup(datetime(2010, 1,1))
+        generate(datetime(2012, 3,1))
         print "End time: %s" % datetime.now()
