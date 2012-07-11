@@ -228,6 +228,7 @@ def dashboard2(request):
     processing_group = dg.current_processing_group(month=mp.end_date.month)
     delivery_group = dg.current_delivering_group(month=mp.end_date.month)
 
+    print rr_data
     soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, mp.begin_date)
     rr_json, submit_numbers = convert_rr_data_to_pie_chart(rr_data, mp.begin_date)
     delivery_json, delivery_numbers = convert_delivery_data_to_pie_chart(delivery_data, mp.begin_date)
@@ -282,14 +283,13 @@ def convert_soh_data_to_pie_chart(data, date):
     for result in data:
         number = int(result.number)
         numbers['total'] += number
-        if result.complete:
-            numbers['complete'] += number
-            if result.on_time:
-                numbers['on_time'] += number
-            else:
-                numbers['late'] += number
+        numbers['complete'] += result.complete
+        numbers['on_time'] += result.on_time
         if result.label=='not_responding':
             numbers['not_responding'] += number
+    
+    numbers['late'] = numbers['complete'] - numbers['on_time']
+    
     if numbers['on_time']:
         entry = {}
         entry['value'] = numbers['on_time']
@@ -325,16 +325,16 @@ def convert_rr_data_to_pie_chart(data, date):
     for result in data:
         number = int(result.number)
         numbers['total'] += number
-        if result.complete:
-            numbers['complete'] += number
-            if result.on_time:
-                numbers['on_time'] += number
-            else:
-                numbers['late'] += number
+        numbers['complete'] += result.complete
+        numbers['on_time'] += result.on_time
         if result.label=='not_submitted':
             numbers['not_submitted'] += number
         elif result.label=='not_responding':
             numbers['not_responding'] += number
+    
+    # TODO: fix
+    numbers['late'] = numbers['complete'] - numbers['on_time']
+    
     if numbers['on_time']:
         entry = {}
         entry['value'] = numbers['on_time']

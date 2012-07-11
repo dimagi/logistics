@@ -36,8 +36,8 @@ class GroupSummary(models.Model):
     """
     org_summary = models.ForeignKey('OrganizationSummary')
     title = models.CharField(max_length=50, blank=True, null=True) # SOH
-    historical_responses = models.FloatField(default=0) # 43
-    no_responses = models.FloatField(default=0) # 32
+    historical_responses = models.PositiveIntegerField(default=0) # 43
+    no_responses = models.PositiveIntegerField(default=0) # 32
     
     def __unicode__(self):
         return "%s - %s" % (self.org_summary, self.title)
@@ -51,12 +51,12 @@ class GroupData(models.Model):
     group_summary = models.ForeignKey('GroupSummary')
     group_code = models.CharField(max_length=2, blank=True, null=True) # A
     label = models.CharField(max_length=50, blank=True, null=True) # on_time
-    number = models.FloatField(default=0) # 45
-    complete = models.BooleanField(default=False) # True
-    on_time = models.BooleanField(default=False) # True
+    number = models.PositiveIntegerField(default=0)   # 45
+    complete = models.PositiveIntegerField(default=0) # 33
+    on_time = models.PositiveIntegerField(default=0)  # 22
     
     def __unicode__(self):
-        return "%s:%s" % (self.group_summary, self.label)
+        return "%s:%s value: %s" % (self.group_summary, self.label, self.number)
     
 
 class ProductAvailabilityData(ReportingModel):

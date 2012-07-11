@@ -108,6 +108,8 @@ def populate_report_data(start_date, end_date):
                     calc_lead_time(fac,year=year,month=month) or 0
                 create_object(org_summary)
                 
+                # fill in the details:
+                
                 # TODO: alerts?
                 # populate_no_primary_alerts(fac, window_date, [fac])
                 # don't populate stockout alerts since they're broken
@@ -182,6 +184,8 @@ def populate_report_data(start_date, end_date):
                     sub_gds = GroupData.objects.filter\
                         (label=response, group_summary__in=sub_sums)
                     gd.number = sum([g.number for g in sub_gds])
+                    gd.complete = sum([g.complete for g in sub_gds])
+                    gd.on_time = sum([g.on_time for g in sub_gds])
                     create_object(gd)
                 
                 # TODO: above-facility-level alerts?
@@ -261,7 +265,7 @@ def process_facility_statuses(facility, statuses):
         group_summary = GroupSummary.objects.get_or_create\
             (org_summary=org_summary, title=status.status_type)[0]
         
-        if status.status_type not in (SupplyPointStatusValues.REMINDER_SENT,
+        if status.status_value not in (SupplyPointStatusValues.REMINDER_SENT,
                                       SupplyPointStatusValues.ALERT_SENT):
             # we've responded to this query
             group_summary.historical_responses = 1
@@ -271,11 +275,12 @@ def process_facility_statuses(facility, statuses):
             (group_summary=group_summary, group_code=sp_code, 
              label=status.status_value)[0]
         group_data.number = 1
-        group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, 
-                                                      SupplyPointStatusValues.RECEIVED]
+        group_data.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
+                                                           SupplyPointStatusValues.RECEIVED] \
+                                else 0 
         if group_data.complete:
             if recent_reminder(facility, status.status_date, status.status_type):
-                group_data.on_time = True
+                group_data.on_time = 1
         create_object(group_data)
         
         # update facility alerts
@@ -393,7 +398,7 @@ def process_statuses(org, statuses, child_objs):
         group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, SupplyPointStatusValues.RECEIVED]
         if group_data.complete:
             if recent_reminder(sp, status.status_date, status.status_type):
-                group_data.on_time = True
+                group_data.on_time = True # NOTE: broken
         create_object(group_data)
         if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
             create_alert(org, status.status_date, 'rr_not_submitted',{'number': group_data.number})
