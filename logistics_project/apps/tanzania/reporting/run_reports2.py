@@ -104,8 +104,10 @@ def populate_report_data(start_date, end_date):
                     (organization=fac, date=window_date)
                 
                 org_summary.total_orgs = 1
-                org_summary.average_lead_time_in_days = \
-                    calc_lead_time(fac,year=year,month=month) or 0
+                alt = calc_lead_time(fac,year=year,month=month)
+                if alt:
+                    alt = alt.days
+                org_summary.average_lead_time_in_days = alt or 0
                 create_object(org_summary)
                 
                 # fill in the details:
