@@ -189,7 +189,7 @@ class SOHReport(TanzaniaReport):
         self.context['soh_table'] = table
 
     def district_report(self):
-        tables, products, product_set, show = _generate_soh_tables(self.request, self.facs, self.mp)
+        tables, products, product_set, show = _generate_soh_tables2(self.request, self.facs, self.mp)
         self.context.update({
             'tables': tables,
             'products': products,
