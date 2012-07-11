@@ -30,6 +30,9 @@ class OrganizationSummary(ReportingModel):
     total_orgs = models.PositiveIntegerField(default=0) # 176
     average_lead_time_in_days = models.FloatField(default=0) # 28
 
+    def __unicode__(self):
+        return "%s: %s/%s" % (self.organization, self.date.month, self.date.year)
+    
 class GroupSummary(models.Model):
     """
     Warehouse data related to a particular category of reporting 
@@ -39,6 +42,10 @@ class GroupSummary(models.Model):
     title = models.CharField(max_length=50, blank=True, null=True) # SOH
     historical_responses = models.FloatField(default=0) # 43
     no_responses = models.FloatField(default=0) # 32
+    
+    def __unicode__(self):
+        return "%s - %s" % (self.org_summary, self.title)
+    
 
 class GroupData(models.Model):
     """
@@ -51,6 +58,10 @@ class GroupData(models.Model):
     number = models.FloatField(default=0) # 45
     complete = models.BooleanField(default=False) # True
     on_time = models.BooleanField(default=False) # True
+    
+    def __unicode__(self):
+        return "%s:%s" % (self.group_summary, self.label)
+    
 
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)
