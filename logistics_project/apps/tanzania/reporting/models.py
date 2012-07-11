@@ -5,10 +5,6 @@ from django.db import models
 from logistics.models import SupplyPoint, Product
 
 
-############### FOR REPORTS ###################
-###### Blow these away and rerun reports ######
-###############################################
-
 class ReportingModel(models.Model):
     organization = models.ForeignKey(SupplyPoint) # viewing organization
     date = models.DateTimeField() # viewing time period
@@ -70,17 +66,6 @@ class ProductAvailabilityData(ReportingModel):
     without_stock = models.PositiveIntegerField(default=0)
     without_data = models.PositiveIntegerField(default=0)
 
-# class ProductAvailabilityDashboardChart(ReportingModel):
-#     label = models.TextField()
-#     color = models.TextField()
-
-#     width = models.PositiveIntegerField(default=900)
-#     height = models.PositiveIntegerField(default=300)
-#     div = models.TextField()
-#     legenddiv = models.TextField()
-#     xaxistitle = models.TextField()
-#     yaxistitle = models.TextField()
-
 class ProductAvailabilityDashboardChart(object):
     label_color = { "Stocked out" : "#a30808",
                     "Not Stocked out" : "#7aaa7a",
@@ -92,7 +77,6 @@ class ProductAvailabilityDashboardChart(object):
     legenddiv = "product_availability_summary_legend"
     xaxistitle = "Products"
     yaxistitle = "Number"    
-
 
 class Alert(ReportingModel):
     text = models.TextField()

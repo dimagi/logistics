@@ -19,7 +19,6 @@ RAPIDSMS_TABS = [
 #    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
 #    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
-#    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
     ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
 
@@ -30,6 +29,7 @@ RAPIDSMS_TABS = [
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
     ("tz_sms_schedule",       "Help"),
 
 ]

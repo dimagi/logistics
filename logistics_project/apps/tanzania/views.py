@@ -29,7 +29,7 @@ from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote,
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
-
+import os
 from logistics_project.apps.tanzania.reporting.models import *
 
 PRODUCTS_PER_TABLE = 100 #7
@@ -457,7 +457,7 @@ def convert_product_data_to_stack_chart(data, chart_info):
     for product in data:
         count += 1
         ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code.lower())])
-    for k in chart_info.label_color.keys():
+    for k in ['Stocked out', 'Not Stocked out', 'No Stock Data']:
         count = 0
         datalist = []
         for product in data:
@@ -522,6 +522,23 @@ def _generate_soh_tables(request, facs, mp, products=None):
                 pc = ProductStockColumn(prod, mp.month, mp.year)
             t.add_column(pc, "pc_"+prod.sms_code)
     return tables, products, product_set, show
+
+def _generate_soh_tables2(request, facs, mp, products=None):
+    show = request.GET.get('show', "")
+    if not products: products = Product.objects.all().order_by('sms_code')
+    product_set = products
+    tables = [StockOnHandTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year, order_by=["D G", "Facility Name"])]
+
+    # for count in enumerate(iter):
+    #     t = tables[count[0]]
+    #     for prod in count[1]:
+    #         if show == "months":
+    #             pc = ProductMonthsOfStockColumn(prod, mp.month, mp.year)
+    #         else:
+    #             pc = ProductStockColumn(prod, mp.month, mp.year)
+    #         t.add_column(pc, "pc_"+prod.sms_code)
+    return tables, products, product_set, show
+
 
 #@login_required
 @place_in_request()
@@ -732,4 +749,10 @@ def ad_hoc_reports(request):
         "form": form,
     }, context_instance=RequestContext(request))
     
+def supervision(request):
 
+    files = os.listdir("apps/tanzania/static/downloads/supervision_documents")
+    
+    return render_to_response("tanzania/supervision-docs.html", {
+        "links": files,
+    }, context_instance=RequestContext(request))

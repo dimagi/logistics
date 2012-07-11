@@ -6,24 +6,31 @@
 {% block report_content %}
 
     <div class="module toppadded">
-        <h2>{{ bd.soh_chart.title }}</h2>
-        {% with bd.soh_chart.data as chart_data %}{% with "soh_chart" as chartdiv %}{% with "soh_hover" as hoverdiv %}{% with 400 as graph_width %}{% with 400 as graph_height %}
-            {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
+            {% with soh_json as chart_data %}
+            {% with month_pager.prev_month as last_month %}
+                {% include "tanzania/reports/soh_pie_chart.html" %}
+            {% endwith %}{% endwith %}
     </div>
 
     <div class="two-columns">
         <div class="col-1">
             <div class="module">
+
                 <h2>Product Availability</h2>
-                {% include "logistics/partials/dynamic_product_availability_summary.html" %}
+                {% with product_codes as codes %}
+                {% with product_json as summary %}
+                {% with chart_info as chart_info %}
+                {% with total as max_value %}
+                {% with max_products as max_products %}
+                    {% include "tanzania/reports/dynamic_product_availability_summary.html" %}
+                {% endwith %}{% endwith %}{% endwith %}{% endwith %}{% endwith %}
             </div>
         </div>
 
         <div class="col-2">
-
-            {% include "tanzania/partials/product-selector.html" %}
-
+            {% with max_products as max_products %}
+                {% include "tanzania/partials/product-selector.html" %}
+            {% endwith %}
         </div>
     </div>
     <div class="module toppadded" style="clear:both;">
