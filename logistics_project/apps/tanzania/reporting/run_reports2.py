@@ -91,12 +91,14 @@ def populate_report_data(start_date, end_date):
             for month in range(1 if year > start_date.year else start_date.month,13 if year < end_date.year else end_date.month%12 + 1):
                 org_summary = OrganizationSummary.objects.get_or_create(organization=org, date=datetime(year,month,1))[0]
                 org_summary.total_orgs = len(child_objs)
-                avg_lt = []
+                avg_lt = 0
+                count = 0
                 for ch_org in child_objs:
                     lt = calc_lead_time(ch_org,year=year,month=month)
-                    if lt: 
-                        avg_lt.append(lt)
-                org_summary.average_lead_time_in_days = sum(avg_lt)/len(avg_lt) if avg_lt else 0
+                    if lt is not None: 
+                        avg_lt += lt
+                        count += 1
+                org_summary.average_lead_time_in_days = avg_lt/count if count else 0
 
                 create_object(org_summary)
                 populate_no_primary_alerts(org, datetime(year,month,1), child_objs)
