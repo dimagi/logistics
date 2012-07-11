@@ -523,6 +523,23 @@ def _generate_soh_tables(request, facs, mp, products=None):
             t.add_column(pc, "pc_"+prod.sms_code)
     return tables, products, product_set, show
 
+def _generate_soh_tables2(request, facs, mp, products=None):
+    show = request.GET.get('show', "")
+    if not products: products = Product.objects.all().order_by('sms_code')
+    product_set = products
+    tables = [StockOnHandTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year, order_by=["D G", "Facility Name"])]
+
+    # for count in enumerate(iter):
+    #     t = tables[count[0]]
+    #     for prod in count[1]:
+    #         if show == "months":
+    #             pc = ProductMonthsOfStockColumn(prod, mp.month, mp.year)
+    #         else:
+    #             pc = ProductStockColumn(prod, mp.month, mp.year)
+    #         t.add_column(pc, "pc_"+prod.sms_code)
+    return tables, products, product_set, show
+
+
 #@login_required
 @place_in_request()
 def facilities_index(request):

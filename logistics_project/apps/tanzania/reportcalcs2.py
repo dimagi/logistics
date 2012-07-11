@@ -22,7 +22,7 @@ from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh
 from logistics_project.apps.tanzania.models import NoDataError
 
 from models import DeliveryGroups
-from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
+from views import get_facilities_and_location, _generate_soh_tables, _generate_soh_tables2, _is_district, _is_region, _is_national
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -124,8 +124,8 @@ class TanzaniaReport(object):
         return self.location.type.name.lower()
 
     def template(self):
-        if self.level == 'district':
-            return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
+        # if self.level == 'district':
+        #     return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
 
     def as_view(self):
@@ -171,7 +171,6 @@ class SOHReport(TanzaniaReport):
 
     def common_report(self):
         self.context['max_products'] = 6
-        # self.context['summary'] = DynamicProductAvailabilitySummaryByFacilitySP(facilities_below(self.location).filter(contact__is_active=True).distinct(), year=self.mp.year, month=self.mp.month)
     
     def national_report(self):
         table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
@@ -179,19 +178,14 @@ class SOHReport(TanzaniaReport):
         for p in pso_data.keys():
             pc = AggregateStockoutPercentColumn2(p, pso_data[p])
             table.add_column(pc, "pc_"+p.sms_code)            
-
-        # products = Product.objects.all().order_by('sms_code')
-        # for product in products:
-        #     pc = AggregateStockoutPercentColumn(product, self.mp.month, self.mp.year)
-        #     table.add_column(pc, "pc_"+product.sms_code)
         self.context['soh_table'] = table
 
     def regional_report(self):
         table = AggregateSOHTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
-        products = Product.objects.all().order_by('sms_code')
-        for product in products:
-            pc = AggregateStockoutPercentColumn(product, self.mp.month, self.mp.year)
-            table.add_column(pc, "pc_"+product.sms_code)
+        pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
+        for p in pso_data.keys():
+            pc = AggregateStockoutPercentColumn2(p, pso_data[p])
+            table.add_column(pc, "pc_"+p.sms_code)            
         self.context['soh_table'] = table
 
     def district_report(self):
@@ -201,7 +195,14 @@ class SOHReport(TanzaniaReport):
             'products': products,
             'product_set': product_set,
             'show': show,
+            'district': True,
         })
+        pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
+        for p in pso_data.keys():
+            pc = AggregateStockoutPercentColumn2(p, pso_data[p])
+            tables[0].add_column(pc, "pc_"+p.sms_code)
+        # self.context['soh_table'] = tables[0]
+
 
 
 class SupervisionReport(TanzaniaReport):

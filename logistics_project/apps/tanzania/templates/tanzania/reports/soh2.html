@@ -35,7 +35,11 @@
     </div>
     <div class="module toppadded" style="clear:both;">
         <a id="stock"></a>
-        {{ soh_table.as_html }}
+        {% if district %}
+            {% include "tanzania/partials/soh_table.html" %}
+        {% else %}
+            {{ soh_table.as_html }}
+        {% endif %}
     </div>
 
 {% endblock %}
