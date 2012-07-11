@@ -120,7 +120,6 @@ def populate_report_data(start_date, end_date):
     # then populate everything above a facility off a warehouse table
     non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility')
     for org in non_facilities:
-        print "processing non-facility %s (%s)" % (org.name, str(org.id))
         
         def active_facilities_below(sp):
             for child in SupplyPoint.objects.filter(supplied_by=sp, active=True):
@@ -130,6 +129,7 @@ def populate_report_data(start_date, end_date):
                 yield sp
             
         facs = list(active_facilities_below(org))
+        print "processing non-facility %s (%s), %s children" % (org.name, str(org.id), len(facs))
         for year, month in months_between(start_date, end_date):
             window_date = datetime(year,month,1)
             org_summary = OrganizationSummary.objects.get_or_create\
@@ -143,8 +143,27 @@ def populate_report_data(start_date, end_date):
             org_summary.average_lead_time_in_days = \
                 sum([s.average_lead_time_in_days for s in sub_summaries]) / len(sub_summaries) \
                 if sub_summaries else 0
+            
+            create_object(org_summary)    
+            # product availability
+            prods = Product.objects.all()
+            for p in prods:
+                product_data = ProductAvailabilityData.objects.get_or_create\
+                    (product=p, organization=org, 
+                     date=window_date)[0]
                 
+                sub_prods = ProductAvailabilityData.objects.filter\
+                    (product=p, organization__in=facs, 
+                     date=window_date)
+
+                product_data.total = len(facs)
+                product_data.with_stock = sum([p.with_stock for p in sub_prods])
+                product_data.without_stock = sum([p.without_stock for p in sub_prods])
+                product_data.without_data = product_data.total - product_data.with_stock \
+                                                - product_data.without_stock
+                create_object(product_data)
                 
+            
             for type in NEEDED_STATUS_TYPES:
                 gsum = GroupSummary.objects.get_or_create\
                     (org_summary=org_summary, title=type)[0]
@@ -280,7 +299,7 @@ def process_facility_transactions(facility, transactions):
     assert facility.type.code == "facility"
     
     for trans in transactions:
-        assert trans.supply_point== facility
+        assert trans.supply_point == facility
         date = trans.date
         product_data = ProductAvailabilityData.objects.get_or_create\
             (product=trans.product, organization=facility, 
