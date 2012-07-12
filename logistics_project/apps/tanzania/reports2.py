@@ -69,10 +69,10 @@ class SupplyPointStatusBreakdown(object):
         processing_group = dg.current_processing_group(month=self.month)
         delivery_group = dg.current_delivering_group(month=self.month)
 
-        soh_json, soh_numbers = convert_soh_data_to_pie_chart(soh_data, date)
-        rr_json, submit_numbers = convert_rr_data_to_pie_chart(rr_data, date)
-        delivery_json, delivery_numbers = convert_delivery_data_to_pie_chart(delivery_data, date)
-        supervision_json, supervision_numbers = convert_supervision_data_to_pie_chart(supervision_data, date)
+        soh_json, soh_numbers = convert_data_to_pie_chart(soh_data, date)
+        rr_json, submit_numbers = convert_data_to_pie_chart(rr_data, date)
+        delivery_json, delivery_numbers = convert_data_to_pie_chart(delivery_data, date)
+        supervision_json, supervision_numbers = convert_data_to_pie_chart(supervision_data, date)
 
         total = org_summary.total_orgs
         avg_lead_time = org_summary.average_lead_time_in_days
