@@ -3,6 +3,9 @@ from datetime import datetime
 
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
+from django.db import transaction
+
+from dimagi.utils.dates import months_between
 
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
@@ -10,8 +13,6 @@ from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 from logistics_project.apps.tanzania.utils import calc_lead_time
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
-from dimagi.utils.dates import months_between
-from django.db import transaction
 
 TESTING = False
 HISTORICAL_DAYS = 900
@@ -79,7 +80,7 @@ def clear_out_reports(start_date, end_date):
     
 def populate_report_data(start_date, end_date):
     # first populate all the warehouse tables for all facilities
-    facilities = SupplyPoint.objects.filter(active=True, type__code='facility')
+    facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
     if True:
         for fac in facilities:
             print "processing facility %s (%s)" % (fac.name, str(fac.id))
@@ -122,7 +123,7 @@ def populate_report_data(start_date, end_date):
 
     
     # then populate everything above a facility off a warehouse table
-    non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility')
+    non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility').order_by('id')
     for org in non_facilities:
         
         def active_facilities_below(sp):
@@ -245,8 +246,8 @@ def recent_reminder(sp, date, type):
     """
     return SupplyPointStatus.objects.filter\
         (supply_point=sp, status_type=type, 
-         status_date__gte=datetime.fromordinal(date.toordinal()-5),
-         status_date__lt=date,
+         status_date__gt=datetime.fromordinal(date.toordinal()-5),
+         status_date__lte=date,
          status_value=SupplyPointStatusValues.REMINDER_SENT).count() > 0
     
 
@@ -279,7 +280,10 @@ def process_facility_statuses(facility, statuses):
         group_data.number = 1
         group_data.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
                                                            SupplyPointStatusValues.RECEIVED] \
-                                else 0 
+                                else 0
+        if group_data.complete:
+            group_data.on_time = 1  if recent_reminder(facility, status.status_date, status.status_type)\
+                                    else 0
         if group_data.complete:
             if recent_reminder(facility, status.status_date, status.status_type):
                 group_data.on_time = 1

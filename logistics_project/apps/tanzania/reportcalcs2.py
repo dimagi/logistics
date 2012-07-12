@@ -124,8 +124,8 @@ class TanzaniaReport(object):
         return self.location.type.name.lower()
 
     def template(self):
-        # if self.level == 'district':
-        #     return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
+        if self.level == 'district':
+            return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
 
     def as_view(self):

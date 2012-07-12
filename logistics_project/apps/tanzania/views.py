@@ -478,7 +478,7 @@ def convert_product_data_to_sideways_chart(data, chart_info):
     codes = []
     for d in data:
         name = str(d.product.name)
-        code = str(d.product.sms_code.lower())
+        code = str(d.product.sms_code)
         ret_json[code] = {'product': name, 'code': code, 'total': d.total, 'with_stock': d.with_stock, 'without_stock': d.without_stock, 'without_data': d.without_data, 'tick': '<span title=%s>%s</span>' % (name, code)}
         codes.append(code)
 

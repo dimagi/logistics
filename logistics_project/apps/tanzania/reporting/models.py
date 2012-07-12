@@ -76,7 +76,7 @@ class ProductAvailabilityDashboardChart(object):
     div = "product_availability_summary_plot_placeholder"
     legenddiv = "product_availability_summary_legend"
     xaxistitle = "Products"
-    yaxistitle = "Number"    
+    yaxistitle = "Facilities"    
 
 class Alert(ReportingModel):
     text = models.TextField()
