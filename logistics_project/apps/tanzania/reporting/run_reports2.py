@@ -17,6 +17,10 @@ from logistics_project.apps.tanzania.reporting.models import *
 TESTING = False
 HISTORICAL_DAYS = 900
 
+# If default_to_previous is true then the system will use the previous values
+# for product data, rather than making a new data point for each month.
+PRODUCT_SUMMARY_DEFAULT_TO_PREVIOUS = True
+    
 # we enforce that all levels of the chain should have warehouse data 
 # of each of these types
 NEEDED_STATUS_TYPES = [SupplyPointStatusTypes.DELIVERY_FACILITY, 
@@ -120,6 +124,9 @@ def populate_report_data(start_date, end_date):
                 
                 # update all the non-response data
                 not_responding_facility(org_summary)
+                
+                # update product availability data
+                update_product_availability_facility_data(org_summary)
 
     
     # then populate everything above a facility off a warehouse table
@@ -160,8 +167,11 @@ def populate_report_data(start_date, end_date):
                 sub_prods = ProductAvailabilityData.objects.filter\
                     (product=p, organization__in=facs, 
                      date=window_date)
-
-                product_data.total = len(facs)
+                
+                
+                product_data.total = sum([p.total for p in sub_prods])
+                assert product_data.total == len(facs), \
+                    "total should match number of sub facilities"
                 product_data.with_stock = sum([p.with_stock for p in sub_prods])
                 product_data.without_stock = sum([p.without_stock for p in sub_prods])
                 product_data.without_data = product_data.total - product_data.with_stock \
@@ -309,11 +319,12 @@ def process_facility_statuses(facility, statuses):
                 create_alert(facility, status.status_date, 'delivery_not_received',
                              {'number': group_data.number})
         
-def process_facility_transactions(facility, transactions):
+def process_facility_transactions(facility, transactions, default_to_previous=True):
     """
     For a given facility and list of transactions, update the appropriate 
     data warehouse tables. This should only be called on supply points
     that are facilities.
+    
     """
     assert facility.type.code == "facility"
     
@@ -335,6 +346,36 @@ def process_facility_transactions(facility, transactions):
             
         create_object(product_data)
 
+def update_product_availability_facility_data(org_summary):
+    # product availability
+    
+    assert org_summary.organization.type.code == "facility"
+    prods = Product.objects.all()
+    for p in prods:
+        product_data, created = ProductAvailabilityData.objects.get_or_create\
+            (product=p, organization=org_summary.organization, 
+             date=org_summary.date)
+        
+        if created:
+            # set defaults
+            product_data.total = 1
+            previous_reports = ProductAvailabilityData.objects.filter\
+                (product=p, organization=org_summary.organization,
+                 date__lt=org_summary.date)
+            if PRODUCT_SUMMARY_DEFAULT_TO_PREVIOUS and previous_reports.count():
+                prev = previous_reports.order_by("-date")[0]
+                product_data.with_stock = prev.with_stock
+                product_data.without_stock = prev.without_stock
+                product_data.without_data = prev.without_data
+            # otherwise we use the defaults
+            else:
+                product_data.with_stock = 0
+                product_data.without_stock = 0
+                product_data.without_data = 1
+            create_object(product_data)
+        assert (product_data.with_stock + product_data.without_stock \
+                + product_data.without_data) == 1, "bad product data config"
+    
 def previously_without_data(transaction):
     trans = StockTransaction.objects.filter(product=transaction.product, supply_point=transaction.supply_point, 
                                             date__range=(transaction.date,datetime.fromordinal(datetime(transaction.date.year,transaction.date.month%12+1,1).toordinal()-1))).count()
