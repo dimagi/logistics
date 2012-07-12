@@ -41,7 +41,6 @@ class GroupSummary(models.Model):
     
     def __unicode__(self):
         return "%s - %s" % (self.org_summary, self.title)
-    
 
 class GroupData(models.Model):
     """
@@ -57,7 +56,6 @@ class GroupData(models.Model):
     
     def __unicode__(self):
         return "%s:%s value: %s" % (self.group_summary, self.label, self.number)
-    
 
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)
