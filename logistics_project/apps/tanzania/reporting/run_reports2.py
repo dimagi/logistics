@@ -134,10 +134,10 @@ def populate_report_data(start_date, end_date):
     for org in non_facilities:
         
         def active_facilities_below(sp):
-            for child in SupplyPoint.objects.filter(supplied_by=sp, active=True):
+            for child in SupplyPoint.objects.filter(supplied_by=sp):
                 for f in active_facilities_below(child):
                     yield f
-            if sp.type.code == "facility":
+            if sp.type.code == "facility" and sp.active:
                 yield sp
             
         facs = list(active_facilities_below(org))
