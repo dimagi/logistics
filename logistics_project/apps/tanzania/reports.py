@@ -32,9 +32,9 @@ class SupplyPointStatusBreakdown(object):
     @property
     def submitted(self):
         return list(sps_with_latest_status(sps=self.dg.submitting(self.facilities),
-                                                year=self.year, month=self.month,
-                                                status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                                status_value=SupplyPointStatusValues.SUBMITTED))
+                                           year=self.year, month=self.month,
+                                           status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                           status_value=SupplyPointStatusValues.SUBMITTED))
     @property
     def submitted_on_time(self):
         return filter(lambda sp: randr_reported_on_time(sp, self.year, self.month) == OnTimeStates.ON_TIME, self.submitted)
