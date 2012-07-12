@@ -229,8 +229,8 @@ def dashboard2(request):
     delivery_group = dg.current_delivering_group(month=mp.end_date.month)
 
     print rr_data
-    soh_json, soh_numbers = convert_data_to_pie_chart(soh_data, mp.begin_date)
-    rr_json, submit_numbers = convert_data_to_pie_chart(rr_data, mp.begin_date)
+    soh_json, soh_numbers = convert_data_to_pie_chart(soh_data, mp.begin_date, True)
+    rr_json, submit_numbers = convert_data_to_pie_chart(rr_data, mp.begin_date, True)
     delivery_json, delivery_numbers = convert_data_to_pie_chart(delivery_data, mp.begin_date)
     
     processing_numbers = prepare_processing_info([total, submit_numbers, delivery_numbers])
@@ -297,15 +297,15 @@ def make_pie_chart(numbers, date):
         entry = {}
         entry['value'] = numbers['received']
         entry['color'] = 'green'
-        entry['description'] = "(%s) Delivery Received (%s)" % (numbers['received'], date.strftime("%b %Y"))
-        entry['display'] = u'Delivery Received'
+        entry['description'] = "(%s) Received (%s)" % (numbers['received'], date.strftime("%b %Y"))
+        entry['display'] = u'Received'
         ret_json.append(entry)
     if has_nonzero_key(numbers,'not_received'):
         entry = {}
         entry['value'] = numbers['not_received']
         entry['color'] = 'red'
-        entry['description'] = "(%s) Delivery Not Received (%s)" % (numbers['not_received'], date.strftime("%b %Y"))
-        entry['display'] = u'Delivery Not Received'
+        entry['description'] = "(%s) Not Received (%s)" % (numbers['not_received'], date.strftime("%b %Y"))
+        entry['display'] = u'Not Received'
         ret_json.append(entry)
     if has_nonzero_key(numbers,'not_responding'):
         entry = {}
@@ -322,12 +322,13 @@ def prepare_processing_info(data):
     numbers['complete'] = 0
     return numbers 
 
-def convert_data_to_pie_chart(data, date):
+def convert_data_to_pie_chart(data, date, needs_on_time=False):
     numbers = {}
     numbers['total'] = sum([d.number for d in data])
     numbers['complete'] = sum([d.complete for d in data])
-    numbers['on_time'] = sum([d.on_time for d in data])
-    numbers['late'] = numbers['complete'] - numbers['on_time']
+    if needs_on_time:
+        numbers['on_time'] = sum([d.on_time for d in data])
+        numbers['late'] = numbers['complete'] - numbers['on_time']
     numbers['not_submitted'] = sum([d.number for d in data.filter(label='not_submitted')])
     numbers['received'] = sum([d.number for d in data.filter(label='received')])
     numbers['not_received'] = sum([d.number for d in data.filter(label='not_received')])
