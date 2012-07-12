@@ -258,49 +258,57 @@ def process_facility_statuses(facility, statuses):
     that are facilities.
     """
     assert facility.type.code == "facility"
+    
+    def _is_valid_status(facility, status):
+        code = facility.groups.all()[0].code 
+        dg = DeliveryGroups(status.status_date.month)
+        if status.status_type.startswith('rr'):
+            return code == dg.current_submitting_group()
+        elif status.status_type.startswith('del'):
+            return code == dg.current_delivering_group()
+        return True
+    
     for status in statuses:
         assert status.supply_point == facility
-        sp_code = facility.groups.all()[0].code if facility.groups.count() else ''
-        
-        org_summary = OrganizationSummary.objects.get_or_create\
-            (organization=facility, date=datetime(status.status_date.year, 
-                                                  status.status_date.month, 1))[0]
-        group_summary = GroupSummary.objects.get_or_create\
-            (org_summary=org_summary, title=status.status_type)[0]
-        
-        if status.status_value not in (SupplyPointStatusValues.REMINDER_SENT,
-                                      SupplyPointStatusValues.ALERT_SENT):
-            # we've responded to this query
-            group_summary.historical_responses = 1
-        create_object(group_summary)
-        
-        group_data = GroupData.objects.get_or_create\
-            (group_summary=group_summary, group_code=sp_code, 
-             label=status.status_value)[0]
-        group_data.number = 1
-        group_data.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
-                                                           SupplyPointStatusValues.RECEIVED] \
-                                else 0
-        if group_data.complete:
-            group_data.on_time = 1  if recent_reminder(facility, status.status_date, status.status_type)\
+        if _is_valid_status(facility, status):
+            sp_code = facility.groups.all()[0].code
+            
+            org_summary = OrganizationSummary.objects.get_or_create\
+                (organization=facility, date=datetime(status.status_date.year, 
+                                                      status.status_date.month, 1))[0]
+            group_summary = GroupSummary.objects.get_or_create\
+                (org_summary=org_summary, title=status.status_type)[0]
+            
+            if status.status_value not in (SupplyPointStatusValues.REMINDER_SENT,
+                                          SupplyPointStatusValues.ALERT_SENT):
+                # we've responded to this query
+                group_summary.historical_responses = 1
+            create_object(group_summary)
+            
+            group_data = GroupData.objects.get_or_create\
+                (group_summary=group_summary, group_code=sp_code, 
+                 label=status.status_value)[0]
+            group_data.number = 1
+            group_data.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
+                                                               SupplyPointStatusValues.RECEIVED] \
+                                    else 0 
+            if group_data.complete:
+                group_data.on_time = 1 if recent_reminder(facility, status.status_date, status.status_type)\
                                     else 0
-        if group_data.complete:
-            if recent_reminder(facility, status.status_date, status.status_type):
-                group_data.on_time = 1
-        create_object(group_data)
         
-        # update facility alerts
-        if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED \
-            and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
-            create_alert(facility, status.status_date, 'rr_not_submitted',
-                         {'number': group_data.number})
+            create_object(group_data)
+            
+            # update facility alerts
+            if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED \
+                and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
+                create_alert(facility, status.status_date, 'rr_not_submitted',
+                             {'number': group_data.number})
+            
+            if status.status_value==SupplyPointStatusValues.NOT_RECEIVED \
+                and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
+                create_alert(facility, status.status_date, 'delivery_not_received',
+                             {'number': group_data.number})
         
-        if status.status_value==SupplyPointStatusValues.NOT_RECEIVED \
-            and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
-            create_alert(facility, status.status_date, 'delivery_not_received',
-                         {'number': group_data.number})
-
-
 def process_facility_transactions(facility, transactions):
     """
     For a given facility and list of transactions, update the appropriate 
@@ -442,6 +450,9 @@ def process_trans(org, trans, child_objs):
 def not_responding(org_summary, child_objs):
     dg = DeliveryGroups(month=org_summary.date.month)
     submitting_group = dg.current_submitting_group()
+    sp_code = org_summary.organization.groups.all()[0].code \
+        if org_summary.organization.groups.count() else ''
+    assert sp_code
     delivery_group = dg.current_delivering_group()
     submitting = child_objs.filter(groups__code=submitting_group)
     delivering = child_objs.filter(groups__code=delivery_group)
@@ -453,7 +464,9 @@ def not_responding(org_summary, child_objs):
                                              | Q(label='not_responding')).filter(group_summary=gsum)
         for g in group_data:
             total += g.number
-        new_gd = GroupData.objects.get_or_create(group_summary=gsum, label='not_responding')[0]
+        new_gd = GroupData.objects.get_or_create(group_summary=gsum, 
+                                                 label='not_responding', 
+                                                 group_code=sp_code)[0]
         if gsum.title == SupplyPointStatusTypes.SOH_FACILITY:
             new_gd.number = len(child_objs) - total
             if new_gd.number:
