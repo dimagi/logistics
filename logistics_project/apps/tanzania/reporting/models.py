@@ -66,6 +66,26 @@ class GroupSummary(models.Model):
         return self.responded - self.complete
     
     @property
+    def sup_received(self):
+        assert self.title in SupplyPointStatusTypes.SUPERVISION_FACILITY
+        return self.complete
+    
+    @property
+    def sup_not_received(self):
+        assert self.title == SupplyPointStatusTypes.SUPERVISION_FACILITY
+        return self.responded - self.complete
+    
+    @property
+    def del_received(self):
+        assert self.title == SupplyPointStatusTypes.DELIVERY_FACILITY
+        return self.complete
+    
+    @property
+    def del_not_received(self):
+        assert self.title == SupplyPointStatusTypes.DELIVERY_FACILITY
+        return self.responded - self.complete
+    
+    @property
     def not_submitted(self):
         assert self.title in [SupplyPointStatusTypes.SOH_FACILITY,
                               SupplyPointStatusTypes.R_AND_R_FACILITY]

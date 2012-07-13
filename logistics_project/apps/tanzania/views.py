@@ -283,16 +283,21 @@ def convert_data_to_pie_chart(data, date):
             'color': 'red',
             'display': "Haven't Submitted "
         }, 
-        
-        'received': {
+        'del_received': {
             'color': 'green',
             'display': 'Delivery Received',
-            'function': lambda x: x.complete
         }, 
-        'not_received': {
+        'del_not_received': {
             'color': 'red',
             'display': 'Delivery Not Received',
-            'function': lambda x: x.responded - x.complete
+        }, 
+        'sup_received': {
+            'color': 'green',
+            'display': 'Supervision Received',
+        }, 
+        'sup_not_received': {
+            'color': 'red',
+            'display': 'Supervision Not Received',
         }, 
         'not_responding': {
             'color': '#8b198b',
@@ -303,11 +308,11 @@ def convert_data_to_pie_chart(data, date):
         SupplyPointStatusTypes.SOH_FACILITY: 
             ['on_time', 'late', 'not_submitted', 'not_responding'],
         SupplyPointStatusTypes.DELIVERY_FACILITY: 
-            ['received', 'not_received', 'not_responding'],
+            ['del_received', 'del_not_received', 'not_responding'],
         SupplyPointStatusTypes.R_AND_R_FACILITY: 
             ['on_time', 'late', 'not_submitted', 'not_responding'],
         SupplyPointStatusTypes.SUPERVISION_FACILITY: 
-            ['received', 'not_received', 'not_responding']
+            ['sup_received', 'sup_not_received', 'not_responding']
     
     }
     ret = []
