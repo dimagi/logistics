@@ -174,17 +174,17 @@ class SOHReport(TanzaniaReport):
     
     def national_report(self):
         table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
-        pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
-        for p in pso_data.keys():
-            pc = AggregateStockoutPercentColumn2(p, pso_data[p])
+        products = Product.objects.all().order_by('sms_code')
+        for p in products:
+            pc = AggregateStockoutPercentColumn(p, self.mp.month, self.mp.year)
             table.add_column(pc, "pc_"+p.sms_code)            
         self.context['soh_table'] = table
 
     def regional_report(self):
         table = AggregateSOHTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
-        pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
-        for p in pso_data.keys():
-            pc = AggregateStockoutPercentColumn2(p, pso_data[p])
+        products = Product.objects.all().order_by('sms_code')
+        for p in products:
+            pc = AggregateStockoutPercentColumn(p, self.mp.month, self.mp.year)
             table.add_column(pc, "pc_"+p.sms_code)            
         self.context['soh_table'] = table
 
@@ -197,7 +197,7 @@ class SOHReport(TanzaniaReport):
             'show': show,
             'district': True,
         })
-        # pso_data = self.bd.percent_stocked_out2(year=self.mp.year, month=self.mp.month)
+        # pso_data = self.bd.percent_stocked_out(year=self.mp.year, month=self.mp.month)
         # for p in pso_data.keys():
         #     pc = AggregateStockoutPercentColumn2(p, pso_data[p])
         #     tables[0].add_column(pc, "pc_"+p.sms_code)

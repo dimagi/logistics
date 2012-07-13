@@ -6,6 +6,8 @@ from django.db.models.query_utils import Q
 
 from rapidsms.contrib.locations.models import Location
 
+from dimagi.utils.dates import months_between
+
 from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint, ProductReport
 
@@ -69,10 +71,10 @@ class SupplyPointStatusBreakdown(object):
         processing_group = dg.current_processing_group(month=self.month)
         delivery_group = dg.current_delivering_group(month=self.month)
 
-        soh_json, soh_numbers = convert_data_to_pie_chart(soh_data, date)
-        rr_json, submit_numbers = convert_data_to_pie_chart(rr_data, date)
-        delivery_json, delivery_numbers = convert_data_to_pie_chart(delivery_data, date)
-        supervision_json, supervision_numbers = convert_data_to_pie_chart(supervision_data, date)
+        soh_json = convert_data_to_pie_chart(soh_data, date, True)
+        rr_json = convert_data_to_pie_chart(rr_data, date, True)
+        delivery_json = convert_data_to_pie_chart(delivery_data, date)
+        supervision_json = convert_data_to_pie_chart(supervision_data, date)
 
         total = org_summary.total_orgs
         avg_lead_time = org_summary.average_lead_time_in_days
@@ -86,16 +88,17 @@ class SupplyPointStatusBreakdown(object):
         self.processing_group = processing_group
         self.delivery_group = delivery_group
         self.soh_json = soh_json
-        self.soh_numbers = soh_numbers
+        self.soh_numbers = soh_data
         self.rr_json = rr_json
-        self.submit_numbers = submit_numbers
+        self.submit_numbers = rr_data
         self.delivery_json = delivery_json
-        self.delivery_numbers = delivery_numbers
+        self.delivery_numbers = delivery_data
         self.supervision_json = supervision_json
-        self.supervision_numbers = supervision_numbers
+        self.supervision_numbers = supervision_data
         self.total = total
         self.avg_lead_time = avg_lead_time
 
+        # TODO: this will break
         self.submitted = [''] * submit_numbers['complete']
         self.submitted_on_time = [''] * submit_numbers['on_time']
         self.submitted_late = [''] * submit_numbers['late']
@@ -136,17 +139,7 @@ class SupplyPointStatusBreakdown(object):
         else:
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
-        if len(supervision_data) > 0:
-            self.supervision_response = "%.1f%%" % (supervision_data[0].group_summary.historical_responses / supervision_data[0].group_summary.groupdata_set.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT)).count())
-        else:
-            self.supervision_response = "<span class='no_data'>None</span>"
-        if len(rr_data) > 0:
-            self.randr_response = "%.1f%%" % (rr_data[0].group_summary.historical_responses / rr_data[0].group_summary.groupdata_set.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT)).count())
-        else:
-            self.randr_response = "<span class='no_data'>None</span>"
-
         self._submission_chart = None
-        # self.dg = DeliveryGroups(month=month, facs=self.facilities)
 
     def _percent(self, fn=None, of=None):
         if not of:
@@ -166,156 +159,47 @@ class SupplyPointStatusBreakdown(object):
     percent_soh_late = curry(_percent, fn='soh_late')
     percent_soh_not_responding = curry(_percent, fn='soh_not_responding')
 
-    percent_supervision_received = curry(_percent, fn='supervision_received', of='submitting')
-    percent_supervision_not_received = curry(_percent, fn='supervision_not_received', of='submitting')
-    percent_supervision_reminder_sent = curry(_percent, fn='supervision_reminder_sent', of='submitting')
-    percent_supervision_not_responding = curry(_percent, fn='supervision_not_responding', of='submitting')
+    percent_supervision_received = curry(_percent, fn='supervision_received', of='facilities')
+    percent_supervision_not_received = curry(_percent, fn='supervision_not_received', of='facilities')
+    percent_supervision_reminder_sent = curry(_percent, fn='supervision_reminder_sent', of='facilities')
+    percent_supervision_not_responding = curry(_percent, fn='supervision_not_responding', of='facilities')
 
+    def supervision_response_rate(self):
+        total_responses = 0
+        total_possible = 0
+        for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
+            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='super_fac')
+            if g:
+                total_responses += g[0].historical_responses
+                total_possible += g[0].org_summary.total_orgs
+        if total_possible:
+            return "%.1f%%" % (100.0 * total_responses / total_possible)
+        return "<span class='no_data'>None</span>"
+
+    def randr_response_rate(self):
+        total_responses = 0
+        total_possible = 0
+        for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
+            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='rr_fac')
+            if g:
+                total_responses += g[0].historical_responses
+                total_possible += g[0].org_summary.total_orgs
+        if total_possible:
+            return "%.1f%%" % (100.0 * total_responses / total_possible)
+        return "<span class='no_data'>None</span>"
 
     @property
     def stockouts_in_month(self):
         # NOTE: Uses the report month/year, not the current month/year.
-        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity=0, report_date__month=self.report_month, report_date__year=self.report_year).count()]
+        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()]
 
     percent_stockouts_in_month = curry(_percent, fn='stockouts_in_month')
 
-    def stocked_out_of(self, product=None, month=None, year=None):
-        return [f for f in self.facilities if f.historical_stock(product, year, month, default_value=None) == 0]
-
     def percent_stocked_out(self, product, year, month):
-        return format_percent(len(self.stocked_out_of(product=product, year=year, month=month)), len(self.facilities))
-    
-    def percent_stocked_out2(self, year, month):
-        ret = {}
-        ps = ProductAvailabilityData.objects.filter(organization=self.supply_point, date=datetime(year,month,1))
-        for p in ps:
-            ret[p.product] = format_percent(p.without_stock,p.total)
-        return ret
-
-    def supervision_response_rate(self):
-        return self.supervision_response
-
-    def randr_response_rate(self):
-        return self.randr_response
-
-    def submission_chart(self):
-        on_time = len(self.submitted_on_time)
-        late = len(self.submitted_late)
-        not_submitted = len(self.not_submitted)
-        not_responding = len(self.submit_not_responding)
-
-        graph_data = [
-                {"display": _("Submitted On Time"),
-                 "value": on_time,
-                 "color": Colors.GREEN,
-                 "description": "(%s) Submitted On Time (%s %s)" % \
-                    (on_time, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Submitted Late"),
-                 "value": late,
-                 "color": "orange",
-                 "description": "(%s) Submitted Late (%s %s)" % \
-                    (late, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Haven't Submitted"),
-                 "value": not_submitted,
-                 "color": Colors.RED,
-                 "description": "(%s) Haven't Submitted (%s %s)" % \
-                    (not_submitted, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Didn't Respond"),
-                 "value": not_responding,
-                 "color": Colors.PURPLE,
-                 "description": "(%s) Didn't Respond (%s %s)" % \
-                    (not_responding, month_name[self.report_month], self.report_year)
-                }
-            ]
-        self._submission_chart = PieChartData(_("R&R Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
-        return self._submission_chart
-
-    def delivery_chart(self):
-        received = len(self.delivery_received)
-        not_received = len(self.delivery_not_received)
-        not_responding = len(self.delivery_not_responding)
-
-        graph_data = [
-                {"display": _("Delivery Received"),
-                 "value": received,
-                 "color": Colors.GREEN,
-                 "description": "(%s) Delivery Received (%s %s)" % \
-                    (received, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Delivery Not Received"),
-                 "value": not_received,
-                 "color": Colors.RED,
-                 "description": "(%s) Delivery Not Received (%s %s)" % \
-                    (not_received, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Didn't Respond"),
-                 "value": not_responding,
-                 "color": Colors.PURPLE,
-                 "description": "(%s) Didn't Respond (%s %s)" % \
-                    (not_responding, month_name[self.report_month], self.report_year)
-                }
-            ]
-        self._delivery_chart = PieChartData(_("Delivery Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
-        return self._delivery_chart
-
-    def soh_chart(self):
-        on_time = len(self.soh_on_time)
-        late = len(self.soh_late)
-        not_responding = len(self.soh_not_responding)
-
-        graph_data = [
-                {"display": _("Stock Report On Time"),
-                 "value": on_time,
-                 "color": Colors.GREEN,
-                 "description": "(%s) SOH On Time (%s %s)" % \
-                    (on_time, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Stock Report Late"),
-                 "value": late,
-                 "color": "orange",
-                 "description": "(%s) Submitted Late (%s %s)" % \
-                    (late, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("SOH Not Responding"),
-                 "value": not_responding,
-                 "color": Colors.PURPLE,
-                 "description": "(%s) Didn't Respond (%s %s)" % \
-                    (not_responding, month_name[self.report_month], self.report_year)
-                }
-            ]
-        self._soh_chart = PieChartData(_("SOH Submission Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
-        return self._soh_chart
-
-    def supervision_chart(self):
-        received = len(self.supervision_received)
-        not_received = len(self.supervision_not_received)
-        not_responding = len(self.supervision_not_responding)
-
-        graph_data = [
-                {"display": _("Supervision Received"),
-                 "value": received,
-                 "color": Colors.GREEN,
-                 "description": "(%s) Supervision Received (%s %s)" % \
-                    (received, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Supervision Not Received"),
-                 "value": not_received,
-                 "color": Colors.RED,
-                 "description": "(%s) Supervision Not Received (%s %s)" % \
-                    (not_received, month_name[self.report_month], self.report_year)
-                },
-                {"display": _("Supervision Not Responding"),
-                 "value": not_responding,
-                 "color": Colors.PURPLE,
-                 "description": "(%s) Didn't Respond (%s %s)" % \
-                    (not_responding, month_name[self.report_month], self.report_year)
-                }
-            ]
-        self._soh_chart = PieChartData(_("Supervision Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
-        return self._soh_chart
+        ps = ProductAvailabilityData.objects.filter(organization=self.supply_point, product=product, date=datetime(year,month,1))
+        if ps:
+            return format_percent(ps[0].without_stock,ps[0].total)
+        return "<span class='no_data'>None</span>"
 
 class LocationAggregate(object):
     def __init__(self, location=None, month=None, year=None, view=None):

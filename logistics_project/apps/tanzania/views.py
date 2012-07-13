@@ -322,6 +322,7 @@ def convert_data_to_pie_chart(data, date):
             ret.append(entry)
     return ret
 
+
 def prepare_processing_info(data):
     numbers = {}
     numbers['total'] = data[0] - (data[1].total + data[2].total)

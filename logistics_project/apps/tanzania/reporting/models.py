@@ -75,7 +75,6 @@ class GroupSummary(models.Model):
         return "%s - %s" % (self.org_summary, self.title)
     
 
-
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)
     total = models.PositiveIntegerField(default=0)
