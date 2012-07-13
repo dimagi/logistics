@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import models
 
 from logistics.models import SupplyPoint, Product
+from logistics_project.apps.tanzania.models import SupplyPointStatusTypes
 
 
 class ReportingModel(models.Model):
@@ -36,28 +37,44 @@ class GroupSummary(models.Model):
     """
     org_summary = models.ForeignKey('OrganizationSummary')
     title = models.CharField(max_length=50, blank=True, null=True) # SOH
-    historical_responses = models.PositiveIntegerField(default=0) # 43
-    no_responses = models.PositiveIntegerField(default=0) # 32
+    total = models.PositiveIntegerField(default=0)
+    responded = models.PositiveIntegerField(default=0)
+    on_time = models.PositiveIntegerField(default=0)
+    complete = models.PositiveIntegerField(default=0) # "complete" = submitted or responded
+    # we need this in addition to "responded" because it doesn't count as a 
+    # "miss" unless they also were supposed to submit according to their group rules
+    # missed_response = models.PositiveIntegerField(default=0) 
+    
+    @property
+    def late(self):
+        return self.complete - self.on_time
+    
+    @property
+    def not_responding(self):
+        return self.total - self.responded
+    
+    @property
+    def received(self):
+        assert self.title in [SupplyPointStatusTypes.DELIVERY_FACILITY,
+                              SupplyPointStatusTypes.SUPERVISION_FACILITY]
+        return self.complete
+    
+    @property
+    def not_received(self):
+        assert self.title in [SupplyPointStatusTypes.DELIVERY_FACILITY,
+                              SupplyPointStatusTypes.SUPERVISION_FACILITY]
+        return self.responded - self.complete
+    
+    @property
+    def not_submitted(self):
+        assert self.title in [SupplyPointStatusTypes.SOH_FACILITY,
+                              SupplyPointStatusTypes.R_AND_R_FACILITY]
+        return self.responded - self.complete
     
     def __unicode__(self):
         return "%s - %s" % (self.org_summary, self.title)
     
 
-class GroupData(models.Model):
-    """
-    Warehouse data related to how a particular category of reporting 
-    (e.g. stock on hand) was filled in (e.g. responded, not responded)
-    """
-    group_summary = models.ForeignKey('GroupSummary')
-    group_code = models.CharField(max_length=2, blank=True, null=True) # A
-    label = models.CharField(max_length=50, blank=True, null=True) # on_time
-    number = models.PositiveIntegerField(default=0)   # 45
-    complete = models.PositiveIntegerField(default=0) # 33
-    on_time = models.PositiveIntegerField(default=0)  # 22
-    
-    def __unicode__(self):
-        return "%s:%s value: %s" % (self.group_summary, self.label, self.number)
-    
 
 class ProductAvailabilityData(ReportingModel):
     product = models.ForeignKey(Product)

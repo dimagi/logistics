@@ -158,8 +158,8 @@ class SupplyPointStatusBreakdown(object):
     @property
     def soh_submitted(self):
         return list(sps_with_latest_status(sps=self.facilities, year=self.year, month=self.month,
-                                                         status_type=SupplyPointStatusTypes.SOH_FACILITY,
-                                                         status_value=SupplyPointStatusValues.SUBMITTED))
+                                           status_type=SupplyPointStatusTypes.SOH_FACILITY,
+                                           status_value=SupplyPointStatusValues.SUBMITTED))
 
     @property
     def soh_on_time(self):

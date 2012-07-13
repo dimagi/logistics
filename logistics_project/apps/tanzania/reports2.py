@@ -54,14 +54,14 @@ class SupplyPointStatusBreakdown(object):
         except ObjectDoesNotExist:
             raise NoDataError()
 
-        soh_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
-        rr_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='rr_fac',group_summary__org_summary=org_summary)
-        delivery_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='del_fac',group_summary__org_summary=org_summary)
-        supervision_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='super_fac',group_summary__org_summary=org_summary)
+        soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
+                                            org_summary=org_summary)
+        rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                           org_summary=org_summary)
+        delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                                 org_summary=org_summary)
+        supervision_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                                                    org_summary=org_summary)
         
         dg = DeliveryGroups(month=self.month)
 
