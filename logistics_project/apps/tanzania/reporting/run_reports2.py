@@ -111,6 +111,8 @@ def populate_report_data(start_date, end_date):
             # and make sure there are warehouse tables there 
             for year, month in months_between(start_date, end_date):
                 window_date = datetime(year,month,1)
+                
+                # create org_summary for every fac/date combo
                 org_summary, created = OrganizationSummary.objects.get_or_create\
                     (organization=fac, date=window_date)
                 
@@ -120,7 +122,12 @@ def populate_report_data(start_date, end_date):
                     alt = alt.days
                 org_summary.average_lead_time_in_days = alt or 0
                 create_object(org_summary)
-                
+
+                # create group_summary for every org_summary title combo
+                for title in NEEDED_STATUS_TYPES:
+                    group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary, 
+                                                                                title = title)
+
                 # alerts
                 populate_no_primary_alerts(fac, window_date)
                 populate_facility_stockout_alerts(fac, window_date)
@@ -224,12 +231,7 @@ def not_responding_facility(org_summary):
     for type in needed_status_types(org_summary):
         gsum, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
                                                   title=type)
-        if org_summary.organization.supplied_by.name=="NANYUMBU" and type == SupplyPointStatusTypes.SOH_FACILITY:
-            import pdb
-            # pdb.set_trace()
-#        if not created and type == SupplyPointStatusTypes.SOH_FACILITY:
-#            print "had to create for %s" % gsum
-#        
+
         gsum.total = 1
         assert gsum.responded in (0, 1)
         if gsum.title == SupplyPointStatusTypes.SOH_FACILITY and not gsum.responded:
@@ -263,6 +265,8 @@ def recent_reminder(sp, date, type):
          status_value=SupplyPointStatusValues.REMINDER_SENT).count() > 0
 
 def _is_valid_status(facility, date, type):
+    if type not in NEEDED_STATUS_TYPES:
+        return False
     code = facility.groups.all()[0].code 
     dg = DeliveryGroups(date.month)
     if type.startswith('rr'):
