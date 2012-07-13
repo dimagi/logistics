@@ -169,10 +169,11 @@ class SupplyPointStatusBreakdown(object):
         total_responses = 0
         total_possible = 0
         for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
-            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='super_fac')
+            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, 
+                                            org_summary__date=datetime(year,month,1), title='super_fac')
             if g:
-                total_responses += g[0].historical_responses
-                total_possible += g[0].org_summary.total_orgs
+                total_responses += g[0].responded
+                total_possible += g[0].total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
@@ -183,8 +184,8 @@ class SupplyPointStatusBreakdown(object):
         for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
             g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='rr_fac')
             if g:
-                total_responses += g[0].historical_responses
-                total_possible += g[0].org_summary.total_orgs
+                total_responses += g[0].responded
+                total_possible += g[0].total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
