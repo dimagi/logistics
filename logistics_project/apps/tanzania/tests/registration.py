@@ -4,6 +4,7 @@ from django.utils import translation
 from logistics.util import config
 from logistics.models import SupplyPoint
 
+
 class TestRegistration(TanzaniaTestScriptBase):
 
     def testRegisterFacility(self):
@@ -18,7 +19,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testRegisterFacilityUnknownCode(self):
-        translation.activate("sw")
+        translation.activate("en")
         script = """
           743 > sajili Alfred Mchau d12345
           743 < %(registration_unknown_code)s
@@ -69,7 +70,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testRegisterDistrictMultipleWordDoesNotExist(self):
-        translation.activate("sw")
+        translation.activate("en")
         script = """
           743 > sajili Alfred Mchau : tandahimba rural place
           743 < %(registration_unknown_district)s
@@ -77,7 +78,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testRegisterDistrictForgotSeparator(self):
-        translation.activate("sw")
+        translation.activate("en")
         script = """
           743 > sajili Alfred Mchau tandahimba
           743 < %(registration_help)s
@@ -85,7 +86,7 @@ class TestRegistration(TanzaniaTestScriptBase):
         self.runScript(script)
 
     def testRegisterFacilityForgotMsdCode(self):
-        translation.activate("sw")
+        translation.activate("en")
         script = """
           743 > sajili Alfred Mchau
           743 < %(registration_help)s

@@ -70,48 +70,6 @@ class TestMessageInitiator(TanzaniaTestScriptBase):
                    "test_message":"this is a test message"}
         self.runScript(script)
 
-    def testMessageInitiatorStockInquiryIndividualLocation(self):
-        raise Exception("This feature hasn't been implemented yet")
-        translation.activate("sw")
-        contact = register_user(self, "32000", "Trainer", )
-        contact = register_user(self, "32347", "Person 1", "d31049", "CHIDEDE DISP")
-        contact = register_user(self, "32348", "Person 2", "d31049", "CHIDEDE DISP")
-        contact = register_user(self, "32349", "Person 3", "d31049", "CHIDEDE DISP")
-
-        p = Product.objects.get(sms_code__iexact="id")
-        p.product_code = 'm11111'
-        p.save()
-
-        sp = SupplyPoint.objects.get(name="TANDAHIMBA")
-        sp.code = "D10101"
-        sp.save()
-
-        translation.activate("sw")
-
-        print p.name
-        print p.product_code
-
-        script = """
-            32000 > test si d31049 m11112
-            32000 < %(invalid_code_message)s 
-            32000 > test si d31049 m11111
-            32000 < %(test_handler_confirm)s
-            32347 < %(response)s
-            32348 < %(response)s
-            32349 < %(response)s
-            32000 > test si d10101 m11111
-            32000 < %(location_error)s
-            """ % {"test_handler_confirm":_(config.Messages.TEST_HANDLER_CONFIRM),
-                   "response":_(config.Messages.STOCK_INQUIRY_MESSAGE) % {"product_name":p.name,
-                                                                          "msd_code":p.product_code},
-                   "invalid_code_message":_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code":"m11112"},
-                   "location_error":_(config.Messages.STOCK_INQUIRY_NOT_A_FACILITY_ERROR) % {"location_name":"changeme",
-                                                                                             "location_type":"changeme"}}
-        self.runScript(script)
-
-    def testMessageInitiatorStockInquiryRecursive(self):
-        raise Exception("This test hasn't been implemented yet")
-
     def testMessageInitiatorBadCode(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone", "d10001")

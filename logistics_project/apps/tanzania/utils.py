@@ -326,3 +326,7 @@ def historical_response_rate(supply_point, type):
         cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
     return ret
 
+def send_if_connection(c, message, **kwargs):
+    if c.default_connection is not None:
+        c.message(message, **kwargs)
+

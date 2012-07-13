@@ -10,13 +10,10 @@ from logistics.decorators import logistics_contact_required
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues, DeliveryGroupReport
 from rapidsms.models import Contact
+from logistics_project.apps.tanzania.utils import send_if_connection
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
-
-def _send_if_connection(c, message):
-    if c.default_connection is not None:
-        c.message(message)
 
 class RandRHandler(KeywordHandler,TaggingHandler):
     """
@@ -26,11 +23,11 @@ class RandRHandler(KeywordHandler,TaggingHandler):
     def _send_submission_alert_to_msd(self, sp, submitted_vals):
         for c in Contact.objects.filter\
             (role__code=config.Roles.MSD):
-            _send_if_connection(c, _(config.Messages.SUBMITTED_NOTIFICATION_MSD) %
-                                      {"district_name":sp.name,
-                                       "group_a":submitted_vals["a"],
-                                       "group_b":submitted_vals["b"],
-                                       "group_c":submitted_vals["c"]})
+            send_if_connection(c, _(config.Messages.SUBMITTED_NOTIFICATION_MSD), 
+                               **{"district_name":sp.name,
+                                  "group_a":submitted_vals["a"],
+                                  "group_b":submitted_vals["b"],
+                                  "group_c":submitted_vals["c"]})
 
     @logistics_contact_required()
     def help(self):
@@ -52,7 +49,8 @@ class RandRHandler(KeywordHandler,TaggingHandler):
                                      status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                      status_value=SupplyPointStatusValues.SUBMITTED,
                                      status_date=self.msg.timestamp)
-            self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
+            self.respond(_(config.Messages.SUBMITTED_CONFIRM),
+                         **{"sdp_name":sp.name, "contact_name":contact.name})
         else:
             # TODO be graceful
             self.add_tag("Error")
@@ -85,13 +83,15 @@ class RandRHandler(KeywordHandler,TaggingHandler):
             b_dg.save()
             c_dg.save()
 
-            self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
+            self.respond(_(config.Messages.SUBMITTED_CONFIRM),
+                         **{"sdp_name":sp.name, "contact_name":contact.name})
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
             SupplyPointStatus.objects.create(supply_point=sp,
                                      status_type=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                      status_value=SupplyPointStatusValues.SUBMITTED,
                                      status_date=self.msg.timestamp)
-            self.respond(_(config.Messages.SUBMITTED_CONFIRM) % {"sdp_name":sp.name, "contact_name":contact.name})
+            self.respond(_(config.Messages.SUBMITTED_CONFIRM),
+                         {"sdp_name":sp.name, "contact_name":contact.name})
         else:
             # TODO be graceful
             self.add_tag("Error")
