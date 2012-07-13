@@ -112,6 +112,8 @@ class ProductAvailabilityDashboardChart(object):
     yaxistitle = "Facilities"    
 
 class Alert(ReportingModel):
+    type = models.CharField(max_length=50, blank=True, null=True)
+    number = models.PositiveIntegerField(default=0)
     text = models.TextField()
     url = models.CharField(max_length=100, blank=True, null=True)
     expires = models.DateTimeField()

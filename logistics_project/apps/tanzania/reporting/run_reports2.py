@@ -53,7 +53,8 @@ def generate(start_date=None):
         #     start_date = last_run[0].start_time
         
         populate_report_data(start_date, now)
-    
+        # populate_report_data(start_date, datetime(2012,3,15))
+
     finally:
         # complete run
         transaction.rollback()
@@ -120,12 +121,9 @@ def populate_report_data(start_date, end_date):
                 org_summary.average_lead_time_in_days = alt or 0
                 create_object(org_summary)
                 
-                # fill in the details:
-                
-                # TODO: alerts?
-                # populate_no_primary_alerts(fac, window_date, [fac])
-                # don't populate stockout alerts since they're broken
-                # populate_stockout_alerts(fac, datetime(year,month,1), child_objs)
+                # alerts
+                populate_no_primary_alerts(fac, window_date)
+                populate_facility_stockout_alerts(fac, window_date)
                 
                 # update all the non-response data
                 not_responding_facility(org_summary)
@@ -211,10 +209,11 @@ def populate_report_data(start_date, end_date):
                     expected = len(facs)
                 if gsum.total != expected:
                     print "expected %s but was %s for %s" % (expected, gsum.total, gsum)
-                # TODO: above-facility-level alerts?
-                # populate_no_primary_alerts(org, datetime(year,month,1), child_objs)
-                # populate_stockout_alerts(org, datetime(year,month,1), child_objs)
 
+            sub_alerts = Alert.objects.filter(organization__in=facs, date=window_date)
+            for alert_type in ['rr_not_submitted', 'delivery_not_received',
+                               'soh_not_responding', 'rr_not_responding', 'delivery_not_responding']:
+                aggregate_response_alerts(org, datetime(year, month, 1), sub_alerts, alert_type)
         
 def not_responding_facility(org_summary):
     assert org_summary.organization.type.code == "facility"
@@ -421,47 +420,55 @@ def update_product_availability_facility_data(org_summary):
             create_object(product_data)
         assert (product_data.with_stock + product_data.without_stock \
                 + product_data.without_data) == 1, "bad product data config"
-    
-def previously_without_data(transaction):
-    trans = StockTransaction.objects.filter(product=transaction.product, supply_point=transaction.supply_point, 
-                                            date__range=(transaction.date,datetime.fromordinal(datetime(transaction.date.year,transaction.date.month%12+1,1).toordinal()-1))).count()
-    if trans > 1:
-        return False
-    return True
 
-def populate_no_primary_alerts(org, date, child_objs):
-    no_primary = child_objs.filter(contact=None).order_by('-name')
-    for problem in no_primary:
-        create_alert(org,date,'no_primary_contact',{'org': problem})
+def aggregate_response_alerts(org, date, alerts, type):
+    total = sum([s.number for s in alerts.filter(type=type)])
+    if total:
+        create_alert(org, date, type, {'number': total})
 
-def populate_stockout_alerts(org, date, child_objs):
-    raise NotImplementedError("this is broken and needs to be fixed!")
-    stockouts = ProductStock.objects.filter(supply_point__in=child_objs, quantity=0)
-    for problem in stockouts:
-        create_alert(org,date,'product_stockout',{'org': problem.supply_point, 'product': problem.product})
+def populate_no_primary_alerts(org, date):
+    if not org.contacts():
+        create_multilevel_alert(org,date,'no_primary_contact',{'org': org})
+
+def populate_facility_stockout_alerts(org, date):
+    product_data = ProductAvailabilityData.objects.filter(organization=org, date=date, without_stock=1)
+    for p in product_data:
+        create_multilevel_alert(org, date,'product_stockout', {'org': org, 'product': p.product})
+
+def create_multilevel_alert(org, date, type, details):
+    create_alert(org, date, type, details)
+    if org.supplied_by is not None:
+        create_multilevel_alert(org.supplied_by, date, type, details)        
 
 def create_alert(org, date, type, details):
     text = ''
     url = ''
     expires = datetime(date.year, (date.month%12)+1, 1)
 
+    number = 0 if not details.has_key('number') else details['number']
+
     if type=='rr_not_submitted':
-        text = '%d facilities have reported not submitting their R&R form as of today.' % details['number']
+        text = '%s have reported not submitting their R&R form as of today.' %\
+                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
     elif type=='rr_not_responded':
-        text = '%d facilities did not respond to the SMS asking if they had submitted their R&R form.' % details['number']
+        text = '%s did not respond to the SMS asking if they had submitted their R&R form.' %\
+                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
     elif type=='delivery_not_received':
-        text = '%d facilities have reported not receiving their deliveries as of today.' % details['number']
+        text = '%s have reported not receiving their deliveries as of today.' %\
+                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
     elif type=='delivery_not_responding':
-        text = '%d facilities did not respond to the SMS asking if they had received their delivery.' % details['number']        
+        text = '%s did not respond to the SMS asking if they had received their delivery.' %\
+                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
     elif type=='soh_not_responding':
-        text = '%d facilities have not reported their stock levels for last month.' % details['number']
+        text = '%s have not reported their stock levels for last month.' %\
+                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
         url = reverse('facilities_index')
     elif type=='product_stockout':
         text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
     elif type=='no_primary_contact':
         text = '%s has no primary contact.' % details['org'].name
 
-    alert = Alert.objects.get_or_create(organization=org, date=date, text=text, url=url, expires=expires)
+    alert = Alert.objects.get_or_create(organization=org, date=date, type=type, number=number, text=text, url=url, expires=expires)
 
 
 ##########

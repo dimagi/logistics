@@ -81,7 +81,7 @@ class DeliveryStatusTable(MonthTable):
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
     last_lead_time = Column(sortable=False, name="Last Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
-    average_lead_time = Column(sortable=False, name="Average Lead Time", value=lambda cell: avg_past_lead_time(cell.object))
+    average_lead_time = Column(sortable=False, name="Average Lead Time in Days", value=lambda cell: avg_past_lead_time(cell.object)) # cell.object.breakdown.avg_lead_time
 
     class Meta:
         per_page = 9999
@@ -314,7 +314,7 @@ class AggregateSupervisionTable(MonthTable):
 
 class AggregateDeliveryTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'delivery'))
-    average_lead_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time", safe=True)
+    average_lead_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time in Days", safe=True)
 
     class Meta:
         per_page = 9999
