@@ -41,9 +41,6 @@ class GroupSummary(models.Model):
     responded = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
     complete = models.PositiveIntegerField(default=0) # "complete" = submitted or responded
-    # we need this in addition to "responded" because it doesn't count as a 
-    # "miss" unless they also were supposed to submit according to their group rules
-    # missed_response = models.PositiveIntegerField(default=0) 
     
     @property
     def late(self):

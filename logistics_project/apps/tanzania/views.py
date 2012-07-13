@@ -313,7 +313,6 @@ def convert_data_to_pie_chart(data, date):
             ['on_time', 'late', 'not_submitted', 'not_responding'],
         SupplyPointStatusTypes.SUPERVISION_FACILITY: 
             ['sup_received', 'sup_not_received', 'not_responding']
-    
     }
     ret = []
     for key in vals_config[data.title]:
