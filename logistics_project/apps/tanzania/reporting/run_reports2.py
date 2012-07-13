@@ -5,14 +5,17 @@ from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
 from django.db import transaction
 
-from dimagi.utils.dates import months_between
+from dimagi.utils.dates import months_between, get_business_day_of_month,\
+    add_months
 
-from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock
+from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock,\
+    ProductReport
 from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
 from logistics_project.apps.tanzania.utils import calc_lead_time
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
+from logistics.const import Reports
 
 TESTING = False
 HISTORICAL_DAYS = 900
@@ -85,18 +88,22 @@ def populate_report_data(start_date, end_date):
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
     if True:
         for fac in facilities:
+            # process all the facility-level warehouse tables
             print "processing facility %s (%s)" % (fac.name, str(fac.id))
             
             new_statuses = SupplyPointStatus.objects.filter\
                 (supply_point=fac, status_date__gte=start_date,
                  status_date__lt=end_date).order_by('status_date')
+            process_facility_statuses(fac, new_statuses)
+            
+            new_reports = ProductReport.objects.filter\
+                (supply_point=fac, report_date__gte=start_date, 
+                 report_date__lt=end_date, report_type__code=Reports.SOH).order_by('report_date')
+            process_facility_product_reports(fac, new_reports)
             
             new_trans = StockTransaction.objects.filter\
                 (supply_point=fac, date__gte=start_date, 
                  date__lt=end_date).order_by('date')
-                 
-            # process all the facility-level warehouse tables
-            process_facility_statuses(fac, new_statuses)
             process_facility_transactions(fac, new_trans)
             
             # go through all the possible values in the date ranges
@@ -265,6 +272,17 @@ def _is_valid_status(facility, date, type):
         return code == dg.current_delivering_group()
     return True
 
+def _get_window_date(type, date):
+    # we need this method because the stock on hand reports actually
+    # are sometimes treated as reports for _next_ month
+    if type == SupplyPointStatusTypes.SOH_FACILITY:
+        # if the date is after the last business day of the month
+        # count it for the next month
+        if date.date() >= get_business_day_of_month(date.year, date.month, -1):
+            year, month = add_months(date.year, date.month, 1)
+            return datetime(year, month, 1)
+    return datetime(date.year, date.month, 1)
+
 def process_facility_statuses(facility, statuses):
     """
     For a given facility and list of statuses, update the appropriate 
@@ -275,11 +293,11 @@ def process_facility_statuses(facility, statuses):
     
     for status in statuses:
         assert status.supply_point == facility
+        warehouse_date = _get_window_date(status.status_type, status.status_date)
         if _is_valid_status(facility, status.status_date, status.status_type):
             
             org_summary = OrganizationSummary.objects.get_or_create\
-                (organization=facility, date=datetime(status.status_date.year, 
-                                                      status.status_date.month, 1))[0]
+                (organization=facility, date=warehouse_date)[0]
             group_summary = GroupSummary.objects.get_or_create\
                 (org_summary=org_summary, title=status.status_type)[0]
             
@@ -311,6 +329,42 @@ def process_facility_statuses(facility, statuses):
                 create_alert(facility, status.status_date, 'delivery_not_received',
                              {'number': 1})
         
+def process_facility_product_reports(facility, reports):
+    """
+    For a given facility and list of ProductReports, update the appropriate 
+    data warehouse tables. This should only be called on supply points
+    that are facilities. Currently this only affects stock on hand reporting
+    data. We need to use this method instead of the statuses because partial
+    stock on hand reports don't create valid status, but should be treated
+    like valid submissions in most of the rest of the site.
+    """
+    assert facility.type.code == "facility"
+    months_updated = {}
+    for report in reports:
+        assert report.supply_point == facility
+        assert report.report_type.code == Reports.SOH
+        warehouse_date = _get_window_date(SupplyPointStatusTypes.SOH_FACILITY, report.report_date)
+        
+        if warehouse_date in months_updated:
+            # an optimization to avoid repeatedly doing this work for each
+            # product report for the entire month
+            continue
+        
+        org_summary = OrganizationSummary.objects.get_or_create\
+            (organization=facility, date=warehouse_date)[0]
+        
+        group_summary = GroupSummary.objects.get_or_create\
+            (org_summary=org_summary, title=SupplyPointStatusTypes.SOH_FACILITY)[0]
+        
+        group_summary.total = 1
+        group_summary.responded = 1
+        group_summary.complete = 1 
+        group_summary.on_time = 1 if recent_reminder(facility, report.report_date, 
+                                                     SupplyPointStatusTypes.SOH_FACILITY)\
+                                  else group_summary.on_time # if we already had an on-time, don't override a second one with late
+        create_object(group_summary)
+        months_updated[warehouse_date] = None # update the cache of stuff we've dealt with
+
 def process_facility_transactions(facility, transactions, default_to_previous=True):
     """
     For a given facility and list of transactions, update the appropriate 
