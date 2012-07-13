@@ -56,16 +56,14 @@ class SupplyPointStatusBreakdown(object):
         except ObjectDoesNotExist:
             raise NoDataError()
 
-        # TODO: separate the type of report here
-
-        soh_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='soh_fac',group_summary__org_summary=org_summary)
-        rr_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='rr_fac',group_summary__org_summary=org_summary)
-        delivery_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='del_fac',group_summary__org_summary=org_summary)
-        supervision_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT) | Q(label=SupplyPointStatusValues.ALERT_SENT))\
-                                    .filter(group_summary__title='super_fac',group_summary__org_summary=org_summary)
+        soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
+                                            org_summary=org_summary)
+        rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                           org_summary=org_summary)
+        delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                                 org_summary=org_summary)
+        supervision_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SUPERVISION_FACILITY,
+                                                    org_summary=org_summary)
         
         dg = DeliveryGroups(month=self.month)
 
@@ -73,10 +71,10 @@ class SupplyPointStatusBreakdown(object):
         processing_group = dg.current_processing_group(month=self.month)
         delivery_group = dg.current_delivering_group(month=self.month)
 
-        soh_json, soh_numbers = convert_data_to_pie_chart(soh_data, date, True)
-        rr_json, submit_numbers = convert_data_to_pie_chart(rr_data, date, True)
-        delivery_json, delivery_numbers = convert_data_to_pie_chart(delivery_data, date)
-        supervision_json, supervision_numbers = convert_data_to_pie_chart(supervision_data, date)
+        soh_json = convert_data_to_pie_chart(soh_data, date)
+        rr_json = convert_data_to_pie_chart(rr_data, date)
+        delivery_json = convert_data_to_pie_chart(delivery_data, date)
+        supervision_json = convert_data_to_pie_chart(supervision_data, date)
 
         total = org_summary.total_orgs
         avg_lead_time = org_summary.average_lead_time_in_days
@@ -90,50 +88,52 @@ class SupplyPointStatusBreakdown(object):
         self.processing_group = processing_group
         self.delivery_group = delivery_group
         self.soh_json = soh_json
-        self.soh_numbers = soh_numbers
+        self.soh_numbers = soh_data
         self.rr_json = rr_json
-        self.submit_numbers = submit_numbers
+        self.submit_numbers = rr_data
         self.delivery_json = delivery_json
-        self.delivery_numbers = delivery_numbers
+        self.delivery_numbers = delivery_data
         self.supervision_json = supervision_json
-        self.supervision_numbers = supervision_numbers
+        self.supervision_numbers = supervision_data
         self.total = total
         self.avg_lead_time = avg_lead_time
 
-        self.submitted = [''] * submit_numbers['complete']
-        self.submitted_on_time = [''] * submit_numbers['on_time']
-        self.submitted_late = [''] * submit_numbers['late']
-        self.not_submitted = [''] * submit_numbers['not_submitted']
-        self.submit_not_responding = [''] * submit_numbers['not_responding']
-        self.no_randr_data = [''] * (submit_numbers['total'] \
-                                        - submit_numbers['on_time'] \
-                                        - submit_numbers['late'] \
-                                        - submit_numbers['not_responding'] \
-                                        - submit_numbers['not_submitted'])
-        self.submitting = [''] * submit_numbers['total']
+        # TODO: this list generation stuff is kinda ugly, for compatibility
+        # with the old way of doing things
+        self.submitted = [''] * rr_data.complete
+        self.submitted_on_time = [''] * rr_data.on_time
+        self.submitted_late = [''] * rr_data.late
+        self.not_submitted = [''] * rr_data.not_submitted
+        self.submit_not_responding = [''] * rr_data.not_responding
+        self.no_randr_data = [''] * (rr_data.total \
+                                        - rr_data.on_time \
+                                        - rr_data.late \
+                                        - rr_data.not_responding \
+                                        - rr_data.not_submitted)
+        self.submitting = [''] * rr_data.total
 
         self.submit_reminder_sent = []
 
-        self.delivery_received = [''] * delivery_numbers['received']
-        self.delivery_not_received = [''] * delivery_numbers['not_received']
-        self.delivery_not_responding = [''] * delivery_numbers['not_responding']
+        self.delivery_received = [''] * delivery_data.received
+        self.delivery_not_received = [''] * delivery_data.not_received
+        self.delivery_not_responding = [''] * delivery_data.not_responding
 
         self.delivery_reminder_sent = []
 
-        self.supervision_received = [''] * supervision_numbers['received']
-        self.supervision_not_received = [''] * supervision_numbers['not_received']
-        self.supervision_not_responding = [''] * supervision_numbers['not_responding']
-        self.no_supervision_data = [''] * (supervision_numbers['total'] \
-                                        - supervision_numbers['received'] \
-                                        - supervision_numbers['not_responding'] \
-                                        - supervision_numbers['not_received'])
-        self.supervising = [''] * supervision_numbers['total']
+        self.supervision_received = [''] * supervision_data.received
+        self.supervision_not_received = [''] * supervision_data.not_received
+        self.supervision_not_responding = [''] * supervision_data.not_responding
+        self.no_supervision_data = [''] * (supervision_data.total \
+                                        - supervision_data.received \
+                                        - supervision_data.not_responding \
+                                        - supervision_data.not_received)
+        self.supervising = [''] * supervision_data.total
         self.supervision_reminder_sent = []
 
-        self.soh_submitted = [''] * soh_numbers['complete']
-        self.soh_on_time = [''] * soh_numbers['on_time']
-        self.soh_late = [''] * soh_numbers['late']
-        self.soh_not_responding = [''] * soh_numbers['not_responding']
+        self.soh_submitted = [''] * soh_data.complete
+        self.soh_on_time = [''] * soh_data.on_time
+        self.soh_late = [''] * soh_data.late
+        self.soh_not_responding = [''] * soh_data.not_responding
 
         if avg_lead_time:
             self.avg_lead_time = avg_lead_time
@@ -169,10 +169,11 @@ class SupplyPointStatusBreakdown(object):
         total_responses = 0
         total_possible = 0
         for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
-            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='super_fac')
+            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, 
+                                            org_summary__date=datetime(year,month,1), title='super_fac')
             if g:
-                total_responses += g[0].historical_responses
-                total_possible += g[0].org_summary.total_orgs
+                total_responses += g[0].responded
+                total_possible += g[0].total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
@@ -183,8 +184,8 @@ class SupplyPointStatusBreakdown(object):
         for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
             g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='rr_fac')
             if g:
-                total_responses += g[0].historical_responses
-                total_possible += g[0].org_summary.total_orgs
+                total_responses += g[0].responded
+                total_possible += g[0].total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"

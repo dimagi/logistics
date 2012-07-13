@@ -11,15 +11,10 @@ class OrganizationSummaryAdmin(admin.ModelAdmin):
 
 class GroupSummaryAdmin(admin.ModelAdmin):
     model = GroupSummary
-    list_display = ('org_summary', 'title', 'historical_responses', 'no_responses')
+    list_display = ('org_summary', 'title', 'total', 'responded', 'on_time', 'complete')
     list_filter = ('org_summary', 'title')
     
     
-class GroupDataAdmin(admin.ModelAdmin):
-    model = GroupData
-    list_display = ('group_summary', 'label', 'number')
-    list_filter = ('group_summary', 'label')
-
 class ProductAvailabilityDataAdmin(admin.ModelAdmin):
     model = ProductAvailabilityData
     list_display = ('organization', 'date', 'product', 'total', 'with_stock', 
@@ -28,5 +23,4 @@ class ProductAvailabilityDataAdmin(admin.ModelAdmin):
     
 admin.site.register(OrganizationSummary, OrganizationSummaryAdmin)
 admin.site.register(GroupSummary, GroupSummaryAdmin)
-admin.site.register(GroupData, GroupDataAdmin)
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)

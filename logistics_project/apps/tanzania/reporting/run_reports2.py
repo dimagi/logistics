@@ -72,13 +72,11 @@ def clear_out_reports(start_date, end_date):
     else:
         org_summary = OrganizationSummary.objects.filter(date__range=(start_date,end_date))
         group_summary = GroupSummary.objects.filter(org_summary__date__range=(start_date,end_date))
-        group_data = GroupData.objects.filter(group_summary__org_summary__date__range=(start_date,end_date))
         product_availability = ProductAvailabilityData.objects.filter(date__range=(start_date,end_date))
         alerts = Alert.objects.filter(expires__range=(start_date,datetime.fromordinal(end_date.toordinal()+60)))
 
         org_summary.delete()
         group_summary.delete()
-        group_data.delete()
         product_availability.delete()
         alerts.delete()
     
@@ -147,14 +145,16 @@ def populate_report_data(start_date, end_date):
             org_summary = OrganizationSummary.objects.get_or_create\
                 (organization=org, date=window_date)[0]
             
+            
             org_summary.total_orgs = len(facs)
             sub_summaries = OrganizationSummary.objects.filter\
                 (date=window_date, organization__in=facs)
         
+            subs_with_lead_time = [s for s in sub_summaries if s.average_lead_time_in_days]
             # lead times
             org_summary.average_lead_time_in_days = \
-                sum([s.average_lead_time_in_days for s in sub_summaries]) / len(sub_summaries) \
-                if sub_summaries else 0
+                sum([s.average_lead_time_in_days for s in subs_with_lead_time]) / len(subs_with_lead_time) \
+                if subs_with_lead_time else 0
             
             create_object(org_summary)    
             # product availability
@@ -179,6 +179,7 @@ def populate_report_data(start_date, end_date):
                 create_object(product_data)
                 
             
+            dg = DeliveryGroups(month=month, facs=SupplyPoint.objects.filter(pk__in=[f.pk for f in facs]))
             for type in NEEDED_STATUS_TYPES:
                 gsum = GroupSummary.objects.get_or_create\
                     (org_summary=org_summary, title=type)[0]
@@ -187,20 +188,22 @@ def populate_report_data(start_date, end_date):
                 
                 # TODO: see if moving the aggregation to the db makes it 
                 # faster, if this is slow
-                gsum.historical_responses = sum([s.historical_responses for s in sub_sums])
-                gsum.no_responses = sum([s.no_responses for s in sub_sums])
+                gsum.total = sum([s.total for s in sub_sums])
+                gsum.responded = sum([s.responded for s in sub_sums])
+                gsum.on_time = sum([s.on_time for s in sub_sums])
+                gsum.complete = sum([s.complete for s in sub_sums])
+                # gsum.missed_response = sum([s.missed_response for s in sub_sums])
                 create_object(gsum)
                 
-                for response in SupplyPointStatusTypes.CHOICE_MAP[type].keys() + ['not_responding']:
-                    gd = GroupData.objects.get_or_create\
-                        (group_summary=gsum, label=response)[0]
-                    sub_gds = GroupData.objects.filter\
-                        (label=response, group_summary__in=sub_sums)
-                    gd.number = sum([g.number for g in sub_gds])
-                    gd.complete = sum([g.complete for g in sub_gds])
-                    gd.on_time = sum([g.on_time for g in sub_gds])
-                    create_object(gd)
-                
+                if type == SupplyPointStatusTypes.DELIVERY_FACILITY:
+                    expected = dg.delivering().count()
+                elif type == SupplyPointStatusTypes.R_AND_R_FACILITY:
+                    expected = dg.submitting().count()
+                elif type == SupplyPointStatusTypes.SOH_FACILITY or \
+                     type == SupplyPointStatusTypes.SUPERVISION_FACILITY:
+                    expected = len(facs)
+                if gsum.total != expected:
+                    print "expected %s but was %s for %s" % (expected, gsum.total, gsum)
                 # TODO: above-facility-level alerts?
                 # populate_no_primary_alerts(org, datetime(year,month,1), child_objs)
                 # populate_stockout_alerts(org, datetime(year,month,1), child_objs)
@@ -208,45 +211,38 @@ def populate_report_data(start_date, end_date):
         
 def not_responding_facility(org_summary):
     assert org_summary.organization.type.code == "facility"
+    def needed_status_types(org_summary):
+        return [type for type in NEEDED_STATUS_TYPES if \
+                _is_valid_status(org_summary.organization, org_summary.date, type)]
     
-    dg = DeliveryGroups(month=org_summary.date.month)
-    group = org_summary.organization.groups.all()[0].code 
-    assert group, "Facility should belong to a group"    
-    
-    submitting_group = dg.current_submitting_group()
-    delivery_group = dg.current_delivering_group()
-    for type in NEEDED_STATUS_TYPES:
-        gsum = GroupSummary.objects.get_or_create(org_summary=org_summary,
-                                                  title=type)[0]
-        new_gd = GroupData.objects.get_or_create(group_summary=gsum, 
-                                                 label='not_responding')[0]
-        
-        assert gsum.historical_responses in (0, 1)
-        if gsum.title == SupplyPointStatusTypes.SOH_FACILITY:
-            new_gd.number = 1 - gsum.historical_responses
-            if new_gd.number:
-                # TODO: this might not be right unless we also clear it
-                create_alert(org_summary.organization, org_summary.date, 
-                             'soh_not_responding',{'number': new_gd.number})
-        elif gsum.title == SupplyPointStatusTypes.SUPERVISION_FACILITY:
-            new_gd.number = 1 - gsum.historical_responses
-        elif gsum.title == SupplyPointStatusTypes.R_AND_R_FACILITY:
-            new_gd.number = 1 - gsum.historical_responses if group == submitting_group else 0
-            if new_gd.number:
-                # TODO: this might not be right unless we also clear it
-                create_alert(org_summary.organization, org_summary.date, 
-                             'rr_not_responded',{'number': new_gd.number})        
-        elif gsum.title == SupplyPointStatusTypes.DELIVERY_FACILITY:
-            new_gd.number = 1 - gsum.historical_responses if group == delivery_group else 0
-            if new_gd.number:
-                # TODO: this might not be right unless we also clear it
-                create_alert(org_summary.organization, org_summary.date, 
-                             'delivery_not_responding',{'number': new_gd.number})
+    for type in needed_status_types(org_summary):
+        gsum, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
+                                                  title=type)
+        if org_summary.organization.supplied_by.name=="NANYUMBU" and type == SupplyPointStatusTypes.SOH_FACILITY:
+            import pdb
+            # pdb.set_trace()
+#        if not created and type == SupplyPointStatusTypes.SOH_FACILITY:
+#            print "had to create for %s" % gsum
+#        
+        gsum.total = 1
+        assert gsum.responded in (0, 1)
+        if gsum.title == SupplyPointStatusTypes.SOH_FACILITY and not gsum.responded:
+            # TODO: this might not be right unless we also clear it
+            create_alert(org_summary.organization, org_summary.date, 
+                         'soh_not_responding',{'number': 1})
+        elif gsum.title == SupplyPointStatusTypes.R_AND_R_FACILITY and not gsum.responded:
+            # TODO: this might not be right unless we also clear it
+            create_alert(org_summary.organization, org_summary.date, 
+                         'rr_not_responded',{'number': 1})        
+        elif gsum.title == SupplyPointStatusTypes.DELIVERY_FACILITY and not gsum.responded:
+            # TODO: this might not be right unless we also clear it
+            create_alert(org_summary.organization, org_summary.date, 
+                         'delivery_not_responding',{'number': 1})
         else:
             # not an expected / needed group. ignore for now
             pass
 
-        create_object(new_gd)
+        create_object(gsum)
 
 
 def recent_reminder(sp, date, type):
@@ -259,7 +255,15 @@ def recent_reminder(sp, date, type):
          status_date__gt=datetime.fromordinal(date.toordinal()-5),
          status_date__lte=date,
          status_value=SupplyPointStatusValues.REMINDER_SENT).count() > 0
-    
+
+def _is_valid_status(facility, date, type):
+    code = facility.groups.all()[0].code 
+    dg = DeliveryGroups(date.month)
+    if type.startswith('rr'):
+        return code == dg.current_submitting_group()
+    elif type.startswith('del'):
+        return code == dg.current_delivering_group()
+    return True
 
 def process_facility_statuses(facility, statuses):
     """
@@ -269,19 +273,9 @@ def process_facility_statuses(facility, statuses):
     """
     assert facility.type.code == "facility"
     
-    def _is_valid_status(facility, status):
-        code = facility.groups.all()[0].code 
-        dg = DeliveryGroups(status.status_date.month)
-        if status.status_type.startswith('rr'):
-            return code == dg.current_submitting_group()
-        elif status.status_type.startswith('del'):
-            return code == dg.current_delivering_group()
-        return True
-    
     for status in statuses:
         assert status.supply_point == facility
-        if _is_valid_status(facility, status):
-            sp_code = facility.groups.all()[0].code
+        if _is_valid_status(facility, status.status_date, status.status_type):
             
             org_summary = OrganizationSummary.objects.get_or_create\
                 (organization=facility, date=datetime(status.status_date.year, 
@@ -289,35 +283,33 @@ def process_facility_statuses(facility, statuses):
             group_summary = GroupSummary.objects.get_or_create\
                 (org_summary=org_summary, title=status.status_type)[0]
             
+            group_summary.total = 1
             if status.status_value not in (SupplyPointStatusValues.REMINDER_SENT,
-                                          SupplyPointStatusValues.ALERT_SENT):
+                                           SupplyPointStatusValues.ALERT_SENT):
                 # we've responded to this query
-                group_summary.historical_responses = 1
-            create_object(group_summary)
+                group_summary.responded = 1
             
-            group_data = GroupData.objects.get_or_create\
-                (group_summary=group_summary, group_code=sp_code, 
-                 label=status.status_value)[0]
-            group_data.number = 1
-            group_data.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
-                                                               SupplyPointStatusValues.RECEIVED] \
+            group_summary.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED, 
+                                                                  SupplyPointStatusValues.RECEIVED] \
                                     else 0 
-            if group_data.complete:
-                group_data.on_time = 1 if recent_reminder(facility, status.status_date, status.status_type)\
-                                    else 0
-        
-            create_object(group_data)
+            if group_summary.complete:
+                group_summary.on_time = 1 if recent_reminder(facility, status.status_date, status.status_type)\
+                                        else group_summary.on_time # if we already had an on-time, don't override a second one with late
+            else:
+                group_summary.on_time = 0
+            
+            create_object(group_summary)
             
             # update facility alerts
             if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED \
                 and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
                 create_alert(facility, status.status_date, 'rr_not_submitted',
-                             {'number': group_data.number})
+                             {'number': 1})
             
             if status.status_value==SupplyPointStatusValues.NOT_RECEIVED \
                 and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
                 create_alert(facility, status.status_date, 'delivery_not_received',
-                             {'number': group_data.number})
+                             {'number': 1})
         
 def process_facility_transactions(facility, transactions, default_to_previous=True):
     """
@@ -426,103 +418,3 @@ def create_object(obj):
         pass
     else:
         obj.save()
-
-# deprecated calls, temporarily left in for reference
-
-def process_statuses(org, statuses, child_objs):
-    processed = []
-    
-    for status in statuses:
-        sp = status.supply_point
-        if sp.groups.all():
-            sp_code = sp.groups.all()[0].code
-        else:
-            sp_code = ''
-        org_summary = OrganizationSummary.objects.get_or_create\
-            (organization=org, date=datetime(status.status_date.year, 
-                                             status.status_date.month, 1))[0]
-        group_summary = GroupSummary.objects.get_or_create\
-            (org_summary=org_summary, title=status.status_type)[0]
-        
-        group_summary.historical_responses += 1
-        create_object(group_summary)
-        group_data = GroupData.objects.get_or_create\
-            (group_summary=group_summary, group_code=sp_code, 
-             label=status.status_value)[0]
-        group_data.number += 1
-        group_data.complete = status.status_value in [SupplyPointStatusValues.SUBMITTED, SupplyPointStatusValues.RECEIVED]
-        if group_data.complete:
-            if recent_reminder(sp, status.status_date, status.status_type):
-                group_data.on_time = True # NOTE: broken
-        create_object(group_data)
-        if status.status_value==SupplyPointStatusValues.NOT_SUBMITTED and status.status_type==SupplyPointStatusTypes.R_AND_R_FACILITY:
-            create_alert(org, status.status_date, 'rr_not_submitted',{'number': group_data.number})
-        if status.status_value==SupplyPointStatusValues.NOT_RECEIVED and status.status_type==SupplyPointStatusTypes.DELIVERY_FACILITY:
-            create_alert(org, status.status_date, 'delivery_not_received',{'number': group_data.number})
-        processed.append(group_data.id)
-    return processed
-
-def process_trans(org, trans, child_objs):
-    processed = []
-    for tran in trans:
-        date = tran.date
-        product_data = ProductAvailabilityData.objects.get_or_create(product=tran.product, organization=org, date=datetime(date.year, date.month, 1))
-        subtract = product_data[1]
-        data = product_data[0]
-        if tran.ending_balance <= 0:
-            data.without_stock += 1
-            if not subtract and tran.beginning_balance > 0:
-                data.with_stock = max(0, data.with_stock - 1)
-        else:
-            data.with_stock += 1
-            if not subtract and tran.beginning_balance <=0:
-                if previously_without_data(tran):
-                    data.without_data = max(0, data.without_data - 1)
-                else:                    
-                    data.without_stock = max(0, data.without_stock - 1)
-        data.total = len(child_objs)
-        data.without_data = data.total - (data.with_stock + data.without_stock)
-        create_object(data)
-
-        processed.append(data.id)
-    return processed
-
-
-def not_responding(org_summary, child_objs):
-    dg = DeliveryGroups(month=org_summary.date.month)
-    submitting_group = dg.current_submitting_group()
-    sp_code = org_summary.organization.groups.all()[0].code \
-        if org_summary.organization.groups.count() else ''
-    assert sp_code
-    delivery_group = dg.current_delivering_group()
-    submitting = child_objs.filter(groups__code=submitting_group)
-    delivering = child_objs.filter(groups__code=delivery_group)
-    group_summary = GroupSummary.objects.filter(org_summary=org_summary)
-    for gsum in group_summary:
-        total = 0
-        group_data = GroupData.objects.exclude(Q(label=SupplyPointStatusValues.REMINDER_SENT)\
-                                             | Q(label=SupplyPointStatusValues.ALERT_SENT)\
-                                             | Q(label='not_responding')).filter(group_summary=gsum)
-        for g in group_data:
-            total += g.number
-        new_gd = GroupData.objects.get_or_create(group_summary=gsum, 
-                                                 label='not_responding', 
-                                                 group_code=sp_code)[0]
-        if gsum.title == SupplyPointStatusTypes.SOH_FACILITY:
-            new_gd.number = len(child_objs) - total
-            if new_gd.number:
-                create_alert(org_summary.organization, org_summary.date, 'soh_not_responding',{'number': new_gd.number})
-        if gsum.title == SupplyPointStatusTypes.SUPERVISION_FACILITY:
-            new_gd.number = len(child_objs) - total
-        if gsum.title == SupplyPointStatusTypes.R_AND_R_FACILITY:
-            new_gd.number = len(submitting) - total
-            if new_gd.number:
-                create_alert(org_summary.organization, org_summary.date, 'rr_not_responded',{'number': new_gd.number})        
-        if gsum.title == SupplyPointStatusTypes.DELIVERY_FACILITY:
-            new_gd.number = len(delivering) - total
-            if new_gd.number:
-                create_alert(org_summary.organization, org_summary.date, 'delivery_not_responding',{'number': new_gd.number})
-
-
-        create_object(new_gd)
-
