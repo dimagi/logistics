@@ -60,7 +60,7 @@ class SupplyPointStatusBreakdown(object):
                                             org_summary=org_summary)
         rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                            org_summary=org_summary)
-        delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
+        delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  org_summary=org_summary)
         supervision_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                                                     org_summary=org_summary)
@@ -71,8 +71,8 @@ class SupplyPointStatusBreakdown(object):
         processing_group = dg.current_processing_group(month=self.month)
         delivery_group = dg.current_delivering_group(month=self.month)
 
-        soh_json = convert_data_to_pie_chart(soh_data, date, True)
-        rr_json = convert_data_to_pie_chart(rr_data, date, True)
+        soh_json = convert_data_to_pie_chart(soh_data, date)
+        rr_json = convert_data_to_pie_chart(rr_data, date)
         delivery_json = convert_data_to_pie_chart(delivery_data, date)
         supervision_json = convert_data_to_pie_chart(supervision_data, date)
 
@@ -98,41 +98,42 @@ class SupplyPointStatusBreakdown(object):
         self.total = total
         self.avg_lead_time = avg_lead_time
 
-        # TODO: this will break
-        self.submitted = [''] * submit_numbers['complete']
-        self.submitted_on_time = [''] * submit_numbers['on_time']
-        self.submitted_late = [''] * submit_numbers['late']
-        self.not_submitted = [''] * submit_numbers['not_submitted']
-        self.submit_not_responding = [''] * submit_numbers['not_responding']
-        self.no_randr_data = [''] * (submit_numbers['total'] \
-                                        - submit_numbers['on_time'] \
-                                        - submit_numbers['late'] \
-                                        - submit_numbers['not_responding'] \
-                                        - submit_numbers['not_submitted'])
-        self.submitting = [''] * submit_numbers['total']
+        # TODO: this list generation stuff is kinda ugly, for compatibility
+        # with the old way of doing things
+        self.submitted = [''] * rr_data.complete
+        self.submitted_on_time = [''] * rr_data.on_time
+        self.submitted_late = [''] * rr_data.late
+        self.not_submitted = [''] * rr_data.not_submitted
+        self.submit_not_responding = [''] * rr_data.not_responding
+        self.no_randr_data = [''] * (rr_data.total \
+                                        - rr_data.on_time \
+                                        - rr_data.late \
+                                        - rr_data.not_responding \
+                                        - rr_data.not_submitted)
+        self.submitting = [''] * rr_data.total
 
         self.submit_reminder_sent = []
 
-        self.delivery_received = [''] * delivery_numbers['received']
-        self.delivery_not_received = [''] * delivery_numbers['not_received']
-        self.delivery_not_responding = [''] * delivery_numbers['not_responding']
+        self.delivery_received = [''] * delivery_data.received
+        self.delivery_not_received = [''] * delivery_data.not_received
+        self.delivery_not_responding = [''] * delivery_data.not_responding
 
         self.delivery_reminder_sent = []
 
-        self.supervision_received = [''] * supervision_numbers['received']
-        self.supervision_not_received = [''] * supervision_numbers['not_received']
-        self.supervision_not_responding = [''] * supervision_numbers['not_responding']
-        self.no_supervision_data = [''] * (supervision_numbers['total'] \
-                                        - supervision_numbers['received'] \
-                                        - supervision_numbers['not_responding'] \
-                                        - supervision_numbers['not_received'])
-        self.supervising = [''] * supervision_numbers['total']
+        self.supervision_received = [''] * supervision_data.received
+        self.supervision_not_received = [''] * supervision_data.not_received
+        self.supervision_not_responding = [''] * supervision_data.not_responding
+        self.no_supervision_data = [''] * (supervision_data.total \
+                                        - supervision_data.received \
+                                        - supervision_data.not_responding \
+                                        - supervision_data.not_received)
+        self.supervising = [''] * supervision_data.total
         self.supervision_reminder_sent = []
 
-        self.soh_submitted = [''] * soh_numbers['complete']
-        self.soh_on_time = [''] * soh_numbers['on_time']
-        self.soh_late = [''] * soh_numbers['late']
-        self.soh_not_responding = [''] * soh_numbers['not_responding']
+        self.soh_submitted = [''] * soh_data.complete
+        self.soh_on_time = [''] * soh_data.on_time
+        self.soh_late = [''] * soh_data.late
+        self.soh_not_responding = [''] * soh_data.not_responding
 
         if avg_lead_time:
             self.avg_lead_time = avg_lead_time
