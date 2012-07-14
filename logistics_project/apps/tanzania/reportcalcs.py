@@ -176,6 +176,7 @@ class DeliveryReport(TanzaniaReport):
         self.context['delivery_table'] = AggregateDeliveryTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
+        self.context['delivery_json'] = self.bd.delivery_chart().data 
         self.context["delivery_table"] = DeliveryStatusTable(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
 
