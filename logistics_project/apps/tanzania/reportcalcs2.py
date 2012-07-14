@@ -189,7 +189,9 @@ class SOHReport(TanzaniaReport):
         self.context['soh_table'] = table
 
     def district_report(self):
-        tables, products, product_set, show = _generate_soh_tables2(self.request, self.facs, self.mp)
+        # NOTE: these might be slow, have not been touched from the old
+        # way of doing things
+        tables, products, product_set, show = _generate_soh_tables(self.request, self.facs, self.mp)
         self.context.update({
             'tables': tables,
             'products': products,
@@ -197,11 +199,7 @@ class SOHReport(TanzaniaReport):
             'show': show,
             'district': True,
         })
-        # pso_data = self.bd.percent_stocked_out(year=self.mp.year, month=self.mp.month)
-        # for p in pso_data.keys():
-        #     pc = AggregateStockoutPercentColumn2(p, pso_data[p])
-        #     tables[0].add_column(pc, "pc_"+p.sms_code)
-        # self.context['soh_table'] = tables[0]
+        self.context['soh_table'] = tables[0]
 
 
 
