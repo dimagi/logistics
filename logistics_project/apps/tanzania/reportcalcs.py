@@ -111,6 +111,7 @@ class RandRReport(TanzaniaReport):
 
     def district_report(self):
         self.context["on_time"] = randr_on_time_reporting(self.dg.submitting(), self.mp.year, self.mp.month)
+        self.context["rr_json"] = self.bd.submission_chart().data
         self.context["randr_history_table"] = RandRReportingHistoryTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                                         month=self.mp.month, year=self.mp.year, prefix="randr_history")
 
