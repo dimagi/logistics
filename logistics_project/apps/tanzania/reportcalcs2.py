@@ -61,7 +61,6 @@ class TanzaniaReport(object):
             "month_pager": self.mp,
             "location": self.location,
             "level": self.level,
-
             "report_list": report_list,
             "slug": self.slug,
             "name": self.name,
@@ -75,12 +74,9 @@ class TanzaniaReport(object):
         org = self.organization_code
         self.facs, self.location = get_facilities_and_location(self.request)
         self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
-        request = self.request
         mp = self.mp
 
         self.bd = SupplyPointStatusBreakdown(org=org, year=self.mp.year, month=self.mp.month)
-
-        date = mp.begin_date
 
         product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
         product_dashboard = ProductAvailabilityDashboardChart()
@@ -154,15 +150,21 @@ class RandRReport(TanzaniaReport):
     slug = "randr"
     
     def national_report(self):
-        self.context['randr_table'] = AggregateRandRTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['randr_table'] = AggregateRandRTable\
+            (object_list=national_aggregate(month=self.mp.month, year=self.mp.year), 
+             request=self.request, month=self.mp.month, year=self.mp.year)
 
     def regional_report(self):
-        self.context['randr_table'] = AggregateRandRTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['randr_table'] = AggregateRandRTable\
+            (object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), 
+             request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
         self.context["on_time"] = randr_on_time_reporting(self.dg.submitting(), self.mp.year, self.mp.month)
-        self.context["randr_history_table"] = RandRReportingHistoryTable(object_list=self.dg.submitting().select_related(), request=self.request,
-                                                        month=self.mp.month, year=self.mp.year, prefix="randr_history")
+        self.context["randr_history_table"] = RandRReportingHistoryTable\
+            (object_list=self.dg.submitting().select_related(), 
+             request=self.request, month=self.mp.month, year=self.mp.year, 
+             prefix="randr_history")
 
 
 class SOHReport(TanzaniaReport):
