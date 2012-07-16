@@ -9,9 +9,9 @@
 
 <div class="module">
 	<br>
-	{% for link in links %}
+	{% for f in files %}
 		<br>
-		<a href="/static/tanzania/downloads/supervision_documents/{{ link }}">{{ link }}</a>
+		<a href="/static/tanzania/downloads/supervision_documents/{{ f.link }}">{{ f.name }}</a>
 		<br>
 	{% endfor %}
 	<br>

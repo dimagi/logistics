@@ -635,8 +635,33 @@ def ad_hoc_reports(request):
     
 def supervision(request):
 
-    files = os.listdir("apps/tanzania/static/downloads/supervision_documents")
+    files = []
+    docs = os.listdir("apps/tanzania/static/downloads/supervision_documents")
     
+    for doc in docs:
+        item = {}
+        item['link'] = doc
+        item['name'] =  ' '.join(doc.split('.')[0].split('_'))
+        files.append(item)
+
     return render_to_response("tanzania/supervision-docs.html", {
-        "links": files,
-    }, context_instance=RequestContext(request))
+        "files": files,
+        }, context_instance=RequestContext(request))
+
+def training(request):
+    if request.method == "GET":
+        from logistics_project.apps.tanzania.reporting.models import ReportRun
+
+        latest_run_time = None
+        incomplete_runs = ReportRun.objects.filter(complete=False).order_by('-id')
+        is_running = len(incomplete_runs) > 0
+        if is_running:
+            latest_run_time = incomplete_runs[0].start_time
+
+        return render_to_response("tanzania/training.html", {
+            'is_running': is_running, 'latest_run_time': latest_run_time,
+            }, context_instance=RequestContext(request))
+    
+    from logistics_project.apps.tanzania.reporting.run_reports2 import generate
+    generate(datetime.now())
+    return HttpResponseRedirect(reverse("training"))

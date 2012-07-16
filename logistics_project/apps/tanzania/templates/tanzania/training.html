@@ -1,0 +1,23 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load cache %}
+{% load i18n %}
+
+{% block title %}Training Tools {{ block.super }}{% endblock %}
+{% block content %}
+<h2>{% trans "Training tools" %}</h2>
+
+<div class="module">
+	<br>
+		<form action="/tz/training/" method="post">
+			{% csrf_token %}
+			{% if not is_running %}
+				<input type="submit" name="submit" value= {% trans "Regenerate Data" %} />
+			{% else %}
+				<input type="submit" disabled="true" name="submit" value= {% trans "Regenerate Data" %} />
+				Currently running: started at {{ latest_run_time|safe }}
+			{% endif %}
+		</form>
+	<br>
+</div>
+{% endblock %}

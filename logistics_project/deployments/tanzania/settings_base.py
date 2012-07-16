@@ -30,6 +30,7 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
+    ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
     ("tz_sms_schedule",       "Help"),
 
 ]
