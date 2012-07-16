@@ -32,6 +32,7 @@ from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
 import os
 from logistics_project.apps.tanzania.reporting.models import *
+from django.views.decorators.cache import cache_page
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -145,6 +146,7 @@ def dashboard_shared(request):
     return _render_warehouseable(request, dashboard, dashboard2)
 
 @place_in_request()
+@cache_page
 def reports_shared(request, slug=None):
     from logistics_project.apps.tanzania.reportcalcs import new_reports as old_reports
     from logistics_project.apps.tanzania.reportcalcs2 import new_reports as warehouse_reports
