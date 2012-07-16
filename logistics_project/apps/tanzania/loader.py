@@ -15,6 +15,8 @@ from datetime import datetime
 import pytz
 from pytz import timezone
 
+from logistics_project.apps.tanzania.reporting.models import OrganizationTree
+
 def clear_supplypoints():
     Location.objects.all().delete()
     SupplyPoint.objects.all().delete()
@@ -96,6 +98,27 @@ def load_locations(path):
             
             count += 1
     print "Processed %d locations"  % count
+    populate_org_tree()
+
+def populate_org_tree():
+    clear_org_tree()
+    for s in SupplyPoint.objects.all().order_by('id'):
+        if s.supplied_by:
+            create_org_tree(s, s.supplied_by)
+            print s.name + ' (' + str(s.id) + ')'
+
+def clear_org_tree():
+    orgtree = OrganizationTree.objects.all()
+    orgtree.delete()
+
+def create_org_tree(below,above):
+    if below.type.name=='FACILITY':
+        orgtree = OrganizationTree(below=below, above=above, is_facility=True)
+    else:
+        orgtree = OrganizationTree(below=below, above=above)
+    orgtree.save()
+    if above.supplied_by:
+        create_org_tree(below,above.supplied_by)
 
 def load_fixtures():
     # for the fixtures

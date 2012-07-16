@@ -7,6 +7,7 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
 from rapidsms.contrib.messagelog.models import Message
+from dimagi.utils.decorators.profile import profile
 
 from logistics.reports import DynamicProductAvailabilitySummaryByFacilitySP
 from logistics.decorators import place_in_request

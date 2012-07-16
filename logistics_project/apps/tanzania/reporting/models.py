@@ -124,4 +124,8 @@ class ReportRun(models.Model):
     complete = models.BooleanField(default=False)
     has_error = models.BooleanField(default=False)
 
+class OrganizationTree(models.Model):
+    below = models.ForeignKey(SupplyPoint, related_name='child')
+    above = models.ForeignKey(SupplyPoint, related_name='parent')
+    is_facility = models.NullBooleanField(default=False)
 

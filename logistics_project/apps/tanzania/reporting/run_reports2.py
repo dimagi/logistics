@@ -52,8 +52,8 @@ def generate(start_date=None):
         # if len(last_run) > 0:
         #     start_date = last_run[0].start_time
         
-        populate_report_data(start_date, now)
-        # populate_report_data(start_date, datetime(2012,3,15))
+        # populate_report_data(start_date, now)
+        populate_report_data(start_date, datetime(2012,5,1))
 
     finally:
         # complete run

@@ -176,7 +176,6 @@ def dashboard(request):
                                
                               context_instance=RequestContext(request))
 
-# @profile("/Users/jpwagner/Desktop/")
 @place_in_request()
 def dashboard2(request):
     mp = MonthPager(request)
@@ -195,8 +194,6 @@ def dashboard2(request):
     # TODO: don't use location like this (district summary)
     location = Location.objects.get(code=org)
 
-    alerts = Alert.objects.filter(organization__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
-
     try:
         org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),organization__code=org)
         if len(org_summary) > 0:
@@ -206,12 +203,13 @@ def dashboard2(request):
     except NoDataError:
         return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'), 
                               {"month_pager": mp,
-                               "alerts": alerts,
                                "graph_width": 300, # used in pie_reporting_generic
                                "graph_height": 300,
                                "location": location,
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
+
+    alerts = Alert.objects.filter(organization__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
 
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
