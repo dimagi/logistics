@@ -636,7 +636,7 @@ def ad_hoc_reports(request):
 def supervision(request):
 
     files = []
-    docs = os.listdir("apps/tanzania/static/downloads/supervision_documents")
+    docs = os.listdir(getattr(settings, 'SUPERVISION_DOCS_FOLDER'))
     
     for doc in docs:
         item = {}

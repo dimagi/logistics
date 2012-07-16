@@ -187,3 +187,5 @@ LOGISTICS_ALERT_GENERATORS = [
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")
 
 REPORT_FOLDER = "tanzania/reports"
+
+SUPERVISION_DOCS_FOLDER = "apps/tanzania/static/downloads/supervision_documents"
