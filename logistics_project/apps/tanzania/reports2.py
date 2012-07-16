@@ -57,7 +57,7 @@ class SupplyPointStatusBreakdown(object):
         self.total = self.org_summary.total_orgs
         avg_lead_time = self.org_summary.average_lead_time_in_days
         if avg_lead_time:
-            self.avg_lead_time = avg_lead_time
+            self.avg_lead_time = "%.1f" % avg_lead_time
         else:
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
