@@ -179,16 +179,11 @@ class SupplyPointStatusBreakdown(object):
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
 
-    @property
-    def stockouts_in_month_old(self):
-        # NOTE: Uses the report month/year, not the current month/year.
-        return [f for f in self.facilities if ProductReport.objects.filter(supply_point__pk=f.pk, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()]
-
-    @property
-    def stockouts_in_month(self):
-        return ProductReport.objects.filter(supply_point__in=self.facilities, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()
-
-    percent_stockouts_in_month = curry(_percent, fn='stockouts_in_month')
+    def percent_stockouts_in_month(self):
+        if self.facilities:
+            return "%.1f%%" % (ProductReport.objects.filter(supply_point__in=self.facilities, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()\
+                                /len(self.facilities))
+        return "<span class='no_data'>None</span>"
 
     def percent_stocked_out(self, product, year, month):
         ps = ProductAvailabilityData.objects.filter(organization=self.supply_point, product=product, date=datetime(year,month,1))
