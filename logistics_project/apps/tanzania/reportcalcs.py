@@ -111,6 +111,7 @@ class RandRReport(TanzaniaReport):
 
     def district_report(self):
         self.context["on_time"] = randr_on_time_reporting(self.dg.submitting(), self.mp.year, self.mp.month)
+        self.context["rr_json"] = self.bd.submission_chart().data
         self.context["randr_history_table"] = RandRReportingHistoryTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                                         month=self.mp.month, year=self.mp.year, prefix="randr_history")
 
@@ -160,6 +161,7 @@ class SupervisionReport(TanzaniaReport):
         self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
+        self.context['supervision_json'] = self.bd.supervision_chart().data 
         self.context["supervision_table"] = SupervisionTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                             month=self.mp.month, year=self.mp.year, prefix="supervision")
 
@@ -174,6 +176,7 @@ class DeliveryReport(TanzaniaReport):
         self.context['delivery_table'] = AggregateDeliveryTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
+        self.context['delivery_json'] = self.bd.delivery_chart().data 
         self.context["delivery_table"] = DeliveryStatusTable(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
 

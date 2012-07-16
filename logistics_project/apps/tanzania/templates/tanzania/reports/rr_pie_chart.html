@@ -1,10 +1,8 @@
 <h2>R&amp;R Submission Summary ({{ last_month|date:"F Y" }})</h2>
+{# NOTE: because of the way django's template rendering deals with context, it is necessary to redeclare this #}
 {% with chart_data as chart_data %}
 {% with "submission_chart" as chartdiv %}
 {% with "submission_hover" as hoverdiv %}
 {% with "No facilities are due to submit R&amp;R's this month" as no_data_text %}
-
-
 {% include "logistics/partials/pie_reporting_generic.html" %}
-
 {% endwith %}{% endwith %}{% endwith %}{% endwith %}
