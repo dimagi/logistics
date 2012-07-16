@@ -651,15 +651,24 @@ def supervision(request):
 def training(request):
     if request.method == "GET":
         from logistics_project.apps.tanzania.reporting.models import ReportRun
-
+        
         latest_run_time = None
+        latest_incomplete_time = None
+
+        latest_run = ReportRun.objects.filter(complete=True).order_by('-id')
         incomplete_runs = ReportRun.objects.filter(complete=False).order_by('-id')
+
+        if len(latest_run) > 0:
+            latest_run_time = latest_run[0].start_time          
+
         is_running = len(incomplete_runs) > 0
         if is_running:
-            latest_run_time = incomplete_runs[0].start_time
+            latest_incomplete_time = incomplete_runs[0].start_time
 
         return render_to_response("tanzania/training.html", {
-            'is_running': is_running, 'latest_run_time': latest_run_time,
+            'is_running': is_running,
+            'latest_run_time': latest_run_time,
+            'latest_incomplete_time': latest_incomplete_time,
             }, context_instance=RequestContext(request))
     
     from logistics_project.apps.tanzania.reporting.run_reports2 import generate

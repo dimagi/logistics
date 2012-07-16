@@ -12,10 +12,12 @@
 		<form action="/tz/training/" method="post">
 			{% csrf_token %}
 			{% if not is_running %}
+				Data as of: {{ latest_run_time|safe }} 
+				<br><br>
 				<input type="submit" name="submit" value= {% trans "Regenerate Data" %} />
 			{% else %}
 				<input type="submit" disabled="true" name="submit" value= {% trans "Regenerate Data" %} />
-				Currently running: started at {{ latest_run_time|safe }}
+				Currently running: started at {{ latest_incomplete_time|safe }}
 			{% endif %}
 		</form>
 	<br>
