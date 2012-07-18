@@ -128,13 +128,19 @@ class ReportingBreakdown(object):
             self.filled_orders_p = {}
             for product in orders_list.distinct():
                 self.discrepancies_p[product] = len(filter(lambda r: (r.amount_received >= (1.2 * r.amount_requested) or
-                                                                         r.amount_received <= (.8 * r.amount_requested)), [x for x in discrepancies if x.product.pk == product]))
+                                                                      r.amount_received <= (.8 * r.amount_requested)), 
+                                                                      [x for x in discrepancies if x.product.pk == product]))
 
-                z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
+                z = [r.amount_requested - r.amount_received for r in \
+                     discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
-                if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                if self.discrepancies_p[product]: 
+                    self.discrepancies_avg_p[product] = \
+                        self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                
                 self.filled_orders_p[product] = len([x for x in orders_list if x == product])
-                self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
+                self.discrepancies_pct_p[product] = calc_percentage\
+                    (self.discrepancies_p[product], self.filled_orders_p[product])
 
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
