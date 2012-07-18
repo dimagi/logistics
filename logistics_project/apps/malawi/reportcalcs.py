@@ -62,7 +62,7 @@ def _district_breakdown(datespan, facility=False):
                        'filled_orders_p': {},
                        'req_times':[]})
 
-    for d in em:
+    for d in em:    
         if facility:
             bd = ReportingBreakdown(facility_supply_points_below(d),
                                     datespan, MNE=True)
@@ -366,7 +366,7 @@ def amc_over_time(instance):
 
 def average_discrepancies(instance):
     """
-    Average discrepancy  between order and receipt per product, by District
+    Average discrepancy between order and receipt per product, by District
     """
     product_codes = PRODUCT_CODES 
     d = _district_breakdown(instance.datespan)
