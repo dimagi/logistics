@@ -180,6 +180,9 @@ DOMESTIC_DIALLING_CODE = 0
 STATIC_ROOT = "/static_root"
 STATIC_URL = "/static"
 
+# reports
+REPORT_URL = "/malawi/r"
+
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"

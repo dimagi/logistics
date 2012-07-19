@@ -9,7 +9,7 @@
         <ul> 
             {% for report in report_list %}
                 {% if report.slug %}
-                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="/malawi/r/{{ report.slug }}">{{ report.name }}</a></li>
+                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{{ settings.REPORT_URL }}/{{ report.slug }}">{{ report.name }}</a></li>
                 {% endif %}
              {% empty %}
                 <div class="error">No reports found!</div>

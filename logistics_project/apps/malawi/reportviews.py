@@ -1,9 +1,8 @@
-
-
-
 '''
 New views for the upgraded reports of the system.
 '''
+import settings
+
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.utils.datastructures import SortedDict
@@ -40,7 +39,8 @@ def get_report(request, slug=''):
                               context_instance=RequestContext(request))
 
 def shared_context(request):
-    return { "districts": get_districts(),
+    return { "settings": settings,
+             "districts": get_districts(),
              "facilities": get_facilities(),
              "hsas": 643,
              "reporting_rate": "93.3",
