@@ -47,31 +47,12 @@ def get_report(request, slug=''):
                               context_instance=RequestContext(request))
 
 def get_more_context(slug):
-    ret_obj = {}
-    if slug=='emergency-orders':
-        summary = {
-            "product_codes": [],
-            "legenddiv": "legend-div",
-            "div": "chart-div",
-            "max_value": 3,
-            "width": 400,
-            "height": 200,
-            "data": [],
-            "xaxistitle": "products",
-            "yaxistitle": "amount"
-        }
-        temp = []
-        count = 0
-        for product in Product.objects.all().order_by('sms_code')[0:10]:
-            count += 1
-            summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-            temp.append([count, random()])
-        
-        for type in ['a','b','c']:
-            summary['data'].append({'label':type, 'data': temp})
+    func_map = {'emergency-orders': eo_context}
+    if slug in func_map:
+        return func_map[slug]()
+    else:
+        return {}
 
-        ret_obj['summary'] = summary
-    return ret_obj
 
 def shared_context(request):
     return { "settings": settings,
@@ -82,3 +63,30 @@ def shared_context(request):
              "reporting_rate": "93.3",
              "products": Product.objects.all().order_by('sms_code')
     }
+
+def eo_context():
+    ret_obj = {}
+    summary = {
+        "product_codes": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": 400,
+        "height": 200,
+        "data": [],
+        "xaxistitle": "products",
+        "yaxistitle": "amount"
+    }
+    temp = []
+    count = 0
+    for product in Product.objects.all().order_by('sms_code')[0:10]:
+        count += 1
+        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
+        temp.append([count, random()])
+    
+    for type in ['a','b','c']:
+        summary['data'].append({'label':type, 'data': temp})
+
+    ret_obj['summary'] = summary
+    return ret_obj
+
