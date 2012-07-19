@@ -10,9 +10,8 @@ from dimagi.utils.dates import months_between, get_business_day_of_month,\
 
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock,\
     ProductReport
-from logistics.reports import ProductAvailabilitySummaryByFacilitySP
 
-from logistics_project.apps.tanzania.utils import calc_lead_time
+from logistics_project.apps.tanzania.utils import avg_past_lead_time
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics.const import Reports
@@ -52,8 +51,8 @@ def generate(start_date=None):
         # if len(last_run) > 0:
         #     start_date = last_run[0].start_time
         
-        # populate_report_data(start_date, now)
-        populate_report_data(start_date, datetime(2012,5,1))
+        populate_report_data(start_date, now)
+        # populate_report_data(start_date, datetime(2012, 6, 4))
 
     finally:
         # complete run
@@ -91,7 +90,11 @@ def populate_report_data(start_date, end_date):
         for fac in facilities:
             # process all the facility-level warehouse tables
             print "processing facility %s (%s)" % (fac.name, str(fac.id))
-            
+
+            for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
+                alert = Alert.objects.filter(organization=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
+                alert.delete()
+
             new_statuses = SupplyPointStatus.objects.filter\
                 (supply_point=fac, status_date__gte=start_date,
                  status_date__lt=end_date).order_by('status_date')
@@ -117,7 +120,7 @@ def populate_report_data(start_date, end_date):
                     (organization=fac, date=window_date)
                 
                 org_summary.total_orgs = 1
-                alt = calc_lead_time(fac,year=year,month=month)
+                alt = avg_past_lead_time(fac)
                 if alt:
                     alt = alt.days
                 org_summary.average_lead_time_in_days = alt or 0
@@ -126,18 +129,16 @@ def populate_report_data(start_date, end_date):
                 # create group_summary for every org_summary title combo
                 for title in NEEDED_STATUS_TYPES:
                     group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary, 
-                                                                                title = title)
-
-                # alerts
-                populate_no_primary_alerts(fac, window_date)
-                populate_facility_stockout_alerts(fac, window_date)
-                
+                                                                                title = title)                
                 # update all the non-response data
                 not_responding_facility(org_summary)
                 
                 # update product availability data
                 update_product_availability_facility_data(org_summary)
 
+                # alerts
+                populate_no_primary_alerts(fac, window_date)
+                populate_facility_stockout_alerts(fac, window_date)
     
     # then populate everything above a facility off a warehouse table
     non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility').order_by('id')
@@ -217,10 +218,10 @@ def populate_report_data(start_date, end_date):
                 if gsum.total != expected:
                     print "expected %s but was %s for %s" % (expected, gsum.total, gsum)
 
-            sub_alerts = Alert.objects.filter(organization__in=facs, date=window_date)
             for alert_type in ['rr_not_submitted', 'delivery_not_received',
-                               'soh_not_responding', 'rr_not_responding', 'delivery_not_responding']:
-                aggregate_response_alerts(org, datetime(year, month, 1), sub_alerts, alert_type)
+                               'soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
+                sub_alerts = Alert.objects.filter(organization__in=facs, date=window_date, type=alert_type)
+                aggregate_response_alerts(org, window_date, sub_alerts, alert_type)
         
 def not_responding_facility(org_summary):
     assert org_summary.organization.type.code == "facility"
@@ -426,15 +427,23 @@ def update_product_availability_facility_data(org_summary):
                 + product_data.without_data) == 1, "bad product data config"
 
 def aggregate_response_alerts(org, date, alerts, type):
-    total = sum([s.number for s in alerts.filter(type=type)])
-    if total:
+    total = sum([s.number for s in alerts])
+    if total > 0:
         create_alert(org, date, type, {'number': total})
 
 def populate_no_primary_alerts(org, date):
+    # delete no primary alerts
+    alert = Alert.objects.filter(organization=org, date=date, type='no_primary_contact')
+    alert.delete()
+    # create no primary alerts
     if not org.contacts():
         create_multilevel_alert(org,date,'no_primary_contact',{'org': org})
 
 def populate_facility_stockout_alerts(org, date):
+    # delete stockout alerts
+    alert = Alert.objects.filter(organization=org, date=date, type='product_stockout')
+    alert.delete()
+    # create stockout alerts
     product_data = ProductAvailabilityData.objects.filter(organization=org, date=date, without_stock=1)
     for p in product_data:
         create_multilevel_alert(org, date,'product_stockout', {'org': org, 'product': p.product})
@@ -447,32 +456,44 @@ def create_multilevel_alert(org, date, type, details):
 def create_alert(org, date, type, details):
     text = ''
     url = ''
+    date = datetime(date.year,date.month,1)
     expires = datetime(date.year, (date.month%12)+1, 1)
 
     number = 0 if not details.has_key('number') else details['number']
 
-    if type=='rr_not_submitted':
-        text = '%s have reported not submitting their R&R form as of today.' %\
-                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
-    elif type=='rr_not_responded':
-        text = '%s did not respond to the SMS asking if they had submitted their R&R form.' %\
-                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
-    elif type=='delivery_not_received':
-        text = '%s have reported not receiving their deliveries as of today.' %\
-                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
-    elif type=='delivery_not_responding':
-        text = '%s did not respond to the SMS asking if they had received their delivery.' %\
-                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
-    elif type=='soh_not_responding':
-        text = '%s have not reported their stock levels for last month.' %\
-                    ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
-        url = reverse('facilities_index')
-    elif type=='product_stockout':
-        text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
-    elif type=='no_primary_contact':
-        text = '%s has no primary contact.' % details['org'].name
+    if type in ['product_stockout', 'no_primary_contact']:
+        if type == 'product_stockout':
+            text = '%s is stocked out of %s.' % (details['org'].name, details['product'].name)
+        elif type=='no_primary_contact':
+            text = '%s has no primary contact.' % details['org'].name
 
-    alert = Alert.objects.get_or_create(organization=org, date=date, type=type, number=number, text=text, url=url, expires=expires)
+        alert = Alert.objects.filter(organization=org, date=date, type=type, text=text)
+        if not alert:
+            create_object(Alert(organization=org, date=date, type=type, expires=expires, text=text))
+
+    else:
+        if type=='rr_not_submitted':
+            text = '%s have reported not submitting their R&R form as of today.' %\
+                        ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
+        elif type=='rr_not_responded':
+            text = '%s did not respond to the SMS asking if they had submitted their R&R form.' %\
+                        ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
+        elif type=='delivery_not_received':
+            text = '%s have reported not receiving their deliveries as of today.' %\
+                        ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
+        elif type=='delivery_not_responding':
+            text = '%s did not respond to the SMS asking if they had received their delivery.' %\
+                        ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
+        elif type=='soh_not_responding':
+            text = '%s have not reported their stock levels for last month.' %\
+                        ((str(number) + ' facility') if number==1 else (str(number) + ' facilities'))
+            url = reverse('facilities_index')
+    
+        alert, created = Alert.objects.get_or_create(organization=org, date=date, type=type, expires=expires)
+        alert.number = number
+        alert.text = text
+        alert.url = url
+        create_object(alert)
 
 
 ##########
