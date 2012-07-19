@@ -206,22 +206,23 @@ def recent_messages_sp(sp, limit=5):
 
 
 @register.simple_tag
-def product_availability_summary(location):
+def product_availability_summary(location, width=900, height=300):
     if not location:
         # TODO: probably want to disable this if things get slow
         contacts = Contact.objects
     else:
         contacts = Contact.objects.filter(supply_point__location=location)
     
-    summary = ProductAvailabilitySummary(contacts)
+    summary = ProductAvailabilitySummary(contacts, width, height)
     return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
 @register.simple_tag
-def product_availability_summary_by_facility(location):
+def product_availability_summary_by_facility(location, width=900, height=300):
     if not location:
         pass
-    summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities())
+    summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities(),
+                                                   width, height)
     c =  _r_2_s_helper("logistics/partials/product_availability_summary.html",
                          {"summary": summary})
     return c
