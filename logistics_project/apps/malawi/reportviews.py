@@ -2,6 +2,8 @@
 New views for the upgraded reports of the system.
 '''
 import settings
+from random import random
+from datetime import datetime
 
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
@@ -37,9 +39,39 @@ def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
                     "slug": slug})
+    
+    context.update(get_more_context(slug))
+
     return render_to_response("malawi/new/%s.html" % slug, 
                               context,
                               context_instance=RequestContext(request))
+
+def get_more_context(slug):
+    ret_obj = {}
+    if slug=='emergency-orders':
+        summary = {
+            "product_codes": [],
+            "legenddiv": "legend-div",
+            "div": "chart-div",
+            "max_value": 3,
+            "width": 400,
+            "height": 200,
+            "data": [],
+            "xaxistitle": "products",
+            "yaxistitle": "amount"
+        }
+        temp = []
+        count = 0
+        for product in Product.objects.all().order_by('sms_code')[0:10]:
+            count += 1
+            summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
+            temp.append([count, random()])
+        
+        for type in ['a','b','c']:
+            summary['data'].append({'label':type, 'data': temp})
+
+        ret_obj['summary'] = summary
+    return ret_obj
 
 def shared_context(request):
     return { "settings": settings,
