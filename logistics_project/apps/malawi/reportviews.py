@@ -47,7 +47,9 @@ def get_report(request, slug=''):
                               context_instance=RequestContext(request))
 
 def get_more_context(slug):
-    func_map = {'emergency-orders': eo_context}
+    func_map = {
+        'emergency-orders': eo_context,
+    }
     if slug in func_map:
         return func_map[slug]()
     else:
@@ -87,6 +89,14 @@ def eo_context():
     for type in ['a','b','c']:
         summary['data'].append({'label':type, 'data': temp})
 
+    table = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "50px",
+    }
+
     ret_obj['summary'] = summary
+    ret_obj['table'] = table
     return ret_obj
 
