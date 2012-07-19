@@ -10,6 +10,8 @@ from django.utils.datastructures import SortedDict
 from logistics.models import Product
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts
+from dimagi.utils.decorators.datespan import datespan_in_request
+from rapidsms.contrib.locations.models import Location
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -30,6 +32,7 @@ stub_reports = [to_stub(r) for r in REPORT_LIST.keys()]
 def home(request):
     return redirect("/malawi/r/dashboard/")
     
+@datespan_in_request()
 def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
@@ -40,6 +43,7 @@ def get_report(request, slug=''):
 
 def shared_context(request):
     return { "settings": settings,
+             "location": None,
              "districts": get_districts(),
              "facilities": get_facilities(),
              "hsas": 643,
