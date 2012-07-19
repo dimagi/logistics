@@ -90,8 +90,8 @@ class TanzaniaReport(object):
             "rr_json": self.bd.rr_json,
             "delivery_json": self.bd.delivery_json,
             "supervision_json": self.bd.supervision_json,
-            "graph_width": 300, # used in pie_reporting_generic
-            "graph_height": 300,
+            # "graph_width": 300, # used in pie_reporting_generic
+            # "graph_height": 300,
 
             "chart_info": product_dashboard,
             "bar_data": bar_data,
