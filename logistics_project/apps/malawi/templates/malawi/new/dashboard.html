@@ -1,4 +1,54 @@
 {% extends "malawi/new/base.html" %}
+{% load logistics_report_tags %}
 {% block report_content %}
-<h1>I'M A DASHBOARD!!!</h1>
+{% include "malawi/partials/selector_form.html" %}
+<div class="two-columns">
+    <div class="col-1">
+        <div class="module">
+        <h2>Reporting rates &amp; stockout summary</h2>
+        <table>
+		    <thead><tr>
+		        <th>District</th>
+		        <th>Rep Rate</th>
+		        <th>% HSA with at least one stockout</th>
+		    </tr></thead>
+		    <tbody>
+		{% for d in districts %}
+		    <tr>
+		        <td>{{ d.name }}</td>
+		        <td>57.2%</td>
+		        <td>14.2%</td>
+		    </tr>
+		{% endfor %}        
+		    </tbody>
+		</table>
+		</div>
+    </div>
+    <div class="col-2">
+        <div class="module">
+        <h2>Alerts</h2>
+            <table>
+                <thead><tr><th></th><th>% HSAs</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>HSA not resupplied due to OS at HC</td>
+                        <td>17%</td>
+                    </tr>
+                    <tr>
+                        <td>HSA resupplied but remains below EO</td>
+                        <td>23%</td>
+                    </tr>
+			    </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+<div class="module">
+    <h2>Reporting Rates</h2>
+    {% include "malawi/new/partials/bar-chart.html" %}
+</div>
+<div class="module">
+    <h2>Current Stock Status by product</h2>
+    {% product_availability_summary location 730 %}
+</div>
 {% endblock %}

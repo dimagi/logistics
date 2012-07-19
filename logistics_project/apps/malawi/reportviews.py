@@ -1,10 +1,10 @@
 '''
 New views for the upgraded reports of the system.
 '''
-import settings
 from random import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.utils.datastructures import SortedDict
@@ -14,6 +14,7 @@ from logistics.models import Product
 from logistics_project.apps.malawi.util import get_facilities, get_districts
 from dimagi.utils.decorators.datespan import datespan_in_request
 from rapidsms.contrib.locations.models import Location
+from dimagi.utils.dates import months_between
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -49,6 +50,7 @@ def get_report(request, slug=''):
 def get_more_context(slug):
     func_map = {
         'emergency-orders': eo_context,
+        'dashboard': dashboard_context
     }
     if slug in func_map:
         return func_map[slug]()
@@ -66,10 +68,39 @@ def shared_context(request):
              "products": Product.objects.all().order_by('sms_code')
     }
 
+def barseries(labels, num_points):
+    return [{"label": l, "data": bardata(num_points)} for l in labels]
+    
+def bardata(num_points):
+    return [[i + 1, random()] for i in range(num_points)]
+
+
+def dashboard_context():
+    summary = {
+        "xlabels": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": 730,
+        "height": 300,
+        "data": [],
+        "xaxistitle": "month",
+        "yaxistitle": "rate"
+    }
+    count = 0
+    for year, month in months_between(datetime.now() - timedelta(days=61), datetime.now()):
+        count += 1
+        summary['xlabels'].append([count, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")])
+        
+    summary['data'] = barseries(['on time','late','not reported'], len(summary['xlabels']))
+    return {"summary": summary}
+
+    
 def eo_context():
     ret_obj = {}
     summary = {
         "product_codes": [],
+        "xlabels": [],
         "legenddiv": "legend-div",
         "div": "chart-div",
         "max_value": 3,
@@ -79,15 +110,14 @@ def eo_context():
         "xaxistitle": "products",
         "yaxistitle": "amount"
     }
-    temp = []
+    
     count = 0
     for product in Product.objects.all().order_by('sms_code')[0:10]:
         count += 1
         summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        temp.append([count, random()])
+        summary['xlabels'] = summary['product_codes']
     
-    for type in ['a','b','c']:
-        summary['data'].append({'label':type, 'data': temp})
+    summary['data'] = barseries(['a','b','c'], 10)
 
     table = {
         "title": "Exhibit A",

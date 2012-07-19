@@ -1,5 +1,4 @@
 {% load i18n %}
-{% block javascripts %}
     <script language="javascript">
     $(document).ready(function() {
         bar_options = {                     
@@ -9,7 +8,7 @@
              bars: { show: true, barWidth: 0.75, align: 'center' }
            },
            xaxis: { 
-                   ticks: {{ summary.product_codes|safe }}
+                   ticks: {{ summary.xlabels|safe }}
                   }, 
            legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: 3},
            yaxis: {max: {{ summary.max_value }},
@@ -23,7 +22,6 @@
         $.plot($("#{{ summary.div }}"), {{ summary.data|safe }}, bar_options);    
     });
 	</script>
-{% endblock %}
 <div id="{{ summary.legenddiv }}" style="width:100%"></div>
 <p>{{ summary.yaxistitle }}</p>
 <div id="{{ summary.div }}" style="width:{{ summary.width }}px; height:{{ summary.height }}px" ></div>
