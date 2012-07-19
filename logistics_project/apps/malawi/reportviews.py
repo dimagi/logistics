@@ -6,20 +6,23 @@ New views for the upgraded reports of the system.
 '''
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
-from logistics_project.apps.malawi.util import get_facilities, get_districts
+from django.utils.datastructures import SortedDict
+
 from logistics.models import Product
 
-REPORT_LIST = {
-    "Dashboard": "dashboard",
-    "Reporting Rate": "reporting-rate",
-    "Stock Status": "stock-status",
-    "Consumption Profiles": "consumption-profiles",
-    "Alert Summary": "alert-summary",
-    "Re-supply Qts Required": "re-supply-qts-required",
-    "Lead Times": "lead-times",
-    "Order Fill Rate": "order-fill-rate",
-    "Emergency Orders": "emergency-orders",
-}
+from logistics_project.apps.malawi.util import get_facilities, get_districts
+
+REPORT_LIST = SortedDict([
+    ("Dashboard", "dashboard"),
+    ("Reporting Rate", "reporting-rate"),
+    ("Stock Status", "stock-status"),
+    ("Consumption Profiles", "consumption-profiles"),
+    ("Alert Summary", "alert-summary"),
+    ("Re-supply Qts Required", "re-supply-qts-required"),
+    ("Lead Times", "lead-times"),
+    ("Order Fill Rate", "order-fill-rate"),
+    ("Emergency Orders", "emergency-orders"),
+])
 
 to_stub = lambda x: {"name": x, "slug": REPORT_LIST[x]}
 
