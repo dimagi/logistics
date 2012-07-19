@@ -4,7 +4,8 @@
 from django.conf.urls.defaults import *
 
 reportpatters = patterns('logistics_project.apps.malawi.reportviews', 
-    url(r'^r/home/$', 'home', name='reports_home')
+    url(r'^r/home/$', 'home', name='reports_home'),
+    url(r'^r/(?P<slug>[\w\s-]+)/$','get_report', name='')
 )
 urlpatterns = patterns('',
 

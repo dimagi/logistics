@@ -5,34 +5,37 @@
 New views for the upgraded reports of the system.
 '''
 from django.template.context import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from logistics_project.apps.malawi.util import get_facilities, get_districts
 from logistics.models import Product
 
-REPORT_LIST = [
-    "Dashboard",
-    "Reporting Rate",
-    "Stock Status",
-    "Consumption Profiles",
-    "Alert Summary",
-    "Re-supply Qts Required",
-    "Lead Times",
-    "Order Fill Rate",
-    "Emergency Orders"
-]
+REPORT_LIST = {
+    "Dashboard": "dashboard",
+    "Reporting Rate": "reporting-rate",
+    "Stock Status": "stock-status",
+    "Consumption Profiles": "consumption-profiles",
+    "Alert Summary": "alert-summary",
+    "Re-supply Qts Required": "re-supply-qts-required",
+    "Lead Times": "lead-times",
+    "Order Fill Rate": "order-fill-rate",
+    "Emergency Orders": "emergency-orders",
+}
 
-to_stub = lambda x: {"slug": x, "name": x}
+to_stub = lambda x: {"name": x, "slug": REPORT_LIST[x]}
 
-stub_reports = [to_stub(r) for r in REPORT_LIST]
+stub_reports = [to_stub(r) for r in REPORT_LIST.keys()]
 
 def home(request):
+    return redirect("/malawi/r/dashboard/")
+    
+def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
-                    "slug": "Dashboard"})
-    return render_to_response("malawi/new/dashboard.html", 
+                    "slug": slug})
+    return render_to_response("malawi/new/%s.html" % slug, 
                               context,
                               context_instance=RequestContext(request))
-    
+
 def shared_context(request):
     return { "districts": get_districts(),
              "facilities": get_facilities(),

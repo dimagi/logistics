@@ -29,13 +29,19 @@
                 <tr><th>H facilities</th><td>{{ facilities.count }}</td></tr>
                 <tr><th>HSAs</th><td>{{ hsas }}</td></tr>
             </table>
+
             <p>Reporting Rate: {{ reporting_rate }}%</p>
+            
             <table>
                 <tr><th colspan="2">National Status for Current Month</th></tr>
                 <tr><th>Product</th><th>% HSAs w Stkout</th></tr>
-{% for product in products %}                
-                <tr><th>{{ product.sms_code }}</th><td>76.3%</td></tr>
-{% endfor %}
+                {% for product in products %}                
+                    <tr><th>{{ product.sms_code }}</th>
+<!-- Get real info -->
+                        <td>76.3%</td>
+<!-- -->
+                    </tr>
+                {% endfor %}
             </table>
         </div>
     </div>

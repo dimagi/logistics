@@ -12,7 +12,6 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 BASE_APPS = [
 
     # the essentials.
-    "django_nose",
     "djtables",
     "rapidsms",
     # for email reports
@@ -34,6 +33,8 @@ BASE_APPS = [
     "django.contrib.contenttypes",
     
     "south",
+    "django_nose",
+
     
     # the rapidsms contrib apps.
     #"rapidsms.contrib.default",
@@ -54,7 +55,8 @@ BASE_APPS = [
     "couchlog",
     "registration",
     "groupmessaging",
-    "taggit"
+    "taggit",
+    "django_extensions"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
