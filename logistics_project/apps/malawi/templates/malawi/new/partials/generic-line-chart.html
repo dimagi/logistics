@@ -1,0 +1,22 @@
+<div id="placeholder" style="width:{{ line.width }};height:{{ line.height }};"></div>
+
+{% block javascripts %}
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+$.plot(
+ $("#placeholder"),
+ [
+
+    {% for serie in line.series %}
+        {
+            label: "{{ serie.title }}",
+            data: {{ serie.data }},
+            lines: {show: true},
+            points: {show: true},
+        },
+    {% endfor %}
+ ]
+);
+});
+</script>
+{% endblock %}

@@ -93,10 +93,22 @@ def eo_context():
         "title": "Exhibit A",
         "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
         "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
-        "cell_width": "50px",
+        "cell_width": "70px",
     }
+
+    line_chart = {
+        "height": "350px",
+        "width": "300px",
+        "series": [],
+    }
+    for j in ['before', 'after']:
+        temp = []
+        for i in range(0,5):
+            temp.append([random(),random()])
+        line_chart["series"].append({"title": j, "data": temp})
 
     ret_obj['summary'] = summary
     ret_obj['table'] = table
+    ret_obj['line'] = line_chart
     return ret_obj
 
