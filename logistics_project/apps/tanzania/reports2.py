@@ -62,7 +62,6 @@ class SupplyPointStatusBreakdown(object):
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
 
-
         # TODO: the list generation stuff is kinda ugly, for compatibility
         # with the old way of doing things
         if report_type=='SOH' or not report_type:
@@ -157,12 +156,10 @@ class SupplyPointStatusBreakdown(object):
     def supervision_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
-            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, 
-                                            org_summary__date=datetime(year,month,1), title='super_fac')
+        for g in GroupSummary.objects.filter(org_summary__organization=self.supply_point, title='super_fac'):
             if g:
-                total_responses += g[0].responded
-                total_possible += g[0].total
+                total_responses += g.responded
+                total_possible += g.total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
@@ -170,11 +167,10 @@ class SupplyPointStatusBreakdown(object):
     def randr_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for year, month in months_between(datetime(self.year-1, self.month, 1),datetime(self.year,self.month,1)):
-            g = GroupSummary.objects.filter(org_summary__organization=self.supply_point, org_summary__date=datetime(year,month,1), title='rr_fac')
+        for g in GroupSummary.objects.filter(org_summary__organization=self.supply_point, title='rr_fac'):
             if g:
-                total_responses += g[0].responded
-                total_possible += g[0].total
+                total_responses += g.responded
+                total_possible += g.total
         if total_possible:
             return "%.1f%%" % (100.0 * total_responses / total_possible)
         return "<span class='no_data'>None</span>"
