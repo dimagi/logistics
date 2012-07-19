@@ -3,6 +3,9 @@
 
 from django.conf.urls.defaults import *
 
+reportpatters = patterns('logistics_project.apps.malawi.reportviews', 
+    url(r'^r/home/$', 'home', name='reports_home')
+)
 urlpatterns = patterns('',
 
     url(r'^dashboard/$',
@@ -72,8 +75,11 @@ urlpatterns = patterns('',
         "logistics_project.apps.malawi.views.sms_tracking",
         name="malawi_sms_tracking"),
     
-) 
+) + reportpatters
 
-
+url(r'^sms-tracking/$',
+        "logistics_project.apps.malawi.views.sms_tracking",
+        name="malawi_sms_tracking"),
+    
 
 
