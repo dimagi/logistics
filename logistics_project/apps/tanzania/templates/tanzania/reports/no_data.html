@@ -1,10 +1,9 @@
 {% extends "tanzania/reports-base.html" %}
 {% block report_content %}
     <div class="module">
-        <h3>Oops, looks like there's no data available for that report.</h3>
-        <p>
-        Once we have manual data warehouse refresh we'll put a button for that here. 
-        In the meantime, try going back a few months and looking for data there.
+        <h3>{% trans "No data available for that report." %}</h3>
+        <p> 
+        {% trans "Try going back a few months and looking for data there." %}
         </p>
         
     </div>

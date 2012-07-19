@@ -189,3 +189,5 @@ STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 REPORT_FOLDER = "tanzania/reports"
 
 SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","supervision_documents")
+
+TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")
