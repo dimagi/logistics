@@ -215,6 +215,8 @@ def dashboard2(request):
 
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
+    if avg_lead_time:
+        avg_lead_time = "%.1f" % avg_lead_time
 
     soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
                                         org_summary=org_summary)
@@ -665,10 +667,20 @@ def training(request):
         if is_running:
             latest_incomplete_time = incomplete_runs[0].start_time
 
+        files = []
+        docs = os.listdir(getattr(settings, 'TRAINING_DOCS_FOLDER'))
+        
+        for doc in docs:
+            item = {}
+            item['link'] = doc
+            item['name'] =  ' '.join(doc.split('.')[0].split('_'))
+            files.append(item)
+
         return render_to_response("tanzania/training.html", {
             'is_running': is_running,
             'latest_run_time': latest_run_time,
             'latest_incomplete_time': latest_incomplete_time,
+            'files': files,
             }, context_instance=RequestContext(request))
     
     from logistics_project.apps.tanzania.reporting.run_reports2 import generate
