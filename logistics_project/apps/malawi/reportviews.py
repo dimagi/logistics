@@ -276,19 +276,19 @@ def ss_context():
         summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
         summary['xlabels'] = summary['product_codes']
     
-    summary['data'] = barseries(['a','b','c'], 10)
+    summary['data'] = barseries(['Stocked Out','Under Stock','Adequate'], 10)
 
     table1 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "",
+        "header": ["Product", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
+        "data": [['cc', 34, 45, 52, 31], ['dt', 21, 25, 44, 17], ['sr', 43, 44, 41, 67]],
         "cell_width": "135px",
     }
 
     table2 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "HSA Current Stock Status by District",
+        "header": ["District", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
+        "data": [['cc', 33, 45, 52, 31], ['dt', 21, 29, 45, 13], ['sr', 43, 42, 42, 61]],
         "cell_width": "135px",
     }
 
@@ -297,7 +297,7 @@ def ss_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['before', 'after']:
+    for j in ['category 1', 'category 2']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
