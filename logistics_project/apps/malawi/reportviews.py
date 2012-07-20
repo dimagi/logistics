@@ -82,8 +82,8 @@ def timechart(labels):
         "legenddiv": "legend-div",
         "div": "chart-div",
         "max_value": 3,
-        "width": 730,
-        "height": 300,
+        "width": "730px",
+        "height": "200px",
         "data": [],
         "xaxistitle": "month",
         "yaxistitle": "rate"
@@ -114,51 +114,7 @@ def leadtimes_context():
             "month_table": table}
 
 def dashboard_context():
-    ret_obj = {}
-    summary = {
-        "xlabels": [],
-        "legenddiv": "legend-div",
-        "div": "chart-div",
-        "max_value": 3,
-        "width": "730px",
-        "height": "300px",
-        "data": [],
-        "xaxistitle": "month",
-        "yaxistitle": "rate"
-    }
-    count = 0
-    for year, month in months_between(datetime.now() - timedelta(days=61), datetime.now()):
-        count += 1
-        summary['xlabels'].append([count, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")])
-        
-    summary['data'] = barseries(['on time','late','not reported'], len(summary['xlabels']))
-    
-    product_summary = {
-        "product_codes": [],
-        "xlabels": [],
-        "legenddiv": "legend-div2",
-        "div": "chart-div2",
-        "max_value": 3,
-        "width": "100%",
-        "height": "200px",
-        "data": [],
-        "xaxistitle": "products",
-        "yaxistitle": "amount"
-    }
-    
-    count = 0
-    for product in Product.objects.all().order_by('sms_code')[0:10]:
-        count += 1
-        product_summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        product_summary['xlabels'] = product_summary['product_codes']
-    
-    product_summary['data'] = barseries(['Stocked out','Not Stocked out','No Data'], 10)
-
-    ret_obj["summary"] = summary
-    ret_obj["product_summary"] = product_summary
-
-    return ret_obj
-
+    return {"summary": timechart(['on time','late','not reported'])}
 
 def eo_context():
     ret_obj = {}
