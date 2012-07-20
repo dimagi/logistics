@@ -151,7 +151,7 @@ def eo_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['Category 1', 'Category 2']:
+    for j in ['LA 1x6', 'LA 2x6']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
@@ -185,7 +185,7 @@ def ofr_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['Category 1', 'Category 2']:
+    for j in ['LA 1x6', 'LA 2x6']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
@@ -200,9 +200,9 @@ def rsqr_context():
     ret_obj = {}
 
     table = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "All Products (Aggregated Quantity required to ensure that HC can resupply",
+        "header": ["Facility Name", "%HSA with Stockout", "LA 1x6", "LA 2x6", "Zinc"],
+        "data": [['BULA', 32, 4123, 512, 3123], ['Chesamu', 22, 2123, 423, 123], ['Chikwina', 45, 4123, 423, 612]],
         "cell_width": "135px",
     }
 
@@ -297,7 +297,7 @@ def ss_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['category 1', 'category 2']:
+    for j in ['LA 1x6', 'LA 2x6']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
