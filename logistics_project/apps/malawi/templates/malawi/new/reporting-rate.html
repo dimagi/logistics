@@ -1,0 +1,30 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+
+<div class="module">
+<h2>Average Reporting Rate by Month</h2>
+{% include "malawi/new/partials/generic-stack-chart.html" %}
+
+</div>
+
+<div class="module">
+{% with table1 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+{% with table2 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+{% with table3 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,17 @@
+<h2>{{ table.title}} </h2>
+<table>
+	<thead><tr>
+	{% for column_title in table.header %}
+		<th style="width:{{ table.cell_width }};">{{ column_title }}</th>
+	{% endfor %}
+	</tr></thead>
+	<tbody>
+	{% for row in table.data %}
+		<tr>
+		{% for item in row %}
+			<td style="width:{{ table.cell_width }};">{{ item }}</td>
+		{% endfor %}
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>

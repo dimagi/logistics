@@ -19,3 +19,5 @@ python-memcached
 psycopg2
 gdata
 django-taggit
+mysql-python
+django-extensions

@@ -1,0 +1,30 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+<div class="module">
+<h2>Current Stock Status by Product</h2>
+{% include "malawi/new/partials/generic-stack-chart.html" %}
+
+</div>
+
+<div class="module">
+{% with table1 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+{% with table2 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+{% include "malawi/partials/selector_form.html" %}
+
+<h2>HSA Stockouts by Product Category </h2>
+{% include "malawi/new/partials/generic-line-chart.html" %}
+
+</div>
+
+{% endblock %}

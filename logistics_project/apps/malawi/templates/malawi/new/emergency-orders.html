@@ -1,0 +1,22 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+
+<div class="module">
+<h2>Average %HSA with Emergency Orders</h2>
+{% include "malawi/new/partials/generic-stack-chart.html" %}
+
+</div>
+<div class="module">
+
+{% include "malawi/new/partials/generic-table.html" %}
+
+</div>
+<div class="module">
+<h2>%HSA with EO by Product Category</h2>
+{% include "malawi/new/partials/generic-line-chart.html" %}
+
+</div>
+
+{% endblock %}
