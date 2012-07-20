@@ -367,31 +367,31 @@ def rr_context():
     }
     
     count = 0
-    for product in Product.objects.all().order_by('sms_code')[0:10]:
+    xlabels = ['Jun', 'July', 'Aug']
+    for xlabel in xlabels:
         count += 1
-        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        summary['xlabels'] = summary['product_codes']
+        summary['xlabels'].append([count, '<span>%s</span>' % str(xlabel)])
     
-    summary['data'] = barseries(['a','b','c'], 10)
+    summary['data'] = barseries(['on_time','late','not_reported'], len(xlabels))
 
     table1 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "",
+        "header": ["Months", "%Reporting", "%Ontime", "%Late", "%None"],
+        "data": [['June', 10, 47, 55, 31], ['July', 50, 24, 43, 15], ['Aug', 40, 47, 45, 61]],
         "cell_width": "135px",
     }
 
     table2 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "Average Reporting Rate (Districts)",
+        "header": ["Districts", "%Reporting", "%Ontime", "%Late", "%None"],
+        "data": [['All', 32, 41, 54, 36], ['Nkatabay', 27, 27, 44, 11], ['Kasungu', 45, 44, 44, 67]],
         "cell_width": "135px",
     }
 
     table3 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "Average Reporting Rate (Facilities)",
+        "header": ["Facilities", "%Reporting", "%Ontime", "%Late", "%None"],
+        "data": [['All', 34, 45, 56, 38], ['Chesamu', 24, 22, 47, 18], ['Chikwina', 44, 44, 42, 65]],
         "cell_width": "135px",
     }
 
