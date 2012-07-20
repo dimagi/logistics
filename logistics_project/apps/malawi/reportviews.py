@@ -49,8 +49,15 @@ def get_report(request, slug=''):
 
 def get_more_context(slug):
     func_map = {
+        'dashboard': dashboard_context,
         'emergency-orders': eo_context,
-        'dashboard': dashboard_context
+        'order-fill-rate': ofr_context,
+        're-supply-qts-required': rsqr_context,
+        'alert-summary': as_context,
+        'consumption-profiles': cp_context,
+        'stock-status': ss_context,
+        'lead-times': lt_context,
+        'reporting-rate': rr_context,
     }
     if slug in func_map:
         return func_map[slug]()
@@ -81,8 +88,8 @@ def dashboard_context():
         "legenddiv": "legend-div",
         "div": "chart-div",
         "max_value": 3,
-        "width": 730,
-        "height": 300,
+        "width": "730px",
+        "height": "300px",
         "data": [],
         "xaxistitle": "month",
         "yaxistitle": "rate"
@@ -104,8 +111,8 @@ def eo_context():
         "legenddiv": "legend-div",
         "div": "chart-div",
         "max_value": 3,
-        "width": 400,
-        "height": 200,
+        "width": "100%",
+        "height": "200px",
         "data": [],
         "xaxistitle": "products",
         "yaxistitle": "amount"
@@ -123,12 +130,12 @@ def eo_context():
         "title": "Exhibit A",
         "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
         "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
-        "cell_width": "70px",
+        "cell_width": "135px",
     }
 
     line_chart = {
         "height": "350px",
-        "width": "300px",
+        "width": "100%", # "300px",
         "series": [],
     }
     for j in ['before', 'after']:
@@ -142,3 +149,241 @@ def eo_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
+
+def ofr_context():
+    ret_obj = {}
+
+    table1 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table2 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    line_chart = {
+        "height": "350px",
+        "width": "100%", # "300px",
+        "series": [],
+    }
+    for j in ['before', 'after']:
+        temp = []
+        for i in range(0,5):
+            temp.append([random(),random()])
+        line_chart["series"].append({"title": j, "data": temp})
+
+    ret_obj['table1'] = table1
+    ret_obj['table2'] = table2
+    ret_obj['line'] = line_chart
+    return ret_obj
+
+def rsqr_context():
+    ret_obj = {}
+
+    table = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    ret_obj['table'] = table
+    return ret_obj
+
+def as_context():
+    ret_obj = {}
+
+    table = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+    
+    ret_obj['table'] = table
+    return ret_obj
+
+def cp_context():
+    ret_obj = {}
+
+    table1 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table2 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    line_chart = {
+        "height": "350px",
+        "width": "100%", # "300px",
+        "series": [],
+    }
+    for j in ['before', 'after']:
+        temp = []
+        for i in range(0,5):
+            temp.append([random(),random()])
+        line_chart["series"].append({"title": j, "data": temp})
+
+    ret_obj['table1'] = table1
+    ret_obj['table2'] = table2
+    ret_obj['line'] = line_chart
+    return ret_obj
+
+def ss_context():
+    ret_obj = {}
+    summary = {
+        "product_codes": [],
+        "xlabels": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": "100%",
+        "height": "200px",
+        "data": [],
+        "xaxistitle": "products",
+        "yaxistitle": "amount"
+    }
+    
+    count = 0
+    for product in Product.objects.all().order_by('sms_code')[0:10]:
+        count += 1
+        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
+        summary['xlabels'] = summary['product_codes']
+    
+    summary['data'] = barseries(['a','b','c'], 10)
+
+    table1 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table2 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    line_chart = {
+        "height": "350px",
+        "width": "100%", # "300px",
+        "series": [],
+    }
+    for j in ['before', 'after']:
+        temp = []
+        for i in range(0,5):
+            temp.append([random(),random()])
+        line_chart["series"].append({"title": j, "data": temp})
+
+    ret_obj['summary'] = summary
+    ret_obj['table1'] = table1
+    ret_obj['table2'] = table2
+    ret_obj['line'] = line_chart
+    return ret_obj
+
+def lt_context():
+    ret_obj = {}
+    summary = {
+        "product_codes": [],
+        "xlabels": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": "100%",
+        "height": "200px",
+        "data": [],
+        "xaxistitle": "products",
+        "yaxistitle": "amount"
+    }
+    
+    count = 0
+    for product in Product.objects.all().order_by('sms_code')[0:10]:
+        count += 1
+        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
+        summary['xlabels'] = summary['product_codes']
+    
+    summary['data'] = barseries(['a','b','c'], 10)
+
+    table1 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table2 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    ret_obj['summary'] = summary
+    ret_obj['table1'] = table1
+    ret_obj['table2'] = table2
+    return ret_obj
+
+def rr_context():
+    ret_obj = {}
+    summary = {
+        "product_codes": [],
+        "xlabels": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": "100%",
+        "height": "200px",
+        "data": [],
+        "xaxistitle": "products",
+        "yaxistitle": "amount"
+    }
+    
+    count = 0
+    for product in Product.objects.all().order_by('sms_code')[0:10]:
+        count += 1
+        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
+        summary['xlabels'] = summary['product_codes']
+    
+    summary['data'] = barseries(['a','b','c'], 10)
+
+    table1 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table2 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    table3 = {
+        "title": "Exhibit A",
+        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
+        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "cell_width": "135px",
+    }
+
+    ret_obj['summary'] = summary
+    ret_obj['table1'] = table1
+    ret_obj['table2'] = table2
+    ret_obj['table3'] = table3
+    return ret_obj

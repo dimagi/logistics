@@ -1,4 +1,28 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
-<h1>I'M A DASHBOARD!!!</h1>
+
+<div class="module">
+<h2>Product Bar Chart</h2>
+{% include "malawi/new/partials/generic-stack-chart.html" %}
+
+</div>
+
+<div class="module">
+{% with table1 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+{% with table2 as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+<div class="module">
+<h2>Random Lines</h2>
+{% include "malawi/new/partials/generic-line-chart.html" %}
+
+</div>
+
 {% endblock %}
