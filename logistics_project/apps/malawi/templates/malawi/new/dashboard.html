@@ -61,9 +61,7 @@
 
 <div class="module">
     <h2>Current Stock Status by product</h2>
-    {% with product_summary as summary %}
-    {% include "malawi/new/partials/generic-stack-chart.html" %}
-    {% endwith %}
+    {% product_availability_summary location 730 %} 
 </div>
 
 {% endblock %}
