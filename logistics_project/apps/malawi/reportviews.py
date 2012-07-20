@@ -58,6 +58,7 @@ def get_more_context(slug):
         'stock-status': ss_context,
         'lead-times': lt_context,
         'reporting-rate': rr_context,
+        'lead-times': leadtimes_context,
     }
     if slug in func_map:
         return func_map[slug]()
@@ -75,12 +76,42 @@ def shared_context(request):
              "products": Product.objects.all().order_by('sms_code')
     }
 
+def timechart(labels):
+    summary = {
+        "xlabels": [],
+        "legenddiv": "legend-div",
+        "div": "chart-div",
+        "max_value": 3,
+        "width": 730,
+        "height": 300,
+        "data": [],
+        "xaxistitle": "month",
+        "yaxistitle": "rate"
+    }
+    count = 0
+    for year, month in months_between(datetime.now() - timedelta(days=61), datetime.now()):
+        count += 1
+        summary['xlabels'].append([count, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")])
+        
+    summary['data'] = barseries(labels, len(summary['xlabels']))
+    return summary
+
+
 def barseries(labels, num_points):
     return [{"label": l, "data": bardata(num_points)} for l in labels]
     
 def bardata(num_points):
     return [[i + 1, random()] for i in range(num_points)]
 
+
+def leadtimes_context():
+    table = {
+        "title": "",
+        "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+        "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
+    }
+    return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
+            "month_table": table}
 
 def dashboard_context():
     ret_obj = {}
