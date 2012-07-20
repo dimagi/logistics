@@ -155,7 +155,7 @@ def eo_context():
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": temp})
+        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
     ret_obj['summary'] = summary
     ret_obj['table'] = table
@@ -189,7 +189,7 @@ def ofr_context():
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": temp})
+        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
     ret_obj['table1'] = table1
     ret_obj['table2'] = table2
@@ -248,7 +248,7 @@ def cp_context():
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": temp})
+        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
     ret_obj['table1'] = table1
     ret_obj['table2'] = table2
@@ -301,7 +301,7 @@ def ss_context():
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": temp})
+        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
     ret_obj['summary'] = summary
     ret_obj['table1'] = table1
