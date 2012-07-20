@@ -1,9 +1,11 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
+{% include "malawi/partials/selector_form.html" %}
+
 <div class="module">
 
-<h2>Random Lines</h2>
+<h2>Monthly Average OFR by Product Category</h2>
 {% include "malawi/new/partials/generic-line-chart.html" %}
 
 </div>

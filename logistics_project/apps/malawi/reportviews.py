@@ -140,9 +140,9 @@ def eo_context():
     summary['data'] = barseries(['a','b','c'], 10)
 
     table = {
-        "title": "Exhibit A",
+        "title": "%HSA with Emergency Order by Product",
         "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "data": [['cc', 35, 41, 53, 34], ['dt', 26, 26, 44, 21], ['sr', 84, 24, 54, 36]],
         "cell_width": "135px",
     }
 
@@ -151,7 +151,7 @@ def eo_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['before', 'after']:
+    for j in ['Category 1', 'Category 2']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
@@ -167,16 +167,16 @@ def ofr_context():
     ret_obj = {}
 
     table1 = {
-        "title": "Exhibit A",
+        "title": "Monthly Average OFR by Product (%)",
         "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "data": [['cc', 32, 41, 54, 35], ['dt', 23, 22, 41, 16], ['sr', 45, 44, 74, 26]],
         "cell_width": "135px",
     }
 
     table2 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "OFR for Selected Time Period by Facility and Product (%)",
+        "header": ["Facility", "bi", "cl", "cf", "cm"],
+        "data": [[3, 3, 4, 5, 3], [2, 2, 2, 4, 1], [4, 4, 4, 4, 6]],
         "cell_width": "135px",
     }
 
@@ -185,7 +185,7 @@ def ofr_context():
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['before', 'after']:
+    for j in ['Category 1', 'Category 2']:
         temp = []
         for i in range(0,5):
             temp.append([random(),random()])
@@ -213,9 +213,9 @@ def as_context():
     ret_obj = {}
 
     table = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
+        "title": "Current Alert Summary",
+        "header": ["Facility", "# HSA", "%HSA stocked out", "%HSA with EO", "%HSA with no Products"],
+        "data": [['BULA', 332, 42, 53, 35], ['Chesamu', 232, 25, 41, 11], ['Chikwina', 443, 41, 41, 46]],
         "cell_width": "135px",
     }
     
