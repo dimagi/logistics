@@ -89,7 +89,7 @@ def dashboard_context():
         "div": "chart-div",
         "max_value": 3,
         "width": "730px",
-        "height": "300px",
+        "height": "200px",
         "data": [],
         "xaxistitle": "month",
         "yaxistitle": "rate"
