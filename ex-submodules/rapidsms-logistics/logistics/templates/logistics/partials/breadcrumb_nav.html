@@ -29,6 +29,8 @@ REQUIRES:
 	{% csrf_token %}
 	{% render_bread_nav location %}
 	<input type="hidden" name="destination_url" id="destination_url" value="{{ destination_url }}" />
+    <input type="hidden" name="year" id="year" value="{{ month_pager.year }}" />
+    <input type="hidden" name="month" id="month" value="{{ month_pager.month }}" />
 	<input type="hidden" name="mode" id="mode" value="{{ nav_mode|default:"url" }}" />
     <input type="hidden" name="location" id="location" value="" />
 </form>
