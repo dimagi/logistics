@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import floatformat
 from django.utils.functional import curry
@@ -48,7 +48,7 @@ def _dg(supply_point):
     group = supply_point.default_group 
     return group.code if group else "?"
 
-def get_lead_time(cell):
+def get_avg_lead_time(cell):
     date = datetime(cell.row.table.year, cell.row.table.month,1)
     org_sum = OrganizationSummary.objects.filter(organization=cell.object, date=date)
     if org_sum:
@@ -56,10 +56,19 @@ def get_lead_time(cell):
             return org_sum[0].average_lead_time_in_days
     return "None"
 
+def get_this_lead_time(cell):
+    lead_time = calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year)
+    if lead_time and lead_time > timedelta(days=30) and lead_time < timedelta(days=100):
+        return '%.1f' % lead_time.days
+    return "None"
+
 def get_historical_response_rate(cell, title):
     total_responses = 0
     total_possible = 0
-    for g in GroupSummary.objects.filter(org_summary__organization=cell.object, title=title):
+    end_date = datetime(cell.row.table.year, cell.row.table.month, 1)
+
+    for g in GroupSummary.objects.filter(org_summary__organization=cell.object, title=title,
+                org_summary__date__lte=end_date):
         if g:
             total_responses += g.responded
             total_possible += g.total
@@ -115,8 +124,8 @@ class DeliveryStatusTable2(MonthTable):
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
-    last_lead_time = Column(sortable=False, name="This Cycle Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
-    average_lead_time = Column(sortable=False, name="Average Lead Time in Days", value=lambda cell: get_lead_time(cell))
+    last_lead_time = Column(sortable=False, name="This Cycle Lead Time", value=lambda cell: get_this_lead_time(cell))
+    average_lead_time = Column(sortable=False, name="Average Lead Time in Days", value=lambda cell: get_avg_lead_time(cell))
 
     class Meta:
         per_page = 9999
@@ -133,14 +142,20 @@ class RandRSubmittedColumn(DateColumn):
             return _("Not reported")
 
 def _randr_value(cell):
-    return _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_not_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.NOT_SUBMITTED)
+    if latest_submit:
+        return latest_submit 
+    else:
+        return latest_not_submit
 
 def _randr_css_class(cell):
-    val = _randr_value(cell)
-    if val is None:
-        return "warning_icon iconified"
-    else:
+    latest_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_not_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.NOT_SUBMITTED)
+    if latest_submit:
         return "good_icon iconified"
+    else:
+        return "warning_icon iconified"
 
 def _hrr_randr(sp):
     r = historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY)

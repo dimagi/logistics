@@ -49,8 +49,7 @@ class SupplyPointStatusBreakdown(object):
         
         try:
             self.org_summary = OrganizationSummary.objects.get\
-                (date__range=(date,datetime.fromordinal(date.toordinal()+29)),
-                 organization__code=org)
+                (date=date, organization__code=org)
         except ObjectDoesNotExist:
             raise NoDataError()
 
@@ -156,7 +155,8 @@ class SupplyPointStatusBreakdown(object):
     def supervision_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for g in GroupSummary.objects.filter(org_summary__organization=self.supply_point, title='super_fac'):
+        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
+                            org_summary__organization=self.supply_point, title='super_fac'):
             if g:
                 total_responses += g.responded
                 total_possible += g.total
@@ -167,7 +167,8 @@ class SupplyPointStatusBreakdown(object):
     def randr_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for g in GroupSummary.objects.filter(org_summary__organization=self.supply_point, title='rr_fac'):
+        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
+                            org_summary__organization=self.supply_point, title='rr_fac'):
             if g:
                 total_responses += g.responded
                 total_possible += g.total

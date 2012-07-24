@@ -98,6 +98,10 @@ def populate_report_data(start_date, end_date):
                 (supply_point=fac, status_date__gte=start_date,
                  status_date__lt=end_date).order_by('status_date')
             process_facility_statuses(fac, new_statuses)
+
+            earliest_date = start_date
+            if new_statuses:
+                earliest_date = new_statuses[0].status_date
             
             new_reports = ProductReport.objects.filter\
                 (supply_point=fac, report_date__gte=start_date, 
@@ -295,15 +299,15 @@ def recent_reminder(sp, date, type):
          status_date__lte=date,
          status_value=SupplyPointStatusValues.REMINDER_SENT).count() > 0
 
-def is_on_time(sp, date, type):
+def is_on_time(sp, status_date, warehouse_date, type):
     """
     on_time requirement    
     """
     if type==SupplyPointStatusTypes.SOH_FACILITY:
-        if date.date() < get_business_day_of_month(date.year,date.month,6):
+        if status_date.date() < get_business_day_of_month(warehouse_date.year,warehouse_date.month,6):
             return True
     if type==SupplyPointStatusTypes.R_AND_R_FACILITY:
-        if date.date() < get_business_day_of_month(date.year,date.month,13):
+        if status_date.date() < get_business_day_of_month(warehouse_date.year,warehouse_date.month,13):
             return True
     return False
 
@@ -358,7 +362,7 @@ def process_facility_statuses(facility, statuses):
                                                                   SupplyPointStatusValues.RECEIVED] \
                                     else 0 
             if group_summary.complete:
-                group_summary.on_time = 1 if is_on_time(facility, status.status_date, status.status_type)\
+                group_summary.on_time = 1 if is_on_time(facility, status.status_date, warehouse_date, status.status_type)\
                                         else group_summary.on_time # if we already had an on-time, don't override a second one with late
             else:
                 group_summary.on_time = 0
@@ -406,7 +410,7 @@ def process_facility_product_reports(facility, reports):
         group_summary.total = 1
         group_summary.responded = 1
         group_summary.complete = 1 
-        group_summary.on_time = 1 if is_on_time(facility, report.report_date, 
+        group_summary.on_time = 1 if is_on_time(facility, report.report_date, warehouse_date, 
                                                      SupplyPointStatusTypes.SOH_FACILITY)\
                                   else group_summary.on_time # if we already had an on-time, don't override a second one with late
         create_object(group_summary)
