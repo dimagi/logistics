@@ -222,7 +222,7 @@ class SupervisionReport(TanzaniaReport):
     #     self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
-        self.context["supervision_table"] = SupervisionTable(object_list=self.dg.submitting().select_related(), request=self.request,
+        self.context["supervision_table"] = SupervisionTable(object_list=self.dg.total(), request=self.request,
                                             month=self.mp.month, year=self.mp.year, prefix="supervision")
 
 class DeliveryReport(TanzaniaReport):

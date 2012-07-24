@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
 from django.db.models.query_utils import Q
@@ -11,7 +11,6 @@ from dimagi.utils.dates import months_between, get_business_day_of_month,\
 from logistics.models import SupplyPoint, Product, StockTransaction, ProductStock,\
     ProductReport
 
-from logistics_project.apps.tanzania.utils import avg_past_lead_time
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics.const import Reports
@@ -120,7 +119,7 @@ def populate_report_data(start_date, end_date):
                     (organization=fac, date=window_date)
                 
                 org_summary.total_orgs = 1
-                alt = avg_past_lead_time(fac)
+                alt = average_lead_time(fac,window_date)
                 if alt:
                     alt = alt.days
                 org_summary.average_lead_time_in_days = alt or 0
@@ -253,6 +252,37 @@ def not_responding_facility(org_summary):
 
         create_object(gsum)
 
+def average_lead_time(fac, window_date):
+    end_date = datetime(window_date.year,window_date.month%12+1,1)
+    received = SupplyPointStatus.objects.filter(supply_point=fac,
+                            status_date__lt=end_date, 
+                            status_value=SupplyPointStatusValues.RECEIVED,
+                            status_type=SupplyPointStatusTypes.DELIVERY_FACILITY)\
+                            .order_by('status_date')
+
+    total_time = timedelta(days=0)
+    count = 0
+
+    last_receipt = datetime(1900,1,1)
+    for receipt in received:
+        if receipt.status_date - last_receipt < timedelta(days=30):
+            last_receipt = receipt.status_date
+            continue
+        last_receipt = receipt.status_date
+        last_submitted = SupplyPointStatus.objects.filter(supply_point=fac,
+                            status_date__lt=receipt.status_date,  
+                            status_value=SupplyPointStatusValues.SUBMITTED,
+                            status_type=SupplyPointStatusTypes.R_AND_R_FACILITY)\
+                            .order_by('-status_date')
+        if last_submitted.count():
+            ltime = receipt.status_date - last_submitted[0].status_date
+            if ltime > timedelta(days=30) and ltime < timedelta(days=100):
+                total_time += ltime
+                count += 1
+        else:
+            continue
+
+    return total_time / count if count else None
 
 def recent_reminder(sp, date, type):
     """
@@ -264,6 +294,18 @@ def recent_reminder(sp, date, type):
          status_date__gt=datetime.fromordinal(date.toordinal()-5),
          status_date__lte=date,
          status_value=SupplyPointStatusValues.REMINDER_SENT).count() > 0
+
+def is_on_time(sp, date, type):
+    """
+    on_time requirement    
+    """
+    if type==SupplyPointStatusTypes.SOH_FACILITY:
+        if date.date() < get_business_day_of_month(date.year,date.month,6):
+            return True
+    if type==SupplyPointStatusTypes.R_AND_R_FACILITY:
+        if date.date() < get_business_day_of_month(date.year,date.month,13):
+            return True
+    return False
 
 def _is_valid_status(facility, date, type):
     if type not in NEEDED_STATUS_TYPES:
@@ -277,9 +319,10 @@ def _is_valid_status(facility, date, type):
     return True
 
 def _get_window_date(type, date):
-    # we need this method because the stock on hand reports actually
+    # we need this method because the soh and super reports actually
     # are sometimes treated as reports for _next_ month
-    if type == SupplyPointStatusTypes.SOH_FACILITY:
+    if type == SupplyPointStatusTypes.SOH_FACILITY or\
+            type == SupplyPointStatusTypes.SUPERVISION_FACILITY:
         # if the date is after the last business day of the month
         # count it for the next month
         if date.date() >= get_business_day_of_month(date.year, date.month, -1):
@@ -315,7 +358,7 @@ def process_facility_statuses(facility, statuses):
                                                                   SupplyPointStatusValues.RECEIVED] \
                                     else 0 
             if group_summary.complete:
-                group_summary.on_time = 1 if recent_reminder(facility, status.status_date, status.status_type)\
+                group_summary.on_time = 1 if is_on_time(facility, status.status_date, status.status_type)\
                                         else group_summary.on_time # if we already had an on-time, don't override a second one with late
             else:
                 group_summary.on_time = 0
@@ -363,7 +406,7 @@ def process_facility_product_reports(facility, reports):
         group_summary.total = 1
         group_summary.responded = 1
         group_summary.complete = 1 
-        group_summary.on_time = 1 if recent_reminder(facility, report.report_date, 
+        group_summary.on_time = 1 if is_on_time(facility, report.report_date, 
                                                      SupplyPointStatusTypes.SOH_FACILITY)\
                                   else group_summary.on_time # if we already had an on-time, don't override a second one with late
         create_object(group_summary)
