@@ -9,12 +9,15 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.utils.datastructures import SortedDict
 
+from dimagi.utils.decorators.datespan import datespan_in_request
+from dimagi.utils.dates import months_between
+
+from rapidsms.contrib.locations.models import Location
+
 from logistics.models import Product
+from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts
-from dimagi.utils.decorators.datespan import datespan_in_request
-from rapidsms.contrib.locations.models import Location
-from dimagi.utils.dates import months_between
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -35,7 +38,8 @@ stub_reports = [to_stub(r) for r in REPORT_LIST.keys()]
 def home(request):
     return redirect("/malawi/r/dashboard/")
     
-@datespan_in_request()
+@place_in_request()
+@datespan_in_request(format_string='%B %Y')
 def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
@@ -58,7 +62,6 @@ def get_more_context(slug):
         'stock-status': ss_context,
         'lead-times': lt_context,
         'reporting-rate': rr_context,
-        'lead-times': leadtimes_context,
     }
     if slug in func_map:
         return func_map[slug]()
@@ -82,7 +85,8 @@ def timechart(labels):
         "legenddiv": "legend-div",
         "div": "chart-div",
         "max_value": 3,
-        "width": "730px",
+        # "width": "730px",
+        "width": "100%",
         "height": "200px",
         "data": [],
         "xaxistitle": "month",
@@ -104,17 +108,28 @@ def bardata(num_points):
     return [[i + 1, random()] for i in range(num_points)]
 
 
-def leadtimes_context():
-    table = {
+def lt_context():
+    month_table = {
         "title": "",
         "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
         "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
     }
+
+    lt_table = {
+        "title": "Average Lead Times by Facility",
+        "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+        "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
+    }    
     return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
-            "month_table": table}
+            "month_table": month_table,
+            "lt_table": lt_table}
 
 def dashboard_context():
-    return {"summary": timechart(['on time','late','not reported'])}
+    pa_width = 730
+    if settings.STYLE=='both':
+        pa_width = 530
+    return {"summary": timechart(['on time','late','not reported']),
+            "pa_width": pa_width }
 
 def eo_context():
     ret_obj = {}
@@ -307,48 +322,6 @@ def ss_context():
     ret_obj['table1'] = table1
     ret_obj['table2'] = table2
     ret_obj['line'] = line_chart
-    return ret_obj
-
-def lt_context():
-    ret_obj = {}
-    summary = {
-        "product_codes": [],
-        "xlabels": [],
-        "legenddiv": "legend-div",
-        "div": "chart-div",
-        "max_value": 3,
-        "width": "100%",
-        "height": "200px",
-        "data": [],
-        "xaxistitle": "products",
-        "yaxistitle": "amount"
-    }
-    
-    count = 0
-    for product in Product.objects.all().order_by('sms_code')[0:10]:
-        count += 1
-        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        summary['xlabels'] = summary['product_codes']
-    
-    summary['data'] = barseries(['a','b','c'], 10)
-
-    table1 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
-        "cell_width": "135px",
-    }
-
-    table2 = {
-        "title": "Exhibit A",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 3, 4, 5, 3], ['dt', 2, 2, 4, 1], ['sr', 4, 4, 4, 6]],
-        "cell_width": "135px",
-    }
-
-    ret_obj['summary'] = summary
-    ret_obj['table1'] = table1
-    ret_obj['table2'] = table2
     return ret_obj
 
 def rr_context():
