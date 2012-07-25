@@ -71,7 +71,7 @@ def get_supervisors(supply_point):
                 (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
 
 def get_districts():
-    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
+    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
 
 def get_em_districts():
     # TODO, better abstraction of this
@@ -83,7 +83,7 @@ def get_ept_districts():
 
 
 def get_facilities():
-    return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
+    return Location.objects.filter(type__slug=config.LocationCodes.FACILITY, is_active=True)
 
 def group_for_location(location):
     ''' This is specific for the Malawi case, separating HSAs into groups by district. '''
