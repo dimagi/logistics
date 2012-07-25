@@ -194,20 +194,25 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
 def navigate(request):
     location_code = settings.COUNTRY
     destination = "logistics_dashboard"
+    querystring = ''
     if 'location' in request.REQUEST and request.REQUEST['location']: 
         location_code = request.REQUEST['location']
     if 'destination_url' in request.REQUEST and request.REQUEST['destination_url']: 
         destination = request.REQUEST['destination_url']
+    if 'year' in request.REQUEST and request.REQUEST['year']: 
+        querystring += '&year=' + request.REQUEST['year']
+    if 'month' in request.REQUEST and request.REQUEST['month']: 
+        querystring += '&month=' + request.REQUEST['month']
     mode = request.REQUEST.get("mode", "url")
     if mode == "url":
         return HttpResponseRedirect(
             reverse(destination, args=(location_code, )))
     elif mode == "param":
         return HttpResponseRedirect(
-            "%s?place=%s" % (reverse(destination), location_code))
+            "%s?place=%s%s" % (reverse(destination), location_code, querystring))
     elif mode == "direct-param":
         return HttpResponseRedirect(
-            "%s?place=%s" % (destination, location_code))
+            "%s?place=%s%s" % (destination, location_code, querystring))
 
 @csrf_exempt
 @cache_page(60 * 15)
