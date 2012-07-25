@@ -574,20 +574,11 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
         products = Product.objects.all().order_by('sms_code')
         data = []
         
-
-
-        # from django.db.models import Count
-        # products = ProductStock.objects.values('product').annotate(dcount=Count('product'))
-
-        # for p in products:
-        #     hsc = HistoricalStockCache(product = p['product'], year = year, month = month, with_stock = p['dcount'])
-
-
         for p in products:
 
-            if True:
-                # once we have a working cache we can use these to populate
-                # this object, but for now disable it
+            # once we want to use the cache we can use these to populate
+            # this object, but for now disable it
+            if False:
                 relevant = HistoricalStockCache.objects.filter(product=p,
                                                                year=year, 
                                                                month=month)
