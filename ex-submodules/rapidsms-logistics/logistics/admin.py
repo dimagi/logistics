@@ -67,6 +67,11 @@ class NagRecordAdmin(admin.ModelAdmin):
     list_display = ("supply_point", "report_date", "warning", "nag_type")
     list_filter = ("supply_point", "warning", "nag_type")
 
+class HistoricalStockCacheAdmin(admin.ModelAdmin):
+    model = HistoricalStockCache
+    list_display = ("supply_point", "product", "year", "month", "stock")
+    list_filter = ("supply_point", "product", "year", "month")
+
 
 admin.site.unregister(Contact)
 admin.site.register(Contact, LogisticsContactAdmin)
@@ -86,3 +91,5 @@ admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 admin.site.register(NagRecord, NagRecordAdmin)
 admin.site.register(DefaultMonthlyConsumption, DefaultMonthlyConsumptionAdmin)
+admin.site.register(HistoricalStockCache, HistoricalStockCacheAdmin)
+

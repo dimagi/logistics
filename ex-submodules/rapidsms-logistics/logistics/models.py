@@ -1480,6 +1480,18 @@ class ProductReportsHelper(object):
             all_products.append(dict['sms_code'])
         return list(set(all_products)-self.reported_products())
 
+
+class HistoricalStockCache(models.Model):
+    """
+    A simple class to cache historical stock levels by month/year per produt/facility
+    """        
+    supply_point = models.ForeignKey(SupplyPoint)
+    product = models.ForeignKey(Product, null=True)
+    year = models.PositiveIntegerField()
+    month = models.PositiveIntegerField()
+    stock = models.IntegerField(null=True)
+    
+
 def get_geography():
     """
     to get a sense of the complete geography in the system
