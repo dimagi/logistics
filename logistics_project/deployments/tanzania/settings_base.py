@@ -191,6 +191,8 @@ REPORT_FOLDER = "tanzania/reports"
 SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","supervision_documents")
 
 SOUTH_MIGRATION_MODULES = {
-    'logistics': 'not.real', # prevent south from doing anything funky here, since the db is already up to date                           
+    # override migrations folder to match our current deployment path
+    'logistics': 'logistics_project.apps.tanzania.custom_migrations.logistics',
+    'rapidsms': 'logistics.migrations',
 }
 TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")
