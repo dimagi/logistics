@@ -22,4 +22,15 @@
 		</form>
 	<br>
 </div>
+
+<div class="module">
+	<br>
+	{% for f in files %}
+		<br>
+		<a href="/static/tanzania/downloads/training_documents/{{ f.link }}">{{ f.name }}</a>
+		<br>
+	{% endfor %}
+	<br>
+</div>
+
 {% endblock %}

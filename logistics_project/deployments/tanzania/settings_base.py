@@ -193,3 +193,4 @@ SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.a
 SOUTH_MIGRATION_MODULES = {
     'logistics': 'not.real', # prevent south from doing anything funky here, since the db is already up to date                           
 }
+TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")

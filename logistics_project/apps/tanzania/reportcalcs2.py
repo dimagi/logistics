@@ -18,7 +18,7 @@ from logistics_project.apps.tanzania.reporting.models import *
 from logistics_project.apps.tanzania.views import *
 
 from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable, AggregateStockoutPercentColumn2
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable2, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable, AggregateStockoutPercentColumn2
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
 from logistics_project.apps.tanzania.models import NoDataError
 
@@ -90,8 +90,9 @@ class TanzaniaReport(object):
             "rr_json": self.bd.rr_json,
             "delivery_json": self.bd.delivery_json,
             "supervision_json": self.bd.supervision_json,
-            "graph_width": 300, # used in pie_reporting_generic
-            "graph_height": 300,
+            "dg": self.dg,
+            # "graph_width": 300, # used in pie_reporting_generic
+            # "graph_height": 300,
 
             "chart_info": product_dashboard,
             "bar_data": bar_data,
@@ -221,7 +222,7 @@ class SupervisionReport(TanzaniaReport):
     #     self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
-        self.context["supervision_table"] = SupervisionTable(object_list=self.dg.submitting().select_related(), request=self.request,
+        self.context["supervision_table"] = SupervisionTable(object_list=self.dg.total(), request=self.request,
                                             month=self.mp.month, year=self.mp.year, prefix="supervision")
 
 class DeliveryReport(TanzaniaReport):
@@ -235,7 +236,7 @@ class DeliveryReport(TanzaniaReport):
         self.context['delivery_table'] = AggregateDeliveryTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
-        self.context["delivery_table"] = DeliveryStatusTable(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context["delivery_table"] = DeliveryStatusTable2(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
     # def district_report(self):
     #     self.context["delivery_table"] = DeliveryStatusTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
