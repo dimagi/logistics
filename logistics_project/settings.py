@@ -246,6 +246,10 @@ AXES_LOCK_OUT_AT_FAILURE=False
 COUCHLOG_BLUEPRINT_HOME = "%s%s" % (MEDIA_URL, "logistics/stylesheets/blueprint/")
 COUCHLOG_DATATABLES_LOC = "%s%s" % (MEDIA_URL, "logistics/javascripts/jquery.dataTables.min.js")
 
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'logistics.migrations',
+}
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
@@ -256,12 +260,6 @@ try:
         from localsettings import *
 except ImportError:
     pass
-if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
-    DATABASES = TESTING_DATABASES
-    for db_name in DATABASES:
-        DATABASES[db_name]['TEST_NAME'] = os.path.join(
-            tempfile.gettempdir(),
-            "%s.rapidsms.test.sqlite3" % db_name)
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 
@@ -284,6 +282,3 @@ AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 AUDITCARE_LOG_ERRORS = False
 
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
-}
