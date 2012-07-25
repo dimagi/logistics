@@ -22,10 +22,12 @@
     display: block;
     padding: 0 1em;
     background: #2fa5d1 url("../img/tab-bg.png") repeat-x;
+    
     -moz-border-radius-bottomleft: 5px;
     -moz-border-radius-topleft: 5px;
     -webkit-border-bottom-left-radius: 5px;
     -webkit-border-top-left-radius: 5px;
+    
     z-index: 100;
 }
 
@@ -58,8 +60,8 @@
 
 .report-content {
     border: 1px solid lightgray;
-    float: right;
-    width: 754px; 
+    float: left;
+    width: 554px; 
     min-height: 400px;
     -webkit-border-radius:5px;
     -moz-border-radius:5px;
@@ -75,9 +77,11 @@
 
 .sidebar {
 	padding-top: 10px;
-	clear: left;
+	clear: right;
+
 	width: 180px;
-    float: left;
+    float: right;
+    
     overflow: visible;
 }
 
