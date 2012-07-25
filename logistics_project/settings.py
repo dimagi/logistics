@@ -7,7 +7,7 @@
 
 VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
-STYLE = 'both' # formats the navigation: 'right' 'left' or 'both'
+STYLE = 'left' # formats the navigation: 'right' 'left' or 'both'
 
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
