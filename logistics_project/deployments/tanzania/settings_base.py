@@ -192,7 +192,7 @@ SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.a
 
 SOUTH_MIGRATION_MODULES = {
     # override migrations folder to match our current deployment path
-    'logistics': 'logistics_project.apps.tanzania.custom_migrations.logistics',
+    'logistics': 'logistics_project.deployments.tanzania.migrations.logistics',
     'rapidsms': 'ignore',
 }
 TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")
