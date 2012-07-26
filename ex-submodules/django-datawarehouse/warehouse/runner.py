@@ -18,7 +18,7 @@ class WarehouseRunner(object):
         """
         pass
     
-class DemoWarehouseRunner(object):
+class DemoWarehouseRunner(WarehouseRunner):
     """
     A reference implementation of the warehouse runner. Your subclasses
     should probably do more than this.
