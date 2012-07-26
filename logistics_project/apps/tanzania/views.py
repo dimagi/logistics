@@ -33,6 +33,7 @@ from logistics_project.apps.tanzania.models import NoDataError
 import os
 from logistics_project.apps.tanzania.reporting.models import *
 from django.views.decorators.cache import cache_page
+from logistics.warehouse_models import ReportRun
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -652,7 +653,6 @@ def supervision(request):
 
 def training(request):
     if request.method == "GET":
-        from logistics_project.apps.tanzania.reporting.models import ReportRun
         
         latest_run_time = None
         latest_incomplete_time = None

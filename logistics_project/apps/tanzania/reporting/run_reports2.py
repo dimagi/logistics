@@ -14,6 +14,7 @@ from logistics.models import SupplyPoint, Product, StockTransaction, ProductStoc
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics.const import Reports
+from logistics.warehouse_models import ReportRun
 
 TESTING = False
 HISTORICAL_DAYS = 900

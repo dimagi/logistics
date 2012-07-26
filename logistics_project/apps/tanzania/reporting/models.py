@@ -4,23 +4,7 @@ from django.db import models
 
 from logistics.models import SupplyPoint, Product
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes
-
-
-class ReportingModel(models.Model):
-    organization = models.ForeignKey(SupplyPoint) # viewing organization
-    date = models.DateTimeField() # viewing time period
-
-    create_date = models.DateTimeField(editable=False)
-    update_date = models.DateTimeField(editable=False)
-
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.create_date = datetime.utcnow()
-        self.update_date = datetime.utcnow()
-        super(ReportingModel, self).save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
+from logistics.warehouse_models import ReportingModel
 
 
 class OrganizationSummary(ReportingModel):
@@ -117,12 +101,6 @@ class Alert(ReportingModel):
     text = models.TextField()
     url = models.CharField(max_length=100, blank=True, null=True)
     expires = models.DateTimeField()
-
-class ReportRun(models.Model):
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField(null=True)
-    complete = models.BooleanField(default=False)
-    has_error = models.BooleanField(default=False)
 
 class OrganizationTree(models.Model):
     below = models.ForeignKey(SupplyPoint, related_name='child')
