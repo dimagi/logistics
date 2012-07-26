@@ -58,7 +58,8 @@ BASE_APPS = [
     "registration",
     "groupmessaging",
     "taggit",
-    "django_extensions"
+    "django_extensions",
+    # "logistics_project.apps.malawi.reporting"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
