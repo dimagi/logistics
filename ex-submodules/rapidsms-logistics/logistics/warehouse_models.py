@@ -16,7 +16,8 @@ class ReportingModel(models.Model):
     """
     A model to encapsulate aggregate (data warehouse) data used by a report.
     """
-    organization = models.ForeignKey('SupplyPoint') # viewing organization
+    supply_point = models.ForeignKey('SupplyPoint') # viewing supply point
+    
     date = models.DateTimeField()                   # viewing time period
 
     create_date = models.DateTimeField(editable=False)
