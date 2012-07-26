@@ -49,7 +49,7 @@ class SupplyPointStatusBreakdown(object):
         
         try:
             self.org_summary = OrganizationSummary.objects.get\
-                (date=date, organization__code=org)
+                (date=date, supply_point__code=org)
         except ObjectDoesNotExist:
             raise NoDataError()
 
@@ -156,7 +156,7 @@ class SupplyPointStatusBreakdown(object):
         total_responses = 0
         total_possible = 0
         for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
-                            org_summary__organization=self.supply_point, title='super_fac'):
+                            org_summary__supply_point=self.supply_point, title='super_fac'):
             if g:
                 total_responses += g.responded
                 total_possible += g.total
@@ -168,7 +168,7 @@ class SupplyPointStatusBreakdown(object):
         total_responses = 0
         total_possible = 0
         for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
-                            org_summary__organization=self.supply_point, title='rr_fac'):
+                            org_summary__supply_point=self.supply_point, title='rr_fac'):
             if g:
                 total_responses += g.responded
                 total_possible += g.total
@@ -183,7 +183,7 @@ class SupplyPointStatusBreakdown(object):
         return "<span class='no_data'>None</span>"
 
     def percent_stocked_out(self, product, year, month):
-        ps = ProductAvailabilityData.objects.filter(organization=self.supply_point, product=product, date=datetime(year,month,1))
+        ps = ProductAvailabilityData.objects.filter(supply_point=self.supply_point, product=product, date=datetime(year,month,1))
         if ps:
             return format_percent(ps[0].without_stock,ps[0].total)
         return "<span class='no_data'>None</span>"

@@ -68,7 +68,7 @@ def populate_report_data(start_date, end_date):
 
 
 def populate_group_data_plus_alerts(org, date, data, msd_data):
-    org_summary = OrganizationSummary(organization=org, date=date)
+    org_summary = OrganizationSummary(supply_point=org, date=date)
     org_summary.total_orgs = data.dg.total().count()
     org_summary.average_lead_time_in_days = data.avg_lead_time2
 
@@ -176,7 +176,7 @@ def populate_group_data_plus_alerts(org, date, data, msd_data):
 def populate_product_data(org,date,data):
     
     for chart in json.loads(data.flot_data['data']):
-        product_dashboard = ProductAvailabilityDashboardChart(organization=org, date=date,
+        product_dashboard = ProductAvailabilityDashboardChart(supply_point=org, date=date,
                                                               width=data.width,
                                                               height=data.height,
                                                               div=data.div,
@@ -189,7 +189,7 @@ def populate_product_data(org,date,data):
         create_object(product_dashboard)
 
     for product in data.data:
-        product_availability = ProductAvailabilityData(organization=org, date=date)
+        product_availability = ProductAvailabilityData(supply_point=org, date=date)
         product_availability.product = product['product']
         product_availability.total = product['total']
         product_availability.with_stock = max(product['with_stock'],0)
@@ -208,7 +208,7 @@ def populate_stockout_alerts(org, date, child_orgs):
         create_alert(org,date,'product_stockout',{'org': problem.supply_point, 'product': problem.product})
 
 def create_alert(org, date, type, details):
-    alert = Alert(organization=org, date=date)
+    alert = Alert(supply_point=org, date=date)
     alert.expires = datetime.fromordinal(date.toordinal()+32)
     alert.url = ''
 

@@ -79,7 +79,7 @@ class TanzaniaReport(object):
 
         self.bd = SupplyPointStatusBreakdown(org=org, year=self.mp.year, month=self.mp.month)
 
-        product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
+        product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
         product_dashboard = ProductAvailabilityDashboardChart()
         product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
         

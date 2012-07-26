@@ -198,7 +198,7 @@ def dashboard2(request):
     location = Location.objects.get(code=org)
 
     try:
-        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),organization__code=org)
+        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),supply_point__code=org)
         if len(org_summary) > 0:
             org_summary = org_summary[0]
         else:
@@ -212,7 +212,7 @@ def dashboard2(request):
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
 
-    alerts = Alert.objects.filter(organization__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
+    alerts = Alert.objects.filter(supply_point__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
 
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
@@ -237,7 +237,7 @@ def dashboard2(request):
     
     processing_numbers = prepare_processing_info([total, rr_data, delivery_data])
 
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), organization__code=org).order_by('product__sms_code')
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
     product_dashboard = ProductAvailabilityDashboardChart()
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)

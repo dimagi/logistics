@@ -12,7 +12,7 @@ class OrganizationSummary(ReportingModel):
     average_lead_time_in_days = models.FloatField(default=0) # 28
 
     def __unicode__(self):
-        return "%s: %s/%s" % (self.organization, self.date.month, self.date.year)
+        return "%s: %s/%s" % (self.supply_point, self.date.month, self.date.year)
     
 class GroupSummary(models.Model):
     """

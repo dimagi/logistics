@@ -50,7 +50,7 @@ def _dg(supply_point):
 
 def get_avg_lead_time(cell):
     date = datetime(cell.row.table.year, cell.row.table.month,1)
-    org_sum = OrganizationSummary.objects.filter(organization=cell.object, date=date)
+    org_sum = OrganizationSummary.objects.filter(supply_point=cell.object, date=date)
     if org_sum:
         if org_sum[0].average_lead_time_in_days:
             return org_sum[0].average_lead_time_in_days
@@ -67,7 +67,7 @@ def get_historical_response_rate(cell, title):
     total_possible = 0
     end_date = datetime(cell.row.table.year, cell.row.table.month, 1)
 
-    for g in GroupSummary.objects.filter(org_summary__organization=cell.object, title=title,
+    for g in GroupSummary.objects.filter(org_summary__supply_point=cell.object, title=title,
                 org_summary__date__lte=end_date):
         if g:
             total_responses += g.responded
