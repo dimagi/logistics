@@ -1481,17 +1481,6 @@ class ProductReportsHelper(object):
         return list(set(all_products)-self.reported_products())
 
 
-class HistoricalStockCache(models.Model):
-    """
-    A simple class to cache historical stock levels by month/year per produt/facility
-    """        
-    supply_point = models.ForeignKey(SupplyPoint)
-    product = models.ForeignKey(Product, null=True)
-    year = models.PositiveIntegerField()
-    month = models.PositiveIntegerField()
-    stock = models.IntegerField(null=True)
-    
-
 def get_geography():
     """
     to get a sense of the complete geography in the system
@@ -1508,9 +1497,6 @@ def get_geography():
     except Location.DoesNotExist:
         raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 
-post_save.connect(post_save_product_report, sender=ProductReport)
-post_save.connect(post_save_stock_transaction, sender=StockTransaction)
-
 def transactions_before_or_during(year, month, day=None):
     if day is None:
         last_of_the_month = get_day_of_month(year, month, -1)
@@ -1518,3 +1504,8 @@ def transactions_before_or_during(year, month, day=None):
         return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
     deadline = date(year, month, day) + timedelta(days=1)
     return StockTransaction.objects.filter(date__lte=deadline).order_by("-date")
+
+from .warehouse_models import *
+post_save.connect(post_save_product_report, sender=ProductReport)
+post_save.connect(post_save_stock_transaction, sender=StockTransaction)
+
