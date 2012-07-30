@@ -30,6 +30,7 @@ class ReportingRate(ReportingModel):
     total = models.PositiveIntegerField(default=0)
     reported = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
+    complete = models.PositiveIntegerField(default=0)
 
 class TimeTracker(ReportingModel):
     """

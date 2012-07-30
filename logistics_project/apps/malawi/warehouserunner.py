@@ -33,6 +33,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
             for hsa in hsas:
                 # process all the hsa-level warehouse tables
                 is_em_group = (group_for_location(hsa.location) == config.Groups.EM)
+                products_managed = set([c.pk for c in hsa.commodities_stocked()])
+                        
                 print "processing hsa %s (%s) is em: %s" % (hsa.name, str(hsa.id), is_em_group)
                 
                 for year, month in months_between(start, end):
@@ -42,7 +44,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     period_end = min(next_window_date, end)
                     late_cutoff = window_date + timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
                     
-                    # process reports (on time versus late, versus at all)
+                    # process reports (on time versus late, versus at all and completeness)
                     reports_in_range = ProductReport.objects.filter\
                         (supply_point=hsa, report_type__code=Reports.SOH,
                          report_date__gte=period_start, report_date__lte=period_end)
@@ -57,17 +59,33 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
                     else:
                         period_rr.on_time = period_rr.on_time if is_em_group else period_rr.reported
+                    
+                    if not period_rr.complete:
+                        # check for completeness (only if not already deemed complete)
+                        # unfortunately, we have to walk all avaialable 
+                        # transactions in the period every month 
+                        # in order to do this correctly.
+                        this_months_reports = ProductReport.objects.filter\
+                            (supply_point=hsa, report_type__code=Reports.SOH,
+                             report_date__gte=window_date, report_date__lte=period_end)
+                        
+                        found = set(this_months_reports.values_list("product", flat=True).distinct())
+                        period_rr.complete = 0 if found and (products_managed - found) else \
+                            (1 if found else 0)
+                        
                     period_rr.save()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
             .exclude(type__code='hsa').order_by('id')
         for place in non_hsas:
+            print "processing non-hsa %s (%s)" % (place.name, str(place.id))
             relevant_hsas = hsa_supply_points_below(place.location)
+            
             for year, month in months_between(start, end):
                 window_date = datetime(year, month, 1)
                 _aggregate(ReportingRate, window_date, place, relevant_hsas, 
-                           fields=['total', 'reported', 'on_time'])
+                           fields=['total', 'reported', 'on_time', 'complete'])
                 
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields):
     """
