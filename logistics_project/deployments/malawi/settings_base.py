@@ -5,6 +5,7 @@ APPS = [
     "auditcare",
     "django.contrib.webdesign",
     "logistics_project.apps.malawi",
+    "warehouse"
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -180,3 +181,6 @@ DATABASE_ENGINE = "mysql"
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'logistics_project.migrations.malawi',
 }
+
+# data warehouse config
+WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouserunner.MalawiWarehouseRunner'
