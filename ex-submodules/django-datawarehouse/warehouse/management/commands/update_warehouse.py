@@ -20,7 +20,7 @@ class Command(LabelCommand):
 
     def handle(self, *args, **options):
         print "Start time: %s" % datetime.now()
-        classpath = settings.WAREHOUSE_CLASS if hasattr(settings, "WAREHOUSE_CLASS") \
+        classpath = settings.WAREHOUSE_RUNNER if hasattr(settings, "WAREHOUSE_RUNNER") \
             else "warehouse.runner.DemoWarehouseRunner"
         runner = to_function(classpath, failhard=True)()
         
