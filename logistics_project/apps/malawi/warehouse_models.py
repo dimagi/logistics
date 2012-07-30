@@ -28,8 +28,8 @@ class ReportingRate(ReportingModel):
     # Dashboard: Reporting Rates
     # Reporting Rates: all
     total = models.PositiveIntegerField(default=0)
+    reported = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
-    late = models.PositiveIntegerField(default=0)
 
 class TimeTracker(ReportingModel):
     """
