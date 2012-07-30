@@ -17,9 +17,7 @@ class ReportingModel(models.Model):
     A model to encapsulate aggregate (data warehouse) data used by a report.
     """
     supply_point = models.ForeignKey('SupplyPoint') # viewing supply point
-    
     date = models.DateTimeField()                   # viewing time period
-
     create_date = models.DateTimeField(editable=False)
     update_date = models.DateTimeField(editable=False)
 
@@ -32,12 +30,4 @@ class ReportingModel(models.Model):
     class Meta:
         abstract = True
 
-class ReportRun(models.Model):
-    """
-    Log of whenever the warehouse models get updated.
-    """
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField(null=True)
-    complete = models.BooleanField(default=False)
-    has_error = models.BooleanField(default=False)
-
+    
