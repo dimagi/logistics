@@ -32,7 +32,7 @@ class Command(LabelCommand):
         # use the passed in date, or right now
         end_date = datetime.utcnow() if len(args) < 2 else string_to_datetime(args[1]) 
         
-        print "executing warehouse from %s, %s-%s" % (classpath, start_date, end_date)
+        print "executing warehouse from %s, %s to %s" % (classpath, start_date.date(), end_date.date())
         if options["cleanup"]:
             runner.cleanup(start_date, end_date)
         
