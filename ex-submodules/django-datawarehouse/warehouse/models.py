@@ -17,5 +17,5 @@ class ReportRun(models.Model):
         The last successful execution of a report, or None if no records found.
         """
         qs = cls.objects.filter(complete=True, has_error=False)
-        return qs.order_by("-start_time").first() if qs.count() else None
+        return qs.order_by("-start")[0] if qs.count() else None
 
