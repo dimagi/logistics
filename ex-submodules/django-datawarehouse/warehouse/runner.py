@@ -6,13 +6,13 @@ class WarehouseRunner(object):
     Subclasses control how data gets into the warehouse.
     """
     
-    def cleanup(self, start=None, end=None):
+    def cleanup(self, start, end):
         """
         Cleanup all warehouse data between start and end.
         """
         pass
     
-    def generate(self, start=None, end=None):
+    def generate(self, start, end):
         """
         Generate all warehouse data between start and end.
         """
@@ -24,12 +24,12 @@ class DemoWarehouseRunner(WarehouseRunner):
     should probably do more than this.
     """
     
-    def cleanup(self, start=None, end=None):
+    def cleanup(self, start, end):
         print ("Demo warehouse cleanup! Would clean all data from %s-%s. "
                "Override WAREHOUSE_CLASS in your settings.py file to have "
                "this actually do something.") 
     
-    def generate(self, start=None, end=None):
+    def generate(self, start, end):
         print ("Demo warehouse generate! Would create all data from %s-%s. "
                "Override WAREHOUSE_CLASS in your settings.py file to have "
                "this actually do something.") % (start, end)
