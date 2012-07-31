@@ -99,7 +99,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         # per-month basis. if it is determined that we only
                         # need current information, the models can be cleaned
                         # up a bit
-                        any_stockout = 0
                         for p in Product.objects.all():
                             product_data, created = ProductAvailabilityData.objects.get_or_create\
                                 (product=p, supply_point=hsa, 

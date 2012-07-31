@@ -404,14 +404,6 @@ def rr_context():
     ret_obj['table3'] = table3
     return ret_obj
 
-def hsas(request):
-    context = {}
-    return render_to_response('malawi/new/hsas.html', context, context_instance=RequestContext(request))
-
-def user_profiles(request):
-    context = {}
-    return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
-
 def _get_window_date(request=None):
     # TODO: this should actually come from the request, but this is hard-coded
     # for testing, 
