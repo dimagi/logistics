@@ -516,4 +516,29 @@ def sms_tracking(request):
                               {"organizations": orgs},
                               context_instance=RequestContext(request))
 
+@datespan_in_request()
+def telco_tracking(request):
+    start = request.GET.get('from') or '2000-1-1'
+    end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
+
+    start_date = datetime.strptime(start, '%Y-%m-%d')
+    end_date = datetime.strptime(end, '%Y-%m-%d')
+
+    from dimagi.utils.dates import months_between, add_months
+
+    results = []
+
+    for year, month in months_between(start_date,end_date):
+        date1 = datetime(year,month,1)
+        endyear, endmonth = add_months(year,month,1)
+        date2 = datetime(endyear,endmonth,1)
+        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
+                date__range=(date1,date2))
+        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
+                date__range=(date1,date2))
+        results.append((date1, tnm_msgs.count(), airtel_msgs.count()))
+
+    return render_to_response("malawi/telco_tracking.html",
+                              {"results": results},
+                              context_instance=RequestContext(request))
     
