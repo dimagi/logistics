@@ -77,6 +77,9 @@ urlpatterns = patterns('',
     url(r'^sms-tracking/$',
         "logistics_project.apps.malawi.views.sms_tracking",
         name="malawi_sms_tracking"),
+    url(r'^telco-tracking/$',
+        "logistics_project.apps.malawi.views.telco_tracking",
+        name="malawi_telco_tracking"),
     
 ) + reportpatters
 
