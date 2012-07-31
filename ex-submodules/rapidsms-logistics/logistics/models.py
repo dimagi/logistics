@@ -244,6 +244,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.PRODUCT: 
             return Product.objects.filter(is_active=True)
     
+    def supplies(self, product):
+        return product in self.commodities_stocked()
+    
     def commodities_reported(self):
         return Product.objects.filter(reported_by__supply_point=self).distinct()
     
@@ -1506,6 +1509,7 @@ def transactions_before_or_during(year, month, day=None):
     return StockTransaction.objects.filter(date__lte=deadline).order_by("-date")
 
 from .warehouse_models import *
+
 post_save.connect(post_save_product_report, sender=ProductReport)
 post_save.connect(post_save_stock_transaction, sender=StockTransaction)
 
