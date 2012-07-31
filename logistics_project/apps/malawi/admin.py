@@ -4,7 +4,7 @@
 from django.contrib import admin
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.models import Organization
-from logistics_project.apps.malawi.warehouse_models import *
+from logistics_project.apps.malawi.warehouse.models import *
 
 class MalawiContactAdmin(admin.ModelAdmin):
     model = Contact

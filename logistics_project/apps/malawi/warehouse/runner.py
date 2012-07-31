@@ -8,7 +8,7 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
 from logistics.const import Reports
 from dimagi.utils.dates import months_between, first_of_next_month
 from datetime import datetime, timedelta
-from logistics_project.apps.malawi.warehouse_models import ReportingRate,\
+from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary
 from django.conf import settings
 from django.db.models import Sum, Max

@@ -20,7 +20,7 @@ from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts
 from logistics.util import config
-from logistics_project.apps.malawi.warehouse_models import ProductAvailabilityData,\
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate
 import json
 

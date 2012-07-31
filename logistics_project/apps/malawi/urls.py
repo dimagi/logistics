@@ -3,7 +3,7 @@
 
 from django.conf.urls.defaults import *
 
-reportpatters = patterns('logistics_project.apps.malawi.reportviews', 
+reportpatters = patterns('logistics_project.apps.malawi.warehouse.views', 
     url(r'^r/home/$', 'home', name='reports_home'),
     url(r'^r/hsas/$', 'hsas', name='hsas'),
     url(r'^r/user-profiles/$', 'user_profiles', name='user_profiles'),    

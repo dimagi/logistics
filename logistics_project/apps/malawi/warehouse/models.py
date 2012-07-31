@@ -1,8 +1,13 @@
 from django.db import models
 from logistics.warehouse_models import ReportingModel
 
+class MalawiWarehouseModel(ReportingModel):
+    
+    class Meta:
+        abstract = True
+        app_label = "malawi"
 
-class ProductAvailabilityData(ReportingModel):
+class ProductAvailabilityData(MalawiWarehouseModel):
     """
     This will be used to generate the "current stock status" table,
     as well as anything that needs to compute percent with / without 
@@ -27,7 +32,7 @@ class ProductAvailabilityData(ReportingModel):
     managed_and_without_stock = models.PositiveIntegerField(default=0)
     managed_and_without_data = models.PositiveIntegerField(default=0)
     
-class ProductAvailabilityDataSummary(ReportingModel):
+class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     """
     Aggregates the product availability up to the supply point level,
     no longer dealing with individual products, but just whether anything
@@ -39,7 +44,7 @@ class ProductAvailabilityDataSummary(ReportingModel):
     manages_anything = models.PositiveIntegerField(default=0)
     with_any_stockout = models.PositiveIntegerField(default=0)
     
-class ReportingRate(ReportingModel):
+class ReportingRate(MalawiWarehouseModel):
     """
     Records information used to calculate the reporting rates
     """
@@ -50,7 +55,7 @@ class ReportingRate(ReportingModel):
     on_time = models.PositiveIntegerField(default=0)
     complete = models.PositiveIntegerField(default=0)
 
-class TimeTracker(ReportingModel):
+class TimeTracker(MalawiWarehouseModel):
     """
     For keeping track of a time between two events. Currently used for 
     lead times. We keep the number of data points around so that we can
@@ -61,7 +66,7 @@ class TimeTracker(ReportingModel):
     total = models.PositiveIntegerField(default=0) # number of contributions to this
     time_in_seconds = models.PositiveIntegerField(default=0)
     
-class OrderRequest(ReportingModel):
+class OrderRequest(MalawiWarehouseModel):
     """
     Each time an order is made, used to count both regular and emergency
     orders for a particular month.
@@ -72,7 +77,7 @@ class OrderRequest(ReportingModel):
     emergency = models.PositiveIntegerField(default=0)
     
     
-class OrderFulfillment(ReportingModel):
+class OrderFulfillment(MalawiWarehouseModel):
     """
     Each time an order is fulfilled, add up the amount requested and
     the amount received so we can determine order fill rates.

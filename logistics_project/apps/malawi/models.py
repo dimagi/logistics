@@ -11,4 +11,4 @@ class Organization(models.Model):
 	def __unicode__(self):
 		return self.name
 
-from .warehouse_models import *
+from .warehouse.models import *

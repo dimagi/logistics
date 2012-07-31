@@ -193,4 +193,4 @@ SOUTH_MIGRATION_MODULES = {
 }
 
 # data warehouse config
-WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouserunner.MalawiWarehouseRunner'
+WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'
