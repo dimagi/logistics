@@ -48,9 +48,7 @@
                 <tr><th>Product</th><th>% HSAs w Stkout</th></tr>
                 {% for product, pct in product_stockout_pcts.items %}                
                     <tr><th>{{ product.sms_code }}</th>
-<!-- Get real info -->
-                        <td>{{ pct|floatformat }} %</td>
-<!-- -->
+                        <td>{{ pct|floatformat }}%</td>
                     </tr>
                 {% endfor %}
             </table>
