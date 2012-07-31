@@ -90,6 +90,8 @@ def load_locations(file_path, log_to_console=True):
     hsa_type = LocationType.objects.get_or_create(slug=config.LocationCodes.HSA, name=config.LocationCodes.HSA)[0]
     country = Location.objects.get_or_create(name=settings.COUNTRY[0].upper()+settings.COUNTRY[1:], type=country_type, code=settings.COUNTRY)[0]
     
+    country_sp_type = SupplyPointType.objects.get_or_create(name="country", code=config.SupplyPointCodes.COUNTRY)[0]
+    country_sp = supply_point_from_location(country, type=country_sp_type)
     district_sp_type = SupplyPointType.objects.get_or_create(name="district", code=config.SupplyPointCodes.DISTRICT)[0]
     fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code=config.SupplyPointCodes.FACILITY)[0]
     # we don't use this anywhere in the loader, but make sure to create it
@@ -111,7 +113,7 @@ def load_locations(file_path, log_to_console=True):
                 district = Location.objects.create(name=district_name.strip(), type=district_type, 
                                                    code=district_code, parent=country)
             # create/load district supply point info
-            dist_sp = supply_point_from_location(district, type=district_sp_type)
+            dist_sp = supply_point_from_location(district, type=district_sp_type, parent=country_sp)
             
             #create/load location info
             if not facility_code:

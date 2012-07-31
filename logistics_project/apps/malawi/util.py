@@ -39,12 +39,13 @@ def hsas_below(location):
     hsas = Contact.objects.filter(role__code="hsa", is_active=True, 
                                   supply_point__active=True) 
     if location:
-        # support up to 3 levels of parentage. this covers
-        # hsa->facility-> district, which is all we allow you to select
+        # support up to 4 levels of parentage. this covers
+        # hsa-> facility-> district-> country, which is all we allow you to select
         
         hsas = hsas.filter(Q(supply_point__location=location) | \
                            Q(supply_point__supplied_by__location=location) | \
-                           Q(supply_point__supplied_by__supplied_by__location=location))
+                           Q(supply_point__supplied_by__supplied_by__location=location) | \
+                           Q(supply_point__supplied_by__supplied_by__supplied_by__location=location))
     return hsas
     
 def hsa_supply_points_below(location):
@@ -55,11 +56,12 @@ def hsa_supply_points_below(location):
     """
     hsa_sps = SupplyPoint.objects.filter(type__code="hsa", active=True, contact__is_active=True)
     if location:
-        # support up to 3 levels of parentage. this covers
-        # hsa->facility-> district, which is all we allow you to select
+        # support up to 4 levels of parentage. this covers
+        # hsa-> facility-> district-> country, which is all we allow you to select
         hsa_sps = hsa_sps.filter(Q(location=location) | \
                                  Q(supplied_by__location=location) | \
-                                 Q(supplied_by__supplied_by__location=location))
+                                 Q(supplied_by__supplied_by__location=location) | \
+                                 Q(supplied_by__supplied_by__supplied_by__location=location))
     return hsa_sps
     
     

@@ -43,6 +43,7 @@ class SupplyPointCodes(object):
     """
     These correspond to SupplyPointType.code
     """
+    COUNTRY = "c"
     DISTRICT = "d"
     FACILITY = "hf"
     HSA = "hsa"
