@@ -19,7 +19,8 @@ from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts
 from logistics.util import config
-from logistics_project.apps.malawi.warehouse_models import ProductAvailabilityData
+from logistics_project.apps.malawi.warehouse_models import ProductAvailabilityData,\
+    ProductAvailabilityDataSummary, ReportingRate
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -75,16 +76,16 @@ def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
     country = SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
                                       type__code=config.SupplyPointCodes.COUNTRY)
-    now = datetime.utcnow()
-    window_date = datetime(now.year, now.month, 1)
-    window_date = datetime(2012, 6, 1) # temp for testing
+    window_date = _get_window_date(request)
+    
+    # national stockout percentages by product
     stockout_pcts = SortedDict()
     for p in products:
         availability = ProductAvailabilityData.objects.get(supply_point=country,
                                                            date=window_date,
                                                            product=p)
-        stockout_pcts[p] = float(availability.managed_and_without_stock) / \
-                           (float(availability.managed) or 1) * 100
+        stockout_pcts[p] = _pct(availability.managed_and_without_stock,
+                                availability.managed)
     
     return { "settings": settings,
              "location": None,
@@ -142,11 +143,23 @@ def lt_context():
             "lt_table": lt_table}
 
 def dashboard_context():
-    pa_width = 730
-    if settings.STYLE=='both':
-        pa_width = 530
-    return {"summary": timechart(['on time','late','not reported']),
-            "pa_width": pa_width }
+    window_date = _get_window_date()
+    
+    # reporting rates + stockout summary
+    districts = get_districts().order_by('name')
+    summary_data = SortedDict()
+    for d in districts:
+        avail_sum = ProductAvailabilityDataSummary.objects.get(supply_point=d, date=window_date)
+        stockout_pct = _pct(avail_sum.with_any_stockout,
+                             avail_sum.manages_anything) 
+        rr = ReportingRate.objects.get(supply_point=d, date=window_date)
+        reporting_rate = _pct(rr.reported, rr.total)
+        summary_data[d] = {"stockout_pct": stockout_pct,
+                           "reporting_rate": reporting_rate}
+    
+    return {"summary_data": summary_data,
+            "summary": timechart(['on time','late','not reported']),
+            "pa_width": 530 if settings.STYLE=='both' else 730 }
 
 def eo_context():
     ret_obj = {}
@@ -398,3 +411,11 @@ def hsas(request):
 def user_profiles(request):
     context = {}
     return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
+
+def _get_window_date(request=None):
+    # TODO: this should actually come from the request, but this is hard-coded
+    # for testing, 
+    return datetime(2012, 6, 1) # temp for testing
+
+def _pct(num, denom):
+    return float(num) / (float(denom) or 1) * 100

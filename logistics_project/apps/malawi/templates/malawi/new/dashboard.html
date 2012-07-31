@@ -18,11 +18,11 @@
     		        <th>% HSA with at least one stockout</th>
     		    </tr></thead>
     		    <tbody>
-        		{% for d in districts %}
-        		    <tr>
+        		{% for d, vals in summary_data.items %}
+        		    <tr> 
     	       	        <td>{{ d.name }}</td>
-    	                <td>57.2%</td>
-    		            <td>14.2%</td>
+    	                <td>{{ vals.reporting_rate|floatformat }}%</td>
+    		            <td>{{ vals.stockout_pct|floatformat }}%</td>
     		        </tr>
     		    {% endfor %}        
     		    </tbody>
