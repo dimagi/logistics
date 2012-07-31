@@ -46,10 +46,10 @@
             <table>
                 <tr><th colspan="2">National Status for Current Month</th></tr>
                 <tr><th>Product</th><th>% HSAs w Stkout</th></tr>
-                {% for product in products %}                
+                {% for product, pct in product_stockout_pcts.items %}                
                     <tr><th>{{ product.sms_code }}</th>
 <!-- Get real info -->
-                        <td>76.3%</td>
+                        <td>{{ pct|floatformat }} %</td>
 <!-- -->
                     </tr>
                 {% endfor %}

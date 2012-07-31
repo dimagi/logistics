@@ -14,10 +14,12 @@ from dimagi.utils.dates import months_between
 
 from rapidsms.contrib.locations.models import Location
 
-from logistics.models import Product
+from logistics.models import Product, SupplyPoint
 from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts
+from logistics.util import config
+from logistics_project.apps.malawi.warehouse_models import ProductAvailabilityData
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -70,13 +72,28 @@ def get_more_context(slug):
 
 
 def shared_context(request):
+    products = Product.objects.all().order_by('sms_code')
+    country = SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
+                                      type__code=config.SupplyPointCodes.COUNTRY)
+    now = datetime.utcnow()
+    window_date = datetime(now.year, now.month, 1)
+    window_date = datetime(2012, 6, 1) # temp for testing
+    stockout_pcts = SortedDict()
+    for p in products:
+        availability = ProductAvailabilityData.objects.get(supply_point=country,
+                                                           date=window_date,
+                                                           product=p)
+        stockout_pcts[p] = float(availability.managed_and_without_stock) / \
+                           (float(availability.managed) or 1) * 100
+    
     return { "settings": settings,
              "location": None,
              "districts": get_districts(),
              "facilities": get_facilities(),
              "hsas": 643,
              "reporting_rate": "93.3",
-             "products": Product.objects.all().order_by('sms_code')
+             "products": products,
+             "product_stockout_pcts": stockout_pcts
     }
 
 def timechart(labels):
