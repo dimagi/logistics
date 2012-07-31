@@ -180,6 +180,7 @@ DATABASE_ENGINE = "mysql"
 
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'logistics_project.migrations.malawi',
+    'logistics': 'ignore'
 }
 
 # data warehouse config
