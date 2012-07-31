@@ -19,9 +19,16 @@ admin.site.register(Organization)
 class ReportingRateAdmin(admin.ModelAdmin):
     model = ReportingRate
     list_display = ('supply_point', 'date', 'total', 'reported', 'on_time', 'complete')
-    list_filter = ('supply_point__type', 'date', 'total', 'reported', 'on_time', 'complete')
+    list_filter = ('supply_point__type', 'date', 'supply_point')
 
-admin.site.register(ProductAvailabilityData)
+class ProductAvailabilityDataAdmin(admin.ModelAdmin):
+    model = ProductAvailabilityData
+    list_display = ('supply_point', 'product', 'date', 'total', 'managed', 
+                    'with_stock', 'under_stock', 'over_stock', 'without_stock', 
+                    'without_data')
+    list_filter = ('supply_point__type', 'product', 'date', 'supply_point')
+
+admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
 admin.site.register(ReportingRate, ReportingRateAdmin)
 admin.site.register(TimeTracker)
 admin.site.register(OrderRequest)

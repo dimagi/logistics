@@ -15,11 +15,20 @@ class ProductAvailabilityData(ReportingModel):
     # Stock status: all
     product = models.ForeignKey(Product)
     total = models.PositiveIntegerField(default=0)
+    managed = models.PositiveIntegerField(default=0)
     with_stock = models.PositiveIntegerField(default=0)
     under_stock = models.PositiveIntegerField(default=0)
     over_stock = models.PositiveIntegerField(default=0)
     without_stock = models.PositiveIntegerField(default=0)
     without_data = models.PositiveIntegerField(default=0)
+    
+    # unfortunately, we need to separately keep these for the aggregates
+    managed_and_with_stock = models.PositiveIntegerField(default=0)
+    managed_and_under_stock = models.PositiveIntegerField(default=0)
+    managed_and_over_stock = models.PositiveIntegerField(default=0)
+    managed_and_without_stock = models.PositiveIntegerField(default=0)
+    managed_and_without_data = models.PositiveIntegerField(default=0)
+    
 
 class ReportingRate(ReportingModel):
     """
