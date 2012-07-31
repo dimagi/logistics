@@ -3,6 +3,7 @@ New views for the upgraded reports of the system.
 '''
 from random import random
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from django.conf import settings
 from django.template.context import RequestContext
@@ -21,6 +22,7 @@ from logistics_project.apps.malawi.util import get_facilities, get_districts
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse_models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate
+import json
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -74,8 +76,7 @@ def get_more_context(slug):
 
 def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
-    country = SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
-                                      type__code=config.SupplyPointCodes.COUNTRY)
+    country = _get_country_sp()
     window_date = _get_window_date(request)
     
     # national stockout percentages by product
@@ -111,10 +112,7 @@ def timechart(labels):
         "yaxistitle": "rate"
     }
     count = 0
-    for year, month in months_between(datetime.now() - timedelta(days=61), datetime.now()):
-        count += 1
-        summary['xlabels'].append([count, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")])
-        
+    summary['xlabels'] = _month_labels(datetime.now() - timedelta(days=61), datetime.now())
     summary['data'] = barseries(labels, len(summary['xlabels']))
     return summary
 
@@ -125,7 +123,10 @@ def barseries(labels, num_points):
 def bardata(num_points):
     return [[i + 1, random()] for i in range(num_points)]
 
-
+def _month_labels(start_date, end_date):
+    return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
+            for i, (year, month) in enumerate(months_between(start_date, end_date))]
+    
 def lt_context():
     month_table = {
         "title": "",
@@ -157,8 +158,41 @@ def dashboard_context():
         summary_data[d] = {"stockout_pct": stockout_pct,
                            "reporting_rate": reporting_rate}
     
+    # report chart
+    start_date = window_date - timedelta(days=61) # FIX
+    report_chart = {
+        "legenddiv": "summary-legend-div",
+        "div": "summary-chart-div",
+        "max_value": 100,
+        "width": "100%",
+        "height": "200px",
+        "xaxistitle": "month",
+    }
+    data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
+    dates = []
+    country = _get_country_sp()
+    for year, month in months_between(start_date, window_date):
+        dt = datetime(year, month, 1)
+        dates.append(dt)
+        rr = ReportingRate.objects.get(supply_point=country, date=dt)
+        data["on time"][dt] = _pct(rr.on_time, rr.total)
+        data["late"][dt] = _pct(rr.reported - rr.on_time, rr.total)
+        data["missing"][dt] = _pct(rr.total - rr.reported, rr.total)
+        data["complete"][dt] = _pct(rr.complete, rr.total)
+    
+    ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
+                 'stack': 0} \
+                 for k in ["on time", "late", "missing"]]
+    
+    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
+                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+                     'yaxis': 2})
+    
+    report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
+    report_chart['data'] = json.dumps(ret_data)
     return {"summary_data": summary_data,
-            "summary": timechart(['on time','late','not reported']),
+            "graphdata": report_chart,
             "pa_width": 530 if settings.STYLE=='both' else 730 }
 
 def eo_context():
@@ -404,6 +438,14 @@ def rr_context():
     ret_obj['table3'] = table3
     return ret_obj
 
+def hsas(request):
+    context = {}
+    return render_to_response('malawi/new/hsas.html', context, context_instance=RequestContext(request))
+
+def user_profiles(request):
+    context = {}
+    return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
+
 def _get_window_date(request=None):
     # TODO: this should actually come from the request, but this is hard-coded
     # for testing, 
@@ -411,3 +453,8 @@ def _get_window_date(request=None):
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
+
+def _get_country_sp():
+    return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
+                                   type__code=config.SupplyPointCodes.COUNTRY)
+
