@@ -50,6 +50,15 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
 ]
 
+RAPIDSMS_TABS = [
+    ("logistics_project.apps.malawi.reportviews.dashboard",       "Dashboard", None, "/malawi/r/dashboard"),
+    ("logistics_project.apps.malawi.reportviews.hsas",       "HSAs"),
+    ("logistics_project.apps.malawi.reportviews.user_profiles",       "User Profiles"),    
+    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "auth.admin_read"),
+    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ("logistics_project.apps.malawi.views.help",       "Help"),
+]
+
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
 #
