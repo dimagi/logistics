@@ -6,6 +6,7 @@ from optparse import make_option
 from dimagi.utils.parsing import string_to_datetime
 from warehouse.models import ReportRun
 from django.db import transaction
+from django.db.utils import DatabaseError
 
 class Command(LabelCommand):
     
@@ -46,9 +47,10 @@ class Command(LabelCommand):
                                            start_run=datetime.utcnow())
         try: 
             runner.generate(start_date, end_date)
-        except Exception:
+        except Exception, e:
             # just in case something funky happened in the DB
-            transaction.rollback()
+            if isinstance(e, DatabaseError):
+                transaction.rollback()
             new_run.has_error = True
             raise
         finally:
