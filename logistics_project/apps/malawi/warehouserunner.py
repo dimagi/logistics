@@ -9,14 +9,15 @@ from logistics.const import Reports
 from dimagi.utils.dates import months_between, first_of_next_month
 from datetime import datetime, timedelta
 from logistics_project.apps.malawi.warehouse_models import ReportingRate,\
-    ProductAvailabilityData
+    ProductAvailabilityData, ProductAvailabilityDataSummary
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum, Max
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """
     Malawi's implementation of the warehouse runner. 
     """
+    # debug stuff
     skip_hsas = False
     skip_aggregates = False
     hsa_limit = 0
@@ -98,6 +99,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         # per-month basis. if it is determined that we only
                         # need current information, the models can be cleaned
                         # up a bit
+                        any_stockout = 0
                         for p in Product.objects.all():
                             product_data, created = ProductAvailabilityData.objects.get_or_create\
                                 (product=p, supply_point=hsa, 
@@ -145,14 +147,35 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                 product_data.managed_and_under_stock = product_data.under_stock
                                 product_data.managed_and_over_stock = product_data.over_stock
                                 product_data.managed_and_without_data = product_data.without_data
+                            
                             product_data.save()
-                                                                            
+                            
+                        product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
+                            (supply_point=hsa, 
+                             date=window_date)[0]
+                        product_summary.total = 1
+                        if hsa.commodities_stocked():
+                            product_summary.manages_anything = 1
+                            product_summary.with_any_stockout = \
+                                ProductAvailabilityData.objects.filter\
+                                    (supply_point=hsa, date=window_date, 
+                                     product__in=hsa.commodities_stocked()).aggregate\
+                                        (Max('managed_and_without_stock'))['managed_and_without_stock__max']
+                            assert product_summary.with_any_stockout <= 1
+                        else:
+                            product_summary.manages_anything = 0
+                            product_summary.with_any_stockout = 0
+                        product_summary.save()                            
+                    
                     _update_reporting_rate()
                     _update_product_availability()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
             .exclude(type__code='hsa').order_by('id')
+        # national only
+        # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
+                
         for place in non_hsas:
             print "processing non-hsa %s (%s)" % (place.name, str(place.id))
             relevant_hsas = hsa_supply_points_below(place.location)
@@ -169,7 +192,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                        'managed_and_over_stock', 'managed_and_without_stock', 
                                        'managed_and_without_data'],
                                additonal_query_params={"product": p})
-                
+                _aggregate(ProductAvailabilityDataSummary, window_date, place, 
+                           relevant_hsas, fields=['total', 'manages_anything', 'with_any_stockout'])
+
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
                additonal_query_params={}):
     """

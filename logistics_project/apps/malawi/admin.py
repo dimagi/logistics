@@ -28,7 +28,13 @@ class ProductAvailabilityDataAdmin(admin.ModelAdmin):
                     'without_data')
     list_filter = ('supply_point__type', 'product', 'date', 'supply_point')
 
+class ProductAvailabilityDataSummaryAdmin(admin.ModelAdmin):
+    model = ProductAvailabilityDataSummary
+    list_display = ('supply_point', 'date', 'total', 'manages_anything', 'with_any_stockout')
+    list_filter = ('supply_point__type', 'date', 'supply_point')
+
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
+admin.site.register(ProductAvailabilityDataSummary, ProductAvailabilityDataSummaryAdmin)
 admin.site.register(ReportingRate, ReportingRateAdmin)
 admin.site.register(TimeTracker)
 admin.site.register(OrderRequest)

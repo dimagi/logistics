@@ -1,5 +1,4 @@
 from django.db import models
-from logistics.models import Product
 from logistics.warehouse_models import ReportingModel
 
 
@@ -9,11 +8,10 @@ class ProductAvailabilityData(ReportingModel):
     as well as anything that needs to compute percent with / without 
     stock, oversupplied, undersupplied, etc.
     """
-    # Sidebar: % with stockout
-    # Dashboard: % with stockout, current stock status
+    # Dashboard: current stock status
     # Resupply Qts: % with stockout
     # Stock status: all
-    product = models.ForeignKey(Product)
+    product = models.ForeignKey('logistics.Product')
     total = models.PositiveIntegerField(default=0)
     managed = models.PositiveIntegerField(default=0)
     with_stock = models.PositiveIntegerField(default=0)
@@ -29,7 +27,18 @@ class ProductAvailabilityData(ReportingModel):
     managed_and_without_stock = models.PositiveIntegerField(default=0)
     managed_and_without_data = models.PositiveIntegerField(default=0)
     
-
+class ProductAvailabilityDataSummary(ReportingModel):
+    """
+    Aggregates the product availability up to the supply point level,
+    no longer dealing with individual products, but just whether anything
+    is managed and anything manaegd is stocked out.
+    """
+    # Sidebar: % with stockout
+    # Dashboard: % with stockout
+    total = models.PositiveIntegerField(default=0)
+    manages_anything = models.PositiveIntegerField(default=0)
+    with_any_stockout = models.PositiveIntegerField(default=0)
+    
 class ReportingRate(ReportingModel):
     """
     Records information used to calculate the reporting rates
@@ -58,7 +67,7 @@ class OrderRequest(ReportingModel):
     orders for a particular month.
     """
     # Emergency Orders: all
-    product = models.ForeignKey(Product)
+    product = models.ForeignKey('logistics.Product')
     total = models.PositiveIntegerField(default=0)
     emergency = models.PositiveIntegerField(default=0)
     
@@ -69,7 +78,7 @@ class OrderFulfillment(ReportingModel):
     the amount received so we can determine order fill rates.
     """
     # Order Fill Rates: all 
-    product = models.ForeignKey(Product)
+    product = models.ForeignKey('logistics.Product')
     total = models.PositiveIntegerField(default=0)
     quantity_requested = models.PositiveIntegerField(default=0)
     quantity_received = models.PositiveIntegerField(default=0)
