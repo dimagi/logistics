@@ -13,10 +13,11 @@ register = template.Library()
 
 class Tab(object):
     
-    def __init__(self, view, caption=None, permission=None):
+    def __init__(self, view, caption=None, permission=None, url=None):
         self._caption = caption
         self._view = view
         self._permission = permission
+        self._url = url
     
     def _auto_caption(self):
         func_name = self._view.split('.')[-1]       # my_view
@@ -31,7 +32,10 @@ class Tab(object):
         will silently ignore the exception, and return the value of the
         TEMPLATE_STRING_IF_INVALID setting.
         """
-        return reverse(self._view)
+        try:
+            return self._url or reverse(self._view)
+        except:
+            return settings.TEMPLATE_STRING_IF_INVALID
 
     @property
     def caption(self):
