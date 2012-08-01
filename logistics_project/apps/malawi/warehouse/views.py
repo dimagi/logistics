@@ -107,15 +107,16 @@ def shared_context(request):
     
     current_rr = ReportingRate.objects.get\
         (date=date, supply_point=country)
-    return { "settings": settings,
-             "report_list": stub_reports,
-             "location": request.location or country.location,
-             "districts": get_districts(),
-             "facilities": get_facilities(),
-             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
-             "reporting_rate": current_rr.pct_reported,
-             "products": products,
-             "product_stockout_pcts": stockout_pcts,
+    return { 
+        "settings": settings,
+        "report_list": stub_reports,
+        "location": request.location or country.location,
+        "districts": get_districts(),
+        "facilities": get_facilities(),
+        "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
+        "reporting_rate": current_rr.pct_reported,
+        "products": products,
+        "product_stockout_pcts": stockout_pcts,
     }
 
 def timechart(labels):
