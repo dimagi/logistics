@@ -3,8 +3,8 @@
 
 from django.conf.urls.defaults import *
 
-reportpatters = patterns('logistics_project.apps.malawi.warehouse.views', 
-    url(r'^r/home/$', 'home', name='reports_home'),
+reportpatterns = patterns('logistics_project.apps.malawi.warehouse.views', 
+    url(r'^r/home/$', 'home', name='malawi_dashboard'),
     url(r'^r/hsas/$', 'hsas', name='hsas'),
     url(r'^r/user-profiles/$', 'user_profiles', name='user_profiles'),    
     url(r'^r/(?P<slug>[\w\s-]+)/$','get_report', name=''),
@@ -13,7 +13,7 @@ urlpatterns = patterns('',
 
     url(r'^dashboard/$',
         "logistics_project.apps.malawi.views.dashboard",
-        name="malawi_dashboard"),
+        name="malawi_dashboard_OLD"),
     url(r'^places/$',
         "logistics_project.apps.malawi.views.places",
         name="malawi_places"),
@@ -81,7 +81,7 @@ urlpatterns = patterns('',
         "logistics_project.apps.malawi.views.telco_tracking",
         name="malawi_telco_tracking"),
     
-) + reportpatters
+) + reportpatterns
 
 url(r'^sms-tracking/$',
         "logistics_project.apps.malawi.views.sms_tracking",

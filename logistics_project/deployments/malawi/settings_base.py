@@ -51,9 +51,9 @@ RAPIDSMS_TABS = [
 ]
 
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.malawi.reportviews.dashboard",       "Dashboard", None, "/malawi/r/dashboard"),
-    ("logistics_project.apps.malawi.reportviews.hsas",       "HSAs"),
-    ("logistics_project.apps.malawi.reportviews.user_profiles",       "User Profiles"),    
+    ("logistics_project.apps.malawi.warehouse.views.dashboard",       "Dashboard", None, "/malawi/r/dashboard"),
+    ("logistics_project.apps.malawi.warehouse.views.hsas",       "HSAs"),
+    ("logistics_project.apps.malawi.warehouse.views.user_profiles",       "User Profiles"),    
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "auth.admin_read"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
     ("logistics_project.apps.malawi.views.help",       "Help"),

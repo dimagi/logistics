@@ -1,6 +1,7 @@
 '''
 New views for the upgraded reports of the system.
 '''
+import json
 from random import random
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -22,8 +23,8 @@ from logistics_project.apps.malawi.util import get_facilities, get_districts,\
     get_country_sp
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ProductAvailabilityDataSummary, ReportingRate
-import json
+    ProductAvailabilityDataSummary, ReportingRate, OrderRequest
+
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -51,13 +52,13 @@ def get_report(request, slug=''):
     context.update({"report_list": stub_reports,
                     "slug": slug})
     
-    context.update(get_more_context(slug))
+    context.update(get_more_context(request, slug))
 
     return render_to_response("malawi/new/%s.html" % slug, 
                               context,
                               context_instance=RequestContext(request))
 
-def get_more_context(slug):
+def get_more_context(request, slug=None):
     func_map = {
         'dashboard': dashboard_context,
         'emergency-orders': eo_context,
@@ -70,7 +71,7 @@ def get_more_context(slug):
         'reporting-rate': rr_context,
     }
     if slug in func_map:
-        return func_map[slug]()
+        return func_map[slug](request)
     else:
         return {}
 
@@ -144,7 +145,7 @@ def lt_context():
             "month_table": month_table,
             "lt_table": lt_table}
 
-def dashboard_context():
+def dashboard_context(request):
     window_date = _get_window_date()
     
     # reporting rates + stockout summary
@@ -160,7 +161,7 @@ def dashboard_context():
                            "reporting_rate": reporting_rate}
     
     # report chart
-    start_date = window_date - timedelta(days=61) # FIX
+    start_date = window_date - timedelta(days=30) # FIX
     report_chart = {
         "legenddiv": "summary-legend-div",
         "div": "summary-chart-div",
@@ -196,7 +197,19 @@ def dashboard_context():
             "graphdata": report_chart,
             "pa_width": 530 if settings.STYLE=='both' else 730 }
 
-def eo_context():
+def eo_context(request):
+    sp_code = request.GET.get('place') or get_country_sp().code
+    start = request.GET.get('from') or 'June 2012'
+    end = request.GET.get('to') or 'July 2012'
+    start_date = datetime.strptime(start, '%B %Y')
+    end_date = datetime.strptime(end, '%B %Y')
+    oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=(start_date,end_date))
+    eo_map = {}
+    eos = 0
+    total = 0
+    for oreq in oreqs:
+        eo_map[oreq.product] = (eos + oreq.emergency , total + oreq.total)
+
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -212,12 +225,12 @@ def eo_context():
     }
     
     count = 0
-    for product in Product.objects.all().order_by('sms_code')[0:10]:
+    for eo in eo_map.keys():
         count += 1
-        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        summary['xlabels'] = summary['product_codes']
-    
-    summary['data'] = barseries(['a','b','c'], 10)
+        summary['product_codes'].append([count, '<span>%s</span>' % (str(eo.code.lower()))])
+
+    summary['xlabels'] = summary['product_codes']
+    summary['data'] = barseries(['emergency','total','c'], 10)
 
     table = {
         "title": "%HSA with Emergency Order by Product",
@@ -243,7 +256,7 @@ def eo_context():
     return ret_obj
 
 
-def ofr_context():
+def ofr_context(request):
     ret_obj = {}
 
     table1 = {
@@ -276,7 +289,7 @@ def ofr_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def rsqr_context():
+def rsqr_context(request):
     ret_obj = {}
 
     table = {
@@ -289,7 +302,7 @@ def rsqr_context():
     ret_obj['table'] = table
     return ret_obj
 
-def as_context():
+def as_context(request):
     ret_obj = {}
 
     table = {
@@ -302,7 +315,7 @@ def as_context():
     ret_obj['table'] = table
     return ret_obj
 
-def cp_context():
+def cp_context(request):
     ret_obj = {}
 
     table1 = {
@@ -335,7 +348,7 @@ def cp_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def ss_context():
+def ss_context(request):
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -389,7 +402,7 @@ def ss_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def rr_context():
+def rr_context(request):
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -450,7 +463,7 @@ def user_profiles(request):
 def _get_window_date(request=None):
     # TODO: this should actually come from the request, but this is hard-coded
     # for testing, 
-    return datetime(2012, 6, 1) # temp for testing
+    return datetime(2012, 7, 1) # temp for testing
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
