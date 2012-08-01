@@ -32,6 +32,11 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     managed_and_without_stock = models.PositiveIntegerField(default=0)
     managed_and_without_data = models.PositiveIntegerField(default=0)
     
+    @property
+    def managed_and_with_good_stock(self):
+        return self.managed_and_with_stock - self.managed_and_over_stock \
+            - self.managed_and_under_stock
+    
 class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     """
     Aggregates the product availability up to the supply point level,
@@ -43,7 +48,10 @@ class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     total = models.PositiveIntegerField(default=0)
     manages_anything = models.PositiveIntegerField(default=0)
     with_any_stockout = models.PositiveIntegerField(default=0)
-    
+
+def _fmt_pct(num, denom):
+    return "%.2f%%" % (float(num) / (float(denom) or 1) * 100)    
+
 class ReportingRate(MalawiWarehouseModel):
     """
     Records information used to calculate the reporting rates
@@ -54,7 +62,32 @@ class ReportingRate(MalawiWarehouseModel):
     reported = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
     complete = models.PositiveIntegerField(default=0)
-
+    
+    @property
+    def late(self): 
+        return self.reported - self.on_time
+    
+    @property
+    def missing(self): 
+        return self.total - self.reported
+    
+    # report helpers
+    @property
+    def pct_reported(self): return _fmt_pct(self.reported, self.total)
+    
+    @property
+    def pct_on_time(self):  return _fmt_pct(self.on_time, self.total)
+    
+    @property
+    def pct_late(self):     return _fmt_pct(self.late, self.total)
+    
+    @property
+    def pct_missing(self):  return _fmt_pct(self.missing, self.total)
+    
+    @property
+    def pct_complete(self): return _fmt_pct(self.complete, self.total)
+        
+            
 class TimeTracker(MalawiWarehouseModel):
     """
     For keeping track of a time between two events. Currently used for 

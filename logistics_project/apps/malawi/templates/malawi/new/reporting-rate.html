@@ -9,21 +9,22 @@
 </div>
 
 <div class="module">
-{% with table1 as table %}
+{% with month_table as table %}
 {% include "malawi/new/partials/generic-table.html" %}
 {% endwith %}
 </div>
 
 <div class="module">
-{% with table2 as table %}
+{% with district_table as table %}
 {% include "malawi/new/partials/generic-table.html" %}
 {% endwith %}
 </div>
 
+{% if facility_table %}
 <div class="module">
-{% with table3 as table %}
+{% with facility_table as table %}
 {% include "malawi/new/partials/generic-table.html" %}
 {% endwith %}
 </div>
-
+{% endif %}
 {% endblock %}
