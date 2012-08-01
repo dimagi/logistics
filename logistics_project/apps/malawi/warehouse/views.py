@@ -3,6 +3,8 @@ New views for the upgraded reports of the system.
 '''
 from random import random
 from datetime import datetime, timedelta
+from collections import defaultdict
+from copy import deepcopy
 
 from django.conf import settings
 from django.template.context import RequestContext
@@ -20,7 +22,7 @@ from logistics_project.apps.malawi.util import get_facilities, get_districts,\
     get_country_sp, get_district_supply_points, facility_supply_points_below
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ProductAvailabilityDataSummary, ReportingRate, OrderRequest
+    ProductAvailabilityDataSummary, ReportingRate, OrderRequest, OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period
 
@@ -117,10 +119,12 @@ def shared_context(request):
         "reporting_rate": current_rr.pct_reported,
         "products": products,
         "product_stockout_pcts": stockout_pcts,
+        "nav_mode": "direct-param",
     }
 
 def timechart(labels):
     summary = {
+        "number": 3,
         "xlabels": [],
         "legenddiv": "legend-div",
         "div": "chart-div",
@@ -175,30 +179,40 @@ def eo_context(request):
     window_range = _get_window_range(request)
 
     oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=window_range)
-    eo_map = SortedDict()
-    eos = 0
-    total = 0
+    prd_map = SortedDict()
+    type_map = SortedDict()
+    for product in Product.objects.all():
+        prd_map[product] = {}
+        type_map[product.type] = {}
+
     max_val = 0
     for oreq in oreqs:
-        total += oreq.total
-        eos += oreq.emergency
-        eo_map[oreq.product] = {}
-        eo_map[oreq.product]['emergency'] = eos
-        eo_map[oreq.product]['total'] = total
-        if total > max_val:
-            max_val = total
+        prd_map[oreq.product]['emergency'] = _add_to_dict(prd_map[oreq.product], 'emergency', oreq.emergency)
+        prd_map[oreq.product]['total'] = _add_to_dict(prd_map[oreq.product], 'total', oreq.total)
+        prd_map[oreq.product]['pct'] = _pct(prd_map[oreq.product]['emergency'],prd_map[oreq.product]['total'])
+        type_map[oreq.product.type]['emergency'] = _add_to_dict(prd_map[oreq.product.type], 'emergency', oreq.emergency)
+        type_map[oreq.product.type]['total'] = _add_to_dict(prd_map[oreq.product.type], 'total', oreq.total)
+        type_map[oreq.product.type]['pct'] = _pct(prd_map[oreq.product.type]['emergency'],prd_map[oreq.product.type]['total'])
+        max_val = 100
 
     # fake test data delete this ######
-    eo_map = SortedDict()
+    prd_map = SortedDict()
+    type_map = SortedDict()
     for product in Product.objects.all():
-        eo_map[product] = {}
-        eo_map[product]['emergency'] = random()*50
-        eo_map[product]['total'] = eo_map[product]['emergency']*(random()+1)
-        eo_map[product]['pct'] = _pct(eo_map[product]['emergency'], eo_map[product]['total'])
+        prd_map[product] = {}
+        prd_map[product]['emergency'] = random()*50
+        prd_map[product]['total'] = prd_map[product]['emergency']*(random()+1)
+        prd_map[product]['pct'] = _pct(prd_map[product]['emergency'], prd_map[product]['total'])
+        type_map[product.type] = {}
+        type_map[product.type]['emergency'] = random()*50
+        type_map[product.type]['total'] = type_map[product.type]['emergency']*(random()+1)
+        type_map[product.type]['pct'] = _pct(type_map[product.type]['emergency'], type_map[product.type]['total'])
         max_val = 100
     # end test data ####### 
 
-    ret_obj = {}
+    # prd_map = _remove_zeros_from_dict(prd_map, 'total')[0]
+    # type_map = _remove_zeros_from_dict(type_map, 'total')[0]
+
     summary = {
         "number": 0,
         "xlabels": [],
@@ -222,10 +236,11 @@ def eo_context(request):
         data_map = {}
         data_map[label] = []
         
-        for eo in eo_map.keys():
+        for eo in prd_map.keys():
             count += 1
             product_codes.append([count, '<span>%s</span>' % (str(eo.code.lower()))])
-            data_map[label].append([count, eo_map[eo][label]])
+            if prd_map[eo].has_key(label):
+                data_map[label].append([count, prd_map[eo][label]])
         
         summary['data'].append({"label": label, "data": data_map[label]})
 
@@ -233,9 +248,9 @@ def eo_context(request):
 
     table = {
         "title": "%HSA with Emergency Order by Product",
-        "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-        "data": [['cc', 35, 41, 53, 34], ['dt', 26, 26, 44, 21], ['sr', 84, 24, 54, 36]],
         "cell_width": "135px",
+        "header": ["Product"],
+        "data": []
     }
 
     line_chart = {
@@ -243,20 +258,61 @@ def eo_context(request):
         "width": "100%", # "300px",
         "series": [],
     }
-    for j in ['LA 1x6', 'LA 2x6']:
-        temp = []
-        for i in range(0,5):
-            temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
-    ret_obj['summary'] = summary
-    ret_obj['table'] = table
-    ret_obj['line'] = line_chart
-    return ret_obj
+    line_data = []
+    for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+        table["header"].append(datetime(year,month,1).strftime("%b-%Y"))
+        for eo in prd_map.keys():
+            table["data"].append([eo.sms_code, prd_map[eo]['pct']])
+        for type in type_map.keys():
+            line_data.append([datetime(year, month, 1).strftime("%b-%Y"), type_map[type]['pct']])
+
+    for type in type_map.keys():
+        line_chart["series"].append({"title": type.name, "data": line_data})
+
+    return {
+            'summary': summary,
+            'table': table,
+            'line': line_chart
+            }
 
 
 def ofr_context(request):
-    ret_obj = {}
+    sp_code = request.GET.get('place') or get_country_sp().code
+    window_range = _get_window_range(request)
+
+    order_data = OrderFulfillment.objects.filter(supply_point__code=sp_code, date__range=window_range)
+
+    line_chart = {
+        "height": "350px",
+        "width": "100%", # "300px",
+        "series": [],
+    }
+
+    prd_map = SortedDict()
+    type_map = SortedDict()
+    for product in Product.objects.all():
+        prd_map[product] = {}
+        type_map[product.type] = {}
+
+    for oreq in order_data:
+        prd_map[oreq.product]['requested'] = _add_to_dict(prd_map[oreq.product], 'requested', oreq.quantity_requested)
+        prd_map[oreq.product]['received'] = _add_to_dict(prd_map[oreq.product], 'received', oreq.quantity_received)
+        prd_map[oreq.product]['pct'] = _pct(prd_map[oreq.product]['requested'],prd_map[oreq.product]['received'])
+        type_map[oreq.product.type]['requested'] = _add_to_dict(prd_map[oreq.product.type], 'requested', oreq.quantity_requested)
+        type_map[oreq.product.type]['received'] = _add_to_dict(prd_map[oreq.product.type], 'received', oreq.quantity_received)
+        type_map[oreq.product.type]['pct'] = _pct(prd_map[oreq.product.type]['received'],prd_map[oreq.product.type]['requested'])
+
+    for label in ['requested', 'received']:
+        pass        
+
+    for type in type_map.keys():
+        if type_map[type].has_key('pct'):
+            val = type_map[type]['pct']
+        else:
+            val = 0
+        line_chart["series"].append({"title": type, "data": [type.id, val]})
+
 
     table1 = {
         "title": "Monthly Average OFR by Product (%)",
@@ -272,21 +328,12 @@ def ofr_context(request):
         "cell_width": "135px",
     }
 
-    line_chart = {
-        "height": "350px",
-        "width": "100%", # "300px",
-        "series": [],
-    }
-    for j in ['LA 1x6', 'LA 2x6']:
-        temp = []
-        for i in range(0,5):
-            temp.append([random(),random()])
-        line_chart["series"].append({"title": j, "data": sorted(temp)})
 
-    ret_obj['table1'] = table1
-    ret_obj['table2'] = table2
-    ret_obj['line'] = line_chart
-    return ret_obj
+    return {
+            'table1': table1,
+            'table2': table2,
+            'line': line_chart
+            }
 
 def rsqr_context(request):
     ret_obj = {}
@@ -502,7 +549,6 @@ def _get_window_date(request):
     return date
 
 def _get_window_range(request):
-    # the window date is assumed to be the end date
     date1 = request.datespan.startdate
     if not request.GET.get('from'):
         date1 = datetime(date1.year, (date1.month%12 - 2)%12 , 1)
@@ -510,6 +556,25 @@ def _get_window_range(request):
     assert date1.day == 1
     assert date2.day == 1
     return (date1, date2)
+
+def _add_to_dict(dictionary, key, val):
+    if dictionary.has_key(key):
+        dictionary += val
+    else:
+        dictionary = val
+    return dictionary
+
+def _remove_zeros_from_dict(dicti, key_val):
+    dictionary = deepcopy(dicti)
+    if dictionary.has_key(key_val):
+        if dictionary[key_val] == 0 or not dictionary[key_val]:
+            dictionary.pop(key_val)
+            return dictionary, True
+    for key in dictionary.keys():
+        if isinstance(dictionary[key], dict):
+            if _remove_zeros_from_dict(dictionary[key], key_val)[1]:
+                dictionary.pop(key)
+    return dictionary, False
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
