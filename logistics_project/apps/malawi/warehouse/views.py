@@ -3,6 +3,7 @@ New views for the upgraded reports of the system.
 '''
 from random import random
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from django.conf import settings
 from django.template.context import RequestContext
@@ -17,7 +18,8 @@ from logistics.models import Product, SupplyPoint
 from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp, get_district_supply_points, facility_supply_points_below
+    get_country_sp, get_district_supply_points, facility_supply_points_below,\
+    pct, fmt_pct
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate, OrderRequest
@@ -101,8 +103,8 @@ def shared_context(request):
         availability = ProductAvailabilityData.objects.get(supply_point=country,
                                                            date=date,
                                                            product=p)
-        stockout_pcts[p] = _pct(availability.managed_and_without_stock,
-                                availability.managed)
+        stockout_pcts[p] = pct(availability.managed_and_without_stock,
+                               availability.managed)
     
     
     current_rr = ReportingRate.objects.get\
@@ -132,7 +134,6 @@ def timechart(labels):
         "xaxistitle": "month",
         "yaxistitle": "rate"
     }
-    count = 0
     summary['xlabels'] = _month_labels(datetime.now() - timedelta(days=61), datetime.now())
     summary['data'] = barseries(labels, len(summary['xlabels']))
     return summary
@@ -156,10 +157,10 @@ def dashboard_context(request):
     summary_data = SortedDict()
     for d in districts:
         avail_sum = ProductAvailabilityDataSummary.objects.get(supply_point=d, date=window_date)
-        stockout_pct = _pct(avail_sum.with_any_stockout,
+        stockout_pct = pct(avail_sum.with_any_stockout,
                              avail_sum.manages_anything) 
         rr = ReportingRate.objects.get(supply_point=d, date=window_date)
-        reporting_rate = _pct(rr.reported, rr.total)
+        reporting_rate = pct(rr.reported, rr.total)
         summary_data[d] = {"stockout_pct": stockout_pct,
                            "reporting_rate": reporting_rate}
     
@@ -194,7 +195,7 @@ def eo_context(request):
         eo_map[product] = {}
         eo_map[product]['emergency'] = random()*50
         eo_map[product]['total'] = eo_map[product]['emergency']*(random()+1)
-        eo_map[product]['pct'] = _pct(eo_map[product]['emergency'], eo_map[product]['total'])
+        eo_map[product]['pct'] = pct(eo_map[product]['emergency'], eo_map[product]['total'])
         max_val = 100
     # end test data ####### 
 
@@ -429,7 +430,8 @@ def rr_context(request):
     sp = SupplyPoint.objects.get(location=request.location) \
         if request.location else get_country_sp()
     months = SortedDict()
-    for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+    for year, month in months_between(request.datespan.startdate, 
+                                      request.datespan.enddate):
         dt = datetime(year, month, 1)
         months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt)
     
@@ -442,34 +444,44 @@ def rr_context(request):
         "data": month_data,
     }
 
-    # district breakdown
-    d_rr_pairs = [[d, ReportingRate.objects.get(supply_point=d, 
-                                                date=request.datespan.enddate)] \
-                  for d in get_district_supply_points().order_by('name')]
-                                                
-    district_data = [[d.name] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
-                     for d, rr in d_rr_pairs]
+    def _avg_report_rate_table_data(queryset, startdate, enddate):
+        datamap = SortedDict()
+        for sp in queryset:
+            spdata = defaultdict(lambda: 0)
+            for year, month in months_between(startdate, 
+                                              enddate):
+                rr = ReportingRate.objects.get(supply_point=sp,
+                                               date=datetime(year, month, 1))
+                spdata['total'] += rr.total
+                for k in shared_slugs:
+                    spdata[k] += getattr(rr, k)
+            datamap[sp] = spdata
+                    
+        return [[sp.name] + [fmt_pct(data[k], data['total']) for k in shared_slugs] \
+                for sp, data in datamap.items()]
     
+    # district breakdown
+        
     ret_obj['district_table'] = {
         "title": "Average Reporting Rate (Districts)",
         "header": ["Districts"] + shared_headers,
-        "data": district_data,
+        "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
+                                            request.datespan.startdate,
+                                            request.datespan.enddate)
     }
     
+    # facility breakdown
     if sp.type.code == config.SupplyPointCodes.DISTRICT:
-        f_rr_pairs = [[f, ReportingRate.objects.get(supply_point=f, 
-                                                    date=request.datespan.enddate)] \
-                      for f in facility_supply_points_below(sp.location).order_by('name')]
-                                                    
-        print f_rr_pairs
-        fac_data = [[f.name] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
-                         for f, rr in f_rr_pairs]
-        
         ret_obj['facility_table'] = {
             "title": "Average Reporting Rate (Facilities)",
             "header": ["Facilities"] + shared_headers,
-            "data": fac_data,
+            "data": _avg_report_rate_table_data\
+                (facility_supply_points_below(sp.location).order_by('name'),
+                 request.datespan.startdate,
+                 request.datespan.enddate)
         }
+    
+    # chart
     ret_obj['graphdata'] = get_reporting_rates_chart(request.location, 
                                                      request.datespan.startdate, 
                                                      request.datespan.enddate)
@@ -498,7 +510,4 @@ def _get_window_range(request):
     assert date1.day == 1
     assert date2.day == 1
     return (date1, date2)
-
-def _pct(num, denom):
-    return float(num) / (float(denom) or 1) * 100
 
