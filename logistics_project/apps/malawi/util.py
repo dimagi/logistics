@@ -4,6 +4,7 @@ from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
 from django.db.models.query_utils import Q
+from django.conf import settings
 
 def format_id(code, id):
     try:
@@ -111,6 +112,10 @@ def facility_supply_points_below(location):
 
 def get_facility_supply_points():
     return SupplyPoint.objects.filter(active=True, type='hf')
+
+def get_country_sp():
+    return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
+                                   type__code=config.SupplyPointCodes.COUNTRY)
 
 class ConsumptionData(object):
     def __init__(self, product, sps):

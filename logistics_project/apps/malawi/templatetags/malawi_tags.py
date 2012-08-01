@@ -3,7 +3,7 @@ from logistics.util import config
 from django.core.urlresolvers import reverse
 from apps.malawi.util import hsas_below
 from logistics.reports import ProductAvailabilitySummary
-from logistics.templatetags.logistics_report_tags import _r_2_s_helper
+from logistics.templatetags.logistics_report_tags import r_2_s_helper
 
 register = template.Library()
 
@@ -40,6 +40,6 @@ def product_availability_summary(location):
     
     hsas = hsas_below(location)
     summary = ProductAvailabilitySummary(hsas)
-    return _r_2_s_helper("logistics/partials/product_availability_summary.html", 
+    return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 

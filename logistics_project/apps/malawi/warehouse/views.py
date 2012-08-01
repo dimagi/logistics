@@ -18,7 +18,8 @@ from rapidsms.contrib.locations.models import Location
 from logistics.models import Product, SupplyPoint
 from logistics.decorators import place_in_request
 
-from logistics_project.apps.malawi.util import get_facilities, get_districts
+from logistics_project.apps.malawi.util import get_facilities, get_districts,\
+    get_country_sp
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate
@@ -76,7 +77,7 @@ def get_more_context(slug):
 
 def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
-    country = _get_country_sp()
+    country = get_country_sp()
     window_date = _get_window_date(request)
     
     # national stockout percentages by product
@@ -170,7 +171,7 @@ def dashboard_context():
     }
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
     dates = []
-    country = _get_country_sp()
+    country = get_country_sp()
     for year, month in months_between(start_date, window_date):
         dt = datetime(year, month, 1)
         dates.append(dt)
@@ -453,8 +454,4 @@ def _get_window_date(request=None):
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
-
-def _get_country_sp():
-    return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
-                                   type__code=config.SupplyPointCodes.COUNTRY)
 
