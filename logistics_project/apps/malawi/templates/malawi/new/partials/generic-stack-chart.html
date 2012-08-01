@@ -7,9 +7,9 @@ $(document).ready(function() {
          bars: { show: true, barWidth: 0.75, align: 'center' }
        },
        xaxis: { 
-               ticks: {{ summary.xlabels }}
+               ticks: {{ summary.xlabels|safe }}
               }, 
-       legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: 3},
+       legend: { show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.number }} },
        yaxis: {max: {{ summary.max_value }},
                tickDecimals: 0 },
        grid: {show: true,
@@ -18,7 +18,7 @@ $(document).ready(function() {
               hoverable: false,
               autoHighlight:false}
     };
-    $.plot($("#{{ summary.div }}"), {{ summary.data }}, bar_options);    
+    $.plot($("#{{ summary.div }}"), {{ summary.data|safe }}, bar_options);    
 });
 </script>
 <div id="{{ summary.legenddiv }}" style="width:100%"></div>

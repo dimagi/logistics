@@ -148,22 +148,6 @@ def _month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
     
-def lt_context(request):
-    month_table = {
-        "title": "",
-        "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-        "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
-    }
-
-    lt_table = {
-        "title": "Average Lead Times by Facility",
-        "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-        "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
-    }    
-    return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
-            "month_table": month_table,
-            "lt_table": lt_table}
-
 def dashboard_context(request):
     window_date = _get_window_date(request)
 
@@ -191,33 +175,61 @@ def eo_context(request):
     window_range = _get_window_range(request)
 
     oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=window_range)
-    eo_map = {}
+    eo_map = SortedDict()
     eos = 0
     total = 0
+    max_val = 0
     for oreq in oreqs:
-        eo_map[oreq.product] = (eos + oreq.emergency , total + oreq.total)
+        total += oreq.total
+        eos += oreq.emergency
+        eo_map[oreq.product] = {}
+        eo_map[oreq.product]['emergency'] = eos
+        eo_map[oreq.product]['total'] = total
+        if total > max_val:
+            max_val = total
+
+    # fake test data delete this ######
+    eo_map = SortedDict()
+    for product in Product.objects.all():
+        eo_map[product] = {}
+        eo_map[product]['emergency'] = random()*50
+        eo_map[product]['total'] = eo_map[product]['emergency']*(random()+1)
+        eo_map[product]['pct'] = _pct(eo_map[product]['emergency'], eo_map[product]['total'])
+        max_val = 100
+    # end test data ####### 
 
     ret_obj = {}
     summary = {
-        "product_codes": [],
+        "number": 0,
         "xlabels": [],
         "legenddiv": "legend-div",
         "div": "chart-div",
-        "max_value": 3,
+        "max_value": max_val,
         "width": "100%",
         "height": "200px",
         "data": [],
-        "xaxistitle": "products",
-        "yaxistitle": "amount"
+        "xaxistitle": "Products",
+        "yaxistitle": "Orders"
     }
     
-    count = 0
-    for eo in eo_map.keys():
-        count += 1
-        summary['product_codes'].append([count, '<span>%s</span>' % (str(eo.code.lower()))])
+    # for label in ['pct']:
+    for label in ['emergency', 'total']:
+        summary["number"] += 1
 
-    summary['xlabels'] = summary['product_codes']
-    summary['data'] = barseries(['emergency','total','c'], 10)
+        product_codes = []
+        count = 0
+
+        data_map = {}
+        data_map[label] = []
+        
+        for eo in eo_map.keys():
+            count += 1
+            product_codes.append([count, '<span>%s</span>' % (str(eo.code.lower()))])
+            data_map[label].append([count, eo_map[eo][label]])
+        
+        summary['data'].append({"label": label, "data": data_map[label]})
+
+    summary['xlabels'] = product_codes
 
     table = {
         "title": "%HSA with Emergency Order by Product",
@@ -338,7 +350,7 @@ def cp_context(request):
 def ss_context(request):
     ret_obj = {}
     summary = {
-        "product_codes": [],
+        "number": 3,
         "xlabels": [],
         "legenddiv": "legend-div",
         "div": "chart-div",
@@ -350,11 +362,14 @@ def ss_context(request):
         "yaxistitle": "amount"
     }
     
+    product_codes = []
+
     count = 0
     for product in Product.objects.all().order_by('sms_code')[0:10]:
         count += 1
-        summary['product_codes'].append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        summary['xlabels'] = summary['product_codes']
+        product_codes.append([count, '<span>%s</span>' % (str(product.code.lower()))])
+        
+    summary['xlabels'] = product_codes
     
     summary['data'] = barseries(['Stocked Out','Under Stock','Adequate'], 10)
 
@@ -388,6 +403,22 @@ def ss_context(request):
     ret_obj['table2'] = table2
     ret_obj['line'] = line_chart
     return ret_obj
+
+def lt_context(request):
+    month_table = {
+        "title": "",
+        "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+        "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
+    }
+
+    lt_table = {
+        "title": "Average Lead Times by Facility",
+        "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+        "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
+    }    
+    return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
+            "month_table": month_table,
+            "lt_table": lt_table}
 
 def rr_context(request):
     ret_obj = {}
