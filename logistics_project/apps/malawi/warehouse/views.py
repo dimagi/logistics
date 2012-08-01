@@ -24,7 +24,8 @@ from logistics_project.apps.malawi.util import get_facilities, get_districts,\
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate, OrderRequest
-
+import json
+from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -165,40 +166,10 @@ def dashboard_context(request):
                            "reporting_rate": reporting_rate}
     
     # report chart
-    start_date = request.datespan.startdate
-    report_chart = {
-        "legenddiv": "summary-legend-div",
-        "div": "summary-chart-div",
-        "max_value": 100,
-        "width": "100%",
-        "height": "200px",
-        "xaxistitle": "month",
-    }
-    data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-    dates = []
-    country = get_country_sp()
-    for year, month in months_between(start_date, window_date):
-        dt = datetime(year, month, 1)
-        dates.append(dt)
-        rr = ReportingRate.objects.get(supply_point=country, date=dt)
-        data["on time"][dt] = _pct(rr.on_time, rr.total)
-        data["late"][dt] = _pct(rr.reported - rr.on_time, rr.total)
-        data["missing"][dt] = _pct(rr.total - rr.reported, rr.total)
-        data["complete"][dt] = _pct(rr.complete, rr.total)
-    
-    ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
-                 'stack': 0} \
-                 for k in ["on time", "late", "missing"]]
-    
-    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
-                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
-                     'yaxis': 2})
-    
-    report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
-    report_chart['data'] = json.dumps(ret_data)
     return {"summary_data": summary_data,
-            "graphdata": report_chart,
+            "graphdata": get_reporting_rates_chart(request.location, 
+                                                   request.datespan.startdate, 
+                                                   window_date),
             "pa_width": 530 if settings.STYLE=='both' else 730 }
 
 def eo_context(request):
@@ -406,26 +377,6 @@ def ss_context(request):
 
 def rr_context(request):
     ret_obj = {}
-    summary = {
-        "product_codes": [],
-        "xlabels": [],
-        "legenddiv": "legend-div",
-        "div": "chart-div",
-        "max_value": 3,
-        "width": "100%",
-        "height": "200px",
-        "data": [],
-        "xaxistitle": "products",
-        "yaxistitle": "amount"
-    }
-    
-    count = 0
-    xlabels = ['Jun', 'July', 'Aug']
-    for xlabel in xlabels:
-        count += 1
-        summary['xlabels'].append([count, '<span>%s</span>' % str(xlabel)])
-    
-    summary['data'] = barseries(['on_time','late','not_reported'], len(xlabels))
 
     table1 = {
         "title": "",
@@ -448,7 +399,9 @@ def rr_context(request):
         "cell_width": "135px",
     }
 
-    ret_obj['summary'] = summary
+    ret_obj['graphdata'] = get_reporting_rates_chart(request.location, 
+                                                     request.datespan.startdate, 
+                                                     request.datespan.enddate)
     ret_obj['table1'] = table1
     ret_obj['table2'] = table2
     ret_obj['table3'] = table3

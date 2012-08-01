@@ -1,8 +1,12 @@
 from logistics.reports import ProductAvailabilitySummary
-from logistics.models import Product
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
+from logistics.models import Product, SupplyPoint
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
+    ReportingRate
 from datetime import datetime
-
+from logistics_project.apps.malawi.util import get_country_sp
+from collections import defaultdict
+from dimagi.utils.dates import months_between
+import json
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     """
@@ -30,4 +34,41 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                          "without_stock": availability_data.managed_and_without_stock,
                          "without_data": availability_data.managed_and_without_data})
         self.data = data
-        
+
+def get_reporting_rates_chart(location, start, end):
+    
+    def _pct(num, denom): return float(num) / (float(denom) or 1) * 100
+
+    report_chart = {
+        "legenddiv": "summary-legend-div",
+        "div": "summary-chart-div",
+        "max_value": 100,
+        "width": "100%",
+        "height": "200px",
+        "xaxistitle": "month",
+    }
+    data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
+    dates = []
+    sp = SupplyPoint.objects.get(location=location) if location else get_country_sp()
+    for year, month in months_between(start, end):
+        dt = datetime(year, month, 1)
+        dates.append(dt)
+        rr = ReportingRate.objects.get(supply_point=sp, date=dt)
+        data["on time"][dt] = _pct(rr.on_time, rr.total)
+        data["late"][dt] = _pct(rr.reported - rr.on_time, rr.total)
+        data["missing"][dt] = _pct(rr.total - rr.reported, rr.total)
+        data["complete"][dt] = _pct(rr.complete, rr.total)
+    
+    ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
+                 'stack': 0} \
+                 for k in ["on time", "late", "missing"]]
+    
+    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
+                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+                     'yaxis': 2})
+    
+    report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
+    report_chart['data'] = json.dumps(ret_data)
+    return report_chart
+    

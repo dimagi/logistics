@@ -1,34 +1,5 @@
 {% extends "malawi/new/base.html" %}
 {% load malawi_warehouse_tags %}
-{% block javascripts %}{{ block.super }}
-<script language="javascript">
-$(document).ready(function() {
-    bar_options = {                     
-       series: {
-         lines: { show: true, steps: false },
-         bars: { show: true, barWidth: 0.75, align: 'center' }
-       },
-       xaxis: { 
-               ticks: {{ graphdata.xlabels|safe }}
-              }, 
-       legend: {show: true, container: $("#{{ graphdata.legenddiv }}"), noColumns: 3},
-       yaxis: { min: 0,
-                max: {{ graphdata.max_value }},
-                tickDecimals: 0 },
-       y2axis: { min: 0,
-                 max: {{ graphdata.max_value }},
-                 show: false },
-       grid: {show: true,
-              tickColor: 'gray',
-              backgroundColor: '#FFFFFF',
-              hoverable: false,
-              autoHighlight:false}
-    };
-    $.plot($("#{{ graphdata.div }}"), {{ graphdata.data|safe }}, bar_options );    
-});
-</script>
-
-{% endblock %}
 {% block report_content %}
 
 {% include "malawi/partials/selector_form.html" %}
@@ -81,10 +52,7 @@ $(document).ready(function() {
 
 <div class="module">
     <h2>Reporting Rates</h2>
-    <div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
-    <p>{{ graphdata.yaxistitle }}</p>
-    <div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
-    <p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>
+    {% include "malawi/new/partials/reporting-rate-chart.html" %}
 </div>
 
 <div class="module">
