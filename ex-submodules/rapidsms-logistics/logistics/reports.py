@@ -28,12 +28,15 @@ class Colors(object):
     LIGHT_GREEN = "#9acc99"
     LIGHT_PURPLE = "#bf7ebe"
     LIGHT_YELLOW = "#fff6cf"
+    LIGHT_GREY = "#dddddd"
     MEDIUM_GREEN = "#7aaa7a"
     MEDIUM_PURPLE = "#a460a4"
     MEDIUM_YELLOW = "#efde7f"
+    MEDIUM_GREY = "#999999"
     DARK_RED = "#a30808"
     WHITE = "#ffffff"
     BLACK = "#000000"
+    
     
 class PieChartData(object):
     
