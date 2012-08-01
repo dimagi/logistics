@@ -8,23 +8,18 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     """
     Product availability summary, coming from the Malawi data warehouse models.
     """
-    def __init__(self, supply_point, width=900, height=300):
+    def __init__(self, supply_point, date, width=900, height=300):
         """
         Override the ProductAvailabilitySummary object to work off 
         the warehouse tables.
         """
         self._width = width
         self._height = height
+        self._date = date
         self._supply_point = supply_point
         
         products = Product.objects.all().order_by('sms_code')
         data = []
-        now = datetime.utcnow()
-        # TODO: this could now be historical if we wanted
-        # TODO: make this use the real date, not the dummy date
-        # date = datetime(now.year, now.month, 1)
-        from logistics_project.apps.malawi.warehouse.views import _get_window_date
-        date = _get_window_date()
         for p in products:
             availability_data = ProductAvailabilityData.objects.get\
                 (supply_point=supply_point, date=date, product=p)

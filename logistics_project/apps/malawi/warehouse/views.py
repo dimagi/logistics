@@ -48,16 +48,12 @@ def home(request):
 @datespan_in_request(format_string='%B %Y')
 def get_report(request, slug=''):
     context = shared_context(request)
-    context.update({"report_list": stub_reports,
-                    "slug": slug})
-    
-    context.update(get_more_context(slug))
-
+    context.update(get_more_context(request, slug))
     return render_to_response("malawi/new/%s.html" % slug, 
                               context,
                               context_instance=RequestContext(request))
 
-def get_more_context(slug):
+def get_more_context(request, slug):
     func_map = {
         'dashboard': dashboard_context,
         'emergency-orders': eo_context,
@@ -69,11 +65,9 @@ def get_more_context(slug):
         'lead-times': lt_context,
         'reporting-rate': rr_context,
     }
-    if slug in func_map:
-        return func_map[slug]()
-    else:
-        return {}
-
+    context = func_map[slug](request) if slug in func_map else {}
+    context["slug"] = slug
+    return context 
 
 def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
@@ -90,13 +84,14 @@ def shared_context(request):
                                 availability.managed)
     
     return { "settings": settings,
-             "location": None,
+             "report_list": stub_reports,
+             "location": request.location or get_country_sp(),
              "districts": get_districts(),
              "facilities": get_facilities(),
              "hsas": 643,
              "reporting_rate": "93.3",
              "products": products,
-             "product_stockout_pcts": stockout_pcts
+             "product_stockout_pcts": stockout_pcts,
     }
 
 def timechart(labels):
@@ -128,7 +123,7 @@ def _month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
     
-def lt_context():
+def lt_context(request):
     month_table = {
         "title": "",
         "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
@@ -144,8 +139,8 @@ def lt_context():
             "month_table": month_table,
             "lt_table": lt_table}
 
-def dashboard_context():
-    window_date = _get_window_date()
+def dashboard_context(request):
+    window_date = _get_window_date(request)
     
     # reporting rates + stockout summary
     districts = get_districts().order_by('name')
@@ -160,7 +155,7 @@ def dashboard_context():
                            "reporting_rate": reporting_rate}
     
     # report chart
-    start_date = window_date - timedelta(days=61) # FIX
+    start_date = request.datespan.startdate
     report_chart = {
         "legenddiv": "summary-legend-div",
         "div": "summary-chart-div",
@@ -196,7 +191,7 @@ def dashboard_context():
             "graphdata": report_chart,
             "pa_width": 530 if settings.STYLE=='both' else 730 }
 
-def eo_context():
+def eo_context(request):
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -243,7 +238,7 @@ def eo_context():
     return ret_obj
 
 
-def ofr_context():
+def ofr_context(request):
     ret_obj = {}
 
     table1 = {
@@ -276,7 +271,7 @@ def ofr_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def rsqr_context():
+def rsqr_context(request):
     ret_obj = {}
 
     table = {
@@ -289,7 +284,7 @@ def rsqr_context():
     ret_obj['table'] = table
     return ret_obj
 
-def as_context():
+def as_context(request):
     ret_obj = {}
 
     table = {
@@ -302,7 +297,7 @@ def as_context():
     ret_obj['table'] = table
     return ret_obj
 
-def cp_context():
+def cp_context(request):
     ret_obj = {}
 
     table1 = {
@@ -335,7 +330,7 @@ def cp_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def ss_context():
+def ss_context(request):
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -389,7 +384,7 @@ def ss_context():
     ret_obj['line'] = line_chart
     return ret_obj
 
-def rr_context():
+def rr_context(request):
     ret_obj = {}
     summary = {
         "product_codes": [],
@@ -447,10 +442,11 @@ def user_profiles(request):
     context = {}
     return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
 
-def _get_window_date(request=None):
-    # TODO: this should actually come from the request, but this is hard-coded
-    # for testing, 
-    return datetime(2012, 6, 1) # temp for testing
+def _get_window_date(request):
+    # the window date is assumed to be the end date
+    date = request.datespan.enddate
+    assert date.day == 1
+    return date
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100

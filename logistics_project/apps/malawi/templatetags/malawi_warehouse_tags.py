@@ -7,9 +7,9 @@ from logistics_project.apps.malawi.util import get_country_sp
 register = template.Library()
 
 @register.simple_tag
-def product_availability_summary(location, width=900, height=300):
+def product_availability_summary(location, date, width=900, height=300):
     sp = SupplyPoint.objects.get(location=location) if location else get_country_sp()
-    summary = WarehouseProductAvailabilitySummary(sp, width, height)
+    summary = WarehouseProductAvailabilitySummary(sp, date, width, height)
     return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
