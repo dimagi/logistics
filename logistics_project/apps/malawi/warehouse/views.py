@@ -1,10 +1,8 @@
 '''
 New views for the upgraded reports of the system.
 '''
-import json
 from random import random
 from datetime import datetime, timedelta
-from collections import defaultdict
 
 from django.conf import settings
 from django.template.context import RequestContext
@@ -12,9 +10,8 @@ from django.shortcuts import render_to_response, redirect
 from django.utils.datastructures import SortedDict
 
 from dimagi.utils.decorators.datespan import datespan_in_request
-from dimagi.utils.dates import months_between
+from dimagi.utils.dates import months_between, DateSpan, add_months
 
-from rapidsms.contrib.locations.models import Location
 
 from logistics.models import Product, SupplyPoint
 from logistics.decorators import place_in_request
@@ -24,7 +21,6 @@ from logistics_project.apps.malawi.util import get_facilities, get_districts,\
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate, OrderRequest
-import json
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 
 REPORT_LIST = SortedDict([
@@ -43,11 +39,24 @@ to_stub = lambda x: {"name": x, "slug": REPORT_LIST[x]}
 
 stub_reports = [to_stub(r) for r in REPORT_LIST.keys()]
 
+def malawi_default_date_func():
+    # we default to showing the last three months
+    now = datetime.utcnow()
+    startyear, startmonth = add_months(now.year, now.month, -2)
+    return DateSpan(datetime(startyear, startmonth, 1),
+                    datetime(now.year, now.month, 1),
+                    format='%B %Y')
+     
+datespan_default = datespan_in_request(
+    default_function=malawi_default_date_func,
+    format_string='%B %Y'
+)
+
 def home(request):
     return redirect("/malawi/r/dashboard/")
     
 @place_in_request()
-@datespan_in_request(format_string='%B %Y')
+@datespan_default
 def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
