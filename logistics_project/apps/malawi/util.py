@@ -110,8 +110,13 @@ def facility_supply_points_below(location):
                            Q(location__parent_id=location.pk))
     return facs
 
+def get_district_supply_points():
+    return SupplyPoint.objects.filter(active=True, 
+                                      type__code=config.SupplyPointCodes.DISTRICT)
+
 def get_facility_supply_points():
-    return SupplyPoint.objects.filter(active=True, type='hf')
+    return SupplyPoint.objects.filter(active=True, 
+                                      type__code=config.SupplyPointCodes.FACILITY)
 
 def get_country_sp():
     return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,

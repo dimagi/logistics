@@ -40,11 +40,10 @@
                 <tr><th>H facilities</th><td>{{ facilities.count }}</td></tr>
                 <tr><th>HSAs</th><td>{{ hsas }}</td></tr>
             </table>
-
-            <p>Reporting Rate: {{ reporting_rate }}%</p>
-            
+            <h4>Current Month Data</h4>
+            <p>Reporting Rate: {{ reporting_rate }}</p>
             <table>
-                <tr><th colspan="2">National Status for Current Month</th></tr>
+                <tr><th colspan="2">National Status</th></tr>
                 <tr><th>Product</th><th>% HSAs w Stkout</th></tr>
                 {% for product, pct in product_stockout_pcts.items %}                
                     <tr><th>{{ product.sms_code }}</th>

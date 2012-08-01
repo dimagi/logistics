@@ -1,10 +1,8 @@
 '''
 New views for the upgraded reports of the system.
 '''
-import json
 from random import random
 from datetime import datetime, timedelta
-from collections import defaultdict
 
 from django.conf import settings
 from django.template.context import RequestContext
@@ -12,19 +10,19 @@ from django.shortcuts import render_to_response, redirect
 from django.utils.datastructures import SortedDict
 
 from dimagi.utils.decorators.datespan import datespan_in_request
-from dimagi.utils.dates import months_between
+from dimagi.utils.dates import months_between, DateSpan, add_months
 
-from rapidsms.contrib.locations.models import Location
 
 from logistics.models import Product, SupplyPoint
 from logistics.decorators import place_in_request
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp
+    get_country_sp, get_district_supply_points, facility_supply_points_below
 from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, ReportingRate, OrderRequest
-
+from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
+    current_report_period
 
 REPORT_LIST = SortedDict([
     ("Dashboard", "dashboard"),
@@ -42,11 +40,24 @@ to_stub = lambda x: {"name": x, "slug": REPORT_LIST[x]}
 
 stub_reports = [to_stub(r) for r in REPORT_LIST.keys()]
 
+def malawi_default_date_func():
+    # we default to showing the last three months
+    now = datetime.utcnow()
+    startyear, startmonth = add_months(now.year, now.month, -2)
+    return DateSpan(datetime(startyear, startmonth, 1),
+                    datetime(now.year, now.month, 1),
+                    format='%B %Y')
+     
+datespan_default = datespan_in_request(
+    default_function=malawi_default_date_func,
+    format_string='%B %Y'
+)
+
 def home(request):
     return redirect("/malawi/r/dashboard/")
     
 @place_in_request()
-@datespan_in_request(format_string='%B %Y')
+@datespan_default
 def get_report(request, slug=''):
     context = shared_context(request)
     context.update({"report_list": stub_reports,
@@ -82,26 +93,30 @@ def get_more_context(request, slug=None):
 def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
     country = get_country_sp()
-    window_date = _get_window_date(request)
+    date = current_report_period()
     
     # national stockout percentages by product
     stockout_pcts = SortedDict()
     for p in products:
         availability = ProductAvailabilityData.objects.get(supply_point=country,
-                                                           date=window_date,
+                                                           date=date,
                                                            product=p)
         stockout_pcts[p] = _pct(availability.managed_and_without_stock,
                                 availability.managed)
     
-    return { "settings": settings,
-             "report_list": stub_reports,
-             "location": request.location or get_country_sp(),
-             "districts": get_districts(),
-             "facilities": get_facilities(),
-             "hsas": 643,
-             "reporting_rate": "93.3",
-             "products": products,
-             "product_stockout_pcts": stockout_pcts,
+    
+    current_rr = ReportingRate.objects.get\
+        (date=date, supply_point=country)
+    return { 
+        "settings": settings,
+        "report_list": stub_reports,
+        "location": request.location or country.location,
+        "districts": get_districts(),
+        "facilities": get_facilities(),
+        "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
+        "reporting_rate": current_rr.pct_reported,
+        "products": products,
+        "product_stockout_pcts": stockout_pcts,
     }
 
 def timechart(labels):
@@ -149,40 +164,10 @@ def dashboard_context(request):
                            "reporting_rate": reporting_rate}
     
     # report chart
-    start_date = request.datespan.startdate
-    report_chart = {
-        "legenddiv": "summary-legend-div",
-        "div": "summary-chart-div",
-        "max_value": 100,
-        "width": "100%",
-        "height": "200px",
-        "xaxistitle": "month",
-    }
-    data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-    dates = []
-    country = get_country_sp()
-    for year, month in months_between(start_date, window_date):
-        dt = datetime(year, month, 1)
-        dates.append(dt)
-        rr = ReportingRate.objects.get(supply_point=country, date=dt)
-        data["on time"][dt] = _pct(rr.on_time, rr.total)
-        data["late"][dt] = _pct(rr.reported - rr.on_time, rr.total)
-        data["missing"][dt] = _pct(rr.total - rr.reported, rr.total)
-        data["complete"][dt] = _pct(rr.complete, rr.total)
-    
-    ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
-                 'stack': 0} \
-                 for k in ["on time", "late", "missing"]]
-    
-    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
-                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
-                     'yaxis': 2})
-    
-    report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
-    report_chart['data'] = json.dumps(ret_data)
     return {"summary_data": summary_data,
-            "graphdata": report_chart,
+            "graphdata": get_reporting_rates_chart(request.location, 
+                                                   request.datespan.startdate, 
+                                                   window_date),
             "pa_width": 530 if settings.STYLE=='both' else 730 }
 
 def eo_context(request):
@@ -449,40 +434,57 @@ def rr_context(request):
         "xaxistitle": "products",
         "yaxistitle": "amount"
     }
+    shared_headers = ["% Reporting", "% Rep on time", "% Late Rep", "% No Rep", "% Complete"]
+    shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
     
-    count = 0
-    xlabels = ['Jun', 'July', 'Aug']
-    for xlabel in xlabels:
-        count += 1
-        summary['xlabels'].append([count, '<span>%s</span>' % str(xlabel)])
+    # reporting rates by month table
+    sp = SupplyPoint.objects.get(location=request.location) \
+        if request.location else get_country_sp()
+    months = SortedDict()
+    for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+        dt = datetime(year, month, 1)
+        months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt)
     
-    summary['data'] = barseries(['on_time','late','not_reported'], len(xlabels))
-
-    table1 = {
+    month_data = [[dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
+                  for dt, rr in months.items()]
+    
+    ret_obj['month_table'] = {
         "title": "",
-        "header": ["Months", "%Reporting", "%Ontime", "%Late", "%None"],
-        "data": [['June', 10, 47, 55, 31], ['July', 50, 24, 43, 15], ['Aug', 40, 47, 45, 61]],
-        "cell_width": "135px",
+        "header": ["Months"] + shared_headers,
+        "data": month_data,
     }
 
-    table2 = {
+    # district breakdown
+    d_rr_pairs = [[d, ReportingRate.objects.get(supply_point=d, 
+                                                date=request.datespan.enddate)] \
+                  for d in get_district_supply_points().order_by('name')]
+                                                
+    district_data = [[d.name] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
+                     for d, rr in d_rr_pairs]
+    
+    ret_obj['district_table'] = {
         "title": "Average Reporting Rate (Districts)",
-        "header": ["Districts", "%Reporting", "%Ontime", "%Late", "%None"],
-        "data": [['All', 32, 41, 54, 36], ['Nkatabay', 27, 27, 44, 11], ['Kasungu', 45, 44, 44, 67]],
-        "cell_width": "135px",
+        "header": ["Districts"] + shared_headers,
+        "data": district_data,
     }
-
-    table3 = {
-        "title": "Average Reporting Rate (Facilities)",
-        "header": ["Facilities", "%Reporting", "%Ontime", "%Late", "%None"],
-        "data": [['All', 34, 45, 56, 38], ['Chesamu', 24, 22, 47, 18], ['Chikwina', 44, 44, 42, 65]],
-        "cell_width": "135px",
-    }
-
-    ret_obj['summary'] = summary
-    ret_obj['table1'] = table1
-    ret_obj['table2'] = table2
-    ret_obj['table3'] = table3
+    
+    if sp.type.code == config.SupplyPointCodes.DISTRICT:
+        f_rr_pairs = [[f, ReportingRate.objects.get(supply_point=f, 
+                                                    date=request.datespan.enddate)] \
+                      for f in facility_supply_points_below(sp.location).order_by('name')]
+                                                    
+        print f_rr_pairs
+        fac_data = [[f.name] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
+                         for f, rr in f_rr_pairs]
+        
+        ret_obj['facility_table'] = {
+            "title": "Average Reporting Rate (Facilities)",
+            "header": ["Facilities"] + shared_headers,
+            "data": fac_data,
+        }
+    ret_obj['graphdata'] = get_reporting_rates_chart(request.location, 
+                                                     request.datespan.startdate, 
+                                                     request.datespan.enddate)
     return ret_obj
 
 def hsas(request):
