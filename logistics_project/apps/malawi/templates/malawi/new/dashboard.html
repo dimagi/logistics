@@ -89,7 +89,7 @@ $(document).ready(function() {
 
 <div class="module">
     <h2>Current Stock Status by product</h2>
-    {% product_availability_summary location pa_width %} 
+    {% product_availability_summary location request.datespan.enddate pa_width %} 
 </div>
 
 {% endblock %}

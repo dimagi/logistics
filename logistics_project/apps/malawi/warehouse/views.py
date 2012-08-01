@@ -53,10 +53,10 @@ def get_report(request, slug=''):
                     "slug": slug})
     
     context.update(get_more_context(request, slug))
-
     return render_to_response("malawi/new/%s.html" % slug, 
                               context,
                               context_instance=RequestContext(request))
+
 
 def get_more_context(request, slug=None):
     func_map = {
@@ -75,6 +75,9 @@ def get_more_context(request, slug=None):
     else:
         return {}
 
+    context = func_map[slug](request) if slug in func_map else {}
+    context["slug"] = slug
+    return context 
 
 def shared_context(request):
     products = Product.objects.all().order_by('sms_code')
@@ -91,13 +94,14 @@ def shared_context(request):
                                 availability.managed)
     
     return { "settings": settings,
-             "location": None,
+             "report_list": stub_reports,
+             "location": request.location or get_country_sp(),
              "districts": get_districts(),
              "facilities": get_facilities(),
              "hsas": 643,
              "reporting_rate": "93.3",
              "products": products,
-             "product_stockout_pcts": stockout_pcts
+             "product_stockout_pcts": stockout_pcts,
     }
 
 def timechart(labels):
@@ -129,7 +133,7 @@ def _month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
     
-def lt_context():
+def lt_context(request):
     month_table = {
         "title": "",
         "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
@@ -146,8 +150,8 @@ def lt_context():
             "lt_table": lt_table}
 
 def dashboard_context(request):
-    window_date = _get_window_date()
-    
+    window_date = _get_window_date(request)
+
     # reporting rates + stockout summary
     districts = get_districts().order_by('name')
     summary_data = SortedDict()
@@ -161,7 +165,7 @@ def dashboard_context(request):
                            "reporting_rate": reporting_rate}
     
     # report chart
-    start_date = window_date - timedelta(days=30) # FIX
+    start_date = request.datespan.startdate
     report_chart = {
         "legenddiv": "summary-legend-div",
         "div": "summary-chart-div",
@@ -199,11 +203,9 @@ def dashboard_context(request):
 
 def eo_context(request):
     sp_code = request.GET.get('place') or get_country_sp().code
-    start = request.GET.get('from') or 'June 2012'
-    end = request.GET.get('to') or 'July 2012'
-    start_date = datetime.strptime(start, '%B %Y')
-    end_date = datetime.strptime(end, '%B %Y')
-    oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=(start_date,end_date))
+    window_range = _get_window_range(request)
+
+    oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=window_range)
     eo_map = {}
     eos = 0
     total = 0
@@ -460,10 +462,19 @@ def user_profiles(request):
     context = {}
     return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
 
-def _get_window_date(request=None):
-    # TODO: this should actually come from the request, but this is hard-coded
-    # for testing, 
-    return datetime(2012, 7, 1) # temp for testing
+def _get_window_date(request):
+    # the window date is assumed to be the end date
+    date = request.datespan.enddate
+    assert date.day == 1
+    return date
+
+def _get_window_range(request):
+    # the window date is assumed to be the end date
+    date1 = request.datespan.startdate
+    assert date1.day == 1
+    date2 = request.datespan.enddate
+    assert date2.day == 1
+    return (date1, date2)
 
 def _pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
