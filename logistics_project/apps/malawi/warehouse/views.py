@@ -471,7 +471,8 @@ def _get_window_date(request):
 def _get_window_range(request):
     # the window date is assumed to be the end date
     date1 = request.datespan.startdate
-    date1 = datetime(date1.year, (date1.month%12 - 2)%12 , 1)
+    if not request.GET.get('from'):
+        date1 = datetime(date1.year, (date1.month%12 - 2)%12 , 1)
     date2 = request.datespan.enddate
     assert date1.day == 1
     assert date2.day == 1
