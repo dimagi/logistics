@@ -203,6 +203,10 @@ def navigate(request):
         querystring += '&year=' + request.REQUEST['year']
     if 'month' in request.REQUEST and request.REQUEST['month']: 
         querystring += '&month=' + request.REQUEST['month']
+    if 'to' in request.REQUEST and request.REQUEST['to']: 
+        querystring += '&to=' + request.REQUEST['to']
+    if 'from' in request.REQUEST and request.REQUEST['from']: 
+        querystring += '&from=' + request.REQUEST['from']
     mode = request.REQUEST.get("mode", "url")
     if mode == "url":
         return HttpResponseRedirect(
