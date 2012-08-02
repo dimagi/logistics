@@ -17,8 +17,11 @@
 </div>
 
 <div class="module">
-{% include "malawi/partials/selector_form.html" %}
-
+<form method="get" id="selector">
+    {% include "malawi/new/partials/product-type-selector.html" %}
+    {% include "malawi/new/partials/month-selector.html" %}
+    <input type="submit" value="Go!" />
+</form>
 <h2>HSA Stockouts by Product Category </h2>
 {% include "malawi/new/partials/generic-line-chart.html" %}
 

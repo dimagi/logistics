@@ -1,19 +1,18 @@
-<div id="placeholder" style="width:{{ line.width }};height:{{ line.height }};"></div>
-
-{% block javascripts %}
 <script language="javascript" type="text/javascript">
     $(document).ready(function () {
 		$.plot(
-			$("#placeholder"),
-			[
-				{% for serie in line.series %}
-			        {
-			            label: "{{ serie.title }}",
-			            data: {{ serie.data|safe }},
-			        },
-				{% endfor %}
-			],
-			{ // options
+			$("#{{ graphdata.div }}"),
+			{{ graphdata.data|safe }},
+			{   // options
+				xaxis: { 
+                    ticks: {{ graphdata.xlabels|safe }}
+                },
+                yaxis: { min: 0,
+                         max: {{ graphdata.max_value }},
+                         tickDecimals: 0 },
+                legend: { show: true, container: $("#{{ graphdata.legenddiv }}"), 
+                          noColumns: {{ graphdata.legendcols|default:3}} },
+        
 				series: {
          			lines: { show: true, steps: false },
          			points: { show: true },
@@ -22,4 +21,7 @@
 		);
 	});
 </script>
-{% endblock %}
+<div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
+<p>{{ graphdata.yaxistitle }}</p>
+<div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
+<p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>
