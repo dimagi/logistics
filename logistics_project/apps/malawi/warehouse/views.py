@@ -119,6 +119,7 @@ def shared_context(request):
         "reporting_rate": current_rr.pct_reported,
         "products": products,
         "product_stockout_pcts": stockout_pcts,
+        "default_chart_width": 530 if settings.STYLE=='both' else 730 
     }
 
 def timechart(labels):
@@ -164,12 +165,11 @@ def dashboard_context(request):
         summary_data[d] = {"stockout_pct": stockout_pct,
                            "reporting_rate": reporting_rate}
     
-    # report chart
     return {"summary_data": summary_data,
             "graphdata": get_reporting_rates_chart(request.location, 
                                                    request.datespan.startdate, 
-                                                   window_date),
-            "pa_width": 530 if settings.STYLE=='both' else 730 }
+                                                   window_date)}
+            
 
 def eo_context(request):
     sp_code = request.GET.get('place') or get_country_sp().code
@@ -350,42 +350,36 @@ def cp_context(request):
 
 def ss_context(request):
     ret_obj = {}
-    summary = {
-        "number": 3,
-        "xlabels": [],
-        "legenddiv": "legend-div",
-        "div": "chart-div",
-        "max_value": 3,
-        "width": "100%",
-        "height": "200px",
-        "data": [],
-        "xaxistitle": "products",
-        "yaxistitle": "amount"
-    }
     
-    product_codes = []
-
-    count = 0
-    for product in Product.objects.all().order_by('sms_code')[0:10]:
-        count += 1
-        product_codes.append([count, '<span>%s</span>' % (str(product.code.lower()))])
-        
-    summary['xlabels'] = product_codes
+    sp = SupplyPoint.objects.get(location=request.location) \
+        if request.location else get_country_sp()
+    # Correct
+    # date = current_report_period()
+    # testing
+    date = request.datespan.enddate
+    headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
+                "% HSA Overstocked", "% HSA Not Reported"]
+    slugs = ["managed_and_without_stock", "managed_and_under_stock", 
+             "managed_and_with_good_stock", "managed_and_over_stock",
+             "managed_and_without_data"]
+    p_pad_tuples = [(p, ProductAvailabilityData.objects.get\
+                            (supply_point=sp, date=date, product=p)) \
+                    for p in Product.objects.all().order_by('sms_code')]
     
-    summary['data'] = barseries(['Stocked Out','Under Stock','Adequate'], 10)
-
-    table1 = {
+    product_data = [[p.sms_code] + \
+                    [fmt_pct(getattr(pad, k), pad.managed) for k in slugs] \
+                    for p, pad in p_pad_tuples]
+    
+    ret_obj['product_table'] = {
         "title": "",
-        "header": ["Product", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
-        "data": [['cc', 34, 45, 52, 31], ['dt', 21, 25, 44, 17], ['sr', 43, 44, 41, 67]],
-        "cell_width": "135px",
+        "header": ["Product"] + headings,
+        "data": product_data,
     }
 
     table2 = {
         "title": "HSA Current Stock Status by District",
-        "header": ["District", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
+        "header": ["District"] + headings,
         "data": [['cc', 33, 45, 52, 31], ['dt', 21, 29, 45, 13], ['sr', 43, 42, 42, 61]],
-        "cell_width": "135px",
     }
 
     line_chart = {
@@ -399,8 +393,7 @@ def ss_context(request):
             temp.append([random(),random()])
         line_chart["series"].append({"title": j, "data": sorted(temp)})
 
-    ret_obj['summary'] = summary
-    ret_obj['table1'] = table1
+    
     ret_obj['table2'] = table2
     ret_obj['line'] = line_chart
     return ret_obj
