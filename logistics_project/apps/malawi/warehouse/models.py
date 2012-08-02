@@ -14,14 +14,22 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     as well as anything that needs to compute percent with / without 
     stock, oversupplied, undersupplied, etc.
     """
+    # NOTE/DRAGONS: there's some hard-coded stuff that depends on this list 
+    # matching up with fields below, and in the summary model. Be careful
+    # changing property names.
+    STOCK_CATEGORIES = ['with_stock', 'under_stock', 'good_stock',
+                        'over_stock', 'without_stock', 'without_data']
+    
     # Dashboard: current stock status
     # Resupply Qts: % with stockout
     # Stock status: all
     product = models.ForeignKey('logistics.Product')
     total = models.PositiveIntegerField(default=0)
     managed = models.PositiveIntegerField(default=0)
+    
     with_stock = models.PositiveIntegerField(default=0)
     under_stock = models.PositiveIntegerField(default=0)
+    good_stock = models.PositiveIntegerField(default=0)
     over_stock = models.PositiveIntegerField(default=0)
     without_stock = models.PositiveIntegerField(default=0)
     without_data = models.PositiveIntegerField(default=0)
@@ -29,26 +37,37 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     # unfortunately, we need to separately keep these for the aggregates
     managed_and_with_stock = models.PositiveIntegerField(default=0)
     managed_and_under_stock = models.PositiveIntegerField(default=0)
+    managed_and_good_stock = models.PositiveIntegerField(default=0)
     managed_and_over_stock = models.PositiveIntegerField(default=0)
     managed_and_without_stock = models.PositiveIntegerField(default=0)
     managed_and_without_data = models.PositiveIntegerField(default=0)
     
-    @property
-    def managed_and_with_good_stock(self):
-        return self.managed_and_with_stock - self.managed_and_over_stock \
-            - self.managed_and_under_stock
-    
+    def set_managed_attributes(self):
+        if self.managed:
+            for f in ProductAvailabilityData.STOCK_CATEGORIES:
+                setattr(self, 'managed_and_%s' % f, getattr(self, f))
+        else: 
+            for f in ProductAvailabilityData.STOCK_CATEGORIES:
+                setattr(self, 'managed_and_%s' % f, 0)                
+                            
 class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     """
     Aggregates the product availability up to the supply point level,
     no longer dealing with individual products, but just whether anything
-    is managed and anything manaegd is stocked out.
+    is managed and anything managed falls into the various categories.
     """
     # Sidebar: % with stockout
     # Dashboard: % with stockout
+    # Stock status: district/facility breakdowns
     total = models.PositiveIntegerField(default=0)
-    manages_anything = models.PositiveIntegerField(default=0)
-    with_any_stockout = models.PositiveIntegerField(default=0)
+    any_managed = models.PositiveIntegerField(default=0)
+    any_without_stock = models.PositiveIntegerField(default=0)
+    any_with_stock = models.PositiveIntegerField(default=0)
+    any_under_stock = models.PositiveIntegerField(default=0)
+    any_over_stock = models.PositiveIntegerField(default=0)
+    any_good_stock = models.PositiveIntegerField(default=0)
+    any_without_data = models.PositiveIntegerField(default=0)
+    
 
 class ReportingRate(MalawiWarehouseModel):
     """

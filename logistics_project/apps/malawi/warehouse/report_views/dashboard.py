@@ -19,8 +19,8 @@ class View(warehouse_view.MalawiWarehouseView):
         summary_data = SortedDict()
         for d in districts:
             avail_sum = ProductAvailabilityDataSummary.objects.get(supply_point=d, date=window_date)
-            stockout_pct = pct(avail_sum.with_any_stockout,
-                                 avail_sum.manages_anything) 
+            stockout_pct = pct(avail_sum.any_without_stock,
+                               avail_sum.any_managed) 
             rr = ReportingRate.objects.get(supply_point=d, date=window_date)
             reporting_rate = pct(rr.reported, rr.total)
             summary_data[d] = {"stockout_pct": stockout_pct,
@@ -31,4 +31,3 @@ class View(warehouse_view.MalawiWarehouseView):
                 "graphdata": get_reporting_rates_chart(request.location, 
                                                        request.datespan.startdate, 
                                                        window_date)}
-

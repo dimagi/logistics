@@ -139,31 +139,36 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                     else:
                                         product_data.under_stock = 0
                                         product_data.over_stock = 0
-                            
-                            if product_data.managed:
-                                product_data.managed_and_with_stock = product_data.with_stock
-                                product_data.managed_and_without_stock = product_data.without_stock
-                                product_data.managed_and_under_stock = product_data.under_stock
-                                product_data.managed_and_over_stock = product_data.over_stock
-                                product_data.managed_and_without_data = product_data.without_data
-                            
+                                
+                                product_data.good_stock = product_data.with_stock - \
+                                    (product_data.under_stock + product_data.over_stock)
+                                assert product_data.good_stock in (0, 1)
+                                
+                            product_data.set_managed_attributes()
                             product_data.save()
                             
+                        # update the summary data
                         product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
                             (supply_point=hsa, 
                              date=window_date)[0]
                         product_summary.total = 1
+                        
                         if hsa.commodities_stocked():
-                            product_summary.manages_anything = 1
-                            product_summary.with_any_stockout = \
-                                ProductAvailabilityData.objects.filter\
-                                    (supply_point=hsa, date=window_date, 
-                                     product__in=hsa.commodities_stocked()).aggregate\
-                                        (Max('managed_and_without_stock'))['managed_and_without_stock__max']
-                            assert product_summary.with_any_stockout <= 1
+                            product_summary.any_managed = 1
+                            agg_results = ProductAvailabilityData.objects.filter\
+                                (supply_point=hsa, date=window_date, 
+                                 managed=1).aggregate\
+                                 (*[Max("managed_and_%s" % c) for c in \
+                                    ProductAvailabilityData.STOCK_CATEGORIES])
+                            for c in ProductAvailabilityData.STOCK_CATEGORIES:
+                                setattr(product_summary, "any_%s" % c, 
+                                        agg_results["managed_and_%s__max" % c])
+                                assert getattr(product_summary, "any_%s" % c) <= 1
                         else:
-                            product_summary.manages_anything = 0
-                            product_summary.with_any_stockout = 0
+                            product_summary.any_managed = 0
+                            for c in ProductAvailabilityData.STOCK_CATEGORIES:
+                                setattr(product_summary, "any_%s" % c, 0)
+                        
                         product_summary.save()                            
                     
                     _update_reporting_rate()
@@ -185,14 +190,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                            fields=['total', 'reported', 'on_time', 'complete'])
                 for p in Product.objects.all():
                     _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
-                               fields=['total', 'managed', 'with_stock', 'under_stock',
-                                       'over_stock', 'without_stock', 'without_data',
-                                       'managed_and_with_stock', 'managed_and_under_stock',
-                                       'managed_and_over_stock', 'managed_and_without_stock', 
-                                       'managed_and_without_data'],
+                               fields=['total', 'managed'] + \
+                                    ProductAvailabilityData.STOCK_CATEGORIES + \
+                                    ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
                                additonal_query_params={"product": p})
                 _aggregate(ProductAvailabilityDataSummary, window_date, place, 
-                           relevant_hsas, fields=['total', 'manages_anything', 'with_any_stockout'])
+                           relevant_hsas, fields=['total', 'any_managed'] + \
+                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
 
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
                additonal_query_params={}):
