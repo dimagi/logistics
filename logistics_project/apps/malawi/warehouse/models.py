@@ -138,8 +138,22 @@ class OrderFulfillment(MalawiWarehouseModel):
     quantity_requested = models.PositiveIntegerField(default=0)
     quantity_received = models.PositiveIntegerField(default=0)
 
+class UserProfileData(models.Model):
+    supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
+    facility_children = models.PositiveIntegerField(default=0)
+    hsa_children = models.PositiveIntegerField(default=0)
+    hsa_supervisors = models.PositiveIntegerField(default=0)
+    contacts = models.PositiveIntegerField(default=0)
+    supervisor_contacts = models.PositiveIntegerField(default=0)
+    in_charge = models.PositiveIntegerField(default=0)
+    contact_info = models.CharField(max_length=50, null=True, blank=True)
+    products_managed = models.TextField()
+    last_message = models.ForeignKey('messagelog.Message', null=True)
+
+    class Meta:
+        app_label = "malawi"
+
 # Other:
-# User Profiles (no changes needed)
 # HSA (no changes needed)
 # Consumption Profiles (likely changes needed, to be clarified)
 # Resupply Qts: anything needed? TBD

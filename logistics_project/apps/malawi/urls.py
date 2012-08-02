@@ -5,8 +5,6 @@ from django.conf.urls.defaults import *
 
 reportpatterns = patterns('logistics_project.apps.malawi.warehouse.views', 
     url(r'^r/home/$', 'home', name='malawi_dashboard'),
-    url(r'^r/hsas/$', 'hsas', name='hsas'),
-    url(r'^r/user-profiles/$', 'user_profiles', name='user_profiles'),    
     url(r'^r/(?P<slug>[\w\s-]+)/$','get_report', name=''),
 )
 urlpatterns = patterns('',

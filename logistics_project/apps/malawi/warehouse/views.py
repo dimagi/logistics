@@ -15,18 +15,15 @@ from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_
     current_report_period, pct
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
-    lead_times, reporting_rate
+    lead_times, reporting_rate, user_profiles, hsas
 
 
-def hsas(request):
-    context = {}
-    return render_to_response('malawi/new/hsas.html', context, context_instance=RequestContext(request))
+datespan_default = datespan_in_request(
+    default_function=malawi_default_date_func,
+    format_string='%B %Y'
+)
 
-def user_profiles(request):
-    context = {}
-    return render_to_response('malawi/new/user-profiles.html', context, context_instance=RequestContext(request))
-
-slug_map = {
+reports_slug_map = {
     'dashboard': dashboard,
     'emergency-orders': emergency_orders,
     'order-fill-rate': order_fill_rates,
@@ -36,20 +33,20 @@ slug_map = {
     'stock-status': stock_status,
     'lead-times': lead_times,
     'reporting-rate': reporting_rate,
-}     
-
-datespan_default = datespan_in_request(
-    default_function=malawi_default_date_func,
-    format_string='%B %Y'
-)
+    'user-profiles': user_profiles,
+    'hsas': hsas,
+}
     
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
-    report = slug_map[slug].View(request, slug)
+    report = reports_slug_map[slug].View(request, slug)
     return render_to_response("malawi/new/%s.html" % slug, 
                               report.context,
                               context_instance=RequestContext(request))
 
 def home(request):
     return redirect("/malawi/r/dashboard/")
+
+
+

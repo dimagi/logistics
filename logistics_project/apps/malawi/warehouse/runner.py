@@ -1,17 +1,22 @@
-from warehouse.runner import WarehouseRunner
-from warehouse.models import ReportRun
+from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.db.models import Sum, Max
+
+from dimagi.utils.dates import months_between, first_of_next_month
+
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product
 from logistics.util import config
+from logistics.const import Reports
+
+from warehouse.runner import WarehouseRunner
+from warehouse.models import ReportRun
+
 from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     hsa_supply_points_below
-from logistics.const import Reports
-from dimagi.utils.dates import months_between, first_of_next_month
-from datetime import datetime, timedelta
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary
-from django.conf import settings
-from django.db.models import Sum, Max
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """

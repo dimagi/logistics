@@ -79,6 +79,20 @@ def get_supervisors(supply_point):
     return supply_point.active_contact_set.filter\
                 (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
 
+def get_hsa_supervisors(supply_point):
+    """
+    Get all hsa supervisors at a particular facility
+    """
+    return supply_point.active_contact_set.filter\
+                (is_active=True, role__code__in=config.Roles.HSA_SUPERVISOR)
+
+def get_in_charge(supply_point):
+    """
+    Get all "in-charge" people at a particular facility
+    """
+    return supply_point.active_contact_set.filter\
+                (is_active=True, role__code__in=config.Roles.IN_CHARGE)
+
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
 

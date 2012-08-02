@@ -1,1 +1,24 @@
 {% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+<div class="module">
+{% with district_table as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+
+<div class="module">
+{% with facility_table as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+
+<div class="module">
+{% with hsa_table as table %}
+{% include "malawi/new/partials/generic-table.html" %}
+{% endwith %}
+</div>
+
+{% endblock %}
