@@ -59,6 +59,21 @@ RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.views.help",       "Help"),
 ]
 
+from django.utils.datastructures import SortedDict
+
+REPORT_LIST = SortedDict([
+    ("Dashboard", "dashboard"),
+    ("Reporting Rate", "reporting-rate"),
+    ("Stock Status", "stock-status"),
+    ("Consumption Profiles", "consumption-profiles"),
+    ("Alert Summary", "alert-summary"),
+    ("Re-supply Qts Required", "re-supply-qts-required"),
+    ("Lead Times", "lead-times"),
+    ("Order Fill Rate", "order-fill-rate"),
+    ("Emergency Orders", "emergency-orders"),
+])
+
+
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
 #
