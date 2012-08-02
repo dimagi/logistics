@@ -3,20 +3,23 @@
 {% block javascripts %}
 <script language="javascript" type="text/javascript">
     $(document).ready(function () {
-$.plot(
- $("#placeholder"),
- [
-
-    {% for serie in line.series %}
-        {
-            label: "{{ serie.title }}",
-            data: {{ serie.data }},
-            lines: {show: true},
-            points: {show: true},
-        },
-    {% endfor %}
- ]
-);
-});
+		$.plot(
+			$("#placeholder"),
+			[
+				{% for serie in line.series %}
+			        {
+			            label: "{{ serie.title }}",
+			            data: {{ serie.data|safe }},
+			        },
+				{% endfor %}
+			],
+			{ // options
+				series: {
+         			lines: { show: true, steps: false },
+         			points: { show: true },
+	    		},
+            }
+		);
+	});
 </script>
 {% endblock %}
