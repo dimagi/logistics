@@ -559,9 +559,9 @@ def _get_window_range(request):
 
 def _add_to_dict(dictionary, key, val):
     if dictionary.has_key(key):
-        dictionary += val
+        dictionary[key] += val
     else:
-        dictionary = val
+        dictionary[key] = val
     return dictionary
 
 def _remove_zeros_from_dict(dicti, key_val):
