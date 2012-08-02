@@ -1,8 +1,8 @@
 from random import random
 
-from logistics_project.apps.malawi.warehouse.report_views import warehouse
+from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse.WarehouseView):
+class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         ret_obj = {}

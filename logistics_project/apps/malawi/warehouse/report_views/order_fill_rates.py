@@ -10,9 +10,10 @@ from logistics_project.apps.malawi.util import get_country_sp
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period, get_window_date, get_window_range, pct, increment_dict_item
-from logistics_project.apps.malawi.warehouse.report_views import warehouse
+from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse.WarehouseView):
+
+class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         sp_code = request.GET.get('place') or get_country_sp().code

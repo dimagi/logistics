@@ -33,9 +33,10 @@ from datetime import datetime, timedelta
 from dimagi.utils.dates import months_between
 
 from logistics_project.apps.malawi.warehouse.report_utils import month_labels
-from logistics_project.apps.malawi.warehouse.report_views import warehouse
+from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse.WarehouseView):
+
+class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         month_table = {

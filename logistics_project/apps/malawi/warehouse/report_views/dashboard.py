@@ -6,9 +6,10 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
     ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period, get_window_date, pct
-from logistics_project.apps.malawi.warehouse.report_views import warehouse
+from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse.WarehouseView):
+
+class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         window_date = get_window_date(request)

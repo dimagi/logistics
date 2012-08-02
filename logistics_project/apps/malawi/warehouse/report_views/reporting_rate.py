@@ -11,9 +11,10 @@ from logistics_project.apps.malawi.util import get_country_sp,\
     get_district_supply_points, facility_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
-from logistics_project.apps.malawi.warehouse.report_views import warehouse
+from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse.WarehouseView):
+
+class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         ret_obj = {}
