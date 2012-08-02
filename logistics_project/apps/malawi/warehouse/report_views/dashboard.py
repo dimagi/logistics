@@ -30,6 +30,5 @@ class View(warehouse_view.MalawiWarehouseView):
         return {"summary_data": summary_data,
                 "graphdata": get_reporting_rates_chart(request.location, 
                                                        request.datespan.startdate, 
-                                                       window_date),
-                "pa_width": 530 if settings.STYLE=='both' else 730 }
+                                                       window_date)}
 

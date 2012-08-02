@@ -1,15 +1,8 @@
 from random import random
+from logistics_project.apps.malawi.util import get_country_sp, fmt_pct
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
 
-
-def barseries(labels, num_points):
-    return [{"label": l, "data": bardata(num_points)} for l in labels]
-    
-def bardata(num_points):
-    return [[i + 1, random()] for i in range(num_points)]
-
-#^^^^^junk
-
-from logistics.models import Product
+from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
@@ -17,44 +10,37 @@ class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         ret_obj = {}
-        summary = {
-            "number": 3,
-            "xlabels": [],
-            "legenddiv": "legend-div",
-            "div": "chart-div",
-            "max_value": 3,
-            "width": "100%",
-            "height": "200px",
-            "data": [],
-            "xaxistitle": "products",
-            "yaxistitle": "amount"
-        }
         
-        product_codes = []
-
-        count = 0
-        for product in Product.objects.all().order_by('sms_code')[0:10]:
-            count += 1
-            product_codes.append([count, '<span>%s</span>' % (str(product.code.lower()))])
-            
-        summary['xlabels'] = product_codes
+        sp = SupplyPoint.objects.get(location=request.location) \
+            if request.location else get_country_sp()
+        # Correct
+        # date = current_report_period()
+        # testing
+        date = request.datespan.enddate
+        headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
+                    "% HSA Overstocked", "% HSA Not Reported"]
+        slugs = ["managed_and_without_stock", "managed_and_under_stock", 
+                 "managed_and_with_good_stock", "managed_and_over_stock",
+                 "managed_and_without_data"]
+        p_pad_tuples = [(p, ProductAvailabilityData.objects.get\
+                                (supply_point=sp, date=date, product=p)) \
+                        for p in Product.objects.all().order_by('sms_code')]
         
-        summary['data'] = barseries(['Stocked Out','Under Stock','Adequate'], 10)
-
-        table1 = {
+        product_data = [[p.sms_code] + \
+                        [fmt_pct(getattr(pad, k), pad.managed) for k in slugs] \
+                        for p, pad in p_pad_tuples]
+        
+        ret_obj['product_table'] = {
             "title": "",
-            "header": ["Product", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
-            "data": [['cc', 34, 45, 52, 31], ['dt', 21, 25, 44, 17], ['sr', 43, 44, 41, 67]],
-            "cell_width": "135px",
+            "header": ["Product"] + headings,
+            "data": product_data,
         }
 
         table2 = {
             "title": "HSA Current Stock Status by District",
-            "header": ["District", "HSA Stocked Out", "HSA Under", "HSA Adequate", "Overstock"],
+            "header": ["District"] + headings,
             "data": [['cc', 33, 45, 52, 31], ['dt', 21, 29, 45, 13], ['sr', 43, 42, 42, 61]],
-            "cell_width": "135px",
         }
-
         line_chart = {
             "height": "350px",
             "width": "100%", # "300px",
@@ -66,8 +52,6 @@ class View(warehouse_view.MalawiWarehouseView):
                 temp.append([random(),random()])
             line_chart["series"].append({"title": j, "data": sorted(temp)})
 
-        ret_obj['summary'] = summary
-        ret_obj['table1'] = table1
         ret_obj['table2'] = table2
         ret_obj['line'] = line_chart
         return ret_obj

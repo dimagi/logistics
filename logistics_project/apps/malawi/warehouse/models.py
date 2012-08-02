@@ -1,5 +1,6 @@
 from django.db import models
 from logistics.warehouse_models import ReportingModel
+from logistics_project.apps.malawi.util import fmt_pct
 
 class MalawiWarehouseModel(ReportingModel):
     
@@ -49,9 +50,6 @@ class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     manages_anything = models.PositiveIntegerField(default=0)
     with_any_stockout = models.PositiveIntegerField(default=0)
 
-def _fmt_pct(num, denom):
-    return "%.2f%%" % (float(num) / (float(denom) or 1) * 100)    
-
 class ReportingRate(MalawiWarehouseModel):
     """
     Records information used to calculate the reporting rates
@@ -73,19 +71,19 @@ class ReportingRate(MalawiWarehouseModel):
     
     # report helpers
     @property
-    def pct_reported(self): return _fmt_pct(self.reported, self.total)
+    def pct_reported(self): return fmt_pct(self.reported, self.total)
     
     @property
-    def pct_on_time(self):  return _fmt_pct(self.on_time, self.total)
+    def pct_on_time(self):  return fmt_pct(self.on_time, self.total)
     
     @property
-    def pct_late(self):     return _fmt_pct(self.late, self.total)
+    def pct_late(self):     return fmt_pct(self.late, self.total)
     
     @property
-    def pct_missing(self):  return _fmt_pct(self.missing, self.total)
+    def pct_missing(self):  return fmt_pct(self.missing, self.total)
     
     @property
-    def pct_complete(self): return _fmt_pct(self.complete, self.total)
+    def pct_complete(self): return fmt_pct(self.complete, self.total)
         
             
 class TimeTracker(MalawiWarehouseModel):

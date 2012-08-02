@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.datastructures import SortedDict
 
 from logistics.models import Product, SupplyPoint
@@ -32,6 +33,7 @@ class MalawiWarehouseView(WarehouseView):
             (date=date, supply_point=country)
 
         base_context.update({ 
+            "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "districts": get_districts(),
             "facilities": get_facilities(),
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
