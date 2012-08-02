@@ -33,19 +33,22 @@ from datetime import datetime, timedelta
 from dimagi.utils.dates import months_between
 
 from logistics_project.apps.malawi.warehouse.report_utils import month_labels
+from logistics_project.apps.malawi.warehouse.report_views import warehouse
 
-def get_context(request):
-    month_table = {
-        "title": "",
-        "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-        "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
-    }
+class View(warehouse.WarehouseView):
 
-    lt_table = {
-        "title": "Average Lead Times by Facility",
-        "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-        "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
-    }    
-    return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
-            "month_table": month_table,
-            "lt_table": lt_table}
+    def get_context(self, request):
+        month_table = {
+            "title": "",
+            "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+            "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
+        }
+
+        lt_table = {
+            "title": "Average Lead Times by Facility",
+            "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+            "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
+        }    
+        return {"summary": timechart(['Ord-Ord Ready', 'Ord-Ord Received']),
+                "month_table": month_table,
+                "lt_table": lt_table}
