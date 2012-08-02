@@ -1,7 +1,7 @@
 {% if table.title %}
     <h2>{{ table.title}} </h2>
 {% endif %}
-<table class="malawi-report">
+<table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
 	{% for column_title in table.header %}
 		<th>{{ column_title }}</th>
@@ -17,3 +17,13 @@
 	{% endfor %}
 	</tbody>
 </table>
+
+<script language="javascript">
+$(document).ready(function() {
+	$("#{{ table.id }}").dataTable({
+		"sScrollY": "240px",
+		"bPaginate": false,
+		"bRetrieve": true
+	});
+});
+</script>

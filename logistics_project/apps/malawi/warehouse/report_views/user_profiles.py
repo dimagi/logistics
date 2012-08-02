@@ -10,16 +10,19 @@ class View(warehouse_view.MalawiWarehouseView):
     def get_context(self, request):
         district_table = {
             "title": "",
+            "id": "district_table",
             "header": ["District", "Code", "Facilities", "HSA supervisors", "HSAs", "Contacts"],
             "data": [],
         }
         facility_table = {
             "title": "",
+            "id": "facility_table",
             "header": ["Facility", "Code", "GPS coordinate", "In Charge", "HSA supervisors", "Supervisor Contacts", "HSAs"],
             "data": [],
         }
         hsa_table = {
             "title": "",
+            "id": "hsa_table",
             "header": ["HSA Name", "Id", "Contact Info", "Products", "Date of last message", "Last Message"],
             "data": [],
         }
