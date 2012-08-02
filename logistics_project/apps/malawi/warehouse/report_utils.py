@@ -1,12 +1,17 @@
+import json
+from copy import deepcopy
+from datetime import datetime
+from collections import defaultdict
+
+from dimagi.utils.dates import months_between, add_months, DateSpan
+
 from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
+
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ReportingRate
-from datetime import datetime
 from logistics_project.apps.malawi.util import get_country_sp
-from collections import defaultdict
-from dimagi.utils.dates import months_between
-import json
+
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     """
@@ -114,6 +119,14 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                 
         return self._flot_data
 
+def malawi_default_date_func():
+    # we default to showing the last three months
+    now = datetime.utcnow()
+    startyear, startmonth = add_months(now.year, now.month, -2)
+    return DateSpan(datetime(startyear, startmonth, 1),
+                    datetime(now.year, now.month, 1),
+                    format='%B %Y')
+
 def get_reporting_rates_chart(location, start, end):
     
     def _pct(num, denom): return float(num) / (float(denom) or 1) * 100
@@ -151,6 +164,48 @@ def get_reporting_rates_chart(location, start, end):
     report_chart['data'] = json.dumps(ret_data)
     return report_chart
 
+
 def current_report_period():
     now = datetime.utcnow()
     return datetime(now.year, now.month, 1)
+
+def get_window_date(request):
+    # the window date is assumed to be the end date
+    date = request.datespan.enddate
+    assert date.day == 1
+    return date
+
+def get_window_range(request):
+    date1 = request.datespan.startdate
+    if not request.GET.get('from'):
+        date1 = datetime(date1.year, (date1.month%12 - 2)%12 , 1)
+    date2 = request.datespan.enddate
+    assert date1.day == 1
+    assert date2.day == 1
+    return (date1, date2)
+
+def increment_dict_item(dictionary, key, val):
+    if dictionary.has_key(key):
+        dictionary[key] += val
+    else:
+        dictionary[key] = val
+    return dictionary
+
+def remove_zeros_from_dict(dicti, key_val):
+    dictionary = deepcopy(dicti)
+    if dictionary.has_key(key_val):
+        if dictionary[key_val] == 0 or not dictionary[key_val]:
+            dictionary.pop(key_val)
+            return dictionary, True
+    for key in dictionary.keys():
+        if isinstance(dictionary[key], dict):
+            if _remove_zeros_from_dict(dictionary[key], key_val)[1]:
+                dictionary.pop(key)
+    return dictionary, False
+
+def pct(num, denom):
+    return float(num) / (float(denom) or 1) * 100
+
+def month_labels(start_date, end_date):
+    return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
+            for i, (year, month) in enumerate(months_between(start_date, end_date))]
