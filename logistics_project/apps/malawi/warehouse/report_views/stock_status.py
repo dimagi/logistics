@@ -1,6 +1,8 @@
 from random import random
-from logistics_project.apps.malawi.util import get_country_sp, fmt_pct
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
+from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+    get_district_supply_points
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
+    ProductAvailabilityDataSummary
 
 from logistics.models import Product, SupplyPoint
 
@@ -15,19 +17,22 @@ class View(warehouse_view.MalawiWarehouseView):
             if request.location else get_country_sp()
         # Correct
         # date = current_report_period()
-        # testing
-        date = request.datespan.enddate
+        date = request.datespan.enddate # testing
         headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
                     "% HSA Overstocked", "% HSA Not Reported"]
-        slugs = ["managed_and_without_stock", "managed_and_under_stock", 
-                 "managed_and_with_good_stock", "managed_and_over_stock",
-                 "managed_and_without_data"]
+        ordered_slugs = ["without_stock", "under_stock", 
+                         "good_stock", "over_stock",
+                         "without_data"]
+        
+        
+        # data by product
         p_pad_tuples = [(p, ProductAvailabilityData.objects.get\
                                 (supply_point=sp, date=date, product=p)) \
                         for p in Product.objects.all().order_by('sms_code')]
         
         product_data = [[p.sms_code] + \
-                        [fmt_pct(getattr(pad, k), pad.managed) for k in slugs] \
+                        [fmt_pct(getattr(pad, "managed_and_%s" % k), pad.managed) \
+                         for k in ordered_slugs] \
                         for p, pad in p_pad_tuples]
         
         ret_obj['product_table'] = {
@@ -35,7 +40,22 @@ class View(warehouse_view.MalawiWarehouseView):
             "header": ["Product"] + headings,
             "data": product_data,
         }
-
+        
+        # data by district
+        d_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
+                          (supply_point=d, date=date)) \
+                        for d in get_district_supply_points().order_by('name')]
+        
+        district_data = [[d.name] + \
+                        [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
+                         for k in ordered_slugs] \
+                        for d, pads in d_pads_tuples]
+        ret_obj['district_table'] = {
+            "title": "",
+            "header": ["District"] + headings,
+            "data": district_data,
+        }
+        
         table2 = {
             "title": "HSA Current Stock Status by District",
             "header": ["District"] + headings,

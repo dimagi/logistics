@@ -41,7 +41,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                          "total": availability_data.managed,
                          "without_stock": availability_data.managed_and_without_stock,
                          "under_stock": availability_data.managed_and_under_stock,
-                         "good_stock": availability_data.managed_and_with_good_stock,
+                         "good_stock": availability_data.managed_and_good_stock,
                          "over_stock": availability_data.managed_and_over_stock,
                          "without_data": availability_data.managed_and_without_data})
         self.data = data
