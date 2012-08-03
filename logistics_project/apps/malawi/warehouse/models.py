@@ -1,6 +1,8 @@
+from datetime import timedelta
 from django.db import models
 from logistics.warehouse_models import ReportingModel
 from logistics_project.apps.malawi.util import fmt_pct
+from static.malawi.config import TimeTrackerTypes
 
 class MalawiWarehouseModel(ReportingModel):
     
@@ -105,8 +107,10 @@ class ReportingRate(MalawiWarehouseModel):
     def pct_complete(self): return fmt_pct(self.complete, self.total)
         
 
-TIME_TRACKER_TYPES = (('ord-or', 'order - order ready'),
-                      ('or-rec', 'order ready - received'))            
+
+TIME_TRACKER_TYPES = ((TimeTrackerTypes.ORD_READY, 'order - ready'),
+                      (TimeTrackerTypes.READY_REC, 'ready - received'))            
+
 class TimeTracker(MalawiWarehouseModel):
     """
     For keeping track of a time between two events. Currently used for 
@@ -118,6 +122,12 @@ class TimeTracker(MalawiWarehouseModel):
     total = models.PositiveIntegerField(default=0) # number of contributions to this
     time_in_seconds = models.BigIntegerField(default=0)
     
+    @property
+    def avg_time_in_days(self):
+        if self.total:
+            return float(self.time_in_seconds) / float(self.total * 60 * 60 * 24)
+        return None
+
 class OrderRequest(MalawiWarehouseModel):
     """
     Each time an order is made, used to count both regular and emergency

@@ -3,12 +3,12 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.db.models import Sum, Max
 
-from dimagi.utils.dates import months_between, first_of_next_month
+from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
 
 from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
-    ProductStock, Product
+    ProductStock, Product, StockRequest
 from logistics.util import config
 from logistics.const import Reports
 
@@ -21,6 +21,7 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker
+from static.malawi.config import TimeTrackerTypes
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """
@@ -39,8 +40,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
         # TODO: fix this up - currently deletes all records having any data
         # within the period
         ReportRun.objects.filter(start__gte=start, end__lte=end).delete()
-        ReportingRate.objects.filter(date__gte=start, date__lte=end).delete()
-    
+        if not self.skip_reporting_rates:
+            ReportingRate.objects.filter(date__gte=start, date__lte=end).delete()
+        if not self.skip_product_availability:
+            ProductAvailabilityData.objects.filter(date__gte=start, date__lte=end).delete()
+            ProductAvailabilityDataSummary.objects.filter(date__gte=start, date__lte=end).delete()
+        if not self.skip_lead_times:
+            TimeTracker.objects.filter(date__gte=start, date__lte=end).delete()
+            
     def generate(self, start, end):
         print "Malawi warehouse generate!"
         # first populate all the warehouse tables for all facilities
@@ -184,8 +191,39 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         product_summary.save()                            
                     
                     def _update_lead_times():
-                        pass
-                    
+                        # ord-ready
+                        
+                        # NOTE: the existing code currently also removes 
+                        # status 'canceled'. Is this necessary?
+                        requests_in_range = StockRequest.objects.filter(\
+                            responded_on__gte=period_start,
+                            responded_on__lt=period_end,
+                            supply_point=hsa
+                        ).exclude(requested_on=None)
+                        or_tt = TimeTracker.objects.get_or_create\
+                            (supply_point=hsa, date=window_date,
+                             type=TimeTrackerTypes.ORD_READY)[0]
+                        for r in requests_in_range:
+                            lt = delta_secs(r.responded_on - r.requested_on)
+                            or_tt.time_in_seconds += lt
+                            or_tt.total += 1
+                        or_tt.save()
+                        
+                        # ready-receieved
+                        requests_in_range = StockRequest.objects.filter(\
+                            received_on__gte=period_start,
+                            received_on__lt=period_end,
+                            supply_point=hsa
+                        ).exclude(responded_on=None)
+                        rr_tt = TimeTracker.objects.get_or_create\
+                            (supply_point=hsa, date=window_date,
+                             type=TimeTrackerTypes.READY_REC)[0]
+                        for r in requests_in_range:
+                            lt = delta_secs(r.received_on - r.responded_on)
+                            rr_tt.time_in_seconds += lt
+                            rr_tt.total += 1
+                        rr_tt.save()
+                        
                     if not self.skip_reporting_rates:
                         _update_reporting_rate()
                     if not self.skip_product_availability:

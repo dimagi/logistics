@@ -33,9 +33,14 @@ class ProductAvailabilityDataSummaryAdmin(admin.ModelAdmin):
     list_display = ('supply_point', 'date', 'total', 'any_managed', 'any_without_stock')
     list_filter = ('supply_point__type', 'date', 'supply_point')
 
+class TimeTrackerAdmin(admin.ModelAdmin):
+    model = TimeTracker
+    list_display = ('supply_point', 'date', 'type', 'total', 'time_in_seconds')
+    list_filter = ('supply_point__type', 'date', 'type')
+
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
 admin.site.register(ProductAvailabilityDataSummary, ProductAvailabilityDataSummaryAdmin)
 admin.site.register(ReportingRate, ReportingRateAdmin)
-admin.site.register(TimeTracker)
+admin.site.register(TimeTracker, TimeTrackerAdmin)
 admin.site.register(OrderRequest)
 admin.site.register(OrderFulfillment)
