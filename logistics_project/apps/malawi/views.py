@@ -518,7 +518,7 @@ def sms_tracking(request):
 
 @datespan_in_request()
 def telco_tracking(request):
-    start = request.GET.get('from') or '2000-1-1'
+    start = request.GET.get('from') or "2011-01-01"
     end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
 
     start_date = datetime.strptime(start, '%Y-%m-%d')
@@ -536,7 +536,14 @@ def telco_tracking(request):
                 date__range=(date1,date2))
         airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
                 date__range=(date1,date2))
-        results.append((date1, tnm_msgs.count(), airtel_msgs.count()))
+        results.append((date1.strftime("%B, %Y"), 
+                        tnm_msgs.filter(direction="I").count(),
+                        tnm_msgs.filter(direction="O").count(),
+                        tnm_msgs.count(),
+                        airtel_msgs.filter(direction="I").count(),
+                        airtel_msgs.filter(direction="O").count(),
+                        airtel_msgs.count()))
+                        
 
     return render_to_response("malawi/telco_tracking.html",
                               {"results": results},
