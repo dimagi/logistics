@@ -7,11 +7,11 @@ $(document).ready(function() {
          bars: { show: true, barWidth: 0.75, align: 'center' }
        },
        xaxis: { 
-               ticks: {{ summary.xlabels|safe }}
+               ticks: {{ graphdata.xlabels|safe }}
               }, 
        legend: { show: true, container: $("#{{ graphdata.legenddiv }}"), 
                  noColumns: {{ graphdata.legendcols|default:3}} },
-       yaxis: {max: {{ summary.max_value|default:"null" }},
+       yaxis: {max: {{ graphdata.max_value|default:"null" }},
                tickDecimals: 0 },
        grid: {show: true,
               tickColor: 'gray',
@@ -19,10 +19,10 @@ $(document).ready(function() {
               hoverable: false,
               autoHighlight:false}
     };
-    $.plot($("#{{ summary.div }}"), {{ summary.data|safe }}, bar_options);    
+    $.plot($("#{{ graphdata.div }}"), {{ graphdata.data|safe }}, bar_options);    
 });
 </script>
-<div id="{{ summary.legenddiv }}" style="width:100%"></div>
-<p>{{ summary.yaxistitle }}</p>
-<div id="{{ summary.div }}" style="width:{{ summary.width }};height:{{ summary.height }};" ></div>
-<p style="text-align:center; width:100%;">{{ summary.xaxistitle }}</p>
+<div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
+<p>{{ graphdata.yaxistitle }}</p>
+<div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
+<p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>

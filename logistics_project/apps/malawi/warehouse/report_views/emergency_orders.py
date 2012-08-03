@@ -56,7 +56,7 @@ class View(warehouse_view.MalawiWarehouseView):
         # type_map = remove_zeros_from_dict(type_map, 'total')[0]
 
         summary = {
-            "number": 0,
+            "legendcols": 0,
             "xlabels": [],
             "legenddiv": "legend-div",
             "div": "chart-div",
@@ -70,7 +70,7 @@ class View(warehouse_view.MalawiWarehouseView):
         
         # for label in ['pct']:
         for label in ['emergency', 'total']:
-            summary["number"] += 1
+            summary["legendcols"] += 1
 
             product_codes = []
             count = 0
@@ -90,7 +90,7 @@ class View(warehouse_view.MalawiWarehouseView):
 
         eo_table = {
             "id": "hsa-emergency-order-product",
-            "is_datatable": False,
+            "is_datatable": True,
             "header": ["Product"],
             "data": []
         }
