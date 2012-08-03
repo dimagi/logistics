@@ -103,9 +103,9 @@ class View(warehouse_view.MalawiWarehouseView):
 
         line_data = []
         for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
-            table["header"].append(datetime(year,month,1).strftime("%b-%Y"))
+            eo_table["header"].append(datetime(year,month,1).strftime("%b-%Y"))
             for eo in prd_map.keys():
-                table["data"].append([eo.sms_code, prd_map[eo]['pct']])
+                eo_table["data"].append([eo.sms_code, prd_map[eo]['pct']])
             for type in type_map.keys():
                 line_data.append([datetime(year, month, 1).strftime("%b-%Y"), type_map[type]['pct']])
 

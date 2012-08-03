@@ -9,7 +9,7 @@ $(document).ready(function() {
        xaxis: { 
                ticks: {{ summary.xlabels|safe }}
               }, 
-       legend: { show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.number|default3 }} },
+       legend: { show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.number|default:3 }} },
        yaxis: { max: {{ summary.max_value }},
                 tickDecimals: 0 },
        grid: {show: true,
