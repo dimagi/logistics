@@ -44,30 +44,6 @@ class View(warehouse_view.MalawiWarehouseView):
                 type_map[oreq.product.type]['pct'][key] = pct(prd_map[oreq.product.type]['emergency'][key],prd_map[oreq.product.type]['total'][key])
                 max_val = 100
 
-        # fake test data delete this ######
-        from random import random
-        prd_map = SortedDict()
-        type_map = SortedDict()
-        for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
-            for product in Product.objects.all():
-                prd_map[product] = {}
-                prd_map[product]['emergency'] = {}
-                prd_map[product]['total'] = {}
-                prd_map[product]['pct'] = {}
-                type_map[product.type] = {}
-                type_map[product.type]['emergency'] = {}
-                type_map[product.type]['total'] = {}
-                type_map[product.type]['pct'] = {}
-        for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
-            for product in Product.objects.all():
-                prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')] = random()*50
-                prd_map[product]['total'][datetime(year,month,1).strftime('%Y-%m')] = prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')]*(random()+1)
-                prd_map[product]['pct'][datetime(year,month,1).strftime('%Y-%m')] = pct(prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')], prd_map[product]['total'][datetime(year,month,1).strftime('%Y-%m')])
-                type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')] = random()*50
-                type_map[product.type]['total'][datetime(year,month,1).strftime('%Y-%m')] = type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')]*(random()+1)
-                type_map[product.type]['pct'][datetime(year,month,1).strftime('%Y-%m')] = pct(type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')], type_map[product.type]['total'][datetime(year,month,1).strftime('%Y-%m')])
-                max_val = 100
-        # end test data ####### 
 
         # prd_map = remove_zeros_from_dict(prd_map, 'total')[0]
         # type_map = remove_zeros_from_dict(type_map, 'total')[0]
