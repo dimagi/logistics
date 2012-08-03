@@ -124,7 +124,10 @@ class View(warehouse_view.MalawiWarehouseView):
                     }
             for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
                 count += 1
-                temp["data"].append([count, type_map[type]['pct'][date.strftime('%Y-%m')]])
+                if type_map[type]['pct'].has_key(date.strftime('%Y-%m')):
+                    temp["data"].append([count, type_map[type]['pct'][date.strftime('%Y-%m')]])
+                else:
+                    temp["data"].append([count, "No Data"])
             line_chart["data"].append(temp)
 
         return {

@@ -204,7 +204,7 @@ def avg_of_key_values(dictionary, key_list):
     for key in key_list:
         if dictionary.has_key(key):
             count += 1
-    return float(total)/float(count)
+    return pct(total, count) / 100
 
 def get_datelist(start, end):
     return [datetime(year, month, 1)\
