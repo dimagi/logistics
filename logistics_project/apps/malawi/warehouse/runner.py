@@ -19,8 +19,8 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
-    ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData
-
+    ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
+    TIME_TRACKER_TYPES, TimeTracker
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """
@@ -29,6 +29,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
     # debug stuff
     skip_hsas = False
     skip_aggregates = False
+    skip_reporting_rates = False
+    skip_product_availability = False
+    skip_lead_times = False
     hsa_limit = 0
     
     def cleanup(self, start, end):
@@ -180,36 +183,50 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         
                         product_summary.save()                            
                     
-                    _update_reporting_rate()
-                    _update_product_availability()
+                    def _update_lead_times():
+                        pass
+                    
+                    if not self.skip_reporting_rates:
+                        _update_reporting_rate()
+                    if not self.skip_product_availability:
+                        _update_product_availability()
+                    if not self.skip_lead_times:
+                        _update_lead_times()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
             .exclude(type__code='hsa').order_by('id')
         # national only
         # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
-                
+        if self.skip_aggregates: return
+        
         for place in non_hsas:
             print "processing non-hsa %s (%s)" % (place.name, str(place.id))
             relevant_hsas = hsa_supply_points_below(place.location)
             
             for year, month in months_between(start, end):
                 window_date = datetime(year, month, 1)
-                _aggregate(ReportingRate, window_date, place, relevant_hsas, 
-                           fields=['total', 'reported', 'on_time', 'complete'])
-                for p in Product.objects.all():
-                    _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
-                               fields=['total', 'managed'] + \
-                                    ProductAvailabilityData.STOCK_CATEGORIES + \
-                                    ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
-                               additonal_query_params={"product": p})
-                _aggregate(ProductAvailabilityDataSummary, window_date, place, 
-                           relevant_hsas, fields=['total', 'any_managed'] + \
-                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
-
+                if not self.skip_reporting_rates:
+                    _aggregate(ReportingRate, window_date, place, relevant_hsas, 
+                               fields=['total', 'reported', 'on_time', 'complete'])
+                if not self.skip_product_availability:
+                    for p in Product.objects.all():
+                        _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
+                                   fields=['total', 'managed'] + \
+                                        ProductAvailabilityData.STOCK_CATEGORIES + \
+                                        ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
+                                   additonal_query_params={"product": p})
+                    _aggregate(ProductAvailabilityDataSummary, window_date, place, 
+                               relevant_hsas, fields=['total', 'any_managed'] + \
+                               ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
+                if not self.skip_lead_times:
+                    for code, name in TIME_TRACKER_TYPES:
+                        _aggregate(TimeTracker, window_date, place, relevant_hsas,
+                                   fields=['total', 'time_in_seconds'],
+                                   additonal_query_params={"type": code})
+        
         # run user profile summary
         update_user_profile_data()
-
 
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
                additonal_query_params={}):

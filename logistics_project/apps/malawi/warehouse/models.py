@@ -104,7 +104,9 @@ class ReportingRate(MalawiWarehouseModel):
     @property
     def pct_complete(self): return fmt_pct(self.complete, self.total)
         
-            
+
+TIME_TRACKER_TYPES = (('ord-or', 'order - order ready'),
+                      ('or-rec', 'order ready - received'))            
 class TimeTracker(MalawiWarehouseModel):
     """
     For keeping track of a time between two events. Currently used for 
@@ -112,9 +114,9 @@ class TimeTracker(MalawiWarehouseModel):
     include multiple values into an average.
     """
     # Lead times: all 
-    type = models.CharField(max_length=10) # e.g. ord-ready
+    type = models.CharField(max_length=10, choices=TIME_TRACKER_TYPES) 
     total = models.PositiveIntegerField(default=0) # number of contributions to this
-    time_in_seconds = models.PositiveIntegerField(default=0)
+    time_in_seconds = models.BigIntegerField(default=0)
     
 class OrderRequest(MalawiWarehouseModel):
     """
