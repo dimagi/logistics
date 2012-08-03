@@ -190,6 +190,26 @@ def increment_dict_item(dictionary, key, val):
         dictionary[key] = val
     return dictionary
 
+def list_key_values(dictionary, key_list=None):
+    if not key_list:
+        key_list = dictionary.keys()
+    return [dictionary[key] for key in key_list if dictionary.has_key(key)]
+
+def sum_of_key_values(dictionary, key_list):
+    return sum(list_key_values(dictionary, key_list)) 
+
+def avg_of_key_values(dictionary, key_list):
+    total = sum_of_key_values(dictionary, key_list)
+    count = 0
+    for key in key_list:
+        if dictionary.has_key(key):
+            count += 1
+    return float(total)/float(count)
+
+def get_datelist(start, end):
+    return [datetime(year, month, 1)\
+            for year, month in months_between(start, end)]
+
 def remove_zeros_from_dict(dicti, key_val):
     dictionary = deepcopy(dicti)
     if dictionary.has_key(key_val):

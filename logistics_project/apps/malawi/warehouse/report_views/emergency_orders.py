@@ -1,3 +1,4 @@
+import itertools
 from datetime import datetime
 
 from django.utils.datastructures import SortedDict
@@ -9,7 +10,8 @@ from logistics.models import Product
 from logistics_project.apps.malawi.util import get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, get_window_range, increment_dict_item
+    current_report_period, get_window_date, get_window_range, increment_dict_item,\
+    get_datelist, avg_of_key_values, list_key_values
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -17,39 +19,54 @@ class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         sp_code = request.GET.get('place') or get_country_sp().code
-        window_range = get_window_range(request)
 
-        oreqs = OrderRequest.objects.filter(supply_point__code=sp_code, date__range=window_range)
+        oreqs = {}
+        for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
+            oreqs[date.strftime('%Y-%m')] =\
+                OrderRequest.objects.filter(supply_point__code=sp_code, date=date)
         prd_map = SortedDict()
         type_map = SortedDict()
         for product in Product.objects.all():
             prd_map[product] = {}
             type_map[product.type] = {}
+            for label in ['emergency', 'total', 'pct']:
+                prd_map[product][label] = {}
+                type_map[product.type][label] = {}
 
         max_val = 0
-        for oreq in oreqs:
-            prd_map[oreq.product]['emergency'] = increment_dict_item(prd_map[oreq.product], 'emergency', oreq.emergency)
-            prd_map[oreq.product]['total'] = increment_dict_item(prd_map[oreq.product], 'total', oreq.total)
-            prd_map[oreq.product]['pct'] = pct(prd_map[oreq.product]['emergency'],prd_map[oreq.product]['total'])
-            type_map[oreq.product.type]['emergency'] = increment_dict_item(prd_map[oreq.product.type], 'emergency', oreq.emergency)
-            type_map[oreq.product.type]['total'] = increment_dict_item(prd_map[oreq.product.type], 'total', oreq.total)
-            type_map[oreq.product.type]['pct'] = pct(prd_map[oreq.product.type]['emergency'],prd_map[oreq.product.type]['total'])
-            max_val = 100
+        for key in oreqs.keys():
+            for oreq in oreqs[key]:
+                prd_map[oreq.product]['emergency'][key] = increment_dict_item(prd_map[oreq.product], 'emergency', oreq.emergency)
+                prd_map[oreq.product]['total'][key] = increment_dict_item(prd_map[oreq.product], 'total', oreq.total)
+                prd_map[oreq.product]['pct'][key] = pct(prd_map[oreq.product]['emergency'][key],prd_map[oreq.product]['total'][key])
+                type_map[oreq.product.type]['emergency'][key] = increment_dict_item(prd_map[oreq.product.type], 'emergency', oreq.emergency)
+                type_map[oreq.product.type]['total'][key] = increment_dict_item(prd_map[oreq.product.type], 'total', oreq.total)
+                type_map[oreq.product.type]['pct'][key] = pct(prd_map[oreq.product.type]['emergency'][key],prd_map[oreq.product.type]['total'][key])
+                max_val = 100
 
         # fake test data delete this ######
         from random import random
         prd_map = SortedDict()
         type_map = SortedDict()
-        for product in Product.objects.all():
-            prd_map[product] = {}
-            prd_map[product]['emergency'] = random()*50
-            prd_map[product]['total'] = prd_map[product]['emergency']*(random()+1)
-            prd_map[product]['pct'] = pct(prd_map[product]['emergency'], prd_map[product]['total'])
-            type_map[product.type] = {}
-            type_map[product.type]['emergency'] = random()*50
-            type_map[product.type]['total'] = type_map[product.type]['emergency']*(random()+1)
-            type_map[product.type]['pct'] = pct(type_map[product.type]['emergency'], type_map[product.type]['total'])
-            max_val = 100
+        for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+            for product in Product.objects.all():
+                prd_map[product] = {}
+                prd_map[product]['emergency'] = {}
+                prd_map[product]['total'] = {}
+                prd_map[product]['pct'] = {}
+                type_map[product.type] = {}
+                type_map[product.type]['emergency'] = {}
+                type_map[product.type]['total'] = {}
+                type_map[product.type]['pct'] = {}
+        for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+            for product in Product.objects.all():
+                prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')] = random()*50
+                prd_map[product]['total'][datetime(year,month,1).strftime('%Y-%m')] = prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')]*(random()+1)
+                prd_map[product]['pct'][datetime(year,month,1).strftime('%Y-%m')] = pct(prd_map[product]['emergency'][datetime(year,month,1).strftime('%Y-%m')], prd_map[product]['total'][datetime(year,month,1).strftime('%Y-%m')])
+                type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')] = random()*50
+                type_map[product.type]['total'][datetime(year,month,1).strftime('%Y-%m')] = type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')]*(random()+1)
+                type_map[product.type]['pct'][datetime(year,month,1).strftime('%Y-%m')] = pct(type_map[product.type]['emergency'][datetime(year,month,1).strftime('%Y-%m')], type_map[product.type]['total'][datetime(year,month,1).strftime('%Y-%m')])
+                max_val = 100
         # end test data ####### 
 
         # prd_map = remove_zeros_from_dict(prd_map, 'total')[0]
@@ -59,6 +76,7 @@ class View(warehouse_view.MalawiWarehouseView):
             "legendcols": 0,
             "xlabels": [],
             "legenddiv": "legend-div",
+            "show_legend": "true",
             "div": "chart-div",
             "max_value": max_val,
             "width": "100%",
@@ -68,8 +86,11 @@ class View(warehouse_view.MalawiWarehouseView):
             "yaxistitle": "Orders"
         }
         
-        # for label in ['pct']:
-        for label in ['emergency', 'total']:
+        include_stacks = ['pct']
+        for label in include_stacks:
+            if len(include_stacks) < 2:
+                summary["show_legend"] = "false"
+
             summary["legendcols"] += 1
 
             product_codes = []
@@ -82,7 +103,10 @@ class View(warehouse_view.MalawiWarehouseView):
                 count += 1
                 product_codes.append([count, '<span>%s</span>' % (str(eo.code.lower()))])
                 if prd_map[eo].has_key(label):
-                    data_map[label].append([count, prd_map[eo][label]])
+                    all_months = avg_of_key_values(prd_map[eo][label],\
+                            [date.strftime('%Y-%m') for date in\
+                                get_datelist(request.datespan.startdate, request.datespan.enddate)])
+                    data_map[label].append([count, all_months])
             
             summary['data'].append({"label": label, "data": data_map[label]})
 
@@ -109,12 +133,12 @@ class View(warehouse_view.MalawiWarehouseView):
         }
 
         count = 0
-        for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+        for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
             count += 1
-            line_chart["xlabels"].append([count, datetime(year, month, 1).strftime("%b-%Y")])
-            eo_table["header"].append(datetime(year,month,1).strftime("%b-%Y"))
-            for eo in prd_map.keys():
-                eo_table["data"].append([eo.sms_code, prd_map[eo]['pct']])
+            line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
+            eo_table["header"].append(date.strftime("%b-%Y"))
+        for eo in prd_map.keys():
+            eo_table["data"].append([item for item in itertools.chain([eo.sms_code], list_key_values(prd_map[eo]['pct']))])
         for type in type_map.keys():
             count = 0
             temp = {'data': [],
@@ -122,9 +146,9 @@ class View(warehouse_view.MalawiWarehouseView):
                     'lines': {"show": 1},
                     'bars': {"show": 0}
                     }
-            for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+            for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
                 count += 1
-                temp["data"].append([count, type_map[type]['pct']])
+                temp["data"].append([count, type_map[type]['pct'][date.strftime('%Y-%m')]])
             line_chart["data"].append(temp)
 
         return {
