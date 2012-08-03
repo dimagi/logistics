@@ -90,7 +90,7 @@ class View(warehouse_view.MalawiWarehouseView):
 
         eo_table = {
             "id": "hsa-emergency-order-product",
-            "is_datatable": True,
+            "is_datatable": False,
             "header": ["Product"],
             "data": []
         }
@@ -98,19 +98,34 @@ class View(warehouse_view.MalawiWarehouseView):
         line_chart = {
             "height": "350px",
             "width": "100%", # "300px",
-            "series": [],
+            "div": "eo-line-chart",
+            "legenddiv": "eo-line-legend",
+            "legend-cols": 5,
+            "xaxistitle": '',
+            "yaxistitle": '',
+            "max_value": 100,
+            "xlabels": [],
+            "data": []
         }
 
-        line_data = []
+        count = 0
         for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+            count += 1
+            line_chart["xlabels"].append([count, datetime(year, month, 1).strftime("%b-%Y")])
             eo_table["header"].append(datetime(year,month,1).strftime("%b-%Y"))
             for eo in prd_map.keys():
                 eo_table["data"].append([eo.sms_code, prd_map[eo]['pct']])
-            for type in type_map.keys():
-                line_data.append([datetime(year, month, 1).strftime("%b-%Y"), type_map[type]['pct']])
-
         for type in type_map.keys():
-            line_chart["series"].append({"title": type.name, "data": line_data})
+            count = 0
+            temp = {'data': [],
+                    'label': str(type.name),
+                    'lines': {"show": 1},
+                    'bars': {"show": 0}
+                    }
+            for year, month in months_between(request.datespan.startdate, request.datespan.enddate):
+                count += 1
+                temp["data"].append([count, type_map[type]['pct']])
+            line_chart["data"].append(temp)
 
         return {
                 'summary': summary,
