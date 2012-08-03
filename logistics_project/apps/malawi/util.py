@@ -21,7 +21,6 @@ def pct(num, denom):
 def fmt_pct(num, denom):
     return "%.2f%%" % pct(num, denom)
 
-
 def get_hsa(hsa_id):
     """
     Attempt to get an HSA by code, return None if unable to find them.

@@ -9,9 +9,9 @@ $(document).ready(function() {
        xaxis: { 
                ticks: {{ summary.xlabels|safe }}
               }, 
-       legend: { show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.number }} },
-       yaxis: {max: {{ summary.max_value }},
-               tickDecimals: 0 },
+       legend: { show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.number|default3 }} },
+       yaxis: { max: {{ summary.max_value }},
+                tickDecimals: 0 },
        grid: {show: true,
               tickColor: 'gray',
               backgroundColor: '#FFFFFF',

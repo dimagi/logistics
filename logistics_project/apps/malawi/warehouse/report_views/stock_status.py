@@ -47,7 +47,8 @@ class View(warehouse_view.MalawiWarehouseView):
                         for p, pad in p_pad_tuples]
         
         ret_obj['product_table'] = {
-            "title": "",
+            "id": "product-table",
+            "is_datatable": False,
             "header": ["Product"] + headings,
             "data": product_data,
         }
@@ -62,7 +63,8 @@ class View(warehouse_view.MalawiWarehouseView):
                          for k in ordered_slugs] \
                         for d, pads in d_pads_tuples]
         ret_obj['district_table'] = {
-            "title": "",
+            "id": "district-table",
+            "is_datatable": False,
             "header": ["District"] + headings,
             "data": district_data,
         }

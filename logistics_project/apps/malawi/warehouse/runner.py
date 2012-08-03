@@ -5,6 +5,8 @@ from django.db.models import Sum, Max
 
 from dimagi.utils.dates import months_between, first_of_next_month
 
+from rapidsms.contrib.messagelog.models import Message
+
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product
 from logistics.util import config
@@ -14,9 +16,11 @@ from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
 
 from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
-    hsa_supply_points_below
+    hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
+    get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
-    ProductAvailabilityData, ProductAvailabilityDataSummary
+    ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData
+
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """
@@ -203,6 +207,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
                            relevant_hsas, fields=['total', 'any_managed'] + \
                            ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
 
+        # run user profile summary
+        update_user_profile_data()
+
+
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
                additonal_query_params={}):
     """
@@ -221,3 +229,34 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
     [setattr(period_instance, f, totals["%s__sum" % f] or 0) for f in fields]
     period_instance.save()
     return period_instance
+
+
+def update_user_profile_data():
+    for supply_point in SupplyPoint.objects.all():
+        new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
+
+        new_obj.facility_children = facility_supply_points_below(supply_point.location).count()
+        new_obj.hsa_children = hsa_supply_points_below(supply_point.location).count()
+
+        new_obj.in_charge = get_in_charge(supply_point).count()
+        new_obj.hsa_supervisors = get_hsa_supervisors(supply_point).count()
+        new_obj.supervisor_contacts = get_supervisors(supply_point).count()
+        new_obj.contacts = supply_point.active_contact_set.count()
+
+        new_obj.contact_info = ''
+        if supply_point.type.code == "hsa":
+            if supply_point.contacts().count():
+                contact = supply_point.contacts()[0]
+                if contact.default_connection:
+                    new_obj.contact_info = contact.default_connection.identity
+                
+                msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')
+                if msgs.count() > 0:
+                    new_obj.last_message = msgs[0]
+
+        new_obj.products_managed = ''
+        for product in supply_point.commodities_stocked():
+                new_obj.products_managed += ' %s' % product.sms_code
+
+        new_obj.save()
+    return True

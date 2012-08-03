@@ -17,7 +17,6 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
-        ret_obj = {}
         shared_headers = ["% Reporting", "% Rep on time", "% Late Rep", "% No Rep", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         
@@ -33,8 +32,9 @@ class View(warehouse_view.MalawiWarehouseView):
         month_data = [[dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
                       for dt, rr in months.items()]
         
-        ret_obj['month_table'] = {
-            "title": "",
+        month_table = {
+            "id": "month-table",
+            "is_datatable": False,
             "header": ["Months"] + shared_headers,
             "data": month_data,
         }
@@ -57,8 +57,9 @@ class View(warehouse_view.MalawiWarehouseView):
         
         # district breakdown
             
-        ret_obj['district_table'] = {
-            "title": "Average Reporting Rate (Districts)",
+        district_table = {
+            "title": "average-reporting-rate-districts",
+            "is_datatable": False,
             "header": ["Districts"] + shared_headers,
             "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
                                                 request.datespan.startdate,
@@ -66,9 +67,11 @@ class View(warehouse_view.MalawiWarehouseView):
         }
         
         # facility breakdown
+        facility_table = None
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
-            ret_obj['facility_table'] = {
-                "title": "Average Reporting Rate (Facilities)",
+            facility_table = {
+                "title": "average-reporting-rate-facilities",
+                "is_datatable": False,
                 "header": ["Facilities"] + shared_headers,
                 "data": _avg_report_rate_table_data\
                     (facility_supply_points_below(sp.location).order_by('name'),
@@ -76,8 +79,10 @@ class View(warehouse_view.MalawiWarehouseView):
                      request.datespan.enddate)
             }
         
-        # chart
-        ret_obj['graphdata'] = get_reporting_rates_chart(request.location, 
-                                                         request.datespan.startdate, 
-                                                         request.datespan.enddate)
-        return ret_obj
+        return {"month_table": month_table,
+                "district_table": district_table,
+                "facility_table": facility_table,
+                "graphdata" : get_reporting_rates_chart(request.location, 
+                                                        request.datespan.startdate, 
+                                                        request.datespan.enddate)
+                }

@@ -8,17 +8,17 @@ class View(warehouse_view.MalawiWarehouseView):
         ret_obj = {}
 
         table1 = {
-            "title": "District Consumption Profiles",
+            "id": "district-consumption-profiles",
+            "is_datatable": False,
             "header": ["Product", "Total Calc Cons", "Av Rep Rate", "AMC", "Total SOH"],
             "data": [['cc', 312, "47%", 5, 354], ['dt', 1322, "21%", 4, 121], ['sr', 4123, "14%", 4, 634]],
-            "cell_width": "135px",
         }
 
         table2 = {
-            "title": "Facility Consumption Profiles",
+            "id": "facility-consumption-profiles",
+            "is_datatable": False,
             "header": ["Product", "Total Calc Cons", "Av Rep Rate", "AMC", "Total SOH"],
             "data": [['cc', 3234, "40%", 5, 345], ['dt', 2123, "52%", 4, 111], ['sr', 4132, "43%", 4, 634]],
-            "cell_width": "135px",
         }
 
         line_chart = {

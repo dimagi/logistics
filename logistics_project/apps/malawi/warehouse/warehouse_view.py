@@ -5,10 +5,10 @@ from logistics.models import Product, SupplyPoint
 from logistics.warehouse_view import WarehouseView
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp
+    get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func,\
-    current_report_period, pct
+    current_report_period
 
 
 class MalawiWarehouseView(WarehouseView):

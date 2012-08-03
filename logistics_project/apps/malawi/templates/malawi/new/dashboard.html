@@ -8,44 +8,29 @@
     <div class="col-1">
         <div class="module">
             <h2>Reporting rates &amp; stockout summary</h2>
-
-            <table>
-    		    <thead><tr>
-    		        <th>District</th>
-    		        <th>Rep Rate</th>
-    		        <th>% HSA with at least one stockout</th>
-    		    </tr></thead>
-    		    <tbody>
-        		{% for d, vals in summary_data.items %}
-        		    <tr> 
-    	       	        <td>{{ d.name }}</td>
-    	                <td>{{ vals.reporting_rate|floatformat }}%</td>
-    		            <td>{{ vals.stockout_pct|floatformat }}%</td>
-    		        </tr>
-    		    {% endfor %}        
-    		    </tbody>
-    		</table>
-
+            {% with dsummary_table as table %}
+                {% include "malawi/new/partials/generic-table.html" %}
+            {% endwith %}
 		</div>
     </div>
     <div class="col-2">
         <div class="module">
-        <h2>Alerts</h2>
-
-            <table>
-                <thead><tr><th></th><th>% HSAs</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>HSA not resupplied due to OS at HC</td>
-                        <td>17%</td>
-                    </tr>
-                    <tr>
-                        <td>HSA resupplied but remains below EO</td>
-                        <td>23%</td>
-                    </tr>
-			    </tbody>
-            </table>
-
+            <h2>Alerts</h2>
+            <!-- fake data -->
+                <table>
+                    <thead><tr><th></th><th>% HSAs</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td>HSA not resupplied due to OS at HC</td>
+                            <td>17%</td>
+                        </tr>
+                        <tr>
+                            <td>HSA resupplied but remains below EO</td>
+                            <td>23%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            <!--  -->
         </div>
     </div>
 </div>

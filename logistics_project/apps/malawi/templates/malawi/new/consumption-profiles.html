@@ -4,22 +4,24 @@
 {% include "malawi/partials/selector_form.html" %}
 
 <div class="module">
-{% with table1 as table %}
-{% include "malawi/new/partials/generic-table.html" %}
-{% endwith %}
+	<h2>District Consumption Profiles</h2>
+	{% with table1 as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 <div class="module">
-{% with table2 as table %}
-{% include "malawi/new/partials/generic-table.html" %}
-{% endwith %}
+	<h2>Facility Consumption Profiles</h2>
+	{% with table2 as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 <div class="module">
-
-<h2>AMC and MOS by Product</h2>
-{% include "malawi/new/partials/generic-line-chart.html" %}
-
+	<h2>AMC and MOS by Product</h2>
+	{% with line_chart as graphdata %}
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+	{% endwith %}
 </div>
 
 {% endblock %}

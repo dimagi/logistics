@@ -5,26 +5,31 @@
 
 <div class="module">
     <h2>Average Reporting Rate by Month</h2>
+    {% with graphdata as graphdata %}
     {% include "malawi/new/partials/reporting-rate-chart.html" %}
+    {% endwith %}
 </div>
 
 <div class="module">
-{% with month_table as table %}
-{% include "malawi/new/partials/generic-table.html" %}
-{% endwith %}
+	<h2></h2>
+	{% with month_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 <div class="module">
-{% with district_table as table %}
-{% include "malawi/new/partials/generic-table.html" %}
-{% endwith %}
+	<h2>Average Reporting Rate (Districts)</h2>
+	{% with district_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 {% if facility_table %}
-<div class="module">
-{% with facility_table as table %}
-{% include "malawi/new/partials/generic-table.html" %}
-{% endwith %}
-</div>
+	<div class="module">
+		<h2>Average Reporting Rate (Facilities)</h2>
+		{% with facility_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
 {% endif %}
 {% endblock %}

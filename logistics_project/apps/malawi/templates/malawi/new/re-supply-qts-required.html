@@ -3,9 +3,10 @@
 
 
 <div class="module">
-
-{% include "malawi/new/partials/generic-table.html" %}
-
+	<h2>All Products (Aggregated Quantity required to ensure that HC can resupply</h2>
+	{% with table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 {% endblock %}

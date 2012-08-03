@@ -126,7 +126,6 @@ class OrderRequest(MalawiWarehouseModel):
     total = models.PositiveIntegerField(default=0)
     emergency = models.PositiveIntegerField(default=0)
     
-    
 class OrderFulfillment(MalawiWarehouseModel):
     """
     Each time an order is fulfilled, add up the amount requested and

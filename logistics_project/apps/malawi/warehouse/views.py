@@ -9,10 +9,10 @@ from logistics.decorators import place_in_request
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp
+    get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func,\
-    current_report_period, pct
+    current_report_period
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas

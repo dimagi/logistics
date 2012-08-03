@@ -6,10 +6,10 @@ from dimagi.utils.dates import months_between
 
 from logistics.models import Product
 
-from logistics_project.apps.malawi.util import get_country_sp
+from logistics_project.apps.malawi.util import get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, get_window_range, pct, increment_dict_item
+    current_report_period, get_window_date, get_window_range, increment_dict_item
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -88,9 +88,9 @@ class View(warehouse_view.MalawiWarehouseView):
 
         summary['xlabels'] = product_codes
 
-        table = {
-            "title": "%HSA with Emergency Order by Product",
-            "cell_width": "135px",
+        eo_table = {
+            "id": "hsa-emergency-order-product",
+            "is_datatable": True,
             "header": ["Product"],
             "data": []
         }
@@ -114,6 +114,6 @@ class View(warehouse_view.MalawiWarehouseView):
 
         return {
                 'summary': summary,
-                'table': table,
+                'eo_table': eo_table,
                 'line': line_chart
                 }

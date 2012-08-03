@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.utils.datastructures import SortedDict
 
-from logistics_project.apps.malawi.util import get_districts
+from logistics_project.apps.malawi.util import get_districts, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
     ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, pct
+    current_report_period, get_window_date
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -26,8 +26,29 @@ class View(warehouse_view.MalawiWarehouseView):
             summary_data[d] = {"stockout_pct": stockout_pct,
                                "reporting_rate": reporting_rate}
         
+        dsummary_table = {
+            "id": "reporting-rates-and-stockout-summary",
+            "is_datatable": False,
+            "header": ["District", "Rep Rate", "% HSA with at least one stockout"],
+            "data": [],
+        }
+        for d, vals in summary_data.iteritems():
+            dsummary_table["data"].append([d.name, "%.1f%%" % vals["reporting_rate"], "%.1f%%" % vals["stockout_pct"]])
+
+
+        alert_table = {
+            "id": "alert-table",
+            "is_datatable": False,
+            "header": ["", "% HSAs"],
+            "data": [],
+        }
+        # for alert in alerts:
+        #     alert_table["data"].append(alert.text, alert.value)
+
+
         # report chart
-        return {"summary_data": summary_data,
+        return {"dsummary_table": dsummary_table,
+                "alert_table": alert_table,
                 "graphdata": get_reporting_rates_chart(request.location, 
                                                        request.datespan.startdate, 
                                                        window_date)}

@@ -6,10 +6,10 @@ class View(warehouse_view.MalawiWarehouseView):
 	    ret_obj = {}
 
 	    table = {
-	        "title": "Current Alert Summary",
+	        "id": "current-alert-summary",
+	        "is_datatable": False,
 	        "header": ["Facility", "# HSA", "%HSA stocked out", "%HSA with EO", "%HSA with no Products"],
 	        "data": [['BULA', 332, 42, 53, 35], ['Chesamu', 232, 25, 41, 11], ['Chikwina', 443, 41, 41, 46]],
-	        "cell_width": "135px",
 	    }
 	    
 	    ret_obj['table'] = table

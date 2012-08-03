@@ -6,18 +6,22 @@
 
 <div class="module">
     <h2>Average Lead Times</h2>
+    {% with summary as summary %}
     {% include "malawi/new/partials/generic-stack-chart.html" %}
+    {% endwith %}
 </div>
 
 <div class="module">
+	<h2></h2>
 	{% with month_table as table %}
-	    {% include "malawi/new/partials/generic-table.html" %}
+	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 
 <div class="module">
+	<h2>Average Lead Times by Facility</h2>
 	{% with lt_table as table %}
-	    {% include "malawi/new/partials/generic-table.html" %}
+	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 

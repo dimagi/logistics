@@ -11,20 +11,22 @@
 </div>
 
 <div class="module">
+	<h2></h2>
 	{% with district_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 
 <div class="module">
-<form method="get" id="selector">
-    {% include "malawi/new/partials/product-type-selector.html" %}
-    {% include "malawi/new/partials/month-selector.html" %}
-    <input type="submit" value="Go!" />
-</form>
-<h2>HSA Stockouts by Product Category </h2>
-{% include "malawi/new/partials/generic-line-chart.html" %}
-
+	<form method="get" id="selector">
+	    {% include "malawi/new/partials/product-type-selector.html" %}
+	    {% include "malawi/new/partials/month-selector.html" %}
+	    <input type="submit" value="Go!" />
+	</form>
+	<h2>HSA Stockouts by Product Category </h2>
+	{% with graphdata as graphdata %}
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+	{% endwith %}
 </div>
 
 {% endblock %}

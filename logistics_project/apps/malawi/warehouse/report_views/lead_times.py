@@ -40,13 +40,15 @@ class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         month_table = {
-            "title": "",
+            "id": "month-table",
+            "is_datatable": False,
             "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": [['Jan', 3, 14, 7], ['Feb', 12, 7, 4], ['Mar', 14, 6, 4]],
         }
 
         lt_table = {
-            "title": "Average Lead Times by Facility",
+            "id": "average-lead-times-facility",
+            "is_datatable": False,
             "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": [['BULA', 6, 31, 42, 37], ['Chesamu', 6, 212, 27, 14], ['Chikwina', 6, 143, 61, 14]],
         }    

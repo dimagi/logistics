@@ -6,10 +6,10 @@ from dimagi.utils.dates import months_between
 
 from logistics.models import Product
 
-from logistics_project.apps.malawi.util import get_country_sp
+from logistics_project.apps.malawi.util import get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, get_window_range, pct, increment_dict_item
+    current_report_period, get_window_date, get_window_range, increment_dict_item
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -53,17 +53,17 @@ class View(warehouse_view.MalawiWarehouseView):
 
 
         table1 = {
-            "title": "Monthly Average OFR by Product (%)",
+            "id": "monthly-average-ofr",
+            "is_datatable": False,
             "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
             "data": [['cc', 32, 41, 54, 35], ['dt', 23, 22, 41, 16], ['sr', 45, 44, 74, 26]],
-            "cell_width": "135px",
         }
 
         table2 = {
-            "title": "OFR for Selected Time Period by Facility and Product (%)",
+            "id": "ofr-facility-product",
+            "is_datatable": False,
             "header": ["Facility", "bi", "cl", "cf", "cm"],
             "data": [[3, 3, 4, 5, 3], [2, 2, 2, 4, 1], [4, 4, 4, 4, 6]],
-            "cell_width": "135px",
         }
 
 

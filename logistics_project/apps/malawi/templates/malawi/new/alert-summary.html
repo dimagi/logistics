@@ -3,9 +3,10 @@
 
 
 <div class="module">
-
-{% include "malawi/new/partials/generic-table.html" %}
-
+	<h2>Current Alert Summary</h2>
+	{% with table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
 
 {% endblock %}

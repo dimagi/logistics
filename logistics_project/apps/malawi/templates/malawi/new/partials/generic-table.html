@@ -1,29 +1,28 @@
-{% if table.title %}
-    <h2>{{ table.title}} </h2>
-{% endif %}
 <table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
-	{% for column_title in table.header %}
-		<th>{{ column_title }}</th>
-	{% endfor %}
+		{% for column_title in table.header %}
+			<th>{{ column_title }}</th>
+		{% endfor %}
 	</tr></thead>
 	<tbody>
-	{% for row in table.data %}
-		<tr>
-		{% for item in row %}
-			<td>{{ item }}</td>
+		{% for row in table.data %}
+			<tr>
+				{% for item in row %}
+					<td>{{ item }}</td>
+				{% endfor %}
+				</tr>
 		{% endfor %}
-		</tr>
-	{% endfor %}
 	</tbody>
 </table>
 
-<script language="javascript">
-$(document).ready(function() {
-	$("#{{ table.id }}").dataTable({
-		"sScrollY": "240px",
-		"bPaginate": false,
-		"bRetrieve": true
+{% if table.is_datatable %}
+	<script language="javascript">
+	$(document).ready(function() {
+		$("#{{ table.id }}").dataTable({
+			"sScrollY": "240px",
+			"bPaginate": false,
+			"bRetrieve": true
+		});
 	});
-});
-</script>
+	</script>
+{% endif %}

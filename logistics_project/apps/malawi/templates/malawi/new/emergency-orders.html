@@ -4,19 +4,24 @@
 {% include "malawi/partials/selector_form.html" %}
 
 <div class="module">
-<h2>Average %HSA with Emergency Orders</h2>
-{% include "malawi/new/partials/generic-stack-chart.html" %}
-
+	<h2>Average %HSA with Emergency Orders</h2>
+	{% with summary as summary %}
+	{% include "malawi/new/partials/generic-stack-chart.html" %}
+	{% endwith %}
 </div>
+
 <div class="module">
-
-{% include "malawi/new/partials/generic-table.html" %}
-
+	<h2>%HSA with Emergency Order by Product</h2>
+	{% with eo_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
-<div class="module">
-<h2>%HSA with EO by Product Category</h2>
-{% include "malawi/new/partials/generic-line-chart.html" %}
 
+<div class="module">
+	<h2>%HSA with EO by Product Category</h2>
+	{% with line_chart as graphdata %}
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+	{% endwith %}
 </div>
 
 {% endblock %}

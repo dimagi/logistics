@@ -2,6 +2,7 @@ import json
 from copy import deepcopy
 from datetime import datetime
 from collections import defaultdict
+from random import random
 
 from dimagi.utils.dates import months_between, add_months, DateSpan
 
@@ -10,7 +11,7 @@ from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ReportingRate
-from logistics_project.apps.malawi.util import get_country_sp
+from logistics_project.apps.malawi.util import get_country_sp, pct
 
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
@@ -60,8 +61,6 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     _flot_data = None
     @property
     def flot_data(self):
-        def _pct(num, denom):
-            return float(num) / (float(denom) or 1) * 100
 
         if self._flot_data is None:
             without_stock = []
@@ -72,15 +71,15 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
             products = []
             for i, product_summary in enumerate(self.data):
                 index = i + 1
-                under_stock.append([index, _pct(product_summary["under_stock"],
+                under_stock.append([index, pct(product_summary["under_stock"],
                                                 product_summary["total"])])
-                good_stock.append([index, _pct(product_summary["good_stock"],
+                good_stock.append([index, pct(product_summary["good_stock"],
                                                product_summary["total"])])
-                over_stock.append([index, _pct(product_summary["over_stock"],
+                over_stock.append([index, pct(product_summary["over_stock"],
                                                product_summary["total"])])
-                without_stock.append([index, _pct(product_summary["without_stock"],
+                without_stock.append([index, pct(product_summary["without_stock"],
                                                   product_summary["total"])])
-                without_data.append([index, _pct(product_summary["without_data"],
+                without_data.append([index, pct(product_summary["without_data"],
                                                  product_summary["total"])])
                 products.append([index, "<span title='%s'>%s</span>" % \
                                         (product_summary["product"].name, 
@@ -128,12 +127,11 @@ def malawi_default_date_func():
                     format='%B %Y')
 
 def get_reporting_rates_chart(location, start, end):
-    
-    def _pct(num, denom): return float(num) / (float(denom) or 1) * 100
 
+    uniq_id = "%d" % (random()*10000)
     report_chart = {
-        "legenddiv": "summary-legend-div",
-        "div": "summary-chart-div",
+        "legenddiv": "summary-legend-div-" + uniq_id,
+        "div": "summary-chart-div-" + uniq_id,
         "max_value": 100,
         "width": "100%",
         "height": "200px",
@@ -146,10 +144,10 @@ def get_reporting_rates_chart(location, start, end):
         dt = datetime(year, month, 1)
         dates.append(dt)
         rr = ReportingRate.objects.get(supply_point=sp, date=dt)
-        data["on time"][dt] = _pct(rr.on_time, rr.total)
-        data["late"][dt] = _pct(rr.reported - rr.on_time, rr.total)
-        data["missing"][dt] = _pct(rr.total - rr.reported, rr.total)
-        data["complete"][dt] = _pct(rr.complete, rr.total)
+        data["on time"][dt] = pct(rr.on_time, rr.total)
+        data["late"][dt] = pct(rr.reported - rr.on_time, rr.total)
+        data["missing"][dt] = pct(rr.total - rr.reported, rr.total)
+        data["complete"][dt] = pct(rr.complete, rr.total)
     
     ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
                  'label': k, 'lines': {"show": False}, "bars": {"show": True},
@@ -162,6 +160,7 @@ def get_reporting_rates_chart(location, start, end):
     
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
     report_chart['data'] = json.dumps(ret_data)
+    report_chart['number'] = 3
     return report_chart
 
 
@@ -202,9 +201,6 @@ def remove_zeros_from_dict(dicti, key_val):
             if _remove_zeros_from_dict(dictionary[key], key_val)[1]:
                 dictionary.pop(key)
     return dictionary, False
-
-def pct(num, denom):
-    return float(num) / (float(denom) or 1) * 100
 
 def month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
