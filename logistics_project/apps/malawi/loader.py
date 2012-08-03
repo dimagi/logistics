@@ -55,7 +55,7 @@ def load_products(file_path, log_to_console=True):
             if "product name" in line.lower():
                 continue
             #Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,
-            name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats = line.strip().split(",")
+            name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats, min_pack_size = line.strip().split(",")
             #create/load type
             type = ProductType.objects.get_or_create(name=typename, code=typename.lower())[0]
             
