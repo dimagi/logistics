@@ -70,7 +70,6 @@ class View(warehouse_view.MalawiWarehouseView):
         }
         
         # product line chart 
-        
         products = Product.objects.filter(type=selected_type) if selected_type else \
             Product.objects.all()
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
