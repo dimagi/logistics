@@ -5,23 +5,21 @@
 
 <div class="module">
 	<h2>Monthly Average OFR by Product Category</h2>
-	{% with line_chart as graphdata %}
 	{% include "malawi/new/partials/generic-line-chart.html" %}
-	{% endwith %}
 </div>
 
 <div class="module">
 	<h2>Monthly Average OFR by Product (%)</h2>
-	{% with table1 as table %}
+	{% with monthly_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
-
+{% if facility_table %}
 <div class="module">
 	<h2>OFR for Selected Time Period by Facility and Product (%)</h2>
-	{% with table2 as table %}
+    {% with facility_table as table %}	
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
-
+{% endif %}
 {% endblock %}

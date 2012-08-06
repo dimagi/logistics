@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.db.models import Sum, Max
+from django.db.models import Sum, Max, Q
 
 from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
 
@@ -20,8 +20,9 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
-    TIME_TRACKER_TYPES, TimeTracker, OrderRequest
+    TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment
 from static.malawi.config import TimeTrackerTypes
+
 
 class MalawiWarehouseRunner(WarehouseRunner):
     """
@@ -34,6 +35,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_product_availability = False
     skip_lead_times = False
     skip_order_requests = False
+    skip_order_fulfillment = False
     hsa_limit = 0
     
     def cleanup(self, start, end):
@@ -48,6 +50,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
             ProductAvailabilityDataSummary.objects.filter(date__gte=start, date__lte=end).delete()
         if not self.skip_lead_times:
             TimeTracker.objects.filter(date__gte=start, date__lte=end).delete()
+        if not self.skip_order_requests:
+            OrderRequest.objects.filter(date__gte=start, date__lte=end).delete()
+        if not self.skip_order_fulfillment:
+            OrderFulfillment.objects.filter(date__gte=start, date__lte=end).delete()
             
     def generate(self, start, end):
         print "Malawi warehouse generate!"
@@ -239,6 +245,21 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                 (product=p, is_emergency=True).count()
                             ord_req.save()
                             
+                    def _update_order_fulfillment():
+                        requests_in_range = StockRequest.objects.filter(\
+                            received_on__gte=period_start,
+                            received_on__lt=period_end,
+                            supply_point=hsa,
+                        ).exclude(Q(amount_requested=None) | Q(amount_received=None))
+                        for p in Product.objects.all():
+                            order_fulfill = OrderFulfillment.objects.get_or_create\
+                                (supply_point=hsa, date=window_date, product=p)[0]
+                            for r in requests_in_range.filter(product=p):
+                                order_fulfill.total += 1
+                                order_fulfill.quantity_requested += r.amount_requested
+                                order_fulfill.quantity_received += r.amount_received
+                            if requests_in_range.count():
+                                order_fulfill.save()
                     
                     if not self.skip_reporting_rates:
                         _update_reporting_rate()
@@ -248,6 +269,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         _update_lead_times()
                     if not self.skip_order_requests:
                         _update_order_requests()
+                    if not self.skip_order_fulfillment:
+                        _update_order_fulfillment()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
@@ -284,6 +307,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     for p in Product.objects.all():
                         _aggregate(OrderRequest, window_date, place, relevant_hsas,
                                    fields=['total', 'emergency'],
+                                   additonal_query_params={"product": p})
+                if not self.skip_order_fulfillment:
+                    for p in Product.objects.all():
+                        _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
+                                   fields=['total', 'quantity_requested', 'quantity_received'],
                                    additonal_query_params={"product": p})
         
         # run user profile summary
