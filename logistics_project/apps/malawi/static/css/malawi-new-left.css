@@ -89,3 +89,7 @@
 table.malawi-report {
     width: 100%;
 }
+
+fieldset {
+    border: none;
+}
