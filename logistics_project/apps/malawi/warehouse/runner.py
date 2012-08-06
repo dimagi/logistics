@@ -20,7 +20,7 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
-    TIME_TRACKER_TYPES, TimeTracker
+    TIME_TRACKER_TYPES, TimeTracker, OrderRequest
 from static.malawi.config import TimeTrackerTypes
 
 class MalawiWarehouseRunner(WarehouseRunner):
@@ -33,6 +33,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_reporting_rates = False
     skip_product_availability = False
     skip_lead_times = False
+    skip_order_requests = False
     hsa_limit = 0
     
     def cleanup(self, start, end):
@@ -223,13 +224,30 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             rr_tt.time_in_seconds += lt
                             rr_tt.total += 1
                         rr_tt.save()
-                        
+                    
+                    def _update_order_requests():
+                        requests_in_range = StockRequest.objects.filter(\
+                            requested_on__gte=period_start,
+                            requested_on__lt=period_end,
+                            supply_point=hsa
+                        )
+                        for p in Product.objects.all():
+                            ord_req = OrderRequest.objects.get_or_create\
+                                (supply_point=hsa, date=window_date, product=p)[0]
+                            ord_req.total += requests_in_range.filter(product=p).count()
+                            ord_req.emergency += requests_in_range.filter\
+                                (product=p, is_emergency=True).count()
+                            ord_req.save()
+                            
+                    
                     if not self.skip_reporting_rates:
                         _update_reporting_rate()
                     if not self.skip_product_availability:
                         _update_product_availability()
                     if not self.skip_lead_times:
                         _update_lead_times()
+                    if not self.skip_order_requests:
+                        _update_order_requests()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
@@ -262,6 +280,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         _aggregate(TimeTracker, window_date, place, relevant_hsas,
                                    fields=['total', 'time_in_seconds'],
                                    additonal_query_params={"type": code})
+                if not self.skip_order_requests:
+                    for p in Product.objects.all():
+                        _aggregate(OrderRequest, window_date, place, relevant_hsas,
+                                   fields=['total', 'emergency'],
+                                   additonal_query_params={"product": p})
         
         # run user profile summary
         update_user_profile_data()
