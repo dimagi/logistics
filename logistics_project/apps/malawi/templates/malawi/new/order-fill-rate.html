@@ -1,7 +1,16 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
-{% include "malawi/partials/selector_form.html" %}
+<form method="get" id="selector">
+    <fieldset>
+    {% include "malawi/new/partials/product-type-selector.html" %}
+    {% include "malawi/partials/location_selector.html" %}
+    </fieldset>
+    <fieldset>
+    {% include "malawi/new/partials/month-selector.html" %}
+    </fieldset>
+    <input type="submit" value="Go!" />
+</form>
 
 <div class="module">
 	<h2>Monthly Average OFR by Product Category</h2>

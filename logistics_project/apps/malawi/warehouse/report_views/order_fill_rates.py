@@ -14,7 +14,6 @@ from django.db.models import Sum
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
-        ret = {}
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_country_sp()
         
@@ -34,11 +33,11 @@ class View(warehouse_view.MalawiWarehouseView):
                     (supply_point=sp, product=p, date=dt)
                 data[p][dt] = of.average_fill_rate
             
-        graph_data = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
+        raw_graphdata = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
                        'label': p.sms_code, 'lines': {"show": True}, 
                        "bars": {"show": False}} \
                        for p in products]
-        ret['graphdata'] = {
+        graphdata = {
             "div": "order-fillrate-chart",
             "legenddiv": "order-fillrate-chart-legend",
             "legendcols": 10,
@@ -46,14 +45,14 @@ class View(warehouse_view.MalawiWarehouseView):
             "height": "350px",
             "width": "100%", 
             "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
-            "data": json.dumps(graph_data),
+            "data": json.dumps(raw_graphdata),
         }
         
         
         def _fmt(val):
             return "%.2f%%" % val if val is not None else "no data"
         
-        ret["monthly_table"] = {
+        monthly_table = {
             "id": "monthly-average-ofr",
             "is_datatable": False,
             "header": ["Product"] + [dt.strftime("%B") for dt in dates], 
@@ -76,5 +75,11 @@ class View(warehouse_view.MalawiWarehouseView):
                 "data": [[f.name] + [_avg_fill_rate(f, p, dates) for p in products] \
                          for f in facility_supply_points_below(sp.location).order_by('name')]
             }
-        ret["facility_table"] = facility_table
-        return ret
+        
+        return {
+            'product_types': ProductType.objects.all(),
+            'selected_type': selected_type,
+            'graphdata': graphdata,
+            'monthly_table': monthly_table,
+            'facility_table': facility_table
+        }
