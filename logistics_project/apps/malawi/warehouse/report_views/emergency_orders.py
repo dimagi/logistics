@@ -1,11 +1,12 @@
 import itertools
 from datetime import datetime
+from collections import defaultdict
 
 from django.utils.datastructures import SortedDict
 
 from dimagi.utils.dates import months_between
 
-from logistics.models import Product
+from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.util import get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
@@ -18,33 +19,29 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
-        sp_code = request.GET.get('place') or get_country_sp().code
-
-        oreqs = {}
-        for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
-            oreqs[date.strftime('%Y-%m')] =\
-                OrderRequest.objects.filter(supply_point__code=sp_code, date=date)
-        prd_map = SortedDict()
-        type_map = SortedDict()
-        for product in Product.objects.all():
-            prd_map[product] = {}
-            type_map[product.type] = {}
-            for label in ['emergency', 'total', 'pct']:
-                prd_map[product][label] = {}
-                type_map[product.type][label] = {}
-
-        max_val = 0
-        for key in oreqs.keys():
-            for oreq in oreqs[key]:
-                prd_map[oreq.product]['emergency'][key] = increment_dict_item(prd_map[oreq.product], 'emergency', oreq.emergency)
-                prd_map[oreq.product]['total'][key] = increment_dict_item(prd_map[oreq.product], 'total', oreq.total)
-                prd_map[oreq.product]['pct'][key] = pct(prd_map[oreq.product]['emergency'][key],prd_map[oreq.product]['total'][key])
-                type_map[oreq.product.type]['emergency'][key] = increment_dict_item(prd_map[oreq.product.type], 'emergency', oreq.emergency)
-                type_map[oreq.product.type]['total'][key] = increment_dict_item(prd_map[oreq.product.type], 'total', oreq.total)
-                type_map[oreq.product.type]['pct'][key] = pct(prd_map[oreq.product.type]['emergency'][key],prd_map[oreq.product.type]['total'][key])
-                max_val = 100
-
-
+        sp = SupplyPoint.objects.get(location=request.location) \
+            if request.location else get_country_sp()
+        
+        datelist = get_datelist(request.datespan.startdate, 
+                                request.datespan.enddate)
+        oreqs = dict([(date, OrderRequest.objects.filter(supply_point=sp, date=date)) \
+                      for date in datelist])
+        
+        # {product: {label: {date: val}}}
+        prd_map = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))) 
+        # {product.type: {label: {date: val}}}
+        type_map = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))) 
+        for date in oreqs.keys():
+            for oreq in oreqs[date]:
+                prd_map[oreq.product]['emergency'][date] += oreq.emergency
+                prd_map[oreq.product]['total'][date] += oreq.total
+                prd_map[oreq.product]['pct'][date] = pct(prd_map[oreq.product]['emergency'][date],
+                                                         prd_map[oreq.product]['total'][date])
+                type_map[oreq.product.type]['emergency'][date] += oreq.emergency
+                type_map[oreq.product.type]['total'][date] += oreq.total
+                type_map[oreq.product.type]['pct'][date] = pct(type_map[oreq.product.type]['emergency'][date],
+                                                               type_map[oreq.product.type]['total'][date])
+        
         # prd_map = remove_zeros_from_dict(prd_map, 'total')[0]
         # type_map = remove_zeros_from_dict(type_map, 'total')[0]
 
@@ -54,7 +51,7 @@ class View(warehouse_view.MalawiWarehouseView):
             "legenddiv": "legend-div",
             "show_legend": "true",
             "div": "chart-div",
-            "max_value": max_val,
+            "max_value": 100,
             "width": "100%",
             "height": "200px",
             "data": [],
@@ -62,6 +59,7 @@ class View(warehouse_view.MalawiWarehouseView):
             "yaxistitle": "Orders"
         }
         
+        # NOTE: this is weird? should clean up
         include_stacks = ['pct']
         for label in include_stacks:
             if len(include_stacks) < 2:
@@ -79,9 +77,8 @@ class View(warehouse_view.MalawiWarehouseView):
                 count += 1
                 product_codes.append([count, '<span>%s</span>' % (str(eo.code.lower()))])
                 if prd_map[eo].has_key(label):
-                    all_months = avg_of_key_values(prd_map[eo][label],\
-                            [date.strftime('%Y-%m') for date in\
-                                get_datelist(request.datespan.startdate, request.datespan.enddate)])
+                    all_months = avg_of_key_values(prd_map[eo][label], datelist)
+                            
                     data_map[label].append([count, all_months])
             
             summary['data'].append({"label": label, "data": data_map[label]})
@@ -109,7 +106,7 @@ class View(warehouse_view.MalawiWarehouseView):
         }
 
         count = 0
-        for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
+        for date in datelist:
             count += 1
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
             eo_table["header"].append(date.strftime("%b-%Y"))
@@ -122,10 +119,10 @@ class View(warehouse_view.MalawiWarehouseView):
                     'lines': {"show": 1},
                     'bars': {"show": 0}
                     }
-            for date in get_datelist(request.datespan.startdate, request.datespan.enddate):
+            for date in datelist:
                 count += 1
-                if type_map[type]['pct'].has_key(date.strftime('%Y-%m')):
-                    temp["data"].append([count, type_map[type]['pct'][date.strftime('%Y-%m')]])
+                if type_map[type]['pct'].has_key(date):
+                    temp["data"].append([count, type_map[type]['pct'][date]])
                 else:
                     temp["data"].append([count, "No Data"])
             line_chart["data"].append(temp)
