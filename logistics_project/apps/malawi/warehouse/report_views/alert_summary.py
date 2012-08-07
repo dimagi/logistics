@@ -1,14 +1,9 @@
-from datetime import datetime
-from collections import defaultdict
+from logistics.models import SupplyPoint
 
-from logistics.models import SupplyPoint, Product
-
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
-	OrderRequest, OrderFulfillment, Alert
+from logistics_project.apps.malawi.warehouse.models import Alert
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_country_sp, hsa_supply_points_below,\
-	facility_supply_points_below, fmt_pct
-from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
+from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+	facility_supply_points_below
 
 class View(warehouse_view.MalawiWarehouseView):
 
