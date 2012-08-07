@@ -21,6 +21,9 @@ def pct(num, denom):
 def fmt_pct(num, denom):
     return "%.2f%%" % pct(num, denom)
 
+def fmt_or_none(val, default_none="no data"):
+    return "%.2f%%" % val if val is not None else default_none
+
 def get_hsa(hsa_id):
     """
     Attempt to get an HSA by code, return None if unable to find them.

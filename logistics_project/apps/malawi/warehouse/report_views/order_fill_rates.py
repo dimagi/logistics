@@ -4,7 +4,7 @@ from logistics.util import config
 from logistics.models import Product, SupplyPoint, ProductType
 
 from logistics_project.apps.malawi.util import get_country_sp, \
-    facility_supply_points_below, fmt_pct
+    facility_supply_points_below, fmt_pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -49,14 +49,11 @@ class View(warehouse_view.MalawiWarehouseView):
         }
         
         
-        def _fmt(val):
-            return "%.2f%%" % val if val is not None else "no data"
-        
         monthly_table = {
             "id": "monthly-average-ofr",
             "is_datatable": False,
             "header": ["Product"] + [dt.strftime("%B") for dt in dates], 
-            "data": [[p.sms_code] + [_fmt(data[p][dt]) for dt in dates] for p in products]
+            "data": [[p.sms_code] + [fmt_or_none(data[p][dt]) for dt in dates] for p in products]
         }
         
         facility_table = None

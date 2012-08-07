@@ -8,7 +8,7 @@ from dimagi.utils.dates import months_between
 
 from logistics.models import Product, SupplyPoint
 
-from logistics_project.apps.malawi.util import get_country_sp, pct
+from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period, get_window_date, get_window_range, increment_dict_item,\
@@ -110,8 +110,11 @@ class View(warehouse_view.MalawiWarehouseView):
             count += 1
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
             eo_table["header"].append(date.strftime("%b-%Y"))
+        
         for eo in prd_map.keys():
-            eo_table["data"].append([item for item in itertools.chain([eo.sms_code], list_key_values(prd_map[eo]['pct']))])
+            eo_table["data"].append([item for item in itertools.chain\
+                                     ([eo.sms_code],
+                                      [fmt_or_none(val) for val in list_key_values(prd_map[eo]['pct'])])])
         for type in type_map.keys():
             count = 0
             temp = {'data': [],
