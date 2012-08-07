@@ -9,6 +9,7 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period, get_window_date
 from logistics_project.apps.malawi.warehouse import warehouse_view
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class View(warehouse_view.MalawiWarehouseView):
@@ -47,12 +48,16 @@ class View(warehouse_view.MalawiWarehouseView):
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_country_sp()
 
-        alerts = Alert.objects.get(supply_point=sp)
-        alert_table["data"].append(["With EOs that HCs cannot resupply",\
+        try:
+            alerts = Alert.objects.get(supply_point=sp)
+            alert_table["data"].append(["With EOs that HCs cannot resupply",\
                 fmt_pct(alerts.eo_without_resupply, alerts.eo_total)])
-        alert_table["data"].append(["Resupplied but remain below EO",\
+            alert_table["data"].append(["Resupplied but remain below EO",\
                 fmt_pct(alerts.eo_with_resupply, alerts.eo_total)])
 
+        except ObjectDoesNotExist:
+            pass
+        
         # report chart
         return {"dsummary_table": dsummary_table,
                 "alert_table": alert_table,
