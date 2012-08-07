@@ -12,6 +12,7 @@ from logistics.models import Product, SupplyPoint, ProductType
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from dimagi.utils.dates import months_between
 import json
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 
 class View(warehouse_view.MalawiWarehouseView):
 
@@ -73,9 +74,8 @@ class View(warehouse_view.MalawiWarehouseView):
         products = Product.objects.filter(type=selected_type) if selected_type else \
             Product.objects.all()
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
-        dates = [datetime(year, month, 1) for year, month in \
-                    months_between(request.datespan.startdate, 
-                                   request.datespan.enddate)]
+        dates = get_datelist(request.datespan.startdate, 
+                             request.datespan.enddate)
         for p in products:
             for dt in dates:
                 pad = ProductAvailabilityData.objects.get\

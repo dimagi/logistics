@@ -1,74 +1,85 @@
-from datetime import datetime
+from collections import defaultdict
 
-from django.utils.datastructures import SortedDict
+from logistics.util import config
+from logistics.models import Product, SupplyPoint, ProductType
 
-from dimagi.utils.dates import months_between
-
-from logistics.models import Product
-
-from logistics_project.apps.malawi.util import get_country_sp, pct
+from logistics_project.apps.malawi.util import get_country_sp, \
+    facility_supply_points_below, fmt_pct
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
-from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, get_window_range, increment_dict_item
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.warehouse import warehouse_view
-
+import json
+from django.db.models import Sum
 
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
-        sp_code = request.GET.get('place') or get_country_sp().code
-        window_range = get_window_range(request)
-
-        order_data = OrderFulfillment.objects.filter(supply_point__code=sp_code, date__range=window_range)
-
-        line_chart = {
+        sp = SupplyPoint.objects.get(location=request.location) \
+            if request.location else get_country_sp()
+        
+        selected_type = ProductType.objects.get(code=request.GET["product-type"]) \
+            if "product-type" in request.GET else None
+        
+        products = Product.objects.filter(type=selected_type) if selected_type \
+            else Product.objects
+        products = products.order_by("sms_code")
+        dates = get_datelist(request.datespan.startdate, 
+                             request.datespan.enddate)
+        
+        data = defaultdict(lambda: defaultdict(lambda: 0)) 
+        for p in products:
+            for dt in dates:
+                of = OrderFulfillment.objects.get\
+                    (supply_point=sp, product=p, date=dt)
+                data[p][dt] = of.average_fill_rate
+            
+        raw_graphdata = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
+                       'label': p.sms_code, 'lines': {"show": True}, 
+                       "bars": {"show": False}} \
+                       for p in products]
+        graphdata = {
+            "div": "order-fillrate-chart",
+            "legenddiv": "order-fillrate-chart-legend",
+            "legendcols": 10,
+            "max_value": json.dumps(None),
             "height": "350px",
-            "width": "100%", # "300px",
-            "series": [],
+            "width": "100%", 
+            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+            "data": json.dumps(raw_graphdata),
         }
-
-        prd_map = SortedDict()
-        type_map = SortedDict()
-        for product in Product.objects.all():
-            prd_map[product] = {}
-            type_map[product.type] = {}
-
-        for oreq in order_data:
-            prd_map[oreq.product]['requested'] = increment_dict_item(prd_map[oreq.product], 'requested', oreq.quantity_requested)
-            prd_map[oreq.product]['received'] = increment_dict_item(prd_map[oreq.product], 'received', oreq.quantity_received)
-            prd_map[oreq.product]['pct'] = pct(prd_map[oreq.product]['requested'],prd_map[oreq.product]['received'])
-            type_map[oreq.product.type]['requested'] = increment_dict_item(prd_map[oreq.product.type], 'requested', oreq.quantity_requested)
-            type_map[oreq.product.type]['received'] = increment_dict_item(prd_map[oreq.product.type], 'received', oreq.quantity_received)
-            type_map[oreq.product.type]['pct'] = pct(prd_map[oreq.product.type]['received'],prd_map[oreq.product.type]['requested'])
-
-        for label in ['requested', 'received']:
-            pass        
-
-        for type in type_map.keys():
-            if type_map[type].has_key('pct'):
-                val = type_map[type]['pct']
-            else:
-                val = 0
-            line_chart["series"].append({"title": type, "data": [type.id, val]})
-
-
-        table1 = {
+        
+        
+        def _fmt(val):
+            return "%.2f%%" % val if val is not None else "no data"
+        
+        monthly_table = {
             "id": "monthly-average-ofr",
             "is_datatable": False,
-            "header": ["Product", "Jan", "Feb", "Mar", "Apr"],
-            "data": [['cc', 32, 41, 54, 35], ['dt', 23, 22, 41, 16], ['sr', 45, 44, 74, 26]],
+            "header": ["Product"] + [dt.strftime("%B") for dt in dates], 
+            "data": [[p.sms_code] + [_fmt(data[p][dt]) for dt in dates] for p in products]
         }
-
-        table2 = {
-            "id": "ofr-facility-product",
-            "is_datatable": False,
-            "header": ["Facility", "bi", "cl", "cf", "cm"],
-            "data": [[3, 3, 4, 5, 3], [2, 2, 2, 4, 1], [4, 4, 4, 4, 6]],
-        }
-
-
+        
+        facility_table = None
+        def _avg_fill_rate(f, p, dates):
+            stats = OrderFulfillment.objects.filter\
+                (supply_point=f, product=p, date__in=dates).aggregate\
+                    (*[Sum(f) for f in ["quantity_requested", "quantity_received"]])
+            return fmt_pct(stats["quantity_received__sum"], 
+                           stats["quantity_requested__sum"])  
+        
+        if sp.type.code == config.SupplyPointCodes.DISTRICT:
+            facility_table = {
+                "id": "ofr-facility-product",
+                "is_datatable": True,
+                "header": ["Facility"] + [p.sms_code for p in products],
+                "data": [[f.name] + [_avg_fill_rate(f, p, dates) for p in products] \
+                         for f in facility_supply_points_below(sp.location).order_by('name')]
+            }
+        
         return {
-                'table1': table1,
-                'table2': table2,
-                'line': line_chart
-                }
+            'product_types': ProductType.objects.all(),
+            'selected_type': selected_type,
+            'graphdata': graphdata,
+            'monthly_table': monthly_table,
+            'facility_table': facility_table
+        }

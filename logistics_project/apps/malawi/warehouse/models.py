@@ -1,7 +1,7 @@
 from datetime import timedelta
 from django.db import models
 from logistics.warehouse_models import ReportingModel
-from logistics_project.apps.malawi.util import fmt_pct
+from logistics_project.apps.malawi.util import fmt_pct, pct
 from static.malawi.config import TimeTrackerTypes
 
 class MalawiWarehouseModel(ReportingModel):
@@ -148,6 +148,11 @@ class OrderFulfillment(MalawiWarehouseModel):
     total = models.PositiveIntegerField(default=0)
     quantity_requested = models.PositiveIntegerField(default=0)
     quantity_received = models.PositiveIntegerField(default=0)
+    
+    @property 
+    def average_fill_rate(self):
+        return pct(self.quantity_received, self.quantity_requested) \
+            if self.quantity_requested else None
 
 class UserProfileData(models.Model):
     supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
