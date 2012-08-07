@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.db.models import Sum, Max, Q
+from django.db.models import Sum, Max, Q, F
 
 from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
 
@@ -15,13 +15,14 @@ from logistics.const import Reports
 from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
 
+from static.malawi.config import TimeTrackerTypes
+
 from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert
-from static.malawi.config import TimeTrackerTypes
 
 
 class MalawiWarehouseRunner(WarehouseRunner):
@@ -374,8 +375,6 @@ def update_user_profile_data():
 
 def update_alerts():
     print "updating alerts"
-    current_date = datetime.utcnow()
-    date = datetime(current_date.year, current_date.month, 1)
 
     for sp in SupplyPoint.objects.all():
         new_obj = Alert.objects.get_or_create(supply_point=sp)[0]
@@ -383,30 +382,29 @@ def update_alerts():
         hsas = hsa_supply_points_below(sp.location)
         new_obj.num_hsas = hsas.count()
 
-        pads = ProductAvailabilityDataSummary.objects.get(supply_point=sp, date=date)
-        new_obj.have_stockouts = pads.any_without_stock
-
+        new_obj.have_stockouts = 0
+        new_obj.without_products_managed = 0
+        new_obj.total_requests = 0
+        new_obj.eo_total = 0
         new_obj.eo_with_resupply = 0
         new_obj.eo_without_resupply = 0
-        new_obj.total_requests = 0
         new_obj.reporting_receipts = 0
-        new_obj.without_products_managed = 0
         for hsa in hsas:
             new_obj.without_products_managed += 1 if hsa.commodities_stocked().count() == 0 else 0
-            for product in Product.objects.all():
-                oreq = OrderRequest.objects.filter(supply_point=hsa, date=date, product=product)
-                ofill = OrderFulfillment.objects.filter(supply_point=hsa, date=date, product=product)
-                if oreq and ofill:
-                    # should be gets above but no data in testing
-                    oreq = oreq[0]
-                    ofill = ofill[0]
-                    if ofill.quantity_received:
-                        new_obj.eo_with_resupply += sum([o.emergency for o in oreq])
-                        new_obj.total_requests += sum([o.total for o in oreq])
-                        new_obj.reporting_receipts += 1
-                    else:
-                        new_obj.eo_without_resupply += sum([o.emergency for o in oreq])
-                        new_obj.total_requests += sum([o.total for o in oreq])
+            sreq = StockRequest.objects.filter(supply_point=hsa)
+            new_obj.total_requests += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(supply_point=hsa, balance=0)
+            new_obj.have_stockouts += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True)
+            new_obj.eo_total += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True,\
+                    amount_received__gt=0, balance__lt=F('product__emergency_order_level'))
+            new_obj.eo_with_resupply += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True)\
+                    .exclude(status='received')
+            new_obj.eo_without_resupply += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(status='received')
+            new_obj.reporting_receipts += 1 if sreq.count() > 0 else 0
         
         new_obj.save()
     return True

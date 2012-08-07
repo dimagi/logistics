@@ -48,8 +48,10 @@ class View(warehouse_view.MalawiWarehouseView):
             if request.location else get_country_sp()
 
         alerts = Alert.objects.get(supply_point=sp)
-        alert_table["data"].append(["With EOs that HCs cannot resupply", fmt_pct(alerts.eo_without_resupply, alerts.total_requests)])
-        alert_table["data"].append(["Resupplied but remain below EO", fmt_pct(alerts.eo_with_resupply, alerts.total_requests)])
+        alert_table["data"].append(["With EOs that HCs cannot resupply",\
+                fmt_pct(alerts.eo_without_resupply, alerts.eo_total)])
+        alert_table["data"].append(["Resupplied but remain below EO",\
+                fmt_pct(alerts.eo_with_resupply, alerts.eo_total)])
 
         # report chart
         return {"dsummary_table": dsummary_table,

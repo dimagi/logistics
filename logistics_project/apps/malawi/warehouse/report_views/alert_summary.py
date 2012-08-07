@@ -25,9 +25,9 @@ class View(warehouse_view.MalawiWarehouseView):
 		for fac in facilities:
 			alerts = Alert.objects.get(supply_point=fac)
 			table["data"].append([fac.name, alerts.num_hsas,\
-				fmt_pct(alerts.have_stockouts, alerts.num_hsas),\
-				fmt_pct(alerts.eo_without_resupply, alerts.total_requests),\
-				fmt_pct(alerts.eo_with_resupply, alerts.total_requests),\
+				fmt_pct(alerts.have_stockouts, alerts.total_requests),\
+				fmt_pct(alerts.eo_without_resupply, alerts.eo_total),\
+				fmt_pct(alerts.eo_with_resupply, alerts.eo_total),\
 				fmt_pct(alerts.without_products_managed, alerts.num_hsas),\
 				fmt_pct(alerts.reporting_receipts, alerts.num_hsas)])
 
