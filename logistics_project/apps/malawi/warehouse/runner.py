@@ -342,6 +342,7 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
 
 
 def update_user_profile_data():
+    print "updating use profile data"
     for supply_point in SupplyPoint.objects.all():
         new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
 
@@ -372,6 +373,7 @@ def update_user_profile_data():
     return True
 
 def update_alerts():
+    print "updating alerts"
     current_date = datetime.utcnow()
     date = datetime(current_date.year, current_date.month, 1)
 

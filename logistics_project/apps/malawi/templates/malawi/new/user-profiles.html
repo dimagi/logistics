@@ -2,24 +2,26 @@
 {% block report_content %}
 
 <div class="module">
-	<h2></h2>
+	<h2>Districts</h2>
 	{% with district_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
+	{% include "malawi/new/partials/selector-table.html" %}
 	{% endwith %}
 </div>
 
-<div class="module">
-	<h2></h2>
-	{% with facility_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
-
-<div class="module">
-	<h2></h2>
-	{% with hsa_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
-
+{% if district %}
+	<div class="module">
+		<h2>Facilities Under {{ district }}</h2>
+		{% with facility_table as table %}
+		{% include "malawi/new/partials/selector-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+{% if facility %}
+	<div class="module">
+		<h2>HSAs Under {{ facility }}</h2>
+		{% with hsa_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
 {% endblock %}

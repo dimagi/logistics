@@ -12,4 +12,3 @@ def product_availability_summary(location, date, width=900, height=300):
     summary = WarehouseProductAvailabilitySummary(sp, date, width, height)
     return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
-
