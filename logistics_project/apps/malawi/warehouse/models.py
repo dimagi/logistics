@@ -164,8 +164,22 @@ class UserProfileData(models.Model):
     class Meta:
         app_label = "malawi"
 
+
+class Alert(models.Model):
+    supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
+    num_hsas = models.PositiveIntegerField(default=0)
+    have_stockouts = models.PositiveIntegerField(default=0)
+    eo_with_resupply = models.PositiveIntegerField(default=0)
+    eo_without_resupply = models.PositiveIntegerField(default=0)
+    total_requests = models.PositiveIntegerField(default=0)
+    reporting_receipts = models.PositiveIntegerField(default=0)
+    without_products_managed = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        app_label = "malawi"
+
+
 # Other:
 # HSA (no changes needed)
 # Consumption Profiles (likely changes needed, to be clarified)
 # Resupply Qts: anything needed? TBD
-# Alerts: TBD

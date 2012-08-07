@@ -16,21 +16,9 @@
     <div class="col-2">
         <div class="module">
             <h2>Alerts</h2>
-            <!-- fake data -->
-                <table>
-                    <thead><tr><th></th><th>% HSAs</th></tr></thead>
-                    <tbody>
-                        <tr>
-                            <td>HSA not resupplied due to OS at HC</td>
-                            <td>17%</td>
-                        </tr>
-                        <tr>
-                            <td>HSA resupplied but remains below EO</td>
-                            <td>23%</td>
-                        </tr>
-                    </tbody>
-                </table>
-            <!--  -->
+            {% with alert_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+            {% endwith %}
         </div>
     </div>
 </div>
