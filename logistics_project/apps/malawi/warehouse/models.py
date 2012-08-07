@@ -104,7 +104,7 @@ class ReportingRate(MalawiWarehouseModel):
     def pct_missing(self):  return fmt_pct(self.missing, self.total)
     
     @property
-    def pct_complete(self): return fmt_pct(self.complete, self.total)
+    def pct_complete(self): return fmt_pct(self.complete, self.reported)
         
 
 
