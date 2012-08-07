@@ -13,7 +13,8 @@ class WarehouseView(object):
     """
     
     def __init__(self, request, slug):
-        self.context = self.shared_context(request)
+        self.context = {"slug": slug}
+        self.context.update(self.shared_context(request))
         self.context.update(self.get_context(request))
 
     def shared_context(self, request):
@@ -27,7 +28,7 @@ class WarehouseView(object):
 
         return { 
             "report_list": stub_reports,
-            "settings": settings,
+            "settings": settings
         }
 
     def get_context(self, request):
