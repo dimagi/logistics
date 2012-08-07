@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.utils.datastructures import SortedDict
 
-from logistics_project.apps.malawi.util import get_districts, pct
+from logistics.models import SupplyPoint
+
+from logistics_project.apps.malawi.util import get_districts, pct, fmt_pct, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
-    ReportingRate
+    ReportingRate, Alert
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
     current_report_period, get_window_date
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -42,9 +44,12 @@ class View(warehouse_view.MalawiWarehouseView):
             "header": ["", "% HSAs"],
             "data": [],
         }
-        # for alert in alerts:
-        #     alert_table["data"].append(alert.text, alert.value)
+        sp = SupplyPoint.objects.get(location=request.location)\
+            if request.location else get_country_sp()
 
+        alerts = Alert.objects.get(supply_point=sp)
+        alert_table["data"].append(["With EOs that HCs cannot resupply", fmt_pct(alerts.eo_without_resupply, alerts.total_requests)])
+        alert_table["data"].append(["Resupplied but remain below EO", fmt_pct(alerts.eo_with_resupply, alerts.total_requests)])
 
         # report chart
         return {"dsummary_table": dsummary_table,
