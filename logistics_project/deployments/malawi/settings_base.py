@@ -203,8 +203,8 @@ DATABASE_ENGINE = "mysql"
 
 
 SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics_project.migrations.malawi',
-    'logistics': 'ignore'
+    'rapidsms': 'logistics_project.deployments.malawi.migrations.rapidsms',
+    'logistics': 'ignore',
 }
 
 # data warehouse config
