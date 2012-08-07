@@ -126,10 +126,11 @@ def group_for_location(location):
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
     if location:
-        # support up to 2 levels of parentage. this covers
-        # facility-> district, which is all we allow you to select in this case
+        # support up to 3 levels of parentage. this covers
+        # facility-> district--> country, which is all we allow you to select in this case
         facs = facs.filter(Q(location=location) | \
-                           Q(location__parent_id=location.pk))
+                           Q(supplied_by__location=location) | \
+                           Q(supplied_by__supplied_by__location=location))
     return facs
 
 def get_district_supply_points():

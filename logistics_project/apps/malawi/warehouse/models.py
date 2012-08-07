@@ -174,6 +174,7 @@ class Alert(models.Model):
     supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
     num_hsas = models.PositiveIntegerField(default=0)
     have_stockouts = models.PositiveIntegerField(default=0)
+    eo_total = models.PositiveIntegerField(default=0)
     eo_with_resupply = models.PositiveIntegerField(default=0)
     eo_without_resupply = models.PositiveIntegerField(default=0)
     total_requests = models.PositiveIntegerField(default=0)
