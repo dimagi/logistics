@@ -65,6 +65,14 @@ class SupplyPointCodes(object):
     DISTRICT = "district"
     FACILITY = "facility"
     
+    ALL = {
+        MOH: "moh",
+        REGION: "region",
+        DISTRICT: "district",
+        FACILITY: "facility",
+    }
+
+    
 class LocationCodes(object):
     """
     These correspond to LocationType.code
