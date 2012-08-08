@@ -5,7 +5,7 @@ from logistics_project.apps.malawi.warehouse.models import UserProfileData
 
 class View(warehouse_view.MalawiWarehouseView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         district_table = {
             "id": "district_table",
             "is_datatable": True,

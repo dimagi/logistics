@@ -15,9 +15,9 @@ import json
 from django.db.models import Sum
 
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_country_sp()
         

@@ -5,9 +5,9 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
 	facility_supply_points_below
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-	def get_context(self, request):
+	def custom_context(self, request):
 		table = {
 			"id": "current-alert-summary",
 			"is_datatable": True,

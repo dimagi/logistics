@@ -2,17 +2,21 @@ from django.conf import settings
 from django.utils.datastructures import SortedDict
 
 from logistics.models import Product, SupplyPoint
-from logistics.warehouse_view import WarehouseView
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
     get_country_sp, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
-from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func,\
-    current_report_period
+from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
+from logistics.permissions import user_can_view
+from logistics.reports import ReportView
 
 
-class MalawiWarehouseView(WarehouseView):
-
+class MalawiWarehouseView(ReportView):
+    
+    @property
+    def template_name(self):
+        return "malawi/new/%s.html" % self.slug
+        
     def shared_context(self, request):
         base_context = super(MalawiWarehouseView, self).shared_context(request)
 
@@ -32,7 +36,7 @@ class MalawiWarehouseView(WarehouseView):
         current_rr = ReportingRate.objects.get\
             (date=date, supply_point=country)
 
-        base_context.update({ 
+        base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "districts": get_districts(),
             "facilities": get_facilities(),
@@ -45,5 +49,14 @@ class MalawiWarehouseView(WarehouseView):
         })
         return base_context
 
-    def get_context(self, request):
-        pass
+class DistrictOnlyView(MalawiWarehouseView):
+    """
+    Reports that are only available to people whose location is set to 
+    a district (or higher). The use case is: I should be able to see this
+    report for my district, facilities in my district, or nationally, but 
+    not for any other district.
+    """
+    def can_view(self, request):
+        if request.user.is_superuser: return True
+        else:
+            return user_can_view(request.user, request.location, unconfigured_value=True)

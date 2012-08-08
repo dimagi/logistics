@@ -14,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 class View(warehouse_view.MalawiWarehouseView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         window_date = get_window_date(request)
 
         # reporting rates + stockout summary

@@ -2,9 +2,9 @@ from random import random
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         ret_obj = {}
 
         table1 = {
