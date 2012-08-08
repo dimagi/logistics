@@ -88,7 +88,7 @@ class View(warehouse_view.DistrictOnlyView):
             
         lt_table = {
             "id": "average-lead-times-facility",
-            "is_datatable": False,
+            "is_datatable": True,
             "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": f_data,
         }    
