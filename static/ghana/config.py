@@ -44,6 +44,16 @@ class SupplyPointCodes(object):
     HEALTH_CENTER = "hc"
     CHPS = "chps"
     CLINIC = "c"
+    
+    ALL = {
+        REGIONAL_MEDICAL_STORE: "regional medical store",
+        REGIONAL_HOSPITAL: "regional hospital",
+        HOSPITAL: "hospital",
+        HEALTH_CENTER: "health center",
+        CHPS: "chps",
+        CLINIC: "clinic"
+    }
+
 
 class LocationCodes(object):
     """
