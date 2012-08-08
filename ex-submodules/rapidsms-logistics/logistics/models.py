@@ -414,6 +414,20 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
+    def is_any_supplier(self, supply_point):
+        """
+        Returns true of this is a supplier of the supply_point or its
+        entire parent chain.
+        """
+        # no infinite loops pls
+        seen_locs = []
+        while supply_point and supply_point.supplied_by and supply_point not in seen_locs: 
+            if self == supply_point.supplied_by:
+                return True
+            seen_locs.append(supply_point)
+            supply_point = supply_point.supplied_by
+        return False
+        
     def children(self):
         """
         For all intents and purses, at this time, the 'children' of a facility wrt site navigation
@@ -500,15 +514,20 @@ class SupplyPointGroup(models.Model):
     def __unicode__(self):
         return self.code
 
-class LogisticsProfile(models.Model):
+class LogisticsProfileBase(models.Model):
     user = models.ForeignKey(User, unique=True)
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
+    
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
+class LogisticsProfile(LogisticsProfileBase):
+    __metaclass__ = ExtensibleModelBase
 
 class ProductStock(models.Model):
     """
@@ -846,7 +865,8 @@ class StockRequest(models.Model):
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES, db_index=True)
     # this second field is added for auditing purposes
     # the status can change, but once set - this one will not
-    response_status = models.CharField(blank=True, max_length=20, choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
+    response_status = models.CharField(blank=True, max_length=20, 
+                                       choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
     is_emergency = models.BooleanField(default=False) 
     
     requested_on = models.DateTimeField()
