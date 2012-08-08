@@ -20,7 +20,8 @@
 $(document).ready(function() {
 	{% if table.is_datatable %}
 		$("#{{ table.id }}").dataTable({
-			"sScrollY": "240px",
+			"sScrollY": "{{ table.height|default:240 }}px",
+			"sScrollX": "100%",
 			"bPaginate": false,
 			"bRetrieve": true
 		});

@@ -45,6 +45,8 @@ class View(warehouse_view.MalawiWarehouseView):
                 _yes_or_no(pads.any_good_stock), _yes_or_no(pads.any_over_stock),\
                 _date_fmt(up.last_message.date)]})
 
+        table["height"] = min(480, hsas.count()*60)
+
         return {
                 "table": table,
         }
@@ -84,6 +86,8 @@ class View(warehouse_view.MalawiWarehouseView):
             request_table["data"].append([sr.product.name, _yes_or_no(sr.is_emergency), sr.balance, sr.amount_requested,\
                 sr.amount_received, _date_fmt(sr.requested_on), _date_fmt(sr.responded_on),\
                 _date_fmt(sr.received_on), sr.status])
+
+        request_table["height"] = min(240, stock_requests.count()*60)
 
         msgs_table = {
             "id": "recent-messages",
