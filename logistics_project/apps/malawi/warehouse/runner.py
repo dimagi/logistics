@@ -156,6 +156,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                 else: 
                                     product_data.without_stock = 0
                                     product_data.with_stock = 1
+                                    if product_stock.emergency_reorder_level and \
+                                         trans.ending_balance <= product_stock.emergency_reorder_level:
+                                        product_data.emergency_stock = 1
                                     if product_stock.reorder_level and \
                                          trans.ending_balance <= product_stock.reorder_level:
                                         product_data.under_stock = 1

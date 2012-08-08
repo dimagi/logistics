@@ -20,7 +20,7 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     # matching up with fields below, and in the summary model. Be careful
     # changing property names.
     STOCK_CATEGORIES = ['with_stock', 'under_stock', 'good_stock',
-                        'over_stock', 'without_stock', 'without_data']
+                        'over_stock', 'without_stock', 'without_data', 'emergency_stock']
     
     # Dashboard: current stock status
     # Resupply Qts: % with stockout
@@ -35,7 +35,8 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     over_stock = models.PositiveIntegerField(default=0)
     without_stock = models.PositiveIntegerField(default=0)
     without_data = models.PositiveIntegerField(default=0)
-    
+    emergency_stock = models.PositiveIntegerField(default=0)
+
     # unfortunately, we need to separately keep these for the aggregates
     managed_and_with_stock = models.PositiveIntegerField(default=0)
     managed_and_under_stock = models.PositiveIntegerField(default=0)
@@ -43,6 +44,7 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     managed_and_over_stock = models.PositiveIntegerField(default=0)
     managed_and_without_stock = models.PositiveIntegerField(default=0)
     managed_and_without_data = models.PositiveIntegerField(default=0)
+    managed_and_emergency_stock = models.PositiveIntegerField(default=0)
     
     def set_managed_attributes(self):
         if self.managed:
@@ -69,7 +71,7 @@ class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     any_over_stock = models.PositiveIntegerField(default=0)
     any_good_stock = models.PositiveIntegerField(default=0)
     any_without_data = models.PositiveIntegerField(default=0)
-    
+    any_emergency_stock = models.PositiveIntegerField(default=0)
 
 class ReportingRate(MalawiWarehouseModel):
     """

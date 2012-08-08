@@ -1,51 +1,39 @@
+from logistics.models import SupplyPoint
+
+from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
+    ProductAvailabilityDataSummary
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import *
-from logistics_project.apps.malawi.tables import *
+from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+    hsa_supply_points_below
 
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
         table = {
-            "id": "hsa-reporting-summary",
-            "is_datatable": False,
-            "header": ["Months", "On Time", "Late", "Complete"],
-            "data": [['Jan', 33, 42, 53], ['Feb', 22, 25, 41], ['Mar', 41, 41, 46]],
+            "id": "all-hsas",
+            "is_datatable": True,
+            "header": ["Facility", "Name", "Id", "Responsible for these Commodities",\
+                "Products Stocked Out","Products Below Emergency","Products in Adequate Supply",\
+                "Products Over Stocked", "Last Message Date"],
+            "data": [],
         }
 
-        table2 = {
-            "id": "calc-consumption-stock-levels",
-            "is_datatable": False,
-            "header": ["Product", "Total Calc Cons", "Avg Rep Rate", "AMC", "Total SOH", "Avg MOS",
-                "Avg Days Stocked Out", "Total Adj Calc Cons", "Resupply Qts Required"],
-            "data": [['CC', 33, 42, 53, 23, 0, 2, 4, 2]],
+        sp = SupplyPoint.objects.get(location=request.location)\
+            if request.location else get_country_sp()
+
+        hsas = hsa_supply_points_below(sp.location)
+
+        for hsa in hsas:
+            up = UserProfileData.objects.get(supply_point=hsa)
+            pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
+            table["data"].append({"url": _get_hsa_url(hsa), "data": [hsa.supplied_by.name, hsa.name,\
+                hsa.code, up.products_managed, pads.any_without_stock, pads.any_emergency_stock,\
+                pads.any_good_stock, pads.any_over_stock,\
+                up.last_message.date.strftime("%Y-%m-%d %H:%M:%S")]})
+
+        return {
+                "table": table,
         }
 
-        table3 = {
-            "id": "order-response-time",
-            "is_datatable": False,
-            "header": ["Product", "Is Emergency", "Balance", "Amt Requested", "Amt Received", "Requested On",
-                "Responded On", "Received On", "Status"],
-            "data": [['CC', 33, 42, 53, 23, 0, 2, 4, 2]],
-        }
-
-        table4 = {
-            "id": "recent-messages",
-            "is_datatable": False,
-            "header": ["Date", "Message Text"],
-            "data": [['2012-05-04', 'soh cc 12']],
-        }
-
-        table5 = {
-            "id": "hsa-details",
-            "is_datatable": False,
-            "header": ["", ""],
-            "data": [['District', 'BULA']],
-        }
-
-
-        return {"table": table,
-                "table2": table2,
-                "table3": table3,
-                "table4": table4,
-                "table5": table5,
-        }
+def _get_hsa_url(hsa):
+    return '/malawi/r/hsa/%s' % hsa.code
