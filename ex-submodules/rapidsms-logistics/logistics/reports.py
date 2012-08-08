@@ -734,7 +734,6 @@ class ReportView(object):
     def __init__(self, slug):
         self.slug = slug
         self._context = None
-    
         
     @property
     def template_name(self):
@@ -756,8 +755,9 @@ class ReportView(object):
         """
         The HTTP Response object for this report
         """
+        context = self.get_context(request)
         return render_to_response(self.template_name, 
-                                  self.get_context(request),
+                                  context,
                                   context_instance=RequestContext(request))
 
     
