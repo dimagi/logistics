@@ -47,6 +47,13 @@ class SupplyPointCodes(object):
     DISTRICT = "d"
     FACILITY = "hf"
     HSA = "hsa"
+    
+    ALL = {
+        COUNTRY: "country",
+        DISTRICT: "district",
+        FACILITY: "facility",
+        HSA: "hsa"
+    }
 
 class LocationCodes(object):
     """
