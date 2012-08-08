@@ -96,9 +96,13 @@ class View(warehouse_view.MalawiWarehouseView):
             "data": [],
         }
 
-        msgs = Message.objects.filter(direction='I', contact=hsa.contacts()[0]).order_by('-date')[:10]
-        for msg in msgs:
-            msgs_table["data"].append([_date_fmt(msg.date), msg.text])
+        if hsa.contacts().count() > 0:
+            contact = hsa.contacts()[0]
+            contact_id = contact.id
+
+            msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')[:10]
+            for msg in msgs:
+                msgs_table["data"].append([_date_fmt(msg.date), msg.text])
 
         details_table = {
             "id": "hsa-details",
@@ -112,7 +116,6 @@ class View(warehouse_view.MalawiWarehouseView):
         details_table["data"].append(['Phone Number', up.contact_info])
         details_table["data"].append(['Code', hsa.code])
         details_table["data"].append(['Products', up.products_managed])
-        # details_table["data"].append(['Superuser', 'Deactivate HSA'])
 
         return {
                 "report_table": report_table,
@@ -120,6 +123,7 @@ class View(warehouse_view.MalawiWarehouseView):
                 "request_table": request_table,
                 "msgs_table": msgs_table,
                 "details_table": details_table,
+                "contact_id": contact_id,
         }
 
 def _get_hsa_url(hsa):
@@ -132,6 +136,6 @@ def _yes_or_no(value):
 
 def _date_fmt(date):
     if date:
-        return date.strftime('%Y-%m-%d %H:%M:%S')
+        return date.strftime('%Y-%m-%d')# %H:%M:%S')
     return "None"
 

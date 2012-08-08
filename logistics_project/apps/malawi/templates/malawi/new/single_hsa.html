@@ -32,6 +32,10 @@
 			{% include "malawi/new/partials/generic-table.html" %}
 			{% endwith %}
 		</div>
+		<br>
+		{% if contact_id %}
+			<a href="/messagelog/?contact={{ contact_id }}">All messages</a>
+		{% endif %}
 	</div>
 	<div class="col-2">
 		<div class="module">
