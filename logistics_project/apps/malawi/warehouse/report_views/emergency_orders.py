@@ -1,24 +1,17 @@
 import itertools
-from datetime import datetime
 from collections import defaultdict
 
-from django.utils.datastructures import SortedDict
-
-from dimagi.utils.dates import months_between
-
-from logistics.models import Product, SupplyPoint
+from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
-from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, get_window_range, increment_dict_item,\
-    get_datelist, avg_of_key_values, list_key_values
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist, avg_of_key_values, list_key_values
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_country_sp()
         

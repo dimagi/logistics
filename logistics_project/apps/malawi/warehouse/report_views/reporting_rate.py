@@ -14,9 +14,9 @@ from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         shared_headers = ["% Reporting", "% Rep on time", "% Late Rep", "% No Rep", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         

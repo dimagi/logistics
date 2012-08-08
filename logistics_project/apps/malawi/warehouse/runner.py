@@ -348,7 +348,7 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
 
 
 def update_user_profile_data():
-    print "updating use profile data"
+    print "updating user profile data"
     for supply_point in SupplyPoint.objects.all():
         new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
 

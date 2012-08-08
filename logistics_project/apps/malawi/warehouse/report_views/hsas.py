@@ -8,7 +8,8 @@ from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
 
 class View(warehouse_view.MalawiWarehouseView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
+        
         table = {
             "id": "all-hsas",
             "is_datatable": True,

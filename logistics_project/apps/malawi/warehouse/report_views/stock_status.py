@@ -1,5 +1,3 @@
-from random import random
-from datetime import datetime
 from collections import defaultdict
 
 from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
@@ -10,13 +8,12 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
 from logistics.models import Product, SupplyPoint, ProductType
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from dimagi.utils.dates import months_between
 import json
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
-    def get_context(self, request):
+    def custom_context(self, request):
         ret_obj = {
             'product_types': ProductType.objects.all()
         }

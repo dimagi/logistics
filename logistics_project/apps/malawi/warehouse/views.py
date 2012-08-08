@@ -1,18 +1,13 @@
-from django.conf import settings
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
-from django.utils.datastructures import SortedDict
+from django.contrib import messages
 
 from dimagi.utils.decorators.datespan import datespan_in_request
 
 from logistics.decorators import place_in_request
-from logistics.models import Product, SupplyPoint
 
-from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp, pct
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
-from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func,\
-    current_report_period
+from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func
+
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas, single_hsa
@@ -40,11 +35,14 @@ reports_slug_map = {
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
-    report = reports_slug_map[slug].View(request, slug)
-    return render_to_response("malawi/new/%s.html" % slug, 
-                              report.context,
-                              context_instance=RequestContext(request))
-
+    report = reports_slug_map[slug].View(slug)
+    if not report.can_view(request):
+        messages.warning(request,
+                         "It looks like you don't have permission to access that view. "
+                         "You've been redircted home.")
+        return home(request)
+    return report.get_response(request)
+    
 def home(request):
     return redirect("/malawi/r/dashboard/")
 
