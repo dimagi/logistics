@@ -2,7 +2,6 @@ from datetime import timedelta
 from django.conf import settings
 from django.core.cache import cache
 from rapidsms.tests.scripted import TestScript
-from logistics.const import Reports
 from logistics.models import Location, SupplyPointType, SupplyPoint, \
     Product, ProductType, ProductStock, StockTransaction, ProductReport, \
     ProductReportType, DefaultMonthlyConsumption
@@ -195,7 +194,7 @@ class TestConsumption (TestScript):
         self.ps.unset_auto_consumption()
         self.assertEquals(8, self.ps.monthly_consumption)
 
-    def testFloatingPointAccuracy(self):
+    def testFloatingPointAccuracy2(self):
         self.ps = self._report(50, 50, Reports.SOH) 
         self.ps = self._report(49, 49, Reports.SOH) 
         self.ps = self._report(48, 48, Reports.SOH) 
@@ -205,7 +204,7 @@ class TestConsumption (TestScript):
         self.ps = self._report(36, 38, Reports.SOH) 
         self.assertEquals(1.17, round(self.ps.daily_consumption,2)) 
         
-    def testConsumptionWithMultipleReports(self):
+    def testConsumptionWithMultipleReports2(self):
         self.ps = ProductStock.objects.get(supply_point=self.sp, 
                                            product=self.pr)
         self.ps.use_auto_consumption = True
@@ -331,6 +330,10 @@ class TestConsumption (TestScript):
 
     def testFacilityTypeConsumption(self):
         # verify that, for different states of the cache, the right value gets returned
+        cache.set("test", "cache_active")
+        self.assertEqual("cache_active", cache.get("test"), 
+                         "This test depends on caching, "
+                         "which does not appear to be enabled!")
         MONTHLY_CONSUMPTION = 13
         cache_key = self.sp.type._cache_key(self.pr.code)
         self.pr, self.sp
