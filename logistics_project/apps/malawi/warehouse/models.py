@@ -155,7 +155,7 @@ class OrderFulfillment(MalawiWarehouseModel):
             if self.quantity_requested else None
 
 class UserProfileData(models.Model):
-    supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
+    supply_point = models.ForeignKey('logistics.SupplyPoint')
     facility_children = models.PositiveIntegerField(default=0)
     hsa_children = models.PositiveIntegerField(default=0)
     hsa_supervisors = models.PositiveIntegerField(default=0)
@@ -171,7 +171,7 @@ class UserProfileData(models.Model):
 
 
 class Alert(models.Model):
-    supply_point = models.ForeignKey('logistics.SupplyPoint') # name, code, location.point.lat/long
+    supply_point = models.ForeignKey('logistics.SupplyPoint')
     num_hsas = models.PositiveIntegerField(default=0)
     have_stockouts = models.PositiveIntegerField(default=0)
     eo_total = models.PositiveIntegerField(default=0)
@@ -179,6 +179,7 @@ class Alert(models.Model):
     eo_without_resupply = models.PositiveIntegerField(default=0)
     total_requests = models.PositiveIntegerField(default=0)
     reporting_receipts = models.PositiveIntegerField(default=0)
+    order_readys = models.PositiveIntegerField(default=0)
     without_products_managed = models.PositiveIntegerField(default=0)
 
     class Meta:

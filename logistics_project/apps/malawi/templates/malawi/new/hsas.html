@@ -1,2 +1,48 @@
 {% extends "malawi/new/base.html" %}
 
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+
+<div class="module">
+	<h2>HSA Reporting Summary</h2>
+	{% with table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+<div class="module">
+	<h2>Calculated Consumption and Stock Levels</h2>
+	{% with table2 as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+<div class="module">
+	<h2>Order Response Time</h2>
+	{% with table3 as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+<div class="two-columns">
+    <div class="col-1">
+		<div class="module">
+			<h2>Recent Messages</h2>
+			{% with table4 as table %}
+			{% include "malawi/new/partials/generic-table.html" %}
+			{% endwith %}
+		</div>
+	</div>
+	<div class="col-2">
+		<div class="module">
+			<h2>HSA Details</h2>
+			{% with table5 as table %}
+			{% include "malawi/new/partials/generic-table.html" %}
+			{% endwith %}
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

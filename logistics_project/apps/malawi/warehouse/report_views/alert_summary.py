@@ -29,6 +29,6 @@ class View(warehouse_view.MalawiWarehouseView):
 				fmt_pct(alerts.eo_without_resupply, alerts.eo_total),\
 				fmt_pct(alerts.eo_with_resupply, alerts.eo_total),\
 				fmt_pct(alerts.without_products_managed, alerts.num_hsas),\
-				fmt_pct(alerts.reporting_receipts, alerts.num_hsas)])
+				fmt_pct((alerts.order_readys - alerts.reporting_receipts), alerts.order_readys)])
 
 		return {"table": table}

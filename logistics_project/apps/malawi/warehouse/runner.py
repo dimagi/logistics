@@ -402,11 +402,14 @@ def update_alerts():
             sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True,\
                     amount_received__gt=0, balance__lt=F('product__emergency_order_level'))
             new_obj.eo_with_resupply += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True)\
-                    .exclude(status='received')
+            sreq = StockRequest.pending_requests().filter(supply_point=hsa, is_emergency=True)
             new_obj.eo_without_resupply += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(status='received')
+            sreq = StockRequest.objects.filter(supply_point=hsa)\
+                .exclude(received_on=None, responded_on=None, response_status='stocked_out')
             new_obj.reporting_receipts += 1 if sreq.count() > 0 else 0
+            sreq = StockRequest.objects.filter(supply_point=hsa)\
+                .exclude(responded_on=None, response_status='stocked_out')
+            new_obj.order_readys += 1 if sreq.count() > 0 else 0
         
         new_obj.save()
     return True

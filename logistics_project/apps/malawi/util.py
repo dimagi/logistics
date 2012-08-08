@@ -16,6 +16,7 @@ def format_id(code, id):
         raise IdFormatException("id must be a number between 1 and 99. %s is not a number" % id)
         
 def pct(num, denom):
+    assert(max(num,denom)==denom)
     return float(num) / (float(denom) or 1) * 100
 
 def fmt_pct(num, denom):
