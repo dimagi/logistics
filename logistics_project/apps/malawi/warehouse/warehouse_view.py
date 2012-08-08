@@ -4,11 +4,12 @@ from django.utils.datastructures import SortedDict
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp, pct
+    get_country_sp, pct, get_default_supply_point, get_visible_districts
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 from logistics.permissions import user_can_view
 from logistics.reports import ReportView
+from logistics.util import config
 
 
 class MalawiWarehouseView(ReportView):
@@ -36,15 +37,19 @@ class MalawiWarehouseView(ReportView):
         current_rr = ReportingRate.objects.get\
             (date=date, supply_point=country)
 
+        default_sp = get_default_supply_point(request.user)
+        facilities = default_sp.location.get_descendants().filter\
+            (type__slug=config.LocationCodes.FACILITY)
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
+            "country": country,
             "districts": get_districts(),
-            "facilities": get_facilities(),
+            "facilities": facilities,
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
             "reporting_rate": current_rr.pct_reported,
             "products": products,
             "product_stockout_pcts": stockout_pcts,
-            "location": request.location or country.location,
+            "location": request.location or default_sp.location,
             "nav_mode": "direct-param",
         })
         return base_context
@@ -60,3 +65,10 @@ class DistrictOnlyView(MalawiWarehouseView):
         if request.user.is_superuser: return True
         else:
             return user_can_view(request.user, request.location, unconfigured_value=True)
+        
+    def shared_context(self, request):
+        base_context = super(DistrictOnlyView, self).shared_context(request)
+        visible_districts = get_visible_districts(request.user)
+        print visible_districts
+        base_context["districts"] = visible_districts
+        return base_context

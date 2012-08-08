@@ -107,7 +107,6 @@ def get_ept_districts():
     # TODO, better abstraction of this
     return get_districts().filter(name__in=["Machinga", "Nkhatabay", "Mulanje"])
 
-
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY, is_active=True)
 
@@ -145,6 +144,36 @@ def get_facility_supply_points():
 def get_country_sp():
     return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
                                    type__code=config.SupplyPointCodes.COUNTRY)
+
+def get_default_supply_point(user):
+    prof = user.get_profile()
+    if prof and prof.supply_point:
+        return prof.supply_point
+    elif prof and prof.location:
+        try:
+            return SupplyPoint.objects.get(location=prof.location)
+        except SupplyPoint.DoesNotExist:
+            pass
+    return get_country_sp()
+
+def get_visible_districts(user):
+    """
+    Given a user, what 
+    """
+    prof = user.get_profile()
+    loc = None
+    if prof and prof.supply_point and prof.supply_point.location:
+        loc = prof.supply_point.location
+    elif prof and prof.location:
+        loc = prof.supply_point.location
+    if loc and loc.type.slug == config.LocationCodes.DISTRICT:
+        return Location.objects.filter(pk=loc.pk)
+    elif loc:
+        # for now only support one level deep, assuming that this
+        # is national or nothing
+        return Location.objects.filter(parent_id=loc.id,
+                                       type__slug=config.LocationCodes.DISTRICT)
+    return get_districts()
 
 class ConsumptionData(object):
     def __init__(self, product, sps):

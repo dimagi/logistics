@@ -1,6 +1,9 @@
 <label for="place" id="place_label">Site: </label> 
 <select name="place" id="place">
     <option value="" {% if not location %}selected{% endif %}>Select a site</option>
+    {% if country %}
+    <option value="{{ country.location.code }}" {% if country.location.pk == location.pk %}selected{% endif %}>{{ country.name }}</option>
+    {% endif %}
     <optgroup label="Districts">
         {% for district in districts %}
         <option value="{{ district.code }}" {% if district.pk == location.pk %}selected{% endif %}>{{ district.name }} District ({{ district.code }})</option>
