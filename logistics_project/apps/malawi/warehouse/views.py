@@ -46,15 +46,3 @@ def get_report(request, slug=''):
 def home(request):
     return redirect("/malawi/r/dashboard/")
 
-@place_in_request()
-@datespan_default
-def hsa_view(request, hsa_code=''):
-    if not hsa_code:
-        return redirect("/malawi/r/hsas/")
-    template = 'single_hsa'
-    report = single_hsa.View(request, hsa_code)
-    return render_to_response("malawi/new/%s.html" % template, 
-                              report.context,
-                              context_instance=RequestContext(request))
-
-
