@@ -15,7 +15,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_
     current_report_period
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
-    lead_times, reporting_rate, user_profiles, hsas
+    lead_times, reporting_rate, user_profiles, hsas, single_hsa
 
 
 datespan_default = datespan_in_request(
@@ -36,7 +36,7 @@ reports_slug_map = {
     'user-profiles': user_profiles,
     'hsas': hsas,
 }
-    
+
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
@@ -48,5 +48,15 @@ def get_report(request, slug=''):
 def home(request):
     return redirect("/malawi/r/dashboard/")
 
+@place_in_request()
+@datespan_default
+def hsa_view(request, hsa_code=''):
+    if not hsa_code:
+        return redirect("/malawi/r/hsas/")
+    template = 'single_hsa'
+    report = single_hsa.View(request, hsa_code)
+    return render_to_response("malawi/new/%s.html" % template, 
+                              report.context,
+                              context_instance=RequestContext(request))
 
 

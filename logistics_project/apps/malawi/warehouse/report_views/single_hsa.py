@@ -3,11 +3,13 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.MalawiWarehouseView):
 
     def get_context(self, request):
+        hsa_code = self.context["slug"]
+
         table = {
             "id": "hsa-reporting-summary",
             "is_datatable": False,
             "header": ["Months", "On Time", "Late", "Complete"],
-            "data": [['Jan', 33, 42, 53], ['Feb', 22, 25, 41], ['Mar', 41, 41, 46]],
+            "data": [['Jan', hsa_code, 42, 53], ['Feb', 22, 25, 41], ['Mar', 41, 41, 46]],
         }
 
         table2 = {
