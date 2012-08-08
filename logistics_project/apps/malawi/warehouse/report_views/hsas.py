@@ -1,7 +1,11 @@
-from logistics.models import SupplyPoint, Product
+from django.contrib import messages
+
+from rapidsms.contrib.messagelog.models import Message
+
+from logistics.models import SupplyPoint, Product, StockRequest
 
 from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
-    ProductAvailabilityDataSummary, ProductAvailabilityData
+    ProductAvailabilityDataSummary, ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
     hsa_supply_points_below
@@ -11,8 +15,12 @@ class View(warehouse_view.MalawiWarehouseView):
     def custom_context(self, request):
 
         if request.GET.get('hsa_code'):
-            self.slug = 'single_hsa'
-            return self.single_hsa_context(request)
+            hsa = SupplyPoint.objects.filter(code=request.GET.get('hsa_code'))
+            if hsa.count():
+                self.slug = 'single_hsa'
+                return self.single_hsa_context(request, hsa[0])
+            else:
+                messages.warning(request, "HSA does not exist or is not active")
         
         table = {
             "id": "all-hsas",
@@ -35,19 +43,27 @@ class View(warehouse_view.MalawiWarehouseView):
                 hsa.code, up.products_managed,\
                 _yes_or_no(pads.any_without_stock), _yes_or_no(pads.any_emergency_stock),\
                 _yes_or_no(pads.any_good_stock), _yes_or_no(pads.any_over_stock),\
-                up.last_message.date.strftime("%Y-%m-%d %H:%M:%S")]})
+                _date_fmt(up.last_message.date)]})
+
+        table["height"] = min(480, hsas.count()*60)
 
         return {
                 "table": table,
         }
 
-    def single_hsa_context(self, request):
-        table = {
+    def single_hsa_context(self, request, hsa):
+
+        report_table = {
             "id": "hsa-reporting-summary",
             "is_datatable": False,
-            "header": ["Months", "On Time", "Late", "Complete"],
-            "data": [['Jan', 22, 42, 53], ['Feb', 22, 25, 41], ['Mar', 41, 41, 46]],
+            "header": ["Month", "On Time", "Late", "Complete"],
+            "data": [],
         }
+
+        reports = ReportingRate.objects.filter(supply_point=hsa).order_by('-date')[:3]
+        for rr in reports.reverse():
+            report_table["data"].append([rr.date.strftime('%b-%Y'), _yes_or_no(rr.on_time),\
+                _yes_or_no(rr.late), _yes_or_no(rr.complete)])
 
         table2 = {
             "id": "calc-consumption-stock-levels",
@@ -57,40 +73,69 @@ class View(warehouse_view.MalawiWarehouseView):
             "data": [['CC', 33, 42, 53, 23, 0, 2, 4, 2]],
         }
 
-        table3 = {
+        request_table = {
             "id": "order-response-time",
-            "is_datatable": False,
+            "is_datatable": True,
             "header": ["Product", "Is Emergency", "Balance", "Amt Requested", "Amt Received", "Requested On",
                 "Responded On", "Received On", "Status"],
-            "data": [['CC', 33, 42, 53, 23, 0, 2, 4, 2]],
+            "data": [],
         }
 
-        table4 = {
+        stock_requests = StockRequest.objects.filter(supply_point=hsa).order_by('-requested_on')
+        for sr in stock_requests:
+            request_table["data"].append([sr.product.name, _yes_or_no(sr.is_emergency), sr.balance, sr.amount_requested,\
+                sr.amount_received, _date_fmt(sr.requested_on), _date_fmt(sr.responded_on),\
+                _date_fmt(sr.received_on), sr.status])
+
+        request_table["height"] = min(240, stock_requests.count()*60)
+
+        msgs_table = {
             "id": "recent-messages",
             "is_datatable": False,
             "header": ["Date", "Message Text"],
-            "data": [['2012-05-04', 'soh cc 12']],
+            "data": [],
         }
 
-        table5 = {
+        if hsa.contacts().count() > 0:
+            contact = hsa.contacts()[0]
+            contact_id = contact.id
+
+            msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')[:10]
+            for msg in msgs:
+                msgs_table["data"].append([_date_fmt(msg.date), msg.text])
+
+        details_table = {
             "id": "hsa-details",
             "is_datatable": False,
             "header": ["", ""],
-            "data": [['District', 'BULA']],
+            "data": [],
         }
 
+        up = UserProfileData.objects.get(supply_point=hsa)
+        details_table["data"].append(['Facility', hsa.supplied_by.name])
+        details_table["data"].append(['Phone Number', up.contact_info])
+        details_table["data"].append(['Code', hsa.code])
+        details_table["data"].append(['Products', up.products_managed])
 
-        return {"table": table,
+        return {
+                "report_table": report_table,
                 "table2": table2,
-                "table3": table3,
-                "table4": table4,
-                "table5": table5,
+                "request_table": request_table,
+                "msgs_table": msgs_table,
+                "details_table": details_table,
+                "contact_id": contact_id,
         }
 
 def _get_hsa_url(hsa):
     return '/malawi/r/hsas/?hsa_code=%s' % hsa.code
 
-def _yes_or_no(number):
-    if number > 0:
+def _yes_or_no(value):
+    if value:
         return 'yes'
     return 'no'
+
+def _date_fmt(date):
+    if date:
+        return date.strftime('%Y-%m-%d')# %H:%M:%S')
+    return "None"
+

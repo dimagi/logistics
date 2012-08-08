@@ -1,5 +1,9 @@
+from logistics.models import StockRequest, Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
+from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+    facility_supply_points_below
+
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -8,10 +12,27 @@ class View(warehouse_view.DistrictOnlyView):
         
         table = {
             "id": "quantity-required-for-resupply",
-            "is_datatable" : False,
-            "header": ["Facility Name", "%HSA with Stockout", "LA 1x6", "LA 2x6", "Zinc"],
-            "data": [['BULA', 32, 4123, 512, 3123], ['Chesamu', 22, 2123, 423, 123], ['Chikwina', 45, 4123, 423, 612]],
+            "is_datatable" : True,
+            "header": ["Facility Name"],
+            "data": [],
         }
+
+        sp = SupplyPoint.objects.get(location=request.location)\
+            if request.location else get_country_sp()
         
+        facilities = facility_supply_points_below(sp.location)
+        
+        for product in Product.objects.all().order_by('sms_code'):
+            table["header"].append(product.name)
+
+        for fac in facilities:
+            temp = [fac.name]
+            for product in Product.objects.all():
+                temp.append(sum([r.amount_requested\
+                    for r in StockRequest.pending_requests().filter(supply_point=fac, product=product)]))
+            table["data"].append(temp)
+
+        table["height"] = min(480, facilities.count()*60)
+
         ret_obj['table'] = table
         return ret_obj

@@ -2,11 +2,9 @@
 
 {% block report_content %}
 
-{% include "malawi/partials/selector_form.html" %}
-
 <div class="module">
 	<h2>HSA Reporting Summary</h2>
-	{% with table as table %}
+	{% with report_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
@@ -20,24 +18,29 @@
 
 <div class="module">
 	<h2>Order Response Time</h2>
-	{% with table3 as table %}
+	{% with request_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 
+<br>
 <div class="two-columns">
     <div class="col-1">
 		<div class="module">
 			<h2>Recent Messages</h2>
-			{% with table4 as table %}
+			{% with msgs_table as table %}
 			{% include "malawi/new/partials/generic-table.html" %}
 			{% endwith %}
 		</div>
+		<br>
+		{% if contact_id %}
+			<a href="/messagelog/?contact={{ contact_id }}">All messages</a>
+		{% endif %}
 	</div>
 	<div class="col-2">
 		<div class="module">
 			<h2>HSA Details</h2>
-			{% with table5 as table %}
+			{% with details_table as table %}
 			{% include "malawi/new/partials/generic-table.html" %}
 			{% endwith %}
 		</div>
