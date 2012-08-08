@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.contrib import messages
@@ -41,7 +42,11 @@ def get_report(request, slug=''):
                          "It looks like you don't have permission to access that view. "
                          "You've been redircted home.")
         return home(request)
-    return report.get_response(request)
+    try:
+        return report.get_response(request)
+    except:
+        return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
+                                  {}, context_instance=RequestContext(request))
     
 def home(request):
     return redirect("/malawi/r/dashboard/")

@@ -16,7 +16,7 @@ class MalawiWarehouseView(ReportView):
     
     @property
     def template_name(self):
-        return "malawi/new/%s.html" % self.slug
+        return "%s/%s.html" % (settings.REPORT_FOLDER, self.slug)
         
     def shared_context(self, request):
         base_context = super(MalawiWarehouseView, self).shared_context(request)
