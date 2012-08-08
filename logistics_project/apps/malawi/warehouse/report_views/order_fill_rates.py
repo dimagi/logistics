@@ -17,8 +17,9 @@ class View(warehouse_view.DistrictOnlyView):
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_country_sp()
         
-        selected_type = ProductType.objects.get(code=request.GET["product-type"]) \
-            if "product-type" in request.GET else None
+        selected_type = None
+        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
+            selected_type = ProductType.objects.get(code=request.GET["product-type"])
         
         products = Product.objects.filter(type=selected_type) if selected_type \
             else Product.objects

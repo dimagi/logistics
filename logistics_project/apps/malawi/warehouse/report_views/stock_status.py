@@ -17,8 +17,10 @@ class View(warehouse_view.DistrictOnlyView):
         ret_obj = {
             'product_types': ProductType.objects.all()
         }
-        selected_type = ProductType.objects.get(code=request.GET["product-type"]) \
-            if "product-type" in request.GET else None
+        
+        selected_type = None
+        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
+            selected_type = ProductType.objects.get(code=request.GET["product-type"])
         
         ret_obj['selected_type'] = selected_type
         
