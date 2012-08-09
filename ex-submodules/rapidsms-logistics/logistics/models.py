@@ -1057,7 +1057,9 @@ class StockTransaction(models.Model):
         verbose_name = "Stock Transaction"
 
     def __unicode__(self):
-        return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
+        return "%s - %s (%s->%s on %s)" % \
+            (self.supply_point.name, self.product.name, self.beginning_balance, 
+             self.ending_balance, self.date.date())
     
     @classmethod
     def from_product_report(cls, pr, beginning_balance):
