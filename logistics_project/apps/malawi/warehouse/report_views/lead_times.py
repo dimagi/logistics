@@ -1,18 +1,20 @@
+import json
 from collections import defaultdict
 from datetime import datetime
 
-from logistics.models import SupplyPoint
+from django.db.models import Sum
 
 from dimagi.utils.dates import months_between
 
+from logistics.models import SupplyPoint
+
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_country_sp,\
-    facility_supply_points_below
-from static.malawi.config import TimeTrackerTypes
+    facility_supply_points_below, hsa_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import TimeTracker,\
     TIME_TRACKER_TYPES
-import json
-from django.db.models import Sum
+
+from static.malawi.config import TimeTrackerTypes
 
 
 class View(warehouse_view.DistrictOnlyView):
@@ -71,27 +73,44 @@ class View(warehouse_view.DistrictOnlyView):
                 return float(secs) / float(count * 60 * 60 * 24)
             return None
         
-        f_data = []
-        for f in facility_supply_points_below(sp.location).order_by('name'):
-            matching = TimeTracker.objects.filter(supply_point=f,
-                                                  date__gte=request.datespan.startdate,
-                                                  date__lte=request.datespan.enddate)
-            or_tots = matching.filter(type=TimeTrackerTypes.ORD_READY).aggregate\
-                (Sum('total'), Sum('time_in_seconds'))
-            avg_or_lt = _to_days(or_tots["time_in_seconds__sum"], or_tots["total__sum"])
-            rr_tots = matching.filter(type=TimeTrackerTypes.READY_REC).aggregate\
-                (Sum('total'), Sum('time_in_seconds'))
-            avg_rr_lt = _to_days(rr_tots["time_in_seconds__sum"], rr_tots["total__sum"])
-            avg_tot_lt = avg_or_lt + avg_rr_lt if avg_or_lt is not None and avg_rr_lt is not None else None
-            f_data.append([f.name, len(dates)] + [_table_fmt(val) for val in \
-                                      (avg_or_lt, avg_rr_lt, avg_tot_lt)])
-            
-        lt_table = {
+
+        def _get_lead_time_table_data(supply_points):
+            f_data = []
+            for f in supply_points:
+                matching = TimeTracker.objects.filter(supply_point=f,
+                                                      date__gte=request.datespan.startdate,
+                                                      date__lte=request.datespan.enddate)
+                or_tots = matching.filter(type=TimeTrackerTypes.ORD_READY).aggregate\
+                    (Sum('total'), Sum('time_in_seconds'))
+                avg_or_lt = _to_days(or_tots["time_in_seconds__sum"], or_tots["total__sum"])
+                rr_tots = matching.filter(type=TimeTrackerTypes.READY_REC).aggregate\
+                    (Sum('total'), Sum('time_in_seconds'))
+                avg_rr_lt = _to_days(rr_tots["time_in_seconds__sum"], rr_tots["total__sum"])
+                avg_tot_lt = avg_or_lt + avg_rr_lt if avg_or_lt is not None and avg_rr_lt is not None else None
+                f_data.append([f.name, len(dates)] + [_table_fmt(val) for val in \
+                                          (avg_or_lt, avg_rr_lt, avg_tot_lt)])
+            return f_data
+
+        f_data = _get_lead_time_table_data(facility_supply_points_below(sp.location).order_by('name'))
+
+        fac_lt_table = {
             "id": "average-lead-times-facility",
             "is_datatable": True,
             "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": f_data,
-        }    
+        }   
+
+        h_data = _get_lead_time_table_data(hsa_supply_points_below(sp.location).order_by('name'))
+
+        hsa_lt_table = {
+            "id": "average-lead-times-hsa",
+            "is_datatable": True,
+            "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+            "data": h_data,
+        }   
+
         return {"graphdata": report_chart,
                 "month_table": month_table,
-                "lt_table": lt_table}
+                "fac_lt_table": fac_lt_table,
+                "hsa_lt_table": hsa_lt_table,
+                }

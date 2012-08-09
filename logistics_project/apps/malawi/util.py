@@ -160,20 +160,36 @@ def get_visible_districts(user):
     """
     Given a user, what districts can they see
     """
+    if get_view_level(user) == 'national':
+        return (get_districts(), True)
+        
     prof = user.get_profile()
     loc = None
+    locations = []
+    if prof and prof.organization:
+        locations = [d.location for d in prof.organization.managed_supply_points.all()]
     if prof and prof.supply_point and prof.supply_point.location:
         loc = prof.supply_point.location
     elif prof and prof.location:
         loc = prof.supply_point.location
     if loc and loc.type.slug == config.LocationCodes.DISTRICT:
-        return Location.objects.filter(pk=loc.pk)
+        for l in Location.objects.filter(pk=loc.pk):
+            locations.append(l)
     elif loc:
         # for now only support one level deep, assuming that this
         # is national or nothing
-        return Location.objects.filter(parent_id=loc.id,
-                                       type__slug=config.LocationCodes.DISTRICT)
-    return get_districts()
+        for l in Location.objects.filter(parent_id=loc.id, type__slug=config.LocationCodes.DISTRICT):
+            locations.append(l)
+    return (locations, False)
+
+def get_view_level(user):
+    """
+    Is user affiliated with national or a district
+    """
+    for group in user.groups.all():
+        if group.name == 'national':
+            return 'national'
+    return 'district'
 
 class ConsumptionData(object):
     def __init__(self, product, sps):

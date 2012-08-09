@@ -16,12 +16,14 @@
 	{% endwith %}
 </div>
 
+{% if national_view_level %}
 <div class="module">
 	<h2>Average Reporting Rate (Districts)</h2>
 	{% with district_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
+{% endif %}
 
 {% if facility_table %}
 	<div class="module">
@@ -30,5 +32,14 @@
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
 	</div>
+{% endif %}
+
+{% if not national_view_level %}
+<div class="module">
+	<h2>HSA Reporting Profiles</h2>
+	{% with hsa_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
 {% endif %}
 {% endblock %}

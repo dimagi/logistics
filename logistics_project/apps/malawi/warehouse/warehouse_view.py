@@ -68,6 +68,7 @@ class DistrictOnlyView(MalawiWarehouseView):
         
     def shared_context(self, request):
         base_context = super(DistrictOnlyView, self).shared_context(request)
-        visible_districts = get_visible_districts(request.user)
+        visible_districts, view_level = get_visible_districts(request.user)
         base_context["districts"] = visible_districts
+        base_context["national_view_level"] = view_level
         return base_context

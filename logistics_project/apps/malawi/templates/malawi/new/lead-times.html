@@ -17,10 +17,18 @@
 
 <div class="module">
 	<h2>Average Lead Times by Facility</h2>
-	{% with lt_table as table %}
+	{% with fac_lt_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 
+{% if not national_view_level %}
+	<div class="module">
+		<h2>Average Lead Times by HSA</h2>
+		{% with hsa_lt_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
 
 {% endblock %}

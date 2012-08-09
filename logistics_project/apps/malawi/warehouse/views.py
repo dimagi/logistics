@@ -11,7 +11,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_
 
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
-    lead_times, reporting_rate, user_profiles, hsas, single_hsa
+    lead_times, reporting_rate, user_profiles, hsas
 
 
 datespan_default = datespan_in_request(
@@ -42,11 +42,11 @@ def get_report(request, slug=''):
                          "It looks like you don't have permission to access that view. "
                          "You've been redircted home.")
         return home(request)
-    try:
-        return report.get_response(request)
-    except:
-        return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
-                                  {}, context_instance=RequestContext(request))
+    # try:
+    return report.get_response(request)
+    # except:
+    #     return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
+    #                               {}, context_instance=RequestContext(request))
     
 def home(request):
     return redirect("/malawi/r/dashboard/")
