@@ -194,6 +194,40 @@ class TestConsumption (TestScript):
         # but if we're ignoring the end stockout it's 40 in 20 days
         self.assertEquals(2.0, self.ps.daily_consumption)
     
+    def testLookbackWindow(self):
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 5
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 1
+        
+        self.ps = self._report(130, 60, Reports.SOH)
+        self.ps = self._report(70, 40, Reports.SOH)
+        self.ps = self._report(30, 20, Reports.SOH)
+        self.ps = self._report(10, 00, Reports.SOH)
+        
+        # for all time -- 120 / 60 days = 2
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 61
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        # for up to 20 days -- 1 per day
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 10
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 20
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        # for 30 days 40 / 30 = 1.33
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 30
+        self.assertEquals(1.33, self.ps.daily_consumption)
+        
+        # for 40 days 60 / 40 = 1.5
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 40
+        self.assertEquals(1.5, self.ps.daily_consumption)
+        
+        # for 50 days 90 / 50 = 1.8
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 50
+        self.assertEquals(1.8, self.ps.daily_consumption)
+        
+    
     def testAutoVsManualConsumption(self):
         # test all combinations of use_auto_consumption, 
         # manual_consumption, and auto_consumption

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from rapidsms.conf import settings
 from logistics.const import Reports
+from dimagi.utils.dates import delta_secs
 
 class ConsumptionSettings(object):
     
@@ -41,7 +42,6 @@ def daily_consumption(supply_point, product, datespan=None,
     This algorithm effectively deals with cases where a SOH report immediately follows a receipt.
     """
     from logistics.models import StockTransaction
-    
     consumption_settings = consumption_settings or ConsumptionSettings.default()
     
     total_time = timedelta(0)
@@ -57,8 +57,6 @@ def daily_consumption(supply_point, product, datespan=None,
         return None
     period_receipts = 0
     end_transaction = None
-    consumption_quantities = []
-    consumption_times = []
     for t in txs:
         # Go through each StockTransaction in turn (backwards!).
         if t.ending_balance == 0 and not consumption_settings.include_end_stockouts:
@@ -69,23 +67,29 @@ def daily_consumption(supply_point, product, datespan=None,
         if t.product_report.report_type.code == Reports.SOH:
             if end_transaction:
                 # End of a period.
-                if t.ending_balance + period_receipts < end_transaction.ending_balance:
-                    # Anomalous data point (finished with higher stock than possible)
-                    end_transaction = t
-                    period_receipts = 0
-                    continue
-                # Add the period stats to the running count.
-                period_consumption = t.ending_balance + period_receipts - end_transaction.ending_balance
-                total_consumption += period_consumption
-                consumption_quantities.append(period_consumption)
-                
-                period_time = (end_transaction.date - t.date)
-                total_time += period_time
-                consumption_times.append(period_time)
-                
-            # Start a new period.
-            end_transaction = t
-            period_receipts = 0
+                if t.ending_balance + period_receipts >= end_transaction.ending_balance:
+                    # if this check fails it's an anomalous data point 
+                    # (finished with higher stock than possible)
+                    
+                    # Add the period stats to the running count.
+                    # But first scale them if they fall within the cutoff window
+                    period_time = (end_transaction.date - t.date)
+                    period_consumption = t.ending_balance + period_receipts - end_transaction.ending_balance
+                    
+                    scaling_factor = 1 if consumption_settings.cutoff_date < t.date \
+                        else max(0, delta_secs(end_transaction.date - consumption_settings.cutoff_date) \
+                                    / delta_secs(period_time))
+                    
+                    total_time += timedelta(seconds=scaling_factor * delta_secs(period_time))
+                    total_consumption += scaling_factor * period_consumption
+                    
+            if t.date < consumption_settings.cutoff_date:
+                break
+            else:
+                # Start a new period.
+                end_transaction = t
+                period_receipts = 0
+            
         elif t.product_report.report_type.code == Reports.REC:
             # Receipt.
             if end_transaction:
@@ -94,5 +98,5 @@ def daily_consumption(supply_point, product, datespan=None,
     days = total_time.days
     if days < consumption_settings.min_days:
         return None
-    return round(abs(float(total_consumption) / float(days)),2)
+    return round(abs((float(total_consumption) / delta_secs(total_time)) * 60*60*24),2)
 
