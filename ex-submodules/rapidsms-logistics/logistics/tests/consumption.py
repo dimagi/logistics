@@ -6,7 +6,7 @@ from logistics.models import Location, SupplyPointType, SupplyPoint, \
     Product, ProductType, ProductStock, StockTransaction, ProductReport, \
     ProductReportType, DefaultMonthlyConsumption
 from logistics.models import SupplyPoint as Facility
-from logistics.tests.util import load_test_data
+from logistics.tests.util import load_test_data, fake_report
 from logistics.const import Reports
 
 class TestConsumption (TestScript):
@@ -430,30 +430,9 @@ class TestConsumption (TestScript):
 
 
     def _report(self, amount, days_ago, report_type):
-        if report_type == Reports.SOH:
-            report = self.sp.report_stock(self.pr, amount)
-        else:
-            report = self.sp.report_receipt(self.pr, amount)
-        # must call post_save manually since signals don't work 
-        # properly in the test environment
-        #report.post_save()
-        txs = StockTransaction.objects.filter(product_report=report).order_by('-pk')
-        try:
-            trans = txs[0]
-        except IndexError:
-            # no big deal; it wasn't a transaction-generating report
-            pass
-        else:
-            trans.date = trans.date - timedelta(days=days_ago)
-            trans.save()
-        # NB: it is important that we draw this from the database since the automatic
-        # stock calculation works by updating the productstock.auto_monthly_consumption field
-        self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
-        # again, this should be called by a signal, 
-        # but in the unit test we do it manually
-        #self.ps.update_auto_consumption()
+        self.ps = fake_report(self.sp, self.pr, amount, days_ago, report_type)
         return self.ps
-
+    
     def tearDown(self):
         Location.objects.all().delete()
         SupplyPoint.objects.all().delete()
