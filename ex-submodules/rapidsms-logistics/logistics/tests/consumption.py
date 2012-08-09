@@ -170,6 +170,30 @@ class TestConsumption (TestScript):
         self.ps = self._report(40, 40, Reports.SOH)
         self.assertEquals(1.0, self.ps.daily_consumption)
 
+    def testStockoutPeriodsManuallyIncluded(self):
+        
+        self.ps = self._report(60, 100, Reports.SOH)
+        self.assertEquals(None, self.ps.daily_consumption)
+        
+        self.ps = self._report(50, 90, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        self.ps = self._report(0, 80, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = True
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        # this creates an anomalous period, which is ignored
+        self.ps = self._report(60, 70, Reports.SOH)
+        self.ps = self._report(30, 60, Reports.SOH)
+        # total consumption is 90 in 30 days
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        # but if we're ignoring the end stockout it's 40 in 20 days
+        self.assertEquals(2.0, self.ps.daily_consumption)
+    
     def testAutoVsManualConsumption(self):
         # test all combinations of use_auto_consumption, 
         # manual_consumption, and auto_consumption
