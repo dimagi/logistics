@@ -1097,6 +1097,18 @@ class StockTransaction(models.Model):
             raise ValueError(err_msg)
         return st
     
+    def previous_transaction(self):
+        """
+        Get the previous transaction associated with this place and product, 
+        by date, or None if there aren't any 
+        """
+        q = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                            product=self.product,
+                                            date__lt=self.date)
+        if q.exists():
+            return q.order_by("-date")[0]
+        return None
+        
     def get_consumption(self):
         try:
             ps = ProductStock.objects.get(product=self.product, 
