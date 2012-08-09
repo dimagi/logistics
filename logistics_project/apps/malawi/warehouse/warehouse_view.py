@@ -31,8 +31,8 @@ class MalawiWarehouseView(ReportView):
             availability = ProductAvailabilityData.objects.get(supply_point=country,
                                                                date=date,
                                                                product=p)
-            stockout_pcts[p] = pct(availability.managed_and_without_stock,
-                                    availability.managed)
+            stockout_pcts[p] = (pct(availability.managed_and_without_stock,
+                                    availability.managed), availability.managed)
         
         current_rr = ReportingRate.objects.get\
             (date=date, supply_point=country)

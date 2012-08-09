@@ -158,7 +158,7 @@ def get_default_supply_point(user):
 
 def get_visible_districts(user):
     """
-    Given a user, what 
+    Given a user, what districts can they see
     """
     prof = user.get_profile()
     loc = None
