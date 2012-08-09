@@ -13,7 +13,7 @@ class View(warehouse_view.DistrictOnlyView):
 			"is_datatable": True,
 			"header": ["Facility", "#HSAs", "%HSAs stocked out",\
 			"%HSAs with EOs that HCs cannot resupply", "%HSAs resupplied but remain below EO",\
-			"%HSAs registered but not added products managed", "%HSAs reporting receipts"],
+			"%HSAs registered but not added products managed", "%HSAs not reporting receipts"],
 			"data": [],
 		}
 
