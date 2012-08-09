@@ -2,14 +2,16 @@ from django.contrib import messages
 
 from rapidsms.contrib.messagelog.models import Message
 
-from logistics.models import SupplyPoint, Product, StockRequest
+from logistics.models import SupplyPoint, Product, StockRequest, ProductStock
 
 from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
     ProductAvailabilityDataSummary, ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
-    hsa_supply_points_below
+    hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from rapidsms.models import Contact
 
 class View(warehouse_view.MalawiWarehouseView):
 
@@ -60,18 +62,32 @@ class View(warehouse_view.MalawiWarehouseView):
             "header": ["Month", "On Time", "Late", "Complete"],
             "data": [],
         }
-
+        
+        # this will fail hard if misconfigured, which is desirable for now
+        contact = Contact.objects.get(supply_point=hsa)
+            
         reports = ReportingRate.objects.filter(supply_point=hsa).order_by('-date')[:3]
         for rr in reports.reverse():
             report_table["data"].append([rr.date.strftime('%b-%Y'), _yes_or_no(rr.on_time),\
                 _yes_or_no(rr.late), _yes_or_no(rr.complete)])
-
+            
+        product_stock_tuples = [(p, ProductStock.objects.get(supply_point=hsa, product=p) \
+                                    if ProductStock.objects.filter(supply_point=hsa, product=p).exists() \
+                                    else None)
+                                 for p in hsa.commodities_stocked().order_by("sms_code")]
+        
+        def _to_table_values(ps):
+            return [ps.daily_consumption, ps.monthly_consumption, 
+                    ps.quantity, fmt_or_none(ps.months_remaining, percent=False), 
+                    ps.reorder_amount] \
+                    if ps else [None] * 5
         table2 = {
             "id": "calc-consumption-stock-levels",
             "is_datatable": False,
-            "header": ["Product", "Total Calc Cons", "Avg Rep Rate", "AMC", "Total SOH", "Avg MOS",
-                "Avg Days Stocked Out", "Total Adj Calc Cons", "Resupply Qts Required"],
-            "data": [['CC', 33, 42, 53, 23, 0, 2, 4, 2]],
+            "header": ["Product", "Total Daily Consumption (adjusted for stock outs)",
+                       "Average Monthly Consumption", "Current SOH", "Months of Stock on hand",
+                       "Resupply Qty Required"],
+            "data": [[p.name] + _to_table_values(ps) for p, ps in product_stock_tuples]
         }
 
         request_table = {
