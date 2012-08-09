@@ -610,6 +610,10 @@ class ProductStock(models.Model):
         return None
 
     @property
+    def reorder_amount(self):
+        return max(self.maximum_level - self.quantity, 0)
+    
+    @property
     def months_remaining(self):
         return self.calculate_months_remaining(self.quantity)
         
