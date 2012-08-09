@@ -17,7 +17,9 @@ class TestConsumption (TestScript):
         
         settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 10
         settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
-
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = None
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
@@ -49,7 +51,7 @@ class TestConsumption (TestScript):
         st.date = st.date - timedelta(days=5)
         st.save()
         self.sp.report_stock(self.pr, 150)
-
+        
         # 5 days still aren't enough to compute.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.assertEquals(None, self.ps.daily_consumption)
@@ -63,14 +65,16 @@ class TestConsumption (TestScript):
 
         # 10 days is enough.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
-        self.assertEquals(10, round(self.ps.daily_consumption)) # 200 in stock 10 days ago, 150 in stock 5 days ago
+        # 200 in stock 10 days ago, 150 in stock 5 days ago, 100 now
+        self.assertEquals(10, round(self.ps.daily_consumption)) 
         self.assertEquals(300, round(self.ps.monthly_consumption))
 
         sta = StockTransaction.objects.filter(supply_point=self.sp,product=self.pr)
         for st in sta:
             st.date = st.date - timedelta(days=10)
             st.save()
-        self.sp.report_stock(self.pr, 50) # 200 in stock 20 days ago, 150 in stock 15 days ago, 50 in stock now
+        # 200 in stock 20 days ago, 150 in stock 15 days ago, 100 10 days ago, 50 now
+        self.sp.report_stock(self.pr, 50) 
 
         # Another data point.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)

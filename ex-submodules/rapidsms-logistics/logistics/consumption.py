@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from rapidsms.conf import settings
 from logistics.const import Reports
 
@@ -7,9 +7,18 @@ class ConsumptionSettings(object):
     def __init__(self, config):
         self.min_transactions = config.get("MINIMUM_TRANSACTIONS", 2)
         self.min_days = config.get("MINIMUM_DAYS", 10)
-        self.max_days = config.get("MAXIMUM_DAYS", None)
+        self.lookback_days = config.get("LOOKBACK_DAYS", None)
         self.include_end_stockouts = config.get("INCLUDE_END_STOCKOUTS", False)
     
+    @property
+    def cutoff_date(self):
+        """
+        The cutoff date for calculating consumption. Always calculated 
+        relative to the current date.
+        """
+        return datetime.min if not self.lookback_days else \
+            datetime.utcnow() - timedelta(days=self.lookback_days )
+        
     @classmethod
     def default(cls):
         return ConsumptionSettings(settings.LOGISTICS_CONSUMPTION)
@@ -35,11 +44,11 @@ def daily_consumption(supply_point, product, datespan=None,
     
     consumption_settings = consumption_settings or ConsumptionSettings.default()
     
-    time = timedelta(0)
-    quantity = 0
+    total_time = timedelta(0)
+    total_consumption = 0
     
     txs = StockTransaction.objects.filter\
-        (supply_point=supply_point,product=product).order_by('date')
+        (supply_point=supply_point,product=product).order_by('-date')
     
     if datespan:
         txs = txs.filter(date__gte=datespan.startdate,
@@ -47,36 +56,43 @@ def daily_consumption(supply_point, product, datespan=None,
     if txs.count() < consumption_settings.min_transactions:
         return None
     period_receipts = 0
-    start_soh = None
-    
-    for (i, t) in enumerate(txs):
-        # Go through each StockTransaction in turn.
+    end_transaction = None
+    consumption_quantities = []
+    consumption_times = []
+    for t in txs:
+        # Go through each StockTransaction in turn (backwards!).
         if t.ending_balance == 0 and not consumption_settings.include_end_stockouts:
-            # Stockout -- pass on this period
-            start_soh = None
+            # Previous period ended in stockout -- pass on this period
+            end_transaction = None
             period_receipts = 0
             continue
         if t.product_report.report_type.code == Reports.SOH:
-            if start_soh:
+            if end_transaction:
                 # End of a period.
-                if t.ending_balance > (start_soh.ending_balance + period_receipts):
-                    # Anomalous data point (reported higher stock than possible)
-                    start_soh = None
+                if t.ending_balance + period_receipts < end_transaction.ending_balance:
+                    # Anomalous data point (finished with higher stock than possible)
+                    end_transaction = t
                     period_receipts = 0
                     continue
                 # Add the period stats to the running count.
-                quantity += ((start_soh.ending_balance + period_receipts) - t.ending_balance)
-                time += (t.date - start_soh.date)
+                period_consumption = t.ending_balance + period_receipts - end_transaction.ending_balance
+                total_consumption += period_consumption
+                consumption_quantities.append(period_consumption)
+                
+                period_time = (end_transaction.date - t.date)
+                total_time += period_time
+                consumption_times.append(period_time)
+                
             # Start a new period.
-            start_soh = t
+            end_transaction = t
             period_receipts = 0
         elif t.product_report.report_type.code == Reports.REC:
             # Receipt.
-            if start_soh:
+            if end_transaction:
                 # Mid-period receipt, so we care about it.
                 period_receipts += t.quantity
-    days = time.days
+    days = total_time.days
     if days < consumption_settings.min_days:
         return None
-    return round(abs(float(quantity) / float(days)),2)
+    return round(abs(float(total_consumption) / float(days)),2)
 
