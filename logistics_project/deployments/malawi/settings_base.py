@@ -171,6 +171,14 @@ LOGISTICS_USERS_HAVE_ADMIN_ACCESS = True
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 2
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 30
 
+LOGISTICS_CONSUMPTION = {
+    "MINIMUM_TRANSACTIONS": 2,
+    "MINIMUM_DAYS": 10,
+    "LOOKBACK_DAYS": 60,            
+    "INCLUDE_END_STOCKOUTS": True, 
+}
+
+
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
 LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
@@ -205,7 +213,11 @@ DATABASE_ENGINE = "mysql"
 
 SOUTH_MIGRATION_MODULES = {
     'rapidsms': 'logistics_project.deployments.malawi.migrations.rapidsms',
-    'logistics': 'ignore',
+    # NOTE: can't fix this without breaking tests and/or doing a major 
+    # migration dependency cleanup
+    'logistics': 'ignore', 
+    # 'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
+    # 'malawi': 'ignore'
 }
 
 # data warehouse config
