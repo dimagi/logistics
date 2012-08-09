@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.conf import settings
+from rapidsms.conf import settings
 from django.core.cache import cache
 from rapidsms.tests.scripted import TestScript
 from logistics.models import Location, SupplyPointType, SupplyPoint, \
@@ -14,8 +14,9 @@ class TestConsumption (TestScript):
         TestScript.setUp(self)
 
         load_test_data()
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 10
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+        
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 10
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
 
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
@@ -319,8 +320,8 @@ class TestConsumption (TestScript):
         self.assertEquals(10, self.ps.daily_consumption)
     
     def testAutoConsumptionSettings(self):
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 25
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 25
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
         self.ps = self._report(30, 30, Reports.SOH)
         self.ps = self._report(20, 20, Reports.SOH)
         self.ps = self._report(10, 10, Reports.SOH)
