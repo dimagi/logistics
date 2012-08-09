@@ -1067,14 +1067,6 @@ class StockTransaction(models.Model):
     
     @classmethod
     def from_product_report(cls, pr, beginning_balance):
-        # no need to generate transaction if it's just a report of 0 receipts
-        if pr.report_type.code == Reports.REC and \
-          pr.quantity == 0:
-            return None
-        # also no need to generate transaction if it's a soh which is the same as before
-        if pr.report_type.code == Reports.SOH and \
-          beginning_balance == pr.quantity:
-            return None
         st = cls(product_report=pr, supply_point=pr.supply_point, 
                  product=pr.product, date=pr.report_date)
 
