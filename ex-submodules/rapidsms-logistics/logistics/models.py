@@ -26,6 +26,7 @@ from logistics.errors import *
 from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
+from logistics.consumption import ConsumptionSettings, daily_consumption
 
 if hasattr(settings, "MESSAGELOG_APP"):
     message_class = "%s.Message" % settings.MESSAGELOG_APP
@@ -33,12 +34,14 @@ else:
     message_class = "messagelog.Message"
 
 try:
+    from settings import LOGISTICS_CONSUMPTION
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
     from settings import LOGISTICS_REORDER_LEVEL_IN_MONTHS
     from settings import LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS
 except ImportError:
-    raise ImportError("Please define LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " +
-                      "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
+    raise ImportError("Please define LOGISTICS_CONSUMPTION, "
+                      "LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " 
+                      "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " 
                       "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
 
 post_save.connect(create_user_profile, sender=User)
@@ -125,7 +128,7 @@ class SupplyPointType(models.Model):
     
     def monthly_consumption_by_product_code(self, code):
         product = Product.objects.get(code=code)
-        return monthly_consumption_by_product(product)
+        return self.monthly_consumption_by_product(product)
     
 class DefaultMonthlyConsumption(models.Model):
     supply_point_type = models.ForeignKey(SupplyPointType)
@@ -582,65 +585,8 @@ class ProductStock(models.Model):
         return self.get_daily_consumption()
 
     def get_daily_consumption(self, datespan=None):
-        """
-        Calculate daily consumption through the following algorithm:
-
-        Consider each non-stockout SOH report to be the start of a period.
-        We iterate through the stock transactions following it until we reach another SOH.
-        If it's a stockout, we drop the period from the calculation.
-
-        We keep track of the total receipts in each period and add them to the start quantity.
-        The total quantity consumed is: (Start SOH Quantity + SUM(receipts during period) - End SOH Quantity)
-
-        We add the quantity consumed and the length of the period to the running count,
-        then at the end divide one by the other.
-
-        This algorithm effectively deals with cases where a SOH report immediately follows a receipt.
-        """
-        time = timedelta(0)
-        quantity = 0
-        txs = StockTransaction.objects.filter(supply_point=self.supply_point,
-                                                product=self.product
-                                                ).order_by('date')
-        if datespan:
-            txs = txs.filter(date__gte=datespan.startdate,
-                             date__lte=datespan.enddate)
-        if txs.count() < settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION:
-            return None
-        period_receipts = 0
-        start_soh = None
-        for (i, t) in enumerate(txs):
-            # Go through each StockTransaction in turn.
-            if t.ending_balance == 0:
-                # Stockout -- pass on this period
-                start_soh = None
-                period_receipts = 0
-                continue
-            if t.product_report.report_type.code == Reports.SOH:
-                if start_soh:
-                    # End of a period.
-                    if t.ending_balance > (start_soh.ending_balance + period_receipts):
-                        # Anomalous data point (reported higher stock than possible)
-                        start_soh = None
-                        period_receipts = 0
-                        continue
-                    # Add the period stats to the running count.
-                    quantity += ((start_soh.ending_balance + period_receipts) - t.ending_balance)
-                    time += (t.date - start_soh.date)
-                # Start a new period.
-                start_soh = t
-                period_receipts = 0
-            elif t.product_report.report_type.code == Reports.REC:
-                # Receipt.
-                if start_soh:
-                    # Mid-period receipt, so we care about it.
-                    period_receipts += t.quantity
-        days = time.days
-        if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
-            return None
-        return round(abs(float(quantity) / float(days)),2)
-
-
+        return daily_consumption(self.supply_point, self.product, datespan)
+        
     @property
     def emergency_reorder_level(self):
         # if you use static levels you only get the product's data or nothing
@@ -1111,7 +1057,9 @@ class StockTransaction(models.Model):
         verbose_name = "Stock Transaction"
 
     def __unicode__(self):
-        return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
+        return "%s - %s (%s->%s on %s)" % \
+            (self.supply_point.name, self.product.name, self.beginning_balance, 
+             self.ending_balance, self.date.date())
     
     @classmethod
     def from_product_report(cls, pr, beginning_balance):

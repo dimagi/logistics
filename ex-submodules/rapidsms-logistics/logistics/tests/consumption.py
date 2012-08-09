@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.conf import settings
+from rapidsms.conf import settings
 from django.core.cache import cache
 from rapidsms.tests.scripted import TestScript
 from logistics.models import Location, SupplyPointType, SupplyPoint, \
@@ -14,9 +14,12 @@ class TestConsumption (TestScript):
         TestScript.setUp(self)
 
         load_test_data()
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 10
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
-
+        
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 10
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = None
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
@@ -48,7 +51,7 @@ class TestConsumption (TestScript):
         st.date = st.date - timedelta(days=5)
         st.save()
         self.sp.report_stock(self.pr, 150)
-
+        
         # 5 days still aren't enough to compute.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.assertEquals(None, self.ps.daily_consumption)
@@ -62,14 +65,16 @@ class TestConsumption (TestScript):
 
         # 10 days is enough.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
-        self.assertEquals(10, round(self.ps.daily_consumption)) # 200 in stock 10 days ago, 150 in stock 5 days ago
+        # 200 in stock 10 days ago, 150 in stock 5 days ago, 100 now
+        self.assertEquals(10, round(self.ps.daily_consumption)) 
         self.assertEquals(300, round(self.ps.monthly_consumption))
 
         sta = StockTransaction.objects.filter(supply_point=self.sp,product=self.pr)
         for st in sta:
             st.date = st.date - timedelta(days=10)
             st.save()
-        self.sp.report_stock(self.pr, 50) # 200 in stock 20 days ago, 150 in stock 15 days ago, 50 in stock now
+        # 200 in stock 20 days ago, 150 in stock 15 days ago, 100 10 days ago, 50 now
+        self.sp.report_stock(self.pr, 50) 
 
         # Another data point.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
@@ -165,6 +170,64 @@ class TestConsumption (TestScript):
         self.ps = self._report(40, 40, Reports.SOH)
         self.assertEquals(1.0, self.ps.daily_consumption)
 
+    def testStockoutPeriodsManuallyIncluded(self):
+        
+        self.ps = self._report(60, 100, Reports.SOH)
+        self.assertEquals(None, self.ps.daily_consumption)
+        
+        self.ps = self._report(50, 90, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        self.ps = self._report(0, 80, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = True
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        # this creates an anomalous period, which is ignored
+        self.ps = self._report(60, 70, Reports.SOH)
+        self.ps = self._report(30, 60, Reports.SOH)
+        # total consumption is 90 in 30 days
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        # but if we're ignoring the end stockout it's 40 in 20 days
+        self.assertEquals(2.0, self.ps.daily_consumption)
+    
+    def testLookbackWindow(self):
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 5
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 1
+        
+        self.ps = self._report(130, 60, Reports.SOH)
+        self.ps = self._report(70, 40, Reports.SOH)
+        self.ps = self._report(30, 20, Reports.SOH)
+        self.ps = self._report(10, 00, Reports.SOH)
+        
+        # for all time -- 120 / 60 days = 2
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 61
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        # for up to 20 days -- 1 per day
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 10
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 20
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        # for 30 days 40 / 30 = 1.33
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 30
+        self.assertEquals(1.33, self.ps.daily_consumption)
+        
+        # for 40 days 60 / 40 = 1.5
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 40
+        self.assertEquals(1.5, self.ps.daily_consumption)
+        
+        # for 50 days 90 / 50 = 1.8
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 50
+        self.assertEquals(1.8, self.ps.daily_consumption)
+        
+    
     def testAutoVsManualConsumption(self):
         # test all combinations of use_auto_consumption, 
         # manual_consumption, and auto_consumption
@@ -319,8 +382,8 @@ class TestConsumption (TestScript):
         self.assertEquals(10, self.ps.daily_consumption)
     
     def testAutoConsumptionSettings(self):
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 25
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 25
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
         self.ps = self._report(30, 30, Reports.SOH)
         self.ps = self._report(20, 20, Reports.SOH)
         self.ps = self._report(10, 10, Reports.SOH)
