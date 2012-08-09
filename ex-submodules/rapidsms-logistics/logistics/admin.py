@@ -23,6 +23,8 @@ class ProductTypeAdmin(admin.ModelAdmin):
 
 class ProductStockAdmin(admin.ModelAdmin):
     model = ProductStock
+    list_display = ('supply_point', 'product', 'is_active', 'quantity','auto_monthly_consumption')
+    list_filter = ('product', 'is_active', 'auto_monthly_consumption')
 
 class ProductReportAdmin(admin.ModelAdmin):
     model = ProductReport
