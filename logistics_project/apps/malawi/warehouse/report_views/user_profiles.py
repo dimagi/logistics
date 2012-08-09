@@ -2,6 +2,7 @@ from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import UserProfileData
+from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 
 class View(warehouse_view.MalawiWarehouseView):
 
@@ -50,9 +51,9 @@ class View(warehouse_view.MalawiWarehouseView):
             elif up.supply_point.type.code == 'hsa':
                 if request.GET.get('facility'):
                     if up.supply_point.supplied_by.code == request.GET.get('facility'):
-                        hsa_table["data"].append([up.supply_point.name, up.supply_point.code,
+                        hsa_table["data"].append({"url": get_hsa_url(up.supply_point), "data": [up.supply_point.name, up.supply_point.code,
                                 up.contact_info, up.products_managed,
-                                up.last_message.date.strftime("%b-%d-%Y"), up.last_message.text])
+                                up.last_message.date.strftime("%b-%d-%Y"), up.last_message.text]})
 
         return {
                 "district": district,

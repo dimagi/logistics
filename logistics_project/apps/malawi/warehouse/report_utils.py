@@ -225,3 +225,7 @@ def remove_zeros_from_dict(dicti, key_val):
 def month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
+
+def get_hsa_url(hsa):
+    return '/malawi/r/hsas/?hsa_code=%s' % hsa.code
+

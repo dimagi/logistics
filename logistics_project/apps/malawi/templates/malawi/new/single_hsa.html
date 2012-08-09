@@ -3,7 +3,7 @@
 {% block report_content %}
 
 <div class="module">
-	<h2>HSA Reporting Summary</h2>
+	<h2>{{ contact.name }} Reporting Summary</h2>
 	{% with report_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
@@ -33,8 +33,8 @@
 			{% endwith %}
 		</div>
 		<br>
-		{% if contact_id %}
-			<a href="/messagelog/?contact={{ contact_id }}">All messages</a>
+		{% if contact %}
+			<a href="/messagelog/?contact={{ contact.id }}">All messages</a>
 		{% endif %}
 	</div>
 	<div class="col-2">

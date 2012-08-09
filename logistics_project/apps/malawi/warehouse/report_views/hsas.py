@@ -9,6 +9,7 @@ from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
     hsa_supply_points_below
+from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 
 class View(warehouse_view.MalawiWarehouseView):
 
@@ -39,7 +40,7 @@ class View(warehouse_view.MalawiWarehouseView):
         for hsa in hsas:
             up = UserProfileData.objects.get(supply_point=hsa)
             pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
-            table["data"].append({"url": _get_hsa_url(hsa), "data": [hsa.supplied_by.name, hsa.name,\
+            table["data"].append({"url": get_hsa_url(hsa), "data": [hsa.supplied_by.name, hsa.name,\
                 hsa.code, up.products_managed,\
                 _yes_or_no(pads.any_without_stock), _yes_or_no(pads.any_emergency_stock),\
                 _yes_or_no(pads.any_good_stock), _yes_or_no(pads.any_over_stock),\
@@ -98,7 +99,6 @@ class View(warehouse_view.MalawiWarehouseView):
 
         if hsa.contacts().count() > 0:
             contact = hsa.contacts()[0]
-            contact_id = contact.id
 
             msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')[:10]
             for msg in msgs:
@@ -123,11 +123,8 @@ class View(warehouse_view.MalawiWarehouseView):
                 "request_table": request_table,
                 "msgs_table": msgs_table,
                 "details_table": details_table,
-                "contact_id": contact_id,
+                "contact": contact,
         }
-
-def _get_hsa_url(hsa):
-    return '/malawi/r/hsas/?hsa_code=%s' % hsa.code
 
 def _yes_or_no(value):
     if value:
