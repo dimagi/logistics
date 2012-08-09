@@ -295,8 +295,8 @@ class TestConsumption (TestScript):
         self.ps = self._report(0, 70, Reports.SOH) 
         self.ps = self._report(0, 60, Reports.SOH) 
         self.assertEquals(1, self.ps.daily_consumption) # consumption unchanged after stockouts
-        self.ps = self._report(70, 70, Reports.SOH) 
-        self.ps = self._report(20, 60, Reports.SOH) 
+        self.ps = self._report(70, 50, Reports.SOH) 
+        self.ps = self._report(20, 40, Reports.SOH) 
         self.assertEquals(2, round(self.ps.daily_consumption)) # consumption changed
 
     def testConsumptionCalculationIntervals(self):
@@ -430,7 +430,7 @@ class TestConsumption (TestScript):
 
 
     def _report(self, amount, days_ago, report_type):
-        self.ps = fake_report(self.sp, self.pr, amount, days_ago, report_type)
+        self.ps = fake_report(self.sp, self.pr, amount, days_ago, report_type)[1]
         return self.ps
     
     def tearDown(self):

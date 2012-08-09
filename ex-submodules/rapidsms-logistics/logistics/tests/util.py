@@ -9,7 +9,7 @@ def load_test_data():
     logi_loader.init_test_location_and_supplypoints()
     logi_loader.init_test_product_and_stock()
     
-def fake_report(supply_point, product, amount, days_ago, report_type):
+def fake_report(supply_point, product, amount, days_ago, report_type, date=None):
     """
     Fake a stock report, sometime in the past, generating the appropriate 
     models.
@@ -24,10 +24,13 @@ def fake_report(supply_point, product, amount, days_ago, report_type):
         trans = txs[0]
     except IndexError:
         # no big deal; it wasn't a transaction-generating report
-        pass
+        trans = None
     else:
-        trans.date = trans.date - timedelta(days=days_ago)
+        # if you explicitly pass in a date it overrides the days_ago param
+        new_date = date or trans.date - timedelta(days=days_ago)
+        trans.date = new_date
         trans.save()
     # NB: it is important that we draw this from the database since the automatic
     # stock calculation works by updating the productstock.auto_monthly_consumption field
-    return ProductStock.objects.get(supply_point=supply_point, product=product)
+    return (trans,
+            ProductStock.objects.get(supply_point=supply_point, product=product))
