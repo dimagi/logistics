@@ -9,3 +9,4 @@ from logistics_project.apps.malawi.tests.report import *
 from logistics_project.apps.malawi.tests.roles import *
 from logistics_project.apps.malawi.tests.stockonhand import *
 from logistics_project.apps.malawi.tests.transfer import *
+from logistics_project.apps.malawi.tests.warehouse.consumption import *

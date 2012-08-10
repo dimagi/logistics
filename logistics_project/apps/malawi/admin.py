@@ -39,8 +39,13 @@ class TimeTrackerAdmin(admin.ModelAdmin):
     list_filter = ('supply_point__type', 'date', 'type')
 
 class OrderRequestAdmin(admin.ModelAdmin):
-    model = TimeTracker
+    model = OrderRequest
     list_display = ('supply_point', 'date', 'product', 'total', 'emergency')
+    list_filter = ('supply_point__type', 'date', 'product')
+
+class ConsumptionAdmin(admin.ModelAdmin):
+    model = Consumption
+    list_display = ('supply_point', 'date', 'product', 'calculated_consumption', 'time_stocked_out')
     list_filter = ('supply_point__type', 'date', 'product')
 
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
@@ -49,3 +54,4 @@ admin.site.register(ReportingRate, ReportingRateAdmin)
 admin.site.register(TimeTracker, TimeTrackerAdmin)
 admin.site.register(OrderRequest, OrderRequestAdmin)
 admin.site.register(OrderFulfillment)
+admin.site.register(Consumption, ConsumptionAdmin)

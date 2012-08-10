@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.db.models import Sum, Max, Q, F
+from django.db.models import Sum, Min, Max, Q, F
 
 from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
 
@@ -22,7 +22,8 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
-    TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert
+    TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
+    Consumption
 
 
 class MalawiWarehouseRunner(WarehouseRunner):
@@ -37,7 +38,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_lead_times = False
     skip_order_requests = False
     skip_order_fulfillment = False
+    skip_profile_data = False
     skip_alerts = False
+    skip_consumption = False
+    consumption_test_mode = False
     hsa_limit = 0
     
     def cleanup(self, start, end):
@@ -56,9 +60,15 @@ class MalawiWarehouseRunner(WarehouseRunner):
             OrderRequest.objects.filter(date__gte=start, date__lte=end).delete()
         if not self.skip_order_fulfillment:
             OrderFulfillment.objects.filter(date__gte=start, date__lte=end).delete()
+        if not self.skip_consumption:
+            Consumption.objects.all().delete()
             
-    def generate(self, start, end):
+    def generate(self, run_record):
         print "Malawi warehouse generate!"
+        
+        start = run_record.start
+        end = run_record.end
+        
         # first populate all the warehouse tables for all facilities
         hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
         if self.hsa_limit:
@@ -266,6 +276,17 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             if requests_in_range.count():
                                 order_fulfill.save()
                     
+                    def _update_consumption():
+                        for p in Product.objects.all():
+                            c = Consumption.objects.get_or_create\
+                                (supply_point=hsa, date=window_date, product=p)[0]
+                            transactions = StockTransaction.objects.filter\
+                                (supply_point=hsa, product=p,
+                                 date__gte=period_start, 
+                                 date__lt=period_end).order_by('date')
+                            update_consumption_values(transactions)
+                            
+                            
                     if not self.skip_reporting_rates:
                         _update_reporting_rate()
                     if not self.skip_product_availability:
@@ -276,6 +297,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         _update_order_requests()
                     if not self.skip_order_fulfillment:
                         _update_order_fulfillment()
+                    if not self.skip_consumption:
+                        _update_consumption()
                     
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
@@ -318,9 +341,41 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
                                        fields=['total', 'quantity_requested', 'quantity_received'],
                                        additonal_query_params={"product": p})
+                    
+                    if not self.skip_consumption and self.consumption_test_mode:
+                        for p in Product.objects.all():
+                            # NOTE: this is not correct, but is for testing / iteration
+                            _aggregate(Consumption, window_date, place, relevant_hsas,
+                                       fields=['calculated_consumption', 
+                                               'time_stocked_out'],
+                                       additonal_query_params={"product": p})
+                            
+                if not self.skip_consumption and not self.consumption_test_mode:
+                    for p in Product.objects.all():
+                        # We have to use a special date range filter here, 
+                        # since the warehouse can update historical values
+                        # outside the range we are looking at
+                        agg = Consumption.objects.filter(
+                            update_date__gte = run_record.start_run,
+                            supply_point__in=hsas
+                        ).aggregate(Min('date'))
+                        new_start = agg.get('date__min', None)
+                        if new_start:
+                            assert new_start <= end
+                            for year, month in months_between(new_start, end):
+                                window_date = datetime(year, month, 1)
+                                _aggregate(Consumption, window_date, place, relevant_hsas,
+                                   fields=['calculated_consumption', 
+                                           'time_stocked_out'],
+                                   additonal_query_params={"product": p})
+                        
+                            
+                        
+                        
         
         # run user profile summary
-        update_user_profile_data()
+        if not self.skip_profile_data: 
+            update_user_profile_data()
 
         # run alerts
         if not self.skip_alerts:
@@ -346,6 +401,51 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
     period_instance.save()
     return period_instance
 
+
+def update_consumption_values(transactions):
+    # grab all the transactions in the period, plus 
+    # the one immediately before the first one if there is one
+    
+    # walk through them, determining consumption amounts 
+    # between them.
+    # for each delta, compute its total affect on consumption
+    # throwing away anomalous values like SOH increasing
+    if transactions.count():
+        to_process = list(transactions)
+        start_t = to_process[0].previous_transaction()
+        if start_t:
+            to_process.insert(0, start_t)
+        if len(to_process) > 1:
+            for i in range(len(to_process) - 1):
+                start, end = to_process[i:i+2]
+                assert start.supply_point == end.supply_point
+                assert start.product == end.product
+                assert start.date <= end.date
+                delta = end.ending_balance - start.ending_balance
+                # assert delta == end.quantity
+
+                total_timedelta = end.date - start.date
+                for year, month in months_between(start.date, end.date):
+                    window_date = datetime(year, month, 1)
+                    next_window_date = first_of_next_month(window_date)
+                    start_date = max(window_date, start.date)
+                    end_date = min(next_window_date, end.date)
+                    secs_in_window = delta_secs(end_date-start_date)
+                    proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) \
+                        if secs_in_window else 0
+                    assert proportion_in_window <= 1
+                    c = Consumption.objects.get_or_create\
+                        (supply_point=start.supply_point, date=window_date, 
+                         product=start.product)[0]
+                    # only count if the balance went down
+                    if delta < 0:
+                        # update the consumption by adding the proportion in the window
+                        c.calculated_consumption += float(abs(delta)) * proportion_in_window
+                    
+                    if start.ending_balance == 0:
+                        c.time_stocked_out += secs_in_window
+                    
+                    c.save()
 
 def update_user_profile_data():
     print "updating user profile data"
