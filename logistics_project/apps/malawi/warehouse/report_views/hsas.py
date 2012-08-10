@@ -89,7 +89,7 @@ class View(warehouse_view.MalawiWarehouseView):
                     ps.quantity, fmt_or_none(ps.months_remaining, percent=False), 
                     ps.reorder_amount] \
                     if ps else [None] * 5
-        table2 = {
+        calc_cons = {
             "id": "calc-consumption-stock-levels",
             "is_datatable": False,
             "header": ["Product", "Total Daily Consumption (adjusted for stock outs)",
@@ -136,15 +136,17 @@ class View(warehouse_view.MalawiWarehouseView):
         }
 
         up = UserProfileData.objects.get(supply_point=hsa)
-        details_table["data"].append(['Facility', hsa.supplied_by.name])
-        details_table["data"].append(['Phone Number', up.contact_info])
+        details_table["data"].append(['Name', hsa.name])
         details_table["data"].append(['Code', hsa.code])
+        details_table["data"].append(['Phone Number', up.contact_info])
         details_table["data"].append(['Products', up.products_managed])
+        details_table["data"].append(['Facility', hsa.supplied_by.name])
+        details_table["data"].append(['District', hsa.supplied_by.supplied_by.name])
 
         return {
                 "header_table": header_table,
                 "report_table": report_table,
-                "table2": table2,
+                "calc_cons": calc_cons,
                 "request_table": request_table,
                 "msgs_table": msgs_table,
                 "details_table": details_table,
