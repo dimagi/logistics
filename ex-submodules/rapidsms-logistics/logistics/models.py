@@ -611,7 +611,7 @@ class ProductStock(models.Model):
 
     @property
     def reorder_amount(self):
-        if self.maximum_level:
+        if self.maximum_level and self.quantity:
             return max(self.maximum_level - self.quantity, 0)
         return None
     
