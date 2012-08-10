@@ -2,7 +2,7 @@ from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import Alert
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
 	facility_supply_points_below
 
 class View(warehouse_view.DistrictOnlyView):
@@ -18,7 +18,7 @@ class View(warehouse_view.DistrictOnlyView):
 		}
 
 		sp = SupplyPoint.objects.get(location=request.location)\
-			if request.location else get_country_sp()
+			if request.location else get_default_supply_point(request.user)
 
 		facilities = facility_supply_points_below(sp.location)
 

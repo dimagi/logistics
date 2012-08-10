@@ -162,22 +162,24 @@ def get_visible_districts(user):
     """
     if get_view_level(user) == 'national':
         return (get_districts(), True)
-        
+
     prof = user.get_profile()
     loc = None
     locations = []
+    # add managed districts for the organization
     if prof and prof.organization:
         locations = [d.location for d in prof.organization.managed_supply_points.all()]
+    # check user's assigned district
     if prof and prof.supply_point and prof.supply_point.location:
         loc = prof.supply_point.location
+    # in case location is set, but not supply_point
     elif prof and prof.location:
-        loc = prof.supply_point.location
+        loc = prof.location
     if loc and loc.type.slug == config.LocationCodes.DISTRICT:
         for l in Location.objects.filter(pk=loc.pk):
             locations.append(l)
     elif loc:
-        # for now only support one level deep, assuming that this
-        # is national or nothing
+        # support one level deep, assuming that this is national or nothing
         for l in Location.objects.filter(parent_id=loc.id, type__slug=config.LocationCodes.DISTRICT):
             locations.append(l)
     return (locations, False)

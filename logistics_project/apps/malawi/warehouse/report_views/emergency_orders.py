@@ -3,9 +3,10 @@ from collections import defaultdict
 
 from logistics.models import SupplyPoint
 
-from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_or_none
+from logistics_project.apps.malawi.util import get_default_supply_point, pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
-from logistics_project.apps.malawi.warehouse.report_utils import get_datelist, avg_of_key_values, list_key_values
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
+    avg_of_key_values, list_key_values
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -13,7 +14,7 @@ class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
         
         datelist = get_datelist(request.datespan.startdate, 
                                 request.datespan.enddate)

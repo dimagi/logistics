@@ -8,7 +8,7 @@ from dimagi.utils.dates import months_between
 from logistics.models import SupplyPoint
 from logistics.util import config
 
-from logistics_project.apps.malawi.util import get_country_sp,\
+from logistics_project.apps.malawi.util import get_default_supply_point,\
     get_district_supply_points, facility_supply_points_below, fmt_pct,\
     hsa_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
@@ -23,7 +23,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         # reporting rates by month table
         sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
         months = SortedDict()
         for year, month in months_between(request.datespan.startdate, 
                                           request.datespan.enddate):
@@ -91,17 +91,17 @@ class View(warehouse_view.DistrictOnlyView):
         for hsa in hsas:
             rr = ReportingRate.objects.filter(supply_point=hsa,
                 date__range=(request.datespan.startdate, request.datespan.enddate))
+            total = 0
+            non_rep = 0
             on_time = 0
             late = 0
             complete = 0
-            non_rep = 0
-            total = 0
             for r in rr:
                 total += r.total
                 non_rep += r.missing
-                complete += r.complete
-                late += r.late
                 on_time += r.on_time
+                late += r.late
+                complete += r.complete
             hsa_table["data"].append([hsa.name, total, non_rep, on_time, late, complete])
 
         return {"month_table": month_table,

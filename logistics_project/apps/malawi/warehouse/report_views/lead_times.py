@@ -9,7 +9,7 @@ from dimagi.utils.dates import months_between
 from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_country_sp,\
+from logistics_project.apps.malawi.util import get_default_supply_point,\
     facility_supply_points_below, hsa_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import TimeTracker,\
     TIME_TRACKER_TYPES
@@ -21,7 +21,7 @@ class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
         
         data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
         dates = [datetime(year, month, 1) for year, month in \

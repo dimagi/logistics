@@ -3,7 +3,7 @@ from collections import defaultdict
 from logistics.util import config
 from logistics.models import Product, SupplyPoint, ProductType
 
-from logistics_project.apps.malawi.util import get_country_sp, \
+from logistics_project.apps.malawi.util import get_default_supply_point,\
     facility_supply_points_below, fmt_pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
@@ -15,7 +15,7 @@ class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
         
         selected_type = None
         if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:

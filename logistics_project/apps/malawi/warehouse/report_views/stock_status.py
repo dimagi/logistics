@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
     get_district_supply_points, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary
@@ -25,7 +25,7 @@ class View(warehouse_view.DistrictOnlyView):
         ret_obj['selected_type'] = selected_type
         
         sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
         
         # Correct
         # date = current_report_period()

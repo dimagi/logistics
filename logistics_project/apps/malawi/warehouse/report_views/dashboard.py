@@ -3,7 +3,8 @@ from django.utils.datastructures import SortedDict
 
 from logistics.models import SupplyPoint
 
-from logistics_project.apps.malawi.util import get_districts, pct, fmt_pct, get_country_sp
+from logistics_project.apps.malawi.util import get_districts, pct, fmt_pct,\
+    get_default_supply_point
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
     ReportingRate, Alert
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
@@ -46,7 +47,7 @@ class View(warehouse_view.MalawiWarehouseView):
             "data": [],
         }
         sp = SupplyPoint.objects.get(location=request.location)\
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
 
         try:
             alerts = Alert.objects.get(supply_point=sp)
