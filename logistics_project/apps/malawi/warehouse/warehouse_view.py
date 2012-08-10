@@ -39,6 +39,11 @@ class MalawiWarehouseView(ReportView):
 
         default_sp = get_default_supply_point(request.user)
         facilities = get_visible_facilities(request.user)
+
+        querystring = '?'
+        for key in request.GET.keys():
+            querystring += '%s=%s&' % (key, request.GET[key])
+
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
@@ -50,6 +55,7 @@ class MalawiWarehouseView(ReportView):
             "product_stockout_pcts": stockout_pcts,
             "location": request.location or default_sp.location,
             "nav_mode": "direct-param",
+            "querystring": querystring,
         })
         return base_context
 

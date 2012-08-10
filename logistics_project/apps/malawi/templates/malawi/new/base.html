@@ -17,11 +17,12 @@
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.dataTables.min.js"></script>
 {% endblock %}
 {% block content %}
+
     <div class="side-tabs">
         <ul> 
             {% for report in report_list %}
                 {% if report.slug %}
-                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{{ settings.REPORT_URL }}/{{ report.slug }}">{{ report.name }}</a></li>
+                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{{ settings.REPORT_URL }}/{{ report.slug }}/{{ querystring }}">{{ report.name }}</a></li>
                 {% endif %}
              {% empty %}
                 <div class="error">No reports found!</div>
