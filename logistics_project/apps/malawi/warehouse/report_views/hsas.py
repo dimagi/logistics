@@ -56,16 +56,24 @@ class View(warehouse_view.MalawiWarehouseView):
 
     def single_hsa_context(self, request, hsa):
 
+        # this will fail hard if misconfigured, which is desirable for now
+        contact = Contact.objects.get(supply_point=hsa)
+
+        header_table = {
+            "id": "header-table",
+            "is_datatable": False,
+            "header": ["District", "Facility", "HSA", "Id"],
+            "data": [[contact.supply_point.supplied_by.supplied_by.name,\
+                contact.supply_point.supplied_by.name, contact.name, contact.supply_point.code]],
+        }
+
         report_table = {
             "id": "hsa-reporting-summary",
             "is_datatable": False,
             "header": ["Month", "On Time", "Late", "Complete"],
             "data": [],
         }
-        
-        # this will fail hard if misconfigured, which is desirable for now
-        contact = Contact.objects.get(supply_point=hsa)
-            
+                    
         reports = ReportingRate.objects.filter(supply_point=hsa).order_by('-date')[:3]
         for rr in reports.reverse():
             report_table["data"].append([rr.date.strftime('%b-%Y'), _yes_or_no(rr.on_time),\
@@ -134,6 +142,7 @@ class View(warehouse_view.MalawiWarehouseView):
         details_table["data"].append(['Products', up.products_managed])
 
         return {
+                "header_table": header_table,
                 "report_table": report_table,
                 "table2": table2,
                 "request_table": request_table,
