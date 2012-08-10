@@ -79,8 +79,15 @@ class View(warehouse_view.DistrictOnlyView):
 
         summary['xlabels'] = product_codes
 
-        eo_table = {
-            "id": "hsa-emergency-order-product",
+        eo_pct_table = {
+            "id": "eo-pct-table",
+            "is_datatable": True,
+            "header": ["Product"],
+            "data": []
+        }
+
+        eo_abs_table = {
+            "id": "eo-abs-table",
             "is_datatable": True,
             "header": ["Product"],
             "data": []
@@ -103,12 +110,17 @@ class View(warehouse_view.DistrictOnlyView):
         for date in datelist:
             count += 1
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
-            eo_table["header"].append(date.strftime("%b-%Y"))
-        
+            eo_abs_table["header"].append(date.strftime("%b-%Y"))
+            eo_pct_table["header"].append(date.strftime("%b-%Y"))
+
         for eo in prd_map.keys():
-            eo_table["data"].append([item for item in itertools.chain\
+            eo_pct_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
                                       [fmt_or_none(val) for val in list_key_values(prd_map[eo]['pct'])])])
+            eo_abs_table["data"].append([item for item in itertools.chain\
+                                     ([eo.sms_code],
+                                      list_key_values(prd_map[eo]['emergency']))])
+
         for type in type_map.keys():
             count = 0
             temp = {'data': [],
@@ -126,6 +138,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         return {
                 'summary': summary,
-                'eo_table': eo_table,
+                'eo_pct_table': eo_pct_table,
+                'eo_abs_table': eo_abs_table,
                 'line': line_chart
                 }

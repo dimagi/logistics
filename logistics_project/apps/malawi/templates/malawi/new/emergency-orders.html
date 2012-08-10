@@ -12,7 +12,7 @@
 
 <div class="module">
 	<h2>%HSA with Emergency Order by Product</h2>
-	{% with eo_table as table %}
+	{% with eo_pct_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
@@ -23,5 +23,14 @@
 	{% include "malawi/new/partials/generic-line-chart.html" %}
 	{% endwith %}
 </div>
+
+{% if not national_view_level %}
+	<div class="module">
+		<h2>%HSA with Emergency Order by Product</h2>
+		{% with eo_abs_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
 
 {% endblock %}

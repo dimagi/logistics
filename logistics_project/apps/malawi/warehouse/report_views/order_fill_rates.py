@@ -38,6 +38,7 @@ class View(warehouse_view.DistrictOnlyView):
                        'label': p.sms_code, 'lines': {"show": True}, 
                        "bars": {"show": False}} \
                        for p in products]
+        
         graphdata = {
             "div": "order-fillrate-chart",
             "legenddiv": "order-fillrate-chart-legend",

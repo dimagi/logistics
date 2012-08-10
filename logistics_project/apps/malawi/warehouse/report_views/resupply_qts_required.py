@@ -8,7 +8,6 @@ from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
-        ret_obj = {}
         
         table = {
             "id": "quantity-required-for-resupply",
@@ -34,5 +33,6 @@ class View(warehouse_view.DistrictOnlyView):
 
         table["height"] = min(480, facilities.count()*60)
 
-        ret_obj['table'] = table
-        return ret_obj
+        return {
+                "table": table,
+        }
