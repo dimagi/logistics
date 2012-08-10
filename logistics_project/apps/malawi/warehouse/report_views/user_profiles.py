@@ -1,10 +1,12 @@
 from logistics.models import SupplyPoint
+from logistics.util import config
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import UserProfileData
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
+from logistics_project.apps.malawi.util import get_default_supply_point
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
 
@@ -29,19 +31,31 @@ class View(warehouse_view.MalawiWarehouseView):
 
         district = SupplyPoint.objects.none()
         facility = SupplyPoint.objects.none()
+
+        # set district or facility based on user
+        sp = SupplyPoint.objects.get(location=request.location)\
+            if request.location else get_default_supply_point(request.user)
+
+        if sp.type.code == config.SupplyPointCodes.DISTRICT:
+            district = sp
+        elif sp.type.code == config.SupplyPointCodes.FACILITY:
+            facility = sp
+
+        # override default with queried district or facility
         if request.GET.get('district'):
             district = SupplyPoint.objects.get(code=request.GET.get('district'))
         if request.GET.get('facility'):
             facility = SupplyPoint.objects.get(code=request.GET.get('facility'))
 
+
         for up in UserProfileData.objects.all():
-            if up.supply_point.type.code == 'd':
+            if up.supply_point.type.code == config.SupplyPointCodes.DISTRICT:
                 district_table["data"].append({ "url": _get_url(up.supply_point), "data":
                         [up.supply_point.name, up.supply_point.code, up.facility_children, 
                         up.hsa_supervisors, up.hsa_children, up.contacts]})
-            elif up.supply_point.type.code == 'hf':
-                if request.GET.get('district'):
-                    if up.supply_point.supplied_by.code == request.GET.get('district'):
+            elif up.supply_point.type.code == config.SupplyPointCodes.FACILITY:
+                if district:
+                    if up.supply_point.supplied_by == district:
                         gps_coord = "No Data"
                         if up.supply_point.location.point:
                             if up.supply_point.location.point.latitude and up.supply_point.location.point.longitude:
@@ -50,9 +64,9 @@ class View(warehouse_view.MalawiWarehouseView):
                         facility_table["data"].append({ "url": _get_url(up.supply_point), "data":
                                 [up.supply_point.name, up.supply_point.code, gps_coord, 
                                 up.in_charge, up.hsa_supervisors, up.supervisor_contacts, up.hsa_children]})
-            elif up.supply_point.type.code == 'hsa':
-                if request.GET.get('facility'):
-                    if up.supply_point.supplied_by.code == request.GET.get('facility'):
+            elif up.supply_point.type.code == config.SupplyPointCodes.HSA:
+                if facility:
+                    if up.supply_point.supplied_by == facility:
                         hsa_table["data"].append({"url": get_hsa_url(up.supply_point), "data": [up.supply_point.name, up.supply_point.code,
                                 up.contact_info, up.products_managed,
                                 up.last_message.date.strftime("%b-%d-%Y"), up.last_message.text]})

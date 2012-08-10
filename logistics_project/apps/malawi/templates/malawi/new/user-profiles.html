@@ -1,12 +1,14 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
-<div class="module">
-	<h2>Districts</h2>
-	{% with district_table as table %}
-	{% include "malawi/new/partials/selector-table.html" %}
-	{% endwith %}
-</div>
+{% if national_view_level %}
+	<div class="module">
+		<h2>Districts</h2>
+		{% with district_table as table %}
+		{% include "malawi/new/partials/selector-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
 
 {% if district %}
 	<div class="module">
@@ -16,6 +18,7 @@
 		{% endwith %}
 	</div>
 {% endif %}
+
 {% if facility %}
 	<div class="module">
 		<h2>HSAs Under {{ facility }}</h2>

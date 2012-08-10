@@ -7,13 +7,13 @@ from logistics.models import SupplyPoint, Product, StockRequest, ProductStock
 from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
     ProductAvailabilityDataSummary, ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_country_sp, fmt_pct,\
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
     hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from rapidsms.models import Contact
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
 
@@ -35,7 +35,7 @@ class View(warehouse_view.MalawiWarehouseView):
         }
 
         sp = SupplyPoint.objects.get(location=request.location)\
-            if request.location else get_country_sp()
+            if request.location else get_default_supply_point(request.user)
 
         hsas = hsa_supply_points_below(sp.location)
 
