@@ -1,9 +1,18 @@
 {% extends "malawi/new/base.html" %}
 
 {% block report_content %}
-
 <div class="module">
-	<h2>{{ contact.name }} Reporting Summary</h2>
+    <table class="malawi-report">
+        <tr>
+            <td>{{ contact.supply_point.supplied_by.supplied_by.name }}</td>
+            <td>{{ contact.supply_point.supplied_by.name }}</td>
+            <td>{{ contact.name }}</td>
+            <td>{{ contact.supply_point.code }}</td>
+        </tr>
+    </table>
+</div>
+<div class="module">
+	<h2>HSA Reporting Summary</h2>
 	{% with report_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
