@@ -3,7 +3,10 @@
 {% block subcontent %}
 
 <div class="module">
-
-
+	<h2>Users</h2>
+	{% with table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
 </div>
+
 {% endblock %}
