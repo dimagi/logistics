@@ -16,6 +16,12 @@ class View(warehouse_view.DistrictOnlyView):
             "data": [],
         }
 
+        emergency = True
+        selected_type = "yes"
+        if request.GET.get("emergency"):
+            selected_type = str(request.GET.get("emergency"))
+            emergency = selected_type == "yes"
+
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)
         
@@ -28,11 +34,13 @@ class View(warehouse_view.DistrictOnlyView):
             temp = [fac.name]
             for product in Product.objects.all():
                 temp.append(sum([r.amount_requested\
-                    for r in StockRequest.pending_requests().filter(supply_point=fac, product=product)]))
+                    for r in StockRequest.pending_requests().filter(supply_point=fac, product=product,\
+                        is_emergency=emergency)]))
             table["data"].append(temp)
 
         table["height"] = min(480, facilities.count()*60)
 
         return {
                 "table": table,
+                "selected_type": selected_type
         }
