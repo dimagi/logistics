@@ -161,6 +161,9 @@ def get_view_level(user):
     """
     Is user affiliated with national or a district
     """
+    if user.is_superuser:
+        return 'national'
+
     for group in user.groups.all():
         if group.name == 'national':
             return 'national'
