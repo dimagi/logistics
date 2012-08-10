@@ -13,7 +13,7 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 from django.core.exceptions import ObjectDoesNotExist
 
 
-class View(warehouse_view.MalawiWarehouseView):
+class View(warehouse_view.DashboardView):
 
     def custom_context(self, request):
         window_date = get_window_date(request)

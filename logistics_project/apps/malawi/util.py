@@ -156,12 +156,21 @@ def get_default_supply_point(user):
             pass
     return get_country_sp()
 
+def get_view_level(user):
+    """
+    Is user affiliated with national or a district
+    """
+    for group in user.groups.all():
+        if group.name == 'national':
+            return 'national'
+    return 'district'
+
 def get_visible_districts(user):
     """
     Given a user, what districts can they see
     """
     if get_view_level(user) == 'national':
-        return (get_districts(), True)
+        return get_districts()
 
     prof = user.get_profile()
     loc = None
@@ -182,16 +191,32 @@ def get_visible_districts(user):
         # support one level deep, assuming that this is national or nothing
         for l in Location.objects.filter(parent_id=loc.id, type__slug=config.LocationCodes.DISTRICT):
             locations.append(l)
-    return (locations, False)
+    return locations
 
-def get_view_level(user):
+def get_visible_facilities(user):
     """
-    Is user affiliated with national or a district
+    Given a user, what facilities can they see
     """
-    for group in user.groups.all():
-        if group.name == 'national':
-            return 'national'
-    return 'district'
+    if get_view_level(user) == 'national':
+        return get_facilities()
+
+    visible_districts = get_visible_districts(user)
+    vd_ids = []
+    for vd in visible_districts:
+        vd_ids.append(vd.id)
+    locations = Location.objects.filter(parent_id__in=vd_ids)
+    return locations
+
+def get_all_visible_locations(user):
+    """
+    Given a user, what locations can they see
+    """
+    locations = [get_country_sp().location]
+    for sp in get_visible_districts(user):
+        locations.append(sp)
+    for sp in get_visible_facilities(user):
+        locations.append(sp)
+    return locations
 
 class ConsumptionData(object):
     def __init__(self, product, sps):

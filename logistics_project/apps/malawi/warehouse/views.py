@@ -40,7 +40,7 @@ def get_report(request, slug=''):
     if not report.can_view(request):
         messages.warning(request,
                          "It looks like you don't have permission to access that view. "
-                         "You've been redircted home.")
+                         "You've been redirected home.")
         return home(request)
     # try:
     return report.get_response(request)
