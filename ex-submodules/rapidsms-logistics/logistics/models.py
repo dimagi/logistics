@@ -611,7 +611,9 @@ class ProductStock(models.Model):
 
     @property
     def reorder_amount(self):
-        return max(self.maximum_level - self.quantity, 0)
+        if self.maximum_level:
+            return max(self.maximum_level - self.quantity, 0)
+        return None
     
     @property
     def months_remaining(self):
