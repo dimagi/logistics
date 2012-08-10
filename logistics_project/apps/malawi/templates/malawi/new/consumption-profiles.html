@@ -2,21 +2,22 @@
 {% block report_content %}
 
 {% include "malawi/partials/selector_form.html" %}
-
+{% if district_table %}
 <div class="module">
 	<h2>District Consumption Profiles</h2>
-	{% with table1 as table %}
+	{% with district_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
-
+{% endif %}
+{% if facility_table %}
 <div class="module">
 	<h2>Facility Consumption Profiles</h2>
-	{% with table2 as table %}
+	{% with facility_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
-
+{% endif %}
 <div class="module">
 	<h2>AMC and MOS by Product</h2>
 	{% with line_chart as graphdata %}
