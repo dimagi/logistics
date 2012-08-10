@@ -54,7 +54,6 @@ class MalawiWarehouseView(ReportView):
             "products": products,
             "product_stockout_pcts": stockout_pcts,
             "location": request.location or default_sp.location,
-            "nav_mode": "direct-param",
             "querystring": querystring,
         })
         return base_context
@@ -96,5 +95,5 @@ class DistrictOnlyView(MalawiWarehouseView):
         visible_districts = get_visible_districts(request.user)
         view_level = get_view_level(request.user)
         base_context["districts"] = visible_districts
-        base_context["national_view_level"] = view_level
+        base_context["national_view_level"] = view_level == 'national'
         return base_context
