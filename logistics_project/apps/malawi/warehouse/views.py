@@ -42,11 +42,11 @@ def get_report(request, slug=''):
                          "It looks like you don't have permission to access that view. "
                          "You've been redirected home.")
         return home(request)
-    # try:
-    return report.get_response(request)
-    # except:
-    #     return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
-    #                               {}, context_instance=RequestContext(request))
+    try:
+        return report.get_response(request)
+    except:
+        return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
+                                  {}, context_instance=RequestContext(request))
     
 def home(request):
     return redirect("/malawi/r/dashboard/")
