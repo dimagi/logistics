@@ -56,6 +56,7 @@ RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles", None, "/malawi/r/user-profiles/"),    
     ("rapidsms.contrib.messagelog.views.message_log", "Message Log", "auth.admin_read"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.contacts", "Management", "is_superuser", "/malawi/management/"),
     ("logistics_project.apps.malawi.views.help", "Help"),
 ]
 

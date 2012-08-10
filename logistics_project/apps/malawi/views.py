@@ -91,6 +91,15 @@ def dashboard(request):
                                
                               context_instance=RequestContext(request))
 
+
+def permission_ui(request):
+    
+    context = {}
+
+    return render_to_response("malawi/new/permission-ui.html",\
+        context, context_instance=RequestContext(request))
+
+
 def places(request):
     return render_to_response("malawi/places.html",
         {
