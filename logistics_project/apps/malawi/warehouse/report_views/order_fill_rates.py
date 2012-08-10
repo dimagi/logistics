@@ -57,7 +57,6 @@ class View(warehouse_view.DistrictOnlyView):
             "data": [[p.sms_code] + [fmt_or_none(data[p][dt]) for dt in dates] for p in products]
         }
         
-        facility_table = None
         def _avg_fill_rate(f, p, dates):
             stats = OrderFulfillment.objects.filter\
                 (supply_point=f, product=p, date__in=dates).aggregate\
@@ -65,6 +64,7 @@ class View(warehouse_view.DistrictOnlyView):
             return fmt_pct(stats["quantity_received__sum"], 
                            stats["quantity_requested__sum"])  
         
+        facility_table = None        
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
             facility_table = {
                 "id": "ofr-facility-product",

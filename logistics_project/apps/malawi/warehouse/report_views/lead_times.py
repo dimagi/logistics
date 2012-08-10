@@ -109,8 +109,9 @@ class View(warehouse_view.DistrictOnlyView):
             "data": h_data,
         }   
 
-        return {"graphdata": report_chart,
+        return {
+                "graphdata": report_chart,
                 "month_table": month_table,
                 "fac_lt_table": fac_lt_table,
                 "hsa_lt_table": hsa_lt_table,
-                }
+        }

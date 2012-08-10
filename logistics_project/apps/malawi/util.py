@@ -193,7 +193,8 @@ def get_visible_districts(user):
             locations.append(l)
     elif loc:
         # support one level deep, assuming that this is national or nothing
-        for l in Location.objects.filter(parent_id=loc.id, type__slug=config.LocationCodes.DISTRICT):
+        for l in Location.objects.filter(parent_id=loc.id, is_active=True,\
+                type__slug=config.LocationCodes.DISTRICT):
             locations.append(l)
     return locations
 
@@ -208,7 +209,21 @@ def get_visible_facilities(user):
     vd_ids = []
     for vd in visible_districts:
         vd_ids.append(vd.id)
-    locations = Location.objects.filter(parent_id__in=vd_ids)
+    locations = Location.objects.filter(parent_id__in=vd_ids, is_active=True)
+    return locations
+
+def get_visible_hsas(user):
+    """
+    Given a user, what facilities can they see
+    """
+    if get_view_level(user) == 'national':
+        return get_facilities()
+
+    visible_facilities = get_visible_facilities(user)
+    vf_ids = []
+    for vf in visible_facilities:
+        vf_ids.append(vf.id)
+    locations = Location.objects.filter(parent_id__in=vf_ids, is_active=True)
     return locations
 
 def get_all_visible_locations(user):

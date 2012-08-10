@@ -7,6 +7,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 class View(warehouse_view.MalawiWarehouseView):
 
     def custom_context(self, request):
+
         district_table = {
             "id": "district_table",
             "is_datatable": True,
@@ -25,6 +26,7 @@ class View(warehouse_view.MalawiWarehouseView):
             "header": ["HSA Name", "Id", "Contact Info", "Products", "Date of last message", "Last Message"],
             "data": [],
         }
+
         district = SupplyPoint.objects.none()
         facility = SupplyPoint.objects.none()
         if request.GET.get('district'):
@@ -61,7 +63,7 @@ class View(warehouse_view.MalawiWarehouseView):
                 "district_table": district_table,
                 "facility_table": facility_table,
                 "hsa_table": hsa_table,
-                }
+        }
 
 def _get_url(supply_point):
     querystring = 'district=%s' % supply_point.code\

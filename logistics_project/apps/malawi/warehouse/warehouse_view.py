@@ -7,7 +7,7 @@ from logistics.util import config
 
 from logistics_project.apps.malawi.util import get_facilities, get_districts,\
     get_country_sp, pct, get_default_supply_point, get_visible_districts,\
-    get_visible_facilities, get_all_visible_locations, get_view_level
+    get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 
@@ -38,7 +38,8 @@ class MalawiWarehouseView(ReportView):
             (date=date, supply_point=country)
 
         default_sp = get_default_supply_point(request.user)
-        facilities = get_visible_facilities(request.user)
+        visible_facilities = get_visible_facilities(request.user)
+        visible_hsas = get_visible_hsas(request.user)
 
         querystring = '?'
         for key in request.GET.keys():
@@ -48,7 +49,8 @@ class MalawiWarehouseView(ReportView):
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
             "districts": get_districts(),
-            "facilities": facilities,
+            "facilities": visible_facilities,
+            "visible_hsas": visible_hsas,
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
             "reporting_rate": current_rr.pct_reported,
             "products": products,

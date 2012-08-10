@@ -24,6 +24,7 @@ class View(warehouse_view.DistrictOnlyView):
         # reporting rates by month table
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
+        
         months = SortedDict()
         for year, month in months_between(request.datespan.startdate, 
                                           request.datespan.enddate):
@@ -57,7 +58,6 @@ class View(warehouse_view.DistrictOnlyView):
                     for sp, data in datamap.items()]
         
         # district breakdown
-            
         district_table = {
             "id": "average-reporting-rate-districts",
             "is_datatable": False,
@@ -104,11 +104,12 @@ class View(warehouse_view.DistrictOnlyView):
                 complete += r.complete
             hsa_table["data"].append([hsa.name, total, non_rep, on_time, late, complete])
 
-        return {"month_table": month_table,
+        return {
+                "month_table": month_table,
                 "district_table": district_table,
                 "facility_table": facility_table,
                 "hsa_table": hsa_table,
                 "graphdata" : get_reporting_rates_chart(request.location, 
                                                         request.datespan.startdate, 
                                                         request.datespan.enddate)
-                }
+        }

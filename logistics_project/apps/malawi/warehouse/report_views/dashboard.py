@@ -20,6 +20,7 @@ class View(warehouse_view.DashboardView):
 
         # reporting rates + stockout summary
         districts = get_districts().order_by('name')
+
         summary_data = SortedDict()
         for d in districts:
             avail_sum = ProductAvailabilityDataSummary.objects.get(supply_point=d, date=window_date)
@@ -46,6 +47,7 @@ class View(warehouse_view.DashboardView):
             "header": ["", "% HSAs"],
             "data": [],
         }
+        
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)
 

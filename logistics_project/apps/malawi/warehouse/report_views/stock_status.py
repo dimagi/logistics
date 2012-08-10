@@ -1,11 +1,10 @@
 from collections import defaultdict
 
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
-    get_district_supply_points, pct
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary
 
-from logistics.models import Product, SupplyPoint, ProductType
+from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 import json
@@ -13,16 +12,10 @@ from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 
 class View(warehouse_view.DistrictOnlyView):
 
-    def custom_context(self, request):
-        ret_obj = {
-            'product_types': ProductType.objects.all()
-        }
-        
+    def custom_context(self, request):        
         selected_type = None
         if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
             selected_type = ProductType.objects.get(code=request.GET["product-type"])
-        
-        ret_obj['selected_type'] = selected_type
         
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
@@ -46,28 +39,72 @@ class View(warehouse_view.DistrictOnlyView):
                          for k in ordered_slugs] \
                         for p, pad in p_pad_tuples]
         
-        ret_obj['product_table'] = {
+        product_table = {
             "id": "product-table",
             "is_datatable": False,
             "header": ["Product"] + headings,
             "data": product_data,
         }
         
-        # data by district
         d_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
                           (supply_point=d, date=date)) \
-                        for d in get_district_supply_points().order_by('name')]
+                        for d in self._context['districts']]
+
         
         district_data = [[d.name] + \
                         [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
                          for k in ordered_slugs] \
                         for d, pads in d_pads_tuples]
-        ret_obj['district_table'] = {
+
+        district_table = {
             "id": "district-table",
             "is_datatable": False,
             "header": ["District"] + headings,
             "data": district_data,
         }
+
+        f_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
+                          (supply_point=d, date=date)) \
+                        for d in self._context['facilities']]
+
+        
+        fac_data = [[d.name] + \
+                        [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
+                         for k in ordered_slugs] \
+                        for d, pads in f_pads_tuples]
+
+
+        facility_table = {
+            "id": "facility-table",
+            "is_datatable": True,
+            "header": ["Facility"] + headings,
+            "data": fac_data,
+        }
+
+
+        hsa_table = {
+            "id": "hsa-months-of-stock",
+            "is_datatable": True,
+            "header": ["HSA"],
+            "data": [],
+        }
+
+        for product in Product.objects.all().order_by('sms_code'):
+            hsa_table["header"].append(product.sms_code)
+
+        for hsa in self._context["visible_hsas"]:
+            temp = [hsa.name]
+            for product in Product.objects.all().order_by('sms_code'):
+                ps = ProductStock.objects.filter(supply_point=hsa, product=product)
+                if ps.count():
+                    mr = ps[0].months_remaining
+                    if mr:
+                        temp.append('%.1f%%' % mr)
+                    else:
+                        temp.append('-')
+                else:
+                    temp.append('-')
+            hsa_table["data"].append(temp)
         
         # product line chart 
         products = Product.objects.filter(type=selected_type) if selected_type else \
@@ -85,7 +122,7 @@ class View(warehouse_view.DistrictOnlyView):
                        'label': p.sms_code, 'lines': {"show": True}, 
                        "bars": {"show": False}} \
                        for p in products]
-        ret_obj['graphdata'] = {
+        graph_chart = {
             "div": "product-stockouts-chart",
             "legenddiv": "product-stockouts-chart-legend",
             "legendcols": 10,
@@ -95,4 +132,15 @@ class View(warehouse_view.DistrictOnlyView):
             "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
             "data": json.dumps(graph_data),
         }
-        return ret_obj
+
+        return {
+            'product_types': ProductType.objects.all(),
+            'selected_type': selected_type,
+            'product_table': product_table,
+            'district_table': district_table,
+            'facility_table': facility_table,
+            'hsa_table': hsa_table,
+            'graphdata': graph_chart,
+        }
+
+
