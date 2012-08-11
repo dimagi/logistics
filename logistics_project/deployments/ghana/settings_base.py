@@ -119,13 +119,19 @@ STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
-LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
 LOGISTICS_USE_SPOT_CACHING = True
 LOGISTICS_SPOT_CACHE_TIMEOUT = 60*60
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 7 
+LOGISTICS_CONSUMPTION = {
+    "MINIMUM_TRANSACTIONS": 2,
+    "MINIMUM_DAYS": 60,
+    "LOOKBACK_DAYS": None,          # none is no max
+    "INCLUDE_END_STOCKOUTS": False, # whether or not to include periods ending in a stockout    
+}
+
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
