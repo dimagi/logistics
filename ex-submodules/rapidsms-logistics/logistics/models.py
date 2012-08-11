@@ -26,6 +26,7 @@ from logistics.errors import *
 from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
+from logistics.consumption import ConsumptionSettings, daily_consumption
 
 if hasattr(settings, "MESSAGELOG_APP"):
     message_class = "%s.Message" % settings.MESSAGELOG_APP
@@ -33,12 +34,14 @@ else:
     message_class = "messagelog.Message"
 
 try:
+    from settings import LOGISTICS_CONSUMPTION
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
     from settings import LOGISTICS_REORDER_LEVEL_IN_MONTHS
     from settings import LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS
 except ImportError:
-    raise ImportError("Please define LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " +
-                      "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " +
+    raise ImportError("Please define LOGISTICS_CONSUMPTION, "
+                      "LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " 
+                      "LOGISTICS_REORDER_LEVEL_IN_MONTHS, and " 
                       "LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS in your settings.py")
 
 post_save.connect(create_user_profile, sender=User)
@@ -98,15 +101,20 @@ class SupplyPointType(models.Model):
     def __unicode__(self):
         return self.name
     
+    def _cache_key(self, product_code):
+        return '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype': self.code, 
+                                                                       'product': product_code}
+    
     def monthly_consumption_by_product(self, product):
         # we need to supply a non-None cache value since the
         # actual value to store here will often be 'None'
         _NONE_VALUE = 'x'
-        cache_key = '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype':self.code, 
-                                                                            'product':product.code}
+        cache_key = self._cache_key(product.code)
         if settings.LOGISTICS_USE_SPOT_CACHING: 
             from_cache = cache.get(cache_key)
-            if from_cache != _NONE_VALUE:
+            if from_cache == _NONE_VALUE:
+                return None
+            elif from_cache is not None:
                 return from_cache
         try:
             dmc = DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
@@ -120,7 +128,7 @@ class SupplyPointType(models.Model):
     
     def monthly_consumption_by_product_code(self, code):
         product = Product.objects.get(code=code)
-        return monthly_consumption_by_product(product)
+        return self.monthly_consumption_by_product(product)
     
 class DefaultMonthlyConsumption(models.Model):
     supply_point_type = models.ForeignKey(SupplyPointType)
@@ -183,6 +191,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         else:
             return None
 
+    def last_soh_before(self, date):
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self, report_date__lt=date).order_by("-report_date")
+        if sohs.exists():
+            return sohs[0].report_date
+        else:
+            return None
+
     @property
     def label(self):
         return unicode(self)
@@ -231,6 +246,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             return Product.objects.filter(productstock__supply_point=self).filter(is_active=True)
         elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.PRODUCT: 
             return Product.objects.filter(is_active=True)
+    
+    def supplies(self, product):
+        return product in self.commodities_stocked()
     
     def commodities_reported(self):
         return Product.objects.filter(reported_by__supply_point=self).distinct()
@@ -399,6 +417,20 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
         return reporters
 
+    def is_any_supplier(self, supply_point):
+        """
+        Returns true of this is a supplier of the supply_point or its
+        entire parent chain.
+        """
+        # no infinite loops pls
+        seen_locs = []
+        while supply_point and supply_point.supplied_by and supply_point not in seen_locs: 
+            if self == supply_point.supplied_by:
+                return True
+            seen_locs.append(supply_point)
+            supply_point = supply_point.supplied_by
+        return False
+        
     def children(self):
         """
         For all intents and purses, at this time, the 'children' of a facility wrt site navigation
@@ -485,15 +517,20 @@ class SupplyPointGroup(models.Model):
     def __unicode__(self):
         return self.code
 
-class LogisticsProfile(models.Model):
+class LogisticsProfileBase(models.Model):
     user = models.ForeignKey(User, unique=True)
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
+    
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
+class LogisticsProfile(LogisticsProfileBase):
+    __metaclass__ = ExtensibleModelBase
 
 class ProductStock(models.Model):
     """
@@ -545,62 +582,11 @@ class ProductStock(models.Model):
 
     @property
     def daily_consumption(self):
-        """
-        Calculate daily consumption through the following algorithm:
+        return self.get_daily_consumption()
 
-        Consider each non-stockout SOH report to be the start of a period.
-        We iterate through the stock transactions following it until we reach another SOH.
-        If it's a stockout, we drop the period from the calculation.
-
-        We keep track of the total receipts in each period and add them to the start quantity.
-        The total quantity consumed is: (Start SOH Quantity + SUM(receipts during period) - End SOH Quantity)
-
-        We add the quantity consumed and the length of the period to the running count,
-        then at the end divide one by the other.
-
-        This algorithm effectively deals with cases where a SOH report immediately follows a receipt.
-        """
-        time = timedelta(0)
-        quantity = 0
-        txs = StockTransaction.objects.filter(supply_point=self.supply_point,
-                                                product=self.product,
-                                                ).order_by('date')
-        if txs.count() < settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION:
-            return None
-        period_receipts = 0
-        start_soh = None
-        for (i, t) in enumerate(txs):
-            # Go through each StockTransaction in turn.
-            if t.ending_balance == 0:
-                # Stockout -- pass on this period
-                start_soh = None
-                period_receipts = 0
-                continue
-            if t.product_report.report_type.code == Reports.SOH:
-                if start_soh:
-                    # End of a period.
-                    if t.ending_balance > (start_soh.ending_balance + period_receipts):
-                        # Anomalous data point (reported higher stock than possible)
-                        start_soh = None
-                        period_receipts = 0
-                        continue
-                    # Add the period stats to the running count.
-                    quantity += ((start_soh.ending_balance + period_receipts) - t.ending_balance)
-                    time += (t.date - start_soh.date)
-                # Start a new period.
-                start_soh = t
-                period_receipts = 0
-            elif t.product_report.report_type.code == Reports.REC:
-                # Receipt.
-                if start_soh:
-                    # Mid-period receipt, so we care about it.
-                    period_receipts += t.quantity
-        days = time.days
-        if days < settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION:
-            return None
-        return round(abs(float(quantity) / float(days)),2)
-
-
+    def get_daily_consumption(self, datespan=None):
+        return daily_consumption(self.supply_point, self.product, datespan)
+        
     @property
     def emergency_reorder_level(self):
         # if you use static levels you only get the product's data or nothing
@@ -623,6 +609,12 @@ class ProductStock(models.Model):
             return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
         return None
 
+    @property
+    def reorder_amount(self):
+        if self.maximum_level and self.quantity:
+            return max(self.maximum_level - self.quantity, 0)
+        return None
+    
     @property
     def months_remaining(self):
         return self.calculate_months_remaining(self.quantity)
@@ -825,7 +817,8 @@ class StockRequest(models.Model):
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES, db_index=True)
     # this second field is added for auditing purposes
     # the status can change, but once set - this one will not
-    response_status = models.CharField(blank=True, max_length=20, choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
+    response_status = models.CharField(blank=True, max_length=20, 
+                                       choices=StockRequestStatus.RESPONSE_STATUS_CHOICES)
     is_emergency = models.BooleanField(default=False) 
     
     requested_on = models.DateTimeField()
@@ -1070,18 +1063,12 @@ class StockTransaction(models.Model):
         verbose_name = "Stock Transaction"
 
     def __unicode__(self):
-        return "%s - %s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
+        return "%s - %s (%s->%s on %s)" % \
+            (self.supply_point.name, self.product.name, self.beginning_balance, 
+             self.ending_balance, self.date.date())
     
     @classmethod
     def from_product_report(cls, pr, beginning_balance):
-        # no need to generate transaction if it's just a report of 0 receipts
-        if pr.report_type.code == Reports.REC and \
-          pr.quantity == 0:
-            return None
-        # also no need to generate transaction if it's a soh which is the same as before
-        if pr.report_type.code == Reports.SOH and \
-          beginning_balance == pr.quantity:
-            return None
         st = cls(product_report=pr, supply_point=pr.supply_point, 
                  product=pr.product, date=pr.report_date)
 
@@ -1104,6 +1091,18 @@ class StockTransaction(models.Model):
             raise ValueError(err_msg)
         return st
     
+    def previous_transaction(self):
+        """
+        Get the previous transaction associated with this place and product, 
+        by date, or None if there aren't any 
+        """
+        q = StockTransaction.objects.filter(supply_point=self.supply_point,
+                                            product=self.product,
+                                            date__lt=self.date)
+        if q.exists():
+            return q.order_by("-date")[0]
+        return None
+        
     def get_consumption(self):
         try:
             ps = ProductStock.objects.get(product=self.product, 
@@ -1462,6 +1461,7 @@ class ProductReportsHelper(object):
             all_products.append(dict['sms_code'])
         return list(set(all_products)-self.reported_products())
 
+
 def get_geography():
     """
     to get a sense of the complete geography in the system
@@ -1478,9 +1478,6 @@ def get_geography():
     except Location.DoesNotExist:
         raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 
-post_save.connect(post_save_product_report, sender=ProductReport)
-post_save.connect(post_save_stock_transaction, sender=StockTransaction)
-
 def transactions_before_or_during(year, month, day=None):
     if day is None:
         last_of_the_month = get_day_of_month(year, month, -1)
@@ -1488,3 +1485,9 @@ def transactions_before_or_during(year, month, day=None):
         return StockTransaction.objects.filter(date__lt=first_of_the_next_month).order_by("-date")
     deadline = date(year, month, day) + timedelta(days=1)
     return StockTransaction.objects.filter(date__lte=deadline).order_by("-date")
+
+from .warehouse_models import *
+
+post_save.connect(post_save_product_report, sender=ProductReport)
+post_save.connect(post_save_stock_transaction, sender=StockTransaction)
+

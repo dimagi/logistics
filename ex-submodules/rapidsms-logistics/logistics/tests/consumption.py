@@ -1,28 +1,30 @@
 from datetime import timedelta
-from logistics.const import Reports
+from rapidsms.conf import settings
+from django.core.cache import cache
 from rapidsms.tests.scripted import TestScript
 from logistics.models import Location, SupplyPointType, SupplyPoint, \
-    Product, ProductType, ProductStock, StockTransaction, ProductReport, ProductReportType
+    Product, ProductType, ProductStock, StockTransaction, ProductReport, \
+    ProductReportType, DefaultMonthlyConsumption
 from logistics.models import SupplyPoint as Facility
-from logistics.tests.util import load_test_data
+from logistics.tests.util import load_test_data, fake_report
 from logistics.const import Reports
-from django.conf import settings
 
 class TestConsumption (TestScript):
     def setUp(self):
         TestScript.setUp(self)
 
         load_test_data()
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 10
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
-
+        
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 10
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = None
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.ps.use_auto_consumption = True
         self.ps.save()
-
-
        
     def testBasicConsumption(self):
         # now enable auto_monthly_consumption
@@ -49,7 +51,7 @@ class TestConsumption (TestScript):
         st.date = st.date - timedelta(days=5)
         st.save()
         self.sp.report_stock(self.pr, 150)
-
+        
         # 5 days still aren't enough to compute.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
         self.assertEquals(None, self.ps.daily_consumption)
@@ -63,14 +65,16 @@ class TestConsumption (TestScript):
 
         # 10 days is enough.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
-        self.assertEquals(10, round(self.ps.daily_consumption)) # 200 in stock 10 days ago, 150 in stock 5 days ago
+        # 200 in stock 10 days ago, 150 in stock 5 days ago, 100 now
+        self.assertEquals(10, round(self.ps.daily_consumption)) 
         self.assertEquals(300, round(self.ps.monthly_consumption))
 
         sta = StockTransaction.objects.filter(supply_point=self.sp,product=self.pr)
         for st in sta:
             st.date = st.date - timedelta(days=10)
             st.save()
-        self.sp.report_stock(self.pr, 50) # 200 in stock 20 days ago, 150 in stock 15 days ago, 50 in stock now
+        # 200 in stock 20 days ago, 150 in stock 15 days ago, 100 10 days ago, 50 now
+        self.sp.report_stock(self.pr, 50) 
 
         # Another data point.
         self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
@@ -166,6 +170,64 @@ class TestConsumption (TestScript):
         self.ps = self._report(40, 40, Reports.SOH)
         self.assertEquals(1.0, self.ps.daily_consumption)
 
+    def testStockoutPeriodsManuallyIncluded(self):
+        
+        self.ps = self._report(60, 100, Reports.SOH)
+        self.assertEquals(None, self.ps.daily_consumption)
+        
+        self.ps = self._report(50, 90, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        self.ps = self._report(0, 80, Reports.SOH)
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = True
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        # this creates an anomalous period, which is ignored
+        self.ps = self._report(60, 70, Reports.SOH)
+        self.ps = self._report(30, 60, Reports.SOH)
+        # total consumption is 90 in 30 days
+        self.assertEquals(3.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["INCLUDE_END_STOCKOUTS"] = False
+        # but if we're ignoring the end stockout it's 40 in 20 days
+        self.assertEquals(2.0, self.ps.daily_consumption)
+    
+    def testLookbackWindow(self):
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 5
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 1
+        
+        self.ps = self._report(130, 60, Reports.SOH)
+        self.ps = self._report(70, 40, Reports.SOH)
+        self.ps = self._report(30, 20, Reports.SOH)
+        self.ps = self._report(10, 00, Reports.SOH)
+        
+        # for all time -- 120 / 60 days = 2
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 61
+        self.assertEquals(2.0, self.ps.daily_consumption)
+        
+        # for up to 20 days -- 1 per day
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 10
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 20
+        self.assertEquals(1.0, self.ps.daily_consumption)
+        
+        # for 30 days 40 / 30 = 1.33
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 30
+        self.assertEquals(1.33, self.ps.daily_consumption)
+        
+        # for 40 days 60 / 40 = 1.5
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 40
+        self.assertEquals(1.5, self.ps.daily_consumption)
+        
+        # for 50 days 90 / 50 = 1.8
+        settings.LOGISTICS_CONSUMPTION["LOOKBACK_DAYS"] = 50
+        self.assertEquals(1.8, self.ps.daily_consumption)
+        
+    
     def testAutoVsManualConsumption(self):
         # test all combinations of use_auto_consumption, 
         # manual_consumption, and auto_consumption
@@ -195,7 +257,7 @@ class TestConsumption (TestScript):
         self.ps.unset_auto_consumption()
         self.assertEquals(8, self.ps.monthly_consumption)
 
-    def testFloatingPointAccuracy(self):
+    def testFloatingPointAccuracy2(self):
         self.ps = self._report(50, 50, Reports.SOH) 
         self.ps = self._report(49, 49, Reports.SOH) 
         self.ps = self._report(48, 48, Reports.SOH) 
@@ -205,7 +267,7 @@ class TestConsumption (TestScript):
         self.ps = self._report(36, 38, Reports.SOH) 
         self.assertEquals(1.17, round(self.ps.daily_consumption,2)) 
         
-    def testConsumptionWithMultipleReports(self):
+    def testConsumptionWithMultipleReports2(self):
         self.ps = ProductStock.objects.get(supply_point=self.sp, 
                                            product=self.pr)
         self.ps.use_auto_consumption = True
@@ -233,8 +295,8 @@ class TestConsumption (TestScript):
         self.ps = self._report(0, 70, Reports.SOH) 
         self.ps = self._report(0, 60, Reports.SOH) 
         self.assertEquals(1, self.ps.daily_consumption) # consumption unchanged after stockouts
-        self.ps = self._report(70, 70, Reports.SOH) 
-        self.ps = self._report(20, 60, Reports.SOH) 
+        self.ps = self._report(70, 50, Reports.SOH) 
+        self.ps = self._report(20, 40, Reports.SOH) 
         self.assertEquals(2, round(self.ps.daily_consumption)) # consumption changed
 
     def testConsumptionCalculationIntervals(self):
@@ -320,8 +382,8 @@ class TestConsumption (TestScript):
         self.assertEquals(10, self.ps.daily_consumption)
     
     def testAutoConsumptionSettings(self):
-        settings.LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 25
-        settings.LOGISTICS_MINIMUM_NUM_TRANSACTIONS_TO_CALCULATE_CONSUMPTION = 2
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_DAYS"] = 25
+        settings.LOGISTICS_CONSUMPTION["MINIMUM_TRANSACTIONS"] = 2
         self.ps = self._report(30, 30, Reports.SOH)
         self.ps = self._report(20, 20, Reports.SOH)
         self.ps = self._report(10, 10, Reports.SOH)
@@ -329,32 +391,48 @@ class TestConsumption (TestScript):
         self.ps = self._report(5, 5, Reports.SOH)
         self.assertEquals(1, self.ps.daily_consumption)
 
+    def testFacilityTypeConsumption(self):
+        # verify that, for different states of the cache, the right value gets returned
+        cache.set("test", "cache_active")
+        self.assertEqual("cache_active", cache.get("test"), 
+                         "This test depends on caching, "
+                         "which does not appear to be enabled!")
+        MONTHLY_CONSUMPTION = 13
+        cache_key = self.sp.type._cache_key(self.pr.code)
+        self.pr, self.sp
+        self.ps.manual_monthly_consumption = None
+        self.ps.save()
+        dmc = DefaultMonthlyConsumption(supply_point_type = self.sp.type,
+                                        product = self.pr, 
+                                        default_monthly_consumption = MONTHLY_CONSUMPTION)
+        dmc.save()
+        # test case 1: empty cache, make sure it gets populated
+        cache.delete(cache_key)
+        self.assertEquals(None, cache.get(cache_key))
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, MONTHLY_CONSUMPTION)
+        self.assertEquals(cache.get(cache_key), MONTHLY_CONSUMPTION)
+        # test case 2: populate cache, returns the value, no cache refresh.
+        self.assertEquals(cache.get(cache_key), MONTHLY_CONSUMPTION)
+
+        # test case 3: populate the cache with none, return None
+        dmc = DefaultMonthlyConsumption.objects.get(supply_point_type = self.sp.type,
+                                                    product = self.pr)
+        dmc.delete()
+        cache.delete(cache_key)
+        self.assertEquals(None, cache.get(cache_key))
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, None)
+        # self.assertEquals(cache.get(cache_key), NONE_VALUE) 
+        # test case 4: cache populated with None, continues to return None
+        monthly_consumption_by_product = self.sp.type.monthly_consumption_by_product(self.pr)
+        self.assertEquals(monthly_consumption_by_product, None)
+
 
     def _report(self, amount, days_ago, report_type):
-        if report_type == Reports.SOH:
-            report = self.sp.report_stock(self.pr, amount)
-        else:
-            report = self.sp.report_receipt(self.pr, amount)
-        # must call post_save manually since signals don't work 
-        # properly in the test environment
-        #report.post_save()
-        txs = StockTransaction.objects.filter(product_report=report).order_by('-pk')
-        try:
-            trans = txs[0]
-        except IndexError:
-            # no big deal; it wasn't a transaction-generating report
-            pass
-        else:
-            trans.date = trans.date - timedelta(days=days_ago)
-            trans.save()
-        # NB: it is important that we draw this from the database since the automatic
-        # stock calculation works by updating the productstock.auto_monthly_consumption field
-        self.ps = ProductStock.objects.get(supply_point=self.sp, product=self.pr)
-        # again, this should be called by a signal, 
-        # but in the unit test we do it manually
-        #self.ps.update_auto_consumption()
+        self.ps = fake_report(self.sp, self.pr, amount, days_ago, report_type)[1]
         return self.ps
-
+    
     def tearDown(self):
         Location.objects.all().delete()
         SupplyPoint.objects.all().delete()

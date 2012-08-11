@@ -1,6 +1,7 @@
 from rapidsms.conf import settings
 from logistics.util import config
 from rapidsms.contrib.locations.models import Location
+from django.http import HttpResponseRedirect
 
 def logistics_contact_required():
     """
@@ -77,6 +78,7 @@ def place_in_request(param="place"):
     def wrapper(f):
         def put_place_on_request(request, *args, **kwargs):
             code = request.GET.get(param, None)
+            request.from_url = True if code else False
             if settings.LOGISTICS_USE_LOCATION_SESSIONS:
                 cookie_name = "RAPIDSMS-LOGISTICS-LOCATION"
                 if code:
@@ -86,11 +88,17 @@ def place_in_request(param="place"):
                 else:
                     # check the cookie as well
                     code = request.session.get(cookie_name, None)
+                    
             if code:
                 request.location = Location.objects.get(code=code)
             else:
                 request.location = None
             request.select_location = True # used in the templates
+            if request.location and not request.from_url and request.method=="GET":
+                params = {param: request.location.code}
+                params.update(dict((k,request.GET[k]) for k in request.GET))
+                next = "%s?%s" % (request.path, "&".join("%s=%s" % (k,v) for k, v in params.items()))
+                return HttpResponseRedirect(next)
             return f(request, *args, **kwargs)
         return put_place_on_request
     return wrapper

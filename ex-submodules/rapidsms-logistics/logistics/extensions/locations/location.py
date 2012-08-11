@@ -24,6 +24,20 @@ class Location(models.Model, StockCacheMixin):
             self.parent = parent
         self.save()
         
+    def is_any_parent(self, location):
+        """
+        Returns true of this is any parent of the location or its
+        entire parent chain.
+        """
+        # no infinite loops pls
+        seen_locs = []
+        while location and location.parent and location not in seen_locs: 
+            if self == location.parent:
+                return True
+            seen_locs.append(location)
+            location = location.parent 
+        return False
+        
     @property
     def tree_parent(self):
         """ This signature gets overriden by mptt when mptt is used """

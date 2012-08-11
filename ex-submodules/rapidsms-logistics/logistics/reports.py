@@ -2,16 +2,15 @@ import json
 from datetime import timedelta, datetime
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
-from django.db.models import Q, Sum
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
+from django.db.models import Q
 from django.utils.importlib import import_module
 from rapidsms.conf import settings
-from rapidsms.models import Contact
 from dimagi.utils.dates import DateSpan
-from logistics.const import Reports
 from logistics.models import ProductReport, \
-    Product, ProductStock, SupplyPoint, StockRequest
-from .tables import ReportingTable, SOHReportingTable
-import models as logistics_models
+    Product, ProductStock, SupplyPoint, StockRequest, HistoricalStockCache
+from .tables import SOHReportingTable
 from .const import Reports
 from .util import config
 
@@ -28,12 +27,15 @@ class Colors(object):
     LIGHT_GREEN = "#9acc99"
     LIGHT_PURPLE = "#bf7ebe"
     LIGHT_YELLOW = "#fff6cf"
+    LIGHT_GREY = "#dddddd"
     MEDIUM_GREEN = "#7aaa7a"
     MEDIUM_PURPLE = "#a460a4"
     MEDIUM_YELLOW = "#efde7f"
+    MEDIUM_GREY = "#999999"
     DARK_RED = "#a30808"
     WHITE = "#ffffff"
     BLACK = "#000000"
+    
     
 class PieChartData(object):
     
@@ -61,6 +63,10 @@ class ReportingBreakdown(object):
     
     def __init__(self, supply_points, datespan=None, include_late=False,
                  days_for_late=5, MNE=False, request=None):
+        
+        if supply_points.filter(active=False).exists(): 
+            supply_points = self.supply_points.filter(active=True)
+        
         self.supply_points = supply_points
         
         if not datespan:
@@ -71,15 +77,12 @@ class ReportingBreakdown(object):
         self.include_late = include_late
         self.days_for_late = days_for_late
         date_for_late = datespan.startdate + timedelta(days=days_for_late)
-
-        if supply_points.filter(active=False).exists(): self.supply_points = self.supply_points.filter(active=True)
-
+        
         reports_in_range = ProductReport.objects.filter\
             (report_type__code=Reports.SOH,
              report_date__gte=datespan.startdate,
              report_date__lte=datespan.enddate_param,
-             supply_point__in=supply_points,
-             supply_point__active=True)
+             supply_point__in=supply_points)
         
         reported_in_range = reports_in_range.values_list\
             ("supply_point", flat=True).distinct()
@@ -89,10 +92,10 @@ class ReportingBreakdown(object):
             ("supply_point", flat=True).distinct()
         
         non_reporting = supply_points.exclude(pk__in=reported_in_range)
-        reported = SupplyPoint.objects.filter(pk__in=reported_in_range, active=True)
+        reported = SupplyPoint.objects.filter(pk__in=reported_in_range)
         reported_late = reported.exclude(pk__in=reported_on_time_in_range)
         reported_on_time = SupplyPoint.objects.filter\
-            (pk__in=reported_on_time_in_range, active=True)
+            (pk__in=reported_on_time_in_range)
 
         requests_in_range = StockRequest.objects.select_related().filter(\
             requested_on__gte=datespan.startdate,
@@ -120,19 +123,29 @@ class ReportingBreakdown(object):
                     nd[_p[d]] = dict[d]
                 return nd
 
+            # Discrepancies are defined as a difference of 20% or more in an order.
+
             self.discrepancies_p = {}
             self.discrepancies_tot_p = {}
             self.discrepancies_pct_p = {}
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len([x for x in discrepancies_list if x == product])
+                self.discrepancies_p[product] = len(filter(lambda r: (r.amount_received >= (1.2 * r.amount_requested) or
+                                                                      r.amount_received <= (.8 * r.amount_requested)), 
+                                                                      [x for x in discrepancies if x.product.pk == product]))
 
-                z = [r.amount_requested - r.amount_received for r in discrepancies.filter(product__pk=product)]
+                z = [r.amount_requested - r.amount_received for r in \
+                     discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
-                if self.discrepancies_p[product]: self.discrepancies_avg_p[product] = self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                if self.discrepancies_p[product]: 
+                    self.discrepancies_avg_p[product] = \
+                        self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                
                 self.filled_orders_p[product] = len([x for x in orders_list if x == product])
-                self.discrepancies_pct_p[product] = calc_percentage(self.discrepancies_p[product], self.filled_orders_p[product])
+                self.discrepancies_pct_p[product] = calc_percentage\
+                    (self.discrepancies_p[product], self.filled_orders_p[product])
+
 
             self.discrepancies_p = _map_codes(self.discrepancies_p)
             self.discrepancies_tot_p = _map_codes(self.discrepancies_tot_p)
@@ -191,15 +204,35 @@ class ReportingBreakdown(object):
                         count = 0
                         last_stockout = None
                         ordered_reports = found_reports.filter(product=p).order_by("report_date")
+                        if ordered_reports.count():
+                            # Check if a stockout carried over from last period.
+                            last_prev_report = ProductReport.objects.filter(product=p,
+                                                                            supply_point=sp,
+                                                                            report_date__lt=ordered_reports[0].report_date).order_by("-report_date")
+                            if last_prev_report.count() and last_prev_report[0].quantity == 0:
+                                last_stockout = datespan.startdate
+
+                            # Check if a stockout carries over into next period.
+
+
                         for r in ordered_reports:
                             if last_stockout and r.quantity > 0: # Stockout followed by receipt.
                                 duration += _seconds(r.report_date - last_stockout)
                                 last_stockout = None
                                 count += 1
-                            elif not last_stockout and not r.quantity: # Beginning of a stockout period.
+                            elif not last_stockout and r.quantity == 0: # Beginning of a stockout period.
                                 last_stockout = r.report_date
                             else: # In the middle of a stock period, or the middle of a stockout period; either way, we don't care.
                                 pass
+
+                        if last_stockout:
+                            first_next_report = ProductReport.objects.filter(product=p,
+                                supply_point=sp,
+                                quantity__gt=0,
+                                report_date__gt=ordered_reports.order_by("-report_date")[0].report_date)
+                            if first_next_report.count() and first_next_report[0].quantity > 0:
+                                duration += _seconds(datespan.enddate - last_stockout)
+
                         if p.sms_code in stockouts_duration_p and duration:
                             stockouts_duration_p[p.sms_code] += [duration]
                         elif duration:
@@ -273,12 +306,18 @@ class ReportingBreakdown(object):
         return self._breakdown_chart
         
     def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(self.partial, 
+        return [TableData("Incomplete Reports", SOHReportingTable(object_list=self.partial,
                                                                   request=self._request,
-                                                                  prefix='inc-')),
-                TableData("Complete Reports", SOHReportingTable(self.full, 
+                                                                  prefix='inc-',
+            month=self.datespan.enddate.month,
+            year=self.datespan.enddate.year,
+            day=self.datespan.enddate.day)),
+                TableData("Complete Reports", SOHReportingTable(object_list=self.full,
                                                                 request=self._request,
-                                                                  prefix='comp-'))
+                                                                  prefix='comp-',
+                    month=self.datespan.enddate.month,
+                    year=self.datespan.enddate.year,
+                    day=self.datespan.enddate.day))
                 #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
                 ]
         
@@ -313,22 +352,38 @@ class ReportingBreakdown(object):
         
     def on_time_groups(self):
         if self.include_late:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
                                                                request=self._request, 
-                                                               prefix='nonreport-')),
-             TableData("Late HSAs", SOHReportingTable(self.reported_late, 
+                                                               prefix='nonreport-',
+            month=self.datespan.enddate.month,
+            year=self.datespan.enddate.year,
+                day=self.datespan.enddate.day)),
+             TableData("Late HSAs", SOHReportingTable(object_list=self.reported_late,
                                                       request=self._request, 
-                                                      prefix='late-')),
-             TableData("On-Time HSAs", SOHReportingTable(self.on_time, 
+                                                      prefix='late-',
+                 month=self.datespan.enddate.month,
+                 year=self.datespan.enddate.year,
+                 day=self.datespan.enddate.day)),
+             TableData("On-Time HSAs", SOHReportingTable(object_list=self.on_time,
                                                          request=self._request, 
-                                                         prefix='ontime-'))]
+                                                         prefix='ontime-',
+                 month=self.datespan.enddate.month,
+                 year=self.datespan.enddate.year,
+                 day=self.datespan.enddate.day))]
         else:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(self.non_reporting, 
+            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
                                                                       request=self._request, 
-                                                                      prefix='nonreport-')),
-                    TableData("Reporting HSAs", SOHReportingTable(self.on_time, 
+                                                                      prefix='nonreport-',
+                month=self.datespan.enddate.month,
+                year=self.datespan.enddate.year,
+                day=self.datespan.enddate.day)),
+                    TableData("Reporting HSAs", SOHReportingTable(object_list=self.on_time,
                                                                   request=self._request,
-                                                                  prefix='report-'))]
+                                                                  prefix='report-',
+                        month=self.datespan.enddate.month,
+                        year=self.datespan.enddate.year,
+                        day=self.datespan.enddate.day
+                    ))]
 
 class ProductAvailabilitySummary(object):
 
@@ -439,8 +494,6 @@ class SidewaysProductAvailabilitySummary(ProductAvailabilitySummary):
 
     @property
     def flot_data(self):
-#        print "gettin' flot data"
-#        print self.data
         with_stock = []
         without_stock = []
         without_data = []
@@ -524,19 +577,32 @@ class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
 
         products = Product.objects.all().order_by('sms_code')
         data = []
+        
         for p in products:
-            # TODO This is ludicrously inefficient.
-            with_stock = 0
-            without_stock = 0
-            without_data = 0
-            for f in facilities:
-                stock = f.historical_stock(p, year, month, default_value=-1)
-                if stock > 0:
-                    with_stock += 1
-                elif stock == 0:
-                    without_stock += 1
-                else:
-                    without_data += 1
+
+            # once we want to use the cache we can use these to populate
+            # this object, but for now disable it
+            if False:
+                relevant = HistoricalStockCache.objects.filter(product=p,
+                                                               year=year, 
+                                                               month=month)
+                with_stock = relevant.filter(stock__gt=0).count()
+                without_stock = relevant.filter(stock=0).count()
+                without_data = total - with_stock - without_stock
+            else:
+                # TODO This is ludicrously inefficient.
+            
+                with_stock = 0
+                without_stock = 0
+                without_data = 0
+                for f in facilities:
+                    stock = f.historical_stock(p, year, month, default_value=-1)
+                    if stock > 0:
+                        with_stock += 1
+                    elif stock == 0:
+                        without_stock += 1
+                    else:
+                        without_data += 1
             data.append({"product": p,
                          "total": total,
                          "with_stock": with_stock,
@@ -623,6 +689,7 @@ class HSASupplyPointRow(SupplyPointRow):
         return [self.supply_point]
     
 
+
 class FacilitySupplyPointRow(SupplyPointRow):
     
     @property
@@ -649,3 +716,78 @@ def get_reporting_and_nonreporting_facilities(deadline, location):
     on_time_facilities = facilities.filter(last_reported__gte=deadline, active=True)
     late_facilities = facilities.filter(Q(last_reported=None) | Q(last_reported__lt=deadline), active=True)
     return on_time_facilities, late_facilities
+
+
+
+class ReportView(object):
+    """
+    View class to be extended for each report page 
+        with its own custom_context method
+    
+    Include in settings:
+
+        REPORT_LIST = SortedDict([
+        ("Dashboard", "dashboard"),])
+    """
+    _context = None
+    
+    def __init__(self, slug):
+        self.slug = slug
+        self._context = None
+        
+    @property
+    def template_name(self):
+        """
+        The template that should be used for this.
+        """
+        # should be overridden
+        return "%s.html" % self.slug
+     
+    def can_view(self, request):
+        """
+        Whether this report can be viewed - typically based of the user and 
+        potentially other information in the request.
+        """
+        # should be overridden if you want to restrict things
+        return True
+    
+    def get_response(self, request):
+        """
+        The HTTP Response object for this report
+        """
+        context = self.get_context(request)
+        return render_to_response(self.template_name, 
+                                  context,
+                                  context_instance=RequestContext(request))
+
+    
+    def shared_context(self, request):
+        """
+        Add this to your subclasses shared_context method:
+
+        base_context = super(<YourWarehouseViewSubclass>, self).shared_context(request)
+        """
+        to_stub = lambda x: {"name": x, "slug": settings.REPORT_LIST[x]}
+        stub_reports = [to_stub(r) for r in settings.REPORT_LIST.keys()]
+
+        return { 
+            "report_list": stub_reports,
+            "settings": settings
+        }
+        
+    def custom_context(self, request):
+        """
+        Custom context required for a specific report
+        """
+        # should be overridden
+        return {}
+    
+    def get_context(self, request):
+        """
+        Specific data to be included in a report
+        """
+        if not self._context:
+            self._context = {"slug": self.slug}
+            self._context.update(self.shared_context(request))
+            self._context.update(self.custom_context(request))
+        return self._context

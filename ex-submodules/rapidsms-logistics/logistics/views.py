@@ -194,20 +194,29 @@ def reporting(request, location_code=None, context={}, template="logistics/repor
 def navigate(request):
     location_code = settings.COUNTRY
     destination = "logistics_dashboard"
+    querystring = ''
     if 'location' in request.REQUEST and request.REQUEST['location']: 
         location_code = request.REQUEST['location']
     if 'destination_url' in request.REQUEST and request.REQUEST['destination_url']: 
         destination = request.REQUEST['destination_url']
+    if 'year' in request.REQUEST and request.REQUEST['year']: 
+        querystring += '&year=' + request.REQUEST['year']
+    if 'month' in request.REQUEST and request.REQUEST['month']: 
+        querystring += '&month=' + request.REQUEST['month']
+    if 'to' in request.REQUEST and request.REQUEST['to']: 
+        querystring += '&to=' + request.REQUEST['to']
+    if 'from' in request.REQUEST and request.REQUEST['from']: 
+        querystring += '&from=' + request.REQUEST['from']
     mode = request.REQUEST.get("mode", "url")
     if mode == "url":
         return HttpResponseRedirect(
             reverse(destination, args=(location_code, )))
     elif mode == "param":
         return HttpResponseRedirect(
-            "%s?place=%s" % (reverse(destination), location_code))
+            "%s?place=%s%s" % (reverse(destination), location_code, querystring))
     elif mode == "direct-param":
         return HttpResponseRedirect(
-            "%s?place=%s" % (destination, location_code))
+            "%s?place=%s%s" % (destination, location_code, querystring))
 
 @csrf_exempt
 @cache_page(60 * 15)
@@ -443,28 +452,21 @@ def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
     backends = list(Backend.objects.all())
     counts = {}
     mdates = []
-    while month <= datetime.now().month and year <= datetime.now().year:
-        d = datetime(year, month, 1)
+    d = datetime(year, month, 1) + relativedelta(months=1)-relativedelta(seconds=1)
+    while d <= datetime.utcnow() + relativedelta(months=1):
         mdates += [d]
         counts[d] = {}
         for b in backends:
             counts[d][b.name] = {}
-            counts[d][b.name]["in"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="I").count()
-            counts[d][b.name]["out"] = Message.objects.filter(connection__backend=b, date__month=month, date__year=year, direction="O").count()
-        if month == 12:
-            month = 1
-            year += 1
-        else:
-            month += 1
+            counts[d][b.name]["in"] = Message.objects.filter(connection__backend=b, date__month=d.month, date__year=d.year, direction="I").count()
+            counts[d][b.name]["out"] = Message.objects.filter(connection__backend=b, date__month=d.month, date__year=d.year, direction="O").count()
+        d += relativedelta(months=1)
     mdates.reverse()
     return render_to_response(template,
                               {"backends": backends,
                                "counts": counts,
                                "mdates": mdates},
                               context_instance=RequestContext(request))
-
-
-
 
 class MonthPager(object):
     """

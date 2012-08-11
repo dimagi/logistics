@@ -23,6 +23,8 @@ class ProductTypeAdmin(admin.ModelAdmin):
 
 class ProductStockAdmin(admin.ModelAdmin):
     model = ProductStock
+    list_display = ('supply_point', 'product', 'is_active', 'quantity','auto_monthly_consumption')
+    list_filter = ('product', 'is_active', 'auto_monthly_consumption')
 
 class ProductReportAdmin(admin.ModelAdmin):
     model = ProductReport
@@ -40,9 +42,12 @@ class SupplyPointTypeAdmin(admin.ModelAdmin):
 
 class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
     model = DefaultMonthlyConsumption
+    list_display = ('product', 'supply_point_type', 'default_monthly_consumption')
+    list_filter = ('product', 'supply_point_type')
 
 class SupplyPointAdmin(admin.ModelAdmin):
-    list_display = ("name", "code")
+    list_display = ("name", "code", "type")
+    list_filter = ('type', 'active')
     model = SupplyPoint
 
 class StockRequestAdmin(admin.ModelAdmin):
@@ -65,6 +70,11 @@ class NagRecordAdmin(admin.ModelAdmin):
     list_display = ("supply_point", "report_date", "warning", "nag_type")
     list_filter = ("supply_point", "warning", "nag_type")
 
+class HistoricalStockCacheAdmin(admin.ModelAdmin):
+    model = HistoricalStockCache
+    list_display = ("supply_point", "product", "year", "month", "stock")
+    list_filter = ("supply_point", "product", "year", "month")
+
 
 admin.site.unregister(Contact)
 admin.site.register(Contact, LogisticsContactAdmin)
@@ -84,3 +94,5 @@ admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 admin.site.register(NagRecord, NagRecordAdmin)
 admin.site.register(DefaultMonthlyConsumption, DefaultMonthlyConsumptionAdmin)
+admin.site.register(HistoricalStockCache, HistoricalStockCacheAdmin)
+
