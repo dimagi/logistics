@@ -1,0 +1,494 @@
+431,Chalinze,t,D33626,Bagamoyo,DISTRICT,-6.60389,38.36061,B,Facility
+432,Chambezi,t,D33616,Bagamoyo,DISTRICT,-6.51921,38.91742,A,Facility
+433,Fukayosi,t,D33596,Bagamoyo,DISTRICT,-6.387,38.67761,C,Facility
+434,Hondogo,t,D33597,Bagamoyo,DISTRICT,-6.16058,38.4059,C,Facility
+435,Kaole,t,D33612,Bagamoyo,DISTRICT,-6.64194,39.01639,A,Facility
+436,Kerege,t,D33588,Bagamoyo,DISTRICT,-6.54991,38.99339,A,Facility
+437,Kibindu,t,D33602,Bagamoyo,DISTRICT,-5.93619,37.88379,B,Facility
+438,Kidogozero,t,D33604,Bagamoyo,DISTRICT,-6.68833,38.79556,B,Facility
+439,Kifuleta,t,D33607,Bagamoyo,DISTRICT,-6.06824,38.14187,B,Facility
+440,KIMANGE,t,D35476,Bagamoyo,DISTRICT,,,B,Facility
+441,Kiromo,t,D33605,Bagamoyo,DISTRICT,-6.50868,38.92927,A,Facility
+442,Kiwangwa,t,D33593,Bagamoyo,DISTRICT,-6.36727,38.58025,C,Facility
+443,Kongo,t,D33613,Bagamoyo,DISTRICT,-6.74222,39.00861,A,Facility
+444,Kwamduma,t,D33603,Bagamoyo,DISTRICT,-5.92701,38.0031,B,Facility
+445,KWAMSANJA,t,D33623,Bagamoyo,DISTRICT,,,B,Facility
+446,Kwangandu,t,D33608,Bagamoyo,DISTRICT,-5.95939,38.22475,B,Facility
+447,Kwaruhombo,t,D33629,Bagamoyo,DISTRICT,-6.12444,38.14667,B,Facility
+448,KWEIKONJE,t,D33610,Bagamoyo,DISTRICT,,,C,Facility
+449,Lugoba,t,D33627,Bagamoyo,DISTRICT,-6.66889,38.54972,B,Facility
+450,Makurunge,t,D35065,Bagamoyo,DISTRICT,-6.56389,39.06806,C,Facility
+451,Mandamazingara,t,D33621,Bagamoyo,DISTRICT,-6.09541,38.61764,C,Facility
+452,Mapinga,t,D33615,Bagamoyo,DISTRICT,-6.56613,39.01476,A,Facility
+453,Masuguru,t,D33611,Bagamoyo,DISTRICT,-6.47028,38.56278,C,Facility
+454,Mataya,t,D33622,Bagamoyo,DISTRICT,-6.52165,38.89504,A,Facility
+455,Matipwili,t,D33600,Bagamoyo,DISTRICT,-6.2154,38.82538,C,Facility
+456,Matuli,t,D33590,Bagamoyo,DISTRICT,-6.66109,38.24383,B,Facility
+457,MBEGANI,t,D33619,Bagamoyo,DISTRICT,-6.56613,39.01476,A,Facility
+458,Mbwewe,t,D33606,Bagamoyo,DISTRICT,-6.07956,38.25547,B,Facility
+459,MIHUGA,t,D33609,Bagamoyo,DISTRICT,,,C,Facility
+460,MILO,t,D35479,Bagamoyo,DISTRICT,,,B,Facility
+461,Miono,t,D33628,Bagamoyo,DISTRICT,-6.11655,38.40895,C,Facility
+462,Mkange,t,D33598,Bagamoyo,DISTRICT,-6.07954,38.55367,C,Facility
+463,MKENGE,t,D33624,Bagamoyo,DISTRICT,,,C,Facility
+464,Mlingotini,t,D33587,Bagamoyo,DISTRICT,-6.47948,39.00166,A,Facility
+465,Msata,t,D35301,Bagamoyo,DISTRICT,-6.5347,38.18791,C,Facility
+466,MSINUNE,t,D35481,Bagamoyo,DISTRICT,,,C,Facility
+467,Msoga,t,D33591,Bagamoyo,DISTRICT,-6.5668,38.30107,B,Facility
+468,Pongwe Kiona,t,D33601,Bagamoyo,DISTRICT,-6.39472,38.37861,B,Facility
+469,Rupungwi,t,D33620,Bagamoyo,DISTRICT,-6.18086,38.31471,B,Facility
+470,Saadani,t,D33599,Bagamoyo,DISTRICT,-6.18861,38.94417,C,Facility
+471,Talawanda,t,D33592,Bagamoyo,DISTRICT,-6.49187,38.48693,B,Facility
+472,TUKAMISASA,t,D35381,Bagamoyo,DISTRICT,,,B,Facility
+473,Ubena Estate,t,D35483,Bagamoyo,DISTRICT,-6.62276,38.19623,B,Facility
+474,Vigwaza,t,D33614,Bagamoyo,DISTRICT,-6.81528,38.63333,B,Facility
+475,VISEZI ,t,D33625,BAGAMOYO,DISTRICT,,,B,Facility
+476,Yombo,t,D33595,Bagamoyo,DISTRICT,-6.5861,38.84913,A,Facility
+477,Zinga,t,D33589,Bagamoyo,DISTRICT,-6.52711,38.97599,A,Facility
+478,Bonyokwa,t,D35486,Ilala,DISTRICT,,,A,Facility
+479,Buguruni,t,D34018,Ilala,DISTRICT,-6.83742,39.24447,A,Facility
+480,Buyuni,t,D34010,Ilala,DISTRICT,-6.99475,39.47714,A,Facility
+481,Chanika,t,D34011,Ilala,DISTRICT,-1.44971,39.09146,A,Facility
+482,FFU Ukonga,t,D34015,Ilala,DISTRICT,-6.87555,39.15913,A,Facility
+483,Galuka Kwalala,t,D35487,Ilala,DISTRICT,,,A,Facility
+484,Gerezani,t,D34002,Ilala,DISTRICT,-6.82245,39.2757,A,Facility
+485,Kinyerezi,t,D34005,Ilala,DISTRICT,-6.83789,39.1545,A,Facility
+486,Kitunda,t,D34016,Ilala,DISTRICT,-6.89172,39.19283,A,Facility
+487,KIVULE,t,D35488,Ilala,DISTRICT,,,A,Facility
+488,Kiwalani,t,D34007,Ilala,DISTRICT,-6.85699,39.22681,A,Facility
+489,Majohe,t,D34008,Ilala,DISTRICT,-6.99475,39.09146,A,Facility
+490,Mongolandege,t,D35489,Ilala,DISTRICT,,,A,Facility
+491,Mnazi Mmoja,t,D34017,Ilala,DISTRICT,-6.81785,39.27918,A,Facility
+492,Msongola,t,D34013,Ilala,DISTRICT,-6.97466,39.17012,A,Facility
+493,Mvuti,t,D34012,Ilala,DISTRICT,-6.97466,39.17012,A,Facility
+494,Kajiungeni,t,D34009,Ilala,DISTRICT,-6.89112,39.12161,A,Facility
+495,Segerea,t,D35490,Ilala,DISTRICT,,,A,Facility
+496,Tabata  A,t,D34003,Ilala,DISTRICT,-6.83031,39.22648,A,Facility
+497,Tabata Kisiwani,t,D35491,Ilala,DISTRICT,,,A,Facility
+498,Tabata NBC,t,D34004,Ilala,DISTRICT,-6.83634,39.21257,A,Facility
+499,Vingunguti,t,D34006,Ilala,DISTRICT,-6.84612,39.22414,A,Facility
+500,Yombo Ufundi,t,D34014,Ilala,DISTRICT,-6.86042,39.23649,A,Facility
+501,ZINGIZIWA,t,D35492,Ilala,DISTRICT,,,A,Facility
+502,Bokomnemela,t,D33647,Kibaha Rural,DISTRICT,-6.97611,39.14056,A,Facility
+503,DISUNYALA,t,D33649,Kibaha Rural,DISTRICT,,,A,Facility
+504,Dutumi,t,D30032,Kibaha Rural,DISTRICT,,,A,Facility
+505,Gumba,t,D33645,Kibaha Rural,DISTRICT,-6.70467,38.34996,A,Facility
+506,Gwata,t,D33646,Kibaha Rural,DISTRICT,-6.68571,38.32224,A,Facility
+507,Kikongo,t,D33633,Kibaha Rural,DISTRICT,-6.7995,38.71614,A,Facility
+508,Kongowe Forest,t,D36104,Kibaha Urban,DISTRICT,,,A,Facility
+509,Kongowe,t,D33636,Kibaha Urban,DISTRICT,-6.7341,38.8873,A,Facility
+510,Kwala,t,D33631,Kibaha Rural,DISTRICT,-6.782,38.57609,A,Facility
+511,Lukenge,t,D36224,Kibaha Rural,DISTRICT,,,A,Facility
+512,Lupunga,t,D33638,Kibaha Rural,DISTRICT,-6.82871,38.6811,A,Facility
+513,Magindu,t,D33630,Kibaha Rural,DISTRICT,-6.76157,38.37038,A,Facility
+514,Mbwawa,t,D33634,Kibaha Urban,DISTRICT,-6.83306,38.99278,A,Facility
+515,Misugusugu,t,D33634,Kibaha Urban,DISTRICT,,,A,Facility
+516,Miswe,t,D33642,Kibaha Urban,DISTRICT,-6.64123,38.76999,A,Facility
+517,Mkoani,t,D33651,Kibaha Urban,DISTRICT,-6.77861,38.98001,A,Facility
+518,Mlandizi,t,D33652,Kibaha Rural,DISTRICT,-6.93472,38.89361,A,Facility
+519,Mperamumbi,t,D36226,Kibaha Rural,DISTRICT,,,A,Facility
+520,Mwanambwito,t,D33641,Kibaha Rural,DISTRICT,-6.77908,38.69863,A,Facility
+521,Mwendapole,t,D33637,Kibaha Urban,DISTRICT,-6.7591,38.91965,A,Facility
+522,Ngeta,t,D33639,Kibaha Rural,DISTRICT,-6.79658,38.81534,A,Facility
+523,Ruvu Station,t,D33632,Kibaha Rural,DISTRICT,-6.89333,38.82083,A,Facility
+524,Soga,t,D33635,Kibaha Rural,DISTRICT,-6.83264,38.87112,A,Facility
+525,Vikawe,t,D33644,Kibaha Urban,DISTRICT,-6.62668,39.04961,A,Facility
+526,VIKUGE,t,D33650,Kibaha Rural,DISTRICT,,,A,Facility
+527,Visiga,t,D33640,Kibaha Urban,DISTRICT,-6.73115,38.78287,A,Facility
+528,Viziwaziwa,t,D33643,Kibaha Urban,DISTRICT,-6.92472,39.015,A,Facility
+529,Chisano,t,D30114,Kilombero,DISTRICT,-8.65992163968,35.8535236136,A,Facility
+530,Chita,t,D30126,Kilombero,DISTRICT,-8.489,35.942,A,Facility
+531,Idete,t,D30122,Kilombero,DISTRICT,-8.1,36.5167,B,Facility
+532,Ipinde,t,D35975,Kilombero,DISTRICT,,,A,Facility
+533,IKULE,t,D35432,Kilombero,DISTRICT,,,A,Facility
+534,Kibaoni,t,D30113,Kilombero,DISTRICT,-8.089,36.683,A,Facility
+535,Kiberege,t,D30127,Kilombero,DISTRICT,-7.95833,36.85,C,Facility
+536,Matema,t,D35537,Kilombero,DISTRICT,,,A,Facility
+537,Mang'ula,t,D30120,Kilombero,DISTRICT,-7.83333,36.9167,B,Facility
+538,Mbingu,t,D30115,Kilombero,DISTRICT,-8.20833,36.25,A,Facility
+539,Michenga,t,D30116,Kilombero,DISTRICT,-8.108,36.657,A,Facility
+540,Mkamba,t,D30123,Kilombero,DISTRICT,-7.68333,36.975,B,Facility
+541,MKANGAWALO,t,D35433,Kilombero,DISTRICT,,,A,Facility
+542,Mlimba,t,D30121,Kilombero,DISTRICT,-8.79667,35.805,B,Facility
+543,Mngeta,t,D30124,Kilombero,DISTRICT,-8.31667,36.1067,B,Facility
+544,Msolwa A,t,D30125,Kilombero,DISTRICT,-7.8,37.025,B,Facility
+545,Msolwa Station,t,D30128,Kilombero,DISTRICT,-7.79336,37.03706,C,Facility
+546,Namwala,t,D30129,Kilombero,DISTRICT,-8.15487,36.39172,C,Facility
+547,Nyandeo,t,D35263,Kilombero,DISTRICT,-7.76273,37.03756,C,Facility
+548,Sanje,t,D30117,Kilombero,DISTRICT,-7.783333,36.9,A,Facility
+549,SIGNALI,t,D30119,Kilombero,DISTRICT,,,A,Facility
+550,Sonjo,t,D30130,Kilombero,DISTRICT,-7.81667,36.9,C,Facility
+551,Uchindile,t,D30118,Kilombero,DISTRICT,-8.7721,35.4101,A,Facility
+552,UDAGAJI,t,D35538,Kilombero,DISTRICT,,,A,Facility
+553,Utengule,t,D30131,Kilombero,DISTRICT,-8.95321,35.83715,C,Facility
+554,Chagongwe,t,D35264,Kilosa,DISTRICT,-6.4019441624,36.8901916956,C,Facility
+555,Chakwale,t,D30083,Kilosa,DISTRICT,-6.67301,37.08203,B,Facility
+556,Chanjale,t,D30084,Kilosa,DISTRICT,-6.81402,37.08809,B,Facility
+557,Chanzuru,t,D30085,Kilosa,DISTRICT,-6.8,37.066667,B,Facility
+558,Chogoali,t,D30086,Kilosa,DISTRICT,-6.07151,37.30119,B,Facility
+559,Chonwe,t,D30087,Kilosa,DISTRICT,-7.55814,36.86394,A,Facility
+560,Dakawa Centre,t,D33577,Kilosa,DISTRICT,-6.45339,37.40974,C,Facility
+561,Dumila,t,D30097,Kilosa,DISTRICT,-6.38303969276,37.2763373831,C,Facility
+562,Gairo,t,D30082,Kilosa,DISTRICT,-6.15,36.866667,A,Facility
+563,Idibo,t,D30098,Kilosa,DISTRICT,-6.00263,37.02365,C,Facility
+564,Ilonga,t,D30099,Kilosa,DISTRICT,-6.68419,37.24952,C,Facility
+565,Iyogwe,t,D30071,Kilosa,DISTRICT,-6.07150083805,37.3011982877,A,Facility
+566,Kibedya,t,D30911,Kilosa,DISTRICT,-6.1,36.916667,B,Facility
+567,Kidete,t,D30088,Kilosa,DISTRICT,-6.683333,36.783333,B,Facility
+568,Kidodi,t,D30067,Kilosa,DISTRICT,-7.610169,36.98786,A,Facility
+569,Kidogobasi,t,D30917,Kilosa,DISTRICT,-7.6377,37.0246,B,Facility
+570,Kilangali,t,D30100,Kilosa,DISTRICT,-6.966667,37.083333,C,Facility
+571,Kimamba,t,D30068,Kilosa,DISTRICT,-6.783333,37.133333,A,Facility
+572,Kisanga,t,D30089,Kilosa,DISTRICT,-7.43333,37.7,B,Facility
+573,Kitange,t,D30101,Kilosa,DISTRICT,-6.25493,37.03717,C,Facility
+574,Kitete,t,D30090,Kilosa,DISTRICT,-6.416667,37.266667,B,Facility
+575,Kitete Msindizi,t,D33576,Kilosa,DISTRICT,-6.38305,37.27633,A,Facility
+576,Kivungu,t,D30102,Kilosa,DISTRICT,-6.93042,36.03628,C,Facility
+577,Leshata,t,D30103,Kilosa,DISTRICT,-6.00263,37.02365,C,Facility
+578,Lumuma,t,D30072,Kilosa,DISTRICT,-6.816667,36.633333,C,Facility
+579,MABULA,t,D33571,Kilosa,DISTRICT,,,B,Facility
+580,Mabwerebwere,t,D30091,Kilosa,DISTRICT,-6.83499340166,37.1706632488,B,Facility
+581,Magomeni,t,D30073,Kilosa,DISTRICT,-6.8185373291,36.963870779,A,Facility
+582,Magubike,t,D30069,Kilosa,DISTRICT,-6.21027057494,37.2118618249,A,Facility
+583,Malolo,t,D30092,Kilosa,DISTRICT,-7.319128,36.58321,B,Facility
+584,Mamboya,t,D30105,Kilosa,DISTRICT,-6.266667,37.1,C,Facility
+585,Masenge,t,D33574,Kilosa,DISTRICT,,,A,Facility
+586,Mandege,t,D30093,Kilosa,DISTRICT,-6.39453,37.01618,B,Facility
+587,Mbamba,t,D30106,Kilosa,DISTRICT,-7.00579,37.09052,C,Facility
+588,Mikumi B,t,D30094,Kilosa,DISTRICT,-7.415525,36.97,B,Facility
+589,Mkobwe,t,D30913,Kilosa,DISTRICT,-6.40195,36.89019,C,Facility
+590,Msimba Mikumi,t,D30074,Kilosa,DISTRICT,-7.35719,37.03286,A,Facility
+591,Msingisi,t,D30075,Kilosa,DISTRICT,-6.13578,36.86795,A,Facility
+592,Msowero,t,D30076,Kilosa,DISTRICT,-6.533333,37.2,A,Facility
+593,Mtumbatu,t,D30077,Kilosa,DISTRICT,-6.25493,37.03717,A,Facility
+594,Muhenda,t,D30107,Kilosa,DISTRICT,-7.183333,36.933333,C,Facility
+595,Munisagara,t,D30078,Kilosa,DISTRICT,-6.82919,36.88289,A,Facility
+596,Mwasa,t,D30110,Kilosa,DISTRICT,-6.666667,36.75,C,Facility
+597,Nguyami,t,D30914,Kilosa,DISTRICT,-6.00263,37.02365,B,Facility
+598,Nongwe,t,D30111,Kilosa,DISTRICT,-6.45594,36.94415,C,Facility
+599,Rubeho,t,D30079,Kilosa,DISTRICT,-6.267353,36.86897,A,Facility
+600,Rudewa,t,D30080,Kilosa,DISTRICT,-6.683333,37.133333,A,Facility
+601,Ruhembe,t,D30916,Kilosa,DISTRICT,-7.66654972761,37.1391590876,A,Facility
+602,Tindiga,t,D30095,Kilosa,DISTRICT,-6.83499,37.17064,B,Facility
+603,Ulaya,t,D30070,Kilosa,DISTRICT,-7.13084,36.93905,A,Facility
+604,Unone,t,D30096,Kilosa,DISTRICT,-6.59590370773,37.076732551,B,Facility
+605,Vidunda,t,D30915,Kilosa,DISTRICT,-7.57506,36.92189,A,Facility
+606,Zombo,t,D30081,Kilosa,DISTRICT,-6.966667,36.9,A,Facility
+607,Boko,t,D33983,Kinondoni,DISTRICT,-6.63104,39.15223,C,Facility
+608,Bunju,t,D33982,Kinondoni,DISTRICT,-6.64377,39.11136,C,Facility
+609,Goba,t,D33988,Kinondoni,DISTRICT,-6.7272,39.15944,C,Facility
+610,Hannanasif,t,D35997,Kinondoni,DISTRICT,-6.79616,39.26423,A,Facility
+611,Kawe,t,D33989,Kinondoni,DISTRICT,-6.73673,39.22582,A,Facility
+612,Kibamba,t,D33977,Kinondoni,DISTRICT,-6.63169,39.17932,B,Facility
+613,Kibwegere,t,D33999,Kinondoni,DISTRICT,,,B,Facility
+614,Kigogo,t,D33995,Kinondoni,DISTRICT,-6.81568,39.24463,A,Facility
+615,Kijitonyama,t,D33976,Kinondoni,DISTRICT,-6.77352,39.23089,A,Facility
+616,Kiluvya,t,D33979,Kinondoni,DISTRICT,-6.66434,39.19235,B,Facility
+617,Kimara,t,D33975,Kinondoni,DISTRICT,-6.72907,39.06669,B,Facility
+618,Kisopwa,t,D35075,Kinondoni,DISTRICT,,,B,Facility
+619,Kunduchi,t,D33986,Kinondoni,DISTRICT,-6.67255,39.20702,C,Facility
+620,Kwembe,t,D33978,Kinondoni,DISTRICT,-6.76552,39.22784,B,Facility
+621,Kwembe Kati,t,D36212,Kinondoni,DISTRICT,,,B,Facility
+622,Mabwe Pande,t,D33981,Kinondoni,DISTRICT,-6.64377,39.11136,C,Facility
+623,Mabibo,t,D35630,Kinondoni,DISTRICT,,,A,Facility
+624,Madale,t,D33993,Kinondoni,DISTRICT,-6.66835,39.18285,C,Facility
+625,Magomeni HC,t,D34000,Kinondoni,DISTRICT,-6.76705,39.26074,A,Facility
+626,Makongo Juu,t,D33997,Kinondoni,DISTRICT,-6.73491,39.21064,A,Facility
+627,Makuburi,t,D33992,Kinondoni,DISTRICT,-6.80629,39.19885,A,Facility
+628,Mavurunza,t,D35875,Kinondoni,DISTRICT,,,B,Facility
+629,Mbezi,t,D33974,Kinondoni,DISTRICT,-6.7775,39.26068,B,Facility
+630,Mbopo,t,D33994,Kinondoni,DISTRICT,-6.66835,39.18285,C,Facility
+631,Mburahati,t,D33973,Kinondoni,DISTRICT,-6.80287,39.24078,A,Facility
+632,Mbweni,t,D33984,Kinondoni,DISTRICT,-6.59184,39.1378,C,Facility
+633,Mikocheni,t,D35656,Kinondoni,DISTRICT,,,A,Facility
+634,Mlalakuwa,t,D33996,Kinondoni,DISTRICT,-6.76413,39.22334,A,Facility
+635,Mpiji Magohe,t,D33980,Kinondoni,DISTRICT,-6.78366,39.11768,B,Facility
+636,Msewe,t,D33998,Kinondoni,DISTRICT,-6.78775,39.19183,B,Facility
+637,Msumi,t,D35825,Kinondoni,DISTRICT,,,B,Facility
+638,Mwananyamala,t,D35631,Kinondoni,DISTRICT,,,A,Facility
+639,Mwenge,t,D33990,Kinondoni,DISTRICT,-6.76511,39.23006,A,Facility
+640,Mzimuni,t,D35632,Kinondoni,DISTRICT,,,A,Facility
+641,Mpiji Mbweni,t,D35840,Kinondoni,DISTRICT,,,C,Facility
+642,Ndumbwi,t,D35076,Kinondoni,DISTRICT,,,C,Facility
+643,Oysterbay Police,t,D33991,Kinondoni,DISTRICT,-6.7588,39.27181,A,Facility
+644,Sinza,t,D34001,Kinondoni,DISTRICT,-6.78087,39.22113,A,Facility
+645,Tandale,t,D33972,Kinondoni,DISTRICT,-6.79426,39.23678,A,Facility
+646,Tegeta,t,D33987,Kinondoni,DISTRICT,-6.78765,39.25354,C,Facility
+647,Ununio,t,D33985,Kinondoni,DISTRICT,-6.80671,39.25778,C,Facility
+648,Wazo,t,D35761,Kinondoni,DISTRICT,,,C,Facility
+649,Chole,t,D33658,Kisarawe,DISTRICT,-7.62333,38.74694,A,Facility
+650,Gwata,t,D33662,Kisarawe,DISTRICT,-7.11231,38.52616,C,Facility
+651,Homboza,t,D33653,Kisarawe,DISTRICT,-7.2675,39.08778,A,Facility
+652,Kihare,t,D33663,Kisarawe,DISTRICT,-7.51139,38.71306,B,Facility
+653,Kiluvya A,t,D33664,Kisarawe,DISTRICT,-6.83769,39.01422,A,Facility
+654,Kimalamissale,t,D33665,Kisarawe,DISTRICT,,,C,Facility
+655,Kurui,t,D33660,Kisarawe,DISTRICT,-7.60472,38.88,C,Facility
+656,Mafizi,t,D33661,Kisarawe,DISTRICT,-7.11231,38.52616,C,Facility
+657,Maneromango,t,D33667,Kisarawe,DISTRICT,-7.24806,38.80139,B,Facility
+658,Marui,t,D33657,Kisarawe,DISTRICT,-7.2025,38.87083,B,Facility
+659,Marumbo,t,D33659,Kisarawe,DISTRICT,-7.19083,38.97278,C,Facility
+660,Masanganya,t,D33655,Kisarawe,DISTRICT,-7.12683,38.9171,A,Facility
+661,Msanga,t,D33656,Kisarawe,DISTRICT,-7.30107,38.81236,B,Facility
+662,Masaki,t,D33669,Kisarawe,DISTRICT,,,A,Facility
+663,Mwanzo Mgumu,t,D35814,Kisarawe,DISTRICT,,,A,Facility
+664,Mzenga,t,D33668,Kisarawe,DISTRICT,-6.94833,38.805,C,Facility
+665,Sungwi,t,D33654,Kisarawe,DISTRICT,-7.01033,38.91365,A,Facility
+666,Vikumburu,t,D33666,Kisarawe,DISTRICT,,,B,Facility
+667,Baleni,t,D33674,Mafia,DISTRICT,-7.97194,39.90833,A,Facility
+668,Banja,t,D33672,Mafia,DISTRICT,-7.76002,39.82184,A,Facility
+669,Chemchem,t,D33677,Mafia,DISTRICT,-7.99583,39.65306,A,Facility
+670,Chole,t,D35735,Mafia,DISTRICT,-8.01491,39.75282,A,Facility
+671,Chunguruma,t,D33676,Mafia,DISTRICT,-7.87611,39.85139,A,Facility
+672,Juani,t,D36211,Mafia,DISTRICT,,,A,Facility
+673,Jibondo,t,D33679,Mafia,DISTRICT,-8.01491,39.75282,A,Facility
+674,Jojo,t,D35402,Mafia,DISTRICT,,,A,Facility
+675,Jimbo,t,D33680,Mafia,DISTRICT,-8.05917,40.03417,A,Facility
+676,Kanga,t,D33671,Mafia,DISTRICT,-7.94083,39.88444,A,Facility
+677,Kirongwe,t,D33673,Mafia,DISTRICT,-7.82278,39.94944,A,Facility
+678,Mbweni,t,D33670,Mafia,DISTRICT,,,A,Facility
+679,Marimbani,t,D33681,Mafia,DISTRICT,-8.18722,39.77083,A,Facility
+680,Ndagoni,t,D33675,Mafia,DISTRICT,-8.02111,39.80222,A,Facility
+681,Utende,t,D33678,Mafia,DISTRICT,-8.05167,39.99306,A,Facility
+682,Binga,t,D33693,Mkuranga,DISTRICT,-7.31406,39.30089,A,Facility
+683,Bupu,t,D33695,Mkuranga,DISTRICT,-7.23598,39.01621,A,Facility
+684,Kibuyuni,t,D33694,Mkuranga,DISTRICT,-7.30138,38.92547,A,Facility
+685,Kisiju,t,D33700,Mkuranga,DISTRICT,-7.36225,39.2873,A,Facility
+686,Lukanga,t,D33685,Mkuranga,DISTRICT,,,A,Facility
+687,Magawa,t,D33688,Mkuranga,DISTRICT,-7.45628,39.25947,A,Facility
+688,Mlaleni,t,D35711,Mkuranga,DISTRICT,,,A,Facility
+689,Mkamba,t,D33699,Mkuranga,DISTRICT,-7.56194,40.1175,A,Facility
+690,Mkiu,t,D33690,Mkuranga,DISTRICT,-7.45732,39.12445,A,Facility
+691,Mbezi Kidete,t,D35710,Mkuranga,DISTRICT,,,A,Facility
+692,Kitomondo,t,D35709,Mkuranga,DISTRICT,,,A,Facility
+693,Msolwa,t,D33684,Mkuranga,DISTRICT,-7.2825,39.54556,A,Facility
+694,Mwanambaya,t,D33682,Mkuranga,DISTRICT,-7.01405,39.19769,A,Facility
+695,Nasibugani,t,D33687,Mkuranga,DISTRICT,-7.52611,39.35639,A,Facility
+696,Njianne,t,D33692,Mkuranga,DISTRICT,-7.23424,39.20252,A,Facility
+697,Nyamato,t,D33686,Mkuranga,DISTRICT,-7.55139,39.26389,A,Facility
+698,Shungubweni,t,D33689,Mkuranga,DISTRICT,-7.33694,39.63639,A,Facility
+699,Sotele,t,D33691,Mkuranga,DISTRICT,-7.34694,39.27917,A,Facility
+700,Vianzi,t,D35403,Mkuranga,DISTRICT,,,A,Facility
+701,Vikindu,t,D33683,Mkuranga,DISTRICT,-7.00672,39.29913,A,Facility
+702,Bungu,t,D30033,Morogoro Rural,DISTRICT,-7.65157,39.05548,A,Facility
+703,Bwakira Chini,t,D30054,Morogoro Rural,DISTRICT,-7.40222340317,37.8341995548,A,Facility
+704,Bwakwira Juu,t,D30928,Morogoro Rural,DISTRICT,-7.3,37.7,C,Facility
+705,Diguzi,t,D30926,Morogoro Rural,DISTRICT,-6.84074,38.17149,B,Facility
+706,Duthumi,t,D30032,Morogoro Rural,DISTRICT,-7.38321,37.79649,B,Facility
+707,Fulwe,t,D35369,Morogoro Rural,DISTRICT,,,A,Facility
+708,Kalundwa ,t,D36085,Morogoro Rural,DISTRICT,,,A,Facility
+709,Kibogwa,t,D30028,Morogoro Rural,DISTRICT,-7.0264,37.6659,B,Facility
+710,Kibungo Chini,t,D30020,Morogoro Rural,DISTRICT,-7.01244,37.81388,A,Facility
+711,Kibungo Juu,t,D30020,Morogoro Rural,DISTRICT,-7.016883,37.729733,A,Facility
+712,Kidunda,t,D30051,Morogoro Rural,DISTRICT,-7.27266,38.27507,C,Facility
+713,Kikundi,t,D30018,Morogoro Rural,DISTRICT,-6.86667,37.88333,A,Facility
+714,Kinole,t,D30022,Morogoro Rural,DISTRICT,-6.91244,37.75842,A,Facility
+715,Kinonko,t,D35370,Morogoro Rural,DISTRICT,,,A,Facility
+716,Kiroka,t,D30021,Morogoro Rural,DISTRICT,-6.8448,37.8273,A,Facility
+717,Kongwa,t,D35909,Morogoro Rural,DISTRICT,,,B,Facility
+718,Kisaki Gomero,t,D35539,Morogoro Rural,DISTRICT,-7.57392,37.67152,C,Facility
+719,Kisaki,t,D35392,Morogoro Rural,DISTRICT,-7.45879,37.60148,C,Facility
+720,Kiwege,t,D36181,Morogoro Rural,DISTRICT,,,C,Facility
+721,Kisemu,t,D30929,Morogoro Rural,DISTRICT,-7.0653584809,37.7693882431,B,Facility
+722,Kizinga,t,D35910,Morogoro Rural,DISTRICT,,,A,Facility
+723,Kolero,t,D30058,Morogoro Rural,DISTRICT,-7.25,37.8,C,Facility
+724,Lumba Chini,t,D30064,Morogoro Rural,DISTRICT,-7.26667,37.6,C,Facility
+725,Lundi,t,D30029,Morogoro Rural,DISTRICT,-7.1065,37.8693,B,Facility
+726,Magogoni,t,D30027,Morogoro Rural,DISTRICT,-7.21756,37.99302,B,Facility
+727,Matabwe GR,t,D30066,Morogoro Rural,DISTRICT,-7.57392,37.67152,C,Facility
+728,Matuli,t,D30063,Morogoro Rural,DISTRICT,-6.91537,38.21434,C,Facility
+729,Mfumbwe,t,D35267,Morogoro Rural,DISTRICT,-6.95617388635,37.8305343192,C,Facility
+730,Mifulu,t,D30925,Morogoro Rural,DISTRICT,-6.9773,37.7477,A,Facility
+731,Mikese,t,D30019,Morogoro Rural,DISTRICT,-6.76792,37.90674,A,Facility
+732,Mkambarani,t,D35268,Morogoro Rural,DISTRICT,-6.67095,37.8116,B,Facility
+733,Mlilingwa,t,D35715,Morogoro Rural,DISTRICT,,,B,Facility
+734,Mlono,t,D35847,Morogoro Rural,DISTRICT,,,C,Facility
+735,Mkuyuni,t,D30040,Morogoro Rural,DISTRICT,-6.95106,37.81032,B,Facility
+736,Mngazi,t,D30014,Morogoro Rural,DISTRICT,-7.41667,37.65,A,Facility
+737,Msonge,t,D30936,Morogoro Rural,DISTRICT,-7.2387,37.8496,C,Facility
+738,Mtombozi,t,D30009,Morogoro Rural,DISTRICT,-7.10595,37.78002,A,Facility
+739,Mvuha,t,D30015,Morogoro Rural,DISTRICT,-7.19832,37.8535,A,Facility
+740,Ngerengere,t,D30031,Morogoro Rural,DISTRICT,-6.76232,38.12985,B,Facility
+741,Nyingwa,t,D30920,Morogoro Rural,DISTRICT,-7.1083,37.6876,A,Facility
+742,Seregete B,t,D35716,Morogoro Rural,DISTRICT,,,B,Facility
+743,Tawa,t,D30050,Morogoro Rural,DISTRICT,-7.025717,37.730683,C,Facility
+744,Tulo,t,D30012,Morogoro Rural,DISTRICT,-7.23333,37.91667,A,Facility
+745,Tununguo,t,D30049,Morogoro Rural,DISTRICT,-6.958,37.958,C,Facility
+746,Uponda,t,D35757,Morogoro Rural,DISTRICT,,,B,Facility
+747,Visaraka,t,D30045,Morogoro Rural,DISTRICT,-6.82423,38.18659,B,Facility
+748,Ardhi Institute,t,D36045,Morogoro Urban,DISTRICT,-6.8451,37.67991,A,Facility
+749,Kigurunyembe,t,D36044,Morogoro Urban,DISTRICT,,,A,Facility
+750,Kichangani,t,D36253,Morogoro Urban,,,,A,Facility
+751,Kibwe,t,D35950,Morogoro Urban,DISTRICT,,,A,Facility
+752,Kihonda Magereza,t,D36046,Morogoro Urban,DISTRICT,-6.70692,37.67003,A,Facility
+753,Kilakala,t,D40030,Morogoro Urban,DISTRICT,-6.76472,37.66293,A,Facility
+754,Kilakala Secondary,t,D36255,Morogoro Urban,DISTRICT,-6.8343,37.69951,A,Facility
+755,Kingolwira,t,D30003,Morogoro Urban,DISTRICT,-6.82517,37.68817,A,Facility
+756,Konga,t,D30004,Morogoro Urban,DISTRICT,-6.91532,37.59294,A,Facility
+757,Luhungo,t,D35685,Morogoro Urban,DISTRICT,,,A,Facility
+758,Magadu,t,D35540,Morogoro Urban,DISTRICT,,,A,Facility
+759,Madanganya,t,D35638,Morogoro Urban,DISTRICT,,,A,Facility
+760,Mkoya,t,D35853,Morogoro Urban,DISTRICT,,,A,Facility
+761,Malipula,t,D35541,Morogoro Urban,DISTRICT,,,A,Facility
+762,Mafiga,t,D30002,Morogoro Urban,DISTRICT,-6.82383,37.64684,A,Facility
+763,Magereza Mkoa,t,D36046,Morogoro Urban,DISTRICT,-6.8451,37.67991,A,Facility
+764,Mbete,t,D30005,Morogoro Urban,DISTRICT,-6.8655,37.6779,A,Facility
+765,Mwembesongo ,t,D36193,Morogoro Urban,DISTRICT,,,A,Facility
+766,Sabasaba,t,D30939,Morogoro Urban,DISTRICT,-6.82465,37.65931,A,Facility
+767,SUA,t,D35239,Morogoro Urban,DISTRICT,-6.86439,37.64811,A,Facility
+768,Towero,t,D30006,Morogoro Urban,DISTRICT,-6.86587,37.66859,A,Facility
+769,Uhuru,t,D30001,Morogoro Urban,DISTRICT,-6.82512,37.66568,A,Facility
+770,Vituli,t,D35542,Morogoro Urban,DISTRICT,,,A,Facility
+771,Bunduki,t,D30055,Mvomero,DISTRICT,-7.01389,37.639,C,Facility
+772,Dihinda,t,D30053,Mvomero,DISTRICT,-6.06752,37.70117,C,Facility
+773,Doma,t,D30026,Mvomero,DISTRICT,-7.10402,37.25112,A,Facility
+774,Hembeti,t,D30017,Mvomero,DISTRICT,-6.27011,37.50908,A,Facility
+775,Kadodo,t,D30922,Mvomero,DISTRICT,,,A,Facility
+776,Homboza,t,D30034,Mvomero,DISTRICT,-7.0424,37.4693,B,Facility
+777,Kambala,t,D30013,Mvomero,DISTRICT,-6.318,37.583,A,Facility
+778,Kanga,t,D30052,Mvomero,DISTRICT,-6.00106,37.74677,C,Facility
+779,Kibati,t,D30057,Mvomero,DISTRICT,-5.92941,37.43709,C,Facility
+780,Kibuko,t,D30030,Mvomero,DISTRICT,-7.1108,37.56158,B,Facility
+781,Kihondo,t,D35641,Mvomero,DISTRICT,,,C,Facility
+782,Kinda,t,D35270,Mvomero,DISTRICT,-6.142233,37.438917,C,Facility
+783,Luale,t,D30056,Mvomero,DISTRICT,-7.11667,37.53333,C,Facility
+784,Lukenge,t,D35271,Mvomero,DISTRICT,,,C,Facility
+785,Lubungo B,t,D30024,Mvomero,DISTRICT,-6.83441,37.49901,A,Facility
+786,Lukunguni,t,D30060,Mvomero,DISTRICT,-7.1416,37.5058,C,Facility
+787,Lusanga,t,D30932,Mvomero,DISTRICT,-6.11936,37.64075,C,Facility
+788,Magali,t,D30035,Mvomero,DISTRICT,-6.9759,37.3815,B,Facility
+789,Maharaka,t,D30025,Mvomero,DISTRICT,-7.17354,37.30665,A,Facility
+790,Makuyu,t,D30036,Mvomero,DISTRICT,-6.31682,37.38656,A,Facility
+791,Mangae,t,D30061,Mvomero,DISTRICT,-6.94879,37.33737,C,Facility
+792,Maskati,t,D30062,Mvomero,DISTRICT,-6.012,37.5556,C,Facility
+793,Matale,t,D35645,Mvomero,DISTRICT,,,C,Facility
+794,Melela,t,D30047,Mvomero,DISTRICT,-6.92271,37.42873,B,Facility
+795,Mgeta,t,D30023,Mvomero,DISTRICT,-7.05553,37.57763,A,Facility
+796,Mhale,t,D30930,Mvomero,DISTRICT,-7.177,37.5438,B,Facility
+797,Mkata A,t,D30065,Mvomero,DISTRICT,-7.0857,37.31795,A,Facility
+798,Mkindo,t,D30039,Mvomero,DISTRICT,-6.24057,37.55724,B,Facility
+799,Mlali,t,D30041,Mvomero,DISTRICT,-6.95645,37.53836,B,Facility
+800,Mongwe,t,D30016,Mvomero,DISTRICT,-6.97095,37.5886,A,Facility
+801,Msolokelo,t,D30933,Mvomero,DISTRICT,-6.76405,37.70702,C,Facility
+802,Msongozi,t,D30042,Mvomero,DISTRICT,-7.06737,37.34173,B,Facility
+803,Mvomero,t,D30008,Mvomero,DISTRICT,-6.30381,37.44353,A,Facility
+804,Mziha,t,D30037,Mvomero,DISTRICT,-5.901433,37.78295,A,Facility
+805,Nyandira,t,D30924,Mvomero,DISTRICT,-7.12953,37.59761,A,Facility
+806,Pandambili,t,D35659,Mvomero,DISTRICT,,,C,Facility
+807,Ndole,t,D30043,Mvomero,DISTRICT,-6.15011,37.40158,B,Facility
+808,Peko Misegesege,t,D30921,Mvomero,DISTRICT,,,A,Facility
+809,Pemba,t,D30046,Mvomero,DISTRICT,-5.9844,37.5539,B,Facility
+810,Tangeni,t,D30011,Mvomero,DISTRICT,-6.94235,37.61663,A,Facility
+811,Tchenzema,t,D30038,Mvomero,DISTRICT,-7.10373,37.58403,B,Facility
+812,Turiani,t,D30044,Mvomero,DISTRICT,-6.14432,37.59139,B,Facility
+813,Wami ,t,D30010,Mvomero,DISTRICT,-6.43582,37.53427,A,Facility
+814,Bungu,t,D30724,Rufiji,DISTRICT,-7.65157,39.05548,A,Facility
+815,Chumbi,t,D30747,Rufiji,DISTRICT,-8.31944,39.13361,C,Facility
+816,Hanga,t,D30727,Rufiji,DISTRICT,-7.667,39.17029,A,Facility
+817,Ikwiriri,t,D30758,Rufiji,DISTRICT,-7.93667,38.97907,B,Facility
+818,Jaja,t,D30752,Rufiji,DISTRICT,-8.19583,39.3577,C,Facility
+819,Jojo,t,D35402,Rufiji,DISTRICT,,,A,Facility
+820,Juani,t,D36211,Rufiji,DISTRICT,,,A,Facility
+821,Jaribu Mpakani,t,D30723,Rufiji,DISTRICT,-7.55082,39.1359,A,Facility
+822,Kiasi,t,D30754,Rufiji,DISTRICT,-8.00275,39.42067,C,Facility
+823,Kibiti,t,D30733,Rufiji,DISTRICT,-7.7182,38.9397,A,Facility
+824,Kiechuru,t,D30755,Rufiji,DISTRICT,-7.99826,39.35776,C,Facility
+825,Kikale,t,D30740,Rufiji,DISTRICT,-7.76822,39.21212,A,Facility
+826,Kilimani,t,D30761,Rufiji,DISTRICT,-8.03806,38.7675,B,Facility
+827,Kimbuga,t,D30732,Rufiji,DISTRICT,-7.74139,38.88467,A,Facility
+828,Kindwitwi,t,D30770,Rufiji,DISTRICT,-8.09556,38.99528,C,Facility
+829,Kingupira,t,D30768,Rufiji,DISTRICT,-8.29946,38.57087,C,Facility
+830,Kiomboni,t,D30736,Rufiji,DISTRICT,-7.7667,39.35,A,Facility
+831,Kiongoroni,t,D30749,Rufiji,DISTRICT,-8.135,39.373,C,Facility
+832,Kipugira,t,D30764,Rufiji,DISTRICT,-7.93556,38.26194,B,Facility
+833,Kiwanga,t,D36305,Rufiji,DISTRICT,,,C,Facility
+834,Kivinja A,t,D30726,Rufiji,DISTRICT,-7.602,39.233,A,Facility
+835,Maparoni,t,D30756,Rufiji,DISTRICT,-8.056,39.406,C,Facility
+836,Mahenge,t,D30756,Rufiji,DISTRICT,,,A,Facility
+837,Mbuchi,t,D30750,Rufiji,DISTRICT,-8.09372,39.32706,C,Facility
+838,Mbwara,t,D30745,Rufiji,DISTRICT,-8.20541,38.92345,C,Facility
+839,Mbwera,t,D30753,Rufiji,DISTRICT,-8.1114,39.375,C,Facility
+840,Mchungu,t,D35068,Rufiji,DISTRICT,,,A,Facility
+841,Mchinga,t,D30737,Rufiji,DISTRICT,-7.7476,39.33751,A,Facility
+842,Mchukwi,t,D30773,Rufiji,DISTRICT,-7.75944,39.00591,A,Facility
+843,Mfisini,t,D30738,Rufiji,DISTRICT,-7.8362,39.3343,A,Facility
+844,Mkupuka,t,D36146,Rufiji,DISTRICT,,,B,Facility
+845,Mkongo,t,D30760,Rufiji,DISTRICT,-7.9375,38.98528,B,Facility
+846,Mlanzi,t,D30730,Rufiji,DISTRICT,-7.69122,39.10773,A,Facility
+847,Mng'aru,t,D30731,Rufiji,DISTRICT,-7.79324,38.89436,A,Facility
+848,Mohoro,t,D30748,Rufiji,DISTRICT,-8.32583,39.34139,C,Facility
+849,Msala,t,D30757,Rufiji,DISTRICT,-7.99826,39.35776,C,Facility
+850,Mtanza,t,D30766,Rufiji,DISTRICT,-7.86333,38.38833,B,Facility
+851,Mtunda,t,D30741,Rufiji,DISTRICT,-7.76822,39.21212,A,Facility
+852,Muyuyu,t,D30772,Rufiji,DISTRICT,-7.76822,39.21212,B,Facility
+853,Mwaseni,t,D30767,Rufiji,DISTRICT,-7.98611,38.5275,B,Facility
+854,Nambunju,t,D30744,Rufiji,DISTRICT,-8.20541,38.92345,C,Facility
+855,Ndununyikanza,t,D30763,Rufiji,DISTRICT,-7.86388,38.5644,B,Facility
+856,Ngarambe,t,D30769,Rufiji,DISTRICT,-8.361,38.589,C,Facility
+857,Ngorongo,t,D30762,Rufiji,DISTRICT,-7.94083,38.88611,B,Facility
+858,Nyakinyo,t,D30729,Rufiji,DISTRICT,-7.64299,39.21676,A,Facility
+859,Nyamwage,t,D30746,Rufiji,DISTRICT,-8.20541,38.92345,C,Facility
+860,Nyambunda,t,D30725,Rufiji,DISTRICT,-7.60566,38.98668,A,Facility
+861,Nyambili,t,D36161,Rufiji,DISTRICT,,,A,Facility
+862,Mtawanya,t,D36153,Rufiji,DISTRICT,,,A,Facility
+863,Mkenda,t,D36145,Rufiji,DISTRICT,,,A,Facility
+864,Nyaminywili,t,D30765,Rufiji,DISTRICT,-7.96028,38.55194,B,Facility
+865,Nyamisati,t,D30734,Rufiji,DISTRICT,-7.79312,39.27575,A,Facility
+866,Ndundutawa,t,D36160,Rufiji,DISTRICT,,,C,Facility
+867,Nyanjati,t,D30728,Rufiji,DISTRICT,-7.68765,39.20781,A,Facility
+868,Pombwe,t,D30751,Rufiji,DISTRICT,-8.2667,39.333,C,Facility
+869,Ruaruke,t,D30739,Rufiji,DISTRICT,-7.76474,39.17029,A,Facility
+870,Rungungu,t,D35067,Rufiji,DISTRICT,,,A,Facility
+871,Ruwe,t,D30759,Rufiji,DISTRICT,-7.9166,38.82034,B,Facility
+872,Salale,t,D30735,Rufiji,DISTRICT,-7.8362,39.3343,A,Facility
+873,Twasalie,t,D30742,Rufiji,DISTRICT,-7.97032,39.35305,A,Facility
+874,Utunge,t,D30771,Rufiji,DISTRICT,-7.31194,39.2,C,Facility
+875,Buyuni,t,D33715,Temeke,DISTRICT,-7.12603,39.5227,B,Facility
+876,Buza,t,D33704,Temeke,DISTRICT,-6.88612,39.2419,A,Facility
+877,Chamazi,t,D33706,Temeke,DISTRICT,-6.95095,39.21697,A,Facility
+878,Chekeni mwasonga,t,D33710,Temeke,DISTRICT,-6.97057,39.41266,B,Facility
+879,Gezaulole,t,D33721,Temeke,DISTRICT,-6.90908,39.44929,C,Facility
+880,Gomvu,t,D33709,Temeke,DISTRICT,-6.90908,39.44929,C,Facility
+881,Kibada,t,D33711,Temeke,DISTRICT,-6.86043,39.35861,B,Facility
+882,Kigamboni  HC,t,D33726,Temeke,DISTRICT,-6.827,39.31206,B,Facility
+883,Kimbiji,t,D33708,Temeke,DISTRICT,-6.86366,39.26022,B,Facility
+884,Kingugi,t,D33719,Temeke,DISTRICT,-6.89828854883,39.257983372,A,Facility
+885,Kisarawe II,t,D33717,Temeke,DISTRICT,-6.97057,39.41266,B,Facility
+886,Kizuiani,t,D33701,Temeke,DISTRICT,-6.89829,39.25798,B,Facility
+887,Maji matitu,t,D33722,Temeke,DISTRICT,-6.9266,39.25789,A,Facility
+888,Mbagala Rangi Tatu,t,D33702,Temeke,DISTRICT,-6.86524,39.30208,B,Facility
+889,Mbagala Round Table,t,D35078,Temeke,DISTRICT,-6.89829,39.25798,A,Facility
+890,Mbande,t,D33707,Temeke,DISTRICT,-6.95095,39.21697,A,Facility
+891,Mbutu,t,D33724,Temeke,DISTRICT,-6.90908,39.44929,C,Facility
+892,Mjimwema,t,D33718,Temeke,DISTRICT,-6.85759,39.35378,B,Facility
+893,Mwongozo,t,D33714,Temeke,DISTRICT,-6.90908,39.44929,C,Facility
+894,Nunge,t,D33712,Temeke,DISTRICT,-6.85678,39.3177,B,Facility
+895,Rangi Tatu,t,D33702,Temeke,DISTRICT,-6.91249,39.27003,C,Facility
+896,Tambukareli,t,D33705,Temeke,DISTRICT,-6.87622,39.26297,A,Facility
+897,Toangoma,t,D33716,Temeke,DISTRICT,-6.92783,39.31463,B,Facility
+898,Tundwi Songani,t,D33713,Temeke,DISTRICT,-7.00525,39.50562,B,Facility
+899,Yombo Makangarawe,t,D33725,Temeke,DISTRICT,-6.9015,39.26416,A,Facility
+900,Yombo Vituka,t,D33703,Temeke,DISTRICT,-6.91424,39.27062,A,Facility
+901,Chirombora,t,D30146,Ulanga,DISTRICT,-8.92773,36.7561,A,Facility
+902,Ebuyu,t,D30918,Ulanga,DISTRICT,-8.96798,36.76026,A,Facility
+903,Idunda,t,D30919,Ulanga,DISTRICT,-8.4878,36.69554,B,Facility
+904,Igawa,t,D30147,Ulanga,DISTRICT,-8.8231,36.13107,C,Facility
+905,Ihowanya,t,D35274,Ulanga,DISTRICT,,,C,Facility
+906,Ilonga,t,D30139,Ulanga,DISTRICT,-9.02038,36.77569,A,Facility
+907,Iragua,t,D30148,Ulanga,DISTRICT,-8.52971,36.51188,B,Facility
+908,Isyaga,t,D36102,Ulanga,DISTRICT,,,A,Facility
+909,Itete,t,D30132,Ulanga,DISTRICT,-8.66453,36.41553,C,Facility
+910,Ketaketa,t,D30140,Ulanga,DISTRICT,-9.07656,36.73971,A,Facility
+911,Kichangani,t,D30133,Ulanga,DISTRICT,-8.41532,36.67883,B,Facility
+912,Kilosa Mpepo,t,D34269,Ulanga,DISTRICT,-9.17605,36.01097,C,Facility
+913,Kivukoni,t,D30134,Ulanga,DISTRICT,-9.09984,36.74256,B,Facility
+914,Lukande,t,D30149,Ulanga,DISTRICT,-8.67432,36.70988,A,Facility
+915,Lupiro,t,D30142,Ulanga,DISTRICT,-8.37969,36.68004,B,Facility
+916,Malinyi,t,D30135,Ulanga,DISTRICT,-8.39305,36.67472,C,Facility
+917,Mbuga,t,D30136,Ulanga,DISTRICT,-8.95961,36.8604,A,Facility
+918,Milola,t,D30150,Ulanga,DISTRICT,-8.68712,36.71531,B,Facility
+919,Msogezi,t,D30137,Ulanga,DISTRICT,-8.61091,36.6405,A,Facility
+920,Mtimbira,t,D30145,Ulanga,DISTRICT,-8.78342,36.36672,C,Facility
+921,Mwaya,t,D30138,Ulanga,DISTRICT,-8.91818,36.82253,A,Facility
+922,Nakafulu,t,D36109,Ulanga,DISTRICT,,,B,Facility
+923,Sofi Majiji,t,D30143,Ulanga,DISTRICT,-8.9295,36.26598,C,Facility
+924,Tanga,t,D30144,Ulanga,DISTRICT,-8.90224,36.72043,C,Facility
