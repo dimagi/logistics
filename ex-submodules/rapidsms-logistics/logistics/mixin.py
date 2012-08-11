@@ -18,7 +18,7 @@ class StockCacheMixin():
         """
         stocks = self._filtered_stock(product, producttype)\
                   .filter(supply_point__in=facilities)\
-                  .select_related("supply_point", "product")
+                  .select_related("supply_point", "supply_point__type", "product")
         # TODO: when datespan is None, stockouts can be queried more efficiently 
         # at the db level. 
         #nonzero_stocks = all_stocks.filter(quantity__gt=0)
