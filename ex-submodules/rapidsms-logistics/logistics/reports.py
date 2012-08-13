@@ -64,10 +64,7 @@ class ReportingBreakdown(object):
     def __init__(self, supply_points, datespan=None, include_late=False,
                  days_for_late=5, MNE=False, request=None):
         
-        if supply_points.filter(active=False).exists(): 
-            supply_points = self.supply_points.filter(active=True)
-        
-        self.supply_points = supply_points
+        supply_points = supply_points.filter(active=True)
         
         if not datespan:
             datespan = DateSpan.since(30)
