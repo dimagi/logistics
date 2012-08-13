@@ -2,7 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from logistics.const import Reports
 
-import csv, json
+from dimagi.utils import csv 
+import json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
@@ -305,7 +306,7 @@ def export_reporting(request, location_code=None):
                       "product__name", "report_type__name", "message__text").order_by('report_date')
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
     response['Content-Disposition'] = 'attachment; filename=reporting.xls'
-    writer = csv.writer(response)
+    writer = csv.UnicodeWriter(response)
     writer.writerow(['ID', 'Location Grandparent', 'Location Parent', 'Facility', 
                      'Commodity', 'Report Type', 
                      'Quantity', 'Date',  'Message'])
