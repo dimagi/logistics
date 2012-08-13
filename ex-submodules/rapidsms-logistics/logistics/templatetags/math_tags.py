@@ -14,7 +14,9 @@ def multiply(a, b):
         
 @register.simple_tag
 def percent(a, b):
+    if not a: 
+        return "0.0%"
     d = divide(a, b)
     if d != "NaN":
-        return "%.1f %%" % (d * 100)
+        return "%.0f%%" % (d * 100)
     return d    

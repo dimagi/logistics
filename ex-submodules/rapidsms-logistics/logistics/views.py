@@ -283,6 +283,8 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter, da
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter, 
                                                      datespan=datespan)
+        row['total'] = row['stockout_count'] + row['emergency_plus_low'] + \
+          row['good_supply_count'] + row['overstocked_count']
         if commodity_filter is not None:
             row['consumption'] = child.consumption(product=commodity_filter, 
                                                    producttype=commoditytype_filter)

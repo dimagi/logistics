@@ -3,10 +3,10 @@
     padding: 1em;
 }
 
-.big_error {
-    color: red;
+.not_available {
+    color: grey;
     padding: 1em;
-    font-weight: bold;
+    font-style: italic;
 }
 
 .smallnote {
@@ -72,7 +72,7 @@
     background-color: white;
 }
 
-.stock tr.inactive .big_error{
+.stock tr.inactive{
 	/* the duplicate font-weight=normal is necessary to 
 	override the big red bold 'not set' under consumption */
     color: #909090;

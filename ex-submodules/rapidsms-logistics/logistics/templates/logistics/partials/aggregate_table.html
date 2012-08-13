@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load math_tags %}
 {% if rows %}
 	<table class="stock" width=100%>
 	<thead><tr>
@@ -15,10 +16,10 @@
 	    {% if row.is_active %}
 	    <tr>
 	    <td><a href="{{ row.url }}">{{ row.name }}</a></td>
-	    <td> {{ row.stockout_count }} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
-	    <td> {{ row.emergency_plus_low }} {% ifnotequal row.emergency_plus_low 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
-	    <td> {{ row.good_supply_count }} {% ifnotequal row.good_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Adequate supply">{% endifnotequal %}</td>
-	    <td> {{ row.overstocked_count }} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
+	    <td> {% percent row.stockout_count row.total %} {% ifnotequal row.stockout_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/stockout.png" title="Stock out">{% endifnotequal %}</td>
+	    <td> {% percent row.emergency_plus_low row.total %} {% ifnotequal row.emergency_plus_low 0 %}<img src="{{ MEDIA_URL }}logistics/images/emergency.png" title="Emergency">{% endifnotequal %}</td>
+	    <td> {% percent row.good_supply_count row.total %} {% ifnotequal row.good_supply_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/goodstock.png" title="Adequate supply">{% endifnotequal %}</td>
+	    <td> {% percent row.overstocked_count row.total %} {% ifnotequal row.overstocked_count 0 %}<img src="{{ MEDIA_URL }}logistics/images/overstock.png" title="Overstock">{% endifnotequal %}</td>
 	    <!-- The idea of 'consumption' only makes sense when talking about a specific commodity -->
 	    {% if commodity_filter %}<td scope="col" >{{ row.consumption|default_if_none:"n/a" }}</td>{% endif %}
 	    </tr>
