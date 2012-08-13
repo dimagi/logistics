@@ -1288,6 +1288,8 @@ class ProductReportsHelper(object):
             except StopIteration:
                 break
         if not valid:
+            if self.errors and isinstance(self.errors[0], UnknownCommodityCodeError):
+                raise ValueError(config.Messages.BAD_CODE_ERROR % {'code': self.errors[0]})
             raise ValueError(config.Messages.NO_CODE_ERROR)
         return
 

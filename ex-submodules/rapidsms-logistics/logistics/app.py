@@ -151,21 +151,21 @@ class App(AppBase):
         """
         if hasattr(message.logger_msg, "tags"):
             message.logger_msg.tags.add("Handler_DefaultHandler")
-            if message.connection.contact:
+            if hasattr(message.connection, 'contact') and message.connection.contact:
                 message.logger_msg.tags.add("RegisteredContact")
             else:
                 message.logger_msg.tags.add("UnregisteredContact")
         
-        """ There's probably a better way to do this, but for now,
-        this is what the folks in the field want 
+        """ complain if the first code isn't recognized as a commodity code 
+        - but only on aggressive soh parsing
         """
         match = re.search("[0-9]", message.text)
-        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
+        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING and \
+          hasattr(message.connection, 'contact'):
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
             if code:
-                message.error("%s is not a recognized commodity code. " % code + 
-                              "Please contact your DHIO for assistance." )
+                message.error(config.Messages.BAD_CODE_ERROR % {'code':code} )
                 return
         if settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
