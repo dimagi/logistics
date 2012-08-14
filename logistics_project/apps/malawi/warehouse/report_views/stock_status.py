@@ -62,49 +62,55 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ["District"] + headings,
             "data": district_data,
         }
-
-        f_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
-                          (supply_point=d, date=date)) \
-                        for d in self._context['facilities']]
-
         
-        fac_data = [[d.name] + \
-                        [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
-                         for k in ordered_slugs] \
-                        for d, pads in f_pads_tuples]
-
-
-        facility_table = {
-            "id": "facility-table",
-            "is_datatable": True,
-            "header": ["Facility"] + headings,
-            "data": fac_data,
-        }
-
-
-        hsa_table = {
-            "id": "hsa-months-of-stock",
-            "is_datatable": True,
-            "header": ["HSA"],
-            "data": [],
-        }
-
-        for product in Product.objects.all().order_by('sms_code'):
-            hsa_table["header"].append(product.sms_code)
-
-        for hsa in self._context["visible_hsas"]:
-            temp = [hsa.name]
+        
+        
+        is_district_view = False # TODO: JIMFIX
+        if is_district_view:
+            f_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
+                              (supply_point=d, date=date)) \
+                            for d in self._context['facilities']]
+    
+            
+            fac_data = [[d.name] + \
+                            [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
+                             for k in ordered_slugs] \
+                            for d, pads in f_pads_tuples]
+    
+    
+            facility_table = {
+                "id": "facility-table",
+                "is_datatable": True,
+                "header": ["Facility"] + headings,
+                "data": fac_data,
+            }
+    
+    
+            hsa_table = {
+                "id": "hsa-months-of-stock",
+                "is_datatable": True,
+                "header": ["HSA"],
+                "data": [],
+            }
+    
             for product in Product.objects.all().order_by('sms_code'):
-                ps = ProductStock.objects.filter(supply_point=hsa, product=product)
-                if ps.count():
-                    mr = ps[0].months_remaining
-                    if mr:
-                        temp.append('%.1f%%' % mr)
+                hsa_table["header"].append(product.sms_code)
+    
+            for hsa in self._context["visible_hsas"]:
+                temp = [hsa.name]
+                for product in Product.objects.all().order_by('sms_code'):
+                    ps = ProductStock.objects.filter(supply_point=hsa, product=product)
+                    if ps.count():
+                        mr = ps[0].months_remaining
+                        if mr:
+                            temp.append('%.1f%%' % mr)
+                        else:
+                            temp.append('-')
                     else:
                         temp.append('-')
-                else:
-                    temp.append('-')
-            hsa_table["data"].append(temp)
+                hsa_table["data"].append(temp)
+        else:
+            facility_table = hsa_table = None
         
         # product line chart 
         products = Product.objects.filter(type=selected_type) if selected_type else \
