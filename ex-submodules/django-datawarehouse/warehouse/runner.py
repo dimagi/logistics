@@ -32,12 +32,12 @@ class DemoWarehouseRunner(WarehouseRunner):
     
     def cleanup(self, start, end):
         print ("Demo warehouse cleanup! Would clean all data from %s-%s. "
-               "Override WAREHOUSE_CLASS in your settings.py file to have "
+               "Override WAREOUSE_RUNNER in your settings.py file to have "
                "this actually do something.") 
     
     def generate(self, run_record):
         print ("Demo warehouse generate! Would create all data from %s-%s. "
-               "Override WAREHOUSE_CLASS in your settings.py file to have "
+               "Override WAREOUSE_RUNNER in your settings.py file to have "
                "this actually do something.") % (run_record.start, run_record.end)
     
 
