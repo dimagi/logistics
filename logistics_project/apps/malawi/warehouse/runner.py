@@ -280,6 +280,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         for p in Product.objects.all():
                             c = Consumption.objects.get_or_create\
                                 (supply_point=hsa, date=window_date, product=p)[0]
+                            
+                            start_time = max(hsa.created_at, window_date)
+                            if start_time < period_end and hsa.supplies(p):
+                                assert start_time.year == window_date.year 
+                                assert start_time.month == window_date.month
+                                c.time_needing_data = delta_secs(period_end - start_time)
+                                c.save()
                             transactions = StockTransaction.objects.filter\
                                 (supply_point=hsa, product=p,
                                  date__gte=period_start, 
@@ -299,7 +306,17 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         _update_order_fulfillment()
                     if not self.skip_consumption:
                         _update_consumption()
-                    
+        
+        if not self.skip_consumption:
+            # any consumption value that was touched potentially needs to have its
+            # time_needing_data updated
+            for c in Consumption.objects.filter(update_date__gte=run_record.start_run):
+                # if they supply the product it is already set based on above
+                if not c.supply_point.supplies(c.product):
+                    c.time_needing_data = c.time_with_data
+                    c.save()
+                
+                
         # rollup aggregates
         non_hsas = SupplyPoint.objects.filter(active=True)\
             .exclude(type__code='hsa').order_by('id')
@@ -347,7 +364,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             # NOTE: this is not correct, but is for testing / iteration
                             _aggregate(Consumption, window_date, place, relevant_hsas,
                                        fields=['calculated_consumption', 
-                                               'time_stocked_out'],
+                                               'time_stocked_out',
+                                               'time_with_data',
+                                               'time_needing_data'],
                                        additonal_query_params={"product": p})
                             
                 if not self.skip_consumption and not self.consumption_test_mode:
@@ -356,7 +375,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         # since the warehouse can update historical values
                         # outside the range we are looking at
                         agg = Consumption.objects.filter(
-                            update_date__gte = run_record.start_run,
+                            update_date__gte=run_record.start_run,
                             supply_point__in=hsas
                         ).aggregate(Min('date'))
                         new_start = agg.get('date__min', None)
@@ -366,7 +385,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                 window_date = datetime(year, month, 1)
                                 _aggregate(Consumption, window_date, place, relevant_hsas,
                                    fields=['calculated_consumption', 
-                                           'time_stocked_out'],
+                                           'time_stocked_out',
+                                           'time_with_data',
+                                           'time_needing_data'],
                                    additonal_query_params={"product": p})
                         
                             
@@ -408,7 +429,7 @@ def update_consumption_values(transactions):
     
     # walk through them, determining consumption amounts 
     # between them.
-    # for each delta, compute its total affect on consumption
+    # for each delta, compute its total effect on consumption
     # throwing away anomalous values like SOH increasing
     if transactions.count():
         to_process = list(transactions)
@@ -437,10 +458,15 @@ def update_consumption_values(transactions):
                     c = Consumption.objects.get_or_create\
                         (supply_point=start.supply_point, date=window_date, 
                          product=start.product)[0]
-                    # only count if the balance went down
                     if delta < 0:
                         # update the consumption by adding the proportion in the window
                         c.calculated_consumption += float(abs(delta)) * proportion_in_window
+                    
+                    # only count time with data if the balance went down or 
+                    # stayed the same, or was a receipt.
+                    # otherwise it's anomalous data.
+                    if delta <= 0 or end.product_report.report_type.code == Reports.REC:
+                        c.time_with_data += secs_in_window
                     
                     if start.ending_balance == 0:
                         c.time_stocked_out += secs_in_window

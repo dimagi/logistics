@@ -45,7 +45,8 @@ class OrderRequestAdmin(admin.ModelAdmin):
 
 class ConsumptionAdmin(admin.ModelAdmin):
     model = Consumption
-    list_display = ('supply_point', 'date', 'product', 'calculated_consumption', 'time_stocked_out')
+    list_display = ('supply_point', 'date', 'product', 'calculated_consumption', 
+                    'time_stocked_out', 'time_with_data', 'time_needing_data')
     list_filter = ('supply_point__type', 'date', 'product')
 
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)

@@ -176,15 +176,20 @@ class Consumption(MalawiWarehouseModel):
     Class for storing consumption data
     """
     product = models.ForeignKey('logistics.Product')
-    # total = models.PositiveIntegerField(default=0)
     calculated_consumption = models.PositiveIntegerField(default=0)
-    time_stocked_out = models.BigIntegerField(default=0) # in seconds
+    
+    # needing data is always either the same as "with data"
+    # if the person doesn't manage the product, otherwise it is the period
+    # time (seconds in the month, except for the current month)
+    time_with_data = models.BigIntegerField(default=0)    # in seconds
+    time_needing_data = models.BigIntegerField(default=0) # in seconds
+    time_stocked_out = models.BigIntegerField(default=0)  # in seconds
     
     @property
     def total(self):
         # TODO: this should be replaced with the warehouse property
         return hsas_below(self.supply_point.location).count()
-        
+            
 class Alert(models.Model):
     supply_point = models.ForeignKey('logistics.SupplyPoint')
     num_hsas = models.PositiveIntegerField(default=0)
