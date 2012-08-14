@@ -44,7 +44,7 @@ def get_report(request, slug=''):
         return home(request)
     try:
         return report.get_response(request)
-    except:
+    except Exception:
         return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
                                   {}, context_instance=RequestContext(request))
     
