@@ -27,7 +27,7 @@
         </td>
         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
         <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
-        <td>{{ stockonhand.last_modified|date:"M d" }}</td>
+        <td>{{ stockonhand.last_modified|date:"M d Y" }}</td>
         </tr>
     {% endfor %}
     </tbody>
