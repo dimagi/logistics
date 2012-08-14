@@ -33,7 +33,7 @@ from logistics_project.apps.tanzania.models import NoDataError
 import os
 from logistics_project.apps.tanzania.reporting.models import *
 from django.views.decorators.cache import cache_page
-from logistics.warehouse_models import ReportRun
+from warehouse.models import ReportRun
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -661,11 +661,11 @@ def training(request):
         incomplete_runs = ReportRun.objects.filter(complete=False).order_by('-id')
 
         if len(latest_run) > 0:
-            latest_run_time = latest_run[0].start_time          
+            latest_run_time = latest_run[0].start_run
 
         is_running = len(incomplete_runs) > 0
         if is_running:
-            latest_incomplete_time = incomplete_runs[0].start_time
+            latest_incomplete_time = incomplete_runs[0].start_run
 
         files = []
         docs = os.listdir(getattr(settings, 'TRAINING_DOCS_FOLDER'))

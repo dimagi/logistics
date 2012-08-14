@@ -14,7 +14,7 @@ from logistics.models import SupplyPoint, Product, StockTransaction, ProductStoc
 from logistics_project.apps.tanzania.models import *
 from logistics_project.apps.tanzania.reporting.models import *
 from logistics.const import Reports
-from logistics.warehouse_models import ReportRun
+from warehouse.models import ReportRun
 
 TESTING = False
 HISTORICAL_DAYS = 900
@@ -35,32 +35,8 @@ NEEDED_STATUS_TYPES = [SupplyPointStatusTypes.DELIVERY_FACILITY,
 
 # @task
 def generate(start_date=None):
-    ReportRun.objects.all().delete()
-    running = ReportRun.objects.filter(complete=False)
-    if len(running) > 0:
-        print "Already running..."
-        return
-
-    start_date = start_date or datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
-    # start new run
-    now = datetime.utcnow()
-    new_run = ReportRun(start_time=now)
-    create_object(new_run)
-    try: 
-        last_run = ReportRun.objects.all().order_by('-start_time')
-        # if len(last_run) > 0:
-        #     start_date = last_run[0].start_time
-        
-        populate_report_data(start_date, now)
-        # populate_report_data(start_date, datetime(2012, 6, 4))
-
-    finally:
-        # complete run
-        transaction.rollback()
-        new_run.end_time = datetime.utcnow()
-        new_run.complete = True
-        create_object(new_run)
-
+    raise NotImplementedError("this method is removed and replaced with the warehouse command")
+    
 def cleanup(since=None):
     clean_up_since = since or datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
 

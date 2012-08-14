@@ -195,4 +195,6 @@ SOUTH_MIGRATION_MODULES = {
     'logistics': 'logistics_project.deployments.tanzania.migrations.logistics',
     'rapidsms': 'ignore',
 }
+
+WAREHOUSE_RUNNER = "logistics_project.apps.tanzania.reporting.runner.TanzaniaWarehouseRunner"
 TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")

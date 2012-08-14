@@ -58,7 +58,8 @@ BASE_APPS = [
     "groupmessaging",
     "taggit",
     "gunicorn",
-    "django_extensions"
+    "django_extensions",
+    "warehouse"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
