@@ -18,7 +18,7 @@ def _consumption(cell):
     total = cell.object.commodities_stocked().count()
     return "%s of %s (%s)" % (available, 
                               total, 
-                              'complete' if available == total 
+                              'complete' if available >= total 
                               else 'INCOMPLETE')
 def _supervisor(cell):
     supervisors = cell.object.reportees()

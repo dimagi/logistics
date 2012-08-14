@@ -55,7 +55,6 @@ def email_reports(request, context={}, template="ewsghana/email_reports.html"):
 @location_context
 def facilities_list(request, location_code=None, context={}, template="ewsghana/facilities_list.html"):
     facilities = context['location'].all_facilities()
-    #facilities = facilities.exclude(type__code=config.SupplyPointCodes.REGIONAL_MEDICAL_STORE)
     context ['table'] = FacilityDetailTable(facilities, request=request)
     context['destination_url'] = "facilities_list"
     return render_to_response(
