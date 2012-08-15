@@ -68,7 +68,8 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
     rms = get_object_or_404(SupplyPoint, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product__name')]
+    products = rms.commodities_stocked()
+    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).filter(product__in=products).order_by('product__name')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
