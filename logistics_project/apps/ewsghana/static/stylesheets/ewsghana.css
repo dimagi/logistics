@@ -78,4 +78,7 @@
                 text-shadow: #cef1f5 0 0 2px;
                 text-decoration: none;
             }
-            
+
+.custom_field{
+    padding-left: 1em;
+}

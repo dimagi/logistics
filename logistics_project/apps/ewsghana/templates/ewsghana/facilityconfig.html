@@ -1,0 +1,18 @@
+{% extends "logistics/config.html" %}
+
+{% block breadcrumbs %}
+{% include "ewsghana/partials/config_submenu.html" %}
+{% endblock %}
+
+{% block custom_fields %}
+<label>Commodities</label><br/>
+{% for product in products %}
+	<input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
+		{% if object %}
+			{% if product.pk in form.initial.commodities %}456
+				checked="checked"
+			{% endif %}
+		{% endif %}
+	>{{product.name}}</input><br/>
+{% endfor %}
+{% endblock %}
