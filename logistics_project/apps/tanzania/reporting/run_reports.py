@@ -56,6 +56,9 @@ def clear_out_reports(start_date, end_date):
     
 def populate_report_data(start_date, end_date):
     # first populate all the warehouse tables for all facilities
+    
+    # hard coded to know this is the first date with data
+    start_date = min(start_date, datetime(2010, 11, 1))
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
     if True:
         for fac in facilities:
@@ -71,10 +74,6 @@ def populate_report_data(start_date, end_date):
                  status_date__lt=end_date).order_by('status_date')
             process_facility_statuses(fac, new_statuses)
 
-            earliest_date = start_date
-            if new_statuses:
-                earliest_date = new_statuses[0].status_date
-            
             new_reports = ProductReport.objects.filter\
                 (supply_point=fac, report_date__gte=start_date, 
                  report_date__lt=end_date, report_type__code=Reports.SOH).order_by('report_date')
