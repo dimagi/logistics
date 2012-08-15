@@ -34,6 +34,8 @@ import os
 from logistics_project.apps.tanzania.reporting.models import *
 from django.views.decorators.cache import cache_page
 from warehouse.models import ReportRun
+from warehouse.runner import update_warehouse
+from warehouse.tasks import update_warehouse_async
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -683,6 +685,5 @@ def training(request):
             'files': files,
             }, context_instance=RequestContext(request))
     
-    from logistics_project.apps.tanzania.reporting.run_reports import generate
-    generate(datetime.now())
+    update_warehouse_async.delay()
     return HttpResponseRedirect(reverse("training"))
