@@ -162,6 +162,10 @@ def load_schedules():
         "logistics_project.apps.tanzania.reminders.test": {
             "test_email_admins": (9, 0)
         },
+        "warehouse.runner": {
+            "update_warehouse": (0, 0),
+            "update_warehouse": (12, 0)
+        },
         
     }
                      
