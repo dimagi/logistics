@@ -683,6 +683,6 @@ def training(request):
             'files': files,
             }, context_instance=RequestContext(request))
     
-    from logistics_project.apps.tanzania.reporting.run_reports2 import generate
+    from logistics_project.apps.tanzania.reporting.run_reports import generate
     generate(datetime.now())
     return HttpResponseRedirect(reverse("training"))

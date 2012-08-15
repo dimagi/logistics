@@ -1,5 +1,5 @@
 from warehouse.runner import WarehouseRunner
-from logistics_project.apps.tanzania.reporting.run_reports2 import populate_report_data,\
+from logistics_project.apps.tanzania.reporting.run_reports import populate_report_data,\
     clear_out_reports
 
 
