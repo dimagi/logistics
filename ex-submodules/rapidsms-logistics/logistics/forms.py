@@ -19,7 +19,7 @@ class FacilityForm(forms.ModelForm):
         exclude = ("last_reported", )
     
     def __init__(self, *args, **kwargs):
-        kwargs['initial'] = {'commodities': [0,1,2,3]}
+        kwargs['initial'] = {}
         if 'instance' in kwargs and kwargs['instance']:
             initial_sp = kwargs['instance']
             if 'initial' not in kwargs:

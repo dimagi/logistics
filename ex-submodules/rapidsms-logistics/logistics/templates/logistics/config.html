@@ -27,6 +27,11 @@
 		{% render_form form %}
 		{% csrf_token %}
 
+		<div class="custom_field">
+		{% block custom_fields %}
+		{% endblock %}
+		</div>
+
 		<div class="submit">
 			<input type="submit" name="submit" value="Save {{ klass }}" />{% if object %}
 			<input type="submit" name="submit" value="Delete {{ klass }}" />{% endif %}
