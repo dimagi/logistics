@@ -181,8 +181,7 @@ def order_fill_stats(locations, type=None, datespan=None):
 def stockonhand_table(supply_point, datespan=None):
     if datespan is None:
         datespan = DateSpan.since(settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
-    products = supply_point.commodities_stocked()
-    sohs = supply_point.productstock_set.filter(product__in=products).order_by('product__name')
+    sohs = supply_point.stocked_productstocks().order_by('product__name')
     # update the stock quantities to match whatever reporting period has been specified
     for soh in sohs: 
         soh.quantity = supply_point.historical_stock_by_date(soh.product, datespan.end_of_end_day)

@@ -225,10 +225,11 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         
         return self._default_group
         
-    def consumptions_available(self):
-        stocks = self.product_stocks()
+    def stocked_consumptions_available(self):
+        stocks = self.stocked_productstocks()
         available = 0
         for stock in stocks:
+            # note: we have to do this manually to trigger monthly_consumption algorithm
             if stock.monthly_consumption is not None:
                 available = available + 1
         return available
@@ -254,7 +255,14 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return Product.objects.filter(is_active=True).filter(reported_by__supply_point=self).distinct()
     
     def product_stocks(self):
+        return self.all_product_stocks()
+    
+    def all_product_stocks(self):
         return ProductStock.objects.filter(is_active=True).filter(supply_point=self)
+    
+    def stocked_productstocks(self):
+        products = self.commodities_stocked()
+        return self.productstock_set.filter(product__in=products)
     
     def contacts(self):
         return Contact.objects.filter(supply_point=self)
