@@ -14,9 +14,9 @@ def _facility_view(cell):
 def _facility_type(cell):
     return cell.object.type
 def _consumption(cell):
-    available = cell.object.consumptions_available()
+    available = cell.object.stocked_consumptions_available()
     total = cell.object.commodities_stocked().count()
-    return "%s of %s (%s)" % (available, 
+    return "%s of %s (%s)" % (available,
                               total, 
                               'complete' if available >= total 
                               else 'INCOMPLETE')
