@@ -38,13 +38,8 @@ def generate(start_date=None):
     raise NotImplementedError("this method is removed and replaced with the warehouse command")
     
 def cleanup(since=None):
-    clean_up_since = since or datetime.fromordinal(datetime.utcnow().toordinal() - HISTORICAL_DAYS)
-
-    start_date = clean_up_since
-    end_date = datetime.utcnow()
-
-    clear_out_reports(start_date, end_date)
-
+    raise NotImplementedError("this method is removed and replaced with the warehouse command")
+    
 def clear_out_reports(start_date, end_date):
     if TESTING:
         pass
