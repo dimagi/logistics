@@ -138,6 +138,10 @@ class DefaultMonthlyConsumption(models.Model):
     class Meta:
         unique_together = (("supply_point_type", "product"),)
 
+class ActiveSupplyPointManager(models.Manager):
+    def get_query_set(self):
+        return super(ActiveSupplyPointManager, self).get_query_set().filter(active=True)
+
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
     Somewhere that maintains and distributes products. 
@@ -156,6 +160,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
     groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
+    
+    objects = models.Manager()
+    active_objects = ActiveSupplyPointManager()
 
     class Meta:
         abstract = True
@@ -166,10 +173,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     @property
     def active_contact_set(self):
         return self.contact_set.filter(is_active=True)
-    
-    @property
-    def active_objects(self):
-        return self.objects.filter(active=True)
     
     @property
     def products_stocked_out(self):
