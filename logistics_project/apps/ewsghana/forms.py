@@ -8,6 +8,7 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
+from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
 
@@ -65,6 +66,7 @@ class FacilityForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {}
+        initial_sp = None
         if 'instance' in kwargs and kwargs['instance']:
             initial_sp = kwargs['instance']
             if 'initial' not in kwargs:
@@ -76,6 +78,12 @@ class FacilityForm(forms.ModelForm):
                 kwargs['initial']['latitude'] = initial_sp.location.point.latitude
                 kwargs['initial']['longitude'] = initial_sp.location.point.longitude
         super(FacilityForm, self).__init__(*args, **kwargs)
+        if initial_sp:
+            self.fields["primary_reporter"].queryset = Contact.objects\
+              .filter(supply_point=initial_sp).filter(is_active=True)
+        else:
+            # if this is a new facility, then no reporters have been defined
+            self.fields["primary_reporter"].queryset = Contact.objects.none()
                 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)

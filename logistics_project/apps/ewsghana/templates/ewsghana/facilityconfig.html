@@ -5,14 +5,19 @@
 {% endblock %}
 
 {% block custom_fields %}
-<label>Commodities</label><br/>
-{% for product in products %}
-	<input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
-		{% if object %}
-			{% if product.pk in form.initial.commodities %}456
-				checked="checked"
+{% if form.initial.primary_reporter %}
+	<strong>Please specify which commodities to report</strong><br/>
+	{% for product in products %}
+		<input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
+			{% if object %}
+				{% if product.pk in form.initial.commodities %}456
+					checked="checked"
+				{% endif %}
 			{% endif %}
-		{% endif %}
-	>{{product.name}}</input><br/>
-{% endfor %}
+		>{{product.name}}</input><br/>
+	{% endfor %}
+	<p/>
+{% else %}
+	Before you can specify commodities stocked, you need to register SMS users for this facility and then specify a primary reporter.
+{% endif %}
 {% endblock %}
