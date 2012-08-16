@@ -1,5 +1,6 @@
-from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Contact, Connection, Backend
+from rapidsms.tests.scripted import TestScript
 from logistics import app as logistics_app
 from logistics.models import Product, ProductStock, \
     ProductReportsHelper, SupplyPoint, SupplyPointType, Location
@@ -40,6 +41,21 @@ class TestStockOnHand (TestScript):
         self.mg_stock = ProductStock(is_active=False, supply_point=facility,
                                      product=mg, monthly_consumption=10)
         self.mg_stock.save()
+
+        ng = Product.objects.get(sms_code='ng')
+        self.ng_stock = ProductStock(is_active=True, supply_point=facility,
+                                    product=ng, monthly_consumption=None)
+        self.ng_stock.save()
+        
+        self.contact = Contact(name='test user')
+        self.contact.save()
+        self.connection = Connection(backend=Backend.objects.all()[0],
+                                     identity="888",
+                                     contact=self.contact)
+        self.connection.save()
+        self.contact.supply_point = facility
+        self.contact.save()
+        self.contact.commodities.add(ng)
 
 
     def testProductReportsHelper(self):
@@ -87,7 +103,16 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 0 mc 0
-           16176023315 < Dear cynthia, the following items are stocked out: lf mc. Please place an order now.
+           16176023315 < Dear cynthia, these items are stocked out: lf mc. Please order 12 mc, 7 lf.
+           """
+        self.runScript(a)
+
+    def testStockoutNoConsumption(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > soh ng 0
+           16176023315 < Dear cynthia, these items are stocked out: ng.
            """
         self.runScript(a)
 
@@ -96,7 +121,25 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 7 mc 9
-           16176023315 < Dear cynthia, the following items need to be reordered: lf mc. Please place an order now.
+           16176023315 < Dear cynthia, these items need to be reordered: lf mc. Please order 12 mc, 7 lf.
+           """
+        self.runScript(a)
+
+    def testLowSupplyNoConsumption(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > soh ng 3
+           16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
+           """
+        self.runScript(a)
+
+    def testOverSupply(self):
+        a = """
+           16176023315 > register cynthia dedh
+           16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > soh lf 30 mc 40
+           16176023315 < Dear cynthia, these items are overstocked: lf mc. The district admin has been informed.
            """
         self.runScript(a)
 
@@ -117,7 +160,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh lf 0 mc 1
            super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc
-           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items need to be reordered: mc. Please place an order now.
+           pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 15 mc, 15 lf.
            """
         self.runScript(a)
 
@@ -129,10 +172,10 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > mc 0 mg 1
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now.
+           pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
            pharmacist > lf 0 mc 1 mg 100
            super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc; overstocked mg
-           pharmacist < Dear cynthia, the following items are stocked out: lf. the following items need to be reordered: mc. Please place an order now.
+           pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 15 mc, 15 lf.
            """
         self.runScript(a)
 
@@ -144,10 +187,10 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng 300
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. 
+           pharmacist <  Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
            pharmacist > soh mc 0-2 mg 1-1 ng 300-1
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist <  Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now.
+           pharmacist <  Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
            """
         self.runScript(a)
 
@@ -159,7 +202,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh mc 0 mg 1 ng300-4
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
-           pharmacist < Dear cynthia, the following items are stocked out: mc. the following items need to be reordered: mg. Please place an order now. 
+           pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
            """
         self.runScript(a)
 
@@ -171,7 +214,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > mc 16 lf 16 mg300
            super < Dear super, Test Facility is experiencing the following problems: overstocked mg
-           pharmacist < Dear cynthia, the following items are overstocked: mg. The district admin has been informed.
+           pharmacist < Dear cynthia, these items are overstocked: mg. The district admin has been informed.
            """
         self.runScript(a)
 
