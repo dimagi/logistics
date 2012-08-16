@@ -10,7 +10,7 @@ class NonReportingFacilityAlert(Alert):
         self._facility = facility
         super(NonReportingFacilityAlert, self).__init__(self._get_text(), 
                                                         reverse('reporting', 
-                                                                args=(self._facility.code, )))
+                                                                args=(self._facility.location.code, )))
 
     def _get_text(self):
         return "%(facility)s has not reported in the last month." % \
