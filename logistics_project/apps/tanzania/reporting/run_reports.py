@@ -56,59 +56,58 @@ def populate_report_data(start_date, end_date):
     # hard coded to know this is the first date with data
     start_date = max(start_date, datetime(2010, 11, 1))
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
-    if True:
-        for fac in facilities:
-            # process all the facility-level warehouse tables
-            print "processing facility %s (%s)" % (fac.name, str(fac.id))
+    for fac in facilities:
+        # process all the facility-level warehouse tables
+        print "processing facility %s (%s)" % (fac.name, str(fac.id))
+        
+        for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
+            alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
+            alert.delete()
+
+        new_statuses = SupplyPointStatus.objects.filter\
+            (supply_point=fac, status_date__gte=start_date,
+             status_date__lt=end_date).order_by('status_date')
+        process_facility_statuses(fac, new_statuses)
+
+        new_reports = ProductReport.objects.filter\
+            (supply_point=fac, report_date__gte=start_date,
+             report_date__lt=end_date, report_type__code=Reports.SOH).order_by('report_date')
+        process_facility_product_reports(fac, new_reports)
+        
+        new_trans = StockTransaction.objects.filter\
+            (supply_point=fac, date__gte=start_date,
+             date__lt=end_date).order_by('date')
+        process_facility_transactions(fac, new_trans)
+        
+        # go through all the possible values in the date ranges
+        # and make sure there are warehouse tables there 
+        for year, month in months_between(start_date, end_date):
+            window_date = datetime(year, month, 1)
             
-            for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
-                alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
-                alert.delete()
-
-            new_statuses = SupplyPointStatus.objects.filter\
-                (supply_point=fac, status_date__gte=start_date,
-                 status_date__lt=end_date).order_by('status_date')
-            process_facility_statuses(fac, new_statuses)
-
-            new_reports = ProductReport.objects.filter\
-                (supply_point=fac, report_date__gte=start_date,
-                 report_date__lt=end_date, report_type__code=Reports.SOH).order_by('report_date')
-            process_facility_product_reports(fac, new_reports)
+            # create org_summary for every fac/date combo
+            org_summary, created = OrganizationSummary.objects.get_or_create\
+                (supply_point=fac, date=window_date)
             
-            new_trans = StockTransaction.objects.filter\
-                (supply_point=fac, date__gte=start_date,
-                 date__lt=end_date).order_by('date')
-            process_facility_transactions(fac, new_trans)
+            org_summary.total_orgs = 1
+            alt = average_lead_time(fac, window_date)
+            if alt:
+                alt = alt.days
+            org_summary.average_lead_time_in_days = alt or 0
+            create_object(org_summary)
+
+            # create group_summary for every org_summary title combo
+            for title in NEEDED_STATUS_TYPES:
+                group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
+                                                                            title=title)                
+            # update all the non-response data
+            not_responding_facility(org_summary)
             
-            # go through all the possible values in the date ranges
-            # and make sure there are warehouse tables there 
-            for year, month in months_between(start_date, end_date):
-                window_date = datetime(year, month, 1)
-                
-                # create org_summary for every fac/date combo
-                org_summary, created = OrganizationSummary.objects.get_or_create\
-                    (supply_point=fac, date=window_date)
-                
-                org_summary.total_orgs = 1
-                alt = average_lead_time(fac, window_date)
-                if alt:
-                    alt = alt.days
-                org_summary.average_lead_time_in_days = alt or 0
-                create_object(org_summary)
+            # update product availability data
+            update_product_availability_facility_data(org_summary)
 
-                # create group_summary for every org_summary title combo
-                for title in NEEDED_STATUS_TYPES:
-                    group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
-                                                                                title=title)                
-                # update all the non-response data
-                not_responding_facility(org_summary)
-                
-                # update product availability data
-                update_product_availability_facility_data(org_summary)
-
-                # alerts
-                populate_no_primary_alerts(fac, window_date)
-                populate_facility_stockout_alerts(fac, window_date)
+            # alerts
+            populate_no_primary_alerts(fac, window_date)
+            populate_facility_stockout_alerts(fac, window_date)
         
     # then populate everything above a facility off a warehouse table
     non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility').order_by('id')
