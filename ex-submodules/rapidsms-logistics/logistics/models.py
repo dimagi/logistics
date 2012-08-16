@@ -1402,7 +1402,7 @@ class ProductReportsHelper(object):
     def nonzero_received(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items() if int(val) > 0)
         
-    def stockouts(self):
+    def _stockouts(self):
         # slightly different syntax than above, since there's no point in 
         # reporting stock levels for stocks which we know are at level '0'
         stockouts = {}
@@ -1421,9 +1421,13 @@ class ProductReportsHelper(object):
                             if ps.is_above_low_supply(): 
                                 # if we wanted to support multiple equivalents, we could do a recurisve search here
                                 dupes.append(key)
-        return " ".join('%s' % (key) for key, val in stockouts.items() if val == 0 and key not in dupes)
+        return [key for key, val in stockouts.items() if val == 0 and key not in dupes]
+
+    def stockouts(self):
+        stockouts = self._stockouts()
+        return " ".join(stockouts)
         
-    def low_supply(self):
+    def _low_supply(self):
         low_supply = {}
         for i in self.product_stock:
             productstock = ProductStock.objects.filter(supply_point=self.supply_point).get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
@@ -1440,8 +1444,17 @@ class ProductReportsHelper(object):
                     if ps.is_above_low_supply():
                         # if we wanted to support multiple equivalents, we could do a recurisve search here
                         dupes.append(ls)
-        ret = " ".join('%s' % (key) for key, val in low_supply.items() if key not in dupes)
-        return ret
+        return [key for key, val in low_supply.items() if key not in dupes]
+
+    def low_supply(self):
+        low_supply = self._low_supply()
+        return " ".join(low_supply)
+    
+    def amount_to_reorder(self):
+        reorder = self._stockouts() + self._low_supply()
+        pss = ProductStock.objects.filter(supply_point=self.supply_point, 
+                                          product__sms_code__in=reorder)
+        return ", ".join('%s %s' % (ps.reorder_level, ps.product.sms_code) for ps in pss if ps.reorder_level is not None)
 
     def over_supply(self):
         over_supply = ""
