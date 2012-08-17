@@ -38,13 +38,14 @@ def _commodities_stocked(cell):
 class FacilityDetailTable(FacilityTable):
     name = Column(link=_facility_view)
     type = Column(value=_facility_type)
-    supervisor = Column(value=_supervisor)
+    supervisor = Column(value=_supervisor, sortable=False)
     consumption = Column(value=_consumption, 
                          name='Average Monthly Consumption', 
-                         titleized=False)
-    reporters = Column(value=_reporters, name='SMS Users')
+                         titleized=False, 
+                         sortable=False)
+    reporters = Column(value=_reporters, name='SMS Users', sortable=False)
     commodities_assigned = Column(value=_commodities_stocked, 
-                                  titleized=False, 
+                                  titleized=False, sortable=False, 
                                   name='Registered to Report These Commodities via SMS')
 
     class Meta:
