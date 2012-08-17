@@ -16,56 +16,86 @@ from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
 from logistics.models import Product, SupplyPoint, ProductStock
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
+from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 
-PROGRAM_ADMIN_GROUP_NAME = 'facility_manager'
 def _get_program_admin_group():
-    return Group.objects.get(name=PROGRAM_ADMIN_GROUP_NAME)
+    return Group.objects.get(name=FACILITY_MANAGER_GROUP_NAME)
 
-class EWSGhanaWebRegistrationForm(AdminRegistersUserForm): 
+class EWSGhanaBasicWebRegistrationForm(AdminRegistersUserForm): 
+    designation = forms.CharField(required=False)
+    
+    def _add_to_kwargs_initial(self, kwargs, key, value):
+        initial = {}
+        initial[key] = value
+        if 'initial' in kwargs:
+            kwargs['initial'].update(initial)
+        else:
+            kwargs['initial'] = initial
+
+    def __init__(self, *args, **kwargs):
+        if 'user' in kwargs and kwargs['user'] is not None:
+            profile = kwargs['user'].get_profile()
+            if profile and profile.designation is not None:
+                self._add_to_kwargs_initial(kwargs, 'designation', profile.designation)
+        return super(EWSGhanaBasicWebRegistrationForm, self).__init__(*args, **kwargs)
+
+    def save(self, profile_callback=None):
+        user = super(EWSGhanaBasicWebRegistrationForm, self).save(profile_callback)
+        user.is_staff = False # Can never log into admin site
+        user.save()
+        profile = user.get_profile()
+        if 'designation' in self.cleaned_data and profile:
+            profile.designation = self.cleaned_data['designation']
+            profile.save()
+        return user
+
+class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm): 
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), 
                                       help_text=('Linking a web user with a facility will allow ', 
                                                  'that user to input stock for that facility from the website.'), 
                                                  required=False)
-    designation = forms.CharField(required=False)
     is_facility_manager = forms.BooleanField(label='CAN ADD/REMOVE USERS AND FACILITIES', 
                                           help_text='e.g. A DHIO. This includes managing commodities per facility.', 
                                           initial=False, required=False)
-    has_all_permissions = forms.BooleanField(label='GRANT ALL PERMISSIONS', 
-                                     help_text='e.g. national administrator. Can add/remove users, facilities, and commodities.', 
-                                     initial=False, required=False)
+
     def __init__(self, *args, **kwargs):
         self.edit_user = None
         if 'user' in kwargs and kwargs['user'] is not None:
             self.edit_user = kwargs['user']
-            initial = {}
-            if 'initial' in kwargs:
-                initial = kwargs['initial']
-            if self.edit_user.groups.filter(name=PROGRAM_ADMIN_GROUP_NAME):
-                initial['is_facility_manager'] = True 
-            initial['has_all_permissions'] = self.edit_user.is_superuser
-            kwargs['initial'] = initial
-            profile = self.edit_user.get_profile()
-            if profile.designation is not None:
-                initial['designation'] = profile.designation
-        return super(EWSGhanaWebRegistrationForm, self).__init__(*args, **kwargs)
+            if self.edit_user.groups.filter(name=FACILITY_MANAGER_GROUP_NAME):
+                self._add_to_kwargs_initial(kwargs, 'is_facility_manager', True)
+        return super(EWSGhanaManagerWebRegistrationForm, self).__init__(*args, **kwargs)
 
     def save(self, profile_callback=None):
-        user = super(EWSGhanaWebRegistrationForm, self).save(profile_callback)
+        user = super(EWSGhanaManagerWebRegistrationForm, self).save(profile_callback)
         user.is_staff = False # Can never log into admin site
         pag = _get_program_admin_group()
         if self.cleaned_data['is_facility_manager']:
             user.groups.add(pag)
         elif pag in user.groups.all():
             user.groups.remove(pag)
+        user.save()
+        return user
+
+class EWSGhanaAdminWebRegistrationForm(EWSGhanaManagerWebRegistrationForm): 
+    has_all_permissions = forms.BooleanField(label='GRANT ALL PERMISSIONS', 
+                                     help_text='e.g. national administrator. Can add/remove users, facilities, and commodities.', 
+                                     initial=False, required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.edit_user = None
+        if 'user' in kwargs and kwargs['user'] is not None:
+            self.edit_user = kwargs['user']
+            self._add_to_kwargs_initial(kwargs, 'has_all_permissions', self.edit_user.is_superuser)
+        return super(EWSGhanaAdminWebRegistrationForm, self).__init__(*args, **kwargs)
+
+    def save(self, profile_callback=None):
+        user = super(EWSGhanaAdminWebRegistrationForm, self).save(profile_callback)
         if self.cleaned_data['has_all_permissions']:
             user.is_superuser = True
         else:
             user.is_superuser = False
         user.save()
-        if 'designation' in self.cleaned_data:
-            profile = user.get_profile()
-            profile.designation = self.cleaned_data['designation']
-            profile.save()
         return user
 
 class FacilityForm(forms.ModelForm):

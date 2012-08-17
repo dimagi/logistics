@@ -6,9 +6,8 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.registration.views import registration as logistics_registration
-from logistics_project.apps.web_registration.views import my_web_registration
+from logistics_project.apps.ewsghana.views import my_web_registration
 from logistics import views as logistics_views
-from logistics_project.apps.ewsghana.forms import EWSGhanaWebRegistrationForm
 from logistics_project.apps.ewsghana.views import register_web_user
 
 urlpatterns = patterns('',
@@ -38,8 +37,7 @@ urlpatterns = patterns('',
     
     # register new user
     url(r'^register/web/admin/?$', register_web_user, 
-        {'Form':EWSGhanaWebRegistrationForm, 
-         'template':'ewsghana/web_registration.html', 
+        {'template':'ewsghana/web_registration.html', 
          'success_url': 'admin_web_registration'},     
        name='admin_web_registration'),
     # modify my account
@@ -49,8 +47,7 @@ urlpatterns = patterns('',
         name='my_web_registration'),
     # edit existing web user
     url(r'^register/web/(?P<pk>\d+)/edit/?$', register_web_user,
-        {'Form':EWSGhanaWebRegistrationForm, 
-         'template':'ewsghana/web_registration.html', 
+        {'template':'ewsghana/web_registration.html', 
          'success_url': 'admin_web_registration'}, 
         name='admin_web_registration_edit'),
     # web user registration done

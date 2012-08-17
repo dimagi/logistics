@@ -20,7 +20,9 @@ from logistics.views import reporting as logistics_reporting
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable
-from .forms import FacilityForm
+from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
+from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
+    EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
 
 """ Usage-Related Views """
 @geography_context
@@ -36,12 +38,15 @@ def message_log(request, template="ewsghana/messagelog.html"):
 def auditor(request, template="ewsghana/auditor.html"):
     return auditAll(request, template)
 
-def register_web_user(request, pk=None, Form=AdminRegistersUserForm, 
+def register_web_user(request, pk=None, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
-    # non-admin users only get to see the default 'create user' settings
-    if not request.user.is_superuser:
-        Form = AdminRegistersUserForm
+    if request.user.is_superuser:
+        Form = EWSGhanaAdminWebRegistrationForm
+    elif request.user.groups.filter(name=FACILITY_MANAGER_GROUP_NAME).exists():
+        Form = EWSGhanaManagerWebRegistrationForm
+    else:
+        Form = EWSGhanaBasicWebRegistrationForm
     return admin_does_all(request, pk, Form, 
                           template=template, 
                           success_url=success_url)
@@ -71,7 +76,7 @@ def facility_detail(request, code, context={}, template="ewsghana/single_facilit
 
 """ Customized Views """
 
-@permission_required('logistics.add_facility')
+@permission_required('logistics.add_supplypoint')
 @transaction.commit_on_success
 def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     facility = None
@@ -105,3 +110,12 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "products": products
         }, context_instance=RequestContext(req)
     )
+    
+@transaction.commit_on_success
+def my_web_registration(request, 
+                        template='web_registration/admin_registration.html', 
+                        success_url='admin_web_registration_complete'):
+    context = {}
+    context['hide_delete'] = True
+    Form = EWSGhanaBasicWebRegistrationForm
+    return admin_does_all(request, request.user.pk, Form, context, template, success_url)
