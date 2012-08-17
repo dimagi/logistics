@@ -18,7 +18,7 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
     keyword = "register|reg|join|sajili"
     
     def help(self):
-        self.respond(config.Messages.REGISTER_HELP)
+        self.respond(_(config.Messages.REGISTER_HELP))
     
         
     def handle(self, text):

@@ -1,0 +1,13 @@
+{% extends "tanzania/reports-base.html" %}
+{% block report_content %}
+    <div class="module">
+        {% with rr_json as chart_data %}
+        {% with month_pager.prev_month as last_month %}
+            {% include "tanzania/reports/rr_pie_chart.html" %}
+        {% endwith %}{% endwith %}
+    </div>
+    <div class="module">
+        <h2>R&amp;R Status</h2>
+        {{ randr_table.as_html }}
+    </div>
+{% endblock %}

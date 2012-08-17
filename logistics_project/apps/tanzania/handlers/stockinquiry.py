@@ -27,4 +27,5 @@ class StockInquiryHandler(KeywordHandler,TaggingHandler):
         prh = ProductReportsHelper(sp, Reports.SOH)
         prh.add_product_stock(p.sms_code, amt)
         prh.save()
-        self.respond(_(config.Messages.STOCK_INQUIRY_CONFIRM) % {"quantity": amt, "product_name": p.name})
+        self.respond(_(config.Messages.STOCK_INQUIRY_CONFIRM),
+                     **{"quantity": amt, "product_name": p.name})

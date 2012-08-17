@@ -7,7 +7,7 @@ from django.utils import translation
 class TestHelp(TanzaniaTestScriptBase):
 
     def testHelpUnregistered(self):
-        translation.activate("sw")
+        translation.activate("en")
         
         # Unregistered user
         script = """

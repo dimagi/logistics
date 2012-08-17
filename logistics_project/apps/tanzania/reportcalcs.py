@@ -1,20 +1,25 @@
+from django.conf import settings
+from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models.query_utils import Q
 from django.template.loader import get_template
+from django.template.context import RequestContext
+from django.shortcuts import render_to_response
+from django.core.urlresolvers import reverse
+
+from rapidsms.contrib.messagelog.models import Message
+
 from logistics.reports import DynamicProductAvailabilitySummaryByFacilitySP
-from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
 from logistics.decorators import place_in_request
 from logistics.models import Product
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from logistics.views import MonthPager
+
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
+
 from models import DeliveryGroups
-from logistics.views import MonthPager
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
-from django.conf import settings
-from rapidsms.contrib.messagelog.models import Message
+from views import get_facilities_and_location, _generate_soh_tables, _is_district, _is_region, _is_national
+
 
 class TanzaniaReport(object):
     """
@@ -29,18 +34,24 @@ class TanzaniaReport(object):
     def reset_context(self):
         # Stuff common to all the reports.
         self.context = self.base_context.copy()
-        self.facs, self.location = get_facilities_and_location(self.request)
         self.mp = MonthPager(self.request)
+
+        self.facs, self.location = get_facilities_and_location(self.request)
         self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
         self.bd = SupplyPointStatusBreakdown(self.facs, self.mp.year, self.mp.month)
+
         report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] # hack to get around 1.3 brokenness
         self.context.update({
-            "facs": self.facs,
             "month_pager": self.mp,
+
+            "facs": self.facs,
             "location": self.location,
+
             "level": self.location.type.name,
+
             "dg": self.dg,
             "bd": self.bd,
+
             "report_list": report_list,
             "slug": self.slug,
             "name": self.name,
@@ -100,6 +111,7 @@ class RandRReport(TanzaniaReport):
 
     def district_report(self):
         self.context["on_time"] = randr_on_time_reporting(self.dg.submitting(), self.mp.year, self.mp.month)
+        self.context["rr_json"] = self.bd.submission_chart().data
         self.context["randr_history_table"] = RandRReportingHistoryTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                                         month=self.mp.month, year=self.mp.year, prefix="randr_history")
 
@@ -149,6 +161,7 @@ class SupervisionReport(TanzaniaReport):
         self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
+        self.context['supervision_json'] = self.bd.supervision_chart().data 
         self.context["supervision_table"] = SupervisionTable(object_list=self.dg.submitting().select_related(), request=self.request,
                                             month=self.mp.month, year=self.mp.year, prefix="supervision")
 
@@ -163,6 +176,7 @@ class DeliveryReport(TanzaniaReport):
         self.context['delivery_table'] = AggregateDeliveryTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
+        self.context['delivery_json'] = self.bd.delivery_chart().data 
         self.context["delivery_table"] = DeliveryStatusTable(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
 

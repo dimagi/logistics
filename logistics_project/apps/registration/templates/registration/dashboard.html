@@ -8,6 +8,13 @@
 
 {% block left %}
 <div class="module">
+	<form action="/registration/search" method="post">
+		{% csrf_token %}
+		<input type="text" placeholder="Search for user" name="search_term" />
+		<input type="submit" name="submit" value="Search" />
+	</form>
+</div>
+<div class="module">
 	<h2>SMS Users</h2>
 	{{ contacts_table.as_html }}{% if contact %}
 

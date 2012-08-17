@@ -1,5 +1,8 @@
+import json
+from datetime import datetime
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
+from collections import defaultdict
 from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -8,7 +11,7 @@ from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReport
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
-from models import DeliveryGroups
+from models import DeliveryGroups, SupplyPointStatusValues
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -17,7 +20,7 @@ import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
-from dimagi.utils.parsing import string_to_datetime
+from dimagi.utils.parsing import string_to_datetime, string_to_boolean
 from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
@@ -25,6 +28,14 @@ from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
+from dimagi.utils.decorators.profile import profile
+from logistics_project.apps.tanzania.models import NoDataError
+import os
+from logistics_project.apps.tanzania.reporting.models import *
+from django.views.decorators.cache import cache_page
+from warehouse.models import ReportRun
+from warehouse.runner import update_warehouse
+from warehouse.tasks import update_warehouse_async
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -124,11 +135,33 @@ def district_supply_points_below(location, sps):
     else:
         return sps.filter(location__type__name="DISTRICT")
     
+def _render_warehouseable(request, normal_view, warehouse_view, *args, **kwargs):
+    use_warehouse = string_to_boolean(request.REQUEST["warehouse"]) \
+        if "warehouse" in request.REQUEST \
+        else settings.LOGISTICS_USE_WAREHOUSE_TABLES 
+    if use_warehouse:
+        return warehouse_view(request, *args, **kwargs)
+    else:
+        return normal_view(request, *args, **kwargs)
+
+@place_in_request()
+def dashboard_shared(request):
+    return _render_warehouseable(request, dashboard, dashboard2)
+
+@place_in_request()
+@cache_page
+def reports_shared(request, slug=None):
+    from logistics_project.apps.tanzania.reportcalcs import new_reports as old_reports
+    from logistics_project.apps.tanzania.reportcalcs2 import new_reports as warehouse_reports
+    return _render_warehouseable(request, old_reports, warehouse_reports, slug=slug)
+
 @place_in_request()
 def dashboard(request):
+
     mp = MonthPager(request)
+
     base_facilities, location = get_facilities_and_location(request)
-    
+
     dg = DeliveryGroups(mp.month, facs=base_facilities)
     sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
     msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
@@ -147,6 +180,214 @@ def dashboard(request):
                                },
                                
                               context_instance=RequestContext(request))
+
+@place_in_request()
+def dashboard2(request):
+    mp = MonthPager(request)
+
+    org = request.GET.get('place')
+    if not org:
+        if request.user.get_profile() is not None:
+            if request.user.get_profile().location is not None:
+                org = request.user.get_profile().location.code
+            elif request.user.get_profile().supply_point is not None:
+                org = request.user.get_profile().supply_point.code
+    if not org:
+        # TODO: Get this from config
+        org = 'MOHSW-MOHSW'
+
+    # TODO: don't use location like this (district summary)
+    location = Location.objects.get(code=org)
+
+    try:
+        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),supply_point__code=org)
+        if len(org_summary) > 0:
+            org_summary = org_summary[0]
+        else:
+            raise NoDataError
+    except NoDataError:
+        return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'), 
+                              {"month_pager": mp,
+                               "graph_width": 300, # used in pie_reporting_generic
+                               "graph_height": 300,
+                               "location": location,
+                               "destination_url": "tz_dashboard"
+                               }, context_instance=RequestContext(request))
+
+    alerts = Alert.objects.filter(supply_point__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
+
+    total = org_summary.total_orgs
+    avg_lead_time = org_summary.average_lead_time_in_days
+    if avg_lead_time:
+        avg_lead_time = "%.1f" % avg_lead_time
+
+    soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
+                                        org_summary=org_summary)
+    rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
+                                       org_summary=org_summary)
+    delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.DELIVERY_FACILITY,
+                                             org_summary=org_summary)
+    dg = DeliveryGroups(month=mp.end_date.month)
+
+    submitting_group = dg.current_submitting_group(month=mp.end_date.month)
+    processing_group = dg.current_processing_group(month=mp.end_date.month)
+    delivery_group = dg.current_delivering_group(month=mp.end_date.month)
+
+    soh_json = convert_data_to_pie_chart(soh_data, mp.begin_date)
+    rr_json = convert_data_to_pie_chart(rr_data, mp.begin_date)
+    delivery_json = convert_data_to_pie_chart(delivery_data, mp.begin_date)
+    
+    processing_numbers = prepare_processing_info([total, rr_data, delivery_data])
+
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
+    product_dashboard = ProductAvailabilityDashboardChart()
+
+    product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
+
+    return render_to_response("tanzania/dashboard2.html",
+                              {"month_pager": mp,
+                               "alerts": alerts,
+                               "soh_json": soh_json,
+                               "rr_json": rr_json,
+                               "delivery_json": delivery_json,
+                               "processing_total": processing_numbers['total'],
+                               "processing_complete": processing_numbers['complete'],
+                               "submitting_total": rr_data.total,
+                               "submitting_complete": rr_data.complete,
+                               "delivery_total": delivery_data.total,
+                               "delivery_complete": delivery_data.complete,
+                               "delivery_group": delivery_group,
+                               "submitting_group": submitting_group,
+                               "processing_group": processing_group,
+                               "total": total,
+                               "avg_lead_time": avg_lead_time,
+                               "product_json": product_json,
+                               "chart_info": product_dashboard,
+                               "graph_width": 300, # used in pie_reporting_generic
+                               "graph_height": 300,
+                               "location": location,
+                               "destination_url": "tz_dashboard"
+                               },
+                               
+                              context_instance=RequestContext(request))
+
+def has_nonzero_key(json, key):
+    return json.has_key(key) and json[key]
+
+def convert_data_to_pie_chart(data, date):
+    chart_config = { 
+        'on_time': {
+            'color': 'green',
+            'display': 'Submitted On Time'
+        }, 
+        'late': {
+            'color': 'orange',
+            'display': 'Submitted Late'
+        }, 
+        'not_submitted': {
+            'color': 'red',
+            'display': "Haven't Submitted "
+        }, 
+        'del_received': {
+            'color': 'green',
+            'display': 'Delivery Received',
+        }, 
+        'del_not_received': {
+            'color': 'red',
+            'display': 'Delivery Not Received',
+        }, 
+        'sup_received': {
+            'color': 'green',
+            'display': 'Supervision Received',
+        }, 
+        'sup_not_received': {
+            'color': 'red',
+            'display': 'Supervision Not Received',
+        }, 
+        'not_responding': {
+            'color': '#8b198b',
+            'display': "Didn't Respond"
+        }, 
+    }
+    vals_config = {
+        SupplyPointStatusTypes.SOH_FACILITY: 
+            ['on_time', 'late', 'not_submitted', 'not_responding'],
+        SupplyPointStatusTypes.DELIVERY_FACILITY: 
+            ['del_received', 'del_not_received', 'not_responding'],
+        SupplyPointStatusTypes.R_AND_R_FACILITY: 
+            ['on_time', 'late', 'not_submitted', 'not_responding'],
+        SupplyPointStatusTypes.SUPERVISION_FACILITY: 
+            ['sup_received', 'sup_not_received', 'not_responding']
+    }
+    ret = []
+    for key in vals_config[data.title]:
+        if getattr(data, key, None):
+            entry = {}
+            entry['value'] = getattr(data, key)
+            entry['color'] = chart_config[key]['color']
+            entry['display'] = chart_config[key]['display']
+            entry['description'] = "(%s) %s (%s)" % \
+                (entry['value'], entry['display'], date.strftime("%b %Y"))
+            ret.append(entry)
+    return ret
+
+
+def prepare_processing_info(data):
+    numbers = {}
+    numbers['total'] = data[0] - (data[1].total + data[2].total)
+    numbers['complete'] = 0
+    return numbers 
+
+def convert_product_data_to_stack_chart(data, chart_info):
+    ret_json = {}
+    ret_json['ticks'] = []
+    ret_json['data'] = []
+    count = 0
+    for product in data:
+        count += 1
+        ret_json['ticks'].append([count, '<span title=%s>%s</span>' % (product.product.name, product.product.code.lower())])
+    for k in ['Stocked out', 'Not Stocked out', 'No Stock Data']:
+        count = 0
+        datalist = []
+        for product in data:
+            count += 1
+            if k=='No Stock Data':
+                datalist.append([count, product.without_data])
+            elif k=='Stocked out':
+                datalist.append([count, product.without_stock])
+            elif k=='Not Stocked out':
+                datalist.append([count, product.with_stock])
+        ret_json['data'].append({'color':chart_info.label_color[k], 'label':k, 'data': datalist })
+    ret_json['ticks'] = json.dumps(ret_json['ticks'])
+    ret_json['data'] = json.dumps(ret_json['data'])
+    return ret_json
+
+def convert_product_data_to_sideways_chart(data, chart_info):
+    ret_json = {}
+    codes = []
+    for d in data:
+        name = str(d.product.name)
+        code = str(d.product.sms_code)
+        ret_json[code] = {'product': name, 'code': code, 'total': d.total, 'with_stock': d.with_stock, 'without_stock': d.without_stock, 'without_data': d.without_data, 'tick': '<span title=%s>%s</span>' % (name, code)}
+        codes.append(code)
+
+    bar_data = [{"data" : [],
+                 "label": "Stocked out",
+                 "bars": { "show" : "true"},
+                 "color": "#a30808",
+                },
+                {"data" : [],
+                 "label": "Not Stocked out",
+                 "bars": { "show" : "true"},
+                 "color": "#7aaa7a",
+                },
+                {"data" : [],
+                 "label": "No Stock Data",
+                 "bars": { "show" : "true"},
+                 "color": "#efde7f",
+                }]
+
+    return ret_json, codes, bar_data
 
 def datespan_to_month(datespan):
     return datespan.startdate.month
@@ -170,6 +411,23 @@ def _generate_soh_tables(request, facs, mp, products=None):
                 pc = ProductStockColumn(prod, mp.month, mp.year)
             t.add_column(pc, "pc_"+prod.sms_code)
     return tables, products, product_set, show
+
+def _generate_soh_tables2(request, facs, mp, products=None):
+    show = request.GET.get('show', "")
+    if not products: products = Product.objects.all().order_by('sms_code')
+    product_set = products
+    tables = [StockOnHandTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year, order_by=["D G", "Facility Name"])]
+
+    # for count in enumerate(iter):
+    #     t = tables[count[0]]
+    #     for prod in count[1]:
+    #         if show == "months":
+    #             pc = ProductMonthsOfStockColumn(prod, mp.month, mp.year)
+    #         else:
+    #             pc = ProductStockColumn(prod, mp.month, mp.year)
+    #         t.add_column(pc, "pc_"+prod.sms_code)
+    return tables, products, product_set, show
+
 
 #@login_required
 @place_in_request()
@@ -328,6 +586,7 @@ def reporting(request):
         },
         context_instance=RequestContext(request))
 
+
 @place_in_request()
 @magic_token_required()
 def reporting_pdf(request):
@@ -379,4 +638,52 @@ def ad_hoc_reports(request):
         "form": form,
     }, context_instance=RequestContext(request))
     
+def supervision(request):
 
+    files = []
+    docs = os.listdir(getattr(settings, 'SUPERVISION_DOCS_FOLDER'))
+    
+    for doc in docs:
+        item = {}
+        item['link'] = doc
+        item['name'] =  ' '.join(doc.split('.')[0].split('_'))
+        files.append(item)
+
+    return render_to_response("tanzania/supervision-docs.html", {
+        "files": files,
+        }, context_instance=RequestContext(request))
+
+def training(request):
+    if request.method == "GET":
+        
+        latest_run_time = None
+        latest_incomplete_time = None
+
+        latest_run = ReportRun.objects.filter(complete=True).order_by('-id')
+        incomplete_runs = ReportRun.objects.filter(complete=False).order_by('-id')
+
+        if len(latest_run) > 0:
+            latest_run_time = latest_run[0].start_run
+
+        is_running = len(incomplete_runs) > 0
+        if is_running:
+            latest_incomplete_time = incomplete_runs[0].start_run
+
+        files = []
+        docs = os.listdir(getattr(settings, 'TRAINING_DOCS_FOLDER'))
+        
+        for doc in docs:
+            item = {}
+            item['link'] = doc
+            item['name'] =  ' '.join(doc.split('.')[0].split('_'))
+            files.append(item)
+
+        return render_to_response("tanzania/training.html", {
+            'is_running': is_running,
+            'latest_run_time': latest_run_time,
+            'latest_incomplete_time': latest_incomplete_time,
+            'files': files,
+            }, context_instance=RequestContext(request))
+    
+    update_warehouse_async.delay()
+    return HttpResponseRedirect(reverse("training"))

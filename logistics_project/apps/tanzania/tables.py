@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import floatformat
 from django.utils.functional import curry
@@ -14,6 +14,7 @@ from rapidsms.models import Contact
 from django.template import defaultfilters
 from django.utils.translation import ugettext as _
 from logistics.templatetags.logistics_report_tags import historical_stock, historical_months_of_stock
+from logistics_project.apps.tanzania.reporting.models import *
 
 
 class MonthTable(Table):
@@ -46,6 +47,34 @@ def _default_contact(supply_point):
 def _dg(supply_point):
     group = supply_point.default_group 
     return group.code if group else "?"
+
+def get_avg_lead_time(cell):
+    date = datetime(cell.row.table.year, cell.row.table.month,1)
+    org_sum = OrganizationSummary.objects.filter(supply_point=cell.object, date=date)
+    if org_sum:
+        if org_sum[0].average_lead_time_in_days:
+            return org_sum[0].average_lead_time_in_days
+    return "None"
+
+def get_this_lead_time(cell):
+    lead_time = calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year)
+    if lead_time and lead_time > timedelta(days=30) and lead_time < timedelta(days=100):
+        return '%.1f' % lead_time.days
+    return "None"
+
+def get_historical_response_rate(cell, title):
+    total_responses = 0
+    total_possible = 0
+    end_date = datetime(cell.row.table.year, cell.row.table.month, 1)
+
+    for g in GroupSummary.objects.filter(org_summary__supply_point=cell.object, title=title,
+                org_summary__date__lte=end_date):
+        if g:
+            total_responses += g.responded
+            total_possible += g.total
+    if total_possible:
+        return "%.1f%%" % (100.0 * total_responses / total_possible)
+    return "None"
 
 def supply_point_link(cell):
     from logistics_project.apps.tanzania.views import tz_location_url
@@ -81,7 +110,22 @@ class DeliveryStatusTable(MonthTable):
     delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
     delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
     last_lead_time = Column(sortable=False, name="Last Lead Time", value=lambda cell: calc_lead_time(cell.object, month=cell.row.table.month, year=cell.row.table.year))
-    average_lead_time = Column(sortable=False, name="Average Lead Time", value=lambda cell: avg_past_lead_time(cell.object))
+    average_lead_time = Column(sortable=False, name="Average Lead Time in Days", value=lambda cell: avg_past_lead_time(cell.object))
+
+    class Meta:
+        per_page = 9999
+        order_by = ["Facility Name"]
+
+class DeliveryStatusTable2(MonthTable):
+    """
+    Same as above but includes a column for the HSA
+    """
+    code = Column()
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
+    delivery_status = Column(sortable=False, name="Delivery Status", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "name"))
+    delivery_date = DateColumn(sortable=False, name="Delivery Date", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.DELIVERY_FACILITY, "status_date"))
+    last_lead_time = Column(sortable=False, name="This Cycle Lead Time", value=lambda cell: get_this_lead_time(cell))
+    average_lead_time = Column(sortable=False, name="Average Lead Time in Days", value=lambda cell: get_avg_lead_time(cell))
 
     class Meta:
         per_page = 9999
@@ -98,14 +142,20 @@ class RandRSubmittedColumn(DateColumn):
             return _("Not reported")
 
 def _randr_value(cell):
-    return _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_not_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.NOT_SUBMITTED)
+    if latest_submit:
+        return latest_submit 
+    else:
+        return latest_not_submit
 
 def _randr_css_class(cell):
-    val = _randr_value(cell)
-    if val is None:
-        return "warning_icon iconified"
-    else:
+    latest_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.SUBMITTED)
+    latest_not_submit = _latest_status_or_none(cell, SupplyPointStatusTypes.R_AND_R_FACILITY, "status_date", value=SupplyPointStatusValues.NOT_SUBMITTED)
+    if latest_submit:
         return "good_icon iconified"
+    else:
+        return "warning_icon iconified"
 
 def _hrr_randr(sp):
     r = historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY)
@@ -149,7 +199,7 @@ def _stock_class(cell):
 def _prod_class(cell):
     return "prod-%s" % cell.column.product.sms_code
 
-class RandRReportingHistoryTable(MonthTable):
+class RandRReportingHistoryTable_old(MonthTable):
     code = Column()
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     submitted = RandRSubmittedColumn(name="R&R Status",
@@ -166,13 +216,44 @@ class RandRReportingHistoryTable(MonthTable):
     class Meta:
         per_page = 9999
         order_by = ["Facility Name"]
-  
-class SupervisionTable(MonthTable):
+
+class RandRReportingHistoryTable(MonthTable):
+    code = Column()
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
+    submitted = RandRSubmittedColumn(name="R&R Status",
+                                     value=_randr_value,
+                                     format="d M Y",
+                                     css_class=_randr_css_class,
+                                     sortable=False)
+    contact = Column(name="Contact", value=lambda cell: _default_contact(cell.object), sort_key_fn=_default_contact)
+    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: get_historical_response_rate(cell,'rr_fac'), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.R_AND_R_FACILITY))
+    @property
+    def submitting_group(self):
+        return DeliveryGroups(self.month).current_submitting_group()
+
+    class Meta:
+        per_page = 9999
+        order_by = ["Facility Name"]
+
+
+class SupervisionTable_old(MonthTable):
     code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
     name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
     supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
     date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
     response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: _hrr_super(cell.object), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
+
+    class Meta:
+        per_page = 9999
+        order_by = ["Facility Name"]
+
+
+class SupervisionTable(MonthTable):
+    code = Column(value=lambda cell:cell.object.code, name="MSD Code", sort_key_fn=lambda obj: obj.code, titleized=False)
+    name = Column(name="Facility Name", value=lambda cell: cell.object.name, sort_key_fn=lambda obj: obj.name, link=supply_point_link)
+    supervision_this_quarter = Column(sortable=False, name="Supervision This Quarter", value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "name"))
+    date = DateColumn(sortable=False, value=lambda cell: _latest_status_or_none(cell, SupplyPointStatusTypes.SUPERVISION_FACILITY, "status_date"))
+    response_rate = Column(name="Historical Response Rate", safe=True, value=lambda cell: get_historical_response_rate(cell,'super_fac'), sort_key_fn=lambda sp: historical_response_rate(sp, SupplyPointStatusTypes.SUPERVISION_FACILITY))
 
     class Meta:
         per_page = 9999
@@ -198,6 +279,7 @@ class ProductStockColumn(Column):
                                             header_class = "prod-%s" % product.sms_code
 
        )
+
 
 class ProductMonthsOfStockColumn(Column):
     def __init__(self, product, month, year):
@@ -231,6 +313,20 @@ class AggregateStockoutPercentColumn(Column):
                                             header_class = "prod-%s" % product.sms_code
 
        )
+
+class AggregateStockoutPercentColumn2(Column):
+    def __init__(self, product, percent):
+        self.product = product
+        super(AggregateStockoutPercentColumn2, self).__init__(#name=self.product.sms_code,
+                                            value=lambda cell: percent,
+                                            sort_key_fn=lambda obj: percent,
+                                            name="%s stock outs this month" % product.sms_code,
+                                            titleized=False,
+                                            safe=True,
+                                            css_class=_prod_class,
+                                            header_class = "prod-%s" % product.sms_code
+
+       )   
 
 def _ontime_class(cell):
     state = soh_reported_on_time(cell.object, cell.row.table.year, cell.row.table.month)
@@ -300,7 +396,7 @@ class AggregateSupervisionTable(MonthTable):
 
 class AggregateDeliveryTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'delivery'))
-    average_lead_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time", safe=True)
+    average_lead_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time in Days", safe=True)
 
     class Meta:
         per_page = 9999

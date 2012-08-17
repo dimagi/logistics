@@ -94,8 +94,9 @@ class TestDelivery(TanzaniaTestScriptBase):
         #facility contacts
         contact = register_user(self, "32346", "Person 1", "d30701", "CHAUME DISP")
         contact = register_user(self, "32347", "Person 2", "d31049", "CHIDEDE DISP")
+        
 
-                # submitted successfully
+        # submitted successfully
         translation.activate("sw")
 
         script = """

@@ -9,17 +9,17 @@ PRIORITY_APPS = [ "auditcare","logistics_project.apps.migration" ]
 APPS = [
     "django.contrib.webdesign",
     "logistics_project.apps.tanzania",
+    "logistics_project.apps.tanzania.reporting",    
     "scheduler",
     "taggit",
 ]
 
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.tanzania.views.dashboard",       "Dashboard"),
+    ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
 #    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
-#    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
-    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Reports"),
+    ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
 
 #    ("logistics.views.dashboard",       "Facilities"),
@@ -29,6 +29,8 @@ RAPIDSMS_TABS = [
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
+    ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
     ("tz_sms_schedule",       "Help"),
 
 ]
@@ -185,3 +187,14 @@ LOGISTICS_ALERT_GENERATORS = [
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")
 
 REPORT_FOLDER = "tanzania/reports"
+
+SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","supervision_documents")
+
+SOUTH_MIGRATION_MODULES = {
+    # override migrations folder to match our current deployment path
+    'logistics': 'logistics_project.deployments.tanzania.migrations.logistics',
+    'rapidsms': 'ignore',
+}
+
+WAREHOUSE_RUNNER = "logistics_project.apps.tanzania.reporting.runner.TanzaniaWarehouseRunner"
+TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")

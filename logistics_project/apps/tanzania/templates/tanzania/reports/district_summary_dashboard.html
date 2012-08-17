@@ -1,0 +1,35 @@
+{% load i18n %}
+
+<h2>{% trans 'District Summary' %}</h2>
+<!--<div class="toolbar">
+    <a href="">All Stats</a>
+</div>-->
+<ul class="stats">
+    <li>
+        <div class="report">{{ total }}</div>
+        <div class="caption"><a href="{% url new_reports "ordering" %}?place={{ location.code }}">{% trans 'Facilities' %}</a></div>
+    </li>
+    <li>
+        <div class="report">Group {{ submitting_group }}: {% trans 'Submitting' %}</div>
+        <div class="caption">{% blocktrans with submitting_complete as submitted and submitting_total as count %}{{ submitted }} of {{ count }}{% endblocktrans %} <a href="{% url new_reports "ordering" %}?place={{ location.code }}">{% trans 'submitted' %}</a></div>
+    </li>
+    <li>
+        <div class="report">Group {{ processing_group }}: {% trans 'Processing' %}</div>
+        <div class="caption">{% blocktrans with processing_complete as processed and processing_total as count %}{{ processed }} of {{ count }} forms sent to MSD{% endblocktrans %}</div>
+    </li>
+    <li>
+        <div class="report">Group {{ delivery_group }}: {% trans "Deliveries" %}</div>
+        <div class="caption">{% blocktrans with delivery_complete as delivered and delivery_total as count %}{{ delivered }} of {{ count }}{% endblocktrans %} <a href="{% url new_reports "ordering" %}?place={{ location.code }}">{% trans 'delivered' %}</a></div>
+    </li>
+    <li>
+        <div class="report">Average Lead Time</div>
+        <div class="caption">
+            {% if avg_lead_time %}
+                {% trans "Current Average Lead Time from Report to Delivery: "%} {{ avg_lead_time }} {% trans " days" %}
+            {% else %}
+                <span class='no_data'>No Data</span>
+            {% endif %}
+        </div>
+    </li>
+</ul>
+

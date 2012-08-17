@@ -15,13 +15,10 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics.models import ProductStock, Product
 from logistics.errors import UnknownCommodityCodeError
+from logistics_project.apps.tanzania.utils import send_if_connection
 
 CHARS_IN_CODE = "2, 4"
 NUMERIC_LETTERS = ("lLIoO", "11100")
-
-def _send_if_connection(c, message):
-    if c.default_connection is not None:
-        c.message(message)
 
 class DeliveryHandler(KeywordHandler,TaggingHandler):
     """
@@ -31,8 +28,8 @@ class DeliveryHandler(KeywordHandler,TaggingHandler):
     def _send_delivery_alert_to_facilities(self, sp):
         for child in sp.children():
             for c in child.active_contact_set:
-                _send_if_connection(c, _(config.Messages.DELIVERY_CONFIRM_CHILDREN) %
-                                            {"district_name": sp.name} )
+                send_if_connection(c, _(config.Messages.DELIVERY_CONFIRM_CHILDREN),
+                                   **{"district_name": sp.name} )
 
     @logistics_contact_required()
     def help(self):
@@ -45,8 +42,8 @@ class DeliveryHandler(KeywordHandler,TaggingHandler):
                                              status_value=SupplyPointStatusValues.RECEIVED,
                                              status_date=self.msg.timestamp)
             self._send_delivery_alert_to_facilities(sp)
-            self.respond(_(config.Messages.DELIVERY_CONFIRM_DISTRICT) % {"contact_name":contact.name,
-                                                                         "facility_name":sp.name})
+            self.respond(_(config.Messages.DELIVERY_CONFIRM_DISTRICT), **{"contact_name":contact.name,
+                                                                          "facility_name":sp.name})
         elif sp.type.code.lower() == config.SupplyPointCodes.FACILITY:
             SupplyPointStatus.objects.create(supply_point=sp,
                                      status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
@@ -70,7 +67,7 @@ class DeliveryHandler(KeywordHandler,TaggingHandler):
         if stock_report.errors:
             for e in stock_report.errors:
                 if isinstance(e, UnknownCommodityCodeError):
-                    self.respond_error(_(config.Messages.INVALID_PRODUCT_CODE) % {"product_code": e})
+                    self.respond_error(_(config.Messages.INVALID_PRODUCT_CODE), **{"product_code": e})
                     return
             self.respond_error(_(config.Messages.DELIVERY_BAD_FORMAT))
             return

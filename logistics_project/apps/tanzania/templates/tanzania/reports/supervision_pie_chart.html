@@ -1,0 +1,9 @@
+<h2>Supervision Summary ({{ last_month|date:"F Y" }})</h2>
+{% with chart_data as chart_data %}
+{% with "supervision_chart" as chartdiv %}
+{% with "supervision_hover" as hoverdiv %}
+
+{% include "logistics/partials/pie_reporting_generic.html" %}
+
+{% endwith %}{% endwith %}{% endwith %}
+

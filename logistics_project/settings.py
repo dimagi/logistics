@@ -12,7 +12,6 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 BASE_APPS = [
 
     # the essentials.
-    "django_nose",
     "djtables",
     "rapidsms",
     # for email reports
@@ -34,6 +33,9 @@ BASE_APPS = [
     "django.contrib.contenttypes",
     
     "south",
+
+    # nose must come after south because south has its own *test*
+    "django_nose",
     
     # the rapidsms contrib apps.
     #"rapidsms.contrib.default",
@@ -54,7 +56,10 @@ BASE_APPS = [
     "couchlog",
     "registration",
     "groupmessaging",
-    "taggit"
+    "taggit",
+    "gunicorn",
+    "django_extensions",
+    "warehouse"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
@@ -211,12 +216,14 @@ LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
 LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
 LOGISTICS_APPROVAL_REQUIRED = False
+LOGISTICS_USE_WAREHOUSE_TABLES = True
+
 MAGIC_TOKEN = "changeme"
 
 MAP_DEFAULT_LATITUDE  = -10.49
 MAP_DEFAULT_LONGITUDE = 39.35
 
-DEBUG=False
+DEBUG=True
 
 RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
@@ -240,6 +247,10 @@ AXES_LOCK_OUT_AT_FAILURE=False
 COUCHLOG_BLUEPRINT_HOME = "%s%s" % (MEDIA_URL, "logistics/stylesheets/blueprint/")
 COUCHLOG_DATATABLES_LOC = "%s%s" % (MEDIA_URL, "logistics/javascripts/jquery.dataTables.min.js")
 
+SOUTH_MIGRATION_MODULES = {
+    'rapidsms': 'logistics.migrations',
+}
+
 try:
     import sys
     if os.environ.has_key('LOCAL_SETTINGS'):
@@ -250,12 +261,6 @@ try:
         from localsettings import *
 except ImportError:
     pass
-if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
-    DATABASES = TESTING_DATABASES
-    for db_name in DATABASES:
-        DATABASES[db_name]['TEST_NAME'] = os.path.join(
-            tempfile.gettempdir(),
-            "%s.rapidsms.test.sqlite3" % db_name)
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 
@@ -278,6 +283,3 @@ AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 AUDITCARE_LOG_ERRORS = False
 
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
-}

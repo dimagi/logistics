@@ -4,7 +4,7 @@ from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from rapidsms.models import Contact
 from alerts import Alert
 from logistics.util import config
-from logistics.models import ProductStock
+from logistics.models import ProductStock, SupplyPoint
 from logistics.decorators import place_in_request, return_if_place_not_set
 from django.utils.translation import ugettext as _
 
@@ -141,6 +141,8 @@ def no_primary_contact(request):
     if not facilities:
         return None
     return [NoPrimaryContact(f) for f in facilities]
+
+
 
 
 

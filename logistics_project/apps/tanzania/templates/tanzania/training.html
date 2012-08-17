@@ -1,0 +1,36 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load cache %}
+{% load i18n %}
+
+{% block title %}Training Tools {{ block.super }}{% endblock %}
+{% block content %}
+<h2>{% trans "Training tools" %}</h2>
+
+<div class="module">
+	<br>
+		<form action="/tz/training/" method="post">
+			{% csrf_token %}
+			{% if not is_running %}
+				{% trans "Data as of: " %} {{ latest_run_time|safe }} 
+				<br><br>
+				<input type="submit" name="submit" value= {% trans "Refresh Data" %} />
+			{% else %}
+				<input type="submit" disabled="true" name="submit" value= {% trans "Refresh Data" %} />
+				{% trans "Currently running: started at " %} {{ latest_incomplete_time|safe }}
+			{% endif %}
+		</form>
+	<br>
+</div>
+
+<div class="module">
+	<br>
+	{% for f in files %}
+		<br>
+		<a href="/static/tanzania/downloads/training_documents/{{ f.link }}">{{ f.name }}</a>
+		<br>
+	{% endfor %}
+	<br>
+</div>
+
+{% endblock %}

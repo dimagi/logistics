@@ -15,6 +15,8 @@ from datetime import datetime
 import pytz
 from pytz import timezone
 
+from logistics_project.apps.tanzania.reporting.models import OrganizationTree
+
 def clear_supplypoints():
     Location.objects.all().delete()
     SupplyPoint.objects.all().delete()
@@ -96,6 +98,27 @@ def load_locations(path):
             
             count += 1
     print "Processed %d locations"  % count
+    populate_org_tree()
+
+def populate_org_tree():
+    clear_org_tree()
+    for s in SupplyPoint.objects.all().order_by('id'):
+        if s.supplied_by:
+            create_org_tree(s, s.supplied_by)
+            print s.name + ' (' + str(s.id) + ')'
+
+def clear_org_tree():
+    orgtree = OrganizationTree.objects.all()
+    orgtree.delete()
+
+def create_org_tree(below,above):
+    if below.type.name=='FACILITY':
+        orgtree = OrganizationTree(below=below, above=above, is_facility=True)
+    else:
+        orgtree = OrganizationTree(below=below, above=above)
+    orgtree.save()
+    if above.supplied_by:
+        create_org_tree(below,above.supplied_by)
 
 def load_fixtures():
     # for the fixtures
@@ -106,33 +129,45 @@ def load_schedules():
     # {module: {function: (hours, minutes)}}
     # everything is daily.
     # we convert from TZ time to UTC
-    theschedule = {"logistics_project.apps.tanzania.reminders.delivery":
-                   {"first_facility": (9, 0),
-                    "second_facility": (9, 0),
-                    "third_facility": (9, 0),
-                    "first_district": (9, 0),
-                    "second_district": (9, 0),
-                    "third_district": (9, 0)},
-                   "logistics_project.apps.tanzania.reminders.randr":
-                    {"first_facility": (9, 0),
-                     "second_facility": (9, 0),
-                     "third_facility": (9, 0),
-                     "first_district": (9, 0),
-                     "second_district": (9, 0),
-                     "third_district": (9, 0)},
-                   "logistics_project.apps.tanzania.reminders.stockonhand":
-                   {"first": (9, 0),
-                    "second": (9, 0),
-                    "third": (9, 0)},
-                   "logistics_project.apps.tanzania.reminders.stockonhandthankyou":
-                   {"first": (9, 0)},
-                   "logistics_project.apps.tanzania.reminders.reports":
-                   {"delivery_summary": (9, 0),
-                    "soh_summary": (9, 0),
-                    "randr_summary": (9, 0)},
-#                    "email_reports": (9, 0)},
-                   "logistics_project.apps.tanzania.reminders.test":
-                   {"test_email_admins": (9, 0)}}
+    theschedule = {
+        "logistics_project.apps.tanzania.reminders.delivery": { 
+            "first_facility": (9, 0),
+            "second_facility": (9, 0),
+            "third_facility": (9, 0),
+            "first_district": (9, 0),
+            "second_district": (9, 0),
+            "third_district": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.randr": {
+            "first_facility": (9, 0),
+            "second_facility": (9, 0),
+            "third_facility": (9, 0),
+            "first_district": (9, 0),
+            "second_district": (9, 0),
+            "third_district": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.stockonhand": {
+            "first": (9, 0),
+            "second": (9, 0),
+            "third": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.stockonhandthankyou": {
+            "first": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.reports": {
+            "delivery_summary": (9, 0),
+            "soh_summary": (9, 0),
+            "randr_summary": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.test": {
+            "test_email_admins": (9, 0)
+        },
+        "warehouse.runner": {
+            "update_warehouse": (0, 0),
+            "update_warehouse": (12, 0)
+        },
+        
+    }
                      
     
     tanzania_tz = timezone("Africa/Dar_es_Salaam") 

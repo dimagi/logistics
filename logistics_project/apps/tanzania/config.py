@@ -65,6 +65,14 @@ class SupplyPointCodes(object):
     DISTRICT = "district"
     FACILITY = "facility"
     
+    ALL = {
+        MOH: "moh",
+        REGION: "region",
+        DISTRICT: "district",
+        FACILITY: "facility",
+    }
+
+    
 class LocationCodes(object):
     """
     These correspond to LocationType.code
@@ -121,6 +129,8 @@ def hsa_location_type():
 
 class Messages(object):
     # some semblance of an attempt to start being consistent about this.
+
+    NUMBER_OF_SUPPLY_POINTS = "Facilities" # label
     
     # "register" keyword (tz registration)
     REGISTER_HELP = "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"

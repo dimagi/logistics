@@ -6,6 +6,8 @@ from logistics_project.apps.tanzania.tasks import email_report
 from rapidsms.contrib.messagelog.models import Message
 
 
+class NoDataError(Exception): pass
+
 class DeliveryGroups(object):
     GROUPS = ('A', 'B', 'C')
 
@@ -45,7 +47,8 @@ class DeliveryGroups(object):
         return facs.filter(groups__code=self.current_submitting_group(month))
 
     def total(self):
-        return self.facs.filter(active=True, groups__code__in=self.GROUPS)
+        # return self.facs.filter(active=True, groups__code__in=self.GROUPS)
+        return self.facs.filter(active=True)
 
     def facilities_by_group(self, month=datetime.utcnow().month):
         groups = {}
@@ -167,3 +170,4 @@ class DeliveryGroupReport(models.Model):
 
     class Meta:
         ordering = ('-report_date',)
+
