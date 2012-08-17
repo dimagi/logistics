@@ -169,7 +169,22 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     def __unicode__(self):
         return self.name
-    
+
+    def report_status(self, days_until_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT):
+        """ returns a tuple: 
+        (Products reported this period, Products not reported this period) """
+        latest_stocks = self.stocked_productstocks().order_by('-last_modified')
+        commodities_stocked = self.commodities_stocked()
+        if not latest_stocks:
+            return [], commodities_stocked
+        # find commodities which have no associated product stock
+        missing_products = commodities_stocked.exclude(sms_code__in=[stock.product.sms_code for stock in latest_stocks])
+        deadline = datetime.now() + relativedelta(days=-days_until_late)
+        on_time_stocks = latest_stocks.filter(last_modified__gte=deadline)
+        missing_stocks = latest_stocks.filter(last_modified__lt=deadline)        
+        return ([stock.product for stock in on_time_stocks], 
+                [prod for prod in missing_products] + [stock.product for stock in missing_stocks])
+        
     @property
     def active_contact_set(self):
         return self.contact_set.filter(is_active=True)
@@ -261,9 +276,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return self.all_product_stocks()
     
     def all_product_stocks(self):
+        """ ProductStocks for all commodities 
+        which this facility has ever reported on"""
         return ProductStock.objects.filter(is_active=True).filter(supply_point=self)
     
     def stocked_productstocks(self):
+        """ ProductStocks for all commodities 
+        which this facility is required to report"""
         products = self.commodities_stocked()
         return self.productstock_set.filter(product__in=products)
     
