@@ -32,12 +32,15 @@ def second_soh_reminder (router):
     logging.info("running second soh reminder")
     reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
     for reporter in reporters:
-        latest_reports = ProductReport.objects.filter(supply_point=reporter.supply_point).order_by('-report_date')
-        # TODO get this to vary alongside scheduled time
-        deadline = datetime.now() + relativedelta(days=-5)
-        if not latest_reports or latest_reports[0].report_date < deadline:
-            response = config.Messages.SECOND_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
-            send_message_safe(reporter, response)
+        if reporter.supply_point:
+            on_time_products, missing_products = reporter.supply_point.report_status(days_until_late=5)
+            if not on_time_products:
+                response = config.Messages.SECOND_STOCK_ON_HAND_REMINDER % {'name':reporter.name}
+                send_message_safe(reporter, response)
+            elif missing_products:
+                response = config.Messages.SECOND_INCOMPLETE_SOH_REMINDER % {'name':reporter.name, 
+                                                                             'products':" ".join([prod.sms_code for prod in missing_products])}
+                send_message_safe(reporter, response)
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
@@ -45,18 +48,24 @@ def third_soh_to_super (router):
     for facility in facilities:
         if facility.contact_set.count() == 0:
             continue
-        latest_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
-        deadline = datetime.now() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-        if not latest_reports or latest_reports[0].report_date < deadline:
-            def _notify_super(facility_to_notify, about, message):
-                if facility_to_notify is not None:
-                    supers = Contact.objects.filter(supply_point=facility_to_notify)
-                    supers = supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
-                    for super in supers:
-                        response = message % {'name':super.name, 'facility':about.name }
-                        send_message_safe(super, response)
+        on_time_products, missing_products = facility.report_status()
+        def _notify_super(facility_to_notify, about, message, products=[]):
+            if facility_to_notify is not None:
+                supers = Contact.objects.filter(supply_point=facility_to_notify)
+                supers = supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
+                for super in supers:
+                    response = message % {'name':super.name, 'facility':about.name, 
+                                          'products':" ".join([prod.sms_code for prod in products]) if products else None }
+                    send_message_safe(super, response)
+        if not on_time_products:
+            # alert to super: no stock reports received
             _notify_super(facility, facility, config.Messages.THIRD_STOCK_ON_HAND_REMINDER)
             _notify_super(facility.supervised_by, facility, config.Messages.THIRD_CHPS_STOCK_ON_HAND_REMINDER)
+        elif missing_products:
+            # alert to super: not all stock reports received
+            _notify_super(facility, facility, config.Messages.INCOMPLETE_SOH_TO_SUPER, missing_products)
+            _notify_super(facility.supervised_by, facility, config.Messages.INCOMPLETE_CHPS_SOH_TO_SUPER, missing_products)
+            
         
 def reminder_to_submit_RRIRV(router):
     """ the 30th of each month, verify that they've submitted RRIRV """

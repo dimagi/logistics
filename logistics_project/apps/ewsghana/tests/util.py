@@ -1,4 +1,5 @@
 from rapidsms.tests.scripted import TestScript
+from rapidsms.models import Contact
 from logistics.models import SupplyPointType, \
     ProductReportType, SupplyPoint, Product, ProductStock, \
     ProductType
@@ -44,3 +45,26 @@ def load_test_data():
                                        manual_monthly_consumption=10, 
                                        use_auto_consumption=False)
     
+def register_user(testcase, phone, name, loc_code="dedh", loc_name="Dangme East District Hospital"):
+    """
+    Test utility to register a user
+    """
+    
+    script = """
+          %(phone)s > register %(name)s %(loc_code)s
+          %(phone)s < Congratulations %(name)s, you have successfully been registered for the Early Warning System. Your facility is %(loc_name)s
+        """ % {"phone": phone, "name": name,
+               "loc_code": loc_code, "loc_name": loc_name}
+    testcase.runScript(script)
+    return Contact.objects.get(connection__identity=phone)
+
+def report_stock(testcase, contact, stock, amount):
+    """
+    Test utility to register a user
+    """
+    script = """
+          %(phone)s > %(stock_code)s %(amount)s
+          %(phone)s < Dear %(name)s, thank you for reporting the commodities you have in stock.
+        """ % {"stock_code": stock.sms_code, "amount": amount, 
+               "phone":contact.default_connection.identity, "name":contact.name}
+    testcase.runScript(script)
