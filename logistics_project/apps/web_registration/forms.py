@@ -14,35 +14,42 @@ from rapidsms.contrib.locations.models import Location
 from logistics.models import SupplyPoint
 from logistics.util import config
 
-class AdminRegistersUserForm(RegistrationForm): 
+class RegisterUserForm(RegistrationForm): 
     # don't bother displaying facility locations since facility-specific views are drawn 
     # from user.facility anyways
+    designation = forms.CharField(required=False)
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
                                 label=_(u'password'), required=False)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
                                 label=_(u'password (again)'), required=False)
-    
+
+    def _add_to_kwargs_initial(self, kwargs, key, value):
+        initial = {}
+        initial[key] = value
+        if 'initial' in kwargs:
+            kwargs['initial'].update(initial)
+        else:
+            kwargs['initial'] = initial
+
     def __init__(self, *args, **kwargs):
         self.edit_user = None
         if 'user' in kwargs and kwargs['user'] is not None:
             # display the provided user's information on page load
             self.edit_user = kwargs['user']
-            initial = {}
-            if 'initial' in kwargs:
-                initial = kwargs['initial']
-            initial['username'] = self.edit_user.username
-            initial['email'] = self.edit_user.email
+            self._add_to_kwargs_initial(kwargs, 'username', self.edit_user.username)
+            self._add_to_kwargs_initial(kwargs, 'email', self.edit_user.email)
             profile = self.edit_user.get_profile()
             if profile.location is not None:
-                initial['location'] = profile.location.pk
+                self._add_to_kwargs_initial(kwargs, 'location', profile.location.pk)
             if profile.supply_point is not None:
-                initial['facility'] = profile.supply_point.pk
-            kwargs['initial'] = initial
+                self._add_to_kwargs_initial(kwargs, 'facility', profile.supply_point.pk)
+            if profile.designation is not None:
+                self._add_to_kwargs_initial(kwargs, 'designation', profile.designation)
         if 'user' in kwargs:
             kwargs.pop('user')
-        return super(AdminRegistersUserForm, self).__init__(*args, **kwargs)
+        return super(RegisterUserForm, self).__init__(*args, **kwargs)
         
     def clean_username(self):
         """
@@ -52,7 +59,7 @@ class AdminRegistersUserForm(RegistrationForm):
         """
         if self.edit_user is None:
             # checks for alnum and that this user doesn't already exist
-            return super(AdminRegistersUserForm, self).clean_username()
+            return super(RegisterUserForm, self).clean_username()
         # just checks for alnum
         if not self.cleaned_data['username'].isalnum():
             raise forms.ValidationError(_(u'Please enter a username containing only letters and numbers.'))
@@ -66,7 +73,7 @@ class AdminRegistersUserForm(RegistrationForm):
         """
         if self.edit_user is None and len(self.cleaned_data['password1']) == 0:
             raise forms.ValidationError(_(u'You must supply a password when creating a user'))
-        return super(AdminRegistersUserForm, self).clean()
+        return super(RegisterUserForm, self).clean()
 
     def save(self, profile_callback=None):
         if self.edit_user is None:
@@ -90,14 +97,16 @@ class AdminRegistersUserForm(RegistrationForm):
         user.is_active = True
         user.is_staff = False # Can never log into admin site
         user.save()
+        profile = user.get_profile()
         if 'location' in self.cleaned_data or 'facility' in self.cleaned_data:
-            profile = user.get_profile()
             profile.location = self.cleaned_data['location']
             profile.supply_point = self.cleaned_data['facility']
+            profile.designation = self.cleaned_data['designation']
             profile.save()
         return user
 
-class AdminRegistersUserFormActiveAdmin(AdminRegistersUserForm): 
+
+class AdminRegistersUserFormActiveAdmin(RegisterUserForm): 
     # set the is_active flag, as well as permissions
     is_active = forms.BooleanField(label='User is active (can login)', initial=True, required=False)
     is_admin = forms.BooleanField(label='User is an administrator', initial=False, required=False)

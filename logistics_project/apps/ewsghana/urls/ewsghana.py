@@ -4,11 +4,13 @@
 
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
+from registration.views import register
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.registration.views import registration as logistics_registration
 from logistics_project.apps.ewsghana.views import my_web_registration
 from logistics import views as logistics_views
 from logistics_project.apps.ewsghana.views import register_web_user
+from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
@@ -35,6 +37,11 @@ urlpatterns = patterns('',
     url(r'^scheduled_reports/?$', 'logistics_project.apps.ewsghana.views.email_reports', 
         name="ewsghana_scheduled_reports"),
     
+    # sign up for a new account
+    url(r'^accounts/register/$', register, 
+        kwargs={"template_name": "registration/registration_form.html", 
+                'form_class': EWSGhanaSelfRegistrationForm },
+        name='ewsghana_web_register_self'),
     # register new user
     url(r'^register/web/admin/?$', register_web_user, 
         {'template':'ewsghana/web_registration.html', 

@@ -14,10 +14,10 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from rapidsms.models import Connection, Backend, Contact
-from .forms import AdminRegistersUserForm
+from .forms import RegisterUserForm
 
 @transaction.commit_on_success
-def my_web_registration(request, Form=AdminRegistersUserForm, 
+def my_web_registration(request, Form=RegisterUserForm, 
                         template='web_registration/admin_registration.html', 
                         success_url='admin_web_registration_complete'):
     context = {}
@@ -25,7 +25,7 @@ def my_web_registration(request, Form=AdminRegistersUserForm,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 @transaction.commit_on_success
-def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, context={}, 
+def admin_does_all(request, pk=None, Form=RegisterUserForm, context={}, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
     if not request.user.has_perm('auth.add_user') and \

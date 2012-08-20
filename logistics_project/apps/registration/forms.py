@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
+from __future__ import absolute_import
 from django import forms
-from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
+from rapidsms.conf import settings
 from rapidsms.models import Backend, Connection, Contact
 from logistics.models import SupplyPoint
+from logistics_project.apps.registration.validation import check_for_dupes, intl_clean_phone_number
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
 # widget is rendered at its default width -- which is too wide for our
@@ -24,6 +25,7 @@ class BulkRegistrationForm(forms.Form):
         help_text="Upload a <em>plain text file</em> " +
                   "containing a single contact per line, for example: <br/>" +
                   "<em>firstname lastname, backend_name, identity</em>")
+
 
 class ContactForm(forms.ModelForm):
     name = forms.CharField()
@@ -47,23 +49,7 @@ class ContactForm(forms.ModelForm):
 
     def clean_phone(self):
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
-        if settings.DEFAULT_BACKEND:
-            backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
-        else:
-            backend = Backend.objects.all()[0]
-        dupes = Connection.objects.filter(identity=self.cleaned_data['phone'], 
-                                          backend=backend)
-        dupe_count = dupes.count()
-        if dupe_count > 1:
-            raise forms.ValidationError("Phone number already registered!")
-        if dupe_count == 1:
-            if dupes[0].contact is None:
-                # this is fine, it just means we have a dangling connection
-                # which we'll steal when we save
-                pass
-            # could be that we are editing an existing model
-            elif dupes[0].contact != self.instance:
-                raise forms.ValidationError("Phone number already registered!")
+        check_for_dupes(self.cleaned_data['phone'])
         return self.cleaned_data['phone']
 
     def _clean_phone_number(self, phone_number):
@@ -78,24 +64,8 @@ class ContactForm(forms.ModelForm):
         model = super(ContactForm, self).save(commit=False)
         if commit:
             model.save()
-            conn = model.default_connection
-            if not conn:
-                if settings.DEFAULT_BACKEND:
-                    backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
-                else:
-                    backend = Backend.objects.all()[0]
-                try:
-                    conn = Connection.objects.get(backend=backend, 
-                                                  identity=self.cleaned_data['phone'])
-                except Connection.DoesNotExist:
-                    # good, it doesn't exist already
-                    conn = Connection(backend=backend,
-                                      contact=model)
-                else: 
-                    # this connection already exists. just steal it. 
-                    conn.contact = model
-            conn.identity = self.cleaned_data['phone']
-            conn.save()
+            model.set_default_connection_identity(self.cleaned_data['phone'], 
+                                                  backend_name=settings.DEFAULT_BACKEND)
         return model
 
 class IntlSMSContactForm(ContactForm):
@@ -106,35 +76,8 @@ class IntlSMSContactForm(ContactForm):
                                            {'i':settings.INTL_DIALLING_CODE,
                                             'c':settings.COUNTRY_DIALLING_CODE})
 
-    def _clean_phone_number(self, phone_number):
-        """
-        * remove junk characters
-        * replaces optional domestic dialling code with intl dialling code
-        * prefix with international dialling code (specified in settings.py)
-        """
-        cleaned = phone_number.strip()
-        junk = [',', '-', ' ', '(', ')']
-        for mark in junk:
-            cleaned = cleaned.replace(mark, '')
-
-        # replace domestic with intl dialling code, if domestic code defined
-        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_DIALLING_CODE)
-        try:
-            ddc = str(settings.DOMESTIC_DIALLING_CODE)
-            if cleaned.startswith(ddc):
-                cleaned = "%s%s" % (idc, cleaned.lstrip(ddc))
-                return cleaned
-        except NameError:
-            # ddc not defined, no biggie
-            pass
-        if cleaned.isdigit():
-            return cleaned
-        if cleaned.startswith(idc):
-            return cleaned
-        raise forms.ValidationError("Poorly formatted phone number. " + \
-                                    "Please enter the fully qualified number." + \
-                                    "Example: %(intl)s2121234567" % \
-                                    {'intl':idc})
+        def _clean_phone_number(self, phone_number):
+            return intl_clean_phone_number(phone_number)
 
 class CommoditiesContactForm(IntlSMSContactForm):
     supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),

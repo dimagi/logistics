@@ -14,39 +14,61 @@ from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
+from rapidsms.conf import settings
 from logistics.models import Product, SupplyPoint, ProductStock
-from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
+from logistics_project.apps.registration.validation import intl_clean_phone_number, \
+    check_for_dupes
+from logistics_project.apps.web_registration.forms import RegisterUserForm, \
+    UserSelfRegistrationForm
 
 def _get_program_admin_group():
     return Group.objects.get(name=FACILITY_MANAGER_GROUP_NAME)
 
-class EWSGhanaBasicWebRegistrationForm(AdminRegistersUserForm): 
-    designation = forms.CharField(required=False)
+class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    organization = forms.CharField(required=False)
+    phone = forms.CharField(required=False)
     
-    def _add_to_kwargs_initial(self, kwargs, key, value):
-        initial = {}
-        initial[key] = value
-        if 'initial' in kwargs:
-            kwargs['initial'].update(initial)
-        else:
-            kwargs['initial'] = initial
-
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs and kwargs['user'] is not None:
-            profile = kwargs['user'].get_profile()
-            if profile and profile.designation is not None:
-                self._add_to_kwargs_initial(kwargs, 'designation', profile.designation)
+            # display the provided user's information on page load
+            user = kwargs['user']
+            profile = self.edit_user.get_profile()
+            if profile.organization is not None:
+                self._add_to_kwargs_initial(kwargs, 'organization', profile.organization)
+            if profile.contact and profile.contact.default_connection is not None:
+                self._add_to_kwargs_initial(kwargs, 'phone', profile.contact.default_connection.identity)
+            if user.first_name is not None:
+                self._add_to_kwargs_initial(kwargs, 'first_name', user.first_name)
+            if user.last_name is not None:
+                self._add_to_kwargs_initial(kwargs, 'last_name', user.last_name)
         return super(EWSGhanaBasicWebRegistrationForm, self).__init__(*args, **kwargs)
+    
+    def clean_phone(self):
+        self.cleaned_data['phone'] = intl_clean_phone_number(self.cleaned_data['phone'])
+        check_for_dupes(self.cleaned_data['phone'], self.edit_user.get_profile().contact)
+        return self.cleaned_data['phone']
 
-    def save(self, profile_callback=None):
-        user = super(EWSGhanaBasicWebRegistrationForm, self).save(profile_callback)
-        user.is_staff = False # Can never log into admin site
-        user.save()
+    def save(self, *args, **kwargs):
+        user = super(EWSGhanaBasicWebRegistrationForm, self).save(*args, **kwargs)
         profile = user.get_profile()
-        if 'designation' in self.cleaned_data and profile:
-            profile.designation = self.cleaned_data['designation']
-            profile.save()
+        if 'organization' in self.cleaned_data:
+            profile.organization = self.cleaned_data['organization']
+        if 'first_name' in self.cleaned_data:
+            user.first_name = self.cleaned_data['first_name']
+        if 'last_name' in self.cleaned_data:
+            user.last_name = self.cleaned_data['last_name']
+        if 'phone' in self.cleaned_data and self.cleaned_data['phone']:
+            phone_number = intl_clean_phone_number(self.cleaned_data['phone'])
+            profile.get_or_create_contact().set_default_connection_identity(phone_number, backend_name=settings.DEFAULT_BACKEND)
+        else:
+            contact = profile.contact
+            if contact and contact.default_connection:
+                contact.default_connection.delete()
+        profile.save()
+        user.save()
         return user
 
 class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm): 
@@ -155,4 +177,42 @@ class FacilityForm(forms.ModelForm):
                 facility.location.point = None
                 facility.location.save()
         return facility
-    
+
+class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
+    """
+    TODO: merge this into EWSGhanaBasicRegistration form above
+    be careful to make sure that the right kind of active/inactive user gets created
+    """
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+    organization = forms.CharField(required=False)
+    phone = forms.CharField(required=False)
+
+    def clean_phone(self):
+        self.cleaned_data['phone'] = intl_clean_phone_number(self.cleaned_data['phone'])
+        check_for_dupes(self.cleaned_data['phone'])
+        return self.cleaned_data['phone']
+
+    def save(self, *args, **kwargs):
+        new_user = super(EWSGhanaSelfRegistrationForm, self).save(*args, **kwargs)
+        profile = new_user.get_profile()
+        if 'designation' in self.cleaned_data and self.cleaned_data['designation']:
+            profile = new_user.get_profile()
+            profile.designation = self.cleaned_data['designation']
+        if 'organization' in self.cleaned_data:
+            profile.organization = self.cleaned_data['organization']
+        if 'first_name' in self.cleaned_data:
+            new_user.first_name = self.cleaned_data['first_name']
+        if 'last_name' in self.cleaned_data:
+            new_user.last_name = self.cleaned_data['last_name']
+        if 'phone' in self.cleaned_data and self.cleaned_data['phone']:
+            phone_number = intl_clean_phone_number(self.cleaned_data['phone'])
+            profile.get_or_create_contact().set_default_connection_identity(phone_number, backend_name=settings.DEFAULT_BACKEND)
+        else:
+            contact = profile.contact
+            if contact and contact.default_connection:
+                contact.default_connection.delete()
+        profile.save()
+        new_user.save()
+        return new_user
+
