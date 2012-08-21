@@ -42,9 +42,7 @@ class View(warehouse_view.DistrictOnlyView):
             tot_cons = vals['calculated_consumption__sum']
             tot_so_time = vals['time_stocked_out__sum']
             tot_time_with_data = vals['time_with_data__sum']
-            print tot_time_with_data
             tot_time_needing_data = vals['time_needing_data__sum']
-            print tot_time_needing_data
             num_hsas = relevant[0].total
             avg_so_time = tot_so_time / num_hsas # NOTE: potential divide by 0
             period_secs = delta_secs(end - request.datespan.startdate)
