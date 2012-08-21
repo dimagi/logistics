@@ -8,43 +8,50 @@
 
 {% block left %}
 <div class="module">
-	<h2>SMS Users</h2>
-	{{ contacts_table.as_html }}{% if contact %}
+     <h2>SMS Users</h2>
+     {{ contacts_table.as_html }}{% if contact %}
 
-	<div class="toolbar">
-		<a href="{{ registration_view }}" class="add">Add a SMS User</a>
-	</div>{% endif %}
+     <div class="toolbar">
+          <a href="{{ registration_view }}" class="add">Add a SMS User</a>
+     </div>{% endif %}
 </div>
 {% endblock %}
 
 {% block right %}
 <div class="module">
-	<h2>{% if contact %}
-		Edit {{ contact }}{% else %}
-		Add a New SMS User{% endif %}
-	</h2>
+     <h2>{% if contact %}
+          Edit {{ contact }}{% else %}
+          Add a New SMS User{% endif %}
+     </h2>
 
-	<form action="" method="post">
-		{% render_form contact_form %}
-		{% csrf_token %}
+     <form action="" method="post">
+          {% render_form contact_form %}
+          {% csrf_token %}
 
-		<div class="submit">
-			<input type="submit" name="submit" value="Save Contact" />{% if contact %}
-			<input type="submit" name="submit" value="Delete Contact" />{% endif %}
-		</div>
-	</form>
+          <div class="submit">
+               <input type="submit" name="submit" value="Save Contact" />{% if contact %}
+               <input type="submit" name="submit" value="Delete Contact" />{% endif %}
+          </div>
+     </form>
+     {% if contact and contact.supply_point %}
+          <div class="edit_link"><strong>
+               <a href="{% url facility_edit contact.supply_point.pk %}">
+               Edit Facility
+               </a>
+          </strong></div>
+     {% endif %}
 </div>
 {% if bulk_form %}
 <div class="module collapsed">
         <h2>Bulk Registration</h2>
-	<form action="" method="post" enctype="multipart/form-data">
-		{% render_form bulk_form %}
-		{% csrf_token %}
+     <form action="" method="post" enctype="multipart/form-data">
+          {% render_form bulk_form %}
+          {% csrf_token %}
 
-		<div class="submit">
-			<input type="submit" name="submit" value="Save Contacts" />
-		</div>
-	</form>
+          <div class="submit">
+               <input type="submit" name="submit" value="Save Contacts" />
+          </div>
+     </form>
 </div>
 {% endif %}
 {% endblock %}
