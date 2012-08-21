@@ -76,7 +76,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": [_consumption_row(d, p) for p in Product.objects.all()]
             }
         if f:
-            d_table = {
+            f_table = {
                 "id": "facility-consumption-profiles",
                 "is_datatable": False,
                 "header": table_headers,
