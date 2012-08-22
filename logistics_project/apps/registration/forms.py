@@ -90,7 +90,8 @@ class CommoditiesContactForm(IntlSMSContactForm):
 
     def __init__(self, *args , **kwargs):
         super(CommoditiesContactForm, self ).__init__(*args,**kwargs)
-        self.fields['commodities'].queryset = Product.objects.filter(is_active=True)
+        if 'commodities' in self.fields:
+            self.fields['commodities'].queryset = Product.objects.filter(is_active=True)
     
     @transaction.commit_on_success
     def save(self, commit=True):
