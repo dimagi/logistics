@@ -455,11 +455,11 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def consumption(self, product=None, producttype=None):
         return self._get_stock_count("consumption", product, producttype)
     
-    def report(self, product, report_type, quantity, message=None, report_date=None):
-        if report_date:
+    def report(self, product, report_type, quantity, message=None, date=None):
+        if date:
             npr = ProductReport(product=product, report_type=report_type,
                                 quantity=quantity, message=message, supply_point=self, 
-                                report_date=report_date)
+                                report_date=date)
         else:
             npr = ProductReport(product=product, report_type=report_type,
                                 quantity=quantity, message=message, supply_point=self)
@@ -793,16 +793,16 @@ class StockTransfer(models.Model):
     def is_closed(self):
         return not self.is_pending()
     
-    def cancel(self, close_date):
+    def cancel(self, date):
         assert(self.is_pending())
         self.status = StockTransferStatus.CANCELED
-        self.closed_on = close_date
+        self.closed_on = date
         self.save()
     
-    def confirm(self, close_date):
+    def confirm(self, date):
         assert(self.is_pending())
         self.status = StockTransferStatus.CONFIRMED
-        self.closed_on = close_date
+        self.closed_on = date
         self.save()
         
     @property
