@@ -8,7 +8,7 @@ from rapidsms.contrib.locations.models import Point
 from .models import SupplyPoint, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
-    commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
+    commodities = forms.ModelMultipleChoiceField(Product.objects.filter(is_active=True).order_by('name'), 
                                                  help_text='Select only commodities actively stocked by this facility', 
                                                  required=False)
     latitude = forms.DecimalField(required=False)
@@ -72,3 +72,7 @@ class CommodityForm(forms.ModelForm):
     class Meta:
         model = Product
         exclude = ('is_active', 'product_code')
+
+    def __init__(self, *args , **kwargs):
+        super(CommodityForm, self ).__init__(*args,**kwargs)
+        self.fields['equivalents'].queryset = Product.objects.filter(is_active=True)

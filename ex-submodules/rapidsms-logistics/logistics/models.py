@@ -65,6 +65,9 @@ class Product(models.Model):
     # products which we recognize but aren't required for reporting)
     is_active = models.BooleanField(default=True, db_index=True)
     
+    class Meta:
+        ordering = ['name']
+        
     def __unicode__(self):
         return self.name
 
@@ -192,6 +195,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     class Meta:
         abstract = True
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name
