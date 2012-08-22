@@ -246,7 +246,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
-    
     # default to the whole country
     if location_code is None:
         location_code = settings.COUNTRY
@@ -373,6 +372,19 @@ def facility(req, pk=None, template="logistics/config.html"):
 
 @permission_required('logistics.add_product')
 @transaction.commit_on_success
+def activate_commodity(request, sms_code):
+    """ 
+    hidden URL to reactivate commodities 
+    exists for UI testing
+    """
+    if not request.user.is_superuser:
+        return HttpResponse("not enough permissions to complete this transaction")
+    commodity = get_object_or_404(Product, sms_code=sms_code)
+    commodity.activate()
+    return HttpResponse("success")
+
+@permission_required('logistics.add_product')
+@transaction.commit_on_success
 def commodity(req, pk=None, template="logistics/config.html"):
     form = None
     commodity = None
@@ -381,7 +393,7 @@ def commodity(req, pk=None, template="logistics/config.html"):
         commodity = get_object_or_404(Product, pk=pk)
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
-            commodity.delete()
+            commodity.deactivate()
             return HttpResponseRedirect(
                 reverse('commodity_view'))
         else:
@@ -396,7 +408,7 @@ def commodity(req, pk=None, template="logistics/config.html"):
         form = CommodityForm(instance=commodity)
     return render_to_response(
         template, {
-            "table": CommodityTable(Product.objects.all(), request=req),
+            "table": CommodityTable(Product.objects.filter(is_active=True), request=req),
             "form": form,
             "object": commodity,
             "klass": klass,

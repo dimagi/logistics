@@ -19,4 +19,7 @@ urlpatterns = patterns('',
     url(r'^commodity/(?P<pk>\d+)/edit/?$',
        views.commodity,
        name='commodity_edit'),
+    url(r'^commodity/(?P<sms_code>\w+)/activate/?$',
+       views.activate_commodity,
+       name='commodity_activate'),
 )

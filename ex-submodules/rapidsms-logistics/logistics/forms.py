@@ -71,4 +71,4 @@ class FacilityForm(forms.ModelForm):
 class CommodityForm(forms.ModelForm):
     class Meta:
         model = Product
-
+        exclude = ('is_active', 'product_code')

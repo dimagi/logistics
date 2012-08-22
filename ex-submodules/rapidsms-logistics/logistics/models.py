@@ -76,6 +76,31 @@ class Product(models.Model):
     def by_code(cls, code):
         return cls.objects.get(sms_code=code)
     
+    @transaction.commit_on_success
+    def deactivate(self):
+        self.is_active = False
+        self.save()
+        stocks = ProductStock.objects.filter(product=self).filter(is_active=True)
+        for stock in stocks:
+            stock.is_active = False
+            stock.save()
+        contacts = Contact.objects.filter(commodities__sms_code__in=self.sms_code)
+        for contact in contacts:
+            contact.commodities.remove(self)
+
+    @transaction.commit_on_success
+    def activate(self):
+        """ 
+        NOTE: this is not the full inverse of the activate() function
+        since we do not re-assign commodities to individual reporters after restoring
+        """
+        self.is_active = True
+        self.save()
+        stocks = ProductStock.objects.filter(product=self).filter(is_active=False).order_by("supply_point__name")
+        for stock in stocks:
+            stock.is_active = True
+            stock.save()
+
 class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
