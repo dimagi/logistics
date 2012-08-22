@@ -5,14 +5,31 @@
 {% endblock %}
 
 {% block custom_fields %}
-<label>Commodities</label><br/>
-{% for product in products %}
-	<input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
-		{% if object %}
-			{% if product.pk in form.initial.commodities %}456
-				checked="checked"
-			{% endif %}
-		{% endif %}
-	>{{product.name}}</input><br/>
-{% endfor %}
+{% if form.initial.primary_reporter %}
+    <strong>Please specify which commodities to report</strong><br/>
+    {% for product in products %}
+        <input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
+            {% if object %}
+                {% if product.pk in form.initial.commodities %}
+                    checked="checked"
+                {% endif %}
+            {% endif %}
+        >{{product.name}}</input><br/>
+    {% endfor %}
+    <p/>
+{% endif %}
+{% endblock %}
+
+{% block post_notes %}
+{% if not form.initial.primary_reporter %}
+    Before you can specify commodities, you must register SMS stock reporters for this facility
+    and designate a primary reporter.<br/>
+{% endif %}
+{% if form.initial %}
+<div class="edit_link"><strong>
+    <a href="{% url ewsghana_sms_registration %}{% if form.initial %}?supplypoint={{form.initial.code}}{% endif %}">
+        Register SMS Users
+    </a></strong>
+</div>
+{% endif %}
 {% endblock %}

@@ -3,7 +3,10 @@ from django.db import models
 from django.db.models import Q
 
 class SupplyPoint(models.Model):
-    supervised_by = models.ForeignKey("logistics.SupplyPoint", related_name="supervising_facility", null=True, blank=True)
+    supervised_by = models.ForeignKey("logistics.SupplyPoint", 
+                                      related_name="supervising_facility", null=True, blank=True)
+    primary_reporter = models.ForeignKey("rapidsms.Contact", null=True, 
+                                         verbose_name='Verify Primary Stock Reporter', blank=True)
 
     class Meta:
         abstract = True

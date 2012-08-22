@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 
 from django.conf.urls.defaults import *
@@ -7,7 +7,8 @@ from django.views.generic.simple import direct_to_template
 from registration.views import register
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.registration.views import registration as logistics_registration
-from logistics_project.apps.ewsghana.views import my_web_registration
+from logistics_project.apps.ewsghana.views import my_web_registration, sms_registration
+from logistics_project.apps.web_registration.views import my_web_registration
 from logistics import views as logistics_views
 from logistics_project.apps.ewsghana.views import register_web_user
 from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
@@ -27,11 +28,11 @@ urlpatterns = patterns('',
         name="ewsghana_reporting"),
     
     # sms user register
-    url(r'^registration/sms/?$', logistics_registration, 
+    url(r'^registration/sms/?$', sms_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_sms_registration"),
     # sms user edit
-    url(r'^registration/sms/(?P<pk>\d+)/edit/?$', logistics_registration, 
+    url(r'^registration/sms/(?P<pk>\d+)/edit/?$', sms_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_registration_edit"),
     url(r'^scheduled_reports/?$', 'logistics_project.apps.ewsghana.views.email_reports', 

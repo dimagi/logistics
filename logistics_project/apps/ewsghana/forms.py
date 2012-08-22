@@ -15,12 +15,15 @@ from django import forms
 from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
 from rapidsms.conf import settings
+from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from logistics_project.apps.registration.validation import intl_clean_phone_number, \
     check_for_dupes
+from logistics_project.apps.registration.forms import CommoditiesContactForm
 from logistics_project.apps.web_registration.forms import RegisterUserForm, \
     UserSelfRegistrationForm
+from logistics.util import config
 
 def _get_program_admin_group():
     return Group.objects.get(name=FACILITY_MANAGER_GROUP_NAME)
@@ -130,6 +133,7 @@ class FacilityForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {}
+        initial_sp = None
         if 'instance' in kwargs and kwargs['instance']:
             initial_sp = kwargs['instance']
             if 'initial' not in kwargs:
@@ -141,6 +145,12 @@ class FacilityForm(forms.ModelForm):
                 kwargs['initial']['latitude'] = initial_sp.location.point.latitude
                 kwargs['initial']['longitude'] = initial_sp.location.point.longitude
         super(FacilityForm, self).__init__(*args, **kwargs)
+        if initial_sp:
+            self.fields["primary_reporter"].queryset = Contact.objects\
+              .filter(supply_point=initial_sp).filter(is_active=True)
+        else:
+            # if this is a new facility, then no reporters have been defined
+            self.fields["primary_reporter"].queryset = Contact.objects.none()
                 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)
@@ -215,4 +225,23 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
         profile.save()
         new_user.save()
         return new_user
+
+class EWSGhanaSMSRegistrationForm(CommoditiesContactForm): 
+    """ Slight tweak to the vanilla registration form to automatically
+    set the first registered SMS reporter to be the primary reporter
+    This is mostly a usability tweak for Ghana. TBD whether it's appropriate elsewhere.
+     """
+    class Meta:
+        model = Contact
+        exclude = ("user", "language", "commodities")
+    
+    def save(self, *args, **kwargs):
+        contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
+        responsibilities = contact.role.responsibilities.values_list('code', flat=True)
+        if contact.supply_point and contact.supply_point.primary_reporter is None and \
+          config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
+            contact.supply_point.primary_reporter = contact
+            contact.supply_point.save()
+        return contact
+
 

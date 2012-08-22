@@ -13,11 +13,13 @@ from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
+from logistics.models import SupplyPoint
 from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
 from .tables import ContactTable
 
 @permission_required('rapidsms.add_contact')
-def registration(req, pk=None, template="registration/dashboard.html"):
+def registration(req, pk=None, template="registration/dashboard.html", 
+                 contact_form=CommoditiesContactForm):
     contact = None
     connection = None
     bulk_form = None
@@ -32,7 +34,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             connection = Connection.objects.get(contact=contact)
         except Connection.DoesNotExist:
             connection = None
-            
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
             contact.delete()
@@ -61,7 +62,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             return HttpResponseRedirect(
                 reverse(registration_view))
         else:
-            contact_form = CommoditiesContactForm(
+            contact_form = contact_form(
                 instance=contact,
                 data=req.POST)
 
@@ -76,10 +77,20 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                          'site': Site.objects.get(id=settings.SITE_ID).domain }
                     send_message(contact.default_connection, response)
                     return HttpResponseRedirect(reverse(registration_view))
-
     else:
-        contact_form = CommoditiesContactForm(
-            instance=contact)
+        if pk is None:
+            supplypoint = None
+            if "supplypoint" in req.GET and req.GET["supplypoint"]:
+                try:
+                    supplypoint = SupplyPoint.objects.get(code=req.GET["supplypoint"])
+                except SupplyPoint.DoesNotExist, SupplyPoint.MultipleObjectsReturned:
+                    pass
+            contact_form = contact_form(
+                instance=contact, 
+                initial={'supply_point':supplypoint})
+        else:
+            contact_form = contact_form(
+                instance=contact)
         bulk_form = BulkRegistrationForm()
     return render_to_response(
         template, {

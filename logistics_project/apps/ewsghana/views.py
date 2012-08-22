@@ -17,9 +17,12 @@ from logistics.views import message_log as rapidsms_message_log
 from logistics.views import reporting as logistics_reporting
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
+from logistics_project.apps.registration.views import registration as logistics_registration
+from .forms import FacilityForm
 
 """ Usage-Related Views """
 @geography_context
@@ -116,3 +119,9 @@ def my_web_registration(request,
     context['hide_delete'] = True
     Form = EWSGhanaBasicWebRegistrationForm
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
+
+def sms_registration(request, *args, **kwargs):
+    kwargs['contact_form'] = EWSGhanaSMSRegistrationForm
+    ret = logistics_registration(request, *args, **kwargs)
+    return ret
+
