@@ -1,14 +1,13 @@
+import json
 from collections import defaultdict
-
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ProductAvailabilityDataSummary
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
 from logistics_project.apps.malawi.warehouse import warehouse_view
-import json
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
+    ProductAvailabilityDataSummary
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -23,12 +22,12 @@ class View(warehouse_view.DistrictOnlyView):
         # Correct
         # date = current_report_period()
         date = request.datespan.enddate # testing
+
         headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
                     "% HSA Overstocked", "% HSA Not Reported"]
         ordered_slugs = ["without_stock", "under_stock", 
                          "good_stock", "over_stock",
                          "without_data"]
-        
         
         # data by product
         p_pad_tuples = [(p, ProductAvailabilityData.objects.get\
@@ -38,7 +37,7 @@ class View(warehouse_view.DistrictOnlyView):
                         [fmt_pct(getattr(pad, "managed_and_%s" % k), pad.managed) \
                          for k in ordered_slugs] \
                         for p, pad in p_pad_tuples]
-        
+
         product_table = {
             "id": "product-table",
             "is_datatable": False,
@@ -46,71 +45,69 @@ class View(warehouse_view.DistrictOnlyView):
             "data": product_data,
         }
         
-        d_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
-                          (supply_point=d, date=date)) \
-                        for d in self._context['districts']]
-
-        
-        district_data = [[d.name] + \
-                        [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
-                         for k in ordered_slugs] \
-                        for d, pads in d_pads_tuples]
-
         district_table = {
             "id": "district-table",
             "is_datatable": False,
             "header": ["District"] + headings,
-            "data": district_data,
+            "data": [],
         }
         
-        
-        
-        is_district_view = False # TODO: JIMFIX
-        if is_district_view:
+
+        facility_table = {
+            "id": "facility-table",
+            "is_datatable": True,
+            "header": ["Facility"] + headings,
+            "data": [],
+        }
+
+
+        hsa_table = {
+            "id": "hsa-months-of-stock",
+            "is_datatable": True,
+            "header": ["HSA"],
+            "data": [],
+        }
+
+        if self._context["national_view_level"]:
+            d_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
+                              (supply_point=d, date=date)) \
+                            for d in SupplyPoint.objects.filter(location__in=self._context['districts'])]
+
+            
+            district_data = [[d.name] + \
+                            [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
+                             for k in ordered_slugs] \
+                            for d, pads in d_pads_tuples]
+
+        else:
             f_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
                               (supply_point=d, date=date)) \
-                            for d in self._context['facilities']]
-    
+                            for d in SupplyPoint.objects.filter(location__in=self._context['facilities'])]
+
             
-            fac_data = [[d.name] + \
+            facility_table["data"] = [[d.name] + \
                             [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
                              for k in ordered_slugs] \
                             for d, pads in f_pads_tuples]
-    
-    
-            facility_table = {
-                "id": "facility-table",
-                "is_datatable": True,
-                "header": ["Facility"] + headings,
-                "data": fac_data,
-            }
-    
-    
-            hsa_table = {
-                "id": "hsa-months-of-stock",
-                "is_datatable": True,
-                "header": ["HSA"],
-                "data": [],
-            }
-    
+
+
             for product in Product.objects.all().order_by('sms_code'):
                 hsa_table["header"].append(product.sms_code)
-    
-            for hsa in self._context["visible_hsas"]:
+
+            # this chart takes a long time to load
+            for hsa in SupplyPoint.objects.filter(location__in=self._context["visible_hsas"]):
                 temp = [hsa.name]
                 for product in Product.objects.all().order_by('sms_code'):
                     ps = ProductStock.objects.filter(supply_point=hsa, product=product)
                     if ps.count():
                         mr = ps[0].months_remaining
                         if mr:
-                            temp.append('%.1f%%' % mr)
+                            temp.append('%.1f' % mr)
                         else:
                             temp.append('-')
                     else:
                         temp.append('-')
                 hsa_table["data"].append(temp)
-        else:
-            facility_table = hsa_table = None
         
         # product line chart 
         products = Product.objects.filter(type=selected_type) if selected_type else \
@@ -118,6 +115,7 @@ class View(warehouse_view.DistrictOnlyView):
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
                              request.datespan.enddate)
+
         for p in products:
             for dt in dates:
                 pad = ProductAvailabilityData.objects.get\
