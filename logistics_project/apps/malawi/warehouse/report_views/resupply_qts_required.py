@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from logistics.models import StockRequest, Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -32,10 +34,10 @@ class View(warehouse_view.DistrictOnlyView):
 
         for fac in facilities:
             temp = [fac.name]
-            for product in Product.objects.all():
-                temp.append(sum([r.amount_requested\
-                    for r in StockRequest.pending_requests().filter(supply_point=fac, product=product,\
-                        is_emergency=emergency)]))
+            for product in Product.objects.all().order_by('sms_code'):
+                temp.append(sum([r.amount_requested for r in StockRequest.pending_requests()\
+                    .filter(Q(supply_point=fac) | Q(supply_point__supplied_by=fac))\
+                    .filter(product=product, is_emergency=emergency)]))
             table["data"].append(temp)
 
         table["height"] = min(480, facilities.count()*60)
