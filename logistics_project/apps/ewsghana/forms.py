@@ -23,6 +23,10 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
     set the first registered SMS reporter to be the primary reporter
     This is mostly a usability tweak for Ghana. TBD whether it's appropriate elsewhere.
      """
+    class Meta:
+        model = Contact
+        exclude = ("user", "language", "commodities")
+    
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
         responsibilities = contact.role.responsibilities.values_list('code', flat=True)
