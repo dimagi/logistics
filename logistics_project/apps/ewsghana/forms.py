@@ -25,7 +25,6 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
      """
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
-        reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
         responsibilities = contact.role.responsibilities.values_list('code', flat=True)
         if contact.supply_point and contact.supply_point.primary_reporter is None and \
           config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
