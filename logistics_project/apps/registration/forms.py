@@ -76,8 +76,8 @@ class IntlSMSContactForm(ContactForm):
                                            {'i':settings.INTL_DIALLING_CODE,
                                             'c':settings.COUNTRY_DIALLING_CODE})
 
-        def _clean_phone_number(self, phone_number):
-            return intl_clean_phone_number(phone_number)
+    def _clean_phone_number(self, phone_number):
+        return intl_clean_phone_number(phone_number)
 
 class CommoditiesContactForm(IntlSMSContactForm):
     supply_point = forms.ModelChoiceField(SupplyPoint.objects.filter(active=True).order_by('name'),

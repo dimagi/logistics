@@ -1,41 +1,28 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        sps = orm.SupplyPoint.objects.all()
-        for sp in sps:
-            def _get_reporter_with_max_commodities(sp):
-                reporters = orm['rapidsms.Contact'].objects.filter(supply_point=sp)\
-                  .filter(is_active=True)
-                reporter_tuples = []
-                for rep in reporters:
-                    reporter_tuples.append((rep, rep.commodities.count()))
-                reporter_tuples = sorted(reporter_tuples, key=lambda rep: rep[1], reverse=True)
-                if reporter_tuples:
-                    return reporter_tuples[0][0]
-                return None
-            sp.primary_reporter = _get_reporter_with_max_commodities(sp)
-            if sp.primary_reporter is not None:
-                print "Primary Reporter for %s is %s" % (sp.name, sp.primary_reporter.name)
-            sp.save()
-        sps = orm.SupplyPoint.objects.filter(primary_reporter=None)
-        if sps:
-            print "ERROR"
-            for sp in sps:
-                print "   %s does not have a primary reporter" % sp.name
-        else:
-            print "SUCCESS: All supply points have been matched with a primary reporter."
+        
+        # Adding field 'LogisticsProfile.organization'
+        db.add_column('logistics_logisticsprofile', 'organization', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True), keep_default=False)
+
+        # Adding field 'LogisticsProfile.contact'
+        db.add_column('logistics_logisticsprofile', 'contact', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['rapidsms.Contact'], unique=True, null=True, blank=True), keep_default=False)
+
 
     def backwards(self, orm):
-        sps = orm.SupplyPoint.objects.all()
-        for sp in sps:
-            sp.primary_reporter = None
-            sp.save()
+        
+        # Deleting field 'LogisticsProfile.organization'
+        db.delete_column('logistics_logisticsprofile', 'organization')
+
+        # Deleting field 'LogisticsProfile.contact'
+        db.delete_column('logistics_logisticsprofile', 'contact_id')
+
 
     models = {
         'auth.group': {
@@ -75,7 +62,7 @@ class Migration(DataMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'locations.location': {
-            'Meta': {'object_name': 'Location'},
+            'Meta': {'ordering': "['name']", 'object_name': 'Location'},
             'code': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
@@ -121,9 +108,11 @@ class Migration(DataMigration):
         },
         'logistics.logisticsprofile': {
             'Meta': {'object_name': 'LogisticsProfile'},
+            'contact': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['rapidsms.Contact']", 'unique': 'True', 'null': 'True', 'blank': 'True'}),
             'designation': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
+            'organization': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
         },
@@ -136,7 +125,7 @@ class Migration(DataMigration):
             'warning': ('django.db.models.fields.IntegerField', [], {'default': '1'})
         },
         'logistics.product': {
-            'Meta': {'object_name': 'Product'},
+            'Meta': {'ordering': "['name']", 'object_name': 'Product'},
             'average_monthly_consumption': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'emergency_order_level': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True', 'blank': 'True'}),
@@ -242,7 +231,7 @@ class Migration(DataMigration):
             'status': ('django.db.models.fields.CharField', [], {'max_length': '10'})
         },
         'logistics.supplypoint': {
-            'Meta': {'object_name': 'SupplyPoint'},
+            'Meta': {'ordering': "['name']", 'object_name': 'SupplyPoint'},
             'active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100', 'db_index': 'True'}),
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
@@ -252,6 +241,7 @@ class Migration(DataMigration):
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'db_index': 'True'}),
             'primary_reporter': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'null': 'True', 'blank': 'True'}),
+            'supervised_by': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'supervising_facility'", 'null': 'True', 'to': "orm['logistics.SupplyPoint']"}),
             'supplied_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPointType']"})
         },
@@ -281,7 +271,7 @@ class Migration(DataMigration):
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '20'})
         },
         'rapidsms.connection': {
-            'Meta': {'unique_together': "(('backend', 'identity'),)", 'object_name': 'Connection'},
+            'Meta': {'object_name': 'Connection'},
             'backend': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Backend']"}),
             'contact': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['rapidsms.Contact']", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
