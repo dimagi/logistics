@@ -18,6 +18,10 @@
 </div>
 
 <div class="module">
+	<form method="get" id="selector">
+	    {% include "malawi/new/partials/product-type-selector.html" %}
+	    <input type="submit" value="Go!" />
+	</form>
 	<h2>%HSA with EO by Product Category</h2>
 	{% with line as graphdata %}
 	{% include "malawi/new/partials/generic-line-chart.html" %}

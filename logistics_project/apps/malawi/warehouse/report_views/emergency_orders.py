@@ -1,7 +1,7 @@
 import itertools
 from collections import defaultdict
 
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ProductType, Product
 
 from logistics_project.apps.malawi.util import get_default_supply_point, pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
@@ -13,6 +13,10 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
+        selected_type = None
+        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
+            selected_type = ProductType.objects.get(code=request.GET["product-type"])
+
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
         
@@ -93,12 +97,13 @@ class View(warehouse_view.DistrictOnlyView):
             "data": []
         }
 
+
         line_chart = {
             "height": "350px",
             "width": "100%", # "300px",
             "div": "eo-line-chart",
             "legenddiv": "eo-line-legend",
-            "legend-cols": 5,
+            "legendcols": 10,
             "xaxistitle": '',
             "yaxistitle": '',
             "max_value": 100,
@@ -121,22 +126,31 @@ class View(warehouse_view.DistrictOnlyView):
                                      ([eo.sms_code],
                                       list_key_values(prd_map[eo]['emergency']))])
 
-        for type in type_map.keys():
+        # for type in type_map.keys():
+        selected_products = Product.objects.all()
+        if selected_type:
+            selected_products = Product.objects.filter(type=selected_type)
+        for prd in selected_products:
             count = 0
             temp = {'data': [],
-                    'label': str(type.name),
+                    # 'label': str(type.name),
+                    'label': str(prd.sms_code),
                     'lines': {"show": 1},
                     'bars': {"show": 0}
                     }
             for date in datelist:
                 count += 1
-                if type_map[type]['pct'].has_key(date):
-                    temp["data"].append([count, type_map[type]['pct'][date]])
+                # if type_map[type]['pct'].has_key(date):
+                #     temp["data"].append([count, type_map[type]['pct'][date]])
+                if prd_map[prd]['pct'].has_key(date):
+                    temp["data"].append([count, prd_map[prd]['pct'][date]])
                 else:
                     temp["data"].append([count, "No Data"])
             line_chart["data"].append(temp)
 
         return {
+                'product_types': ProductType.objects.all(),
+                'selected_type': selected_type,
                 'summary': summary,
                 'eo_pct_table': eo_pct_table,
                 'eo_abs_table': eo_abs_table,
