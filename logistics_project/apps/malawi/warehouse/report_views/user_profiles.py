@@ -69,7 +69,8 @@ class View(warehouse_view.DistrictOnlyView):
                     if up.supply_point.supplied_by == facility:
                         hsa_table["data"].append({"url": get_hsa_url(up.supply_point), "data": [up.supply_point.name, up.supply_point.code,
                                 up.contact_info, up.products_managed,
-                                up.last_message.date.strftime("%b-%d-%Y"), up.last_message.text]})
+                                up.last_message.date.strftime("%b-%d-%Y") if up.last_message else '',
+                                up.last_message.text if up.last_message else '']})
 
         return {
                 "district": district,
