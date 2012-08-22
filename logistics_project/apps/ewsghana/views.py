@@ -20,6 +20,8 @@ from logistics.views import reporting as logistics_reporting
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm
+from logistics_project.apps.registration.views import registration as logistics_registration
 from .forms import FacilityForm
 
 """ Usage-Related Views """
@@ -105,3 +107,9 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "products": products
         }, context_instance=RequestContext(req)
     )
+
+def sms_registration(request, *args, **kwargs):
+    kwargs['contact_form'] = EWSGhanaSMSRegistrationForm
+    ret = logistics_registration(request, *args, **kwargs)
+    return ret
+

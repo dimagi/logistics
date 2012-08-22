@@ -18,7 +18,8 @@ from logistics_project.apps.registration.forms import CommoditiesContactForm, Bu
 from .tables import ContactTable
 
 @permission_required('rapidsms.add_contact')
-def registration(req, pk=None, template="registration/dashboard.html"):
+def registration(req, pk=None, template="registration/dashboard.html", 
+                 contact_form=CommoditiesContactForm):
     contact = None
     connection = None
     bulk_form = None
@@ -61,7 +62,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             return HttpResponseRedirect(
                 reverse(registration_view))
         else:
-            contact_form = CommoditiesContactForm(
+            contact_form = contact_form(
                 instance=contact,
                 data=req.POST)
 
@@ -76,7 +77,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                          'site': Site.objects.get(id=settings.SITE_ID).domain }
                     send_message(contact.default_connection, response)
                     return HttpResponseRedirect(reverse(registration_view))
-
     else:
         if pk is None:
             supplypoint = None
@@ -85,11 +85,11 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                     supplypoint = SupplyPoint.objects.get(code=req.GET["supplypoint"])
                 except SupplyPoint.DoesNotExist, SupplyPoint.MultipleObjectsReturned:
                     pass
-            contact_form = CommoditiesContactForm(
+            contact_form = contact_form(
                 instance=contact, 
                 initial={'supply_point':supplypoint})
         else:
-            contact_form = CommoditiesContactForm(
+            contact_form = contact_form(
                 instance=contact)
         bulk_form = BulkRegistrationForm()
     return render_to_response(

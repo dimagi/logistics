@@ -10,11 +10,28 @@ from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
 from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock
+from logistics.util import config
 from logistics_project.apps.web_registration.forms import AdminRegistersUserForm
+from logistics_project.apps.registration.forms import CommoditiesContactForm
 
 PROGRAM_ADMIN_GROUP_NAME = 'program_admin'
 def _get_program_admin_group():
     return Group.objects.get(name=PROGRAM_ADMIN_GROUP_NAME)
+
+class EWSGhanaSMSRegistrationForm(CommoditiesContactForm): 
+    """ Slight tweak to the vanilla registration form to automatically
+    set the first registered SMS reporter to be the primary reporter
+    This is mostly a usability tweak for Ghana. TBD whether it's appropriate elsewhere.
+     """
+    def save(self, *args, **kwargs):
+        contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
+        reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        responsibilities = contact.role.responsibilities.values_list('code', flat=True)
+        if contact.supply_point and contact.supply_point.primary_reporter is None and \
+          config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
+            contact.supply_point.primary_reporter = contact
+            contact.supply_point.save()
+        return contact
 
 class EWSGhanaWebRegistrationForm(AdminRegistersUserForm): 
     designation = forms.CharField(required=False)
