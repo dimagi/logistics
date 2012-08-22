@@ -74,7 +74,7 @@ class View(warehouse_view.DistrictOnlyView):
                             for d in SupplyPoint.objects.filter(location__in=self._context['districts'])]
 
             
-            district_data = [[d.name] + \
+            district_table["data"] = [[d.name] + \
                             [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
                              for k in ordered_slugs] \
                             for d, pads in d_pads_tuples]
