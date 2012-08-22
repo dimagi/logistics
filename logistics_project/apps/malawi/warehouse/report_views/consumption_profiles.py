@@ -72,6 +72,7 @@ class View(warehouse_view.DistrictOnlyView):
             d_table = {
                 "id": "district-consumption-profiles",
                 "is_datatable": False,
+                "is_downloadable": True,
                 "header": table_headers,
                 "data": [_consumption_row(d, p) for p in Product.objects.all()]
             }
@@ -79,6 +80,7 @@ class View(warehouse_view.DistrictOnlyView):
             d_table = {
                 "id": "facility-consumption-profiles",
                 "is_datatable": False,
+                "is_downloadable": True,
                 "header": table_headers,
                 "data": [_consumption_row(f, p) for p in Product.objects.all()]
             }

@@ -54,6 +54,7 @@ class View(warehouse_view.DistrictOnlyView):
         monthly_table = {
             "id": "monthly-average-ofr",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Product"] + [dt.strftime("%B") for dt in dates], 
             "data": [[p.sms_code] + [fmt_or_none(data[p][dt]) for dt in dates] for p in products]
         }
@@ -70,6 +71,7 @@ class View(warehouse_view.DistrictOnlyView):
             facility_table = {
                 "id": "ofr-facility-product",
                 "is_datatable": True,
+                "is_downloadable": True,
                 "header": ["Facility"] + [p.sms_code for p in products],
                 "data": [[f.name] + [_avg_fill_rate(f, p, dates) for p in products] \
                          for f in facility_supply_points_below(sp.location).order_by('name')]

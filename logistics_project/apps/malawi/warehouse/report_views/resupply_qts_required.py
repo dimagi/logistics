@@ -14,6 +14,7 @@ class View(warehouse_view.DistrictOnlyView):
         table = {
             "id": "quantity-required-for-resupply",
             "is_datatable" : True,
+            "is_downloadable": True,
             "header": ["Facility Name"],
             "data": [],
         }

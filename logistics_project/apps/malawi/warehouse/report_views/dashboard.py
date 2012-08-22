@@ -34,6 +34,7 @@ class View(warehouse_view.DashboardView):
         dsummary_table = {
             "id": "reporting-rates-and-stockout-summary",
             "is_datatable": False,
+            "is_downloadable": False,
             "header": ["District", "Rep Rate", "% HSA with at least one stockout"],
             "data": [],
         }
@@ -44,6 +45,7 @@ class View(warehouse_view.DashboardView):
         alert_table = {
             "id": "alert-table",
             "is_datatable": False,
+            "is_downloadable": False,
             "header": ["", "% HSAs"],
             "data": [],
         }

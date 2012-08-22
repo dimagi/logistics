@@ -13,18 +13,21 @@ class View(warehouse_view.DistrictOnlyView):
         district_table = {
             "id": "district_table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["District", "Code", "Facilities", "HSA supervisors", "HSAs", "Contacts"],
             "data": [],
         }
         facility_table = {
             "id": "facility_table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Facility", "Code", "GPS coordinate", "In Charge", "HSA supervisors", "Supervisor Contacts", "HSAs"],
             "data": [],
         }
         hsa_table = {
             "id": "hsa_table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["HSA Name", "Id", "Contact Info", "Products", "Date of last message", "Last Message"],
             "data": [],
         }

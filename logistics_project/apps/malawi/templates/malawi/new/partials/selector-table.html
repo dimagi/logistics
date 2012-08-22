@@ -1,3 +1,6 @@
+{% if table.is_downloadable %}
+	<input id="download-{{ table.id }}" value="Export as CSV" type="button" /> 
+{% endif %}
 <table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
 		{% for column_title in table.header %}
@@ -27,6 +30,12 @@ $(document).ready(function() {
 		});
 	{% endif %}
 
+	{% if table.is_downloadable %}
+		$("#download-{{ table.id }}").live('click', function(){
+			$("#{{ table.id }}").table2CSV();
+		});
+	{% endif %}
+
 		$("#{{ table.id }} tbody tr").live('click',function(){
 			var url = $(this).data('url');
 			window.location = url;
@@ -35,5 +44,6 @@ $(document).ready(function() {
 			$(this).parent().children().css({"background-color": "#FFFFFF"});
     		$(this).css({"background-color": "#A0DEFF", "cursor": "hand", "cursor": "pointer"});
 		});
+
 	});
 </script>

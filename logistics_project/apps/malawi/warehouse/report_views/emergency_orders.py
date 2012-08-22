@@ -86,6 +86,7 @@ class View(warehouse_view.DistrictOnlyView):
         eo_pct_table = {
             "id": "eo-pct-table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Product"],
             "data": []
         }
@@ -93,6 +94,7 @@ class View(warehouse_view.DistrictOnlyView):
         eo_abs_table = {
             "id": "eo-abs-table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Product"],
             "data": []
         }

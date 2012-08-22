@@ -28,6 +28,7 @@ class View(warehouse_view.DistrictOnlyView):
         table = {
             "id": "all-hsas",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Facility", "Name", "Id", "Responsible for these Commodities",\
                 "Has Stockouts","Has Emergency Levels","Has Products with good supply",\
                 "Has Overstocks", "Last Message Date"],
@@ -62,6 +63,7 @@ class View(warehouse_view.DistrictOnlyView):
         header_table = {
             "id": "header-table",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["District", "Facility", "HSA", "Id"],
             "data": [[contact.supply_point.supplied_by.supplied_by.name,\
                 contact.supply_point.supplied_by.name, contact.name, contact.supply_point.code]],
@@ -70,6 +72,7 @@ class View(warehouse_view.DistrictOnlyView):
         report_table = {
             "id": "hsa-reporting-summary",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Month", "On Time", "Late", "Complete"],
             "data": [],
         }
@@ -92,6 +95,7 @@ class View(warehouse_view.DistrictOnlyView):
         calc_cons = {
             "id": "calc-consumption-stock-levels",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Product", "Total Daily Consumption (adjusted for stock outs)",
                        "Average Monthly Consumption", "Current SOH", "Months of Stock on hand",
                        "Resupply Qty Required"],
@@ -101,6 +105,7 @@ class View(warehouse_view.DistrictOnlyView):
         request_table = {
             "id": "order-response-time",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Product", "Is Emergency", "Balance", "Amt Requested", "Amt Received", "Requested On",
                 "Responded On", "Received On", "Status"],
             "data": [],
@@ -117,6 +122,7 @@ class View(warehouse_view.DistrictOnlyView):
         msgs_table = {
             "id": "recent-messages",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Date", "Message Text"],
             "data": [],
         }
@@ -131,6 +137,7 @@ class View(warehouse_view.DistrictOnlyView):
         details_table = {
             "id": "hsa-details",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["", ""],
             "data": [],
         }

@@ -41,6 +41,7 @@ class View(warehouse_view.DistrictOnlyView):
         product_table = {
             "id": "product-table",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Product"] + headings,
             "data": product_data,
         }
@@ -48,6 +49,7 @@ class View(warehouse_view.DistrictOnlyView):
         district_table = {
             "id": "district-table",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["District"] + headings,
             "data": [],
         }
@@ -56,6 +58,7 @@ class View(warehouse_view.DistrictOnlyView):
         facility_table = {
             "id": "facility-table",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["Facility"] + headings,
             "data": [],
         }
@@ -64,6 +67,7 @@ class View(warehouse_view.DistrictOnlyView):
         hsa_table = {
             "id": "hsa-months-of-stock",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["HSA"],
             "data": [],
         }
