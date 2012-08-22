@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.conf import settings
 from rapidsms.models import Backend, Connection, Contact
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, Product
 from logistics_project.apps.registration.validation import check_for_dupes, intl_clean_phone_number
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
@@ -80,13 +80,17 @@ class IntlSMSContactForm(ContactForm):
             return intl_clean_phone_number(phone_number)
 
 class CommoditiesContactForm(IntlSMSContactForm):
-    supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
+    supply_point = forms.ModelChoiceField(SupplyPoint.objects.filter(active=True).order_by('name'),
                                           required=False,  
                                           label='Facility')
 
     class Meta:
         model = Contact
         exclude = ("user", "language")
+
+    def __init__(self, *args , **kwargs):
+        super(CommoditiesContactForm, self ).__init__(*args,**kwargs)
+        self.fields['commodities'].queryset = Product.objects.filter(is_active=True)
     
     @transaction.commit_on_success
     def save(self, commit=True):

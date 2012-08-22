@@ -7,6 +7,7 @@ class SupplyPoint(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['name']
 
     def report_to_supervisor(self, report, kwargs, exclude=None):
         def _report_to_supervisor_at_facility(facility, report, kwargs, exclude):
