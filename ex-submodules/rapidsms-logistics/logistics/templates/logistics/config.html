@@ -33,10 +33,12 @@
 		{% endblock %}
 		</div>
 
+        {% block submit %}
 		<div class="submit">
 			<input type="submit" name="submit" value="Save {{ klass }}" />{% if object %}
 			<input type="submit" name="submit" value="Delete {{ klass }}" />{% endif %}
 		</div>
+		{% endblock %}
 	</form>
 	{% block post_notes %}
 	{% endblock %}
