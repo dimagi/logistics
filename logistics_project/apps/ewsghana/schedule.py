@@ -60,11 +60,11 @@ def third_soh_to_super (router):
         if not on_time_products:
             # alert to super: no stock reports received
             _notify_super(facility, facility, config.Messages.THIRD_STOCK_ON_HAND_REMINDER)
-            _notify_super(facility.supervised_by, facility, config.Messages.THIRD_CHPS_STOCK_ON_HAND_REMINDER)
+            _notify_super(facility.supervised_by, facility, config.Messages.THIRD_STOCK_ON_HAND_REMINDER)
         elif missing_products:
             # alert to super: not all stock reports received
             _notify_super(facility, facility, config.Messages.INCOMPLETE_SOH_TO_SUPER, missing_products)
-            _notify_super(facility.supervised_by, facility, config.Messages.INCOMPLETE_CHPS_SOH_TO_SUPER, missing_products)
+            _notify_super(facility.supervised_by, facility, config.Messages.INCOMPLETE_SOH_TO_SUPER, missing_products)
             
         
 def reminder_to_submit_RRIRV(router):

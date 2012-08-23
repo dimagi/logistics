@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+from itertools import chain
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
@@ -21,9 +22,10 @@ def _consumption(cell):
                               'complete' if available >= total 
                               else 'INCOMPLETE')
 def _supervisor(cell):
-    supervisors = cell.object.reportees()
+    supervisors = list(chain(cell.object.reportees(), 
+                             cell.object.supervised_by.reportees() if cell.object.supervised_by else []))
     if supervisors:
-        return supervisors[0].name
+        return ", ".join([s.name for s in supervisors])
     return "None"
 def _reporters(cell):
     reporters = cell.object.reporters()
