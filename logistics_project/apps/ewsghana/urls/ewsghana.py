@@ -10,7 +10,7 @@ from logistics_project.apps.registration.views import registration as logistics_
 from logistics_project.apps.ewsghana.views import my_web_registration, sms_registration
 from logistics_project.apps.web_registration.views import my_web_registration
 from logistics import views as logistics_views
-from logistics_project.apps.ewsghana.views import register_web_user
+from logistics_project.apps.ewsghana.views import register_web_user, configure_incharge
 from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 
 urlpatterns = patterns('',
@@ -35,6 +35,9 @@ urlpatterns = patterns('',
     url(r'^registration/sms/(?P<pk>\d+)/edit/?$', sms_registration, 
         {'template':'ewsghana/sms_registration.html'}, 
         name="ewsghana_registration_edit"),
+    # configure in charge for a given facility
+    url(r'^configure/(?P<sp_code>[\w-]+)/incharge/?$', configure_incharge, 
+        name="ews_configure_incharge"),
     url(r'^scheduled_reports/?$', 'logistics_project.apps.ewsghana.views.email_reports', 
         name="ewsghana_scheduled_reports"),
     

@@ -26,10 +26,19 @@
     and designate a primary reporter.<br/>
 {% endif %}
 {% if form.initial %}
-<div class="end_note"><strong>
-    <a href="{% url ewsghana_sms_registration %}{% if form.initial %}?supplypoint={{form.initial.code}}{% endif %}">
+<div class="end_note">
+    <strong><a href="{% url ewsghana_sms_registration %}?supplypoint={{form.initial.code}}">
         Register SMS Users
     </a></strong>
 </div>
+<div class="end_note"><p>
+    <strong>In-Charge</strong>: 
+    {%  for rep in object.reportees %}
+        {{ rep.name }}&nbsp;&nbsp;from {{ rep.supply_point.name }} <br/>
+    {% endfor %}
+    <strong><a href="{% url ews_configure_incharge object.code %}">
+        Configure In-Charge
+    </a></strong>
+</p></div>
 {% endif %}
 {% endblock %}
