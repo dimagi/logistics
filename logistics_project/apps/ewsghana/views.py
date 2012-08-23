@@ -132,6 +132,10 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
     facility = get_object_or_404(SupplyPoint, code=sp_code)
     # TODO: switch this with a non-editable form
     form = FacilityForm(instance=facility)
+    for key in form.fields.keys():
+        form.fields[key].widget.attrs['disabled'] = True
+        form.fields[key].widget.attrs['readonly'] = True
+        
     def _get_incharges(facility):
         """ ghana wants it so that the in-charge of facility in the surrounding region
         can be designated the in-charge of a given facility
@@ -141,9 +145,7 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
         supervisors = Contact.objects.filter(role__responsibilities__code=supervise_resp)
         supervisors = supervisors.order_by("supply_point__name")
         region = facility.location.tree_parent
-        return supervisors.filter(supply_point__location__in=region.get_descendants(include_self=True))
-    
-    
+        return supervisors.filter(supply_point__location__in=region.get_descendants(include_self=True))    
     return render_to_response(
         template, {
             "candidates": _get_incharges(facility), 
