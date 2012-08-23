@@ -1,3 +1,9 @@
+input[type=text], input[type=password], input[type=url], input[type=email],
+input.text, input.title,
+textarea, select {
+  margin:0 0;
+}
+
 .error {
     color: red;
     padding: 1em;
@@ -87,4 +93,5 @@
 .end_note{
     padding-top: 1em;
     padding-left: 1em;
+    line-height: 1.4;
 }
