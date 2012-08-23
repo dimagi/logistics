@@ -87,7 +87,7 @@ class Product(models.Model):
         for stock in stocks:
             stock.is_active = False
             stock.save()
-        contacts = Contact.objects.filter(commodities__sms_code__in=self.sms_code)
+        contacts = Contact.objects.filter(commodities__sms_code=self.sms_code)
         for contact in contacts:
             contact.commodities.remove(self)
 
