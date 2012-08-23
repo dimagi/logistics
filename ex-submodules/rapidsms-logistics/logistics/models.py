@@ -604,7 +604,7 @@ class LogisticsProfile(LogisticsProfileBase):
 class ProductStock(models.Model):
     """
     Indicates supply point-specific information about a product (such as monthly consumption rates)
-    A ProductStock should exist for each product for each supply point
+    A ProductStock should exist for each product which has ever been actively stocked by a supply point
     """
     # is_active indicates whether we are actively trying to prevent stockouts of this product
     # in practice, this means: do we bug people to report on this commodity
