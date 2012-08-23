@@ -18,27 +18,21 @@
 	</tbody>
 </table>
 
+{% if table.is_datatable %}
+	{% include "malawi/new/partials/data-table.html" %}
+{% endif %}
+
 
 <script language="javascript">
 $(document).ready(function() {
-
-	{% if table.is_datatable %}
-		$("#{{ table.id }}").dataTable({
-			"sScrollY": "{{ table.height|default:240 }}px",
-			"sScrollX": "100%",
-			"bPaginate": false,
-			"bRetrieve": true
-		});
-	{% endif %}
-
-		$("#{{ table.id }} tbody tr").live('click',function(){
-			var url = $(this).data('url');
-			window.location = url;
-		});
-		$("#{{ table.id }} tbody tr").live('hover',function(){
-			$(this).parent().children().css({"background-color": "#FFFFFF"});
-    		$(this).css({"background-color": "#A0DEFF", "cursor": "hand", "cursor": "pointer"});
-		});
-
+	$("#{{ table.id }} tbody tr").live('click',function(){
+		var url = $(this).data('url');
+		window.location = url;
 	});
+	$("#{{ table.id }} tbody tr").live('hover',function(){
+		$(this).parent().children().css({"background-color": "#FFFFFF"});
+		$(this).css({"background-color": "#A0DEFF", "cursor": "hand", "cursor": "pointer"});
+	});
+
+});
 </script>

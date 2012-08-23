@@ -19,14 +19,5 @@
 </table>
 
 {% if table.is_datatable %}
-	<script language="javascript">
-	$(document).ready(function() {
-			$("#{{ table.id }}").dataTable({
-				"sScrollY": "{{ table.height|default:240 }}px",
-				"sScrollX": "100%",
-				"bPaginate": false,
-				"bRetrieve": true
-			});
-		});
-	</script>
+	{% include "malawi/new/partials/data-table.html" %}
 {% endif %}
