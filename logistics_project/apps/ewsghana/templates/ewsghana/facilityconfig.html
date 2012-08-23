@@ -33,7 +33,7 @@
 </div>
 <div class="end_note"><p>
     <strong>In-Charge</strong>: 
-    {%  for rep in object.reportees %}
+    {% for rep in incharges %}
         {{ rep.name }}&nbsp;&nbsp;from {{ rep.supply_point.name }} <br/>
     {% endfor %}
     <strong><a href="{% url ews_configure_incharge object.code %}">

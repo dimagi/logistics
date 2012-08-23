@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+from itertools import chain
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -81,12 +82,12 @@ def facility_detail(request, code, context={}, template="ewsghana/single_facilit
 @permission_required('logistics.add_supplypoint')
 @transaction.commit_on_success
 def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
-    facility = None
-    form = None
+    facility = form = incharges = None
     klass = "SupplyPoint"
     if pk is not None:
         facility = get_object_or_404(
             SupplyPoint, pk=pk)
+        incharges = list(chain(facility.reportees(), facility.supervised_by.reportees() if facility.supervised_by else []))
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
             facility.delete()
@@ -104,6 +105,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     products = Product.objects.filter(is_active=True).order_by('name')
     return render_to_response(
         template, {
+            "incharges": incharges,
             "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
@@ -130,13 +132,26 @@ def sms_registration(request, *args, **kwargs):
 def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html"):
     klass = "SupplyPoint"
     facility = get_object_or_404(SupplyPoint, code=sp_code)
-    # TODO: switch this with a non-editable form
+    if request.method == "POST":
+        if request.POST["submit"] == "Save In-Charge":
+            if "incharge_pk" in request.POST and request.POST["incharge_pk"]:
+                incharge = Contact.objects.get(pk=int(request.POST["incharge_pk"]))
+                if incharge in facility.reportees():
+                    # if it's a supervisor @ this facility, then no need to add supervised_by
+                    # just remove it
+                    if facility.supervised_by is not None:
+                        facility.supervised_by = None
+                        facility.save()
+                elif incharge.supply_point != facility.supervised_by:
+                    facility.supervised_by = incharge.supply_point
+                    facility.save()
+        return HttpResponseRedirect(
+            reverse('facility_edit', kwargs={"pk":facility.pk}))
     form = FacilityForm(instance=facility)
     for key in form.fields.keys():
         form.fields[key].widget.attrs['disabled'] = True
         form.fields[key].widget.attrs['readonly'] = True
-        
-    def _get_incharges(facility):
+    def _get_candidate_incharges(facility):
         """ ghana wants it so that the in-charge of facility in the surrounding region
         can be designated the in-charge of a given facility
         (this is to support the use case of CHWs who report to a local health center in-charge)
@@ -148,7 +163,7 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
         return supervisors.filter(supply_point__location__in=region.get_descendants(include_self=True))    
     return render_to_response(
         template, {
-            "candidates": _get_incharges(facility), 
+            "candidates": _get_candidate_incharges(facility), 
             "form": form,
             "object": facility,
             "klass": klass,
