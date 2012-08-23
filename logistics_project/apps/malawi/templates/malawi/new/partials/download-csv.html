@@ -1,0 +1,11 @@
+
+<img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
+
+<script language="javascript">
+$(document).ready(function() {
+	$("#download-{{ table.id }}").live('click', function(){
+		$("#{{ table.id }}").table2CSV();
+	});
+});
+</script>
+

@@ -1,5 +1,5 @@
 {% if table.is_downloadable %}
-	<input id="download-{{ table.id }}" value="Export as CSV" type="button" /> 
+	{% include "malawi/new/partials/download-csv.html" %}
 {% endif %}
 <table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
@@ -18,22 +18,15 @@
 	</tbody>
 </table>
 
-<script language="javascript">
-$(document).ready(function() {
-	{% if table.is_datatable %}
-		$("#{{ table.id }}").dataTable({
-			"sScrollY": "{{ table.height|default:240 }}px",
-			"sScrollX": "100%",
-			"bPaginate": false,
-			"bRetrieve": true
+{% if table.is_datatable %}
+	<script language="javascript">
+	$(document).ready(function() {
+			$("#{{ table.id }}").dataTable({
+				"sScrollY": "{{ table.height|default:240 }}px",
+				"sScrollX": "100%",
+				"bPaginate": false,
+				"bRetrieve": true
+			});
 		});
-	{% endif %}
-
-	{% if table.is_downloadable %}
-		$("#download-{{ table.id }}").live('click', function(){
-			$("#{{ table.id }}").table2CSV();
-		});
-	{% endif %}
-	
-	});
-</script>
+	</script>
+{% endif %}
