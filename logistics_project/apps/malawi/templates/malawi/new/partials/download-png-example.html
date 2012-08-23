@@ -1,0 +1,44 @@
+<script src="http://www.nihilogic.dk/labs/canvas2image/canvas2image.js" type="text/javascript"></script>
+<script src="/static/malawi/js/jquery.flot.text.js" type="text/javascript"></script>
+
+<input id="download-{{ graphdata.div }}" value="Export as PNG" type="button" /> 
+
+<script language="javascript">
+$(document).ready(function() {
+    bar_options = {
+       series: {
+         stack: 0,
+         lines: { show: false, steps: false },
+         bars: { show: true, barWidth: 0.75, align: 'center' }
+       },
+       xaxis: { 
+               ticks: {{ graphdata.xlabels|safe }}
+       }, 
+       yaxis: { max: {{ graphdata.max_value|default:"null" }},
+               tickDecimals: 0 
+       },
+       legend: { show: {{ graphdata.show_legend|default:"true" }}, 
+                 // container: $("#{{ graphdata.legenddiv }}"), 
+                 noColumns: {{ graphdata.legendcols|default:3 }}
+       },
+       grid: {show: true,
+              tickColor: 'gray',
+              backgroundColor: '#FFFFFF',
+              hoverable: false,
+              autoHighlight:false,
+              canvasText: { show:true }
+       }
+    };
+    $.plot($("#{{ graphdata.div }}"), {{ graphdata.data|safe }}, bar_options);  
+    
+    $("#download-{{ graphdata.div }}").live('click', function(){
+        Canvas2Image.saveAsPNG($("#{{ graphdata.div }} canvas")[0]);
+    });
+
+});
+</script>
+<div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
+<p>{{ graphdata.yaxistitle }}</p>
+<div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};"></div>
+<p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>
+

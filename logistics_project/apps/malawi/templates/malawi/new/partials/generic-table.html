@@ -1,6 +1,12 @@
 {% if table.is_downloadable %}
 	{% include "malawi/new/partials/download-csv.html" %}
 {% endif %}
+
+{% if table.is_datatable %}
+	{% include "malawi/new/partials/data-table.html" %}
+	<br>
+{% endif %}
+
 <table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
 		{% for column_title in table.header %}
@@ -17,7 +23,3 @@
 		{% endfor %}
 	</tbody>
 </table>
-
-{% if table.is_datatable %}
-	{% include "malawi/new/partials/data-table.html" %}
-{% endif %}

@@ -73,7 +73,7 @@ class View(warehouse_view.DistrictOnlyView):
             
             for eo in prd_map.keys():
                 count += 1
-                product_codes.append([count, '<span>%s</span>' % (str(eo.code.lower()))])
+                product_codes.append([count, '%s' % (str(eo.code.lower()))])
                 if prd_map[eo].has_key(label):
                     all_months = avg_of_key_values(prd_map[eo][label], datelist)
                             
