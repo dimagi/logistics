@@ -20,7 +20,7 @@ class View(warehouse_view.DistrictOnlyView):
         if request.GET.get('hsa_code'):
             hsa = SupplyPoint.objects.filter(code=request.GET.get('hsa_code'))
             if hsa.count():
-                self.slug = 'single_hsa'
+                self.slug = 'single-hsa'
                 return self.single_hsa_context(request, hsa[0])
             else:
                 messages.warning(request, "HSA does not exist or is not active")
