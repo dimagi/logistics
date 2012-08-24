@@ -62,6 +62,7 @@ class View(warehouse_view.DistrictOnlyView):
                     _f(so_adjusted_cons), _f2(scale_factor), 
                     _f(data_adjusted_cons), _f(amc)]
         
+
         d = f = d_table = f_table = None
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
             d = sp
@@ -77,7 +78,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": [_consumption_row(d, p) for p in Product.objects.all()]
             }
         if f:
-            d_table = {
+            f_table = {
                 "id": "facility-consumption-profiles",
                 "is_datatable": False,
                 "is_downloadable": True,
@@ -99,5 +100,5 @@ class View(warehouse_view.DistrictOnlyView):
         return {
             "district_table": d_table,
             "facility_table": f_table,
-            "line": line_chart
+            "line_chart": line_chart
         }
