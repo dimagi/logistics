@@ -3,8 +3,16 @@
 
 <script language="javascript">
 $(document).ready(function() {
+	var saveFile = function(strData) {
+		document.location.href = strData;
+	}
+
+	var makeDataURI = function(strData, strMime) {
+		return "data:" + strMime + ";base64," + window.btoa(strData);
+	}
+
 	$("#download-{{ table.id }}").live('click', function(){
-		$("#{{ table.id }}").table2CSV();
+		saveFile(makeDataURI($("#{{ table.id }}").table2CSV(), "text/csv"));
 	});
 });
 </script>
