@@ -35,6 +35,7 @@
                 <tr><td class="prompt">{% trans "Supplied By" %}: </td><td>{{facility.supplied_by}}</td></tr>
                 <tr><td class="prompt">{% trans "Supervised By" %}: </td><td>{{facility.supervised_by}}</td></tr>
                 <tr><td class="prompt">{% trans "Last Reported" %}: </td><td>{{facility.last_reported}}</td></tr>
+                <tr><td class="prompt">{% trans "Internal ID" %}: </td><td>{{facility.pk}}</td></tr>
             </table>
 
         <h2>{% trans "Contacts" %}</h2>
@@ -50,7 +51,10 @@
             <tbody>
                 {% for contact in facility.contacts %}
                 <tr class="">
-                    <td><a href="{% url registration_edit contact.pk %}">{{ contact.name }}</a></td>
+                    <td><a href="{% url registration_edit contact.pk %}">{{ contact.name }}
+                        {% if contact == facility.primary_reporter %}*{% endif %}
+                        </a>
+                    </td>
                     <td>{% blocktrans with contact.role as role%}{{ role }}{% endblocktrans %}</td>
                     <td>{{ contact.phone }}</td>
                     <td>{{ contact.email }}</td>
@@ -63,8 +67,9 @@
                 {% endfor %}
             </tbody>
         </table>
+        *This is the primary reporter for this facility.<br/>
         
-            &nbsp;
+        &nbsp;
         <h2>{% trans "Inventory" %}</h2>
         <table>
             <thead>

@@ -157,10 +157,14 @@ class FacilityForm(forms.ModelForm):
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
             if commodity.sms_code in self.data:
+                # this commodity should be stocked
                 ps, created = ProductStock.objects.get_or_create(supply_point=facility, 
                                                                  product=commodity)
                 ps.is_active = True
                 ps.save()
+                if facility.primary_reporter and \
+                  commodity not in facility.primary_reporter.commodities.all():
+                    facility.primary_reporter.commodities.add(commodity)
             else:
                 try:
                     ps = ProductStock.objects.get(supply_point=facility, 
@@ -173,6 +177,9 @@ class FacilityForm(forms.ModelForm):
                     # but we mark it as inactive
                     ps.is_active = False
                     ps.save()
+                if facility.primary_reporter and \
+                  commodity in facility.primary_reporter.commodities.all():
+                    facility.primary_reporter.commodities.remove(commodity)
         if self.cleaned_data['latitude'] and self.cleaned_data['longitude']:
             lat = self.cleaned_data['latitude']
             lon = self.cleaned_data['longitude']

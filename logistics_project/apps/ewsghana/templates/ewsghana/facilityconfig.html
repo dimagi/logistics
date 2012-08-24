@@ -22,8 +22,10 @@
 
 {% block post_notes %}
 {% if not form.initial.primary_reporter %}
-    Before you can specify commodities, you must register SMS stock reporters for this facility
-    and designate a primary reporter.<br/>
+    <div class="end_note">
+	    Before you can specify commodities, you must register SMS stock reporters for this facility
+	    and designate a primary reporter.
+    </div>
 {% endif %}
 {% if form.initial %}
 <div class="end_note">
