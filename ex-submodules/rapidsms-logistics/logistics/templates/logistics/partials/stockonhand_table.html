@@ -1,9 +1,11 @@
 {% load i18n %}
 {% load logistics_extras %}
+
 <table class="stock">
     <thead><tr>
         <th>{% trans "Commodity" %}</th>
         <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+        <th class="stock_col">{% trans "Stockout Duration" %}</th>
         <th class="stock_col">{% trans "Current Stock" %}</th>
         <th class="stock_col">{% trans "Monthly Consumption" %}</th>
         <th class="stock_col">{% trans "Emergency Level" %}</th>
@@ -15,6 +17,14 @@
         <tr {% if not stockonhand.is_active %}class='inactive'{% endif %}>
         <td>{{ stockonhand.product.name }}</td>
         {% highlight_months stockonhand MEDIA_URL %}
+        <td>{% if stockonhand.is_stocked_out %}
+                {% if stockonhand.date_last_stocked %}
+                    {{ stockonhand|historical_date_last_stocked:datespan.enddate|timesince:datespan.enddate }}
+                {% else %}
+                    Ongoing
+                {% endif %}
+            {% endif %}
+        </td>
         <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>
         <td {% ifequal stockonhand.monthly_consumption None %}
                 class="not_available"

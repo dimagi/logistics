@@ -760,6 +760,17 @@ class ProductStock(models.Model):
     def unset_auto_consumption(self):
         self.use_auto_consumption = False
         self.save()
+        
+    def date_last_stocked(self, before=None):
+        transactions = StockTransaction.objects.filter(supply_point=self.supply_point, 
+                                                       product=self.product)\
+                                                       .exclude(ending_balance=0)
+        if before is not None:
+            transactions = transactions.filter(date__lte=before)
+        transactions = transactions.order_by("-date")
+        if transactions:
+            return transactions[0].date
+        return None
 
 class StockTransferStatus(object):
     """Basically a const for our choices"""

@@ -186,7 +186,8 @@ def stockonhand_table(supply_point, datespan=None):
     for soh in sohs: 
         soh.quantity = supply_point.historical_stock_by_date(soh.product, datespan.end_of_end_day)
     return r_2_s_helper("logistics/partials/stockonhand_table_full.html", 
-                         {"stockonhands": sohs})
+                         {"stockonhands": sohs, 
+                          "datespan": datespan})
     
 @register.simple_tag
 def recent_messages(contact, limit=5):

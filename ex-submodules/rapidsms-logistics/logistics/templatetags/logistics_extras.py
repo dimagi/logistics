@@ -14,3 +14,9 @@ def percent_cell(a, b):
 @register.filter('klass')
 def klass(ob):
     return ob.__class__.__name__
+
+@register.filter
+def historical_date_last_stocked(productstock, date):
+    return productstock.date_last_stocked(date)
+
+

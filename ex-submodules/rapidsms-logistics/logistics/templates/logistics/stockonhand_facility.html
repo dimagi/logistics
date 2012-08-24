@@ -50,7 +50,7 @@
 	                {% endif %}
                 {% endif %}
                 {% if last_reported %}
-                    <p>The last report received was on <strong>{{ last_reported|date:"M d, h:i:s A" }}</strong>.</p>
+                    <p>The last report received was at <strong>{{ last_reported|date:" h:i:s A o\n M d, Y" }}</strong>.</p>
                 {%  endif %}
 	            </div>
             {% else %}<p></p>
