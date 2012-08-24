@@ -3,21 +3,14 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.contrib import messages
 
-from dimagi.utils.decorators.datespan import datespan_in_request
-
 from logistics.decorators import place_in_request
 
-from logistics_project.apps.malawi.warehouse.report_utils import malawi_default_date_func
+from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas
 
-
-datespan_default = datespan_in_request(
-    default_function=malawi_default_date_func,
-    format_string='%B %Y'
-)
 
 reports_slug_map = {
     'dashboard': dashboard,

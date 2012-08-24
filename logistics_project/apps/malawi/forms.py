@@ -1,6 +1,6 @@
 from django import forms
 from logistics_project.apps.malawi.models import Organization
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, Product
 from logistics.util import config
 
 class OrganizationForm(forms.ModelForm):

@@ -5,6 +5,7 @@ from collections import defaultdict
 from random import random
 
 from dimagi.utils.dates import months_between, add_months, DateSpan
+from dimagi.utils.decorators.datespan import datespan_in_request
 
 from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
@@ -125,6 +126,11 @@ def malawi_default_date_func():
     return DateSpan(datetime(startyear, startmonth, 1),
                     datetime(now.year, now.month, 1),
                     format='%B %Y')
+
+datespan_default = datespan_in_request(
+    default_function=malawi_default_date_func,
+    format_string='%B %Y'
+)
 
 def get_reporting_rates_chart(location, start, end):
 

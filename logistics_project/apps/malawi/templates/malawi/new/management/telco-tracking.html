@@ -1,0 +1,18 @@
+{% extends "malawi/new/management_base.html" %}
+{% block title %}Telco Tracking - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div style="clear:both;">
+    <form method="get" id="selector">
+        <fieldset>
+        {% include "malawi/new/partials/month-selector.html" %}
+        </fieldset>
+        <input type="submit" value="Go!" />
+    </form>
+</div>
+<div class="module">
+    <h2>Telco Tracking {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>
+    {% with table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
+</div>
+{% endblock %}

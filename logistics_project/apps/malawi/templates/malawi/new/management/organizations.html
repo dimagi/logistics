@@ -1,0 +1,14 @@
+{% extends "malawi/new/management_base.html" %}
+{% block title %}Organizations - {{ block.super }}{% endblock %}
+{% block subcontent %}
+
+<div class="module">
+    <h2>All Organizations</h2>
+	<a href="new/">New Organization</a><br>
+	{% with table as table %}
+	{% include "malawi/new/partials/selector-table.html" %}
+	{% endwith %}
+</div>
+
+
+{% endblock %}

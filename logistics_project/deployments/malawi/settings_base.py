@@ -74,7 +74,8 @@ REPORT_LIST = SortedDict([
     ("Emergency Orders", "emergency-orders"),
 ])
 
-REPORT_FOLDER = "malawi/new"
+REPORT_FOLDER = "malawi/new/reports"
+MANAGEMENT_FOLDER = "malawi/new/management"
 
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
