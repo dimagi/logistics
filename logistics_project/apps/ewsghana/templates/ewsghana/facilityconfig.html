@@ -36,7 +36,11 @@
 <div class="end_note"><p>
     <strong>In-Charge</strong>: 
     {% for rep in incharges %}
-        {{ rep.name }}&nbsp;&nbsp;from {{ rep.supply_point.name }} <br/>
+        <a href="{% url ewsghana_registration_edit rep.pk %}">{{ rep.name }}</a>
+            {% if object != rep.supply_point %}
+                from {{ rep.supply_point.name }}
+            {% endif %}
+        <br/>
     {% endfor %}
     <strong><a href="{% url ews_configure_incharge object.code %}">
         Configure In-Charge

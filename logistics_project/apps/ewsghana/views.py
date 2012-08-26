@@ -99,7 +99,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             if form.is_valid():
                 facility = form.save()
                 return HttpResponseRedirect(
-                    reverse('facility_view'))
+                    reverse('facility_edit', kwargs={'pk':facility.pk}))
     else:
         form = FacilityForm(instance=facility)
     products = Product.objects.filter(is_active=True).order_by('name')

@@ -58,5 +58,5 @@ def check_for_dupes(phone_number, contact=None):
             pass
         # could be that we are editing an existing model
         elif dupes[0].contact != contact:
-            raise forms.ValidationError("Phone number already registered!")
+            raise forms.ValidationError("Phone number already registered to %s!" % dupes[0].contact)
     return True
