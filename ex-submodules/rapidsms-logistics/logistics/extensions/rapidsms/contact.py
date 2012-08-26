@@ -19,7 +19,9 @@ class Contact(models.Model):
         verbose_name = "Logistics Contact"
 
     def __unicode__(self):
-        return self.name
+        if self.name:
+            return self.name
+        return unicode(self.pk)
 
     @property
     def phone(self):
