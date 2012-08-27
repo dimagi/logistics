@@ -561,7 +561,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                                  {'name':reporter.name,
                                  'products':", ".join(stockouts_resolved),
                                  'supply_point':self.name})
-
+    
     def data_unavailable(self):
         # hm, not sure what interval should be considered 'data unavailable'?
         # for now, we'll make it a setting
@@ -701,7 +701,13 @@ class ProductStock(models.Model):
             if self.quantity == 0:
                 return True
         return False
-
+    
+    def is_stale(self):
+        deadline = datetime.utcnow() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE)
+        if self.last_modified is None or self.last_modified < deadline:
+            return True
+        return False
+    
     def is_below_emergency_level(self):
         """
         Returns False if a) below emergency levels, or

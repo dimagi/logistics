@@ -9,6 +9,11 @@ textarea, select {
     padding: 1em;
 }
 
+.plain_error {
+    color: red;
+    font-weight: bold;
+}
+
 .not_available {
     color: grey;
     padding: 1em;

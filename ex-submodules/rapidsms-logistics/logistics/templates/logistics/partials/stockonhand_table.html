@@ -37,7 +37,11 @@
         </td>
         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
         <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
-        <td>{{ stockonhand.last_modified|date:"M d Y" }}</td>
+        <td>
+            <div class="{% if stockonhand.is_stale %}plain_error{% endif %}">
+                {{ stockonhand.last_modified|date:"M d Y" }}
+            </div>
+        </td>
         </tr>
     {% endfor %}
     </tbody>
