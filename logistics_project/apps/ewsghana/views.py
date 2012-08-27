@@ -38,6 +38,13 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
 def message_log(request, template="ewsghana/messagelog.html"):
     return rapidsms_message_log(request, template)
 
+def help(request, template="ewsghana/help.html"):
+    commodities = Product.objects.filter(is_active=True).order_by('name')
+    return render_to_response(
+        template, {'commodities':commodities}, 
+        context_instance=RequestContext(request)
+    )
+
 def auditor(request, template="ewsghana/auditor.html"):
     return auditAll(request, template)
 

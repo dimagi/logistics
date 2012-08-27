@@ -10,14 +10,14 @@ from logistics_project.apps.registration.views import registration as logistics_
 from logistics_project.apps.ewsghana.views import my_web_registration, sms_registration
 from logistics_project.apps.web_registration.views import my_web_registration
 from logistics import views as logistics_views
-from logistics_project.apps.ewsghana.views import register_web_user, configure_incharge
+from logistics_project.apps.ewsghana.views import register_web_user, configure_incharge, help
 from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
         'model': Message}, name="export_messagelog"),
-    url(r'^help/?$', direct_to_template, {'template': 'ewsghana/help.html'}, name="help"),
-
+    url(r'^help/?$', help, 
+        {'template':'ewsghana/help.html'}),
     url(r'^auditor/?$', 'logistics_project.apps.ewsghana.views.auditor', 
         name="ewsghana_auditor"),
     url(r'^messagelog/?$', 'logistics_project.apps.ewsghana.views.message_log', 
