@@ -38,8 +38,12 @@ def get_report(request, slug=''):
     try:
         return report.get_response(request)
     except Exception:
-        return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
-                                  {}, context_instance=RequestContext(request))
+        messages.warning(request,
+                         "It looks like there's no data for your filters. "
+                         "You've been redirected home.")
+        return home(request)
+        # return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
+        #                           {}, context_instance=RequestContext(request))
     
 def home(request):
     return redirect("/malawi/r/dashboard/")

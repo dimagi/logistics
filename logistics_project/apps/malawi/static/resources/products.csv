@@ -1,0 +1,21 @@
+Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,Minpack
+LA 1 x 6,LA,6,180,CCM,Tablet,36,30,180
+LA 2 x 6,LB,12,96,CCM,Tablet,48,4,360
+Paracetamol 500mg,PA,6,240,CCM,Tablet,36,40,1000
+ORS,OR,2,20,CCM,Sachet,12,10,20
+Cotrimoxazole 480mg,CO,10,220,CCM,Tablet,60,22,1000
+Zinc 20mg,ZI,10,100,CCM,Tablet,60,10,100
+Tetracycline Eye Ointment,TE,1,2,CCM,Tube,n/a,2,1
+DMPA,DM,1,30,FP,Vial,6,,25
+Combined Low Oestrogen,CL,,50,FP,Cycle,n/a,,10
+Progestogen only,PO,,30,FP,Cycle,n/a,,5
+Condom-Male,CM,,100,HIV,Piece,60,,100
+Condom-Female,CF,,100,HIV,Piece,60,,10
+Determine HIV,DE,,30,HIV,Test,6,,100
+Unigold,UN,,15,HIV,Test,6,,10
+Bioline,BI,,1,HIV,Test,n/a,,2
+Gloves,GL,,100,HIV,Piece,n/a,,100
+Cotton Wool,CW,,1,HIV,Piece,n/a,,1
+Pill bags,PB,,150,CCM,Piece,n/a,,50
+Surgical spirit,SS,,1,HIV,1 ltr bottle,n/a,,1
+Lancets,LC,,60,HIV,Piece,n/a,,50

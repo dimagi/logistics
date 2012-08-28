@@ -43,7 +43,7 @@ class View(warehouse_view.DistrictOnlyView):
         for hsa in hsas:
             up = UserProfileData.objects.get(supply_point=hsa)
             pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
-            table["data"].append({"url": get_hsa_url(hsa), "data": [hsa.supplied_by.name, hsa.name,\
+            table["data"].append({"url": get_hsa_url(hsa, sp.code), "data": [hsa.supplied_by.name, hsa.name,\
                 hsa.code, up.products_managed,\
                 _yes_or_no(pads.any_without_stock), _yes_or_no(pads.any_emergency_stock),\
                 _yes_or_no(pads.any_good_stock), _yes_or_no(pads.any_over_stock),\

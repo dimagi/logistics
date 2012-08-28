@@ -74,12 +74,22 @@ class View(warehouse_view.DistrictOnlyView):
                     _f(data_adjusted_cons), _f(amc)]
         
 
-        d = f = d_table = f_table = None
+        n = d = f = n_table = d_table = f_table = None
+        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+            n = sp
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
             d = sp
         elif sp.type.code == config.SupplyPointCodes.FACILITY:
             d = sp.supplied_by
             f = sp
+        if n:
+            n_table = {
+                "id": "national-consumption-profiles",
+                "is_datatable": False,
+                "is_downloadable": True,
+                "header": table_headers,
+                "data": [_consumption_row(n, p) for p in Product.objects.all()]            
+            }
         if d:
             d_table = {
                 "id": "district-consumption-profiles",
@@ -116,6 +126,7 @@ class View(warehouse_view.DistrictOnlyView):
             line_chart["data"].append({"title": j, "data": sorted(temp)})
 
         return {
+            "national_table": n_table,
             "district_table": d_table,
             "facility_table": f_table,
             "line_chart": line_chart

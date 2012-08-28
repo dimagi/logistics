@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from logistics.util import config
 from logistics.models import StockRequest, Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -15,7 +16,7 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "quantity-required-for-resupply",
             "is_datatable" : True,
             "is_downloadable": True,
-            "header": ["Facility Name"],
+            "header": [],
             "data": [],
         }
 
@@ -28,7 +29,12 @@ class View(warehouse_view.DistrictOnlyView):
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)
         
-        facilities = facility_supply_points_below(sp.location)
+        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+            table["header"] = ["District Name"]
+            facilities = SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT)
+        else:
+            table["header"] = ["Facility Name"]
+            facilities = facility_supply_points_below(sp.location)
         
         for product in Product.objects.all().order_by('sms_code'):
             table["header"].append(product.name)
@@ -37,7 +43,8 @@ class View(warehouse_view.DistrictOnlyView):
             temp = [fac.name]
             for product in Product.objects.all().order_by('sms_code'):
                 temp.append(sum([r.amount_requested for r in StockRequest.pending_requests()\
-                    .filter(Q(supply_point=fac) | Q(supply_point__supplied_by=fac))\
+                    .filter(Q(supply_point=fac) | Q(supply_point__supplied_by=fac)\
+                        | Q(supply_point__supplied_by__supplied_by=fac))\
                     .filter(product=product, is_emergency=emergency)]))
             table["data"].append(temp)
 

@@ -6,7 +6,7 @@ from logistics.models import SupplyPoint, ProductType, Product
 from logistics_project.apps.malawi.util import get_default_supply_point, pct, fmt_or_none
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
-    avg_of_key_values, list_key_values
+    avg_of_key_values
 from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
@@ -123,10 +123,10 @@ class View(warehouse_view.DistrictOnlyView):
         for eo in prd_map.keys():
             eo_pct_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
-                                      [fmt_or_none(val) for val in list_key_values(prd_map[eo]['pct'])])])
+                                      [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])
             eo_abs_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
-                                      list_key_values(prd_map[eo]['emergency']))])
+                                      [prd_map[eo]['emergency'][d] for d in datelist])])
 
         # for type in type_map.keys():
         selected_products = Product.objects.all()

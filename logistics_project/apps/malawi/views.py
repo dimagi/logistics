@@ -52,59 +52,6 @@ from logistics_project.apps.malawi.forms import OrganizationForm
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 
 
-def contacts(request):
-    contacts = Contact.objects.all()
-    table = {
-        "id": "contacts-table",
-        "is_datatable": True,
-        "is_downloadable": False,
-        "header": ["Name", "Role", "HSA Id", "SupplyPoint",
-                   "Phone Number", "Commodities", "Organization"],
-        "data": [],
-    }
-    for c in contacts:
-        table["data"].append({"url": "/registration/%d/edit" % c.id, "data": [c.name, 
-            c.role.name if c.role else "", c.hsa_id,
-            c.supply_point.name if c.supply_point else "",
-            c.default_connection.identity if c.default_connection else "",
-            " ".join([com.sms_code for com in c.commodities.all()]),
-            c.organization.name if c.organization else ""]})
-
-    table["height"] = min(480, contacts.count()*60)
-
-    context = {
-        "contacts": contacts,
-        "table": table,
-    }
-    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
-
-def permissions(request):
-    users = auth_user.objects.all()
-    groups = auth_group.objects.all()
-    table = {
-        "id": "user-table",
-        "is_datatable": True,
-        "is_downloadable": False,
-        "header": ["User", "District", "Location", "Organization", "Groups"],
-        "data": [],
-    }
-    for u in users:
-        prof = u.get_profile()
-        table["data"].append([u.username, prof.supply_point, prof.location,\
-            prof.organization.name if prof.organization else "",\
-            " ".join([g.name for g in u.groups.all()])])
-
-    table["height"] = min(480, users.count()*60)
-
-    context = {
-        "users": users,
-        "groups": groups,
-        "table": table,
-    }
-    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
-
 def organizations(request):
     orgs = Organization.objects.all()
     table = {
@@ -158,6 +105,59 @@ def new_organization(request):
         'is_new': True
     }, context_instance=RequestContext(request))
 
+def contacts(request):
+    contacts = Contact.objects.all()
+    table = {
+        "id": "contacts-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Role", "HSA Id", "SupplyPoint",
+                   "Phone Number", "Commodities", "Organization"],
+        "data": [],
+    }
+    for c in contacts:
+        table["data"].append({"url": "/registration/%d/edit" % c.id, "data": [c.name, 
+            c.role.name if c.role else "", c.hsa_id,
+            c.supply_point.name if c.supply_point else "",
+            c.default_connection.identity if c.default_connection else "",
+            " ".join([com.sms_code for com in c.commodities.all()]),
+            c.organization.name if c.organization else ""]})
+
+    table["height"] = min(480, contacts.count()*60)
+
+    context = {
+        "contacts": contacts,
+        "table": table,
+    }
+    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def permissions(request):
+    users = auth_user.objects.all()
+    groups = auth_group.objects.all()
+    table = {
+        "id": "user-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["User", "District", "Location", "Organization", "Groups"],
+        "data": [],
+    }
+    for u in users:
+        prof = u.get_profile()
+        table["data"].append([u.username, prof.supply_point, prof.location,\
+            prof.organization.name if prof.organization else "",\
+            " ".join([g.name for g in u.groups.all()])])
+
+    table["height"] = min(480, users.count()*60)
+
+    context = {
+        "users": users,
+        "groups": groups,
+        "table": table,
+    }
+    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
 def places(request):
     locs = Location.objects.filter(is_active=True)
     table = {
@@ -183,8 +183,34 @@ def places(request):
                 context, context_instance=RequestContext(request))
 
 def places_upload(request):
-    return render_to_response("%s/places-upload.html" % settings.MANAGEMENT_FOLDER,
-            {}, context_instance=RequestContext(request))
+    if request.method == 'GET':
+        upload_link = reverse("malawi_places_upload")
+        return render_to_response("%s/places-upload.html" % settings.MANAGEMENT_FOLDER,
+            {"upload_link": upload_link}, context_instance=RequestContext(request))
+
+    if not request.FILES.has_key('file'):
+        messages.warning(request, "No File Detected")
+        return redirect(reverse("malawi_places_upload"))
+
+    # move files around, save old one with datestamp
+
+    f = request.FILES.get('file')
+    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
+    write_file = open(destination, 'wb+')
+
+    for chunk in f.chunks():
+        write_file.write(chunk)
+    write_file.close()
+
+    import os
+    if not os.path.getsize(destination) == f.size:
+        # move files around, put old one back
+        messages.warning(request, "Unknown Error - Upload Failed")
+        return redirect(reverse("malawi_places_upload"))
+
+    # run malawi_init and partial runner
+
+    return redirect(reverse("malawi_places"))
 
 def products(request):
     prds = Product.objects.filter(is_active=True)
@@ -210,12 +236,34 @@ def products(request):
                 context, context_instance=RequestContext(request))
 
 def products_upload(request):
-    return render_to_response("%s/products-upload.html" % settings.MANAGEMENT_FOLDER,
-            {}, context_instance=RequestContext(request))
+    if request.method == 'GET':
+        upload_link = reverse("malawi_products_upload")
+        return render_to_response("%s/products-upload.html" % settings.MANAGEMENT_FOLDER,
+            {"upload_link": upload_link}, context_instance=RequestContext(request))
 
-def products_download(request):
-    # csv_file = settings.STATIC_PRODUCTS
-    pass
+    if not request.FILES.has_key('file'):
+        messages.warning(request, "No File Detected")
+        return redirect(reverse("malawi_products_upload"))
+
+    # move files around, save old one with datestamp
+
+    f = request.FILES.get('file')
+    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
+    write_file = open(destination, 'wb+')
+
+    for chunk in f.chunks():
+        write_file.write(chunk)
+    write_file.close()
+
+    import os
+    if not os.path.getsize(destination) == f.size:
+        # move files around, put old one back
+        messages.warning(request, "Unknown Error - Upload Failed")
+        return redirect(reverse("malawi_products_upload"))
+
+    # run malawi_init and partial runner
+
+    return redirect(reverse("malawi_products"))
 
 @datespan_default
 def sms_tracking(request):

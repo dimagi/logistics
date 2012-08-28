@@ -3,6 +3,15 @@
 
 {% include "malawi/partials/selector_form.html" %}
 
+{% if national_table %}
+<div class="module">
+	<h2>National Consumption Profiles</h2>
+	{% with national_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+{% endif %}
+
 {% if district_table %}
 <div class="module">
 	<h2>District Consumption Profiles</h2>
