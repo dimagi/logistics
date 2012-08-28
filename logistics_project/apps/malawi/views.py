@@ -4,6 +4,7 @@ from urllib2 import urlopen
 from collections import defaultdict
 import logging
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -16,11 +17,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User as auth_user
 from django.contrib.auth.models import Group as auth_group
-from django.conf import settings
 from django.db.models.aggregates import Count
 
 from dimagi.utils.csv import UnicodeWriter
-from dimagi.utils.dates import DateSpan
+from dimagi.utils.dates import DateSpan, months_between, add_months
 from dimagi.utils.django.permission_required import permission_required_with_403
 from dimagi.utils.decorators.datespan import datespan_in_request
 
@@ -38,6 +38,7 @@ from logistics.reports import ReportingBreakdown
 from logistics.util import config
 from logistics.charts import amc_plot
 
+from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
@@ -50,39 +51,28 @@ from logistics_project.apps.malawi.forms import OrganizationForm
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 
-def permission_ui(request):
-
-    users = auth_user.objects.all()
-    groups = auth_group.objects.all()
-
-    table = {
-        "id": "user-table",
-        "is_datatable": False,
-        "header": ["User", "District", "Location", "Organization", "Groups"],
-        "data": [],
-    }
-
-    for u in users:
-        prof = u.get_profile()
-        table["data"].append([u.username, prof.supply_point, prof.location,\
-            prof.organization.name if prof.organization else "None",\
-            " ".join([g.name for g in u.groups.all()])])
-
-    context = {
-        "users": users,
-        "groups": groups,
-        "table": table,
-    }
-
-    return render_to_response("malawi/new/permission-ui.html",\
-        context, context_instance=RequestContext(request))
 
 def organizations(request):
-    return render_to_response("malawi/organizations.html",
-        {
-            "organization_table": OrganizationTable(Organization.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
+    orgs = Organization.objects.all()
+    table = {
+        "id": "org-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Members", "Managed Supply Points"],
+        "data": [],
+    }
+    for org in orgs:
+        table["data"].append({"url": "edit/%d" % org.id, "data": [org.name, org.contact_set.all().count(),
+            " ".join([s.name for s in org.managed_supply_points.all()])]})
+
+    table["height"] = min(480, orgs.count()*60)
+
+    context = {
+        "orgs": orgs,
+        "table": table,
+    }
+    return render_to_response("%s/organizations.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
 
 def edit_organization(request, pk):
     org = get_object_or_404(Organization, pk=pk)
@@ -115,27 +105,381 @@ def new_organization(request):
         'is_new': True
     }, context_instance=RequestContext(request))
 
+def contacts(request):
+    contacts = Contact.objects.all()
+    table = {
+        "id": "contacts-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Role", "HSA Id", "SupplyPoint",
+                   "Phone Number", "Commodities", "Organization"],
+        "data": [],
+    }
+    for c in contacts:
+        table["data"].append({"url": "/registration/%d/edit" % c.id, "data": [c.name, 
+            c.role.name if c.role else "", c.hsa_id,
+            c.supply_point.name if c.supply_point else "",
+            c.default_connection.identity if c.default_connection else "",
+            " ".join([com.sms_code for com in c.commodities.all()]),
+            c.organization.name if c.organization else ""]})
+
+    table["height"] = min(480, contacts.count()*60)
+
+    context = {
+        "contacts": contacts,
+        "table": table,
+    }
+    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def permissions(request):
+    users = auth_user.objects.all()
+    groups = auth_group.objects.all()
+    table = {
+        "id": "user-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["User", "District", "Location", "Organization", "Groups"],
+        "data": [],
+    }
+    for u in users:
+        prof = u.get_profile()
+        table["data"].append([u.username, prof.supply_point, prof.location,\
+            prof.organization.name if prof.organization else "",\
+            " ".join([g.name for g in u.groups.all()])])
+
+    table["height"] = min(480, users.count()*60)
+
+    context = {
+        "users": users,
+        "groups": groups,
+        "table": table,
+    }
+    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
 def places(request):
+    locs = Location.objects.filter(is_active=True)
+    table = {
+        "id": "loc-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Code", "Type", "Supplied By"],
+        "data": [],
+    }
+    for loc in locs:
+        sp = SupplyPoint.objects.get(location=loc)
+        table["data"].append([loc.name, loc.code,
+            loc.type.name if loc.type else "",
+            sp.supplied_by.name if sp.supplied_by else ""])
+
+    table["height"] = min(480, locs.count()*60)
+
+    context = {
+        "locs": locs,
+        "table": table,
+    }
+    return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def places_upload(request):
+    if request.method == 'GET':
+        upload_link = reverse("malawi_places_upload")
+        return render_to_response("%s/places-upload.html" % settings.MANAGEMENT_FOLDER,
+            {"upload_link": upload_link}, context_instance=RequestContext(request))
+
+    if not request.FILES.has_key('file'):
+        messages.warning(request, "No File Detected")
+        return redirect(reverse("malawi_places_upload"))
+
+    # move files around, save old one with datestamp
+
+    f = request.FILES.get('file')
+    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
+    write_file = open(destination, 'wb+')
+
+    for chunk in f.chunks():
+        write_file.write(chunk)
+    write_file.close()
+
+    import os
+    if not os.path.getsize(destination) == f.size:
+        # move files around, put old one back
+        messages.warning(request, "Unknown Error - Upload Failed")
+        return redirect(reverse("malawi_places_upload"))
+
+    # run malawi_init and partial runner
+
+    return redirect(reverse("malawi_places"))
+
+def products(request):
+    prds = Product.objects.filter(is_active=True)
+    table = {
+        "id": "prd-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "SMS Code", "Avg Monthly Consumption",
+                   "Emergency Order Level", "Type"],
+        "data": [],
+    }
+    for prd in prds:
+        table["data"].append([prd.name, prd.sms_code, prd.average_monthly_consumption,
+            prd.emergency_order_level, prd.type.name if prd.type else ""])
+
+    table["height"] = min(480, prds.count()*60)
+
+    context = {
+        "prds": prds,
+        "table": table,
+    }
+    return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def products_upload(request):
+    if request.method == 'GET':
+        upload_link = reverse("malawi_products_upload")
+        return render_to_response("%s/products-upload.html" % settings.MANAGEMENT_FOLDER,
+            {"upload_link": upload_link}, context_instance=RequestContext(request))
+
+    if not request.FILES.has_key('file'):
+        messages.warning(request, "No File Detected")
+        return redirect(reverse("malawi_products_upload"))
+
+    # move files around, save old one with datestamp
+
+    f = request.FILES.get('file')
+    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
+    write_file = open(destination, 'wb+')
+
+    for chunk in f.chunks():
+        write_file.write(chunk)
+    write_file.close()
+
+    import os
+    if not os.path.getsize(destination) == f.size:
+        # move files around, put old one back
+        messages.warning(request, "Unknown Error - Upload Failed")
+        return redirect(reverse("malawi_products_upload"))
+
+    # run malawi_init and partial runner
+
+    return redirect(reverse("malawi_products"))
+
+@datespan_default
+def sms_tracking(request):
+    
+    class ContactCache(object):
+        def __init__(self):
+            self.contacts = {}
+        
+        def get(self, pk):
+            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
+    
+    orgs = dict(zip(Organization.objects.all(), 
+                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
+
+    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
+                                          date__lte=request.datespan.computed_enddate)
+    inbound_counts = all_messages.filter(direction="I").\
+                        values('contact').annotate(messages=Count("contact"))
+    outbound_counts = all_messages.filter(direction="O").\
+                        values('contact').annotate(messages=Count("contact"))
+    
+    cache = ContactCache()
+    def _update(key, row):
+        if row["contact"] is not None:
+            contact = cache.get(row["contact"])
+            if contact.organization:
+                orgs[contact.organization][key] = row["messages"]
+        
+    for row in inbound_counts:
+        _update("inbound", row)
+    for row in outbound_counts:
+        _update("outbound", row)
+
+    table = {
+        "id": "sms-table",
+        "is_datatable": False,
+        "is_downloadable": False,
+        "header": ["Organization", "Inbound Messages", "Outbound Messages"],
+        "data": [],
+    }
+    for org, vals in orgs.iteritems():
+        table["data"].append([org.name, vals["inbound"] if vals.has_key("inbound") else 0, 
+                            vals["outbound"] if vals.has_key("outbound") else 0])
+
+    return render_to_response("%s/sms-tracking.html" % settings.MANAGEMENT_FOLDER,
+                              {"table": table},
+                              context_instance=RequestContext(request))
+
+@datespan_default
+def telco_tracking(request):
+    start_date = request.datespan.computed_startdate
+    end_date = request.datespan.computed_enddate
+
+    results = []
+
+    for year, month in months_between(start_date,end_date):
+        date1 = datetime(year,month,1)
+        endyear, endmonth = add_months(year,month,1)
+        date2 = datetime(endyear,endmonth,1)
+        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
+                date__range=(date1,date2))
+        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
+                date__range=(date1,date2))
+        results.append((date1, tnm_msgs.count(), airtel_msgs.count()))
+
+    table = {
+        "id": "telco-table",
+        "is_datatable": False,
+        "is_downloadable": True,
+        "header": ["Date", "TNM", "Airtel"],
+        "data": [],
+    }
+    for result in results:
+        table["data"].append([result[0].strftime("%B, %Y"), result[1], result[2]])
+
+    return render_to_response("%s/telco-tracking.html" % settings.MANAGEMENT_FOLDER,
+                              {"table": table},
+                              context_instance=RequestContext(request))
+
+@permission_required("is_superuser")
+def register_user(request, template="malawi/register-user.html"):
+    context = dict()
+    context['facilities'] = SupplyPoint.objects.filter(type__code="hf").order_by('code')
+    context['backends'] = Backend.objects.all()
+    context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
+    if request.method != 'POST':
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    id = request.POST.get("id", None)
+    facility = request.POST.get("facility", None)
+    name = request.POST.get("name", None)
+    number = request.POST.get("number", None)
+    backend = request.POST.get("backend", None)
+
+    if not (id and facility and name and number and backend):
+        messages.error(request, "All fields must be filled in.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+    hsa_id = None
+    try:
+        hsa_id = format_id(facility, id)
+    except IdFormatException:
+        messages.error(request, "HSA ID must be a number between 0 and 99.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    try:
+        parent = SupplyPoint.objects.get(code=facility)
+    except SupplyPoint.DoesNotExist:
+        messages.error(request, "No facility with that ID.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    if Location.objects.filter(code=hsa_id).exists():
+        messages.error(request, "HSA with that code already exists.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    try:
+        number = int(number)
+    except ValueError:
+        messages.error(request, "Phone number must contain only numbers.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
+                                          code=hsa_id, parent=parent.location)
+    sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=config.hsa_supply_point_type(),
+                                        location=hsa_loc, supplied_by=parent, active=True)
+    sp.save()
+    contact = Contact()
+    contact.name = name
+    contact.supply_point = sp
+    contact.role = ContactRole.objects.get(code=config.Roles.HSA)
+    contact.is_active = True
+    contact.save()
+
+    connection = Connection()
+    connection.backend = Backend.objects.get(pk=int(backend))
+    connection.identity = "+%s%s" % (settings.COUNTRY_DIALLING_CODE, number) #TODO: Check validity of numbers
+    connection.contact = contact
+    connection.save()
+
+    messages.success(request, "HSA added!")
+
+    return render_to_response(template, context, context_instance=RequestContext(request))
+
+def help(request):
+    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
+
+
+
+
+############################
+# old reports
+############################
+
+
+def contacts_OLD(request):
+    return render_to_response("malawi/contacts.html",
+        {
+            "contacts_table": MalawiContactTable(Contact.objects, request=request)
+        }, context_instance=RequestContext(request)
+    )
+
+def organizations_OLD(request):
+    return render_to_response("malawi/organizations.html",
+        {
+            "organization_table": OrganizationTable(Organization.objects, request=request)
+        }, context_instance=RequestContext(request)
+    )
+
+def places_OLD(request):
     return render_to_response("malawi/places.html",
         {
             "location_table": MalawiLocationTable(Location.objects.exclude(type__slug="hsa"), request=request)
         }, context_instance=RequestContext(request)
     )
-        
-def products(request):
+
+def products_OLD(request):
     return render_to_response("malawi/products.html",
         {
             "product_table": MalawiProductTable(Product.objects, request=request)
         }, context_instance=RequestContext(request)
     )
 
-def contacts(request):
-    return render_to_response("malawi/contacts.html",
-        {
-            "contacts_table": MalawiContactTable(Contact.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )    
+@datespan_in_request()
+def sms_tracking_OLD(request):
+    
+    class ContactCache(object):
+        def __init__(self):
+            self.contacts = {}
+        
+        def get(self, pk):
+            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
+    
+    orgs = dict(zip(Organization.objects.all(), 
+                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
 
+    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
+                                          date__lte=request.datespan.computed_enddate)
+    inbound_counts = all_messages.filter(direction="I").\
+                        values('contact').annotate(messages=Count("contact"))
+    outbound_counts = all_messages.filter(direction="O").\
+                        values('contact').annotate(messages=Count("contact"))
+    
+    cache = ContactCache()
+    def _update(key, row):
+        if row["contact"] is not None:
+            contact = cache.get(row["contact"])
+            if contact.organization:
+                orgs[contact.organization][key] = row["messages"]
+        
+    for row in inbound_counts:
+        _update("inbound", row)
+    for row in outbound_counts:
+        _update("outbound", row)
+
+    return render_to_response("malawi/sms_tracking.html",
+                              {"organizations": orgs},
+                              context_instance=RequestContext(request))
 
 
 #@cache_page(60 * 15)
@@ -352,11 +696,6 @@ def status(request):
         
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
 
-def _sort_date(x,y):
-    if x['registered'] < y['registered']: return -1
-    if x['registered'] > y['registered']: return 1
-    return 0
-
 @permission_required("auth.admin_read")
 def airtel_numbers(request):
     airtelcontacts = Contact.objects.select_related().filter(connection__backend__name='airtel-smpp')
@@ -432,134 +771,10 @@ def export_amc_csv(request):
         writer.writerow(row)
     return response
 
-def help(request):
-    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
-
-@permission_required("is_superuser")
-def register_user(request, template="malawi/register-user.html"):
-    context = dict()
-    context['facilities'] = SupplyPoint.objects.filter(type__code="hf").order_by('code')
-    context['backends'] = Backend.objects.all()
-    context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
-    if request.method != 'POST':
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    id = request.POST.get("id", None)
-    facility = request.POST.get("facility", None)
-    name = request.POST.get("name", None)
-    number = request.POST.get("number", None)
-    backend = request.POST.get("backend", None)
-
-    if not (id and facility and name and number and backend):
-        messages.error(request, "All fields must be filled in.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-    hsa_id = None
-    try:
-        hsa_id = format_id(facility, id)
-    except IdFormatException:
-        messages.error(request, "HSA ID must be a number between 0 and 99.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    try:
-        parent = SupplyPoint.objects.get(code=facility)
-    except SupplyPoint.DoesNotExist:
-        messages.error(request, "No facility with that ID.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    if Location.objects.filter(code=hsa_id).exists():
-        messages.error(request, "HSA with that code already exists.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    try:
-        number = int(number)
-    except ValueError:
-        messages.error(request, "Phone number must contain only numbers.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
-                                          code=hsa_id, parent=parent.location)
-    sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=config.hsa_supply_point_type(),
-                                        location=hsa_loc, supplied_by=parent, active=True)
-    sp.save()
-    contact = Contact()
-    contact.name = name
-    contact.supply_point = sp
-    contact.role = ContactRole.objects.get(code=config.Roles.HSA)
-    contact.is_active = True
-    contact.save()
-
-    connection = Connection()
-    connection.backend = Backend.objects.get(pk=int(backend))
-    connection.identity = "+%s%s" % (settings.COUNTRY_DIALLING_CODE, number) #TODO: Check validity of numbers
-    connection.contact = contact
-    connection.save()
-
-    messages.success(request, "HSA added!")
-
-    return render_to_response(template, context, context_instance=RequestContext(request))
-
-@datespan_in_request()
-def sms_tracking(request):
-    
-    class ContactCache(object):
-        def __init__(self):
-            self.contacts = {}
-        
-        def get(self, pk):
-            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
-    
-    orgs = dict(zip(Organization.objects.all(), 
-                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
-    # if I was smarter I'd figure out a way to do this query with django aggregates,
-    # but for now we'll just do it all in memory
-    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
-                                          date__lte=request.datespan.computed_enddate)
-    inbound_counts = all_messages.filter(direction="I").\
-                        values('contact').annotate(messages=Count("contact"))
-    outbound_counts = all_messages.filter(direction="O").\
-                        values('contact').annotate(messages=Count("contact"))
-    
-    cache = ContactCache()
-    def _update(key, row):
-        if row["contact"] is not None:
-            contact = cache.get(row["contact"])
-            if contact.organization:
-                orgs[contact.organization][key] = row["messages"]
-        
-    for row in inbound_counts:
-        _update("inbound", row)
-    for row in outbound_counts:
-        _update("outbound", row)
-    
-    return render_to_response("malawi/sms_tracking.html",
-                              {"organizations": orgs},
-                              context_instance=RequestContext(request))
-
-@datespan_in_request()
-def telco_tracking(request):
-    start = request.GET.get('from') or '2000-1-1'
-    end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
-
-    start_date = datetime.strptime(start, '%Y-%m-%d')
-    end_date = datetime.strptime(end, '%Y-%m-%d')
-
-    from dimagi.utils.dates import months_between, add_months
-
-    results = []
-
-    for year, month in months_between(start_date,end_date):
-        date1 = datetime(year,month,1)
-        endyear, endmonth = add_months(year,month,1)
-        date2 = datetime(endyear,endmonth,1)
-        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
-                date__range=(date1,date2))
-        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
-                date__range=(date1,date2))
-        results.append((date1, tnm_msgs.count(), airtel_msgs.count()))
-
-    return render_to_response("malawi/telco_tracking.html",
-                              {"results": results},
-                              context_instance=RequestContext(request))
+def _sort_date(x,y):
+    if x['registered'] < y['registered']: return -1
+    if x['registered'] > y['registered']: return 1
+    return 0
 
 class MonthPager(object):
     """

@@ -1,0 +1,19 @@
+
+<img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
+
+<script language="javascript">
+$(document).ready(function() {
+	var saveFile = function(strData) {
+		document.location.href = strData;
+	}
+
+	var makeDataURI = function(strData, strMime) {
+		return "data:" + strMime + ";base64," + window.btoa(strData);
+	}
+
+	$("#download-{{ table.id }}").live('click', function(){
+		saveFile(makeDataURI($("#{{ table.id }}").table2CSV(), "text/csv"));
+	});
+});
+</script>
+

@@ -1,15 +1,20 @@
 from random import random
 from datetime import datetime
 
-from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.warehouse.models import Consumption
 from django.db.models import Sum
+
 from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
+
+from logistics.util import config
 from logistics.models import SupplyPoint, Product
+
+from logistics_project.apps.malawi.warehouse import warehouse_view
+from logistics_project.apps.malawi.warehouse.models import Consumption
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, fmt_pct
-from logistics.util import config
+
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -43,8 +48,14 @@ class View(warehouse_view.DistrictOnlyView):
             tot_so_time = vals['time_stocked_out__sum']
             tot_time_with_data = vals['time_with_data__sum']
             tot_time_needing_data = vals['time_needing_data__sum']
-            num_hsas = relevant[0].total
-            avg_so_time = tot_so_time / num_hsas # NOTE: potential divide by 0
+
+            num_hsas = 0
+            avg_so_time = 0
+            if relevant.count() > 0:
+                if relevant[0].total:
+                    num_hsas = relevant[0].total
+                    avg_so_time = tot_so_time / num_hsas
+
             period_secs = delta_secs(end - request.datespan.startdate)
             assert period_secs >= avg_so_time
             adjusted_secs = period_secs - avg_so_time
@@ -62,16 +73,28 @@ class View(warehouse_view.DistrictOnlyView):
                     _f(so_adjusted_cons), _f2(scale_factor), 
                     _f(data_adjusted_cons), _f(amc)]
         
-        d = f = d_table = f_table = None
+
+        n = d = f = n_table = d_table = f_table = None
+        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+            n = sp
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
             d = sp
         elif sp.type.code == config.SupplyPointCodes.FACILITY:
             d = sp.supplied_by
             f = sp
+        if n:
+            n_table = {
+                "id": "national-consumption-profiles",
+                "is_datatable": False,
+                "is_downloadable": True,
+                "header": table_headers,
+                "data": [_consumption_row(n, p) for p in Product.objects.all()]            
+            }
         if d:
             d_table = {
                 "id": "district-consumption-profiles",
                 "is_datatable": False,
+                "is_downloadable": True,
                 "header": table_headers,
                 "data": [_consumption_row(d, p) for p in Product.objects.all()]
             }
@@ -79,23 +102,32 @@ class View(warehouse_view.DistrictOnlyView):
             f_table = {
                 "id": "facility-consumption-profiles",
                 "is_datatable": False,
+                "is_downloadable": True,
                 "header": table_headers,
                 "data": [_consumption_row(f, p) for p in Product.objects.all()]
             }
         
+        dates = get_datelist(request.datespan.startdate, request.datespan.enddate)
+
         line_chart = {
+            "div": "monthly-cons-stock",
+            "legenddiv": "monthly-cons-stock-legend",
+            "legendcols": 10,
+            "max_value": 1,
+            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
             "height": "350px",
             "width": "100%", # "300px",
-            "series": [],
+            "data": [],
         }
         for j in ['Av Monthly Cons', 'Av Months of Stock']:
             temp = []
-            for i in range(0,5):
-                temp.append([random(),random()])
-            line_chart["series"].append({"title": j, "data": sorted(temp)})
+            for i in range(0,len(dates)):
+                temp.append([i + 1, random()])
+            line_chart["data"].append({"title": j, "data": sorted(temp)})
 
         return {
+            "national_table": n_table,
             "district_table": d_table,
             "facility_table": f_table,
-            "line": line_chart
+            "line_chart": line_chart
         }

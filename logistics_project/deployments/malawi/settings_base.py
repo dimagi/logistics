@@ -74,7 +74,8 @@ REPORT_LIST = SortedDict([
     ("Emergency Orders", "emergency-orders"),
 ])
 
-REPORT_FOLDER = "malawi/new"
+REPORT_FOLDER = "malawi/new/reports"
+MANAGEMENT_FOLDER = "malawi/new/management"
 
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
@@ -152,6 +153,7 @@ import os
 filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "health_centers.csv")
 STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "products.csv")
+STATIC_RESOURCES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics_project", "apps", "malawi", "static", "resources")
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana

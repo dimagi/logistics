@@ -37,6 +37,7 @@ class View(warehouse_view.DistrictOnlyView):
         month_table = {
             "id": "month-table",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Months"] + shared_headers,
             "data": month_data,
         }
@@ -61,6 +62,7 @@ class View(warehouse_view.DistrictOnlyView):
         district_table = {
             "id": "average-reporting-rate-districts",
             "is_datatable": False,
+            "is_downloadable": True,
             "header": ["Districts"] + shared_headers,
             "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
                                                 request.datespan.startdate,
@@ -73,6 +75,7 @@ class View(warehouse_view.DistrictOnlyView):
             facility_table = {
                 "id": "average-reporting-rate-facilities",
                 "is_datatable": True,
+                "is_downloadable": True,
                 "header": ["Facilities"] + shared_headers,
                 "data": _avg_report_rate_table_data\
                     (facility_supply_points_below(sp.location).order_by('name'),
@@ -83,6 +86,7 @@ class View(warehouse_view.DistrictOnlyView):
         hsa_table = {
             "id": "hsa-reporting-profiles",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ["HSA", "Min Number expected", "Non-reporting", "On Time", "Late", "Complete"],
             "data": []
         }

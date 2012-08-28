@@ -5,6 +5,7 @@ from collections import defaultdict
 from random import random
 
 from dimagi.utils.dates import months_between, add_months, DateSpan
+from dimagi.utils.decorators.datespan import datespan_in_request
 
 from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
@@ -126,6 +127,11 @@ def malawi_default_date_func():
                     datetime(now.year, now.month, 1),
                     format='%B %Y')
 
+datespan_default = datespan_in_request(
+    default_function=malawi_default_date_func,
+    format_string='%B %Y'
+)
+
 def get_reporting_rates_chart(location, start, end):
 
     uniq_id = "%d" % (random()*10000)
@@ -226,6 +232,8 @@ def month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
 
-def get_hsa_url(hsa):
-    return '/malawi/r/hsas/?hsa_code=%s' % hsa.code
+def get_hsa_url(hsa, place=None):
+    if place:
+        return '/malawi/r/hsas/?place=%s&hsa_code=%s' % (place, hsa.code)         
+    return '/malawi/r/hsas/?hsa_code=%s' % hsa.code 
 

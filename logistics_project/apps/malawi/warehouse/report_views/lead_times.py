@@ -62,7 +62,7 @@ class View(warehouse_view.DistrictOnlyView):
         month_table = {
             "id": "month-table",
             "is_datatable": False,
-            "title": "",
+            "is_downloadable": True,
             "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received (days)', 
                        'Total Lead Time (days)'],
             "data": rows
@@ -96,6 +96,7 @@ class View(warehouse_view.DistrictOnlyView):
         fac_lt_table = {
             "id": "average-lead-times-facility",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": f_data,
         }   
@@ -105,6 +106,7 @@ class View(warehouse_view.DistrictOnlyView):
         hsa_lt_table = {
             "id": "average-lead-times-hsa",
             "is_datatable": True,
+            "is_downloadable": True,
             "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
             "data": h_data,
         }   

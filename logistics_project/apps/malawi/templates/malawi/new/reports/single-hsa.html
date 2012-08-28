@@ -2,6 +2,14 @@
 
 {% block report_content %}
 
+<script language="javascript">
+$(document).ready(function() {
+	$("#place_label").before('Back to ');
+	});
+</script>
+
+{% include "malawi/partials/location_only_selector_form.html" %}
+
 <div class="module">
 	{% with header_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}

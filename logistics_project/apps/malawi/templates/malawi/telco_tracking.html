@@ -2,9 +2,12 @@
 {% block title %}Telco Tracking - {{ block.super }}{% endblock %}
 {% block subcontent %}
 <div style="clear:both;">
-    {% if request.datespan != "current" %}
-{% include "malawi/partials/selector_form.html" %}
-    {% endif %}
+    <form method="get" id="selector">
+        <fieldset>
+        {% include "malawi/new/partials/month-selector.html" %}
+        </fieldset>
+        <input type="submit" value="Go!" />
+    </form>
 </div>
 <div class="module">
     <h2>Telco Tracking {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>

@@ -513,13 +513,14 @@ def update_alerts():
         hsas = hsa_supply_points_below(sp.location)
         new_obj.num_hsas = hsas.count()
 
-        new_obj.have_stockouts = 0
         new_obj.without_products_managed = 0
         new_obj.total_requests = 0
+        new_obj.have_stockouts = 0
         new_obj.eo_total = 0
         new_obj.eo_with_resupply = 0
         new_obj.eo_without_resupply = 0
         new_obj.reporting_receipts = 0
+        new_obj.order_readys = 0
         for hsa in hsas:
             new_obj.without_products_managed += 1 if hsa.commodities_stocked().count() == 0 else 0
             sreq = StockRequest.objects.filter(supply_point=hsa)

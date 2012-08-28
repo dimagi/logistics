@@ -21,7 +21,9 @@
 	<script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/collapse.js"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/printable.js"></script>
 {% endblock %}
-{% block imports %}{% endblock %}
+{% block imports %}
+    {% include "imports/jquery-ui.html" %}
+{% endblock %}
 </head>
 <body>
 	<div id="wrapper">

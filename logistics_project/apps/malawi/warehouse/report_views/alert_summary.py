@@ -11,6 +11,7 @@ class View(warehouse_view.DistrictOnlyView):
 		table = {
 			"id": "current-alert-summary",
 			"is_datatable": True,
+            "is_downloadable": True,
 			"header": ["Facility", "#HSAs", "%HSAs stocked out",\
 			"%HSAs with EOs that HCs cannot resupply", "%HSAs resupplied but remain below EO",\
 			"%HSAs registered but not added products managed", "%HSAs not reporting receipts"],
