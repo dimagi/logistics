@@ -76,9 +76,10 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ["Month", "On Time", "Late", "Complete"],
             "data": [],
         }
-                    
+        
+
         reports = ReportingRate.objects.filter(supply_point=hsa).order_by('-date')[:3]
-        for rr in reports.reverse():
+        for rr in reports:
             report_table["data"].append([rr.date.strftime('%b-%Y'), _yes_or_no(rr.on_time),\
                 _yes_or_no(rr.late), _yes_or_no(rr.complete)])
             
