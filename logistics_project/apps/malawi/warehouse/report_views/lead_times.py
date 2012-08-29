@@ -6,6 +6,7 @@ from django.db.models import Sum
 
 from dimagi.utils.dates import months_between
 
+from logistics.util import config
 from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -37,6 +38,7 @@ class View(warehouse_view.DistrictOnlyView):
                      'label': name, 'lines': {"show": False}, "bars": {"show": True},
                      'stack': 0} \
                      for code, name in TIME_TRACKER_TYPES]
+
         report_chart = {
             "legenddiv": "leadtime-legend-div",
             "div": "leadtime-chart-div",
@@ -91,29 +93,44 @@ class View(warehouse_view.DistrictOnlyView):
                                           (avg_or_lt, avg_rr_lt, avg_tot_lt)])
             return f_data
 
-        f_data = _get_lead_time_table_data(facility_supply_points_below(sp.location).order_by('name'))
+        dis_lt_table = fac_lt_table = hsa_lt_table = None
+        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+            d_data = _get_lead_time_table_data(SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT).order_by('name'))
 
-        fac_lt_table = {
-            "id": "average-lead-times-facility",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-            "data": f_data,
-        }   
+            dis_lt_table = {
+                "id": "average-lead-times-district",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+                "data": d_data,
+            }   
 
-        h_data = _get_lead_time_table_data(hsa_supply_points_below(sp.location).order_by('name'))
+        if sp.type.code == config.SupplyPointCodes.DISTRICT:
+            f_data = _get_lead_time_table_data(facility_supply_points_below(sp.location).order_by('name'))
 
-        hsa_lt_table = {
-            "id": "average-lead-times-hsa",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
-            "data": h_data,
-        }   
+            fac_lt_table = {
+                "id": "average-lead-times-facility",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+                "data": f_data,
+            }   
+
+        if sp.type.code == config.SupplyPointCodes.FACILITY:
+            h_data = _get_lead_time_table_data(hsa_supply_points_below(sp.location).order_by('name'))
+
+            hsa_lt_table = {
+                "id": "average-lead-times-hsa",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "header": ['Facility', 'Period (# Months)', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+                "data": h_data,
+            }   
 
         return {
                 "graphdata": report_chart,
                 "month_table": month_table,
+                "district_lt_table": dis_lt_table,
                 "fac_lt_table": fac_lt_table,
                 "hsa_lt_table": hsa_lt_table,
         }

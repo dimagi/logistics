@@ -15,14 +15,25 @@
 	{% endwith %}
 </div>
 
-<div class="module">
-	<h2>Average Lead Times by Facility</h2>
-	{% with fac_lt_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
+{% if district_lt_table %}
+	<div class="module">
+		<h2>Average Lead Times by District</h2>
+		{% with district_lt_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
 
-{% if not national_view_level %}
+{% if fac_lt_table %}
+	<div class="module">
+		<h2>Average Lead Times by Facility</h2>
+		{% with fac_lt_table as table %}
+		{% include "malawi/new/partials/generic-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+
+{% if hsa_lt_table %}
 	<div class="module">
 		<h2>Average Lead Times by HSA</h2>
 		{% with hsa_lt_table as table %}
