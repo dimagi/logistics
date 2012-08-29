@@ -32,6 +32,6 @@ class View(warehouse_view.DistrictOnlyView):
 				fmt_pct(alerts.without_products_managed, alerts.num_hsas),\
 				fmt_pct((alerts.order_readys - alerts.reporting_receipts), alerts.order_readys)])
 
-		table["height"] = min(480, facilities.count()*60)
+		table["height"] = min(480, (facilities.count()+1)*30)
 
 		return {"table": table}
