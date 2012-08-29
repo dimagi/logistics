@@ -23,7 +23,8 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
-    Consumption
+    CalculatedConsumption, CurrentConsumption
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class MalawiWarehouseRunner(WarehouseRunner):
@@ -41,6 +42,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_profile_data = False
     skip_alerts = False
     skip_consumption = False
+    skip_current_consumption = False
     consumption_test_mode = False
     hsa_limit = 0
     
@@ -61,7 +63,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if not self.skip_order_fulfillment:
             OrderFulfillment.objects.filter(date__gte=start, date__lte=end).delete()
         if not self.skip_consumption:
-            Consumption.objects.all().delete()
+            CalculatedConsumption.objects.all().delete()
             
     def generate(self, run_record):
         print "Malawi warehouse generate!"
@@ -81,6 +83,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 products_managed = set([c.pk for c in hsa.commodities_stocked()])
                         
                 print "processing hsa %s (%s) is em: %s" % (hsa.name, str(hsa.id), is_em_group)
+                
+                if not self.skip_current_consumption:
+                    update_current_consumption(hsa)
                 
                 for year, month in months_between(start, end):
                     window_date = datetime(year, month, 1)
@@ -278,7 +283,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     
                     def _update_consumption():
                         for p in Product.objects.all():
-                            c = Consumption.objects.get_or_create\
+                            c = CalculatedConsumption.objects.get_or_create\
                                 (supply_point=hsa, date=window_date, product=p)[0]
                             
                             start_time = max(hsa.created_at, window_date)
@@ -310,7 +315,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if not self.skip_consumption:
             # any consumption value that was touched potentially needs to have its
             # time_needing_data updated
-            for c in Consumption.objects.filter(update_date__gte=run_record.start_run):
+            for c in CalculatedConsumption.objects.filter(update_date__gte=run_record.start_run):
                 # if they supply the product it is already set based on above
                 if not c.supply_point.supplies(c.product):
                     c.time_needing_data = c.time_with_data
@@ -322,19 +327,26 @@ class MalawiWarehouseRunner(WarehouseRunner):
             .exclude(type__code='hsa').order_by('id')
         # national only
         # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
+        all_products = Product.objects.all()
         if not self.skip_aggregates: 
             
             for place in non_hsas:
                 print "processing non-hsa %s (%s)" % (place.name, str(place.id))
                 relevant_hsas = hsa_supply_points_below(place.location)
                 
+                if not self.skip_current_consumption:
+                    for p in all_products:
+                        _aggregate_raw(CurrentConsumption, place, relevant_hsas,
+                                       fields=["total", "current_daily_consumption", "stock_on_hand"], 
+                                       additonal_query_params={"product": p})
+                        
                 for year, month in months_between(start, end):
                     window_date = datetime(year, month, 1)
                     if not self.skip_reporting_rates:
                         _aggregate(ReportingRate, window_date, place, relevant_hsas, 
                                    fields=['total', 'reported', 'on_time', 'complete'])
                     if not self.skip_product_availability:
-                        for p in Product.objects.all():
+                        for p in all_products:
                             _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
                                        fields=['total', 'managed'] + \
                                             ProductAvailabilityData.STOCK_CATEGORIES + \
@@ -349,32 +361,32 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                        fields=['total', 'time_in_seconds'],
                                        additonal_query_params={"type": code})
                     if not self.skip_order_requests:
-                        for p in Product.objects.all():
+                        for p in all_products:
                             _aggregate(OrderRequest, window_date, place, relevant_hsas,
                                        fields=['total', 'emergency'],
                                        additonal_query_params={"product": p})
                     if not self.skip_order_fulfillment:
-                        for p in Product.objects.all():
+                        for p in all_products:
                             _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
                                        fields=['total', 'quantity_requested', 'quantity_received'],
                                        additonal_query_params={"product": p})
                     
                     if not self.skip_consumption and self.consumption_test_mode:
-                        for p in Product.objects.all():
+                        for p in all_products:
                             # NOTE: this is not correct, but is for testing / iteration
-                            _aggregate(Consumption, window_date, place, relevant_hsas,
+                            _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
                                        fields=['calculated_consumption', 
                                                'time_stocked_out',
                                                'time_with_data',
                                                'time_needing_data'],
                                        additonal_query_params={"product": p})
-                            
+                
                 if not self.skip_consumption and not self.consumption_test_mode:
-                    for p in Product.objects.all():
+                    for p in all_products:
                         # We have to use a special date range filter here, 
                         # since the warehouse can update historical values
                         # outside the range we are looking at
-                        agg = Consumption.objects.filter(
+                        agg = CalculatedConsumption.objects.filter(
                             update_date__gte=run_record.start_run,
                             supply_point__in=hsas
                         ).aggregate(Min('date'))
@@ -383,7 +395,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             assert new_start <= end
                             for year, month in months_between(new_start, end):
                                 window_date = datetime(year, month, 1)
-                                _aggregate(Consumption, window_date, place, relevant_hsas,
+                                _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
                                    fields=['calculated_consumption', 
                                            'time_stocked_out',
                                            'time_with_data',
@@ -403,7 +415,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             update_alerts()
 
 
-def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
+def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
                additonal_query_params={}):
     """
     Aggregate an instance of modelclass, by summing up all of the fields for
@@ -412,18 +424,51 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
     Returns the updated reporting model class.
     """
     period_instance = modelclass.objects.get_or_create\
-        (supply_point=supply_point, date=window_date, 
-         **additonal_query_params)[0]
+        (supply_point=supply_point, **additonal_query_params)[0]
     children_qs = modelclass.objects.filter\
-        (date=window_date, supply_point__in=base_supply_points, 
-         **additonal_query_params)
+        (supply_point__in=base_supply_points, **additonal_query_params)
+         
     totals = children_qs.aggregate(*[Sum(f) for f in fields])
     [setattr(period_instance, f, totals["%s__sum" % f] or 0) for f in fields]
     period_instance.save()
     return period_instance
 
-
+def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
+               additonal_query_params={}):
+    """
+    Aggregate an instance of modelclass, by summing up all of the fields for
+    any matching models found in the same date range in the base_supply_points.
+    
+    Returns the updated reporting model class.
+    """
+    additonal_query_params["date"] = window_date
+    return _aggregate_raw(modelclass, supply_point, base_supply_points, fields, 
+                          additonal_query_params)
+    
+def update_current_consumption(hsa):
+    """
+    Update the actual consumption data
+    """
+    for p in Product.objects.all():
+        
+        consumption = CurrentConsumption.objects.get_or_create\
+            (supply_point=hsa, product=p)[0]
+        consumption.total = 1
+        try:
+            ps = ProductStock.objects.get(supply_point=hsa,
+                                          product=p)
+            consumption.current_daily_consumption = ps.daily_consumption or 0
+            consumption.stock_on_hand = ps.quantity or 0
+        except ObjectDoesNotExist:
+            consumption.current_daily_consumption = 0
+            consumption.stock_on_hand = 0
+        consumption.save()
+    
+    
 def update_consumption_values(transactions):
+    """
+    Update the consumption calculations
+    """
     # grab all the transactions in the period, plus 
     # the one immediately before the first one if there is one
     
@@ -455,7 +500,7 @@ def update_consumption_values(transactions):
                     proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) \
                         if secs_in_window else 0
                     assert proportion_in_window <= 1
-                    c = Consumption.objects.get_or_create\
+                    c = CalculatedConsumption.objects.get_or_create\
                         (supply_point=start.supply_point, date=window_date, 
                          product=start.product)[0]
                     if delta < 0:
@@ -499,7 +544,7 @@ def update_user_profile_data():
 
         new_obj.products_managed = ''
         for product in supply_point.commodities_stocked():
-                new_obj.products_managed += ' %s' % product.sms_code
+            new_obj.products_managed += ' %s' % product.sms_code
 
         new_obj.save()
     return True

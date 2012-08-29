@@ -10,7 +10,7 @@ from logistics.util import config
 from logistics.models import SupplyPoint, Product
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.warehouse.models import Consumption
+from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, fmt_pct
@@ -32,7 +32,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         def _consumption_row(sp, p):
             
-            relevant = Consumption.objects.filter(supply_point=sp, product=p,
+            relevant = CalculatedConsumption.objects.filter(supply_point=sp, product=p,
                                                   date__gte=request.datespan.startdate,
                                                   date__lte=request.datespan.enddate)
             now = datetime.utcnow()
