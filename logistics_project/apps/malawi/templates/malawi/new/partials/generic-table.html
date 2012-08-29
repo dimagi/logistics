@@ -1,3 +1,10 @@
+<style>
+.malawi-report tfoot{
+    font-size: 100%;
+    font-weight: bold;
+}
+</style>
+
 {% if table.is_downloadable %}
 	{% include "malawi/new/partials/download-csv.html" %}
 {% endif %}
@@ -13,6 +20,13 @@
 			<th>{{ column_title }}</th>
 		{% endfor %}
 	</tr></thead>
+	{% if table.footer %}
+		<tfoot><tr>
+			{% for item in table.footer %}
+				<th>{{ item }}</th>
+			{% endfor %}
+		</tr></tfoot>
+	{% endif %}
 	<tbody>
 		{% for row in table.data %}
 			<tr>

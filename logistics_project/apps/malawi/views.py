@@ -65,7 +65,7 @@ def organizations(request):
         table["data"].append({"url": "edit/%d" % org.id, "data": [org.name, org.contact_set.all().count(),
             " ".join([s.name for s in org.managed_supply_points.all()])]})
 
-    table["height"] = min(480, orgs.count()*60)
+    table["height"] = min(480, (orgs.count()+1)*30)
 
     context = {
         "orgs": orgs,
@@ -123,7 +123,7 @@ def contacts(request):
             " ".join([com.sms_code for com in c.commodities.all()]),
             c.organization.name if c.organization else ""]})
 
-    table["height"] = min(480, contacts.count()*60)
+    table["height"] = min(480, (contacts.count()+1)*30)
 
     context = {
         "contacts": contacts,
@@ -148,7 +148,7 @@ def permissions(request):
             prof.organization.name if prof.organization else "",\
             " ".join([g.name for g in u.groups.all()])])
 
-    table["height"] = min(480, users.count()*60)
+    table["height"] = min(480, (users.count()+1)*30)
 
     context = {
         "users": users,
@@ -173,7 +173,7 @@ def places(request):
             loc.type.name if loc.type else "",
             sp.supplied_by.name if sp.supplied_by else ""])
 
-    table["height"] = min(480, locs.count()*60)
+    table["height"] = min(480, (locs.count()+1)*30)
 
     context = {
         "locs": locs,
@@ -226,7 +226,7 @@ def products(request):
         table["data"].append([prd.name, prd.sms_code, prd.average_monthly_consumption,
             prd.emergency_order_level, prd.type.name if prd.type else ""])
 
-    table["height"] = min(480, prds.count()*60)
+    table["height"] = min(480, (prds.count()+1)*30)
 
     context = {
         "prds": prds,
