@@ -17,6 +17,7 @@ class View(warehouse_view.DistrictOnlyView):
             "is_datatable" : True,
             "is_downloadable": True,
             "header": [],
+            "footer": [],
             "data": [],
         }
 
@@ -39,6 +40,9 @@ class View(warehouse_view.DistrictOnlyView):
         for product in Product.objects.all().order_by('sms_code'):
             table["header"].append(product.name)
 
+        totals = {}
+        for p in Product.objects.all():
+            totals[p] = 0
         for fac in facilities:
             temp = [fac.name]
             for product in Product.objects.all().order_by('sms_code'):
@@ -46,9 +50,15 @@ class View(warehouse_view.DistrictOnlyView):
                     .filter(Q(supply_point=fac) | Q(supply_point__supplied_by=fac)\
                         | Q(supply_point__supplied_by__supplied_by=fac))\
                     .filter(product=product, is_emergency=emergency)]))
+                totals[product] += temp[-1]
             table["data"].append(temp)
 
-        table["height"] = min(480, facilities.count()*60)
+        # include totals row
+        table["footer"] = ["Totals"]
+        for p in Product.objects.all().order_by('sms_code'):
+            table["footer"].append(totals[p])
+
+        table["height"] = min(480, (facilities.count()+1)*30)
 
         return {
                 "table": table,
