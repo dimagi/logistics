@@ -62,7 +62,7 @@ def organizations(request):
         "data": [],
     }
     for org in orgs:
-        table["data"].append({"url": "edit/%d" % org.id, "data": [org.name, org.contact_set.all().count(),
+        table["data"].append({"url": reverse("malawi_edit_organization", kwargs={'pk': org.id}), "data": [org.name, org.contact_set.all().count(),
             " ".join([s.name for s in org.managed_supply_points.all()])]})
 
     table["height"] = min(480, (orgs.count()+1)*30)
