@@ -123,7 +123,7 @@ LOG_BACKUPS = 256 # number of logs to keep
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
 COUNTRY = "MOHSW-MOHSW"
 TIME_ZONE="Africa/Maputo"
-COUNTRY_DIALLING_CODE = 265
+COUNTRY_DIALLING_CODE = 255
 
 LANGUAGES = (
   ('sw', 'Swahili'),
