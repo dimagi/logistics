@@ -47,7 +47,7 @@ class View(warehouse_view.DistrictOnlyView):
                 hsa.code, up.products_managed,\
                 _yes_or_no(pads.any_without_stock), _yes_or_no(pads.any_emergency_stock),\
                 _yes_or_no(pads.any_good_stock), _yes_or_no(pads.any_over_stock),\
-                _date_fmt(up.last_message.date)]})
+                _date_fmt(up.last_message.date) if up.last_message else "" ]})
 
         table["height"] = min(480, (hsas.count()+1)*30)
 
@@ -169,5 +169,5 @@ def _yes_or_no(value):
 def _date_fmt(date):
     if date:
         return date.strftime('%Y-%m-%d')# %H:%M:%S')
-    return "None"
+    return ""
 
