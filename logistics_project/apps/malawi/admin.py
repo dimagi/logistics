@@ -43,11 +43,17 @@ class OrderRequestAdmin(admin.ModelAdmin):
     list_display = ('supply_point', 'date', 'product', 'total', 'emergency')
     list_filter = ('supply_point__type', 'date', 'product')
 
-class ConsumptionAdmin(admin.ModelAdmin):
-    model = Consumption
+class CalculatedConsumptionAdmin(admin.ModelAdmin):
+    model = CalculatedConsumption
     list_display = ('supply_point', 'date', 'product', 'calculated_consumption', 
                     'time_stocked_out', 'time_with_data', 'time_needing_data')
     list_filter = ('supply_point__type', 'date', 'product')
+
+class CurrentConsumptionAdmin(admin.ModelAdmin):
+    model = CurrentConsumption
+    list_display = ('supply_point', 'product', 'total', 
+                    'current_daily_consumption', 'stock_on_hand')
+    list_filter = ('supply_point__type', 'product')
 
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
 admin.site.register(ProductAvailabilityDataSummary, ProductAvailabilityDataSummaryAdmin)
@@ -55,4 +61,5 @@ admin.site.register(ReportingRate, ReportingRateAdmin)
 admin.site.register(TimeTracker, TimeTrackerAdmin)
 admin.site.register(OrderRequest, OrderRequestAdmin)
 admin.site.register(OrderFulfillment)
-admin.site.register(Consumption, ConsumptionAdmin)
+admin.site.register(CalculatedConsumption, CalculatedConsumptionAdmin)
+admin.site.register(CurrentConsumption, CurrentConsumptionAdmin)

@@ -1,6 +1,5 @@
-from datetime import timedelta
 from django.db import models
-from logistics.warehouse_models import ReportingModel
+from logistics.warehouse_models import ReportingModel, BaseReportingModel
 from logistics_project.apps.malawi.util import fmt_pct, pct, hsas_below
 from static.malawi.config import TimeTrackerTypes
 
@@ -171,9 +170,9 @@ class UserProfileData(models.Model):
     class Meta:
         app_label = "malawi"
 
-class Consumption(MalawiWarehouseModel):
+class CalculatedConsumption(MalawiWarehouseModel):
     """
-    Class for storing consumption data
+    Class for storing calculated consumption data
     """
     product = models.ForeignKey('logistics.Product')
     calculated_consumption = models.PositiveIntegerField(default=0)
@@ -189,6 +188,46 @@ class Consumption(MalawiWarehouseModel):
     def total(self):
         # TODO: this should be replaced with the warehouse property
         return hsas_below(self.supply_point.location).count()
+            
+class CurrentConsumption(BaseReportingModel):
+    """
+    Class for storing actual current consumption data and stock on hand.
+    
+    This is not a warehouse model because it only stores current data.
+    """
+    product = models.ForeignKey('logistics.Product')
+    total = models.PositiveIntegerField(default=0)
+    current_daily_consumption = models.FloatField(default=0) 
+    stock_on_hand = models.BigIntegerField(default=0)
+    
+    @property
+    def current_monthly_consumption(self):
+        return self.current_daily_consumption * 30
+    
+    @property
+    def months_of_stock(self):
+        if self.current_monthly_consumption > 0:
+            return self.stock_on_hand / self.current_monthly_consumption
+        return None
+    
+    @property
+    def stock_status(self):
+        mos = self.months_of_stock
+        if mos is None:
+            return "No Data"
+        elif mos == 0:
+            return "Stockout"
+        elif mos <= 1:
+            return "Under"
+        elif mos <= 2:
+            return "Adequate"
+        else:
+            assert mos > 2
+            return "Overstocked"
+    
+    class Meta:
+        app_label = "malawi"
+
             
 class Alert(models.Model):
     supply_point = models.ForeignKey('logistics.SupplyPoint')

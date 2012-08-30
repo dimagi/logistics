@@ -10,9 +10,15 @@
 	{% endwith %}
 </div>
 
+<div class="module">
+    <h2>HSA Current AMC, MOS and Stock Status by Product</h2>
+    {% with status_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
+</div>
 {% if national_view_level %}
-	<div class="module">
-		<h2>HSA Current Stock Status by District</h2>
+    <div class="module">
+		<h2>HSA Current Stock Status across Districts</h2>
 		{% with district_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -21,7 +27,7 @@
 
 {% if not national_view_level %}
 	<div class="module">
-		<h2>HSA Current Stock Status by Facility</h2>
+		<h2>HSA Current Stock Status across Facilities</h2>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}

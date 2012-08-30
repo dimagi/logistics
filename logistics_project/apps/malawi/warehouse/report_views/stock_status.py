@@ -3,11 +3,12 @@ from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
+    fmt_or_none
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ProductAvailabilityDataSummary
+    ProductAvailabilityDataSummary, CurrentConsumption
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -30,20 +31,27 @@ class View(warehouse_view.DistrictOnlyView):
                          "without_data"]
         
         # data by product
-        p_pad_tuples = [(p, ProductAvailabilityData.objects.get\
-                                (supply_point=sp, date=date, product=p)) \
-                        for p in Product.objects.all().order_by('sms_code')]
-        product_data = [[p.sms_code] + \
-                        [fmt_pct(getattr(pad, "managed_and_%s" % k), pad.managed) \
-                         for k in ordered_slugs] \
-                        for p, pad in p_pad_tuples]
-
-        product_table = {
+        new_headings = ["Product", "Average Monthly Consumption (last 60 days)",
+                        "TOTAL SOH (day of report)", "MOS (current period)",
+                        "Stock Status"]
+        products = Product.objects.all()
+        
+        _fmt = lambda val: fmt_or_none(val, percent=False)
+        def _status_row(sp, p):
+            consumption = CurrentConsumption.objects.get(supply_point=sp,
+                                                         product=p)
+            return [p.name, _fmt(consumption.current_monthly_consumption), 
+                    consumption.stock_on_hand, 
+                    _fmt(consumption.months_of_stock), 
+                    consumption.stock_status]
+            
+        status_data = [_status_row(sp, p) for p in products]
+        status_table = {
             "id": "product-table",
             "is_datatable": False,
             "is_downloadable": True,
-            "header": ["Product"] + headings,
-            "data": product_data,
+            "header": new_headings,
+            "data": status_data,
         }
         
         district_table = {
@@ -144,7 +152,7 @@ class View(warehouse_view.DistrictOnlyView):
         return {
             'product_types': ProductType.objects.all(),
             'selected_type': selected_type,
-            'product_table': product_table,
+            'status_table': status_table,
             'district_table': district_table,
             'facility_table': facility_table,
             'hsa_table': hsa_table,
