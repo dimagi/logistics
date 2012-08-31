@@ -29,7 +29,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Backend, Connection
 from rapidsms.contrib.messagelog.models import Message
 
-from logistics.models import SupplyPoint, Product, \
+from logistics.models import SupplyPoint, Product, LogisticsProfile,\
     StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
@@ -47,7 +47,7 @@ from logistics_project.apps.malawi.util import get_districts, get_facilities, hs
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
-from logistics_project.apps.malawi.forms import OrganizationForm
+from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 
@@ -62,8 +62,9 @@ def organizations(request):
         "data": [],
     }
     for org in orgs:
-        table["data"].append({"url": reverse("malawi_edit_organization", kwargs={'pk': org.id}), "data": [org.name, org.contact_set.all().count(),
-            " ".join([s.name for s in org.managed_supply_points.all()])]})
+        table["data"].append({"url": reverse("malawi_edit_organization", kwargs={'pk': org.id}),
+            "data": [org.name, org.contact_set.all().count(),
+                " ".join([s.name for s in org.managed_supply_points.all()])]})
 
     table["height"] = min(480, (orgs.count()+1)*30)
 
@@ -139,14 +140,15 @@ def permissions(request):
         "id": "user-table",
         "is_datatable": True,
         "is_downloadable": False,
-        "header": ["User", "District", "Location", "Organization", "Groups"],
+        "header": ["User", "District", "Organization", "Groups"],
         "data": [],
     }
     for u in users:
         prof = u.get_profile()
-        table["data"].append([u.username, prof.supply_point, prof.location,\
-            prof.organization.name if prof.organization else "",\
-            " ".join([g.name for g in u.groups.all()])])
+        table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': u.id}), 
+            "data": [u.username, prof.supply_point,
+                prof.organization.name if prof.organization else "",
+                " ".join([g.name for g in u.groups.all()])]})
 
     table["height"] = min(480, (users.count()+1)*30)
 
@@ -157,6 +159,24 @@ def permissions(request):
     }
     return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
+
+def edit_permission(request, pk):
+    prof = get_object_or_404(LogisticsProfile, pk=pk)
+    if request.method == 'POST':
+        form = LogisticsProfileForm(request.POST, instance=prof) 
+        if form.is_valid(): 
+            prof = form.save()
+            messages.success(request, "Permissions for '%s' were successfully saved"  % prof.user.username)
+            return HttpResponseRedirect(reverse('malawi_permissions'))
+
+    form = LogisticsProfileForm(instance=prof) 
+
+    context = { 'user': prof.user.username,
+                'form': form,
+              }
+
+    return render_to_response("%s/edit_permission.html" % settings.MANAGEMENT_FOLDER,
+        context, context_instance=RequestContext(request))
 
 def places(request):
     locs = Location.objects.filter(is_active=True)
