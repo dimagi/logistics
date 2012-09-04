@@ -20,6 +20,7 @@ from logistics.views import reporting as logistics_reporting
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
@@ -138,7 +139,7 @@ def sms_registration(request, *args, **kwargs):
 
 def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html"):
     klass = "SupplyPoint"
-    facility = get_object_or_404(SupplyPoint, code=sp_code)
+    facility = get_object_or_404(GhanaFacility, code=sp_code)
     if request.method == "POST":
         if request.POST["submit"] == "Save In-Charge":
             if "incharge_pk" in request.POST and request.POST["incharge_pk"]:
@@ -158,19 +159,9 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
     for key in form.fields.keys():
         form.fields[key].widget.attrs['disabled'] = True
         form.fields[key].widget.attrs['readonly'] = True
-    def _get_candidate_incharges(facility):
-        """ ghana wants it so that the in-charge of facility in the surrounding region
-        can be designated the in-charge of a given facility
-        (this is to support the use case of CHWs who report to a local health center in-charge)
-        """
-        supervise_resp = config.Responsibilities.REPORTEE_RESPONSIBILITY
-        supervisors = Contact.objects.filter(role__responsibilities__code=supervise_resp)
-        supervisors = supervisors.order_by("supply_point__name")
-        region = facility.location.tree_parent
-        return supervisors.filter(supply_point__location__in=region.get_descendants(include_self=True))    
     return render_to_response(
         template, {
-            "candidates": _get_candidate_incharges(facility), 
+            "candidates": facility.get_district_incharges(), 
             "form": form,
             "object": facility,
             "klass": klass,
