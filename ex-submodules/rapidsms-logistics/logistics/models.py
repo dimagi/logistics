@@ -200,6 +200,15 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def __unicode__(self):
         return self.name
 
+    def display_location(self):
+        """ 
+        It's pretty confusing for the location of Ada Health Clinic to be Ada Health Clinic
+        This function returns what you would expect: that Ada HC is in Dangme East district
+        """
+        if self.location.tree_parent:
+            return self.location.tree_parent
+        return self.location
+        
     def report_status(self, days_until_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT):
         """ returns a tuple: 
         (Products reported this period, Products not reported this period) """

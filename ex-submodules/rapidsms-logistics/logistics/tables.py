@@ -30,7 +30,7 @@ def _edit_facility_link(cell):
         'facility_edit',
         args=[cell.row.pk])
 def _location(cell):
-    return cell.object.location
+    return cell.object.display_location()
 class FacilityTable(Table):
     name = Column(link=_edit_facility_link)
     location = Column(value=_location)
