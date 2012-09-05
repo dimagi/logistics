@@ -23,10 +23,14 @@
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/blueprint/forms.css" />
 {% endblock %}
 
+
 {% block javascripts %}
 <script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/jquery.min.js"></script>
 <script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/collapse.js"></script>
+<script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
 {% endblock %}
+
+{% include "imports/jquery-ui.html" %}
 
 {% if GOOGLE_ANALYTICS_ID %}
     <script type="text/javascript">
