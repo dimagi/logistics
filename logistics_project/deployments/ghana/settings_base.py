@@ -131,6 +131,7 @@ LOGISTICS_CONSUMPTION = {
     "LOOKBACK_DAYS": None,          # none is no max
     "INCLUDE_END_STOCKOUTS": False, # whether or not to include periods ending in a stockout    
 }
+LOGISTICS_STOCKED_BY = 'facility'
 
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
