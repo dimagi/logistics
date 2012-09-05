@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.signals import post_save
@@ -303,12 +304,13 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return True
 
     def commodities_stocked(self):
-        if settings.LOGISTICS_STOCKED_BY == settings.StockedBy.USER: 
+        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
             return self.commodities_reported()
-        elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.FACILITY: 
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
             return Product.objects.filter(productstock__supply_point=self).filter(is_active=True)
-        elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.PRODUCT: 
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
             return Product.objects.filter(is_active=True)
+        raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
     
     def supplies(self, product):
         return product in self.commodities_stocked()
