@@ -8,7 +8,7 @@
                     ticks: {{ graphdata.xlabels|safe }}
                 },
                 yaxis: { min: 0,
-                         max: {{ graphdata.max_value }},
+                         max: {{ graphdata.max_value|default:"null" }},
                          tickDecimals: 0 },
                 legend: { show: true, container: $("#{{ graphdata.legenddiv }}"), 
                           noColumns: {{ graphdata.legendcols|default:3}} },
