@@ -11,7 +11,8 @@ from logistics.models import SupplyPoint, Product
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
-from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
+    get_consumption_chart
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, fmt_pct
 
@@ -36,10 +37,10 @@ class View(warehouse_view.DistrictOnlyView):
                                                   date__gte=request.datespan.startdate,
                                                   date__lte=request.datespan.enddate)
             now = datetime.utcnow()
-            end = first_of_next_month(request.datespan.enddate) \
-                if request.datespan.enddate.year == now.year and \
-                   request.datespan.enddate.month == now.month \
-                else now
+            end = now if request.datespan.enddate.year == now.year and \
+                         request.datespan.enddate.month == now.month \
+                      else first_of_next_month(request.datespan.enddate)
+            
             vals = relevant.aggregate(Sum('calculated_consumption'), 
                                       Sum('time_stocked_out'),
                                       Sum('time_with_data'),
@@ -107,27 +108,15 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": [_consumption_row(f, p) for p in Product.objects.all()]
             }
         
-        dates = get_datelist(request.datespan.startdate, request.datespan.enddate)
-
-        line_chart = {
-            "div": "monthly-cons-stock",
-            "legenddiv": "monthly-cons-stock-legend",
-            "legendcols": 10,
-            "max_value": 1,
-            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
-            "height": "350px",
-            "width": "100%", # "300px",
-            "data": [],
-        }
-        for j in ['Av Monthly Cons', 'Av Months of Stock']:
-            temp = []
-            for i in range(0,len(dates)):
-                temp.append([i + 1, random()])
-            line_chart["data"].append({"title": j, "data": sorted(temp)})
-
+        p_code = request.REQUEST.get("product", "")
+        
+        p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
+        line_chart = get_consumption_chart(sp, p, request.datespan.startdate, 
+                                           request.datespan.enddate)
         return {
             "national_table": n_table,
             "district_table": d_table,
             "facility_table": f_table,
-            "line_chart": line_chart
+            "line_chart": line_chart,
+            "selected_product": p
         }

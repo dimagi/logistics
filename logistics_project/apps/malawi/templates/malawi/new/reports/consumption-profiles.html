@@ -1,7 +1,20 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
-{% include "malawi/partials/selector_form.html" %}
+<form method="get" id="selector">
+    <fieldset>
+    {% include "malawi/partials/location_selector.html" %}
+    </fieldset>
+    <br>
+    <fieldset>
+    {% include "malawi/new/partials/month-selector.html" %}
+    </fieldset>
+    <br>
+    <fieldset>
+    {% include "malawi/new/partials/product-selector.html" %}
+    </fieldset>
+    <input type="submit" value="Go!" />
+</form>
 
 {% if national_table %}
 <div class="module">

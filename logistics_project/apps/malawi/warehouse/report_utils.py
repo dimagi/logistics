@@ -11,7 +11,7 @@ from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ReportingRate
+    ReportingRate, CalculatedConsumption
 from logistics_project.apps.malawi.util import get_country_sp, pct
 
 
@@ -167,6 +167,37 @@ def get_reporting_rates_chart(location, start, end):
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
     report_chart['data'] = json.dumps(ret_data)
     report_chart['number'] = 3
+    return report_chart
+
+
+def get_consumption_chart(supply_point, product, start, end):
+    dates = get_datelist(start, end)
+    
+    report_chart = {
+        "div": "cons-chart-div",
+        "legenddiv": "cons-legend-div",
+        "max_value": None,
+        "width": "100%",
+        "height": "300px",
+        "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        "xaxistitle": "month",
+    }
+    
+    ccs = [CalculatedConsumption.objects.get(supply_point=supply_point, 
+                                             product=product,date=d) for d in dates]
+    cons_series = [[i + 1, cc.adjusted_consumption] for i, cc in enumerate(ccs)]
+    ret_data = []
+    ret_data.append({'data': cons_series,
+                     'label': "monthly consumption", 
+                     'lines': {"show": True}, 
+                     'bars': {"show": False}})
+    
+    report_chart['data'] = json.dumps(ret_data)
+    
+#    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
+#                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+#                     'yaxis': 2})
+#    
     return report_chart
 
 

@@ -2,6 +2,8 @@ from django.db import models
 from logistics.warehouse_models import ReportingModel, BaseReportingModel
 from logistics_project.apps.malawi.util import fmt_pct, pct, hsas_below
 from static.malawi.config import TimeTrackerTypes
+from datetime import datetime
+from dimagi.utils.dates import first_of_next_month, delta_secs
 
 class MalawiWarehouseModel(ReportingModel):
     
@@ -184,11 +186,42 @@ class CalculatedConsumption(MalawiWarehouseModel):
     time_needing_data = models.BigIntegerField(default=0) # in seconds
     time_stocked_out = models.BigIntegerField(default=0)  # in seconds
     
+    _total = None
     @property
     def total(self):
-        # TODO: this should be replaced with the warehouse property
-        return hsas_below(self.supply_point.location).count()
-            
+        if self._total is None:
+            # TODO: this should be replaced with the warehouse property
+            self._total = hsas_below(self.supply_point.location).count()
+        return self._total
+    
+    @property
+    def avg_so_time(self):
+        assert self.total
+        return float(self.time_stocked_out) / float(self.total) 
+    
+    @property
+    def period_secs(self):
+        now = datetime.utcnow()
+        end = now if self.date.year == now.year and \
+                     self.date.month == now.month \
+                  else first_of_next_month(self.date)
+        return delta_secs(end - self.date)
+        
+    @property
+    def _so_adjusted_consumption(self):
+        # adjusted for stockouts
+        adjusted_secs = self.period_secs - self.avg_so_time
+        return self.calculated_consumption * (self.period_secs / adjusted_secs)
+
+    @property
+    def adjusted_consumption(self):
+        # adjusted for stockouts and data
+        scale_factor = float(self.time_with_data) / float(self.time_needing_data) \
+            if self.time_needing_data != 0 else 0
+        return self._so_adjusted_consumption / scale_factor \
+                if scale_factor != 0 else self._so_adjusted_consumption 
+         
+                    
 class CurrentConsumption(BaseReportingModel):
     """
     Class for storing actual current consumption data and stock on hand.
