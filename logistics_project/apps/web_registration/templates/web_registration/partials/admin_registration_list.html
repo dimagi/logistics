@@ -19,7 +19,7 @@
 			    {{ registered_user.username }}
 			</a></td>
 			<td>{{ registered_user.email }}</td>
-			<td>{{ registered_user.get_profile.designation|slice:"30"|default_if_none:"" }}</td>
+			<td>{{ registered_user.get_profile.designation|slice:"17"|default_if_none:"" }}</td>
 		</tr>
 	{% endifnotequal %}
 	{% endfor %}
