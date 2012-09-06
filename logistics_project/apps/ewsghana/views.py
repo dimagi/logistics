@@ -15,7 +15,7 @@ from email_reports.views import email_reports as logistics_email_reports
 from logistics.models import Product, SupplyPoint
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context, location_context
-from logistics.views import message_log as rapidsms_message_log
+from logistics.views import message_log as logistics_messagelog
 from logistics.views import reporting as logistics_reporting
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
@@ -37,7 +37,7 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
                                destination_url="ewsghana_reporting")
     
 def message_log(request, template="ewsghana/messagelog.html"):
-    return rapidsms_message_log(request, template)
+    return logistics_messagelog(request, template=template)
 
 def help(request, template="ewsghana/help.html"):
     commodities = Product.objects.filter(is_active=True).order_by('name')
