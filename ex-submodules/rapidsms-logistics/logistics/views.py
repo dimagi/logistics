@@ -21,6 +21,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.views import message_log as rapidsms_messagelog
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 from email_reports.decorators import magic_token_required
@@ -446,20 +447,20 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
                               context_instance=RequestContext(request))
 
 @datespan_in_request()
-def message_log(request, template="messagelog/index.html"):
+def message_log(request, context={}, template="messagelog/index.html"):
     """
     NOTE: this truncates the messagelog by default to the last 30 days. 
     To get the complete message log, web users should export to excel 
     """
     messages = Message.objects.all()
+    if 'messages_qs' in context:
+        messages = context['messages_qs']
     if request.datespan is not None and request.datespan:
         messages = messages.filter(date__gte=request.datespan.startdate)\
           .filter(date__lte=request.datespan.end_of_end_day)
-    return render_to_response(
-        template, {
-            "messages_table": MessageTable(messages, request=request)
-        }, context_instance=RequestContext(request)
-    )
+    context['messages_qs'] = messages
+    return rapidsms_messagelog(request, context=context, 
+                               template=template)
 
 def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
     earliest_msg = Message.objects.all().order_by("date")[0].date

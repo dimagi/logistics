@@ -3,15 +3,6 @@
 .toppadded {
     padding-top: 10px;	
 }
-#submenu {
-	font-weight: bold;
-	margin-left: 1em;
-	margin-top: 1em;
-	display: block;	
-	float: clear;
-	text-align: right;
-	padding-right: 2em;
-}
 
 .filter {
     font-weight: bold;
