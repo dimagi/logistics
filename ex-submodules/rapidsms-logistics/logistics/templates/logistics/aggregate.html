@@ -14,8 +14,8 @@
         <div id="main">
             <h2 id="report-title"> {{ location.name }} {% trans "Aggregate Stock Report" %}
             
-            {% if request.session.commodity_filter %}
-	            >> {% commodity_code_to_name request.session.commodity_filter %}
+            {% if commodity_filter %}
+	            >> {% commodity_code_to_name commodity_filter%}
             {% endif %}
             </h2>
             <div class="right noprint">
@@ -24,7 +24,7 @@
                 {% include "logistics/partials/commodity_filter.html" %}
             </div>
             <div id="report-content">
-                {% aggregate_table location request.session.commodity_filter request.session.commoditytype_filter request.datespan %}
+                {% aggregate_table location commodity_filter commoditytype_filter request.datespan %}
             </div>
         </div>
     </div>
