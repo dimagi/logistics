@@ -11,7 +11,7 @@ from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ReportingRate, CalculatedConsumption
+    ReportingRate, CalculatedConsumption, HistoricalStock
 from logistics_project.apps.malawi.util import get_country_sp, pct
 
 
@@ -185,19 +185,26 @@ def get_consumption_chart(supply_point, product, start, end):
     
     ccs = [CalculatedConsumption.objects.get(supply_point=supply_point, 
                                              product=product,date=d) for d in dates]
-    cons_series = [[i + 1, cc.adjusted_consumption] for i, cc in enumerate(ccs)]
+    hss = [HistoricalStock.objects.get(supply_point=supply_point, 
+                                       product=product,date=d) for d in dates]
+    
+    cons_series = [[i + 1, cc.average_adjusted_consumption] for i, cc in enumerate(ccs)]
+    
+    mos_series = [[i + 1, hs.stock / ccs[i].adjusted_consumption \
+                   if ccs[i].adjusted_consumption else 0] \
+                  for i, hs in enumerate(hss)]
     ret_data = []
     ret_data.append({'data': cons_series,
-                     'label': "monthly consumption", 
+                     'label': "Monthly Consumption", 
                      'lines': {"show": True}, 
                      'bars': {"show": False}})
+    ret_data.append({'data': mos_series,
+                     'label': "Months of Stock", 
+                     'lines': {"show": True}, 
+                     'bars': {"show": False},
+                     'yaxis': 2})
     
     report_chart['data'] = json.dumps(ret_data)
-    
-#    ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
-#                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
-#                     'yaxis': 2})
-#    
     return report_chart
 
 

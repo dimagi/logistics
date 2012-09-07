@@ -1,7 +1,13 @@
 {% extends "malawi/new/base.html" %}
 {% load malawi_warehouse_tags %}
 {% block report_content %}
-
+<form method="get" id="location_selector">
+    {% include "malawi/partials/location_selector.html" %}
+    <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
+    <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
+    <input type="submit" value="Go!" />
+</form>
+    
 <div class="module">
     <h2>Current Stock Status by product</h2>
     {% product_availability_summary location request.datespan.enddate default_chart_width %} 

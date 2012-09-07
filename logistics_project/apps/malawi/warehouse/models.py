@@ -221,6 +221,10 @@ class CalculatedConsumption(MalawiWarehouseModel):
         return self._so_adjusted_consumption / scale_factor \
                 if scale_factor != 0 else self._so_adjusted_consumption 
          
+    @property
+    def average_adjusted_consumption(self):
+        return self.adjusted_consumption / self.total
+         
                     
 class CurrentConsumption(BaseReportingModel):
     """
@@ -278,7 +282,16 @@ class Alert(models.Model):
         app_label = "malawi"
 
 
-# Other:
-# HSA (no changes needed)
-# Consumption Profiles (likely changes needed, to be clarified)
-# Resupply Qts: anything needed? TBD
+class HistoricalStock(ReportingModel):
+    """
+    A simple class to cache historical stock levels by month/year 
+    per product/supply point
+    """        
+    product = models.ForeignKey('logistics.Product')
+    stock = models.BigIntegerField(default=0)
+    total = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        app_label = "malawi"
+
+    

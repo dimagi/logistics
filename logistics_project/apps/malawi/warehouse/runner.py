@@ -23,7 +23,7 @@ from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
-    CalculatedConsumption, CurrentConsumption
+    CalculatedConsumption, CurrentConsumption, HistoricalStock
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -43,6 +43,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_alerts = False
     skip_consumption = False
     skip_current_consumption = False
+    skip_historical_stock = False
     consumption_test_mode = False
     hsa_limit = 0
     
@@ -64,6 +65,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
             OrderFulfillment.objects.filter(date__gte=start, date__lte=end).delete()
         if not self.skip_consumption:
             CalculatedConsumption.objects.all().delete()
+        if not self.skip_historical_stock:
+            HistoricalStock.objects.filter(date__gte=start, date__lte=end).delete()
             
     def generate(self, run_record):
         print "Malawi warehouse generate!"
@@ -298,7 +301,23 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                  date__lt=period_end).order_by('date')
                             update_consumption_values(transactions)
                             
+                    def _update_historical_stock():
+                        # set the historical stock values to the last report before 
+                        # the end of the period (even if it's not in the period)
+                        for p in Product.objects.all():
+                            hs = HistoricalStock.objects.get_or_create\
+                                (supply_point=hsa, date=window_date, product=p)[0]
                             
+                            transactions = StockTransaction.objects.filter\
+                                (supply_point=hsa, product=p,
+                                 date__lt=period_end).order_by('-date')
+                            
+                            hs.total = 1
+                            if transactions.count():
+                                hs.stock = transactions[0].ending_balance
+                            hs.save()
+                        
+                    
                     if not self.skip_reporting_rates:
                         _update_reporting_rate()
                     if not self.skip_product_availability:
@@ -311,6 +330,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         _update_order_fulfillment()
                     if not self.skip_consumption:
                         _update_consumption()
+                    if not self.skip_historical_stock:
+                        _update_historical_stock()
         
         if not self.skip_consumption:
             # any consumption value that was touched potentially needs to have its
@@ -380,6 +401,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                                'time_with_data',
                                                'time_needing_data'],
                                        additonal_query_params={"product": p})
+                    
+                    if not self.skip_historical_stock:
+                        for p in all_products:
+                            _aggregate(HistoricalStock, window_date, place, relevant_hsas,
+                                       fields=["total", "stock"],
+                                       additonal_query_params={"product": p})
+                        
                 
                 if not self.skip_consumption and not self.consumption_test_mode:
                     for p in all_products:
