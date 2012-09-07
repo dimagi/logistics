@@ -12,10 +12,9 @@ from logistics_project.apps.ewsghana.forms import EWSGhanaWebRegistrationForm
 from logistics_project.apps.ewsghana.views import register_web_user
 
 urlpatterns = patterns('',
-    url(r'^messagelog/export/?$', 'django_tablib.views.export', {
-        'model': Message}, name="export_messagelog"),
     url(r'^help/?$', direct_to_template, {'template': 'ewsghana/help.html'}, name="help"),
-
+    url(r'^messagelog/export/?$', 'logistics_project.apps.ewsghana.views.export_messagelog', 
+        name="export_messagelog"),
     url(r'^auditor/?$', 'logistics_project.apps.ewsghana.views.auditor', 
         name="ewsghana_auditor"),
     url(r'^messagelog/?$', 'logistics_project.apps.ewsghana.views.message_log', 

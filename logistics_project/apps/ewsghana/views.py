@@ -9,7 +9,11 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.views import message_log as rapidsms_message_log
-from dimagi.utils.decorators.datespan import datespan_in_request
+from django_tablib import ModelDataset
+from django_tablib.base import mimetype_map
+from django.views.decorators.cache import cache_page
+from rapidsms.models import Contact
+from rapidsms.contrib.messagelog.models import Message
 from auditcare.views import auditAll
 from registration.views import register as django_register
 from logistics.models import SupplyPoint
@@ -31,6 +35,22 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
     
 def message_log(request, template="ewsghana/messagelog.html"):
     return rapidsms_message_log(request, template)
+
+@cache_page(60 * 15)
+def export_messagelog(request, format='xls'):
+    class MessageDataSet(ModelDataset):
+        class Meta:
+            # hack to limit the # of messages returns
+            # so that we don't crash the server when the log gets too big
+            # in the long term, should implement asynchronous processing + progress bar
+            queryset = Message.objects.order_by('-date')[:10000]
+    dataset = getattr(MessageDataSet(), format)
+    response = HttpResponse(
+        dataset,
+        mimetype=mimetype_map.get(format, 'application/octet-stream')
+        )
+    response['Content-Disposition'] = 'attachment; filename=messagelog.xls'
+    return response
 
 def auditor(request, template="ewsghana/auditor.html"):
     return auditAll(request, template)
