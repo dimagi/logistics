@@ -2,17 +2,19 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from itertools import chain
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required, login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from rapidsms.models import Contact
 from auditcare.views import auditAll
+from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
-from logistics.models import Product, SupplyPoint
+from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context, location_context
 from logistics.views import message_log as logistics_messagelog
@@ -27,6 +29,7 @@ from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
 from logistics_project.apps.registration.views import registration as logistics_registration
 from .forms import FacilityForm
+from .tables import AuditLogTable
 
 """ Usage-Related Views """
 @geography_context
@@ -47,7 +50,40 @@ def help(request, template="ewsghana/help.html"):
     )
 
 def auditor(request, template="ewsghana/auditor.html"):
-    return auditAll(request, template)
+    auditEvents = AccessAudit.view("auditcare/by_date_access_events", descending=True, include_docs=True).all()
+    realEvents = []
+    for a in auditEvents:
+        designation = organization = facility = location = first_name = last_name = ''
+        try:
+            user = User.objects.get(username=a.user)
+        except User.DoesNotExist:
+            # OK - anonymous user
+            pass
+        else:
+            first_name = user.first_name
+            last_name = user.last_name
+            try:
+                profile = user.get_profile()
+            except LogisticsProfile.DoesNotExist:
+                profile = None
+            else:
+                designation = profile.designation if profile.designation else '' 
+                organization = profile.organization if profile.organization else ''
+                facility = profile.supply_point if profile.supply_point else ''
+                location = profile.location if profile.location else ''
+        realEvents.append({'user': a.user, 
+                           'date': a.event_date, 
+                           'class': a.doc_type, 
+                           'access_type': a.access_type, 
+                           'first_name': first_name,
+                           'last_name': last_name,
+                           'designation': designation, 
+                           'organization': organization, 
+                           'facility': facility, 
+                           'location': location })
+    return render_to_response(template, 
+                              {"audit_table": AuditLogTable(realEvents, request=request)}, 
+                              context_instance=RequestContext(request))
 
 def register_web_user(request, pk=None, 
                    template='web_registration/admin_registration.html', 

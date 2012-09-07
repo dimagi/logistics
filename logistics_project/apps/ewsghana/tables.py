@@ -54,3 +54,16 @@ class FacilityDetailTable(FacilityTable):
         order_by = 'location'
         per_page = 30
 
+class AuditLogTable(Table):
+    date = DateColumn(format="H:i d/m/Y")
+    user = Column()
+    access_type = Column()
+    designation = Column()
+    organization = Column()
+    facility = Column()
+    location = Column()
+    first_name = Column()
+    last_name = Column()
+
+    class Meta:
+        order_by = '-date'
