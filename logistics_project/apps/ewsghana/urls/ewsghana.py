@@ -16,8 +16,7 @@ from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'django_tablib.views.export', {
         'model': Message}, name="export_messagelog"),
-    url(r'^help/?$', help, 
-        {'template':'ewsghana/help.html'}),
+    url(r'^help/?$', help, {'template':'ewsghana/help.html'}, name="help"),
     url(r'^auditor/?$', 'logistics_project.apps.ewsghana.views.auditor', 
         name="ewsghana_auditor"),
     url(r'^messagelog/?$', 'logistics_project.apps.ewsghana.views.message_log', 
