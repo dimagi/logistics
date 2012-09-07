@@ -123,9 +123,10 @@ class Messages(object):
                                  "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
-    REGISTER_MESSAGE = "You must registered on EWS " + \
+    REGISTER_MESSAGE = "You must be registered on EWS " + \
                        "before you can submit a stock report. " + \
                        "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
+    REGISTRATION_REQUIRED_MESSAGE = REGISTER_MESSAGE
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     HELP_TEXT = "Txt 'help stock' 4 the format of stock reports; 'help codes' 4 commodity codes; 'start' or 'stop' 2 start and stop reminders; 'status' 2 check ur registration."
     
