@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.conf import settings
+from django.db.models import Q
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
@@ -20,9 +21,7 @@ from .tables import ContactTable
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html", 
                  contact_form=CommoditiesContactForm):
-    contact = None
-    connection = None
-    bulk_form = None
+    contact = connection = bulk_form = search = None
     registration_view = 'registration'
     registration_edit = 'registration_edit'
     if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
@@ -97,17 +96,24 @@ def registration(req, pk=None, template="registration/dashboard.html",
                 instance=contact)
         bulk_form = BulkRegistrationForm()
     created = deleted = None
+    contacts = Contact.objects.all()
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']
         elif "deleted" in req.GET:
             deleted = req.GET['deleted']
+        if 'search' in req.GET:
+            search = req.GET['search']
+            contacts = contacts.filter(Q(name__iregex=search) |\
+                                       Q(connection__identity__iregex=search) |\
+                                       Q(supply_point__name__iregex=search))
     return render_to_response(
         template, {
-            "contacts_table": ContactTable(Contact.objects.all(), request=req),
+            "contacts_table": ContactTable(contacts, request=req),
             "contact_form": contact_form,
             "created": created, 
             "deleted": deleted, 
+            "search": search, 
             # no one is using or has tested the bulk form in logistics
             # so we remove it for now
             # "bulk_form": bulk_form,

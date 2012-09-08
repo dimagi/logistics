@@ -9,6 +9,7 @@
 {% block left %}
 <div class="module">
      <h2>SMS Users</h2>
+     {% include "registration/partials/search.html" %}
      {{ contacts_table.as_html }}{% if contact %}
 
      <div class="toolbar">
