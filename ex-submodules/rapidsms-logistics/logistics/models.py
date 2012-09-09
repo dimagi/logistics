@@ -1572,7 +1572,7 @@ class ProductReportsHelper(object):
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
-                if self.product_stock[i] >= productstock.maximum_level() and \
+                if self.product_stock[i] >= productstock.maximum_level and \
                    productstock.monthly_consumption > 0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
