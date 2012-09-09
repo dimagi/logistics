@@ -54,7 +54,9 @@ class SupplyPointCodes(object):
     These correspond to SupplyPointType.code
     """
     REGIONAL_MEDICAL_STORE = "RMS"
+    DISTRICT_HOSPITAL = "dh"
     REGIONAL_HOSPITAL = "rh"
+    PSYCHIATRIC_HOSPITAL = "ph"
     HOSPITAL = "hospital"
     HEALTH_CENTER = "hc"
     CHPS = "chps"
@@ -62,10 +64,34 @@ class SupplyPointCodes(object):
     ALL = {
         REGIONAL_MEDICAL_STORE: "regional medical store",
         REGIONAL_HOSPITAL: "regional hospital",
+        DISTRICT_HOSPITAL: "dh", 
+        PSYCHIATRIC_HOSPITAL: "ph", 
         HOSPITAL: "hospital",
         HEALTH_CENTER: "health center",
         CHPS: "chps",
         CLINIC: "clinic",
+    }
+    
+class SupplyPointPolicies(object):
+    POLICY_1 = {
+            "EMERGENCY_LEVEL": 0.5,
+            "REORDER_LEVEL": 1.5,
+            "MAXIMUM_LEVEL":  3,
+    }
+    POLICY_2 = {
+            "EMERGENCY_LEVEL": 0.5,
+            "REORDER_LEVEL": 1.5,
+            "MAXIMUM_LEVEL":  6,
+    }
+    STOCK_POLICIES = {
+          SupplyPointCodes.REGIONAL_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.HOSPITAL: POLICY_1, 
+          SupplyPointCodes.HEALTH_CENTER: POLICY_1, 
+          SupplyPointCodes.CHPS: POLICY_1, 
+          SupplyPointCodes.CLINIC: POLICY_1, 
+          SupplyPointCodes.DISTRICT_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.PSYCHIATRIC_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.REGIONAL_MEDICAL_STORE: POLICY_2
     }
 
 class LocationCodes(object):

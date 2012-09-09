@@ -134,7 +134,7 @@ LOGISTICS_CONSUMPTION = {
     "LOOKBACK_DAYS": None,          # none is no max
     "INCLUDE_END_STOCKOUTS": False, # whether or not to include periods ending in a stockout    
 }
-
+LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
 
 AUDITCARE_LOG_ERRORS = False
 
