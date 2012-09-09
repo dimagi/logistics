@@ -135,7 +135,10 @@ class SupplyPointType(models.Model):
                                                                        'product': product_code}
         
     def policy(self):
-        return config.SupplyPointPolicies.STOCK_POLICIES[self.code]        
+        try:
+            return config.SupplyPointPolicies.STOCK_POLICIES[self.code]
+        except AttributeError, KeyError:
+            raise ImproperlyConfigured("Stock level policies are not configured correctly for this deployment.")
     
     def monthly_consumption_by_product(self, product):
         # we need to supply a non-None cache value since the
