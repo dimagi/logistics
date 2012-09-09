@@ -133,6 +133,9 @@ class SupplyPointType(models.Model):
     def _cache_key(self, product_code):
         return '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype': self.code, 
                                                                        'product': product_code}
+        
+    def policy(self):
+        return config.SupplyPointPolicies.STOCK_POLICIES[self.code]        
     
     def monthly_consumption_by_product(self, product):
         # we need to supply a non-None cache value since the
@@ -674,19 +677,28 @@ class ProductStock(models.Model):
             return self.product.emergency_order_level
         
         elif self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["EMERGENCY_LEVEL"])
         return None
 
     @property
     def reorder_level(self):
         if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["REORDER_LEVEL"])
         return None
 
     @property
     def maximum_level(self):
         if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["MAXIMUM_LEVEL"])
         return None
 
     @property
@@ -1557,7 +1569,7 @@ class ProductReportsHelper(object):
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
-                if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
+                if self.product_stock[i] >= productstock.maximum_level() and \
                    productstock.monthly_consumption > 0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()

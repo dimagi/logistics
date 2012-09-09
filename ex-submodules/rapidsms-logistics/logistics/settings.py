@@ -1,9 +1,18 @@
 # Logistics App
+
+""" 
+ Stock policy (i.e. when & how much to reorder) varies across countries & projects. 
+ Most deployments will be fine using one stock policy (and the 3 LEVEL settings below)
+ Those that require different settings for different facility types should set the
+ GLOBAL_STOCK_LEVEL_POLICY to False, and then define the LEVELS in static.deployment.config.py
+"""
+LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = True
 # These settings define how many months constitute emergency, low supply,
 # and oversupply stock for the logistics app
 LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS = 0.5
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 1.5
 LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 3
+
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True # whether to parse ~all messages as stock reports
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
