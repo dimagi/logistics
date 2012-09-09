@@ -4,13 +4,17 @@ from django.db import transaction
 from django.dispatch import Signal
 from logistics.const import Reports
 
+stockout_reported = Signal(providing_args=["supply_point", "products", "reported_by"])
 stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
 
-def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resolved_by):
-    exclude_list = [] if resolved_by is None else [resolved_by]
+def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resolved_by, **kwargs):
     supply_point.notify_suppliees_of_stockouts_resolved([p.code for p in products], 
-                                                        exclude=exclude_list)
+                                                        exclude=None if resolved_by is None else [resolved_by])
     
+def notify_suppliees_of_stockouts_reported(sender, supply_point, products, reported_by, **kwargs):
+    supply_point.notify_suppliees_of_stockouts_reported([p.code for p in products], 
+                                                        exclude=None if reported_by is None else [reported_by])
+
 @transaction.commit_on_success
 def post_save_stock_transaction(sender, instance, created, **kwargs):
     from logistics.models import ProductStock

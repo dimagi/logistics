@@ -22,7 +22,7 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
 from dimagi.utils.dates import get_day_of_month
 from logistics.signals import post_save_product_report, create_user_profile,\
-    stockout_resolved, post_save_stock_transaction
+    stockout_resolved, stockout_reported, post_save_stock_transaction
 from logistics.errors import *
 from logistics.const import Reports
 from logistics.util import config, parse_report
@@ -563,8 +563,8 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         if ps.use_auto_consumption:
             ps.use_auto_consumption = False
             ps.save()
-
-    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
+            
+    def notify_suppliees(self, message, products, exclude=None):
         """ stockouts_resolved is a dictionary of code to product """
         to_notify = SupplyPoint.objects.filter(supplied_by=self, active=True).distinct()
         for fac in to_notify:
@@ -573,12 +573,19 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                 reporters = reporters.exclude(pk__in=[e.pk for e in exclude])
             for reporter in reporters:
                 if reporter.default_connection is not None:
-                    send_message(reporter.default_connection,
-                                "Dear %(name)s, %(supply_point)s has resolved the following stockouts: %(products)s " %
+                    send_message(reporter.default_connection, message %
                                  {'name':reporter.name,
-                                 'products':", ".join(stockouts_resolved),
+                                 'products':", ".join(products),
                                  'supply_point':self.name})
-    
+
+    def notify_suppliees_of_stockouts_reported(self, stockouts_reported, exclude=None):
+        message = "Dear %(name)s, %(supply_point)s is STOCKED OUT of: %(products)s "
+        self.notify_suppliees(message, stockouts_reported, exclude)
+
+    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
+        message = "Dear %(name)s, %(supply_point)s has RESOLVED the following stockouts: %(products)s "
+        self.notify_suppliees(message, stockouts_resolved, exclude)
+
     def data_unavailable(self):
         # hm, not sure what interval should be considered 'data unavailable'?
         # for now, we'll make it a setting
@@ -1406,6 +1413,7 @@ class ProductReportsHelper(object):
         return
 
     def save(self):
+        stockouts_reported = []
         stockouts_resolved = []
         # NOTE: receipts should be processed BEFORE stock levels
         # (so that after someone reports jd10.3, we record that
@@ -1427,13 +1435,20 @@ class ProductReportsHelper(object):
             # for now that's ok, since malawi doesn't do anything with this 
             if original_quantity == 0 and new_quantity > 0:
                 stockouts_resolved.append(stock_code)
+            if original_quantity > 0 and new_quantity == 0:
+                stockouts_reported.append(stock_code)
+        reporter = self.message.connection.contact if self.message \
+            and self.message.connection \
+            and self.message.connection.contact else None
         if stockouts_resolved:
             # use signals framework to manage custom notifications
-            reporter = self.message.connection.contact if self.message else None
             stockout_resolved.send(sender="product_report", supply_point=self.supply_point, 
                                    products=[self.get_product(code) for code in stockouts_resolved], 
                                    resolved_by=reporter)
-            
+        if stockouts_reported: 
+            stockout_reported.send(sender="product_report", supply_point=self.supply_point, 
+                                   products=[self.get_product(code) for code in stockouts_reported], 
+                                   reported_by=reporter)
         for stock_code in self.consumption:
             self.supply_point.record_consumption_by_code(stock_code, 
                                                          self.consumption[stock_code])
