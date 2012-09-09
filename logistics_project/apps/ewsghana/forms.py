@@ -151,7 +151,9 @@ class FacilityForm(forms.ModelForm):
         else:
             # if this is a new facility, then no reporters have been defined
             self.fields["primary_reporter"].queryset = Contact.objects.none()
-        self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
+        # it will be more user-friendly in the long run to hide facility locations from this list,
+        # once we've turned facility into a subclass of location...
+        # self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
                 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)

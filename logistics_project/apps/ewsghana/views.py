@@ -146,7 +146,9 @@ def facility_detail(request, code, context={}, template="ewsghana/single_facilit
 @permission_required('logistics.add_supplypoint')
 @transaction.commit_on_success
 def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
-    facility = form = incharges = None
+    facility = None
+    form = None
+    incharges = None
     klass = "SupplyPoint"
     if pk is not None:
         facility = get_object_or_404(

@@ -14,29 +14,29 @@ class TestStockOnHand (TestScript):
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
         facilitytype = SupplyPointType.objects.get(code='hc')
-        rms = SupplyPoint.objects.get(code='garms')
+        self.rms = SupplyPoint.objects.get(code='garms')
         facility, created = SupplyPoint.objects.get_or_create(code='dedh',
                                                            name='Dangme East District Hospital',
                                                            location=location, active=True,
-                                                           type=facilitytype, supplied_by=rms)
+                                                           type=facilitytype, supplied_by=self.rms)
+        assert facility.supplied_by == self.rms
         mc = Product.objects.get(sms_code='mc')
-        lf = Product.objects.get(sms_code='lf')
+        self.lf = Product.objects.get(sms_code='lf')
         ProductStock(product=mc, supply_point=facility,
                      monthly_consumption=8).save()
-        ProductStock(product=lf, supply_point=facility,
+        ProductStock(product=self.lf, supply_point=facility,
                      monthly_consumption=5).save()
         facility = SupplyPoint(code='tf', name='Test Facility',
                        location=location, active=True,
-                       type=facilitytype, supplied_by=rms)
+                       type=facilitytype, supplied_by=self.rms)
         facility.save()
         mc = Product.objects.get(sms_code='mc')
-        lf = Product.objects.get(sms_code='lf')
         mg = Product.objects.get(sms_code='mg')
         self.mc_stock = ProductStock(is_active=True, supply_point=facility,
                                     product=mc, monthly_consumption=10)
         self.mc_stock.save()
         self.lf_stock = ProductStock(is_active=True, supply_point=facility,
-                                    product=lf, monthly_consumption=10)
+                                    product=self.lf, monthly_consumption=10)
         self.lf_stock.save()
         self.mg_stock = ProductStock(is_active=False, supply_point=facility,
                                      product=mg, monthly_consumption=10)
@@ -277,6 +277,22 @@ class TestStockOnHand (TestScript):
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 3.
            16176023315 > LF10----3mc20
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 3.
+           """
+        self.runScript(a)
+
+    def failTestRMSStockout(self):
+        """ This test doesn't pass yet. Something about signals not firing? """
+        a = """
+           111 > register garep garms
+           111 < Congratulations garep, you have successfully been registered for the Early Warning System. Your facility is Greater Accra Regional Medical Store
+           222 > register derep dedh
+           222 < Congratulations derep, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           111 > soh lf 0
+           111 < Dear garep, these items are stocked out: lf.
+           222 < Dear derep, Greater Accra Regional Medical Store is STOCKED OUT of: lf
+           111 > soh lf 10
+           111 < Dear garep, thank you for reporting the commodities you have in stock.
+           222 < Dear derep, Greater Accra Regional Medical Store has RESOLVED the following stockouts: lf
            """
         self.runScript(a)
 
