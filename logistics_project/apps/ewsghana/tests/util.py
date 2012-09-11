@@ -13,6 +13,11 @@ def load_test_data():
     except ProductReportType.DoesNotExist:
         pr = ProductReportType.objects.create(code=Reports.SOH, 
                                               name=Reports.SOH)
+    try:
+        pr_rec = ProductReportType.objects.get(code=Reports.REC)
+    except ProductReportType.DoesNotExist:
+        pr_rec = ProductReportType.objects.create(code=Reports.REC, 
+                                              name=Reports.REC)
     location, created = Location.objects.get_or_create(name='Dangme East', 
                                                        code='de')
     gar, created = Location.objects.get_or_create(name='Greater Accra Region', 

@@ -173,9 +173,9 @@ class TestStockOnHand (TestScript):
            pharmacist > mc 0 mg 1
            super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg
            pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
-           pharmacist > lf 0 mc 1 mg 100
-           super < Dear super, Test Facility is experiencing the following problems: stockouts lf; below reorder level mc; overstocked mg
-           pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 15 mc, 15 lf.
+           pharmacist > mc 0 mg 1 lf 100
+           super < Dear super, Test Facility is experiencing the following problems: stockouts mc; below reorder level mg; overstocked lf
+           pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 15 mc, 15 mg.
            """
         self.runScript(a)
 
