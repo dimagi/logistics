@@ -1,11 +1,11 @@
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.models import Contact, Connection, Backend
 from rapidsms.tests.scripted import TestScript
-from logistics import app as logistics_app
 from logistics.models import Product, ProductStock, \
     ProductReportsHelper, SupplyPoint, SupplyPointType, Location
 from logistics.const import Reports
 from logistics.util import config
+from logistics_project.apps.ewsghana import app as logistics_app
 
 class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])

@@ -1,8 +1,8 @@
 from rapidsms.tests.scripted import TestScript
-from logistics import app as logistics_app
 from logistics.models import SupplyPoint, ProductType, Product
 from logistics_project.apps.ewsghana.tests.util import load_test_data, \
     report_stock, register_user
+from logistics_project.apps.ewsghana import app as logistics_app
 
 class TestReminders (TestScript):
     apps = ([logistics_app.App])
