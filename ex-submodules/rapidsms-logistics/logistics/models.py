@@ -1272,6 +1272,14 @@ class ContactRole(models.Model):
     def __unicode__(self):
         return _(self.name)
 
+class Validator(object):
+    """ This validator is used by the ProductReportsHelper
+    in order to check whether a given set of stock reports submitted at the same
+    time make sense together
+    """
+    def validate(self, supply_point, product_stock={}, product_received={}, consumption={}):
+        raise NotImplementedError()
+
 class ProductReportsHelper(object):
     """
     The following is a helper class which takes in aggregate
@@ -1280,7 +1288,7 @@ class ProductReportsHelper(object):
     """
     REC_SEPARATOR = '-'
 
-    def __init__(self, sdp, report_type, message=None, timestamp=None):
+    def __init__(self, sdp, report_type, message=None, timestamp=None, validator=Validator()):
         self.product_stock = {}
         self.consumption = {}
         self.product_received = {}
@@ -1291,6 +1299,13 @@ class ProductReportsHelper(object):
         self.report_type = report_type
         self.timestamp = timestamp if timestamp else datetime.utcnow()
         self.errors = []
+        self.validator = validator
+    
+    def validate(self):
+        self.validator.validate(supply_point=self.supply_point, 
+                                product_stock=self.product_stock, 
+                                product_received=self.product_received, 
+                                consumption=self.consumption)
 
     def _clean_string(self, string):
         if not string:
