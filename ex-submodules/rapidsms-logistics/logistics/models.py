@@ -310,20 +310,22 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return True
 
     def commodities_stocked(self):
+        """ what are all the commodities which we are actively stocking at this facility? """
         if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
-            return self.commodities_reported()
+            # do a join on all commodities associated with all users
+            return Product.objects.filter(is_active=True)\
+                .filter(reported_by__supply_point=self).distinct()
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
-            return Product.objects.filter(productstock__supply_point=self).filter(is_active=True)
+            # look for products with active ProductStocks linked to his facility
+            return Product.objects.filter(productstock__supply_point=self, productstock__is_active=True)
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
+            # all active Products in the system
             return Product.objects.filter(is_active=True)
         raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
     
     def supplies(self, product):
         return product in self.commodities_stocked()
     
-    def commodities_reported(self):
-        return Product.objects.filter(is_active=True)\
-            .filter(reported_by__supply_point=self).distinct()
     
     def product_stocks(self):
         return self.all_product_stocks()

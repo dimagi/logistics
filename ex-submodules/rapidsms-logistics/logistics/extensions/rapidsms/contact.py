@@ -29,9 +29,16 @@ class Contact(models.Model):
             return self.default_connection.identity
         else:
             return " "
-
     
     @property
     def last_message(self):
         if self.message_set.count() > 0:
             return self.message_set.order_by("-date")[0]
+        
+    def has_responsibility(self, code):
+        if not self.role:
+            return False
+        responsibilities = self.role.responsibilities.values_list('code', flat=True)
+        if code in responsibilities:
+            return True
+        return False

@@ -1,4 +1,5 @@
 from rapidsms.conf import settings
+from logistics.models import Product
 
 def global_nav_mode(request):
     return {"nav_mode": settings.LOGISTICS_NAVIGATION_MODE }
@@ -12,6 +13,9 @@ def stock_cutoffs(request):
     return {"months_minimum": settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS,
             "months_maximum": settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS}
 
+def stocked_by(request):
+    return {"stocked_by": settings.LOGISTICS_STOCKED_BY, 
+            "active_stocks": Product.objects.filter(is_active=True)}
 
 def google_analytics(request):
     if hasattr(settings, 'GOOGLE_ANALYTICS_ID'):
