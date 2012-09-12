@@ -1,8 +1,10 @@
 from django import forms
 from rapidsms.conf import settings
+from rapidsms.models import Contact, Backend
 from rapidsms.tests.scripted import TestScript
 from logistics_project.apps.registration.forms import IntlSMSContactForm
 from logistics.models import Location, SupplyPoint, SupplyPointType 
+from logistics_project.apps.registration.forms import CommoditiesContactForm
 
 class TestRegister(TestScript):
     fixtures = ["ghana_initial_data.json"] 
@@ -39,3 +41,20 @@ class TestRegister(TestScript):
         except NameError:
             # DOMESTIC_DIALLING_CODE not defined, no biggie
             pass
+
+    def testSaveSameContactTwice(self):
+        NAME = "newuser"
+        PHONE = "+233123"
+        contact = Contact(name=NAME)
+        form = CommoditiesContactForm({'name':NAME, 'phone':PHONE}, instance=contact)
+        self.assertTrue(form.is_valid())
+        # this time around, the form should NOT throw an error on re-registration
+        contact.save()
+        contact.set_default_connection_identity(PHONE, settings.DEFAULT_BACKEND)
+        form = CommoditiesContactForm({'name':NAME, 'phone':PHONE}, instance=contact)
+        self.assertTrue(form.is_valid())
+        # this time around, the form should throw an error on duplicate registration
+        NEWNAME = "newname"
+        new_contact = Contact(name=NEWNAME)
+        form = CommoditiesContactForm({'name':NEWNAME, 'phone':PHONE}, instance=new_contact)
+        self.assertFalse(form.is_valid())
