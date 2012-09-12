@@ -17,6 +17,7 @@ from rapidsms.contrib.locations.models import Location, Point
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock
+from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from logistics_project.apps.registration.validation import intl_clean_phone_number, \
     check_for_dupes
@@ -128,7 +129,7 @@ class FacilityForm(forms.ModelForm):
     longitude = forms.DecimalField(required=False)
     
     class Meta:
-        model = SupplyPoint
+        model = GhanaFacility
         exclude = ("last_reported", "groups", "supervised_by")
     
     def __init__(self, *args, **kwargs):
@@ -153,36 +154,18 @@ class FacilityForm(forms.ModelForm):
             self.fields["primary_reporter"].queryset = Contact.objects.none()
         # it will be more user-friendly in the long run to hide facility locations from this list,
         # once we've turned facility into a subclass of location...
+        #removing this for now - since it'll break pre-existing saved facilities
         # self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
-                
+        #self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
+				
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(*args, **kwargs)
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
             if commodity.sms_code in self.data:
-                # this commodity should be stocked
-                ps, created = ProductStock.objects.get_or_create(supply_point=facility, 
-                                                                 product=commodity)
-                ps.is_active = True
-                ps.save()
-                if facility.primary_reporter and \
-                  commodity not in facility.primary_reporter.commodities.all():
-                    facility.primary_reporter.commodities.add(commodity)
+                facility.activate_product(commodity)
             else:
-                try:
-                    ps = ProductStock.objects.get(supply_point=facility, 
-                                                  product=commodity)
-                except ProductStock.DoesNotExist:
-                    # great
-                    pass
-                else:
-                    # if we have stock info, we keep it around just in case
-                    # but we mark it as inactive
-                    ps.is_active = False
-                    ps.save()
-                if facility.primary_reporter and \
-                  commodity in facility.primary_reporter.commodities.all():
-                    facility.primary_reporter.commodities.remove(commodity)
+                facility.deactivate_product(commodity)
         if self.cleaned_data['latitude'] and self.cleaned_data['longitude']:
             lat = self.cleaned_data['latitude']
             lon = self.cleaned_data['longitude']
@@ -247,13 +230,7 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
     
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
-        responsibilities = []
-        if contact and contact.role:
-            responsibilities = contact.role.responsibilities.values_list('code', flat=True)
-        if contact.supply_point and contact.supply_point.primary_reporter is None and \
-          config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
-            contact.supply_point.primary_reporter = contact
-            contact.supply_point.save()
+        contact.supply_point.add_contact(contact)
         return contact
 
 

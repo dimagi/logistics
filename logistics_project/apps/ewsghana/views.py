@@ -135,7 +135,7 @@ def facilities_list(request, location_code=None, context={}, template="ewsghana/
     )
 
 def facility_detail(request, code, context={}, template="ewsghana/single_facility.html"):
-    facility = get_object_or_404(SupplyPoint, code=code)
+    facility = get_object_or_404(GhanaFacility, code=code)
     context ['facility'] = facility
     return render_to_response(
         template, context, context_instance=RequestContext(request)
@@ -149,10 +149,10 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     facility = None
     form = None
     incharges = None
-    klass = "SupplyPoint"
+    klass = "Facility"
     if pk is not None:
         facility = get_object_or_404(
-            SupplyPoint, pk=pk)
+            GhanaFacility, pk=pk)
         incharges = list(chain(facility.reportees(), facility.supervised_by.reportees() if facility.supervised_by else []))
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
@@ -172,7 +172,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     return render_to_response(
         template, {
             "incharges": incharges,
-            "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
+            "table": FacilityTable(GhanaFacility.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
             "klass": klass,
@@ -196,7 +196,7 @@ def sms_registration(request, *args, **kwargs):
     return ret
 
 def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html"):
-    klass = "SupplyPoint"
+    klass = "Facility"
     facility = get_object_or_404(GhanaFacility, code=sp_code)
     if request.method == "POST":
         if request.POST["submit"] == "Save In-Charge":

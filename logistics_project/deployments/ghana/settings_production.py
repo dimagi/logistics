@@ -135,6 +135,7 @@ LOGISTICS_CONSUMPTION = {
     "INCLUDE_END_STOCKOUTS": False, # whether or not to include periods ending in a stockout    
 }
 LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
+LOGISTICS_STOCKED_BY = 'facility'
 
 AUDITCARE_LOG_ERRORS = False
 
