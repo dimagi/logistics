@@ -231,7 +231,8 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
     
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
-        contact.supply_point.add_contact(contact)
+        if contact.supply_point:
+            contact.supply_point.add_contact(contact)
         return contact
 
 
