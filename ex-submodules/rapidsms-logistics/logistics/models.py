@@ -4,6 +4,7 @@
 import re
 import uuid
 import logging
+import math
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
@@ -674,7 +675,9 @@ class ProductStock(models.Model):
     def update_auto_consumption(self):
         d = self.daily_consumption
         if d:
-            self.auto_monthly_consumption = int(d * 30)
+            # if AMC is a fraction, we should always round up
+            # (always better to underestimate months remaining than over)
+            self.auto_monthly_consumption = math.ceil(d * 30)
             self.save()
 
     @property
