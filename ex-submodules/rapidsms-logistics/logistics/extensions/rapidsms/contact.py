@@ -42,3 +42,18 @@ class Contact(models.Model):
         if code in responsibilities:
             return True
         return False
+    
+    def commodities_reported(self):
+        """ this user is responsible for reporting these commodities """
+        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
+            # do a join on all commodities associated with this user
+            return Product.objects.filter(is_active=True).filter(reported_by=self)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
+            # look for products with active ProductStocks linked to user's facility
+            return Product.objects.filter(productstock__supply_point=self.supply_point, 
+                                          productstock__is_active=True, 
+                                          is_active=True)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
+            # all active Products in the system
+            return Product.objects.filter(is_active=True)
+        raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")

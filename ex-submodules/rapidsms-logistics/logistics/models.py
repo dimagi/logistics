@@ -313,11 +313,12 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         """ what are all the commodities which we are actively stocking at this facility? """
         if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
             # do a join on all commodities associated with all users
-            return Product.objects.filter(is_active=True)\
-                .filter(reported_by__supply_point=self).distinct()
+            return Product.objects.filter(is_active=True, reported_by__supply_point=self)
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
             # look for products with active ProductStocks linked to his facility
-            return Product.objects.filter(productstock__supply_point=self, productstock__is_active=True)
+            return Product.objects.filter(productstock__supply_point=self, 
+                                          productstock__is_active=True, 
+                                          is_active=True)
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
             # all active Products in the system
             return Product.objects.filter(is_active=True)
@@ -1615,17 +1616,29 @@ class ProductReportsHelper(object):
         check for active products that haven't yet been added
         to this stockreport helper
         """
-        all_products = []
         num_days = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT
         date_check = datetime.utcnow() + relativedelta(days=-num_days)
         reporter = self.message.contact
-        missing_products = Product.objects.filter(Q(reported_by=reporter),
+        # get all the products this reporter is responsible for, minus the ones already reported
+        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
+            query_to_be_reported = Q(reported_by=reporter)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
+            query_to_be_reported = Q(productstock__supply_point=self.supply_point, 
+                                     productstock__is_active=True, 
+                                     is_active=True)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
+            query_to_be_reported = Q(is_active=True)
+        else:
+            raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
+        products_to_be_reported = Product.objects.filter(query_to_be_reported,
                                                   ~Q(productreport__report_date__gt=date_check,
                                                      productreport__supply_point=self.supply_point) )
-        for dict in missing_products.values('sms_code'):
-            all_products.append(dict['sms_code'])
-        return list(set(all_products)-self.reported_products())
-
+        products_to_be_reported_codes = []
+        # create a list of codes
+        for code_dict in products_to_be_reported.values('sms_code'):
+            products_to_be_reported_codes.append(code_dict['sms_code'])
+        # subtract what's been reported
+        return list(set(products_to_be_reported_codes)-self.reported_products())
 
 def get_geography():
     """
