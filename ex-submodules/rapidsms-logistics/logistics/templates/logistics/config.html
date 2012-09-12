@@ -24,6 +24,13 @@
 		Add a {{ klass }}{% endif %}
 	</h2>
 
+     {% if created %}
+          <br/><div class="success">{{created}} has been successfully registered.</div>
+     {% endif %}
+     {% if deleted %}
+          <br/><div class="success">{{deleted}} has been successfully deleted.</div>
+     {% endif %}
+
 	<form action="" method="post">
 		{% render_form form %}
 		{% csrf_token %}
