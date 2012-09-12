@@ -334,7 +334,8 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def all_product_stocks(self):
         """ ProductStocks for all commodities 
         which this facility has ever reported on"""
-        return ProductStock.objects.filter(is_active=True).filter(supply_point=self)
+        return ProductStock.objects.filter(is_active=True, 
+                                           product__is_active=True).filter(supply_point=self)
     
     def stocked_productstocks(self):
         """ ProductStocks for all commodities 

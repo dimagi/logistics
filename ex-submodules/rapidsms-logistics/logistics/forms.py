@@ -25,7 +25,8 @@ class FacilityForm(forms.ModelForm):
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
             pss = ProductStock.objects.filter(supply_point=initial_sp, 
-                                              is_active=True)
+                                              is_active=True, 
+                                              product__is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
             if initial_sp.location and initial_sp.location.point:
                 kwargs['initial']['latitude'] = initial_sp.location.point.latitude
