@@ -37,7 +37,7 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
                                destination_url="ewsghana_reporting")
     
 def message_log(request, template="ewsghana/messagelog.html"):
-    return rapidsms_message_log(request, template)
+    return rapidsms_message_log(request, template=template)
 
 def help(request, template="ewsghana/help.html"):
     commodities = Product.objects.filter(is_active=True).order_by('name')
