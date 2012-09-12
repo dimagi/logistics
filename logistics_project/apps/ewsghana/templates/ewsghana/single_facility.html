@@ -59,9 +59,19 @@
                     <td>{{ contact.phone }}</td>
                     <td>{{ contact.email }}</td>
                     <td><input type="checkbox" {% if contact.needs_reminders %}checked{% endif %} DISABLED /></td>
-                    <td>{% for commodity in contact.commodities.all %}
-                    	{{ commodity.code }}
-                    	{% endfor %}
+                    <td>{% if stocked_by == 'product' %}
+                            {% for commodity in active_stocks %}
+                            {{ commodity.code }}
+                            {% endfor %}
+                        {% else %}{% if stocked_by == 'facility' %} 
+                            {% for commodity in facility.commodities.all %}
+                            {{ commodity.code }}
+                            {% endfor %}
+                        {% else %}
+	                        {% for commodity in contact.commodities.all %}
+	                    	{{ commodity.code }}
+	                    	{% endfor %}
+	                    {% endif %}{% endif %}
                     </td>
                 </tr>
                 {% endfor %}

@@ -227,26 +227,7 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
     
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
-        responsibilities = []
-        if contact and contact.role:
-            responsibilities = contact.role.responsibilities.values_list('code', flat=True)
-        # set first reporter to be default primary reporter
-        if contact.supply_point and contact.supply_point.primary_reporter is None and \
-          config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
-            contact.supply_point.primary_reporter = contact
-            contact.supply_point.save()
-        # assign all the facility commodities to this reporter
-        if contact.supply_point and \
-          config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY in responsibilities:
-            # I wonder if this should be in GhanaFacility
-            sp_commodities = contact.supply_point.commodities_stocked()
-            ct_commodities = contact.commodities.all()
-            for commodity in ct_commodities:
-                if commodity not in sp_commodities:
-                    contact.commodities.remove(commodity)
-            for commodity in sp_commodities:
-                if commodity not in ct_commodities:
-                    contact.commodities.add(commodity)
+        contact.supply_point.add_contact(contact)
         return contact
 
 

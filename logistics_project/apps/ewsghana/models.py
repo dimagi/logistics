@@ -20,20 +20,3 @@ class GhanaFacility(SupplyPoint):
         while district.type and district.tree_parent and district.type.slug != config.LocationCodes.DISTRICT:
             district = district.tree_parent 
         return supervisors.filter(supply_point__location__in=district.get_descendants(include_self=True))    
-    
-    def activate_product(self, commodity):
-        """ In Ghana, activating a product in a facility 
-        also means you assign it to the associated SMS reporters """
-        super(GhanaFacility, self).activate_product(commodity)
-        for reporter in self.reporters():
-            if commodity not in reporter.commodities.all():
-                reporter.commodities.add(commodity)
-    
-    def deactivate_product(self, commodity):
-        """ In Ghana, deactivating a product in a facility 
-        also means you remove it from the associated SMS reporters """
-        super(GhanaFacility, self).deactivate_product(commodity)
-        for reporter in self.reporters():
-            if commodity in reporter.commodities.all():
-                reporter.commodities.remove(commodity)
-    
