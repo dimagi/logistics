@@ -1,10 +1,10 @@
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
-from logistics import app as logistics_app
 from logistics.models import ProductReportType, \
     ProductStock, SupplyPoint, Product
 from logistics.const import Reports
 from logistics.util import config
+from logistics_project.apps.ewsghana import app as logistics_app
 
 class TestLocation (TestScript):
     apps = ([logistics_app.App])

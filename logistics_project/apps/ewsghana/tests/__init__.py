@@ -6,3 +6,4 @@ from location import *
 from receipt import *
 from requisition_status import *
 from stockonhand import *
+from validator import *

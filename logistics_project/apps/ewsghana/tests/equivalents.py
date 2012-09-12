@@ -13,7 +13,7 @@ class TestEquivalents(TestScript):
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov2
-              123 < Dear stella, the following items need to be reordered: ov. Please place an order now.
+              123 < Dear stella, these items need to be reordered: ov. Please order 15 ov.
             """
         self.runScript(a)
 
@@ -22,9 +22,9 @@ class TestEquivalents(TestScript):
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov0 ml1
-              123 < Dear stella, the following items are stocked out: ov. the following items need to be reordered: ml. Please place an order now.
+              123 < Dear stella, these items are stocked out: ov. these items need to be reordered: ml. Please order 15 ov, 15 ml.
               123 > ov1 ml0
-              123 < Dear stella, the following items are stocked out: ml. the following items need to be reordered: ov. Please place an order now.
+              123 < Dear stella, these items are stocked out: ml. these items need to be reordered: ov. Please order 15 ov, 15 ml.
               123 > ov0 ml20
               123 < Dear stella, thank you for reporting the commodities you have in stock.
               123 > ov20 ml0
@@ -38,12 +38,12 @@ class TestEquivalents(TestScript):
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov1 ml20
               123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > ov20 ml1
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > ml20 ov1
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > ml1 ov20
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
+              123 > ov20 19 ml1
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
+              123 > ml20 19 ov1
+              123 < Dear stella, thank you for reporting the commodities you have. You received ml 19.
+              123 > ml1 ov20 19
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
             """
         self.runScript(a)
 
@@ -57,13 +57,13 @@ class TestEquivalents(TestScript):
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov1 zz20
-              123 < Dear stella, the following items need to be reordered: ov. Please place an order now.
-              123 > ov20 zz1
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > zz20 ov1
-              123 < Dear stella, the following items need to be reordered: ov. Please place an order now.
-              123 > zz1 ov20
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
+              123 < Dear stella, these items need to be reordered: ov. Please order 15 ov.
+              123 > ov20 19 zz1
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
+              123 > zz20 19 ov1
+              123 < Dear stella, these items need to be reordered: ov. Please order 15 ov.
+              123 > zz1 ov20 19
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
             """
         self.runScript(a)
 
@@ -79,12 +79,12 @@ class TestEquivalents(TestScript):
               123 > register stella dedh
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov1 zz20
-              123 < Dear stella, the following items need to be reordered: ov. Please place an order now.
-              123 > ov20 zz1
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > zz20 ov1
-              123 < Dear stella, the following items need to be reordered: ov. Please place an order now.
-              123 > zz1 ov20
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
+              123 < Dear stella, these items need to be reordered: ov. Please order 15 ov.
+              123 > ov20 19 zz1
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
+              123 > zz20 19 ov1
+              123 < Dear stella, these items need to be reordered: ov. Please order 15 ov.
+              123 > zz1 ov20 19
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 19.
             """
         self.runScript(a)

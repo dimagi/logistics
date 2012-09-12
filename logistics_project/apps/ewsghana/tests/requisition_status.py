@@ -2,7 +2,7 @@ from rapidsms.tests.scripted import TestScript
 from logistics_project.apps.ewsghana.tests.util import load_test_data
 from logistics.util import config
 
-class TestEquivalents(TestScript):
+class TestRequisition(TestScript):
     def setUp(self):
         TestScript.setUp(self)
         load_test_data()
