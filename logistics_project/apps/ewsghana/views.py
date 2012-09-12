@@ -158,19 +158,30 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         if req.POST["submit"] == "Delete %s" % klass:
             facility.delete()
             return HttpResponseRedirect(
-                reverse('facility_view'))
+                "%s?deleted=%s" % (reverse('facility_view'), 
+                                   unicode(facility)))
         else:
             form = FacilityForm(instance=facility,
                                 data=req.POST)
             if form.is_valid():
                 facility = form.save()
                 return HttpResponseRedirect(
-                    reverse('facility_edit', kwargs={'pk':facility.pk}))
+                    "%s?created=%s" % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
+                                       unicode(facility)))
     else:
         form = FacilityForm(instance=facility)
     products = Product.objects.filter(is_active=True).order_by('name')
+    created = None
+    deleted = None
+    if req.method == "GET":
+        if "created" in req.GET:
+            created = req.GET['created']
+        elif "deleted" in req.GET:
+            deleted = req.GET['deleted']
     return render_to_response(
         template, {
+            "created": created, 
+            "deleted": deleted, 
             "incharges": incharges,
             "table": FacilityTable(GhanaFacility.objects.filter(active=True), request=req),
             "form": form,
