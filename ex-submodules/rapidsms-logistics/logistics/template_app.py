@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 """
 The main purpose of this app is to parse reports of stock on hand and receipts
@@ -194,7 +194,6 @@ class App(AppBase):
             return message.text.lower().startswith(Reports.SOH) 
         else:
             keywords = [Reports.SOH]
-            
             keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
             text = message.text.lower()
             for keyword in keywords:
