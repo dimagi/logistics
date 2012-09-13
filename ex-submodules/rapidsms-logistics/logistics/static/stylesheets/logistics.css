@@ -100,3 +100,9 @@ textarea, select {
     padding-left: 1em;
     line-height: 1.4;
 }
+
+/* wow, css never ceases to amaze me... */
+.required:after {
+	color: red;  
+	content: "*"; 
+}
