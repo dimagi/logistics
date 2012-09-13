@@ -75,7 +75,7 @@ class ReportingTable(Table):
     last_reported = DateColumn(name="Last Reported on",
                                value=lambda cell: cell.object.last_reported \
                                     if cell.object.last_reported else "never",
-                               format="M d, h:m A", 
+                               format="M d, h:i A", 
                                sortable=False,
                                sort_key_fn=lambda obj: obj.last_reported,
                                css_class="tabledate")
@@ -89,7 +89,7 @@ class SOHReportingTable(MonthTable):
     last_reported = DateColumn(name="Last Stock Report Received",
                                value=lambda cell: cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) \
                                     if cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) else "never",
-                               format="M d, h:m A",
+                               format="M d, h:i A",
                                sortable=False,
                                css_class="tabledate")
 
