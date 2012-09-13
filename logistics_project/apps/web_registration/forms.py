@@ -21,7 +21,7 @@ class RegisterUserForm(RegistrationForm):
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
-                                label=_(u'password'), required=True)
+                                label=_(u'password'), required=True, help_text="Use at least 4 characters")
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
                                 label=_(u'password (again)'), required=True)
 
@@ -132,6 +132,8 @@ class AdminRegistersUserFormActiveAdmin(RegisterUserForm):
         return user
 
 class UserSelfRegistrationForm(RegistrationForm): 
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
+                                label=_(u'password'), required=True, help_text="Use at least 4 characters")
     designation = forms.CharField(required=False)
     
     def save(self, profile_callback=None):

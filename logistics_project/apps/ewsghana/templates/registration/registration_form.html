@@ -24,6 +24,9 @@
             <th><span {% if field.field.required %}class="required"{% endif %}>
                     {{ field.label_tag }}
                 </span>
+                <div class="clear help_text">
+   		          {{field.help_text}}
+			    </div><br/>
             </th>
             <td>{{ field }}</td>
         </tr>
