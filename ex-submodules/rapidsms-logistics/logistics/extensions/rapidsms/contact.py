@@ -1,5 +1,7 @@
 from __future__ import absolute_import
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from rapidsms.conf import settings
 
 class Contact(models.Model):
     # if one person wants to submit stocks for multiple facilities, then
@@ -44,6 +46,7 @@ class Contact(models.Model):
         return False
     
     def commodities_reported(self):
+        from logistics.models import Product
         """ this user is responsible for reporting these commodities """
         if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
             # do a join on all commodities associated with this user

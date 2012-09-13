@@ -1623,26 +1623,11 @@ class ProductReportsHelper(object):
         num_days = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT
         date_check = datetime.utcnow() + relativedelta(days=-num_days)
         reporter = self.message.contact
-        # get all the products this reporter is responsible for, minus the ones already reported
-        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
-            query_to_be_reported = Q(reported_by=reporter)
-        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
-            query_to_be_reported = Q(productstock__supply_point=self.supply_point, 
-                                     productstock__is_active=True, 
-                                     is_active=True)
-        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
-            query_to_be_reported = Q(is_active=True)
-        else:
-            raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
-        products_to_be_reported = Product.objects.filter(query_to_be_reported,
-                                                  ~Q(productreport__report_date__gt=date_check,
-                                                     productreport__supply_point=self.supply_point) )
-        products_to_be_reported_codes = []
-        # create a list of codes
-        for code_dict in products_to_be_reported.values('sms_code'):
-            products_to_be_reported_codes.append(code_dict['sms_code'])
-        # subtract what's been reported
-        return list(set(products_to_be_reported_codes)-self.reported_products())
+        products_to_report = reporter.commodities_reported()
+        stocks_already_reported = self.supply_point.product_stocks().filter(last_modified__gt=date_check)
+        return list(set([p.sms_code for p in products_to_report]) \
+            - set([r.product.sms_code for r in stocks_already_reported]) \
+            - set([q for q in self.reported_products()]))
 
 def get_geography():
     """
