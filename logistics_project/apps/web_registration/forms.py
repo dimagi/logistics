@@ -15,15 +15,17 @@ from logistics.models import SupplyPoint
 from logistics.util import config
 
 class RegisterUserForm(RegistrationForm): 
+    designation = forms.CharField(required=False)
     # don't bother displaying facility locations since facility-specific views are drawn 
     # from user.facility anyways
-    designation = forms.CharField(required=False)
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
+    # these fields must be required=FALSE since admin users should be able to edit web users
+    # without knowing their passwords
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
-                                label=_(u'password'), required=True, help_text="Use at least 4 characters")
+                                label=_(u'password'), required=False, help_text="Use at least 4 characters")
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
-                                label=_(u'password (again)'), required=True)
+                                label=_(u'password (again)'), required=False)
 
     def _add_to_kwargs_initial(self, kwargs, key, value):
         initial = {}

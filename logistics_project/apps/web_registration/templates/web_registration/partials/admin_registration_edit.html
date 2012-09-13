@@ -18,14 +18,14 @@
 <br/>
 
 {% if form.non_field_errors %}
-  <div class="non_field_errors">
+  <div class="non_field_errors error">
   {{ form.non_field_errors }}
   </div>
 {% endif %}
 
 {% for field in form.visible_fields %}
   {% if field.errors %}
-    <div class="field_errors">
+    <div class="field_errors error">
     {{field.errors}}
     </div>
   {% endif %}
