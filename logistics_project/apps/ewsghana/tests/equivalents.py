@@ -1,3 +1,4 @@
+from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.models import SupplyPoint, \
     SupplyPointType, Product, ProductType, ProductStock
@@ -7,6 +8,7 @@ class TestEquivalents(TestScript):
     def setUp(self):
         TestScript.setUp(self)
         load_test_data()
+        settings.LOGISTICS_STOCKED_BY = 'user'
 
     def testLowStock(self):
         a = """

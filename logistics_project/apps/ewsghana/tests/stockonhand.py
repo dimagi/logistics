@@ -1,3 +1,4 @@
+from rapidsms.conf import settings
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.models import Contact, Connection, Backend
 from rapidsms.tests.scripted import TestScript
@@ -11,6 +12,7 @@ class TestStockOnHand (TestScript):
     apps = ([logistics_app.App])
     fixtures = ["ghana_initial_data.json"] 
     def setUp(self):
+        settings.LOGISTICS_STOCKED_BY = 'user'
         TestScript.setUp(self)
         location = Location.objects.get(code='de')
         facilitytype = SupplyPointType.objects.get(code='hc')

@@ -64,7 +64,7 @@
                             {{ commodity.code }}
                             {% endfor %}
                         {% else %}{% if stocked_by == 'facility' %} 
-                            {% for commodity in facility.commodities.all %}
+                            {% for commodity in facility.commodities_stocked %}
                             {{ commodity.code }}
                             {% endfor %}
                         {% else %}

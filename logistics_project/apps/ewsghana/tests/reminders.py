@@ -1,3 +1,4 @@
+from rapidsms.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics.models import SupplyPoint, ProductType, Product
 from logistics_project.apps.ewsghana.tests.util import load_test_data, \
@@ -8,6 +9,7 @@ class TestReminders (TestScript):
     apps = ([logistics_app.App])
     fixtures = ["ghana_initial_data.json"] 
     def setUp(self):
+        settings.LOGISTICS_STOCKED_BY = 'user'
         TestScript.setUp(self)
         load_test_data()
         self.facility = SupplyPoint.objects.get(code='dedh')
