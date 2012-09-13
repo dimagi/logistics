@@ -42,11 +42,10 @@ class ContactForm(forms.ModelForm):
         self.fields['phone'].label = _("Phone")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
         
-        self.instance = None
         if kwargs.has_key('instance'):
             if kwargs['instance']:
-                self.instance = kwargs['instance']
-                self.initial['phone'] = self.instance.phone
+                instance = kwargs['instance']
+                self.initial['phone'] = instance.phone
 
     def clean_phone(self):
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])

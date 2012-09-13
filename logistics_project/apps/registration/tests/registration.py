@@ -58,3 +58,19 @@ class TestRegister(TestScript):
         new_contact = Contact(name=NEWNAME)
         form = CommoditiesContactForm({'name':NEWNAME, 'phone':PHONE}, instance=new_contact)
         self.assertFalse(form.is_valid())
+    
+    def testFormWithNoPhoneNumber(self):
+        NAME = "newuser"
+        PHONE = "+233123"
+        contact = Contact(name=NAME)
+        form = CommoditiesContactForm({'name':NAME}, instance=contact)
+        self.assertFalse(form.is_valid())
+        form = CommoditiesContactForm({'name':NAME, 'phone':PHONE}, instance=contact)
+        self.assertTrue(form.is_valid())
+
+    def testEmptyInstance(self):
+        NAME = "newuser"
+        PHONE = "+233123"
+        contact = Contact(name=NAME)
+        form = CommoditiesContactForm({'name':NAME}, instance=None)
+        self.assertFalse(form.is_valid())
