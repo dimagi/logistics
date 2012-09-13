@@ -21,7 +21,10 @@ from .tables import ContactTable
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html", 
                  contact_form=CommoditiesContactForm):
-    contact = connection = bulk_form = search = None
+    contact = None
+    connection = None
+    bulk_form = None
+    search = None
     registration_view = 'registration'
     registration_edit = 'registration_edit'
     if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
