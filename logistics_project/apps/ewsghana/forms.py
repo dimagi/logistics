@@ -30,9 +30,10 @@ def _get_program_admin_group():
     return Group.objects.get(name=FACILITY_MANAGER_GROUP_NAME)
 
 class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
+    designation = forms.CharField(required=True)
+    organization = forms.CharField(required=True)
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
-    organization = forms.CharField(required=False)
     phone = forms.CharField(required=False)
     
     def __init__(self, *args, **kwargs):

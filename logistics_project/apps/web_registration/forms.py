@@ -21,9 +21,9 @@ class RegisterUserForm(RegistrationForm):
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     password1 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
-                                label=_(u'password'), required=False)
+                                label=_(u'password'), required=True)
     password2 = forms.CharField(widget=forms.PasswordInput(attrs=None, render_value=False),
-                                label=_(u'password (again)'), required=False)
+                                label=_(u'password (again)'), required=True)
 
     def _add_to_kwargs_initial(self, kwargs, key, value):
         initial = {}

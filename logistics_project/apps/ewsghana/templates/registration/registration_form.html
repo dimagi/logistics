@@ -16,9 +16,22 @@
 <h1>Create a Web Account</h1>
 
 <form method="post" action="">
+
 <table>
-{{ form.as_table }}
+    {% for field in form %}
+       {{ field.errors }}
+        <tr>
+            <th><span {% if field.field.required %}class="required"{% endif %}>
+                    {{ field.label_tag }}
+                </span>
+            </th>
+            <td>{{ field }}</td>
+        </tr>
+    {% endfor %}
 </table>
+*These fields are required<br/>
+
+
 {% csrf_token %}
 <input type="submit" value="Create My Account" />
 <input type="hidden" name="next" value="{{ next }}" />

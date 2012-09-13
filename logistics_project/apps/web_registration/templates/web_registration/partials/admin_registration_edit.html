@@ -40,7 +40,7 @@
 	  </div><br/>
   
   {% else %}
-	  <div class="span-5 clear">
+	  <div class="span-5 {% if field.field.required %}required{% endif %}">
 		  {{ field.label_tag }}
 	  </div>
 
