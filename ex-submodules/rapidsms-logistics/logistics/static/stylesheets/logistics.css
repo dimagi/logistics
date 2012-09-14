@@ -102,7 +102,7 @@ textarea, select {
 }
 
 /* wow, css never ceases to amaze me... */
-.required:after {
+.required_label:after {
 	color: red;  
 	content: "*"; 
 }
