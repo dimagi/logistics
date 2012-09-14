@@ -19,4 +19,4 @@ class GhanaFacility(SupplyPoint):
         district = self.location
         while district.type and district.tree_parent and district.type.slug != config.LocationCodes.DISTRICT:
             district = district.tree_parent 
-        return supervisors.filter(supply_point__location__in=district.get_descendants(include_self=True))    
+        return supervisors.filter(supply_point__location__in=district.get_descendants(include_self=True), supply_point__active=True)

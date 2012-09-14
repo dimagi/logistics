@@ -53,7 +53,10 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
     
     def clean_phone(self):
         self.cleaned_data['phone'] = intl_clean_phone_number(self.cleaned_data['phone'])
-        check_for_dupes(self.cleaned_data['phone'], self.edit_user.get_profile().contact)
+        if self.edit_user and self.edit_user.get_profile():
+            check_for_dupes(self.cleaned_data['phone'], self.edit_user.get_profile().contact)
+        else: 
+            check_for_dupes(self.cleaned_data['phone'])
         return self.cleaned_data['phone']
 
     def save(self, *args, **kwargs):
