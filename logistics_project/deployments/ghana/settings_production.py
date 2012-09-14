@@ -160,7 +160,6 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics.alerts.non_reporting_facilities',
     'logistics.alerts.facilities_without_reporters',
     'logistics_project.apps.ewsghana.alerts.facilities_without_incharge',
-    'logistics_project.apps.ewsghana.alerts.consumption_not_set',
     'logistics.alerts.facilities_without_reminders',
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
