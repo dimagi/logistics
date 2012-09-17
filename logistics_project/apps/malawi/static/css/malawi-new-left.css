@@ -86,6 +86,10 @@
     width: 160px;
 }
 
+.sidebar table th {
+    font-weight: bold;	
+}
+
 table.malawi-report {
     width: 100%;
 }
