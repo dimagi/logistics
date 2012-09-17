@@ -14,14 +14,14 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "district_table",
             "is_datatable": True,
             "is_downloadable": True,
-            "header": ["District", "Code", "Facilities", "HSA supervisors", "HSAs", "Contacts"],
+            "header": ["District", "Code", "Facilities", "HSA supervisors", "# HSAs", "Contacts"],
             "data": [],
         }
         facility_table = {
             "id": "facility_table",
             "is_datatable": True,
             "is_downloadable": True,
-            "header": ["Facility", "Code", "GPS coordinate", "In Charge", "HSA supervisors", "Supervisor Contacts", "HSAs"],
+            "header": ["Facility", "Code", "GPS coordinate", "In Charge", "HSA supervisors", "Supervisor Contacts", "# HSAs"],
             "data": [],
         }
         hsa_table = {
