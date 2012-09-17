@@ -36,13 +36,14 @@ class View(warehouse_view.DistrictOnlyView):
                         "Stock Status"]
         products = Product.objects.all()
         
-        _fmt = lambda val: fmt_or_none(val, percent=False)
+        _f0 = lambda val: "%.0f" % val if val else "no data"
+        _f1 = lambda val: "%.1f" % val if val else "no data"
         def _status_row(sp, p):
             consumption = CurrentConsumption.objects.get(supply_point=sp,
                                                          product=p)
-            return [p.name, _fmt(consumption.current_monthly_consumption), 
+            return [p.name, _f0(consumption.current_monthly_consumption), 
                     consumption.stock_on_hand, 
-                    _fmt(consumption.months_of_stock), 
+                    _f1(consumption.months_of_stock), 
                     consumption.stock_status]
             
         status_data = [_status_row(sp, p) for p in products]
