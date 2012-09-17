@@ -58,6 +58,9 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
         # TODO - can customize this if necessary
         return "% of HSAs"
         
+    @property
+    def legend_cols(self):
+        return 5
 
     _flot_data = None
     @property
@@ -110,7 +113,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                          
                         },
                         {"data" : without_data,
-                         "label": "No Stock Data",
+                         "label": "Missing Data",
                          "bars": { "show" : "true"},
                          "color": Colors.LIGHT_GREY,
                         }]
@@ -134,7 +137,9 @@ datespan_default = datespan_in_request(
 )
 
 def get_reporting_rates_chart(location, start, end):
-
+    """
+    Reporting rates chart for a single facility, over a time period.
+    """
     uniq_id = "%d" % (random()*10000)
     report_chart = {
         "legenddiv": "summary-legend-div-" + uniq_id,
@@ -166,6 +171,44 @@ def get_reporting_rates_chart(location, start, end):
                      'yaxis': 2})
     
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
+    report_chart['data'] = json.dumps(ret_data)
+    report_chart['number'] = 3
+    return report_chart
+
+def get_multiple_reporting_rates_chart(supply_points, date):
+    """
+    Reporting rates chart for multiple facilities, for a single 
+    month.
+    """
+    # NOTE: a lot copy/pasted from get_reporting_rates_chart
+    # should cleanup
+    uniq_id = "%d" % (random()*10000)
+    report_chart = {
+        "legenddiv": "summary-legend-div-" + uniq_id,
+        "div": "summary-chart-div-" + uniq_id,
+        "max_value": 100,
+        "width": "100%",
+        "height": "200px",
+        "xaxistitle": "month",
+    }
+    data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
+    for sp in supply_points:
+        rr = ReportingRate.objects.get(supply_point=sp, date=date)
+        data["on time"][sp] = pct(rr.on_time, rr.total)
+        data["late"][sp] = pct(rr.reported - rr.on_time, rr.total)
+        data["missing"][sp] = pct(rr.total - rr.reported, rr.total)
+        data["complete"][sp] = pct(rr.complete, rr.total)
+    
+    ret_data = [{'data': [[i + 1, data[k][sp]] for i, sp in enumerate(supply_points)],
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
+                 'stack': 0} \
+                 for k in ["on time", "late", "missing"]]
+    
+    ret_data.append({'data': [[i + 1, data["complete"][sp]] for i, sp in enumerate(supply_points)],
+                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+                     'yaxis': 2})
+    
+    report_chart['xlabels'] = json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)])
     report_chart['data'] = json.dumps(ret_data)
     report_chart['number'] = 3
     return report_chart
@@ -212,6 +255,11 @@ def get_consumption_chart(supply_point, product, start, end):
 def current_report_period():
     now = datetime.utcnow()
     return datetime(now.year, now.month, 1)
+
+def previous_report_period():
+    now = datetime.utcnow()
+    year, month = add_months(now.year, now.month, -1)
+    return datetime(year, month, 1)
 
 def get_window_date(request):
     # the window date is assumed to be the end date
