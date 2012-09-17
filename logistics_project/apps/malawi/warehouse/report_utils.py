@@ -115,7 +115,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                         {"data" : without_data,
                          "label": "Missing Data",
                          "bars": { "show" : "true"},
-                         "color": Colors.LIGHT_GREY,
+                         "color": "#bbb",
                         }]
             self._flot_data = {"data": json.dumps(bar_data),
                                "ticks": json.dumps(products)}
