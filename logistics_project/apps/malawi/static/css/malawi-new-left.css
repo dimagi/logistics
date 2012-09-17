@@ -94,6 +94,10 @@ table.malawi-report {
     width: 100%;
 }
 
+table.malawi-report tr td {
+    text-align: right;
+}
+
 fieldset {
     border: none;
 }
