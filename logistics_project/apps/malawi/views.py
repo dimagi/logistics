@@ -145,7 +145,7 @@ def permissions(request):
     }
     for u in users:
         prof = u.get_profile()
-        table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': u.id}), 
+        table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': prof.id}), 
             "data": [u.username, prof.supply_point,
                 prof.organization.name if prof.organization else "",
                 " ".join([g.name for g in u.groups.all()])]})
