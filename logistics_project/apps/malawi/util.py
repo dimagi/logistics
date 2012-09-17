@@ -22,7 +22,7 @@ def pct(num, denom):
     return float(num) / (float(denom) or 1) * 100
 
 def fmt_pct(num, denom):
-    return "%.2f%%" % pct(num, denom)
+    return "%.0f%%" % pct(num, denom)
 
 def fmt_or_none(val, default_none="no data", percent=True):
     base = "%.2f%%" if percent else "%.2f" 
