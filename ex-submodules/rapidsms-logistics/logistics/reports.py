@@ -446,6 +446,13 @@ class ProductAvailabilitySummary(object):
         # TODO - can customize this if necessary
         return "product_availability_summary_legend"
         
+    @property
+    def legend_cols(self):
+        """
+        Number of columns to use in the legend. Defaults to 3 if not overridden.
+        """
+        return 3
+        
     _flot_data = None
     @property
     def flot_data(self):

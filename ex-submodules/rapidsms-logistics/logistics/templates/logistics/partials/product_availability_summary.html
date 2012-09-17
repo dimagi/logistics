@@ -12,7 +12,7 @@
            xaxis: { 
                    ticks: {{ summary.flot_data.ticks|safe }}
                   }, 
-           legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: 3},
+           legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: {{ summary.legend_cols|default:3 }} },
            yaxis: {max: {{ summary.max_value }},
                    tickDecimals: 0 },
            grid: {show: true,
