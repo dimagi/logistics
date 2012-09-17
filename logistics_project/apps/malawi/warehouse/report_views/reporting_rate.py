@@ -18,7 +18,7 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
-        shared_headers = ["% Reporting", "% Rep on time", "% Late Rep", "% No Rep", "% Complete"]
+        shared_headers = ["% Reporting", "% Ontime Rep", "% Late Rep", "% Non-Reporting", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         
         # reporting rates by month table
