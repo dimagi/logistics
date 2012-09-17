@@ -144,6 +144,7 @@ class View(warehouse_view.DistrictOnlyView):
             "legenddiv": "product-stockouts-chart-legend",
             "legendcols": 10,
             "max_value": 100,
+            "yaxistitle": "% SO",
             "height": "350px",
             "width": "100%", # "300px",
             "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
