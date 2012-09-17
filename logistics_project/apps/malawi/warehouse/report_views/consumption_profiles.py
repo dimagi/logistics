@@ -27,9 +27,9 @@ class View(warehouse_view.DistrictOnlyView):
         table_headers = ["Product", "Total Actual Consumption for selected period",
                          "# stockout days for all HSAs", 
                          "Total consumption adjusted for stockouts", 
-                         "Data Coverage", 
-                         "Total Consumption (adjusted  for stockouts and data coverage)", 
-                         "AMC  (for district for all HSAs)"]
+                         "Data coverage (% of period)", 
+                         "Total consumption (adjusted  for stockouts and data coverage)", 
+                         "AMC for all HSAs"]
         
         def _consumption_row(sp, p):
             
