@@ -136,19 +136,24 @@ datespan_default = datespan_in_request(
     format_string='%B %Y'
 )
 
-def get_reporting_rates_chart(location, start, end):
-    """
-    Reporting rates chart for a single facility, over a time period.
-    """
+def _reporting_rate_chart_defaults():
     uniq_id = "%d" % (random()*10000)
-    report_chart = {
+    return {
         "legenddiv": "summary-legend-div-" + uniq_id,
         "div": "summary-chart-div-" + uniq_id,
         "max_value": 100,
         "width": "100%",
         "height": "200px",
         "xaxistitle": "month",
+        "legendcols": 4,
+        "yaxistitle": "% reported"
     }
+    
+def get_reporting_rates_chart(location, start, end):
+    """
+    Reporting rates chart for a single facility, over a time period.
+    """
+    report_chart = _reporting_rate_chart_defaults()
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
     dates = []
     sp = SupplyPoint.objects.get(location=location) if location else get_country_sp()
@@ -172,7 +177,6 @@ def get_reporting_rates_chart(location, start, end):
     
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
     report_chart['data'] = json.dumps(ret_data)
-    report_chart['legendcols'] = 4
     return report_chart
 
 def get_multiple_reporting_rates_chart(supply_points, date):
@@ -180,17 +184,7 @@ def get_multiple_reporting_rates_chart(supply_points, date):
     Reporting rates chart for multiple facilities, for a single 
     month.
     """
-    # NOTE: a lot copy/pasted from get_reporting_rates_chart
-    # should cleanup
-    uniq_id = "%d" % (random()*10000)
-    report_chart = {
-        "legenddiv": "summary-legend-div-" + uniq_id,
-        "div": "summary-chart-div-" + uniq_id,
-        "max_value": 100,
-        "width": "100%",
-        "height": "200px",
-        "xaxistitle": "month",
-    }
+    report_chart = _reporting_rate_chart_defaults()
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
     for sp in supply_points:
         rr = ReportingRate.objects.get(supply_point=sp, date=date)
@@ -210,7 +204,6 @@ def get_multiple_reporting_rates_chart(supply_points, date):
     
     report_chart['xlabels'] = json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)])
     report_chart['data'] = json.dumps(ret_data)
-    report_chart['legendcols'] = 4
     return report_chart
 
 
