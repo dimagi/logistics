@@ -37,23 +37,12 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
-RAPIDSMS_TABS = [
-    ("logistics_project.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
-    ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
-    ("logistics_project.apps.malawi.views.help",       "Help"),
-   ("logistics_project.apps.malawi.views.contacts",       "Management", "auth.admin_read"),
-    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "auth.admin_read"),
-#    ("registration",                          "Registration", "is_superuser"),
-#    ("groupmessaging.views.group_message", "Group Message", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "auth.admin_read"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
-]
 
 RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard", None, "/malawi/r/dashboard/"),
     ("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs", None, "/malawi/r/hsas/"),
     ("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles", None, "/malawi/r/user-profiles/"),    
+    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "auth.admin_read"),
     ("rapidsms.contrib.messagelog.views.message_log", "Message Log", "auth.admin_read"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.contacts", "Management", "is_superuser", "/malawi/management/"),
@@ -215,11 +204,12 @@ DATABASE_ENGINE = "mysql"
 
 
 SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics_project.deployments.malawi.migrations.rapidsms',
+    'rapidsms': 'logistics.migrations',
     # NOTE: can't fix this without breaking tests and/or doing a major 
     # migration dependency cleanup
-    'logistics': 'ignore', 
-    # 'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
+    #'logistics': 'ignore', 
+    #'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
+    'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
     # 'malawi': 'ignore'
 }
 
