@@ -9,7 +9,7 @@ $(document).ready(function() {
        xaxis: { 
                ticks: {{ graphdata.xlabels|safe }}
               }, 
-       legend: {show: true, container: $("#{{ graphdata.legenddiv }}"), noColumns: {{ graphdata.number }}},
+       legend: {show: true, container: $("#{{ graphdata.legenddiv }}"), noColumns: {{ graphdata.legendcols|default:3 }}},
        yaxis: { min: 0,
                 max: {{ graphdata.max_value }},
                 tickDecimals: 0 },

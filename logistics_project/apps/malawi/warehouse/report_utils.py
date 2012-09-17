@@ -172,7 +172,7 @@ def get_reporting_rates_chart(location, start, end):
     
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
     report_chart['data'] = json.dumps(ret_data)
-    report_chart['number'] = 3
+    report_chart['legendcols'] = 4
     return report_chart
 
 def get_multiple_reporting_rates_chart(supply_points, date):
@@ -210,7 +210,7 @@ def get_multiple_reporting_rates_chart(supply_points, date):
     
     report_chart['xlabels'] = json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)])
     report_chart['data'] = json.dumps(ret_data)
-    report_chart['number'] = 3
+    report_chart['legendcols'] = 4
     return report_chart
 
 
