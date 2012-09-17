@@ -122,9 +122,10 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
 def malawi_default_date_func():
     # we default to showing the last three months
     now = datetime.utcnow()
-    startyear, startmonth = add_months(now.year, now.month, -2)
+    startyear, startmonth = add_months(now.year, now.month, -3)
+    endyear, endmonth = add_months(now.year, now.month, -1)
     return DateSpan(datetime(startyear, startmonth, 1),
-                    datetime(now.year, now.month, 1),
+                    datetime(endyear, endmonth, 1),
                     format='%B %Y')
 
 datespan_default = datespan_in_request(
