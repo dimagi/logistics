@@ -93,6 +93,10 @@ class ReportingRate(MalawiWarehouseModel):
     def missing(self): 
         return self.total - self.reported
     
+    @property 
+    def incomplete(self):
+        return self.reported - self.complete
+    
     # report helpers
     @property
     def pct_reported(self): return fmt_pct(self.reported, self.total)

@@ -1,0 +1,43 @@
+{% extends "malawi/new/base.html" %}
+{% load malawi_warehouse_tags %}
+{% load logistics_report_tags %}
+
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+
+{% if facility %}
+<div class="module">
+    <h2>Current stock status by product</h2>
+    {% warehouse_product_availability_summary location current_date default_chart_width %} 
+</div>
+<div class="module">
+    <h2>Reporting rates</h2>
+        {% with rr_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <h2>Average lead times</h2>
+        {% with lt_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <div style="clear:both;">
+         {% if em %}
+         {% order_fill_stats location.get_children "hsa" month_pager.datespan %}
+         {% else %}
+         {% order_fill_stats location.get_children "hsa" request.datespan %}
+         {% endif %}
+     </div>
+</div>
+
+{% else %}
+<div class="module">
+    <p>Select a facility to see report data.</p>
+</div>
+
+{% endif %}
+
+{% endblock %}

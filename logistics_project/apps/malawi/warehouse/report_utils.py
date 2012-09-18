@@ -11,8 +11,10 @@ from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ReportingRate, CalculatedConsumption, HistoricalStock
+    ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker
 from logistics_project.apps.malawi.util import get_country_sp, pct
+from static.malawi.config import TimeTrackerTypes
+from django.db.models.aggregates import Sum
 
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
@@ -316,4 +318,32 @@ def get_hsa_url(hsa, place=None):
     if place:
         return '/malawi/r/hsas/?place=%s&hsa_code=%s' % (place, hsa.code)         
     return '/malawi/r/hsas/?hsa_code=%s' % hsa.code 
+
+def get_lead_time_table_data(supply_points, startdate, enddate):
+    f_data = []
+    
+    def _to_days(secs, count):
+        if count:
+            return float(secs) / float(count * 60 * 60 * 24)
+        return None
+    
+    def _table_fmt(val):
+        if val is not None:
+            return "%.1f" % val
+        return "No data"
+    
+    for f in supply_points:
+        matching = TimeTracker.objects.filter(supply_point=f,
+                                              date__gte=startdate,
+                                              date__lte=enddate)
+        or_tots = matching.filter(type=TimeTrackerTypes.ORD_READY).aggregate\
+            (Sum('total'), Sum('time_in_seconds'))
+        avg_or_lt = _to_days(or_tots["time_in_seconds__sum"], or_tots["total__sum"])
+        rr_tots = matching.filter(type=TimeTrackerTypes.READY_REC).aggregate\
+            (Sum('total'), Sum('time_in_seconds'))
+        avg_rr_lt = _to_days(rr_tots["time_in_seconds__sum"], rr_tots["total__sum"])
+        avg_tot_lt = avg_or_lt + avg_rr_lt if avg_or_lt is not None and avg_rr_lt is not None else None
+        f_data.append([f.name, len(months_between(startdate, enddate))] + [_table_fmt(val) for val in \
+                                  (avg_or_lt, avg_rr_lt, avg_tot_lt)])
+    return f_data
 

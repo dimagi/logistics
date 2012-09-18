@@ -41,6 +41,7 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 RAPIDSMS_TABS = [
     ("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard", None, "/malawi/r/dashboard/"),
     ("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs", None, "/malawi/r/hsas/"),
+    ("logistics_project.apps.malawi.warehouse.views.health_facilities", "Health Facilities", None, "/malawi/r/health-facilities/"),
     ("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles", None, "/malawi/r/user-profiles/"),    
     ("logistics_project.apps.malawi.views.monitoring",       "M & E", "auth.admin_read"),
     ("rapidsms.contrib.messagelog.views.message_log", "Message Log", "auth.admin_read"),

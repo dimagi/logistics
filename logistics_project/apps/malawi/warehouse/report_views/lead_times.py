@@ -16,6 +16,7 @@ from logistics_project.apps.malawi.warehouse.models import TimeTracker,\
     TIME_TRACKER_TYPES
 
 from static.malawi.config import TimeTrackerTypes
+from logistics_project.apps.malawi.warehouse.report_utils import get_lead_time_table_data
 
 
 class View(warehouse_view.DistrictOnlyView):
@@ -70,32 +71,12 @@ class View(warehouse_view.DistrictOnlyView):
             "data": rows
         }
         
-        def _to_days(secs, count):
-            if count:
-                return float(secs) / float(count * 60 * 60 * 24)
-            return None
         
-
-        def _get_lead_time_table_data(supply_points):
-            f_data = []
-            for f in supply_points:
-                matching = TimeTracker.objects.filter(supply_point=f,
-                                                      date__gte=request.datespan.startdate,
-                                                      date__lte=request.datespan.enddate)
-                or_tots = matching.filter(type=TimeTrackerTypes.ORD_READY).aggregate\
-                    (Sum('total'), Sum('time_in_seconds'))
-                avg_or_lt = _to_days(or_tots["time_in_seconds__sum"], or_tots["total__sum"])
-                rr_tots = matching.filter(type=TimeTrackerTypes.READY_REC).aggregate\
-                    (Sum('total'), Sum('time_in_seconds'))
-                avg_rr_lt = _to_days(rr_tots["time_in_seconds__sum"], rr_tots["total__sum"])
-                avg_tot_lt = avg_or_lt + avg_rr_lt if avg_or_lt is not None and avg_rr_lt is not None else None
-                f_data.append([f.name, len(dates)] + [_table_fmt(val) for val in \
-                                          (avg_or_lt, avg_rr_lt, avg_tot_lt)])
-            return f_data
 
         dis_lt_table = fac_lt_table = hsa_lt_table = None
         if sp.type.code == config.SupplyPointCodes.COUNTRY:
-            d_data = _get_lead_time_table_data(SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT).order_by('name'))
+            d_data = get_lead_time_table_data(SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT).order_by('name'),
+                                              request.datespan.startdate, request.datespan.enddate)
 
             dis_lt_table = {
                 "id": "average-lead-times-district",
@@ -106,7 +87,8 @@ class View(warehouse_view.DistrictOnlyView):
             }   
 
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
-            f_data = _get_lead_time_table_data(facility_supply_points_below(sp.location).order_by('name'))
+            f_data = get_lead_time_table_data(facility_supply_points_below(sp.location).order_by('name'),
+                                              request.datespan.startdate, request.datespan.enddate)
 
             fac_lt_table = {
                 "id": "average-lead-times-facility",
@@ -117,7 +99,8 @@ class View(warehouse_view.DistrictOnlyView):
             }   
 
         if sp.type.code == config.SupplyPointCodes.FACILITY:
-            h_data = _get_lead_time_table_data(hsa_supply_points_below(sp.location).order_by('name'))
+            h_data = get_lead_time_table_data(hsa_supply_points_below(sp.location).order_by('name'),
+                                              request.datespan.startdate, request.datespan.enddate)
 
             hsa_lt_table = {
                 "id": "average-lead-times-hsa",
