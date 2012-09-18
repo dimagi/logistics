@@ -5,7 +5,8 @@ from django.core.management.base import LabelCommand, CommandError
 from django.db.models.aggregates import Max
 import os
 import tempfile
-from logistics_project.apps.tanzania.loader import load_locations
+from logistics_project.apps.tanzania.loader import load_locations,\
+    load_locations_from_path
 
 
 class Command(LabelCommand):
@@ -44,6 +45,6 @@ class Command(LabelCommand):
                 parent_district = "Test District %s" % random.randint(DISTRICT_START_ID, FACILITY_START_ID-1)
                 w.writerow([fac_id, "Test Facility %s" % fac_id, 't', "D9%04d" % fac_id, parent_district,'DISTRICT','','',random.choice('ABC'),'FACILITY'])
         
-        load_locations(path)
+        load_locations_from_path(path)
         print "wrote %s new regions, %s new districts, %s new facilities" % \
             (num_regs, num_dists, num_facs)

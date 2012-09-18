@@ -25,7 +25,8 @@ from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
-from logistics_project.apps.tanzania.forms import AdHocReportForm
+from logistics_project.apps.tanzania.forms import AdHocReportForm,\
+    UploadFacilityFileForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
@@ -36,6 +37,9 @@ from django.views.decorators.cache import cache_page
 from warehouse.models import ReportRun
 from warehouse.runner import update_warehouse
 from warehouse.tasks import update_warehouse_async
+from django_tablib.base import mimetype_map
+from logistics_project.apps.tanzania.loader import get_facility_export,\
+    load_locations
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -677,13 +681,41 @@ def training(request):
             item['link'] = doc
             item['name'] =  ' '.join(doc.split('.')[0].split('_'))
             files.append(item)
-
+            
+        form = UploadFacilityFileForm()
         return render_to_response("tanzania/training.html", {
             'is_running': is_running,
             'latest_run_time': latest_run_time,
             'latest_incomplete_time': latest_incomplete_time,
             'files': files,
+            'form': form
             }, context_instance=RequestContext(request))
     
     update_warehouse_async.delay()
     return HttpResponseRedirect(reverse("training"))
+
+def download_facilities(request):
+    response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
+    response['Content-Disposition'] = 'attachment; filename=tanzania-facilities.xls'
+    get_facility_export(response)
+    return response
+
+@require_POST
+def upload_facilities(request):
+    form = UploadFacilityFileForm(request.POST, request.FILES)
+    if form.is_valid():
+        f = request.FILES['file']
+        try: 
+            msgs = load_locations(f)
+            for m in msgs:
+                messages.info(request, m)
+        except Exception, e:
+            messages.error("Something went wrong with that upload. " 
+                           "Please double check the file format or "
+                           "try downloading a new copy. Your error message"
+                           "is %s" % e)
+    else:
+        messages.error(request, "Please select a file")    
+    return HttpResponseRedirect(reverse("training"))
+    
+    

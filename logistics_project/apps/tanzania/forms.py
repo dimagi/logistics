@@ -21,3 +21,7 @@ class AdHocReportForm(forms.ModelForm):
     class Meta:
         model = AdHocReport
         
+        
+class UploadFacilityFileForm(forms.Form):
+    file  = forms.FileField()
+    

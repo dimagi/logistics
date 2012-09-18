@@ -45,61 +45,97 @@ def _get_code(type, name):
         return string 
     return "%s-%s" % (clean(type), clean(name))
 
-def load_locations(path):
+def get_facility_export(file_handle):
+    """
+    Gets an export of all the facilities in the system as a csv.
+    """
+    writer = csv.writer(file_handle)
+    writer.writerow(['Name', 'Active?', 'MSD Code', 'Parent Name', 
+                     'Parent Type', 'Latitude', 'Longitude', 
+                     'Group', 'Type'])
+    _par_attr = lambda sp, attr: getattr(sp.supplied_by, attr) if sp.supplied_by else ""
+    for sp in SupplyPoint.objects.select_related().order_by("code"):
+        writer.writerow([sp.name, 
+                         sp.active, 
+                         sp.code, 
+                         sp.supplied_by.name if sp.supplied_by else '', 
+                         sp.supplied_by.type.name if sp.supplied_by else '',
+                         sp.latitude or "",
+                         sp.longitude or "", 
+                         sp.groups.all()[0].code if sp.groups.count() else '', 
+                         sp.type.name])
+    
+def load_locations(file):
+    count = 0
+    messages = []
+    reader = csv.reader(file, delimiter=',', quotechar='"')
+    for row in reader:
+        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
+        
+        # strips off headers, if present
+        if count == 0 and "msd code" == msd_code.lower():
+            continue
+        
+        # for now assumes these are already create
+        try: 
+            loc_type = LocationType.objects.get(name__iexact=type)
+        except LocationType.DoesNotExist:
+            messages.append("Couldn't find type %s (row was ignored)" % (type))
+            continue
+            
+        try:
+            parent = Location.objects.get(name__iexact=parent_name,
+                                          type__name__iexact=parent_type) \
+                            if parent_name and parent_type else None
+
+        except:
+            messages.append("Couldn't find parent %s %s (row was ignored)" % (parent_name, parent_type))
+            continue
+
+        if lat and lon:
+            if Point.objects.filter(longitude=lon, latitude=lat).exists():
+                point = Point.objects.filter(longitude=lon, latitude=lat)[0]
+            else:
+                point = Point.objects.create(longitude=lon, latitude=lat)
+        else:
+            point = None
+        
+        code = msd_code if msd_code else _get_code(type, name)
+        try:
+            l = Location.objects.get(code=code)
+        except Location.DoesNotExist:
+            l = Location(code=code)
+        l.name = name
+        l.type = loc_type
+        l.is_active = string_to_boolean(is_active)
+        if parent: l.parent = parent
+        if point:  l.point = point
+        l.save()
+        
+        sp = supply_point_from_location\
+                (l, SupplyPointType.objects.get(name__iexact=type),
+                 SupplyPoint.objects.get(location=parent) if parent else None)
+        
+        if group:
+            group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
+            sp.groups.add(group_obj)
+            sp.save()
+        
+        count += 1
+    messages.append("Processed %d locations"  % count)
+    populate_org_tree()
+    return messages
+
+        
+def load_locations_from_path(path):
     info("Loading locations %s"  % (path))
     if not os.path.exists(path):
         raise Exception("no file found at %s" % path)
 
-    count = 0
     with open(path, 'r') as f:
-        reader = csv.reader(f, delimiter=',', quotechar='"')
-        for row in reader:
-            id, name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
-            # for now assumes these are already create
-            loc_type = LocationType.objects.get(name__iexact=type)
-            
-            try:
-                parent = Location.objects.get(name__iexact=parent_name,
-                                              type__name__iexact=parent_type) \
-                                if parent_name and parent_type else None
-
-            except:
-                print "Couldn't find parent %s %s (continuing)" % (parent_name, parent_type)
-                continue
-
-            if lat and lon:
-                if Point.objects.filter(longitude=lon, latitude=lat).exists():
-                    point = Point.objects.filter(longitude=lon, latitude=lat)[0]
-                else:
-                    point = Point.objects.create(longitude=lon, latitude=lat)
-            else:
-                point = None
-            
-            code = msd_code if msd_code else _get_code(type, name)
-            try:
-                l = Location.objects.get(code=code)
-            except Location.DoesNotExist:
-                l = Location(code=code)
-            l.name = name
-            l.type = loc_type
-            l.is_active = string_to_boolean(is_active)
-            if parent: l.parent = parent
-            if point:  l.point = point
-            l.save()
-            
-            sp = supply_point_from_location\
-                    (l, SupplyPointType.objects.get(name__iexact=type),
-                     SupplyPoint.objects.get(location=parent) if parent else None)
-            
-            if group:
-                group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
-                sp.groups.add(group_obj)
-                sp.save()
-            
-            count += 1
-    print "Processed %d locations"  % count
-    populate_org_tree()
-
+        for msg in load_locations(f):
+            print msg
+        
 def populate_org_tree():
     clear_org_tree()
     for s in SupplyPoint.objects.all().order_by('id'):
