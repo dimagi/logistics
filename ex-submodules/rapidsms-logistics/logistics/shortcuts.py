@@ -22,7 +22,7 @@ def supply_point_from_location(loc, type, parent=None):
     except SupplyPoint.DoesNotExist:
         sp = SupplyPoint(location=loc)
     sp.name = loc.name
-    sp.active = True
+    # sp.active = True
     sp.type = type
     sp.code = loc.code
     sp.supplied_by = parent
