@@ -696,7 +696,7 @@ def training(request):
 
 def download_facilities(request):
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
-    response['Content-Disposition'] = 'attachment; filename=tanzania-facilities.xls'
+    response['Content-Disposition'] = 'attachment; filename=tanzania-facilities.csv'
     get_facility_export(response)
     return response
 
