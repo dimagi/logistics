@@ -29,13 +29,13 @@
 </div>
 
 <div class="module">
-    <h2>Reporting Rates</h2>
+    <h2>Reporting rates</h2>
     {% include "malawi/new/partials/reporting-rate-chart.html" %}
 </div>
 
 <div class="module">
-    <h2>Current Stock Status by product</h2>
-    {% product_availability_summary location request.datespan.enddate default_chart_width %} 
+    <h2>Current stock status by product</h2>
+    {% warehouse_product_availability_summary location request.datespan.enddate default_chart_width %} 
 </div>
 
 {% endblock %}
