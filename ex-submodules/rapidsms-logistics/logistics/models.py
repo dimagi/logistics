@@ -164,6 +164,14 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         return self.name
     
     @property
+    def latitude(self):
+        return self.location.point.latitude if self.location and self.location.point else None
+    
+    @property
+    def longitude(self):
+        return self.location.point.longitude if self.location and self.location.point else None
+    
+    @property
     def active_contact_set(self):
         return self.contact_set.filter(is_active=True)
     
