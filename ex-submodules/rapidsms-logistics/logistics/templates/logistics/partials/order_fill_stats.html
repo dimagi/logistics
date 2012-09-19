@@ -3,8 +3,13 @@
 <table width="100%">
     <thead>
         <tr>
-	        <th>Product</th>
-	        <th>Total Requests Filled</th>
+	        <th rowspan="2">Product</th>
+	        <th rowspan="2">Total requests received</th>
+	        <th rowspan="2">Total requests filled</th>
+            <th colspan="4">Filled order response</th>
+	        <th rowspan="2"># of emergency orders</th>
+	    </tr>
+	    <tr>
 	        <th>Stocked Out</th>
 	        <th>Partially Filled</th>
 	        <th>Completely Filled</th>
@@ -16,10 +21,12 @@
         <tr>
             <td>{{ rowdata.product.name }}</td>
             <td>{{ rowdata.total }}</td>
+            <td>{{ rowdata.filled }}</td>
             <td>{{ rowdata.stocked_out }}</td>
             <td>{{ rowdata.under_supplied }}</td>
             <td>{{ rowdata.well_supplied }}</td>
             <td>{{ rowdata.over_supplied }}</td>
+            <td>{{ rowdata.emergency|default:0 }}</td>
         </tr>
         {% empty %}
         <tr>

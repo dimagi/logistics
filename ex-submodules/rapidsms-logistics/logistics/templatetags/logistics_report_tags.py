@@ -150,11 +150,13 @@ def order_fill_stats(locations, type=None, datespan=None):
         if base_points.count() > 0:
             base_reqs = StockRequest.objects.filter(supply_point__in=base_points,
                                                     requested_on__gte=datespan.startdate, 
-                                                    requested_on__lte=datespan.enddate, 
-                                                    status=StockRequestStatus.RECEIVED)
+                                                    requested_on__lte=datespan.enddate)
+            rec_reqs = base_reqs.filter(status=StockRequestStatus.RECEIVED)
             totals = base_reqs.values('product').annotate(total=Count('pk'))
-            stocked_out = base_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
-            not_stocked_out = base_reqs.filter(amount_received__gt=0).exclude(response_status=StockRequestStatus.STOCKED_OUT)
+            rec_totals = rec_reqs.values('product').annotate(total=Count('pk'))
+            eo_totals = base_reqs.filter(is_emergency=True).values('product').annotate(total=Count('pk'))
+            stocked_out = rec_reqs.filter(amount_received=0).values('product').annotate(total=Count('pk'))
+            not_stocked_out = rec_reqs.filter(amount_received__gt=0).exclude(response_status=StockRequestStatus.STOCKED_OUT)
             under_supplied = not_stocked_out.filter(amount_requested__gt=F('amount_received')).values('product').annotate(total=Count('pk'))
             well_supplied = not_stocked_out.filter(amount_requested=F('amount_received')).values('product').annotate(total=Count('pk'))
             over_supplied = not_stocked_out.filter(amount_requested__lt=F('amount_received')).values('product').annotate(total=Count('pk'))
@@ -167,6 +169,9 @@ def order_fill_stats(locations, type=None, datespan=None):
             def _update_main_data(main, to_update, tag):
                 for row in to_update:
                     main[row["product"]][tag] = row["total"]
+            
+            _update_main_data(main_data, rec_totals, "filled")
+            _update_main_data(main_data, eo_totals, "emergency")
             _update_main_data(main_data, stocked_out, "stocked_out")
             _update_main_data(main_data, under_supplied, "under_supplied")
             _update_main_data(main_data, well_supplied, "well_supplied")
