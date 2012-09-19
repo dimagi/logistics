@@ -55,7 +55,8 @@ class View(warehouse_view.DistrictOnlyView):
                         spdata[k] += getattr(rr, k)
                 datamap[sp] = spdata
                         
-            return [[sp.name] + [fmt_pct(data[k], data['total']) for k in shared_slugs] \
+            return [[sp.name] + [fmt_pct(data[k], data['reported'] if k == 'complete' else data['total']) \
+                                 for k in shared_slugs] \
                     for sp, data in datamap.items()]
         
         # district breakdown

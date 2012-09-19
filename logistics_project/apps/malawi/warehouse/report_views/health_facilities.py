@@ -31,17 +31,22 @@ class View(warehouse_view.DistrictOnlyView):
                      "missing": "Non reporting", 
                      "complete": "Complete reporting", 
                      "incomplete": "Incomplete reporting"}
+                     
             count = hsas.count()
+            reported = 0
             for hsa in hsas:
                 rr = ReportingRate.objects.get(supply_point=hsa, 
                                                date=report_date)
                 counted = 0
+                if rr.reported: 
+                    reported += 1
                 for attr in attrs:
                     if getattr(rr, attr):
                         data[attr].append(hsa)
                         counted += 1
                 
-            rr_data = [[attrs[a], fmt_pct(len(data[a]), count), 
+            rr_data = [[attrs[a], fmt_pct(len(data[a]), 
+                                          count if a not in ['complete', 'incomplete'] else reported), 
                         ", ".join([hsa.name for hsa in data[a]])] \
                         for a in ["on_time", "late", "missing", 
                                   "complete", "incomplete"]]
