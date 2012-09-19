@@ -720,7 +720,7 @@ class ProductStock(models.Model):
 
     @property
     def reorder_amount(self):
-        if self.maximum_level and self.quantity:
+        if self.maximum_level is not None and self.quantity is not None:
             return max(self.maximum_level - self.quantity, 0)
         return None
     
@@ -1597,7 +1597,7 @@ class ProductReportsHelper(object):
         reorder = self._stockouts() + self._low_supply()
         pss = ProductStock.objects.filter(supply_point=self.supply_point, 
                                           product__sms_code__in=reorder)
-        return ", ".join('%s %s' % (ps.reorder_level, ps.product.sms_code) for ps in pss if ps.reorder_level is not None)
+        return ", ".join('%s %s' % (ps.reorder_amount, ps.product.sms_code) for ps in pss if ps.reorder_level is not None)
 
     def over_supply(self):
         over_supply = ""
