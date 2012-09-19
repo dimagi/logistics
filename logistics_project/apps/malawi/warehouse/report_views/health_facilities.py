@@ -4,7 +4,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
     hsas_below, hsa_supply_points_below, fmt_pct, group_for_location
 from static.malawi import config
 from logistics_project.apps.malawi.warehouse.report_utils import previous_report_period,\
-    get_lead_time_table_data
+    get_lead_time_table_data, get_stock_status_table_data
 from collections import defaultdict
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     TIME_TRACKER_TYPES, TimeTracker
@@ -53,7 +53,7 @@ class View(warehouse_view.DistrictOnlyView):
             rr_table = {
                 "id": "rr-table",
                 "is_datatable": False,
-                "is_downloadable": True,
+                "is_downloadable": False,
                 "header": ["", "%", "Names of HSAs"],
                 "data": rr_data,
             }
@@ -61,17 +61,27 @@ class View(warehouse_view.DistrictOnlyView):
             # lead times table
             lt_table = {
                 "id": "average-lead-times-hsa",
-                "is_datatable": True,
-                "is_downloadable": True,
+                "is_datatable": False,
+                "is_downloadable": False,
                 "header": ['HSA', 'Period (# Months)', "Order to order ready",
                            "Order ready to order received", "Total lead time"],
                 "data": get_lead_time_table_data(hsas,
-                                              request.datespan.startdate, 
-                                              request.datespan.enddate),
+                                                 request.datespan.startdate, 
+                                                 request.datespan.enddate),
             }   
             
             # stock status table
-            # TODO
+            headings = ["Product", "Average monthly consumption (last 60 days)",
+                            "TOTAL SOH (day of report)", "MOS (current period)",
+                            "Stock status"]
+            ss_data = get_stock_status_table_data(sp)
+            ss_table = {
+                "id": "ss-table",
+                "is_datatable": False,
+                "is_downloadable": False,
+                "header": headings,
+                "data": ss_data,
+            }
             
             # Order fill rates
             # TODO, kinda
@@ -81,6 +91,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "facility": facility,
                 "rr_table": rr_table,
                 "lt_table": lt_table,
+                "ss_table": ss_table,
                 "current_date": previous_report_period(),
                 
             }

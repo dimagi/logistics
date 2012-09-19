@@ -6,7 +6,8 @@ from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
     fmt_or_none
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
+from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
+    get_stock_status_table_data
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, CurrentConsumption
 
@@ -34,19 +35,7 @@ class View(warehouse_view.DistrictOnlyView):
         new_headings = ["Product", "Average Monthly Consumption (last 60 days)",
                         "TOTAL SOH (day of report)", "MOS (current period)",
                         "Stock Status"]
-        products = Product.objects.all()
-        
-        _f0 = lambda val: "%.0f" % val if val else "no data"
-        _f1 = lambda val: "%.1f" % val if val else "no data"
-        def _status_row(sp, p):
-            consumption = CurrentConsumption.objects.get(supply_point=sp,
-                                                         product=p)
-            return [p.name, _f0(consumption.current_monthly_consumption), 
-                    consumption.stock_on_hand, 
-                    _f1(consumption.months_of_stock), 
-                    consumption.stock_status]
-            
-        status_data = [_status_row(sp, p) for p in products]
+        status_data = get_stock_status_table_data(sp)
         status_table = {
             "id": "product-table",
             "is_datatable": False,

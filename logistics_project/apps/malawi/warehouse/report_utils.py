@@ -11,7 +11,8 @@ from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
 
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker
+    ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker,\
+    CurrentConsumption
 from logistics_project.apps.malawi.util import get_country_sp, pct
 from static.malawi.config import TimeTrackerTypes
 from django.db.models.aggregates import Sum
@@ -347,3 +348,18 @@ def get_lead_time_table_data(supply_points, startdate, enddate):
                                   (avg_or_lt, avg_rr_lt, avg_tot_lt)])
     return f_data
 
+
+def get_stock_status_table_data(supply_point):
+    
+    _f0 = lambda val: "%.0f" % val if val else "no data"
+    _f1 = lambda val: "%.1f" % val if val else "no data"
+    def _status_row(sp, p):
+        consumption = CurrentConsumption.objects.get(supply_point=sp,
+                                                     product=p)
+        return [p.name, _f0(consumption.current_monthly_consumption), 
+                consumption.stock_on_hand, 
+                _f1(consumption.months_of_stock), 
+                consumption.stock_status]
+    
+    return [_status_row(supply_point, p) for p in Product.objects.all()]
+        

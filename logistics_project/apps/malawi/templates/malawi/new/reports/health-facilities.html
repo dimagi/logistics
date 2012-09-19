@@ -24,6 +24,12 @@
         {% endwith %}
 </div>
 <div class="module">
+    <h2>Current AMC, MOS and stock status by product</h2>
+        {% with ss_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
     <div style="clear:both;">
          {% if em %}
          {% order_fill_stats location.get_children "hsa" month_pager.datespan %}
