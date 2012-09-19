@@ -1,12 +1,24 @@
-{% extends "malawi/new/base.html" %}
+{% extends warehouse_base_template %}
+{% block stylesheets %}{{ block.super }}
+<style>
+    a.print {
+        float: right;
+        padding: .3em .8em 0 0;
+    }
+    .ui-icon-print {
+        float: right;
+    }
+</style>    
+{% endblock %}
+
 {% load malawi_warehouse_tags %}
 {% load logistics_report_tags %}
 
 {% block report_content %}
 
 {% include "malawi/partials/selector_form.html" %}
-
 {% if facility %}
+<a class="print" href="?{{ request.GET.urlencode }}&print">print</a><span class="ui-icon ui-icon-print"></span>
 <div class="module">
     <h2>Current stock status by product</h2>
     {% warehouse_product_availability_summary location current_date default_chart_width %} 
@@ -45,5 +57,4 @@
 </div>
 
 {% endif %}
-
 {% endblock %}

@@ -86,6 +86,7 @@ class View(warehouse_view.DistrictOnlyView):
             # Order fill rates
             # TODO, kinda
             
+            template = "malawi/new/printable_base.html" if "print" in request.GET else "malawi/new/base.html"
             return {
                 "em": group_for_location(facility.location) == config.Groups.EM,
                 "facility": facility,
@@ -93,7 +94,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "lt_table": lt_table,
                 "ss_table": ss_table,
                 "current_date": previous_report_period(),
-                
+                "warehouse_base_template": template
             }
                         
         return {
