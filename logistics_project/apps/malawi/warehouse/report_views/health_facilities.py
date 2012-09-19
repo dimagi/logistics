@@ -20,6 +20,8 @@ class View(warehouse_view.DistrictOnlyView):
         # TODO:
         report_date = request.datespan.enddate
         facility = None
+        template = "malawi/new/printable_base.html" if "print" in request.GET else "malawi/new/base.html"
+            
         if sp.type.code == config.SupplyPointCodes.FACILITY:
             facility = sp
             hsas = hsa_supply_points_below(sp.location).order_by("name")
@@ -86,7 +88,6 @@ class View(warehouse_view.DistrictOnlyView):
             # Order fill rates
             # TODO, kinda
             
-            template = "malawi/new/printable_base.html" if "print" in request.GET else "malawi/new/base.html"
             return {
                 "em": group_for_location(facility.location) == config.Groups.EM,
                 "facility": facility,
@@ -99,5 +100,6 @@ class View(warehouse_view.DistrictOnlyView):
                         
         return {
             "facility": facility,
-            "current_date": previous_report_period()
+            "current_date": previous_report_period(),
+            "warehouse_base_template": template
         }
