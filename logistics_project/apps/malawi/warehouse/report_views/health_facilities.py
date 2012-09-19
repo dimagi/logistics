@@ -63,9 +63,9 @@ class View(warehouse_view.DistrictOnlyView):
                 "id": "average-lead-times-hsa",
                 "is_datatable": False,
                 "is_downloadable": False,
-                "header": ['HSA', 'Period (# Months)', "Order to order ready",
+                "header": ['Facility', 'Period (# Months)', "Order to order ready",
                            "Order ready to order received", "Total lead time"],
-                "data": get_lead_time_table_data(hsas,
+                "data": get_lead_time_table_data([sp],
                                                  request.datespan.startdate, 
                                                  request.datespan.enddate),
             }   
