@@ -558,6 +558,11 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
         self.data = data
 
 class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
+    """ it looks like this is a slower but more full-featured version of 
+    ProductAvailabilitySummaryByFacility which supports query by date, plus 
+    some incomplete code for using caching looking ahead: could merge these 
+    two functions, or replace this entirely with tanzania warehousing stuff
+    """
 
     def __init__(self, facilities, width=900, height=300, month=None, year=None):
         """
