@@ -246,3 +246,11 @@ a.trigger.open {
 	display: inline-block;
 	float: left;
 }
+
+div.tickLabel {
+    word-wrap: break-word;
+    font-size: 9px;  
+    padding: 0px 1px;
+    box-sizing: border-box;
+
+}
