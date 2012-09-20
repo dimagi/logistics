@@ -9,7 +9,7 @@
 </form>
     
 <div class="module">
-    <h2>Current Stock Status by product</h2>
+    <h2>Current stock status by product</h2>
     {% warehouse_product_availability_summary location request.datespan.enddate default_chart_width %} 
 	{% with product_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
@@ -17,14 +17,14 @@
 </div>
 
 <div class="module">
-    <h2>HSA Current AMC, MOS and Stock Status by Product</h2>
+    <h2>Current AMC, MOS and stock status by product</h2>
     {% with status_table as table %}
     {% include "malawi/new/partials/generic-table.html" %}
     {% endwith %}
 </div>
 {% if national_view_level %}
     <div class="module">
-		<h2>HSA Current Stock Status across Districts</h2>
+		<h2>HSA current stock status across districts</h2>
 		{% with district_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -33,7 +33,7 @@
 
 {% if not national_view_level %}
 	<div class="module">
-		<h2>HSA Current Stock Status across Facilities</h2>
+		<h2>HSA Current stock status across facilities</h2>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -54,7 +54,7 @@
 
 {% if not national_view_level %}
 	<div class="module">
-		<h2>HSA Months of Stock by Product</h2>
+		<h2>HSA months of stock by product</h2>
 		{% with hsa_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
