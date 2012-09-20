@@ -95,11 +95,13 @@ class View(warehouse_view.DistrictOnlyView):
                 "lt_table": lt_table,
                 "ss_table": ss_table,
                 "current_date": previous_report_period(),
-                "warehouse_base_template": template
+                "warehouse_base_template": template,
+                "show_single_date": True
             }
                         
         return {
             "facility": facility,
             "current_date": previous_report_period(),
-            "warehouse_base_template": template
+            "warehouse_base_template": template,
+            "show_single_date": True
         }

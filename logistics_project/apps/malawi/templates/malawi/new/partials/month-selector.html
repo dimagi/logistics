@@ -10,8 +10,6 @@
 
     $(document).ready(function()
     {   
-
-
         $(".monthPicker").datepicker({
             dateFormat: 'MM yy',
             changeMonth: true,
@@ -20,11 +18,11 @@
             defaultDate: "-1m",
             maxDate: "+0d",
             numberOfMonths: 1,
-
             onClose: function(dateText, inst) {
                 var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
                 var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
                 $(this).val($.datepicker.formatDate('MM yy', new Date(year, month, 1)));
+                $(this).trigger("change"); // workaround for jquery-ui bug
             }
         });
 
@@ -37,15 +35,25 @@
                 of: $(this)
             });
         });
-
+{% if show_single_date %}
+        // if showing a single date always keep start tied to end.
+        $('#end').change(function () {
+            $('#start').val($(this).val());
+        });
+{% endif %}
 
     });
 
 </script>
 {% endblock %}
+{% if show_single_date %}
+<input type="hidden" id="start" name="from" value="{{ request.datespan.startdate|date:'F Y' }}" />
+<label for="to">Date: </label>
+<input type="text" id="end" name="to" class="monthPicker" value="{{ request.datespan.enddate|date:'F Y' }}" />
+{% else %}
+<label for="from">Start Date: </label>
+<input type="text" id="start" name="from" class="monthPicker" value="{{ request.datespan.startdate|date:'F Y' }}" />
 
-<label for="month">Start Date: </label>
-<input type="text" id="start" name="from" class="monthPicker" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
-
-<label for="month">End Date: </label>
-<input type="text" id="end" name="to" class="monthPicker" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
+<label for="to">End Date: </label>
+<input type="text" id="end" name="to" class="monthPicker" value="{{ request.datespan.enddate|date:'F Y' }}" />
+{% endif %}
