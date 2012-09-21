@@ -1,64 +1,46 @@
-.side-tabs {
-    width: 180px;
-    float: left;
-
-    overflow: visible;
+.subtabs {
+    padding: 0 0 .2em 0;
 }
 
-.side-tabs ul {
-    list-style:  none;
-    border-right: 1px solid #2fa5d1;
+.subtabs ul {
+	list-style:  none;
+    display: inline;
 }
 
-.side-tabs li {
-    margin-top: 1px;
-    margin-bottom: 1px;
+.subtabs li {
+    display: inline-block;
+    width: 8.2em;
+    text-align: center;
+    height: 2em;
+    vertical-align: top;
+    padding: .5em 0em;
 }
 
-.side-tabs li a {
-    line-height: 22px;
+.subtabs li a {
     color: white;
     outline: none;
+    padding: .2em .5em;
+    background: #2FA5D1 url("/static/rapidsms/images/tab-bg.png") repeat-x;
     display: block;
-    padding: 0 1em;
-    background: #2fa5d1 url("../img/tab-bg.png") repeat-x;
-    -moz-border-radius-bottomleft: 5px;
-    -moz-border-radius-topleft: 5px;
-    -webkit-border-bottom-left-radius: 5px;
-    -webkit-border-top-left-radius: 5px;
-    z-index: 100;
+    height: 100%;
 }
 
-.side-tabs li.selected a {
-    text-shadow: #cef1f5 0 0 2px;
-    border: 1px solid lightgray;
-    border-right: none;
-    background-color: white;
-    position:relative;
-    left: 2px;
+.subtabs li.selected a, .subtabs li.selected a:hover, .subtabs li.selected a:focus {
+	color: #2FA5D1;
+    border-bottom: none;
+    background: white url("/static/rapidsms/images/tab-bg-active.png") repeat-x;
 }
 
-.side-tabs li a:hover, .side-tabs li a:focus {
-    text-shadow: #cef1f5 0 0 2px;
+.subtabs li a:hover, .subtabs li a:focus {
     text-decoration:none;
-    background-color: #5dcbda; 
-}
-
-.side-tabs li.selected a {
-    color: black;
-}
-
-.side-tabs li.selected a:hover, .side-tabs li a:focus {
-    text-shadow: #cef1f5 0 0 2px;
-    color:white;
-    text-decoration: none;
-    background-color: #5dcbda; 
+    background: #5dcbda url("/static/rapidsms/images/tab-bg-hover.png") repeat-x;
 }
 
 
 .report-content {
     border: 1px solid lightgray;
-    float: right;
+    float: left;
+    
     width: 754px; 
     min-height: 400px;
     -webkit-border-radius:5px;
@@ -74,10 +56,12 @@
 }
 
 .sidebar {
-	padding-top: 10px;
-	clear: left;
-	width: 180px;
-    float: left;
+    padding: 5px 0px 0px 5px;
+	clear: right;
+
+    width: 175px;
+    float: right;
+    
     overflow: visible;
 }
 
@@ -86,10 +70,25 @@
     width: 160px;
 }
 
+.sidebar table th {
+    font-weight: bold;  
+}
+
 table.malawi-report {
     width: 100%;
 }
 
+table.malawi-report tr td {
+    text-align: right;
+}
+
 fieldset {
     border: none;
+}
+
+div.tickLabel {
+    word-wrap: break-word;
+    font-size: 9px;
+    padding: 0px 1px;
+    box-sizing: border-box;
 }
