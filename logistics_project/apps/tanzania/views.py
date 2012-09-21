@@ -710,7 +710,7 @@ def upload_facilities(request):
             for m in msgs:
                 messages.info(request, m)
         except Exception, e:
-            messages.error("Something went wrong with that upload. " 
+            messages.error(request, "Something went wrong with that upload. " 
                            "Please double check the file format or "
                            "try downloading a new copy. Your error message"
                            "is %s" % e)
