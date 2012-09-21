@@ -19,7 +19,6 @@ class View(warehouse_view.DistrictOnlyView):
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)
 
-        # TODO:
         report_date = request.datespan.enddate
         facility = None
         template = "malawi/new/printable_base.html" if "print" in request.GET else "malawi/new/base.html"
