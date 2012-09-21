@@ -5,7 +5,7 @@
 {% include "malawi/partials/selector_form.html" %}
 
 <div class="module">
-    <h2>Average Lead Times</h2>
+    <h2>Average lead times</h2>
     {% include "malawi/new/partials/generic-stack-chart.html" %}
 </div>
 
@@ -17,7 +17,7 @@
 
 {% if district_lt_table %}
 	<div class="module">
-		<h2>Average Lead Times by District</h2>
+		<h2>Average lead times by district</h2>
 		{% with district_lt_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -26,7 +26,7 @@
 
 {% if fac_lt_table %}
 	<div class="module">
-		<h2>Average Lead Times by Facility</h2>
+		<h2>Average lead times by facility</h2>
 		{% with fac_lt_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -35,7 +35,7 @@
 
 {% if hsa_lt_table %}
 	<div class="module">
-		<h2>Average Lead Times by HSA</h2>
+		<h2>Average lead times by HSA</h2>
 		{% with hsa_lt_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}

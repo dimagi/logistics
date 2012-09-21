@@ -4,7 +4,7 @@
 {% include "malawi/partials/selector_form.html" %}
 
 <div class="module">
-    <h2>Average Reporting Rate by Month</h2>
+    <h2>Average reporting rate by month</h2>
     {% with graphdata as graphdata %}
     {% include "malawi/new/partials/reporting-rate-chart.html" %}
     {% endwith %}
@@ -18,7 +18,7 @@
 
 {% if national_view_level %}
 <div class="module">
-	<h2>Average Reporting Rate (Districts)</h2>
+	<h2>Average reporting rate (districts)</h2>
 	{% with district_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
@@ -27,7 +27,7 @@
 
 {% if facility_table %}
 	<div class="module">
-		<h2>Average Reporting Rate (Facilities)</h2>
+		<h2>Average reporting rate (facilities)</h2>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}
@@ -36,7 +36,7 @@
 
 {% if not national_view_level %}
 <div class="module">
-	<h2>HSA Reporting Profiles</h2>
+	<h2>HSA reporting profiles</h2>
 	{% with hsa_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}

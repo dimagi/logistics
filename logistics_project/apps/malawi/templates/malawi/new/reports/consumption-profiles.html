@@ -27,7 +27,7 @@
 
 {% if district_table %}
 <div class="module">
-	<h2>District Consumption Profiles</h2>
+	<h2>District consumption profiles</h2>
 	{% with district_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
@@ -36,7 +36,7 @@
 
 {% if facility_table %}
 <div class="module">
-	<h2>Facility Consumption Profiles</h2>
+	<h2>Facility consumption profiles</h2>
 	{% with facility_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
@@ -44,7 +44,7 @@
 {% endif %}
 
 <div class="module">
-	<h2>AMC and MOS by Product</h2>
+	<h2>AMC and MOS by product</h2>
 	{% with line_chart as graphdata %}
 	{% include "malawi/new/partials/generic-line-chart.html" %}
 	{% endwith %}

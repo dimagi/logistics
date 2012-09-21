@@ -14,12 +14,12 @@
 </form>
 
 <div class="module">
-	<h2>Monthly Average OFR by Product</h2>
+	<h2>Monthly average OFR by product</h2>
 	{% include "malawi/new/partials/generic-line-chart.html" %}
 </div>
 
 <div class="module">
-	<h2>Monthly Average OFR by Product (%)</h2>
+	<h2>Monthly average OFR by product (%)</h2>
 	{% with monthly_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
@@ -27,7 +27,7 @@
 
 {% if facility_table %}
     <div class="module">
-    	<h2>OFR for Selected Time Period by Facility and Product (%)</h2>
+    	<h2>OFR for selected time period by facility and product (%)</h2>
         {% with facility_table as table %}	
     	{% include "malawi/new/partials/generic-table.html" %}
     	{% endwith %}
