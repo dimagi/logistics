@@ -25,7 +25,7 @@ def fmt_pct(num, denom):
     return "%.0f%%" % pct(num, denom)
 
 def fmt_or_none(val, default_none="no data", percent=True):
-    base = "%.2f%%" if percent else "%.2f" 
+    base = "%.0f%%" if percent else "%.0f" 
     return base % val if val is not None else default_none
 
 def get_hsa(hsa_id):
