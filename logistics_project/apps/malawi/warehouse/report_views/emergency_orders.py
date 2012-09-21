@@ -126,7 +126,7 @@ class View(warehouse_view.DistrictOnlyView):
                                       [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])
             eo_abs_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
-                                      [prd_map[eo]['emergency'][d] for d in datelist])])
+                                      [fmt_or_none(prd_map[eo]['emergency'][d]) for d in datelist])])
 
         # for type in type_map.keys():
         selected_products = Product.objects.all()
