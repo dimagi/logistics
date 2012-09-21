@@ -47,11 +47,16 @@ class MalawiWarehouseView(ReportView):
         for key in request.GET.keys():
             querystring += '%s=%s&' % (key, request.GET[key])
 
+        districts = get_districts()
+        
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
-            "districts": get_districts(),
+            "districts": districts,
+            "district_count": districts.count(),
             "facilities": visible_facilities,
+            "facility_count": SupplyPoint.objects.filter(active=True, 
+                                                         type__code=config.SupplyPointCodes.FACILITY).count(),
             "visible_hsas": visible_hsas,
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
             "reporting_rate": current_rr.pct_reported,
