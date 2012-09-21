@@ -14,7 +14,9 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from rapidsms.models import Contact
 
 class View(warehouse_view.DistrictOnlyView):
-
+    
+    show_report_nav = False
+    
     def custom_context(self, request):
 
         if request.GET.get('hsa_code'):

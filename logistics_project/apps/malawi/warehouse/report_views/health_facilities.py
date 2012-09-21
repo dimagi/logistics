@@ -13,6 +13,8 @@ from dimagi.utils.dates import months_between
 
 class View(warehouse_view.DistrictOnlyView):
 
+    show_report_nav = False
+    
     def custom_context(self, request):
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)

@@ -14,6 +14,8 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
 
 class MalawiWarehouseView(ReportView):
     
+    show_report_nav = True # override to hide
+    
     @property
     def template_name(self):
         return "%s/%s.html" % (settings.REPORT_FOLDER, self.slug)
@@ -57,6 +59,7 @@ class MalawiWarehouseView(ReportView):
             "product_stockout_pcts": stockout_pcts,
             "location": request.location or default_sp.location,
             "querystring": querystring,
+            "show_report_nav": self.show_report_nav
         })
         return base_context
 
