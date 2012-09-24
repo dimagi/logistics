@@ -14,7 +14,7 @@ from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
     get_consumption_chart
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    fmt_or_none, fmt_pct
+    fmt_or_none, fmt_pct, hsa_supply_points_below
 
 
 class View(warehouse_view.DistrictOnlyView):
@@ -75,7 +75,8 @@ class View(warehouse_view.DistrictOnlyView):
                     _f(data_adjusted_cons), _f(amc)]
         
 
-        n = d = f = n_table = d_table = f_table = None
+        n = d = f = n_table = d_table = f_table = hsa_list = selected_hsa = hsa_table = None
+        
         if sp.type.code == config.SupplyPointCodes.COUNTRY:
             n = sp
         if sp.type.code == config.SupplyPointCodes.DISTRICT:
@@ -108,6 +109,19 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": [_consumption_row(f, p) for p in Product.objects.all()]
             }
         
+        if not self._context["national_view_level"] and f:
+            hsa_list = hsa_supply_points_below(f.location)
+            hsa_id = request.GET.get("hsa", "")
+            if hsa_id:
+                selected_hsa = SupplyPoint.objects.get(code=hsa_id) 
+                hsa_table = {
+                    "id": "hsa-consumption-profiles",
+                    "is_datatable": False,
+                    "is_downloadable": True,
+                    "header": table_headers,
+                    "data": [_consumption_row(selected_hsa, p) for p in Product.objects.all()]
+                }
+            
         p_code = request.REQUEST.get("product", "")
         
         p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
@@ -117,6 +131,9 @@ class View(warehouse_view.DistrictOnlyView):
             "national_table": n_table,
             "district_table": d_table,
             "facility_table": f_table,
+            "hsa_table": hsa_table,
+            "hsa_list": hsa_list,
+            "selected_hsa": selected_hsa,
             "line_chart": line_chart,
             "selected_product": p
         }

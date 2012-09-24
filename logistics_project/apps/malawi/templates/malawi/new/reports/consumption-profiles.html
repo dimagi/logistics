@@ -7,6 +7,14 @@
     {% include "malawi/new/partials/month-selector.html" %}
     </fieldset>
     <br>
+    {% if hsa_list %}
+	    <label for="hsa">HSA: </label> 
+	    <select name="hsa" id="hsa">
+	    {% for hsa in hsa_list %}
+	        <option value="{{ hsa.code }}" {% if hsa.pk == selected_hsa.pk %}selected{% endif %}>{{ hsa.name }}</option>
+	    {% endfor %}
+    </select>
+    {% endif %}
     {% include "malawi/new/partials/product-selector.html" %}
     <input type="submit" value="Go!" />
 </form>
@@ -35,6 +43,14 @@
 	{% with facility_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
+</div>
+{% endif %}
+{% if selected_hsa %}
+<div class="module">
+    <h2>HSA consumption profiles</h2>
+    {% with hsa_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
 </div>
 {% endif %}
 
