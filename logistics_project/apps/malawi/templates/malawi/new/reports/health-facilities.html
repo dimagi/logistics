@@ -21,7 +21,9 @@
 <a class="print" href="?{{ request.GET.urlencode }}&print">print</a><span class="ui-icon ui-icon-print"></span>
 <div class="module">
     <h2>Current stock status by product</h2>
-    {% warehouse_product_availability_summary location current_date default_chart_width %} 
+        {% with pa_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
 </div>
 <div class="module">
     <h2>Reporting rates</h2>

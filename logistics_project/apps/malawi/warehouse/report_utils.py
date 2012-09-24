@@ -13,7 +13,7 @@ from logistics.models import Product, SupplyPoint
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker,\
     CurrentConsumption
-from logistics_project.apps.malawi.util import get_country_sp, pct
+from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_pct
 from static.malawi.config import TimeTrackerTypes
 from django.db.models.aggregates import Sum
 
@@ -124,7 +124,21 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                                "ticks": json.dumps(products)}
                 
         return self._flot_data
-
+    
+    _table_data = None
+    @property
+    def table_data(self):
+        if self._table_data is None:
+            def _f(ps, key):
+                return fmt_pct(ps[key], ps['total'])
+            self._table_data = [[ps["product"].name] + \
+                                [_f(ps, k) for k in ['without_stock', 'under_stock',
+                                                     "good_stock", "over_stock", 
+                                                     "without_data"]] \
+                                for ps in self.data]
+                                       
+        return self._table_data
+    
 def malawi_default_date_func():
     # we default to showing the last three months
     now = datetime.utcnow()

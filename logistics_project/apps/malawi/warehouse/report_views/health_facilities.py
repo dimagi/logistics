@@ -4,7 +4,8 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
     hsas_below, hsa_supply_points_below, fmt_pct, group_for_location
 from static.malawi import config
 from logistics_project.apps.malawi.warehouse.report_utils import previous_report_period,\
-    get_lead_time_table_data, get_stock_status_table_data
+    get_lead_time_table_data, get_stock_status_table_data,\
+    WarehouseProductAvailabilitySummary
 from collections import defaultdict
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     TIME_TRACKER_TYPES, TimeTracker
@@ -20,12 +21,26 @@ class View(warehouse_view.DistrictOnlyView):
             if request.location else get_default_supply_point(request.user)
 
         report_date = request.datespan.enddate
+        current_date = previous_report_period()
         facility = None
         template = "malawi/new/printable_base.html" if "print" in request.GET else "malawi/new/base.html"
             
         if sp.type.code == config.SupplyPointCodes.FACILITY:
             facility = sp
             hsas = hsa_supply_points_below(sp.location).order_by("name")
+            
+            # stock status chart
+            pas = WarehouseProductAvailabilitySummary(facility, current_date)
+            pa_table = {
+                "id": "pa-table",
+                "is_datatable": False,
+                "is_downloadable": False,
+                "header": ["Product", "% HSA stocked out", "% HSA under", 
+                           "% HSA adequate", "% HSA overstocked", 
+                           "% HSA not reported"],
+                "data": pas.table_data,
+            }
+            
             
             # reporting rates chart - put everyone into buckets
             data = defaultdict(lambda: [])
@@ -86,23 +101,21 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": ss_data,
             }
             
-            # Order fill rates
-            # TODO, kinda
-            
             return {
                 "em": group_for_location(facility.location) == config.Groups.EM,
                 "facility": facility,
+                "pa_table": pa_table,
                 "rr_table": rr_table,
                 "lt_table": lt_table,
                 "ss_table": ss_table,
-                "current_date": previous_report_period(),
+                "current_date": current_date,
                 "warehouse_base_template": template,
                 "show_single_date": True
             }
                         
         return {
             "facility": facility,
-            "current_date": previous_report_period(),
+            "current_date": current_date,
             "warehouse_base_template": template,
             "show_single_date": True
         }
