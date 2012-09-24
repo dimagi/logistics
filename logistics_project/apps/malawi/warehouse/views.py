@@ -44,6 +44,8 @@ def get_report(request, slug=''):
                          "You've been redirected.")
         return home(request)
         
+@place_in_request()
+@datespan_default
 def home(request):
     try:
         report = reports_slug_map["dashboard"].View("dashboard")
