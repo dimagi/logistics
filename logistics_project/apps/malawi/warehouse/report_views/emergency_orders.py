@@ -54,7 +54,7 @@ class View(warehouse_view.DistrictOnlyView):
             "height": "200px",
             "data": [],
             "xaxistitle": "Products",
-            "yaxistitle": "Orders"
+            "yaxistitle": "Average % of HSAs with EO"
         }
         
         # NOTE: this is weird? should clean up

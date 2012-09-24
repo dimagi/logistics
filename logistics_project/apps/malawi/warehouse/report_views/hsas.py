@@ -32,7 +32,7 @@ class View(warehouse_view.DistrictOnlyView):
             "is_datatable": True,
             "is_downloadable": True,
             "header": ["Facility", "Name", "Id", "Responsible for these Commodities",\
-                "Has Stockouts","Has Emergency Levels","Has Products with good supply",\
+                "Has Stockouts","Has Emergency Levels","Has Products with adequate supply",\
                 "Has Overstocks", "Last Message Date"],
             "data": [],
         }
