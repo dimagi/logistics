@@ -24,6 +24,11 @@
 </div>
 {% if national_view_level %}
     <div class="module">
+        <form method="get" class="selector">
+            {% include "malawi/new/partials/product-type-selector.html" %}
+            <input type="submit" value="Go!" />
+        </form>
+    
 		<h2>HSA current stock status across districts</h2>
 		{% with district_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
@@ -33,6 +38,10 @@
 
 {% if not national_view_level %}
 	<div class="module">
+	    <form method="get" class="selector">
+            {% include "malawi/new/partials/product-type-selector.html" %}
+            <input type="submit" value="Go!" />
+        </form>
 		<h2>HSA Current stock status across facilities</h2>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
@@ -41,7 +50,7 @@
 {% endif %}
 
 <div class="module">
-	<form method="get" id="selector">
+	<form method="get" class="selector">
 	    {% include "malawi/new/partials/product-type-selector.html" %}
 	    {% include "malawi/new/partials/month-selector.html" %}
 	    <input type="submit" value="Go!" />

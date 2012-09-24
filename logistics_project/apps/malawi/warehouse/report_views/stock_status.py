@@ -7,9 +7,10 @@ from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct
     fmt_or_none
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
-    get_stock_status_table_data
+    get_stock_status_table_data, WarehouseProductAvailabilitySummary
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ProductAvailabilityDataSummary, CurrentConsumption
+from django.db.models.aggregates import Sum
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -70,28 +71,38 @@ class View(warehouse_view.DistrictOnlyView):
             "data": [],
         }
 
+                
+        def _get_product_status_table(supply_points, products):
+            ret = []
+            for s in supply_points:
+                qs = ProductAvailabilityData.objects.filter(supply_point=s, 
+                                                            product__in=products)
+                values = qs.aggregate(Sum('managed_and_without_stock'),
+                                      Sum('managed_and_under_stock'),
+                                      Sum('managed_and_good_stock'),
+                                      Sum('managed_and_over_stock'),
+                                      Sum('managed_and_without_data'),
+                                      Sum('managed'))
+                ret.append([s.name] + \
+                           [fmt_pct(values["managed_and_%s__sum" % k], 
+                                    values["managed__sum"]) \
+                            for k in ordered_slugs])
+            return ret
+            
+        products = Product.objects.filter(type=selected_type) if selected_type else \
+            Product.objects.all()
+        
         if self._context["national_view_level"]:
-            d_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
-                              (supply_point=d, date=date)) \
-                            for d in SupplyPoint.objects.filter(location__in=self._context['districts'])]
-
+            district_table["data"] = _get_product_status_table\
+                (SupplyPoint.objects.filter(location__in=self._context['districts']), 
+                 products)
             
-            district_table["data"] = [[d.name] + \
-                            [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
-                             for k in ordered_slugs] \
-                            for d, pads in d_pads_tuples]
-
+            
+            
         else:
-            f_pads_tuples = [(d, ProductAvailabilityDataSummary.objects.get\
-                              (supply_point=d, date=date)) \
-                            for d in SupplyPoint.objects.filter(location__in=self._context['facilities'])]
-
-            
-            facility_table["data"] = [[d.name] + \
-                            [fmt_pct(getattr(pads, "any_%s" % k), pads.any_managed) \
-                             for k in ordered_slugs] \
-                            for d, pads in f_pads_tuples]
-
+            facility_table["data"] = _get_product_status_table\
+                (SupplyPoint.objects.filter(location__in=self._context['facilities']), 
+                 products)
 
             for product in Product.objects.all().order_by('sms_code'):
                 hsa_table["header"].append(product.sms_code)
@@ -111,13 +122,10 @@ class View(warehouse_view.DistrictOnlyView):
                         temp.append('-')
                 hsa_table["data"].append(temp)
         
-        # product line chart 
-        products = Product.objects.filter(type=selected_type) if selected_type else \
-            Product.objects.all()
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
                              request.datespan.enddate)
-
+        # product line chart 
         for p in products:
             for dt in dates:
                 pad = ProductAvailabilityData.objects.get\

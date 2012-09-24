@@ -51,6 +51,11 @@
     margin: 5px;
 }
 
+.selector {
+    margin-top: 1em;
+    padding: 1em;	
+}
+
 .no_data {
     color:#ccc;
 }
