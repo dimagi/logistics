@@ -6,7 +6,7 @@
 </style>
 
 {% if table.is_downloadable %}
-	{% include "malawi/new/partials/download-csv.html" %}
+	<img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
 {% endif %}
 
 {% if table.is_datatable %}
