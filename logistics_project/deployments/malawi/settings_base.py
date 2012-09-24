@@ -53,7 +53,6 @@ RAPIDSMS_TABS = [
 from django.utils.datastructures import SortedDict
 
 REPORT_LIST = SortedDict([
-    ("Dashboard", "dashboard"),
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),
