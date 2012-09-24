@@ -358,7 +358,7 @@ def get_lead_time_table_data(supply_points, startdate, enddate):
             (Sum('total'), Sum('time_in_seconds'))
         avg_rr_lt = _to_days(rr_tots["time_in_seconds__sum"], rr_tots["total__sum"])
         avg_tot_lt = avg_or_lt + avg_rr_lt if avg_or_lt is not None and avg_rr_lt is not None else None
-        f_data.append([f.name, len(months_between(startdate, enddate))] + [_table_fmt(val) for val in \
+        f_data.append([f.name] + [_table_fmt(val) for val in \
                                   (avg_or_lt, avg_rr_lt, avg_tot_lt)])
     return f_data
 
@@ -376,4 +376,4 @@ def get_stock_status_table_data(supply_point):
                 consumption.stock_status]
     
     return [_status_row(supply_point, p) for p in Product.objects.all()]
-        
+
