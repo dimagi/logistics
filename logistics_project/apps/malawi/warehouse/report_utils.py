@@ -237,6 +237,8 @@ def get_consumption_chart(supply_point, product, start, end):
         "height": "300px",
         "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
         "xaxistitle": "month",
+        "yaxistitle": "Monthly consumption",
+        "y2axistitle": "Months of stock"
     }
     
     ccs = [CalculatedConsumption.objects.get(supply_point=supply_point, 

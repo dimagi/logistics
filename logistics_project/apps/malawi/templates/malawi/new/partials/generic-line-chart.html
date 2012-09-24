@@ -22,6 +22,12 @@
 	});
 </script>
 <div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
-<p>{{ graphdata.yaxistitle }}</p>
+{% if graphdata.yaxistitle %}
+<p class="yaxislabel">{{ graphdata.yaxistitle }}</p>
+{% endif %}
+{% if graphdata.y2axistitle %}
+<p class="y2axislabel">{{ graphdata.y2axistitle }}</p>
+{% endif %}
+<div class="clear"></div>
 <div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
 <p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>

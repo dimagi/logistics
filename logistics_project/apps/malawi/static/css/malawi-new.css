@@ -91,9 +91,22 @@ fieldset {
     border: none;
 }
 
+
+/* flot */
 div.tickLabel {
     word-wrap: break-word;
     font-size: 9px;
     padding: 0px 1px;
     box-sizing: border-box;
+}
+
+.yaxislabel {
+    float: left;
+}
+.y2axislabel {
+    float: right;
+}
+
+.clear {
+    clear: both;
 }
