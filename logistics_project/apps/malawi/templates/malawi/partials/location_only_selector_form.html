@@ -1,12 +1,6 @@
 <form method="get" id="selector">
 {% if request.select_location %}
-<fieldset>
 {% include "malawi/partials/location_selector.html" %}
-</fieldset>
 {% endif %}
-
-{% if settings.STYLE == "both" %}<br><br>{% endif %}
-
-<br>
 <input type="submit" value="Go!" />
 </form>

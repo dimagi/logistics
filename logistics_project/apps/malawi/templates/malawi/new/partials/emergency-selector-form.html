@@ -1,21 +1,10 @@
 <form method="get" id="selector">
-	<fieldset>
-		{% include "malawi/partials/location_selector.html" %}
-
-		<br><br>
-
-		<label for="order-type" id="order-type-label">Order Type: </label> 
-		<select name="emergency" id="emergency">
-		    <option value="yes" {% if not selected_type %}selected{% endif %}>Emergency</option>
-		    <option value="no" {% if "no" == selected_type %}selected{% endif %}>Regular</option>
-		</select>
-
-	</fieldset>
-
-	{% if settings.STYLE == "both" %}<br><br>{% endif %}
-
-	<br>
-
+    {% include "malawi/partials/location_selector.html" %}
+	<label for="order-type" id="order-type-label">Order Type: </label> 
+	<select name="emergency" id="emergency">
+	    <option value="yes" {% if not selected_type %}selected{% endif %}>Emergency</option>
+		<option value="no" {% if "no" == selected_type %}selected{% endif %}>Regular</option>
+	</select>
 	<input type="submit" value="Go!" />
 </form>
 

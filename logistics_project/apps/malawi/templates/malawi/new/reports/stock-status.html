@@ -1,13 +1,13 @@
 {% extends "malawi/new/base.html" %}
 {% load malawi_warehouse_tags %}
 {% block report_content %}
-<form method="get" id="location_selector">
+<form method="get" class="selector">
     {% include "malawi/partials/location_selector.html" %}
     <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
     <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
     <input type="submit" value="Go!" />
 </form>
-    
+
 <div class="module">
     <h2>Current stock status by product</h2>
     {% warehouse_product_availability_summary location request.datespan.enddate default_chart_width %} 
@@ -42,7 +42,7 @@
             {% include "malawi/new/partials/product-type-selector.html" %}
             <input type="submit" value="Go!" />
         </form>
-		<h2>HSA Current stock status across facilities</h2>
+		<h2>Current stock status across facilities</h2>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/generic-table.html" %}
 		{% endwith %}

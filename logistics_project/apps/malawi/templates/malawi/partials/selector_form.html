@@ -1,16 +1,10 @@
 <form method="get" id="selector">
 {% if request.select_location %}
-<fieldset>
 {% include "malawi/partials/location_selector.html" %}
-</fieldset>
 {% endif %}
 
-{% if settings.STYLE == "both" %}<br><br>{% endif %}
-
-{% if request.datespan %}&nbsp;
-<fieldset>
+{% if request.datespan %}
 {% include "malawi/new/partials/month-selector.html" %}
-</fieldset>
 {% endif %}
 
 <input type="submit" value="Go!" />
