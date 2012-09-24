@@ -6,8 +6,11 @@
 </style>
 
 {% if table.is_downloadable %}
-	{% include "malawi/new/partials/download-csv.html" %}
+
+<a href="{{ request.get_full_path }}{% if request.GET %}&{% else %}?{% endif %}export_csv=true&table={{ table.id }}">
+	<img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
 {% endif %}
+</a>
 
 {% if table.is_datatable %}
 	{% include "malawi/new/partials/data-table.html" %}

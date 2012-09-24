@@ -5,11 +5,13 @@ from django.contrib import messages
 
 from logistics.decorators import place_in_request
 
-from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
+from logistics_project.apps.malawi.warehouse.report_utils import datespan_default,\
+    table_to_csv
 
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas, health_facilities
+from dimagi.utils.parsing import string_to_boolean
 
 
 reports_slug_map = {
@@ -37,6 +39,21 @@ def get_report(request, slug=''):
                          "You've been redirected home.")
         return home(request)
     try:
+        # bit of a hack: for csv expect two these two magic params 
+        # and pull the data from the context
+        if string_to_boolean(request.GET.get("export_csv", "false")):
+            table_id = request.GET.get('table')
+            context = report.get_context(request)
+            def _find_table(context, table_id):
+                for k, v in context.items():
+                    if isinstance(v, dict) and v.get('id') == table_id:
+                        return v
+            table = _find_table(context, table_id)
+            if table:
+                return table_to_csv(table)
+            else:
+                messages.error(request, "Sorry, we can't find that table to export.")
+        
         return report.get_response(request)
     except Exception:
         messages.warning(request,

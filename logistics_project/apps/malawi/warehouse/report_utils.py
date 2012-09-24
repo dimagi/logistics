@@ -16,6 +16,8 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
 from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_pct
 from static.malawi.config import TimeTrackerTypes
 from django.db.models.aggregates import Sum
+from django.http import HttpResponse
+from dimagi.utils.csv import UnicodeWriter
 
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
@@ -377,3 +379,11 @@ def get_stock_status_table_data(supply_point):
     
     return [_status_row(supply_point, p) for p in Product.objects.all()]
 
+def table_to_csv(table_data):
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=(%s).csv' % table_data["id"]
+    writer = UnicodeWriter(response)
+    writer.writerow(table_data['header'])
+    for row in table_data['data']:
+        writer.writerow(row)
+    return response
