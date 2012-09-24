@@ -46,6 +46,7 @@ class View(warehouse_view.DistrictOnlyView):
             "width": "100%",
             "height": "200px",
             "xaxistitle": "month",
+            "yaxistitle": "# days",
             "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
             "data": json.dumps(ret_data)
         }

@@ -44,6 +44,8 @@ class View(warehouse_view.DistrictOnlyView):
             "legenddiv": "order-fillrate-chart-legend",
             "legendcols": 10,
             "max_value": json.dumps(None),
+            "xaxistitle": "month",
+            "yaxistitle": "OFR %",
             "height": "350px",
             "width": "100%", 
             "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
