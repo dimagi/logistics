@@ -25,7 +25,7 @@
 {% if national_view_level %}
     <div class="module">
         <form method="get" class="selector">
-            {% include "malawi/new/partials/product-type-selector.html" %}
+            {% include "malawi/new/partials/product-selector.html" %}
             <input type="submit" value="Go!" />
         </form>
     
@@ -39,7 +39,7 @@
 {% if not national_view_level %}
 	<div class="module">
 	    <form method="get" class="selector">
-            {% include "malawi/new/partials/product-type-selector.html" %}
+            {% include "malawi/new/partials/product-selector.html" %}
             <input type="submit" value="Go!" />
         </form>
 		<h2>Current stock status across facilities</h2>

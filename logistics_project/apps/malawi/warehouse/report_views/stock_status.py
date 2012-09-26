@@ -3,29 +3,29 @@ from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
-    fmt_or_none
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
-    get_stock_status_table_data, WarehouseProductAvailabilitySummary
-from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
-    ProductAvailabilityDataSummary, CurrentConsumption
+    get_stock_status_table_data
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
 from django.db.models.aggregates import Sum
+from django.shortcuts import get_object_or_404
 
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):        
-        selected_type = None
-        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
-            selected_type = ProductType.objects.get(code=request.GET["product-type"])
+        typecode = request.GET.get("product-type")
+        selected_type = get_object_or_404(ProductType, code=typecode) \
+            if typecode else ProductType.objects.all()[0]
+        
+        pcode = request.GET.get("product")
+        selected_product = get_object_or_404(Product, sms_code=pcode) \
+            if pcode else Product.objects.all()[0]
+        
         
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
         
-        # Correct
-        # date = current_report_period()
-        date = request.datespan.enddate # testing
-
         headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
                     "% HSA Overstocked", "% HSA Not Reported"]
         ordered_slugs = ["without_stock", "under_stock", 
@@ -89,20 +89,17 @@ class View(warehouse_view.DistrictOnlyView):
                             for k in ordered_slugs])
             return ret
             
-        products = Product.objects.filter(type=selected_type) if selected_type else \
-            Product.objects.all()
-        
         if self._context["national_view_level"]:
             district_table["data"] = _get_product_status_table\
                 (SupplyPoint.objects.filter(location__in=self._context['districts']), 
-                 products)
+                 [selected_product])
             
             
             
         else:
             facility_table["data"] = _get_product_status_table\
                 (SupplyPoint.objects.filter(location__in=self._context['facilities']), 
-                 products)
+                 [selected_product])
 
             for product in Product.objects.all().order_by('sms_code'):
                 hsa_table["header"].append(product.sms_code)
@@ -125,7 +122,9 @@ class View(warehouse_view.DistrictOnlyView):
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
                              request.datespan.enddate)
+        
         # product line chart 
+        products = Product.objects.filter(type=selected_type) 
         for p in products:
             for dt in dates:
                 pad = ProductAvailabilityData.objects.get\
