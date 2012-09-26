@@ -150,6 +150,7 @@ class View(warehouse_view.DistrictOnlyView):
         return {
             'product_types': ProductType.objects.all(),
             'selected_type': selected_type,
+            'selected_product': selected_product,
             'status_table': status_table,
             'district_table': district_table,
             'facility_table': facility_table,
