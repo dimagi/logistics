@@ -40,7 +40,7 @@
         _gaq.push(['_setCustomVar',
                    1,                // This custom var is set to slot #1.  Required parameter.
                    'id',    // The name of the custom variable.  Required parameter.
-                   '{{ user.username|default:"Anonymous" }}',        // The value of the custom variable.  Required parameter.
+                   '{% raw %}{{ user.username|default:"Anonymous" }}{% endraw %}',        // The value of the custom variable.  Required parameter.
                                      //  (possible values might be Free, Bronze, Gold, and Platinum)
                    1                 // Sets the scope to visitor-level.  Optional parameter.
               ]); 
