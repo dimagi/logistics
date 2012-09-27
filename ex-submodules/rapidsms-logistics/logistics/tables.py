@@ -30,7 +30,7 @@ def _edit_facility_link(cell):
         'facility_edit',
         args=[cell.row.pk])
 def _location(cell):
-    return cell.object.location
+    return cell.object.display_location()
 class FacilityTable(Table):
     name = Column(link=_edit_facility_link)
     location = Column(value=_location)
@@ -83,9 +83,12 @@ class ReportingTable(Table):
     class Meta:
         order_by = '-last_reported'
 
-
+def _facility_link(cell):
+    return reverse(
+        'stockonhand_facility',
+        args=[cell.row.code])
 class SOHReportingTable(MonthTable):
-    name = Column(sortable=False)
+    name = Column(sortable=False, link=_facility_link)
     last_reported = DateColumn(name="Last Stock Report Received",
                                value=lambda cell: cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) \
                                     if cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) else "never",

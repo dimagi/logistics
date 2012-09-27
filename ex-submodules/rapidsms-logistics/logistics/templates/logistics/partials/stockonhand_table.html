@@ -1,9 +1,11 @@
 {% load i18n %}
 {% load logistics_extras %}
+
 <table class="stock">
     <thead><tr>
         <th>{% trans "Commodity" %}</th>
         <th class="stock_col">{% trans "Months Until Stockout" %}</th>
+        <th class="stock_col">{% trans "Stockout Duration" %}</th>
         <th class="stock_col">{% trans "Current Stock" %}</th>
         <th class="stock_col">{% trans "Monthly Consumption" %}</th>
         <th class="stock_col">{% trans "Emergency Level" %}</th>
@@ -15,9 +17,17 @@
         <tr {% if not stockonhand.is_active %}class='inactive'{% endif %}>
         <td>{{ stockonhand.product.name }}</td>
         {% highlight_months stockonhand MEDIA_URL %}
+        <td>{% if stockonhand.is_stocked_out %}
+                {% if stockonhand.date_last_stocked %}
+                    {{ stockonhand|historical_date_last_stocked:datespan.enddate|timesince:datespan.enddate }}
+                {% else %}
+                    Ongoing
+                {% endif %}
+            {% endif %}
+        </td>
         <td>{{ stockonhand.quantity|default_if_none:"unknown" }}</td>
         <td {% ifequal stockonhand.monthly_consumption None %}
-                class="big_error"
+                class="not_available"
             {% endifequal %}>
             {% if stockonhand.use_auto_consumption %}
 	            {{ stockonhand.monthly_consumption|default_if_none:"not enough data" }}
@@ -27,7 +37,11 @@
         </td>
         <td>{{ stockonhand.emergency_reorder_level|default_if_none:"unknown" }}</td>
         <td>{{ stockonhand.maximum_level|default_if_none:"unknown" }}</td>
-        <td>{{ stockonhand.last_modified|date:"M d" }}</td>
+        <td>
+            <div class="{% if stockonhand.is_stale %}plain_error{% endif %}">
+                {{ stockonhand.last_modified|date:"M d Y" }}
+            </div>
+        </td>
         </tr>
     {% endfor %}
     </tbody>

@@ -8,7 +8,7 @@ from rapidsms.contrib.locations.models import Point
 from .models import SupplyPoint, Product, ProductStock
 
 class FacilityForm(forms.ModelForm):
-    commodities = forms.ModelMultipleChoiceField(Product.objects.all().order_by('name'), 
+    commodities = forms.ModelMultipleChoiceField(Product.objects.filter(is_active=True).order_by('name'), 
                                                  help_text='Select only commodities actively stocked by this facility', 
                                                  required=False)
     latitude = forms.DecimalField(required=False)
@@ -19,13 +19,14 @@ class FacilityForm(forms.ModelForm):
         exclude = ("last_reported", )
     
     def __init__(self, *args, **kwargs):
-        kwargs['initial'] = {'commodities': [0,1,2,3]}
+        kwargs['initial'] = {}
         if 'instance' in kwargs and kwargs['instance']:
             initial_sp = kwargs['instance']
             if 'initial' not in kwargs:
                 kwargs['initial'] = {}
             pss = ProductStock.objects.filter(supply_point=initial_sp, 
-                                              is_active=True)
+                                              is_active=True, 
+                                              product__is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
             if initial_sp.location and initial_sp.location.point:
                 kwargs['initial']['latitude'] = initial_sp.location.point.latitude
@@ -71,4 +72,8 @@ class FacilityForm(forms.ModelForm):
 class CommodityForm(forms.ModelForm):
     class Meta:
         model = Product
+        exclude = ('is_active', 'product_code')
 
+    def __init__(self, *args , **kwargs):
+        super(CommodityForm, self ).__init__(*args,**kwargs)
+        self.fields['equivalents'].queryset = Product.objects.filter(is_active=True)

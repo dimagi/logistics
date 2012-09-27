@@ -3,7 +3,9 @@
 
 {% block content %}
     <div class="module">
+        {% if errors %}
         <div class="error">{{ errors }}</div>
+        {% endif %}
         <h2>Input Stock for {{ date|date:"D, M d" }}</h2>
         {% if rms %}
         <form action="" method="post">

@@ -2,7 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from logistics.const import Reports
 
-import csv, json
+from dimagi.utils import csv 
+import json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.core.urlresolvers import reverse
@@ -20,6 +21,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.views import message_log as rapidsms_messagelog
 from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 from email_reports.decorators import magic_token_required
@@ -67,7 +69,7 @@ def input_stock(request, facility_code, context={}, template="logistics/input_st
     # QUESTION: is it possible to make a dynamic form?
     errors = ''
     rms = get_object_or_404(SupplyPoint, code=facility_code)
-    productstocks = [p for p in ProductStock.objects.filter(supply_point=rms).order_by('product__name')]
+    productstocks = [p for p in rms.stocked_productstocks().order_by('product__name')]
     if request.method == "POST":
         # we need to use the helper/aggregator so that when we update
         # the supervisor on resolved stockouts we can do it all in a
@@ -245,7 +247,6 @@ def aggregate(request, location_code=None, context={}, template="logistics/aggre
     where 'children' can either be sub-regions
     OR facilities if no sub-region exists
     """
-    
     # default to the whole country
     if location_code is None:
         location_code = settings.COUNTRY
@@ -282,6 +283,9 @@ def _get_rows_from_children(children, commodity_filter, commoditytype_filter, da
         row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
                                                      producttype=commoditytype_filter, 
                                                      datespan=datespan)
+        z = lambda x: x if x is not None else 0
+        row['total'] = z(row['stockout_count']) + z(row['emergency_plus_low']) + \
+          z(row['good_supply_count']) + z(row['overstocked_count'])
         if commodity_filter is not None:
             row['consumption'] = child.consumption(product=commodity_filter, 
                                                    producttype=commoditytype_filter)
@@ -305,7 +309,7 @@ def export_reporting(request, location_code=None):
                       "product__name", "report_type__name", "message__text").order_by('report_date')
     response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
     response['Content-Disposition'] = 'attachment; filename=reporting.xls'
-    writer = csv.writer(response)
+    writer = csv.UnicodeWriter(response)
     writer.writerow(['ID', 'Location Grandparent', 'Location Parent', 'Facility', 
                      'Commodity', 'Report Type', 
                      'Quantity', 'Date',  'Message'])
@@ -347,18 +351,29 @@ def facility(req, pk=None, template="logistics/config.html"):
         if req.POST["submit"] == "Delete %s" % klass:
             facility.delete()
             return HttpResponseRedirect(
-                reverse('facility_view'))
+                "%s?deleted=%s" % (reverse('facility_view'), 
+                                   unicode(facility)))
         else:
             form = FacilityForm(instance=facility,
                                 data=req.POST)
             if form.is_valid():
                 facility = form.save()
                 return HttpResponseRedirect(
-                    reverse('facility_view'))
+                    "%s?created=%s" % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
+                                       unicode(facility)))
     else:
         form = FacilityForm(instance=facility)
+    created = None
+    deleted = None
+    if req.method == "GET":
+        if "created" in req.GET:
+            created = req.GET['created']
+        elif "deleted" in req.GET:
+            deleted = req.GET['deleted']
     return render_to_response(
         template, {
+            "created": created, 
+            "deleted": deleted, 
             "table": FacilityTable(SupplyPoint.objects.filter(active=True), request=req),
             "form": form,
             "object": facility,
@@ -366,6 +381,19 @@ def facility(req, pk=None, template="logistics/config.html"):
             "klass_view": reverse('facility_view')
         }, context_instance=RequestContext(req)
     )
+
+@permission_required('logistics.add_product')
+@transaction.commit_on_success
+def activate_commodity(request, sms_code):
+    """ 
+    hidden URL to reactivate commodities 
+    exists for UI testing
+    """
+    if not request.user.is_superuser:
+        return HttpResponse("not enough permissions to complete this transaction")
+    commodity = get_object_or_404(Product, sms_code=sms_code)
+    commodity.activate()
+    return HttpResponse("success")
 
 @permission_required('logistics.add_product')
 @transaction.commit_on_success
@@ -377,7 +405,7 @@ def commodity(req, pk=None, template="logistics/config.html"):
         commodity = get_object_or_404(Product, pk=pk)
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
-            commodity.delete()
+            commodity.deactivate()
             return HttpResponseRedirect(
                 reverse('commodity_view'))
         else:
@@ -392,7 +420,7 @@ def commodity(req, pk=None, template="logistics/config.html"):
         form = CommodityForm(instance=commodity)
     return render_to_response(
         template, {
-            "table": CommodityTable(Product.objects.all(), request=req),
+            "table": CommodityTable(Product.objects.filter(is_active=True), request=req),
             "form": form,
             "object": commodity,
             "klass": klass,
@@ -430,20 +458,20 @@ def district_dashboard(request, template="logistics/district_dashboard.html"):
                               context_instance=RequestContext(request))
 
 @datespan_in_request()
-def message_log(request, template="messagelog/index.html"):
+def message_log(request, context={}, template="messagelog/index.html"):
     """
     NOTE: this truncates the messagelog by default to the last 30 days. 
     To get the complete message log, web users should export to excel 
     """
     messages = Message.objects.all()
+    if 'messages_qs' in context:
+        messages = context['messages_qs']
     if request.datespan is not None and request.datespan:
         messages = messages.filter(date__gte=request.datespan.startdate)\
           .filter(date__lte=request.datespan.end_of_end_day)
-    return render_to_response(
-        template, {
-            "messages_table": MessageTable(messages, request=request)
-        }, context_instance=RequestContext(request)
-    )
+    context['messages_qs'] = messages
+    return rapidsms_messagelog(request, context=context, 
+                               template=template)
 
 def messages_by_carrier(request, template="logistics/messages_by_carrier.html"):
     earliest_msg = Message.objects.all().order_by("date")[0].date

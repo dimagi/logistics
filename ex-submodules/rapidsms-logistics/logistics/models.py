@@ -4,13 +4,15 @@
 import re
 import uuid
 import logging
+import math
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.db import models
-from django.db.models import Q, Sum
+from django.core.exceptions import ImproperlyConfigured
+from django.db import models, transaction
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.db.models.fields import PositiveIntegerField
 from django.utils.translation import ugettext as _
@@ -19,14 +21,14 @@ from rapidsms.conf import settings
 from rapidsms.models import Contact, ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
-from dimagi.utils.dates import DateSpan, get_day_of_month
+from dimagi.utils.dates import get_day_of_month
 from logistics.signals import post_save_product_report, create_user_profile,\
-    stockout_resolved, post_save_stock_transaction
+    stockout_resolved, stockout_reported, post_save_stock_transaction
 from logistics.errors import *
 from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
-from logistics.consumption import ConsumptionSettings, daily_consumption
+from logistics.consumption import daily_consumption
 
 if hasattr(settings, "MESSAGELOG_APP"):
     message_class = "%s.Message" % settings.MESSAGELOG_APP
@@ -65,6 +67,9 @@ class Product(models.Model):
     # products which we recognize but aren't required for reporting)
     is_active = models.BooleanField(default=True, db_index=True)
     
+    class Meta:
+        ordering = ['name']
+        
     def __unicode__(self):
         return self.name
 
@@ -75,6 +80,31 @@ class Product(models.Model):
     @classmethod
     def by_code(cls, code):
         return cls.objects.get(sms_code=code)
+    
+    @transaction.commit_on_success
+    def deactivate(self):
+        self.is_active = False
+        self.save()
+        stocks = ProductStock.objects.filter(product=self).filter(is_active=True)
+        for stock in stocks:
+            stock.is_active = False
+            stock.save()
+        contacts = Contact.objects.filter(commodities__sms_code=self.sms_code)
+        for contact in contacts:
+            contact.commodities.remove(self)
+
+    @transaction.commit_on_success
+    def activate(self):
+        """ 
+        NOTE: this is not the full inverse of the activate() function
+        since we do not re-assign commodities to individual reporters after restoring
+        """
+        self.is_active = True
+        self.save()
+        stocks = ProductStock.objects.filter(product=self).filter(is_active=False).order_by("supply_point__name")
+        for stock in stocks:
+            stock.is_active = True
+            stock.save()
 
 class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
@@ -104,6 +134,12 @@ class SupplyPointType(models.Model):
     def _cache_key(self, product_code):
         return '%(sptype)s-%(product)s-default-monthly-consumption' % {'sptype': self.code, 
                                                                        'product': product_code}
+        
+    def policy(self):
+        try:
+            return config.SupplyPointPolicies.STOCK_POLICIES[self.code]
+        except AttributeError, KeyError:
+            raise ImproperlyConfigured("Stock level policies are not configured correctly for this deployment.")
     
     def monthly_consumption_by_product(self, product):
         # we need to supply a non-None cache value since the
@@ -117,7 +153,8 @@ class SupplyPointType(models.Model):
             elif from_cache is not None:
                 return from_cache
         try:
-            dmc = DefaultMonthlyConsumption.objects.get(product=product, supply_point_type=self).default_monthly_consumption
+            dmc = DefaultMonthlyConsumption.objects.get(product=product, 
+                                                        supply_point_type=self).default_monthly_consumption
         except DefaultMonthlyConsumption.DoesNotExist:
             dmc = None
         if dmc is None:
@@ -138,6 +175,10 @@ class DefaultMonthlyConsumption(models.Model):
     class Meta:
         unique_together = (("supply_point_type", "product"),)
 
+class ActiveSupplyPointManager(models.Manager):
+    def get_query_set(self):
+        return super(ActiveSupplyPointManager, self).get_query_set().filter(active=True)
+
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
     Somewhere that maintains and distributes products. 
@@ -156,13 +197,42 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
     groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
+    
+    objects = models.Manager()
+    active_objects = ActiveSupplyPointManager()
 
     class Meta:
         abstract = True
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name
-    
+
+    def display_location(self):
+        """ 
+        It's pretty confusing for the location of Ada Health Clinic to be Ada Health Clinic
+        This function returns what you would expect: that Ada HC is in Dangme East district
+        """
+        if self.location.tree_parent:
+            return self.location.tree_parent
+        return self.location
+        
+    def report_status(self, days_until_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT):
+        """ returns a tuple: 
+        (Products reported this period, Products not reported this period) """
+        latest_stocks = self.stocked_productstocks().order_by('-last_modified')
+        commodities_stocked = self.commodities_stocked()
+        if not latest_stocks:
+            return [], commodities_stocked
+        # find commodities which have no associated product stock
+        codes = [stock.product.sms_code for stock in latest_stocks]
+        missing_products = commodities_stocked.exclude(sms_code__in=codes)
+        deadline = datetime.now() + relativedelta(days=-days_until_late)
+        on_time_stocks = latest_stocks.filter(last_modified__gte=deadline)
+        missing_stocks = latest_stocks.filter(last_modified__lt=deadline)        
+        return ([stock.product for stock in on_time_stocks], 
+                [prod for prod in missing_products] + [stock.product for stock in missing_stocks])
+        
     @property
     def latitude(self):
         return self.location.point.latitude if self.location and self.location.point else None
@@ -174,10 +244,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     @property
     def active_contact_set(self):
         return self.contact_set.filter(is_active=True)
-    
-    @property
-    def active_objects(self):
-        return self.objects.filter(active=True)
     
     @property
     def products_stocked_out(self):
@@ -193,14 +259,17 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     @property
     def last_soh(self):
-        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self).order_by("-report_date")
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, 
+                                            supply_point=self).order_by("-report_date")
         if sohs.exists():
             return sohs[0].report_date
         else:
             return None
 
     def last_soh_before(self, date):
-        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, supply_point=self, report_date__lt=date).order_by("-report_date")
+        sohs = ProductReport.objects.filter(report_type__code=Reports.SOH, 
+                                            supply_point=self, report_date__lt=date)\
+                                            .order_by("-report_date")
         if sohs.exists():
             return sohs[0].report_date
         else:
@@ -233,36 +302,55 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         
         return self._default_group
         
-    def consumptions_available(self):
-        stocks = self.product_stocks()
+    def stocked_consumptions_available(self):
+        stocks = self.stocked_productstocks()
         available = 0
         for stock in stocks:
+            # note: we have to do this manually to trigger monthly_consumption algorithm
             if stock.monthly_consumption is not None:
                 available = available + 1
         return available
         
     def are_consumptions_set(self):
-        consumption_count = ProductStock.objects.filter(supply_point=self).filter(manual_monthly_consumption=None).count()
+        consumption_count = ProductStock.objects.filter(supply_point=self)\
+            .filter(manual_monthly_consumption=None).count()
         if consumption_count > 0:
             return False
         return True
 
     def commodities_stocked(self):
-        if settings.LOGISTICS_STOCKED_BY == settings.StockedBy.USER: 
-            return self.commodities_reported()
-        elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.FACILITY: 
-            return Product.objects.filter(productstock__supply_point=self).filter(is_active=True)
-        elif settings.LOGISTICS_STOCKED_BY == settings.StockedBy.PRODUCT: 
+        """ what are all the commodities which we are actively stocking at this facility? """
+        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
+            # do a join on all commodities associated with all users
+            return Product.objects.filter(is_active=True, reported_by__supply_point=self)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
+            # look for products with active ProductStocks linked to his facility
+            return Product.objects.filter(productstock__supply_point=self, 
+                                          productstock__is_active=True, 
+                                          is_active=True)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
+            # all active Products in the system
             return Product.objects.filter(is_active=True)
+        raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
     
     def supplies(self, product):
         return product in self.commodities_stocked()
     
-    def commodities_reported(self):
-        return Product.objects.filter(reported_by__supply_point=self).distinct()
     
     def product_stocks(self):
-        return ProductStock.objects.filter(supply_point=self)
+        return self.all_product_stocks()
+    
+    def all_product_stocks(self):
+        """ ProductStocks for all commodities 
+        which this facility has ever reported on"""
+        return ProductStock.objects.filter(is_active=True, 
+                                           product__is_active=True).filter(supply_point=self)
+    
+    def stocked_productstocks(self):
+        """ ProductStocks for all commodities 
+        which this facility is required to report"""
+        products = self.commodities_stocked()
+        return self.productstock_set.filter(product__in=products)
     
     def contacts(self):
         return Contact.objects.filter(supply_point=self)
@@ -275,7 +363,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         if new_code is None:
             new_code = "deprecated-%s-%s" % (self.code, uuid.uuid4()) 
         self.code = new_code
-        self.active=False
+        self.active = False
         self.save()
         self.location.deprecate(new_code=new_code)
         
@@ -344,10 +432,10 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             cache.set(cache_key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
         return ret
 
-    def _cache_key(self, key, product, producttype, datetime=None):
+    def _cache_key(self, key, product, producttype, cdatetime=None):
         return ("SP-%(supplypoint)s-%(key)s-%(product)s-%(producttype)s-%(datetime)s" % \
                 {"key": key, "supplypoint": self.code, "product": product, 
-                 "producttype": producttype, "datetime": datetime}).replace(" ", "-")
+                 "producttype": producttype, "datetime": cdatetime}).replace(" ", "-")
 
     def _get_stock_count(self, name, product, producttype, datespan=None):
         """ 
@@ -400,7 +488,8 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def report(self, product, report_type, quantity, message=None, date=None):
         if date:
             npr = ProductReport(product=product, report_type=report_type,
-                                quantity=quantity, message=message, supply_point=self, report_date=date)
+                                quantity=quantity, message=message, supply_point=self, 
+                                report_date=date)
         else:
             npr = ProductReport(product=product, report_type=report_type,
                                 quantity=quantity, message=message, supply_point=self)
@@ -417,12 +506,14 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     def reporters(self):
         reporters = Contact.objects.filter(supply_point=self)
-        reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
+        soh_resp = config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY
+        reporters = reporters.filter(role__responsibilities__code=soh_resp).distinct()
         return reporters
 
     def reportees(self):
         reporters = Contact.objects.filter(supply_point=self)
-        reporters = reporters.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
+        supervise_resp = config.Responsibilities.REPORTEE_RESPONSIBILITY
+        reporters = reporters.filter(role__responsibilities__code=supervise_resp).distinct()
         return reporters
 
     def is_any_supplier(self, supply_point):
@@ -485,8 +576,8 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         if ps.use_auto_consumption:
             ps.use_auto_consumption = False
             ps.save()
-
-    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
+            
+    def notify_suppliees(self, message, products, exclude=None):
         """ stockouts_resolved is a dictionary of code to product """
         to_notify = SupplyPoint.objects.filter(supplied_by=self, active=True).distinct()
         for fac in to_notify:
@@ -495,11 +586,18 @@ class SupplyPointBase(models.Model, StockCacheMixin):
                 reporters = reporters.exclude(pk__in=[e.pk for e in exclude])
             for reporter in reporters:
                 if reporter.default_connection is not None:
-                    send_message(reporter.default_connection,
-                                "Dear %(name)s, %(supply_point)s has resolved the following stockouts: %(products)s " %
+                    send_message(reporter.default_connection, message %
                                  {'name':reporter.name,
-                                 'products':", ".join(stockouts_resolved),
+                                 'products':", ".join(products),
                                  'supply_point':self.name})
+
+    def notify_suppliees_of_stockouts_reported(self, stockouts_reported, exclude=None):
+        message = "Dear %(name)s, %(supply_point)s is STOCKED OUT of: %(products)s "
+        self.notify_suppliees(message, stockouts_reported, exclude)
+
+    def notify_suppliees_of_stockouts_resolved(self, stockouts_resolved, exclude=None):
+        message = "Dear %(name)s, %(supply_point)s has RESOLVED the following stockouts: %(products)s "
+        self.notify_suppliees(message, stockouts_resolved, exclude)
 
     def data_unavailable(self):
         # hm, not sure what interval should be considered 'data unavailable'?
@@ -543,7 +641,7 @@ class LogisticsProfile(LogisticsProfileBase):
 class ProductStock(models.Model):
     """
     Indicates supply point-specific information about a product (such as monthly consumption rates)
-    A ProductStock should exist for each product for each supply point
+    A ProductStock should exist for each product which has ever been actively stocked by a supply point
     """
     # is_active indicates whether we are actively trying to prevent stockouts of this product
     # in practice, this means: do we bug people to report on this commodity
@@ -578,15 +676,17 @@ class ProductStock(models.Model):
             return self.auto_monthly_consumption
         return self._manual_consumption()
     
+    @monthly_consumption.setter
+    def monthly_consumption(self, value):
+        self.manual_monthly_consumption = value
+
     def update_auto_consumption(self):
         d = self.daily_consumption
         if d:
-            self.auto_monthly_consumption = int(d * 30)
+            # if AMC is a fraction, we should always round up
+            # (always better to underestimate months remaining than over)
+            self.auto_monthly_consumption = math.ceil(d * 30)
             self.save()
-
-    @monthly_consumption.setter
-    def monthly_consumption(self,value):
-        self.manual_monthly_consumption = value
 
     @property
     def daily_consumption(self):
@@ -602,19 +702,28 @@ class ProductStock(models.Model):
             return self.product.emergency_order_level
         
         elif self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["EMERGENCY_LEVEL"])
         return None
 
     @property
     def reorder_level(self):
         if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_REORDER_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["REORDER_LEVEL"])
         return None
 
     @property
     def maximum_level(self):
         if self.monthly_consumption is not None:
-            return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+            if settings.LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY:
+                return int(self.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS)
+            else: 
+                return int(self.monthly_consumption*self.supply_point.type.policy()["MAXIMUM_LEVEL"])
         return None
 
     @property
@@ -637,10 +746,16 @@ class ProductStock(models.Model):
 
     def is_stocked_out(self):
         if self.quantity is not None:
-            if self.quantity==0:
+            if self.quantity == 0:
                 return True
         return False
-
+    
+    def is_stale(self):
+        deadline = datetime.utcnow() + relativedelta(days=-settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE)
+        if self.last_modified is None or self.last_modified < deadline:
+            return True
+        return False
+    
     def is_below_emergency_level(self):
         """
         Returns False if a) below emergency levels, or
@@ -653,7 +768,7 @@ class ProductStock(models.Model):
 
     def is_below_low_supply_but_above_emergency_level(self):
         if self.reorder_level is not None and self.emergency_reorder_level is not None:
-            if self.quantity <= self.reorder_level and self.quantity> self.emergency_reorder_level:
+            if self.quantity <= self.reorder_level and self.quantity > self.emergency_reorder_level:
                 return True
         return False
 
@@ -699,6 +814,17 @@ class ProductStock(models.Model):
     def unset_auto_consumption(self):
         self.use_auto_consumption = False
         self.save()
+        
+    def date_last_stocked(self, before=None):
+        transactions = StockTransaction.objects.filter(supply_point=self.supply_point, 
+                                                       product=self.product)\
+                                                       .exclude(ending_balance=0)
+        if before is not None:
+            transactions = transactions.filter(date__lte=before)
+        transactions = transactions.order_by("-date")
+        if transactions:
+            return transactions[0].date
+        return None
 
 class StockTransferStatus(object):
     """Basically a const for our choices"""
@@ -1161,6 +1287,14 @@ class ContactRole(models.Model):
     def __unicode__(self):
         return _(self.name)
 
+class Validator(object):
+    """ This validator is used by the ProductReportsHelper
+    in order to check whether a given set of stock reports submitted at the same
+    time make sense together
+    """
+    def validate(self, supply_point, product_stock={}, product_received={}, consumption={}):
+        raise NotImplementedError()
+
 class ProductReportsHelper(object):
     """
     The following is a helper class which takes in aggregate
@@ -1169,7 +1303,7 @@ class ProductReportsHelper(object):
     """
     REC_SEPARATOR = '-'
 
-    def __init__(self, sdp, report_type, message=None, timestamp=None):
+    def __init__(self, sdp, report_type, message=None, timestamp=None, validator=Validator()):
         self.product_stock = {}
         self.consumption = {}
         self.product_received = {}
@@ -1180,6 +1314,13 @@ class ProductReportsHelper(object):
         self.report_type = report_type
         self.timestamp = timestamp if timestamp else datetime.utcnow()
         self.errors = []
+        self.validator = validator
+    
+    def validate(self):
+        self.validator.validate(supply_point=self.supply_point, 
+                                product_stock=self.product_stock, 
+                                product_received=self.product_received, 
+                                consumption=self.consumption)
 
     def _clean_string(self, string):
         if not string:
@@ -1215,10 +1356,10 @@ class ProductReportsHelper(object):
                 # you've reached the end
                 yield token
             elif mylist[i].isdigit() and not mylist[i+1].isdigit() or \
-                mylist[i].isalpha() and not mylist[i+1].isalpha() or \
-                not mylist[i].isalnum() and mylist[i+1].isalnum():
-                    yield token
-                    token = ''
+              mylist[i].isalpha() and not mylist[i+1].isalpha() or \
+              not mylist[i].isalnum() and mylist[i+1].isalnum():
+                yield token
+                token = ''
             i = i+1
 
     
@@ -1271,7 +1412,7 @@ class ProductReportsHelper(object):
                 while not count.isdigit():
                     count = an_iter.next()
                 self.add_product_stock(commodity, count)
-                valid=True
+                valid = True
                 token_a = an_iter.next()
                 if not token_a.isalnum():
                     token_b = an_iter.next()
@@ -1285,7 +1426,7 @@ class ProductReportsHelper(object):
                     else:
                         # if alpha, user is reporting soh, so loop
                         commodity = token_b
-                        valid=True
+                        valid = True
                 else:
                     commodity = token_a
                     valid = True
@@ -1296,10 +1437,13 @@ class ProductReportsHelper(object):
             except StopIteration:
                 break
         if not valid:
+            if self.errors and isinstance(self.errors[0], UnknownCommodityCodeError):
+                raise ValueError(config.Messages.BAD_CODE_ERROR % {'code': self.errors[0]})
             raise ValueError(config.Messages.NO_CODE_ERROR)
         return
 
     def save(self):
+        stockouts_reported = []
         stockouts_resolved = []
         # NOTE: receipts should be processed BEFORE stock levels
         # (so that after someone reports jd10.3, we record that
@@ -1311,7 +1455,8 @@ class ProductReportsHelper(object):
                                         Reports.REC)
         for stock_code in self.product_stock:
             try:
-                original_quantity = ProductStock.objects.get(supply_point=self.supply_point, product__sms_code=stock_code).quantity
+                original_quantity = ProductStock.objects.get(supply_point=self.supply_point, 
+                                                             product__sms_code=stock_code).quantity
             except ProductStock.DoesNotExist:
                 original_quantity = 0
             new_quantity = self.product_stock[stock_code]
@@ -1320,13 +1465,20 @@ class ProductReportsHelper(object):
             # for now that's ok, since malawi doesn't do anything with this 
             if original_quantity == 0 and new_quantity > 0:
                 stockouts_resolved.append(stock_code)
+            if original_quantity > 0 and new_quantity == 0:
+                stockouts_reported.append(stock_code)
+        reporter = self.message.connection.contact if self.message \
+            and self.message.connection \
+            and self.message.connection.contact else None
         if stockouts_resolved:
             # use signals framework to manage custom notifications
-            reporter = self.message.connection.contact if self.message else None
             stockout_resolved.send(sender="product_report", supply_point=self.supply_point, 
                                    products=[self.get_product(code) for code in stockouts_resolved], 
                                    resolved_by=reporter)
-            
+        if stockouts_reported: 
+            stockout_reported.send(sender="product_report", supply_point=self.supply_point, 
+                                   products=[self.get_product(code) for code in stockouts_reported], 
+                                   reported_by=reporter)
         for stock_code in self.consumption:
             self.supply_point.record_consumption_by_code(stock_code, 
                                                          self.consumption[stock_code])
@@ -1397,7 +1549,7 @@ class ProductReportsHelper(object):
     def nonzero_received(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items() if int(val) > 0)
         
-    def stockouts(self):
+    def _stockouts(self):
         # slightly different syntax than above, since there's no point in 
         # reporting stock levels for stocks which we know are at level '0'
         stockouts = {}
@@ -1409,19 +1561,25 @@ class ProductReportsHelper(object):
         if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
             for key in stockouts:
                 prod = Product.objects.get(sms_code=key)#.select_related('equivalent_to')
-                if prod.equivalents.count()>0:
+                if prod.equivalents.count() > 0:
                     for e in prod.equivalents.all():
                         if e.sms_code in self.product_stock:
                             ps = ProductStock.objects.get(product=e, supply_point=self.supply_point)
                             if ps.is_above_low_supply(): 
-                                # if we wanted to support multiple equivalents, we could do a recurisve search here
+                                # if we wanted to support multiple equivalents, 
+                                # we could do a recurisve search here
                                 dupes.append(key)
-        return " ".join('%s' % (key) for key, val in stockouts.items() if val == 0 and key not in dupes)
+        return [key for key, val in stockouts.items() if val == 0 and key not in dupes]
+
+    def stockouts(self):
+        stockouts = self._stockouts()
+        return " ".join(stockouts)
         
-    def low_supply(self):
+    def _low_supply(self):
         low_supply = {}
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(supply_point=self.supply_point).get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
+            productstock = ProductStock.objects.filter(supply_point=self.supply_point)\
+                .get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
             if productstock.is_below_low_supply():
                 low_supply[i] = productstock
         # strip equivalents
@@ -1431,24 +1589,36 @@ class ProductReportsHelper(object):
                 stock = low_supply[ls]
                 equivalents = stock.product.equivalents.all()
                 for e in equivalents:
-                    ps, created = ProductStock.objects.get_or_create(product=e, supply_point=stock.supply_point)
+                    ps, created = ProductStock.objects.get_or_create(product=e, 
+                                                                     supply_point=stock.supply_point)
                     if ps.is_above_low_supply():
-                        # if we wanted to support multiple equivalents, we could do a recurisve search here
+                        # if we wanted to support multiple equivalents, 
+                        # we could do a recurisve search here
                         dupes.append(ls)
-        ret = " ".join('%s' % (key) for key, val in low_supply.items() if key not in dupes)
-        return ret
+        return [key for key, val in low_supply.items() if key not in dupes]
+
+    def low_supply(self):
+        low_supply = self._low_supply()
+        return " ".join(low_supply)
+    
+    def amount_to_reorder(self):
+        reorder = self._stockouts() + self._low_supply()
+        pss = ProductStock.objects.filter(supply_point=self.supply_point, 
+                                          product__sms_code__in=reorder)
+        return ", ".join('%s %s' % (ps.reorder_amount, ps.product.sms_code) for ps in pss if ps.reorder_level is not None)
 
     def over_supply(self):
         over_supply = ""
         for i in self.product_stock:
-            productstock = ProductStock.objects.filter(supply_point=self.supply_point).get(product__sms_code__icontains=i)
+            productstock = ProductStock.objects.filter(supply_point=self.supply_point)\
+                .get(product__sms_code__icontains=i)
             #if productstock.monthly_consumption == 0:
             #    raise ValueError("I'm sorry. I cannot calculate oversupply
             #    for %(code)s until I know your monthly con/sumption.
             #    Please contact your DHIO for assistance." % {'code':i})
             if productstock.monthly_consumption is not None:
-                if self.product_stock[i] >= productstock.monthly_consumption*settings.LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS and \
-                   productstock.monthly_consumption>0:
+                if self.product_stock[i] >= productstock.maximum_level and \
+                   productstock.monthly_consumption > 0:
                     over_supply = "%s %s" % (over_supply, i)
         over_supply = over_supply.strip()
         return over_supply
@@ -1458,17 +1628,14 @@ class ProductReportsHelper(object):
         check for active products that haven't yet been added
         to this stockreport helper
         """
-        all_products = []
         num_days = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT
         date_check = datetime.utcnow() + relativedelta(days=-num_days)
         reporter = self.message.contact
-        missing_products = Product.objects.filter(Q(reported_by=reporter),
-                                                  ~Q(productreport__report_date__gt=date_check,
-                                                     productreport__supply_point=self.supply_point) )
-        for dict in missing_products.values('sms_code'):
-            all_products.append(dict['sms_code'])
-        return list(set(all_products)-self.reported_products())
-
+        products_to_report = reporter.commodities_reported()
+        stocks_already_reported = self.supply_point.product_stocks().filter(last_modified__gt=date_check)
+        return list(set([p.sms_code for p in products_to_report]) \
+            - set([r.product.sms_code for r in stocks_already_reported]) \
+            - set([q for q in self.reported_products()]))
 
 def get_geography():
     """
@@ -1480,9 +1647,11 @@ def get_geography():
     try:
         return Location.objects.get(code__iexact=settings.COUNTRY)
     except ValueError:
-        raise UnknownLocationCodeError("Invalid COUNTRY defined in settings.py. Please choose one that matches the code of a registered location.")
+        raise UnknownLocationCodeError("Invalid COUNTRY defined in settings.py. ", 
+                                       "Please choose one that matches the code of a registered location.")
     except Location.MultipleObjectsReturned:
-        raise Location.MultipleObjectsReturned("You must define only one root location (no parent id) per site.")
+        raise Location.MultipleObjectsReturned("You must define only one root location ", 
+                                               "(no parent id) per site.")
     except Location.DoesNotExist:
         raise Location.DoesNotExist("The COUNTRY specified in settings.py does not exist.")
 

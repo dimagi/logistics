@@ -64,10 +64,7 @@ class ReportingBreakdown(object):
     def __init__(self, supply_points, datespan=None, include_late=False,
                  days_for_late=5, MNE=False, request=None):
         
-        if supply_points.filter(active=False).exists(): 
-            supply_points = self.supply_points.filter(active=True)
-        
-        self.supply_points = supply_points
+        supply_points = supply_points.filter(active=True)
         
         if not datespan:
             datespan = DateSpan.since(30)
@@ -466,7 +463,7 @@ class ProductAvailabilitySummary(object):
                 with_stock.append([index, product_summary["with_stock"]])
                 without_stock.append([index, product_summary["without_stock"]])
                 without_data.append([index, product_summary["without_data"]])
-                products.append([index, "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].sms_code)])
+                products.append([index, "<span title='%s'>%s</span>" % (product_summary["product"].name, product_summary["product"].name)])
 
             bar_data = [{"data" : without_stock,
                          "label": "Stocked out",
@@ -568,6 +565,11 @@ class ProductAvailabilitySummaryByFacility(ProductAvailabilitySummary):
         self.data = data
 
 class ProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummary):
+    """ it looks like this is a slower but more full-featured version of 
+    ProductAvailabilitySummaryByFacility which supports query by date, plus 
+    some incomplete code for using caching looking ahead: could merge these 
+    two functions, or replace this entirely with tanzania warehousing stuff
+    """
 
     def __init__(self, facilities, width=900, height=300, month=None, year=None):
         """

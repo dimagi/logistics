@@ -160,6 +160,8 @@ class Messages(object):
     # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+    BAD_CODE_ERROR = ("%(code)s is not a recognized commodity code. "
+                      "Please contact your DHIO for assistance.")
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
                                 "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \

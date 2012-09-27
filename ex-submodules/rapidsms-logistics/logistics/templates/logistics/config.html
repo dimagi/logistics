@@ -4,6 +4,7 @@
 {% block stylesheets %}
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}registration/stylesheets/dashboard.css" />
+<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
 {% endblock %}
 
 {% block left %}
@@ -23,14 +24,30 @@
 		Add a {{ klass }}{% endif %}
 	</h2>
 
+     {% if created %}
+          <br/><div class="success">{{created}} has been successfully registered.</div>
+     {% endif %}
+     {% if deleted %}
+          <br/><div class="success">{{deleted}} has been successfully deleted.</div>
+     {% endif %}
+
 	<form action="" method="post">
 		{% render_form form %}
 		{% csrf_token %}
 
+		<div class="custom_field">
+		{% block custom_fields %}
+		{% endblock %}
+		</div>
+
+        {% block submit %}
 		<div class="submit">
 			<input type="submit" name="submit" value="Save {{ klass }}" />{% if object %}
 			<input type="submit" name="submit" value="Delete {{ klass }}" />{% endif %}
 		</div>
+		{% endblock %}
 	</form>
+	{% block post_notes %}
+	{% endblock %}
 </div>
 {% endblock %}

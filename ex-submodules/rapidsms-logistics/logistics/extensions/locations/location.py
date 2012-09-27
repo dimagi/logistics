@@ -16,7 +16,8 @@ class Location(models.Model, StockCacheMixin):
     
     class Meta:
         abstract = True
-    
+        ordering = ['name']
+
     def set_parent(self, parent):
         if hasattr(self,'tree_parent'):
             self.tree_parent = parent

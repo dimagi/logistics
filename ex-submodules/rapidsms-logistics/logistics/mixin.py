@@ -99,7 +99,7 @@ class StockCacheMixin():
         returns a QuerySet of ProductStock filetered by product and product type
         """
         from logistics.models import ProductStock
-        results = ProductStock.objects.filter(is_active=True)
+        results = ProductStock.objects.filter(is_active=True, product__is_active=True)
         if product is not None:
             results = results.filter(product__sms_code=product)
         elif producttype is not None:

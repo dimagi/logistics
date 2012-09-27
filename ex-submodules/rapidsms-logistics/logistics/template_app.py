@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 """
 The main purpose of this app is to parse reports of stock on hand and receipts
@@ -71,27 +71,26 @@ class App(AppBase):
         """
         response = ''
         super_response = ''
+        amount_to_reorder = stock_report.amount_to_reorder()
         stockouts = stock_report.stockouts()
         low_supply = stock_report.low_supply()
         over_supply = stock_report.over_supply()
         received = stock_report.nonzero_received()
         missing_product_list = stock_report.missing_products()
+        if missing_product_list:
+            response = response + 'still missing %(missing_stock)s. '
         if stockouts:
-            response = response + 'the following items are stocked out: %(stockouts)s. '
+            response = response + 'these items are stocked out: %(stockouts)s. '
             super_response = "stockouts %(stockouts)s; "
         if low_supply:
-            response = response + 'the following items need to be reordered: %(low_supply)s. '
+            response = response + 'these items need to be reordered: %(low_supply)s. '
             super_response = super_response + "below reorder level %(low_supply)s; "
-        if stockouts or low_supply:
-            response = response + 'Please place an order now. '
-        if missing_product_list:
-            if not response:
-                response = response + 'thank you for reporting your stock on hand. '
-            response = response + 'Still missing %(missing_stock)s. '
+        if (stockouts or low_supply) and amount_to_reorder:
+            response = response + 'Please order %(amount_to_reorder)s. '
         if over_supply:
             super_response = super_response + "overstocked %(overstocked)s; "
             if not response:
-                response = 'the following items are overstocked: %(overstocked)s. The district admin has been informed.'
+                response = 'these items are overstocked: %(overstocked)s. The district admin has been informed.'
         if not response:
             if received:
                 response = 'thank you for reporting the commodities you have. You received %(received)s.'
@@ -102,6 +101,7 @@ class App(AppBase):
             super_response = 'Dear %(admin_name)s, %(supply_point)s is experiencing the following problems: ' + super_response.strip().strip(';')
         kwargs = {  'low_supply': low_supply,
                     'stockouts': stockouts,
+                    'amount_to_reorder': amount_to_reorder,
                     'missing_stock': ', '.join(missing_product_list),
                     'stocks': stock_report.all(),
                     'received': received,
@@ -151,21 +151,21 @@ class App(AppBase):
         """
         if hasattr(message.logger_msg, "tags"):
             message.logger_msg.tags.add("Handler_DefaultHandler")
-            if message.connection.contact:
+            if hasattr(message.connection, 'contact') and message.connection.contact:
                 message.logger_msg.tags.add("RegisteredContact")
             else:
                 message.logger_msg.tags.add("UnregisteredContact")
         
-        """ There's probably a better way to do this, but for now,
-        this is what the folks in the field want 
+        """ complain if the first code isn't recognized as a commodity code 
+        - but only on aggressive soh parsing
         """
         match = re.search("[0-9]", message.text)
-        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING:
+        if match is not None and settings.LOGISTICS_AGGRESSIVE_SOH_PARSING and \
+          hasattr(message.connection, 'contact'):
             index = message.text.find(match.group(0))
             code = message.text[:index].strip()
             if code:
-                message.error("%s is not a recognized commodity code. " % code + 
-                              "Please contact your DHIO for assistance." )
+                message.error(config.Messages.BAD_CODE_ERROR % {'code':code} )
                 return
         if settings.DEFAULT_RESPONSE is not None:
             message.error(settings.DEFAULT_RESPONSE,
@@ -194,7 +194,6 @@ class App(AppBase):
             return message.text.lower().startswith(Reports.SOH) 
         else:
             keywords = [Reports.SOH]
-            
             keywords.extend(Product.objects.values_list('sms_code', flat=True).order_by('sms_code'))
             text = message.text.lower()
             for keyword in keywords:

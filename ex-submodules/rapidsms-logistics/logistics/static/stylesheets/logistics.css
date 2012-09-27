@@ -1,12 +1,23 @@
+input[type=text], input[type=password], input[type=url], input[type=email],
+input.text, input.title,
+textarea, select {
+  margin:0 0;
+}
+
 .error {
     color: red;
     padding: 1em;
 }
 
-.big_error {
+.plain_error {
     color: red;
-    padding: 1em;
     font-weight: bold;
+}
+
+.not_available {
+    color: grey;
+    padding: 1em;
+    font-style: italic;
 }
 
 .smallnote {
@@ -14,6 +25,11 @@
     font-style:italic;
 	clear:left; 
 	padding-top:2em
+}
+
+.help_text {
+    font-size: 0.9em;
+    font-style:italic;
 }
 
 .note {
@@ -72,9 +88,21 @@
     background-color: white;
 }
 
-.stock tr.inactive .big_error{
+.stock tr.inactive{
 	/* the duplicate font-weight=normal is necessary to 
 	override the big red bold 'not set' under consumption */
     color: #909090;
     font-weight: normal;
+}
+
+.end_note{
+    padding-top: 1em;
+    padding-left: 1em;
+    line-height: 1.4;
+}
+
+/* wow, css never ceases to amaze me... */
+.required_label:after {
+	color: red;  
+	content: "*"; 
 }

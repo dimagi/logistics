@@ -1786,7 +1786,7 @@
         "pk": 1, 
         "model": "auth.group", 
         "fields": {
-            "name": "program_admin", 
+            "name": "facility_manager", 
             "permissions": [
                 55, 
                 56, 
