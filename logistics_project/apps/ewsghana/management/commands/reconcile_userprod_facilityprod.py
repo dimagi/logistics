@@ -8,7 +8,7 @@ from logistics.util import config
 from logistics_project.apps.ewsghana import loader
 
 class Command(BaseCommand):
-    help = "Set ProductStock.use_auto_consumption to be True, and update all auto_monthly_consumptions"
+    help = "Switch from STOCK_BY = user to STOCKY_BY = facility"
 
     def handle(self, *args, **options):
         self.reconcile_userprod_facilityprod()
