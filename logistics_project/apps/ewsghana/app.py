@@ -15,7 +15,7 @@ class SohAndReceiptValidator(Validator):
                                               product__sms_code=stock)
             except ProductStock.DoesNotExist:
                 return
-            if ps.quantity and ps.quantity < product_stock[stock]:
+            if ps.quantity is not None and ps.quantity < product_stock[stock]:
                 stock_increase = product_stock[stock] - ps.quantity
                 if stock not in product_received or stock_increase > product_received[stock]:
                     raise ValueError('You reported an increase in %s ' % stock + 
