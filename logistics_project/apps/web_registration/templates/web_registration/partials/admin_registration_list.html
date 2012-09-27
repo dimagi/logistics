@@ -5,10 +5,12 @@
 	</div>
 	{% endif %}
 	<h2>Registered Web Users</h2>
+	 {% include "registration/partials/search.html" %}
 	<table><thead>
 		<tr>
 			<th>Username</th>
 			<th>Email</th>
+			<th>Designation</th>
 		</tr>
 	</thead><tbody>
 	{% for registered_user in users %}
@@ -18,6 +20,7 @@
 			    {{ registered_user.username }}
 			</a></td>
 			<td>{{ registered_user.email }}</td>
+			<td>{{ registered_user.get_profile.designation|slice:"17"|default_if_none:"" }}</td>
 		</tr>
 	{% endifnotequal %}
 	{% endfor %}

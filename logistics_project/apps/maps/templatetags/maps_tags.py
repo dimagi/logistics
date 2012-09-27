@@ -37,6 +37,7 @@ def get_map_popup(supply_point, request):
     
     return render_to_string("maps/partials/supply_point_popup.html", 
                             {"sp": supply_point, 
-                             "productstocks": supply_point.productstock_set.all().order_by('product__name')}
+                             "productstocks": supply_point.stocked_productstocks().order_by('product__name'), 
+                             "MEDIA_URL": settings.MEDIA_URL }
                             ).replace("\n", "")
     

@@ -20,5 +20,23 @@
                 <li class="doc"><a href="{{ MEDIA_URL }}ewsghana/help/web_manual.docx">Web Training Manual (1 MB)</a></li>
             </ul>
         </div>
-        For additional assistance, please contact <a href="mailto:ewsghana.help@gmail.com">ewsghana.help@gmail.com</a>.
+        <div class="end_note">
+            For additional assistance, please contact <a href="mailto:ewsghana.help@gmail.com">ewsghana.help@gmail.com</a>.
+        <table> 
+	        <thead>
+		        <th>Commodity</th>
+		        <th>SMS Code</th>
+		        <th>Description</th>
+	        </thead>
+        <tbody>
+        {% for commodity in commodities %}
+	        <tr>
+	            <td>{{commodity.name}}</td>
+	            <td>{{commodity.sms_code}}</td>
+	            <td>{{commodity.description}}</td>
+	        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        </div>
 {% endblock %}

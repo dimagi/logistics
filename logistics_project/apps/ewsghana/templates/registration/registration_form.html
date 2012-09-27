@@ -16,9 +16,30 @@
 <h1>Create a Web Account</h1>
 
 <form method="post" action="">
-<table>
-{{ form.as_table }}
-</table>
+<!-- not sure why jquery forms ui indents the first-child? 
+whatever, this div is to fix the styling -->
+<div></div>
+{% if form.non_field_errors %}
+  <div class="non_field_errors error">
+  {{ form.non_field_errors }}
+  </div>
+{% endif %}
+{% for field in form %}
+    {% if field.errors %}
+	    <div class="error">
+	    {{ field.errors }}
+	    </div>
+    {% endif %}
+    <div class="span-2 {% if field.field.required %}required_label{% endif %}">
+    {{ field.label_tag }}
+    </div>
+    <div class="clear help_text">{{field.help_text}}</div>
+    <div class="span-5">{{ field }}</div>
+{% endfor %}
+
+*These fields are required<br/>
+
+
 {% csrf_token %}
 <input type="submit" value="Create My Account" />
 <input type="hidden" name="next" value="{{ next }}" />

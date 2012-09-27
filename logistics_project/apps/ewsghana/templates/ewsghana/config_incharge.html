@@ -1,0 +1,42 @@
+{% extends "logistics/config.html" %} 
+
+{% block breadcrumbs %} 
+    {% include "ewsghana/partials/config_submenu.html" %} 
+{% endblock %} 
+
+{% block left %}
+<div class="module">
+<h2>Select In-Charge for {{object}}</h2>
+<form action="" method="post">
+{% csrf_token %}
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th scope="col">Name</th>
+            <th>Facility</th>
+        </tr>
+    </thead>
+    {% for cand in candidates %}
+    <tbody>
+        <tr>
+            <td><input type=radio name="incharge_pk" value="{{cand.pk}}"></input></td>
+            <td>{{cand.name}}</td>
+            <td>{{cand.supply_point.name}}</td>
+        </tr>
+    </tbody>
+    {% endfor %}
+</table>
+<div class="submit">
+    <input type="submit" name="submit" value="Save In-Charge" />
+    <input type="submit" name="submit" value="Cancel" />
+</div>
+</form>
+<div class="end_note">To add more users to this list, <a
+    href="{% url ewsghana_sms_registration %}?supplypoint={{object.code}}">
+    register additional SMS users</a> with the role of 'in-charge' in this district.</div>
+</div>
+{% endblock %}
+
+{% block submit %}
+{% endblock %}
