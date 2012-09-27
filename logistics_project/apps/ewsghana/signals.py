@@ -1,12 +1,8 @@
-from logistics.signals import stockout_resolved
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, 
-                                           resolved_by, **kwargs):
-    """
-    Notifies suppliees of stockouts being resolved.
-    """
-    exclude_list = [] if resolved_by is None else [resolved_by]
-    supply_point.notify_suppliees_of_stockouts_resolved([p.code for p in products], 
-                                                        exclude=exclude_list)
-    
+from logistics.signals import stockout_resolved, notify_suppliees_of_stockouts_resolved
+from logistics.signals import stockout_reported, notify_suppliees_of_stockouts_reported
+
 stockout_resolved.connect(notify_suppliees_of_stockouts_resolved)
+stockout_reported.connect(notify_suppliees_of_stockouts_reported)

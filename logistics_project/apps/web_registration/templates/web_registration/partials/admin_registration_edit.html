@@ -1,3 +1,4 @@
+{% load logistics_extras %}
 <div class="module">
 <!-- Registration request form -->  
 <h2>
@@ -17,25 +18,40 @@
 <br/>
 
 {% if form.non_field_errors %}
-  <div class="non_field_errors">
+  <div class="non_field_errors error">
   {{ form.non_field_errors }}
   </div>
 {% endif %}
 
 {% for field in form.visible_fields %}
   {% if field.errors %}
-    <div class="field_errors">
+    <div class="field_errors error">
     {{field.errors}}
     </div>
   {% endif %}
   
-  <div class="span-5 clear">
-	  {{ field.label_tag }}
-  </div>
-  <div class="span-2">
-	  {{ field }}
-  </div><br/>
+  {% if field.field.widget|klass == 'CheckboxInput' %}
+	  <div class="span-2">
+		  {{ field }}
+		  {{ field.label_tag }}
+	  </div>
+	  <div class="clear help_text">
+	  {{field.help_text}}
+	  </div><br/>
+  
+  {% else %}
+	  <div class="span-5 {% if field.field.required %}required_label{% endif %}">
+		  {{ field.label_tag }}
+	  </div>
 
+	  <div class="span-2">
+		  {{ field }}
+	  </div>
+	  <div class="clear help_text">
+	  {{field.help_text}}
+	  </div><br/>
+  {% endif %}
+  
 {% endfor %}
 
 <div class="submit">

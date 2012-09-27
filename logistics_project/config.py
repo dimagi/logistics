@@ -154,5 +154,4 @@ class Messages(object):
     REGISTER_MESSAGE = "You must be registered on this system " + \
                        "before you can submit a stock report. " + \
                        "Please contact your %(supervisor)s." % {'supervisor' : SUPERVISOR_TITLE}
-    SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
 

@@ -1,0 +1,42 @@
+{% extends "logistics/config.html" %}
+
+{% block breadcrumbs %}
+{% include "ewsghana/partials/config_submenu.html" %}
+{% endblock %}
+
+{% block custom_fields %}
+<strong>Which commodities will be reported?</strong><br/>
+{% for product in products %}
+    <input type="checkbox" name="{{ product.sms_code }}" id="id_{{ product.sms_code }}"
+        {% if object %}
+            {% if product.pk in form.initial.commodities %}
+                checked="checked"
+            {% endif %}
+        {% endif %}
+    >{{product.name}}</input><br/>
+{% endfor %}
+<p/>
+{% endblock %}
+
+{% block post_notes %}
+{% if form.initial %}
+<div class="end_note">
+    <strong><a href="{% url ewsghana_sms_registration %}?supplypoint={{form.initial.code}}">
+        Register SMS Users
+    </a></strong>
+</div>
+<div class="end_note"><p>
+    <strong>In-Charge</strong>: 
+    {% for rep in incharges %}
+        <a href="{% url ewsghana_registration_edit rep.pk %}">{{ rep.name }}</a>
+            {% if object != rep.supply_point %}
+                from {{ rep.supply_point.name }}
+            {% endif %}
+        <br/>
+    {% endfor %}
+    <strong><a href="{% url ews_configure_incharge object.code %}">
+        Configure In-Charge
+    </a></strong>
+</p></div>
+{% endif %}
+{% endblock %}

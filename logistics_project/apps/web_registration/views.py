@@ -3,7 +3,7 @@
 
 import sys
 from datetime import datetime
-from rapidsms.conf import settings
+from django.db.models import Q
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -13,11 +13,12 @@ from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from rapidsms.conf import settings
 from rapidsms.models import Connection, Backend, Contact
-from .forms import AdminRegistersUserForm
+from .forms import RegisterUserForm
 
 @transaction.commit_on_success
-def my_web_registration(request, Form=AdminRegistersUserForm, 
+def my_web_registration(request, Form=RegisterUserForm, 
                         template='web_registration/admin_registration.html', 
                         success_url='admin_web_registration_complete'):
     context = {}
@@ -25,14 +26,14 @@ def my_web_registration(request, Form=AdminRegistersUserForm,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 @transaction.commit_on_success
-def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, context={}, 
+def admin_does_all(request, pk=None, Form=RegisterUserForm, context={}, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
+    user = None
     if not request.user.has_perm('auth.add_user') and \
       not (hasattr(request.user, 'pk') and int(pk) == int(request.user.pk)):
         # view is only available to non-admin users if all they do is edit themselves
         return HttpResponseRedirect(settings.LOGIN_URL)
-    user = None
     if pk is not None:
         user = get_object_or_404(User, pk=pk)
         context['edit_user'] = user
@@ -59,8 +60,16 @@ def admin_does_all(request, pk=None, Form=AdminRegistersUserForm, context={},
                                           context_instance = RequestContext(request))
             else:
                 return HttpResponseRedirect( reverse(success_url))
-    context['form'] = form
     context['users'] = User.objects.all().order_by('username')
+    if request.method == 'GET' and 'search' in request.GET: 
+        search = context['search'] = request.GET['search']
+        context['users'] = context['users'].filter(Q(username__iregex=search) |\
+                                   Q(email__iregex=search) |\
+                                   Q(first_name__iregex=search) |\
+                                   Q(last_name__iregex=search) |\
+                                   Q(logisticsprofile__supply_point__name__iregex=search) |\
+                                   Q(logisticsprofile__location__name__iregex=search))
+    context['form'] = form
     return render_to_response(template, context, 
                               context_instance = RequestContext(request)) 
 

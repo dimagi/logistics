@@ -1,3 +1,5 @@
+{% load logistics_report_tags %}
+{% load logistics_extras %}
 <div class="content">
     <h3 class="popup_title">{{ sp.name }}</h3>
     
@@ -6,12 +8,14 @@
     <table>
     	<thead>
     		<th>Product</th>
-    		<th>Quantity</th>
+            <th>Quantity</th>
+            <th>Months Until Stockout</th>
     	</thead>
     	{% for stock in productstocks %}
         <tr>
             <td>{{stock.product.name}}</td>
             <td>{{stock.quantity|default_if_none:"no data" }}</td>
+            {% highlight_months stock MEDIA_URL %}
         </tr>
         {% endfor %}
     </table>

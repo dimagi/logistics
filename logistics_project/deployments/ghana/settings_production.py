@@ -122,13 +122,20 @@ EMAIL_USE_TLS=True
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
-LOGISTICS_MINIMUM_DAYS_TO_CALCULATE_CONSUMPTION = 60
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_USE_COMMODITY_EQUIVALENTS = True
 LOGISTICS_CONFIG = 'static.ghana.config'
 LOGISTICS_USE_SPOT_CACHING = True
 LOGISTICS_SPOT_CACHE_TIMEOUT = 60*60
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 7 
+LOGISTICS_CONSUMPTION = {
+    "MINIMUM_TRANSACTIONS": 2,
+    "MINIMUM_DAYS": 60,
+    "LOOKBACK_DAYS": None,          # none is no max
+    "INCLUDE_END_STOCKOUTS": False, # whether or not to include periods ending in a stockout    
+}
+LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
+LOGISTICS_STOCKED_BY = 'facility'
 
 AUDITCARE_LOG_ERRORS = False
 
@@ -153,7 +160,6 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics.alerts.non_reporting_facilities',
     'logistics.alerts.facilities_without_reporters',
     'logistics_project.apps.ewsghana.alerts.facilities_without_incharge',
-    'logistics_project.apps.ewsghana.alerts.consumption_not_set',
     'logistics.alerts.facilities_without_reminders',
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]

@@ -54,7 +54,9 @@ class SupplyPointCodes(object):
     These correspond to SupplyPointType.code
     """
     REGIONAL_MEDICAL_STORE = "RMS"
+    DISTRICT_HOSPITAL = "dh"
     REGIONAL_HOSPITAL = "rh"
+    PSYCHIATRIC_HOSPITAL = "ph"
     HOSPITAL = "hospital"
     HEALTH_CENTER = "hc"
     CHPS = "chps"
@@ -62,10 +64,34 @@ class SupplyPointCodes(object):
     ALL = {
         REGIONAL_MEDICAL_STORE: "regional medical store",
         REGIONAL_HOSPITAL: "regional hospital",
+        DISTRICT_HOSPITAL: "dh", 
+        PSYCHIATRIC_HOSPITAL: "ph", 
         HOSPITAL: "hospital",
         HEALTH_CENTER: "health center",
         CHPS: "chps",
         CLINIC: "clinic",
+    }
+    
+class SupplyPointPolicies(object):
+    POLICY_1 = {
+            "EMERGENCY_LEVEL": 0.5,
+            "REORDER_LEVEL": 1.5,
+            "MAXIMUM_LEVEL":  3,
+    }
+    POLICY_2 = {
+            "EMERGENCY_LEVEL": 0.5,
+            "REORDER_LEVEL": 1.5,
+            "MAXIMUM_LEVEL":  6,
+    }
+    STOCK_POLICIES = {
+          SupplyPointCodes.REGIONAL_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.HOSPITAL: POLICY_1, 
+          SupplyPointCodes.HEALTH_CENTER: POLICY_1, 
+          SupplyPointCodes.CHPS: POLICY_1, 
+          SupplyPointCodes.CLINIC: POLICY_1, 
+          SupplyPointCodes.DISTRICT_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.PSYCHIATRIC_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.REGIONAL_MEDICAL_STORE: POLICY_2
     }
 
 class LocationCodes(object):
@@ -115,8 +141,10 @@ def hsa_location_type():
 class Messages(object):
     SUPERVISOR_TITLE = 'DHIO'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+    BAD_CODE_ERROR = ("%(code)s is not a recognized commodity code. "
+                      "Please contact your DHIO for assistance.")
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
-                                "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
+                    "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
                                  "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
@@ -134,8 +162,9 @@ class Messages(object):
     # scheduled reminders
     STOCK_ON_HAND_REMINDER = 'Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.'
     SECOND_STOCK_ON_HAND_REMINDER = 'Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.'
+    SECOND_INCOMPLETE_SOH_REMINDER = 'Hi %(name)s, your facility is missing a few SMS stock reports. Please report on: %(products)s.'
     THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, your facility has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
-    THIRD_CHPS_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, %(facility)s has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
+    INCOMPLETE_SOH_TO_SUPER = 'Dear %(name)s, %(facility)s\'s SMS stock report was INCOMPLETE. Please report for: %(products)s'
     RRIRV_REMINDER = "Dear %(name)s, have you submitted your RRIRV forms this month? Please reply 'yes' or 'no'"
 
     # reports

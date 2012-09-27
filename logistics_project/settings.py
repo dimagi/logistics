@@ -104,6 +104,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.google_analytics",
+    "logistics.context_processors.stocked_by",
     "couchlog.context_processors.static_workaround"
 ]
 
@@ -204,8 +205,8 @@ COUCHDB_APPS=['auditcare','couchlog']
 LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
-LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
-LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
+LOGIN_TEMPLATE = LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
+LOGGEDOUT_TEMPLATE = LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_PASSWORD_CHANGE_TEMPLATE = "logistics/password_reset_form.html"
 LOGISTICS_ALERT_GENERATORS = ['alerts.alerts.empty']
 LOGISTICS_USE_AUTO_CONSUMPTION = False
