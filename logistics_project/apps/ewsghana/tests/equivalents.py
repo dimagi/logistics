@@ -25,12 +25,12 @@ class TestEquivalents(TestScript):
               123 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
               123 > ov0 ml1
               123 < Dear stella, these items are stocked out: ov. these items need to be reordered: ml. Please order 30 ov, 29 ml.
-              123 > ov1 ml0
+              123 > ov1.1 ml0
               123 < Dear stella, these items are stocked out: ml. these items need to be reordered: ov. Please order 29 ov, 30 ml.
-              123 > ov0 ml20
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
-              123 > ov20 ml0
-              123 < Dear stella, thank you for reporting the commodities you have in stock.
+              123 > ov0 ml20.20
+              123 < Dear stella, thank you for reporting the commodities you have. You received ml 20.
+              123 > ov20.20 ml0
+              123 < Dear stella, thank you for reporting the commodities you have. You received ov 20.
             """
         self.runScript(a)
 
