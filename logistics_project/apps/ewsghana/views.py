@@ -70,7 +70,22 @@ def help(request, template="ewsghana/help.html"):
     )
 
 def auditor(request, template="ewsghana/auditor.html"):
-    auditEvents = AccessAudit.view("auditcare/by_date_access_events", descending=True, include_docs=True).all()
+    """
+    NOTE: this truncates the log by default to the last 750 entries
+    To get the complete usage log, web users should export to excel 
+    This does a wildly inefficient couch<->postgres join. optimize later if need be.
+    """
+    MAX_ENTRIES = 100
+    if request.method == "GET" and 'search' in request.GET:
+            search = request.GET['search']
+            auditEvents = AccessAudit.view("auditcare/by_user_access_events", 
+                                   limit=MAX_ENTRIES, endkey=[search], 
+                                   startkey=[search, {}, {}, {}, {}, {}, {}], 
+                                   descending=True, include_docs=True).all()
+    else:
+            auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
+                                   limit=MAX_ENTRIES, 
+                                   descending=True, include_docs=True).all()
     realEvents = []
     for a in auditEvents:
         designation = organization = facility = location = first_name = last_name = ''

@@ -2,5 +2,12 @@
 
 {% block breadcrumbs %}
 {% include "ewsghana/partials/usage_submenu.html" %}
+
+<form method="get" id="contact-search">
+<label for="search">Search By User: </label>
+<input type="text" name="search" id="search" value="{% if search %}{{ search }}{% endif %}"></input>
+<input type="submit" value="Search" />
+</form>
+
 {% endblock %}
 
