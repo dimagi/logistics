@@ -201,8 +201,12 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
                                 data=req.POST)
             if form.is_valid():
                 facility = form.save()
+                if pk is not None:
+                    url = "%s?updated=%s"
+                else:
+                    url = "%s?created=%s"
                 return HttpResponseRedirect(
-                    "%s?created=%s" % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
+                    url % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
                                        unicode(facility)))
     else:
         form = FacilityForm(instance=facility)
