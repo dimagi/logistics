@@ -387,5 +387,8 @@ def table_to_csv(table_data):
     writer = UnicodeWriter(response)
     writer.writerow(table_data['header'])
     for row in table_data['data']:
+        # HACK: selectable tables have a different structure
+        if isinstance(row, dict):
+            row = row["data"] # implicit assertion of key existence
         writer.writerow(row)
     return response
