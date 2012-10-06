@@ -235,5 +235,5 @@ def init_static_data():
     load_schedules()
     locations = getattr(settings, "STATIC_LOCATIONS")
     if locations:
-        load_locations(locations)
+        load_locations_from_path(locations)
     info("Success!")
