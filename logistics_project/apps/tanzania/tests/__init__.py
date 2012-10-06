@@ -1,3 +1,4 @@
+from .bugs import *
 from .delivery import *
 from .deliverygroups import *
 from .help import *
