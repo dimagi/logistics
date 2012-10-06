@@ -204,7 +204,8 @@ def dashboard2(request):
     location = Location.objects.get(code=org)
 
     try:
-        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),supply_point__code=org)
+        org_summary = OrganizationSummary.objects.filter(date__range=(mp.begin_date,mp.end_date),
+                                                         supply_point__code=org)
         if len(org_summary) > 0:
             org_summary = org_summary[0]
         else:
