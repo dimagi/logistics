@@ -41,11 +41,15 @@ def parse_report(val):
     >>> parse_report("randomextradata zi1O co2O la3O randomextradata")
     [('zi', 10), ('co', 20), ('la', 30)]
     """
+    
+    def _cleanup(s):
+        return unicode(s).encode('utf-8')
+    
     return [(x[0], int(x[1].translate(maketrans(NUMERIC_LETTERS[0], NUMERIC_LETTERS[1])))) \
             for x in findall("\s*(?P<code>[A-Za-z]{%(minchars)d,%(maxchars)d})\s*(?P<quantity>[\-?0-9%(numeric_letters)s]+)\s*" % \
                                     {"minchars": CODE_CHARS_RANGE[0],
                                      "maxchars": CODE_CHARS_RANGE[1],
-                                     "numeric_letters": NUMERIC_LETTERS[0]}, str(val))]
+                                     "numeric_letters": NUMERIC_LETTERS[0]}, _cleanup(val))]
 
 if __name__ == '__main__':
     import doctest
