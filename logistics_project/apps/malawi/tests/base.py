@@ -29,7 +29,8 @@ class OutputtingTestScript(TestScript):
             def csv_line(writer, msg):
                 def direction(msg):
                     return ">>" if  msg.direction == "I" else "<<"
-                return writer.writerow([msg.connection.identity, direction(msg), msg.text])
+                return writer.writerow([msg.connection.identity, direction(msg), 
+                                        unicode(msg.text).encode('utf-8')])
             for message in Message.objects.order_by("date"):
                 csv_line(writer, message)
         super(OutputtingTestScript, self).tearDown()
