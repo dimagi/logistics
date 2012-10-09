@@ -16,7 +16,7 @@ Install pip >=0.6.3. Don't use apt-get on Lucid, it'll give you 0.3.1
 DB SETUP
 * Change authentication method from ident to MD5 in /etc/postgresql/8.4/main/pg_hba.conf 
 * Restart postgres
-* Set up a postgres user with the appropriate username and password
+* Set up a postgres user with  the appropriate username and password
 * Create the DB
 
 SETUP
