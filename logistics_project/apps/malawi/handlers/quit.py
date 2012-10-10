@@ -16,7 +16,8 @@ class DeregistrationHandler(KeywordHandler):
         self.handle("")
         
     def handle(self, text):
-        if not hasattr(self.msg,'logistics_contact'):
+        if not hasattr(self.msg,'logistics_contact') or \
+           not self.msg.logistics_contact.is_active:
             self.respond(config.Messages.LEAVE_NOT_REGISTERED)
         else:
             self.msg.logistics_contact.is_active = False
