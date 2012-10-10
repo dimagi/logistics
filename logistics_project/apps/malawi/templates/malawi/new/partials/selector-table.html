@@ -47,8 +47,8 @@ $(document).ready(function() {
 		window.location = url;
 	});
 	$("#{{ table.id }} tbody tr").live('hover',function(){
-		$(this).parent().children().css({"background-color": "#FFFFFF"});
-		$(this).css({"background-color": "#A0DEFF", "cursor": "hand", "cursor": "pointer"});
+		$(this).parent().children().css({"background-color": "#FFFFFF", "text-decoration": "none"});
+		$(this).css({"background-color": "#A0DEFF", "text-decoration": "underline", "cursor": "hand", "cursor": "pointer"});
 	});
 
 });
