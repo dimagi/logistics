@@ -191,7 +191,7 @@ def get_reporting_rates_chart(location, start, end):
                  for k in ["on time", "late", "missing"]]
     
     ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
-                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+                     'label': 'complete', 'lines': {"show": True}, 'points': {"show": True}, "bars": {"show": False},
                      'yaxis': 2})
     
     report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
