@@ -51,7 +51,7 @@
                 <tr><th colspan="3">National Stock Out Rate</th></tr>
                 <tr><th>Product</th><th>HSAs</th><th>% SO</th></tr>
                 {% for product, pct in product_stockout_pcts.items %}                
-                    <tr><td>{{ product.sms_code }}</td>
+                    <tr class="{% cycle 'odd' 'even' %}"><td>{{ product.sms_code }}</td>
                         <td>{{ pct.1 }}</td>
                         <td>{{ pct.0|floatformat }}%</td>
                     </tr>
