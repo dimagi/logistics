@@ -79,6 +79,10 @@
     font-weight: bold;  
 }
 
+.sidebar table tr.odd {
+    background-color: #e1e1e1;	
+}
+
 table.malawi-report {
     width: 100%;
 }
