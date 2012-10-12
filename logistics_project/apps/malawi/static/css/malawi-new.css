@@ -87,6 +87,10 @@ table.malawi-report tr td {
     text-align: right;
 }
 
+tr.odd {
+    background-color: #e1e1e1;	
+}
+
 fieldset {
     border: none;
 }
