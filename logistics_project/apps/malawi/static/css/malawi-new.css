@@ -95,6 +95,9 @@ fieldset {
     border: none;
 }
 
+thead th {
+    max-width: 200px;
+}
 
 /* flot */
 div.tickLabel {
