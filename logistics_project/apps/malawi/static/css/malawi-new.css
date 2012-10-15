@@ -99,6 +99,10 @@ thead th {
     max-width: 200px;
 }
 
+.dataTables_filter {
+    margin: 0px 0px 5px 0px;
+}
+
 /* flot */
 div.tickLabel {
     word-wrap: break-word;
