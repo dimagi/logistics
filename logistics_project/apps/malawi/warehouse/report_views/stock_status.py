@@ -33,7 +33,7 @@ class View(warehouse_view.DistrictOnlyView):
                          "without_data"]
         
         # data by product
-        new_headings = ["Product", "Average Monthly Consumption (last 60 days)",
+        new_headings = ["Product", "AMC (last 60 days)",
                         "TOTAL SOH (day of report)", "MOS (current period)",
                         "Stock Status"]
         status_data = get_stock_status_table_data(sp)
