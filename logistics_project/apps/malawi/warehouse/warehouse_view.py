@@ -40,7 +40,7 @@ class MalawiWarehouseView(ReportView):
             (date=date, supply_point=country)
 
         default_sp = get_default_supply_point(request.user)
-        visible_facilities = get_visible_facilities(request.user)
+        visible_facilities = get_visible_facilities(request.user).order_by('parent_id')
         visible_hsas = get_visible_hsas(request.user)
 
         querystring = '?'
@@ -48,7 +48,6 @@ class MalawiWarehouseView(ReportView):
             querystring += '%s=%s&' % (key, request.GET[key])
 
         districts = get_districts()
-        
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,

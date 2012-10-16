@@ -148,6 +148,15 @@ def get_country_sp():
     return SupplyPoint.objects.get(code__iexact=settings.COUNTRY,
                                    type__code=config.SupplyPointCodes.COUNTRY)
 
+def is_country(supply_point):
+    return supply_point.type.code == config.SupplyPointCodes.COUNTRY
+        
+def is_district(supply_point):
+    return supply_point.type.code == config.SupplyPointCodes.DISTRICT
+        
+def is_facility(supply_point):
+    return supply_point.type.code == config.SupplyPointCodes.FACILITY
+        
 def get_default_supply_point(user):
     prof = user.get_profile()
     if prof and prof.supply_point:
@@ -208,10 +217,9 @@ def get_visible_facilities(user):
         return get_facilities()
 
     visible_districts = get_visible_districts(user)
-    vd_ids = []
-    for vd in visible_districts:
-        vd_ids.append(vd.id)
-    locations = Location.objects.filter(parent_id__in=vd_ids, is_active=True)
+    vd_ids = [d.id for d in visible_districts]
+    locations = Location.objects.filter(parent_id__in=vd_ids, 
+                                        is_active=True).order_by('parent_id')
     return locations
 
 def get_visible_hsas(user):

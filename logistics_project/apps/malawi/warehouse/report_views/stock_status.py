@@ -3,7 +3,9 @@ from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct
+from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
+    is_country, is_district, is_facility, hsa_supply_points_below,\
+    facility_supply_points_below, get_district_supply_points
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
     get_stock_status_table_data, previous_report_period
@@ -45,33 +47,6 @@ class View(warehouse_view.DistrictOnlyView):
             "data": status_data,
         }
         
-        district_table = {
-            "id": "district-table",
-            "is_datatable": False,
-            "is_downloadable": True,
-            "header": ["District"] + headings,
-            "data": [],
-        }
-        
-
-        facility_table = {
-            "id": "facility-table",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ["Facility"] + headings,
-            "data": [],
-        }
-
-
-        hsa_table = {
-            "id": "hsa-months-of-stock",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ["HSA"],
-            "data": [],
-        }
-
-                
         def _get_product_status_table(supply_points, products):
             ret = []
             for s in supply_points:
@@ -89,25 +64,31 @@ class View(warehouse_view.DistrictOnlyView):
                             for k in ordered_slugs])
             return ret
             
-        if self._context["national_view_level"]:
-            district_table["data"] = _get_product_status_table\
-                (SupplyPoint.objects.filter(location__in=self._context['districts']), 
-                 [selected_product])
+        hsa_table = None
+        location_table = {
+            "id": "location-table",
+            "is_datatable": True,
+            "is_downloadable": True,
+        }
             
+        if is_facility(sp):
+            products = Product.objects.all().order_by('sms_code')
+            hsa_table = {
+                "id": "hsa-table",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "data": [],
+                "location_type": "HSA"
+            }
             
+            hsa_table["header"] = [hsa_table["location_type"]] + \
+                [p.sms_code for p in products]
             
-        else:
-            facility_table["data"] = _get_product_status_table\
-                (SupplyPoint.objects.filter(location__in=self._context['facilities']), 
-                 [selected_product])
-
-            for product in Product.objects.all().order_by('sms_code'):
-                hsa_table["header"].append(product.sms_code)
-
             # this chart takes a long time to load
-            for hsa in SupplyPoint.objects.filter(location__in=self._context["visible_hsas"]):
+            hsas = hsa_supply_points_below(sp.location)
+            for hsa in hsas:
                 temp = [hsa.name]
-                for product in Product.objects.all().order_by('sms_code'):
+                for product in products:
                     ps = ProductStock.objects.filter(supply_point=hsa, product=product)
                     if ps.count():
                         mr = ps[0].months_remaining
@@ -118,7 +99,28 @@ class View(warehouse_view.DistrictOnlyView):
                     else:
                         temp.append('-')
                 hsa_table["data"].append(temp)
-        
+            
+            location_table["location_type"] = "HSA"
+            location_table["header"] = [location_table["location_type"]] + headings
+            location_table["data"] = _get_product_status_table\
+                (hsas, 
+                 [selected_product])
+            
+        elif is_country(sp):
+            location_table["location_type"] = "District"
+            location_table["header"] = [location_table["location_type"]] + headings
+            location_table["data"] = _get_product_status_table\
+                (get_district_supply_points().order_by('name'), 
+                 [selected_product])
+            
+        else:
+            assert is_district(sp)
+            location_table["location_type"] = "Facility"
+            location_table["header"] = [location_table["location_type"]] + headings
+            location_table["data"] = _get_product_status_table\
+                (facility_supply_points_below(sp.location).order_by('name'), 
+                 [selected_product])
+
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
                              request.datespan.enddate)
@@ -153,8 +155,7 @@ class View(warehouse_view.DistrictOnlyView):
             'selected_type': selected_type,
             'selected_product': selected_product,
             'status_table': status_table,
-            'district_table': district_table,
-            'facility_table': facility_table,
+            'location_table': location_table,
             'hsa_table': hsa_table,
             'graphdata': graph_chart,
         }

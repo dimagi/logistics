@@ -22,31 +22,19 @@
     {% include "malawi/new/partials/generic-table.html" %}
     {% endwith %}
 </div>
-{% if national_view_level %}
-    <div class="module">
-        <form method="get" class="selector">
-            {% include "malawi/new/partials/product-selector.html" %}
-            <input type="submit" value="Go!" />
-        </form>
-    
-		<h2>Current stock status across districts</h2>
-		{% with district_table as table %}
-		{% include "malawi/new/partials/generic-table.html" %}
-		{% endwith %}
-	</div>
-{% endif %}
 
-{% if not national_view_level %}
-	<div class="module">
-	    <form method="get" class="selector">
-            {% include "malawi/new/partials/product-selector.html" %}
-            <input type="submit" value="Go!" />
-        </form>
-		<h2>Current stock status across facilities</h2>
-		{% with facility_table as table %}
-		{% include "malawi/new/partials/generic-table.html" %}
-		{% endwith %}
-	</div>
+
+{% if location_table %}
+<div class="module">
+    <form method="get" class="selector">
+        {% include "malawi/new/partials/product-selector.html" %}
+        <input type="submit" value="Go!" />
+    </form>
+    <h2>Current stock status across {{ location_table.location_type|lower }}</h2>
+	{% with location_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
 {% endif %}
 
 <div class="module">
@@ -61,7 +49,7 @@
 	{% endwith %}
 </div>
 
-{% if not national_view_level %}
+{% if hsa_table %}
 	<div class="module">
 		<h2>HSA months of stock by product</h2>
 		{% with hsa_table as table %}

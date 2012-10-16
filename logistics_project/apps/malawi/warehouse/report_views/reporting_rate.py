@@ -10,7 +10,7 @@ from logistics.util import config
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     get_district_supply_points, facility_supply_points_below, fmt_pct,\
-    hsa_supply_points_below
+    hsa_supply_points_below, is_country
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -61,7 +61,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         
         location_table = None
-        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+        if is_country(sp):
             # district breakdown
             location_table = {
                 "id": "average-reporting-rate-districts",
