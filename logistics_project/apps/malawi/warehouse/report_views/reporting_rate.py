@@ -18,8 +18,8 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
-        shared_headers = ["% Reporting", "% Ontime Rep", "% Late Rep", "% Non-Reporting", "% Complete"]
-        shared_slugs = ["reported", "on_time", "late", "not reported", "complete"]
+        shared_headers = ["% Reporting", "% On time Rep", "% Late Rep", "% Not Reported", "% Complete"]
+        shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         
         # reporting rates by month table
         sp = SupplyPoint.objects.get(location=request.location) \
@@ -59,29 +59,32 @@ class View(warehouse_view.DistrictOnlyView):
                                  for k in shared_slugs] \
                     for sp, data in datamap.items()]
         
-        # district breakdown
-        district_table = {
-            "id": "average-reporting-rate-districts",
-            "is_datatable": False,
-            "is_downloadable": True,
-            "header": ["Districts"] + shared_headers,
-            "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
-                                                request.datespan.startdate,
-                                                request.datespan.enddate)
-        }
         
-        # facility breakdown
-        facility_table = None
-        if sp.type.code == config.SupplyPointCodes.DISTRICT:
-            facility_table = {
+        location_table = None
+        if sp.type.code == config.SupplyPointCodes.COUNTRY:
+            # district breakdown
+            location_table = {
+                "id": "average-reporting-rate-districts",
+                "is_datatable": False,
+                "is_downloadable": True,
+                "header": ["Districts"] + shared_headers,
+                "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
+                                                    request.datespan.startdate,
+                                                    request.datespan.enddate),
+                "location_type": "districts"
+            }
+        elif sp.type.code == config.SupplyPointCodes.DISTRICT:
+            # facility breakdown
+            location_table = {
                 "id": "average-reporting-rate-facilities",
-                "is_datatable": True,
+                "is_datatable": False,
                 "is_downloadable": True,
                 "header": ["Facilities"] + shared_headers,
                 "data": _avg_report_rate_table_data\
                     (facility_supply_points_below(sp.location).order_by('name'),
                      request.datespan.startdate,
-                     request.datespan.enddate)
+                     request.datespan.enddate),
+                "location_type": "facilities"
             }
 
         hsa_table = {
@@ -111,8 +114,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         return {
                 "month_table": month_table,
-                "district_table": district_table,
-                "facility_table": facility_table,
+                "location_table": location_table,
                 "hsa_table": hsa_table,
                 "graphdata" : get_reporting_rates_chart(request.location, 
                                                         request.datespan.startdate, 

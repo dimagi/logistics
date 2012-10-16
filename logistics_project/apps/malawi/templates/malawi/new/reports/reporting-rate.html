@@ -16,22 +16,13 @@
 	{% endwith %}
 </div>
 
-{% if national_view_level %}
-<div class="module">
-	<h2>Average reporting rate (districts)</h2>
-	{% with district_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
-{% endif %}
-
-{% if facility_table %}
-	<div class="module">
-		<h2>Average reporting rate (facilities)</h2>
-		{% with facility_table as table %}
-		{% include "malawi/new/partials/generic-table.html" %}
-		{% endwith %}
-	</div>
+{% if location_table %}
+    <div class="module">
+        <h2>Average reporting rate ({{location_table.location_type}})</h2>
+        {% with location_table as table %}
+        {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+    </div>
 {% endif %}
 
 {% if not national_view_level %}
