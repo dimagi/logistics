@@ -1,13 +1,9 @@
 from datetime import datetime, timedelta
-from rapidsms.conf import settings
-from rapidsms.tests.scripted import TestScript
-from logistics.models import Location, SupplyPointType, SupplyPoint, \
-    Product, ProductType, ProductStock, StockTransaction, ProductReport, \
-    ProductReportType, DefaultMonthlyConsumption
+from logistics.models import Product, StockTransaction
 from logistics.models import SupplyPoint as Facility
 from logistics.tests.util import fake_report
 from logistics.const import Reports
-from logistics_project.apps.malawi.warehouse.models import Consumption
+from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.warehouse.runner import update_consumption_values
 
@@ -19,15 +15,15 @@ class TestConsumption(MalawiTestBase):
         super(TestConsumption, self).setUp()
         self.pr = Product.objects.all()[0]
         self.sp = Facility.objects.all()[0]
-        Consumption.objects.all().delete()
+        CalculatedConsumption.objects.all().delete()
         StockTransaction.objects.all().delete()
         
     def _report(self, amount, date, report_type):
         return fake_report(self.sp, self.pr, amount, None, report_type, date)
         
     def _consumption_qs(self):
-        return Consumption.objects.filter(supply_point=self.sp,
-                                          product=self.pr).order_by("date")
+        return CalculatedConsumption.objects.filter(supply_point=self.sp,
+                                                    product=self.pr).order_by("date")
     
     def testSingleReportDoesNothing(self):
         self._report(100, datetime(2012, 8, 1), Reports.SOH)
@@ -82,7 +78,7 @@ class TestConsumption(MalawiTestBase):
         self.assertEqual(24 * SECONDS, c.time_with_data)
         
         # for good measure, clear everything and try again
-        Consumption.objects.all().delete()
+        CalculatedConsumption.objects.all().delete()
         update_consumption_values(StockTransaction.objects.all())
         [c] = self._consumption_qs()
         self.assertEqual(100, c.calculated_consumption)
@@ -120,7 +116,7 @@ class TestConsumption(MalawiTestBase):
         self.assertEqual(31 * SECONDS, c2.time_with_data)
         self.assertEqual(10 * SECONDS, c3.time_with_data)
         
-        Consumption.objects.all().delete()
+        CalculatedConsumption.objects.all().delete()
         update_consumption_values(StockTransaction.objects.all())
         c1, c2, c3 = self._consumption_qs()
         self.assertEqual(25, c1.calculated_consumption)
@@ -188,7 +184,7 @@ class TestConsumption(MalawiTestBase):
         self.assertEqual(14 * SECONDS, c.time_with_data)
         
         # for good measure, clear everything and try again
-        Consumption.objects.all().delete()
+        CalculatedConsumption.objects.all().delete()
         update_consumption_values(StockTransaction.objects.all())
         [c] = self._consumption_qs()
         self.assertEqual(14 * SECONDS, c.time_with_data)
