@@ -44,6 +44,12 @@
     background: #0F7FCE url("/static/malawi/images/tab-bg-hover.png") repeat-x;
 }
 
+div.module h2 {
+    background-color: #000000;
+    background-image: url("../static/malawi/images/h2-bg.png");
+    font-size: 160%;
+    padding: 0.3125em;
+}
 
 .report-content {
     border: 1px solid lightgray;
