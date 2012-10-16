@@ -70,11 +70,12 @@
     overflow: visible;
 }
 
-.sidebarFlag {
-    height: 106px;
-    width: 160px;
+#sidebarFlag {
+    height: 53px;
+    width: 80px;
     background: url("/static/malawi/images/malawi.png") no-repeat scroll 0 0 transparent; 
     margin-bottom: 5px;
+    margin-left: 40px;
 }
 
 .sidebar table {
