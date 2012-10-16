@@ -19,7 +19,7 @@ class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
         shared_headers = ["% Reporting", "% Ontime Rep", "% Late Rep", "% Non-Reporting", "% Complete"]
-        shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
+        shared_slugs = ["reported", "on_time", "late", "not reported", "complete"]
         
         # reporting rates by month table
         sp = SupplyPoint.objects.get(location=request.location) \
