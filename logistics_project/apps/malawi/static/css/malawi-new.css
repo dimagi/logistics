@@ -20,20 +20,20 @@
     color: white;
     outline: none;
     padding: .2em .5em;
-    background: #2FA5D1 url("/static/rapidsms/images/tab-bg.png") repeat-x;
+    background: #1085D8 url("/static/malawi/images/tab-bg.png") repeat-x;
     display: block;
     height: 100%;
 }
 
 .subtabs li.selected a, .subtabs li.selected a:hover, .subtabs li.selected a:focus {
-	color: #2FA5D1;
+	color: #1085D8;
     border-bottom: none;
     background: white url("/static/rapidsms/images/tab-bg-active.png") repeat-x;
 }
 
 .subtabs li a:hover, .subtabs li a:focus {
     text-decoration:none;
-    background: #5dcbda url("/static/rapidsms/images/tab-bg-hover.png") repeat-x;
+    background: #0F7FCE url("/static/malawi/images/tab-bg-hover.png") repeat-x;
 }
 
 
