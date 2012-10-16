@@ -107,7 +107,7 @@ class View(warehouse_view.DistrictOnlyView):
             "legenddiv": "eo-line-legend",
             "legendcols": 10,
             "xaxistitle": '',
-            "yaxistitle": '',
+            "yaxistitle": '% HSA with EO',
             "max_value": 100,
             "xlabels": [],
             "data": []
