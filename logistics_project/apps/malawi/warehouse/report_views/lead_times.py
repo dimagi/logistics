@@ -67,7 +67,7 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "month-table",
             "is_datatable": False,
             "is_downloadable": True,
-            "header": ['Month', 'Ord-Ord Ready (days)', 'Ord-Ord Received (days)', 
+            "header": ['Month', 'Order - Ready (days)', 'Ready - Received (days)', 
                        'Total Lead Time (days)'],
             "data": rows
         }
