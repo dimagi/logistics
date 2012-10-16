@@ -10,7 +10,7 @@ from logistics.util import config
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     get_district_supply_points, facility_supply_points_below, fmt_pct,\
-    hsa_supply_points_below, is_country
+    hsa_supply_points_below, is_country, is_district, is_facility
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -73,7 +73,7 @@ class View(warehouse_view.DistrictOnlyView):
                                                     request.datespan.enddate),
                 "location_type": "districts"
             }
-        elif sp.type.code == config.SupplyPointCodes.DISTRICT:
+        elif is_district(sp):
             # facility breakdown
             location_table = {
                 "id": "average-reporting-rate-facilities",
@@ -87,30 +87,28 @@ class View(warehouse_view.DistrictOnlyView):
                 "location_type": "facilities"
             }
 
-        hsa_table = {
-            "id": "hsa-reporting-profiles",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ["HSA", "Min Number expected", "Non-reporting", "On Time", "Late", "Complete"],
-            "data": []
-        }
+        hsa_table = None
+        if is_facility(sp):
+            hsa_table = {
+                "id": "hsa-reporting-profiles",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "header": ["HSA", "Min Number expected", "Non-reporting", "On Time", "Late", "Complete"],
+                "data": []
+            }
 
-        hsas = hsa_supply_points_below(sp)
-        for hsa in hsas:
-            rr = ReportingRate.objects.filter(supply_point=hsa,
-                date__range=(request.datespan.startdate, request.datespan.enddate))
-            total = 0
-            non_rep = 0
-            on_time = 0
-            late = 0
-            complete = 0
-            for r in rr:
-                total += r.total
-                non_rep += r.missing
-                on_time += r.on_time
-                late += r.late
-                complete += r.complete
-            hsa_table["data"].append([hsa.name, total, non_rep, on_time, late, complete])
+            hsas = hsa_supply_points_below(sp)
+            for hsa in hsas:
+                rr = ReportingRate.objects.filter(supply_point=hsa,
+                    date__range=(request.datespan.startdate, request.datespan.enddate))
+                total = non_rep = on_time = late = complete = 0
+                for r in rr:
+                    total += r.total
+                    non_rep += r.missing
+                    on_time += r.on_time
+                    late += r.late
+                    complete += r.complete
+                hsa_table["data"].append([hsa.name, total, non_rep, on_time, late, complete])
 
         return {
                 "month_table": month_table,

@@ -25,10 +25,12 @@
     </div>
 {% endif %}
 
+{% if hsa_table %}
 <div class="module">
 	<h2>HSA reporting profiles</h2>
 	{% with hsa_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
+{% endif %}
 {% endblock %}
