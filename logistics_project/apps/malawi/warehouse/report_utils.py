@@ -182,13 +182,13 @@ def get_reporting_rates_chart(location, start, end):
         rr = ReportingRate.objects.get(supply_point=sp, date=dt)
         data["on time"][dt] = pct(rr.on_time, rr.total)
         data["late"][dt] = pct(rr.reported - rr.on_time, rr.total)
-        data["missing"][dt] = pct(rr.total - rr.reported, rr.total)
+        data["not reported"][dt] = pct(rr.total - rr.reported, rr.total)
         data["complete"][dt] = pct(rr.complete, rr.total)
     
     ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": true,  "fillColor": { colors: [ {opacity: 1 }, {opacity: 1 } ] } },
                  'stack': 0} \
-                 for k in ["on time", "late", "missing"]]
+                 for k in ["on time", "late", "not reported"]]
     
     ret_data.append({'data': [[i + 1, data["complete"][dt]] for i, dt in enumerate(dates)],
                      'label': 'complete', 'lines': {"show": True}, 'points': {"show": True}, "bars": {"show": False},
@@ -209,13 +209,13 @@ def get_multiple_reporting_rates_chart(supply_points, date):
         rr = ReportingRate.objects.get(supply_point=sp, date=date)
         data["on time"][sp] = pct(rr.on_time, rr.total)
         data["late"][sp] = pct(rr.reported - rr.on_time, rr.total)
-        data["missing"][sp] = pct(rr.total - rr.reported, rr.total)
+        data["not reported"][sp] = pct(rr.total - rr.reported, rr.total)
         data["complete"][sp] = pct(rr.complete, rr.total)
     
     ret_data = [{'data': [[i + 1, data[k][sp]] for i, sp in enumerate(supply_points)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True},
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": true,  "fillColor": { colors: [ {opacity: 1 }, {opacity: 1 } ] } },
                  'stack': 0} \
-                 for k in ["on time", "late", "missing"]]
+                 for k in ["on time", "late", "not reported"]]
     
     ret_data.append({'data': [[i + 1, data["complete"][sp]] for i, sp in enumerate(supply_points)],
                      'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
