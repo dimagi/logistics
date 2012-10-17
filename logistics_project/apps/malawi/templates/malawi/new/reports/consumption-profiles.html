@@ -19,32 +19,15 @@
     <input type="submit" value="Go!" />
 </form>
 
-{% if national_table %}
+{% if location_table %}
 <div class="module">
-	<h2>National Consumption Profiles</h2>
-	{% with national_table as table %}
+	<h2>{{ location_table.location_type|capfirst }} consumption profiles</h2>
+	{% with location_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
 {% endif %}
 
-{% if district_table %}
-<div class="module">
-	<h2>District consumption profiles</h2>
-	{% with district_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
-{% endif %}
-
-{% if facility_table %}
-<div class="module">
-	<h2>Facility consumption profiles</h2>
-	{% with facility_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
-</div>
-{% endif %}
 {% if selected_hsa %}
 <div class="module">
     <h2>HSA consumption profiles</h2>
