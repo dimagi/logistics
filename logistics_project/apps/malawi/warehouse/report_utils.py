@@ -186,7 +186,7 @@ def get_reporting_rates_chart(location, start, end):
         data["complete"][dt] = pct(rr.complete, rr.total)
     
     ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": true,  "fillColor": { colors: [ {opacity: 1 }, {opacity: 1 } ] } },
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": True},
                  'stack': 0} \
                  for k in ["on time", "late", "not reported"]]
     
@@ -213,7 +213,7 @@ def get_multiple_reporting_rates_chart(supply_points, date):
         data["complete"][sp] = pct(rr.complete, rr.total)
     
     ret_data = [{'data': [[i + 1, data[k][sp]] for i, sp in enumerate(supply_points)],
-                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": true,  "fillColor": { colors: [ {opacity: 1 }, {opacity: 1 } ] } },
+                 'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": True},  
                  'stack': 0} \
                  for k in ["on time", "late", "not reported"]]
     
