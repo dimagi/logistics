@@ -3,11 +3,13 @@ from collections import defaultdict
 
 from logistics.models import SupplyPoint, ProductType, Product
 
-from logistics_project.apps.malawi.util import get_default_supply_point, pct, fmt_or_none
+from logistics_project.apps.malawi.util import get_default_supply_point, pct, fmt_or_none,\
+    is_facility, hsa_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import OrderRequest
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
     avg_of_key_values
 from logistics_project.apps.malawi.warehouse import warehouse_view
+from django.db.models.aggregates import Sum
 
 
 class View(warehouse_view.DistrictOnlyView):
@@ -24,6 +26,8 @@ class View(warehouse_view.DistrictOnlyView):
                                 request.datespan.enddate)
         oreqs = dict([(date, OrderRequest.objects.filter(supply_point=sp, date=date)) \
                       for date in datelist])
+        
+        date_headers = [date.strftime("%b-%Y") for date in datelist]
         
         # {product: {label: {date: val}}}
         prd_map = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))) 
@@ -87,18 +91,9 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "eo-pct-table",
             "is_datatable": True,
             "is_downloadable": True,
-            "header": ["Product"],
+            "header": ["Product"] + date_headers,
             "data": []
         }
-
-        eo_abs_table = {
-            "id": "eo-abs-table",
-            "is_datatable": True,
-            "is_downloadable": True,
-            "header": ["Product"],
-            "data": []
-        }
-
 
         line_chart = {
             "height": "350px",
@@ -117,17 +112,12 @@ class View(warehouse_view.DistrictOnlyView):
         for date in datelist:
             count += 1
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
-            eo_abs_table["header"].append(date.strftime("%b-%Y"))
-            eo_pct_table["header"].append(date.strftime("%b-%Y"))
 
         for eo in prd_map.keys():
             eo_pct_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
                                       [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])
-            eo_abs_table["data"].append([item for item in itertools.chain\
-                                     ([eo.sms_code],
-                                      [fmt_or_none(prd_map[eo]['emergency'][d]) for d in datelist])])
-
+            
         # for type in type_map.keys():
         selected_products = Product.objects.all()
         if selected_type:
@@ -150,11 +140,28 @@ class View(warehouse_view.DistrictOnlyView):
                     temp["data"].append([count, "No Data"])
             line_chart["data"].append(temp)
 
+        # HSA emergency orders table
+        hsa_eo_table = None
+        if is_facility(sp):
+            hsas = hsa_supply_points_below(sp.location)
+            data = [[hsa.name] + \
+                    [OrderRequest.objects.filter(supply_point=hsa, date=d) \
+                        .aggregate(Sum('total'))["total__sum"] \
+                     for d in datelist] 
+                    for hsa in hsas]
+            hsa_eo_table = {
+                "id": "hsa-eo-table",
+                "is_datatable": True,
+                "is_downloadable": True,
+                "header": ["HSA"] + date_headers,
+                "data": data
+            }
+
         return {
                 'product_types': ProductType.objects.all(),
                 'selected_type': selected_type,
                 'summary': summary,
                 'eo_pct_table': eo_pct_table,
-                'eo_abs_table': eo_abs_table,
+                'hsa_eo_table': hsa_eo_table,
                 'line': line_chart
                 }

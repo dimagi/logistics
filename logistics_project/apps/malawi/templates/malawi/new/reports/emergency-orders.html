@@ -27,13 +27,12 @@
 	{% endwith %}
 </div>
 
-{% if not national_view_level %}
-	<div class="module">
-		<h2>% HSA with EO by product</h2>
-		{% with eo_abs_table as table %}
-		{% include "malawi/new/partials/generic-table.html" %}
-		{% endwith %}
-	</div>
+{% if hsa_eo_table %}
+<div class="module">
+    <h2>HSA emergency orders</h2>
+    {% with hsa_eo_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
+</div>
 {% endif %}
-
 {% endblock %}
