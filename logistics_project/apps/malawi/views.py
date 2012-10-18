@@ -205,36 +205,6 @@ def places(request):
     return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
 
-def places_upload(request):
-    if request.method == 'GET':
-        upload_link = reverse("malawi_places_upload")
-        return render_to_response("%s/places-upload.html" % settings.MANAGEMENT_FOLDER,
-            {"upload_link": upload_link}, context_instance=RequestContext(request))
-
-    if not request.FILES.has_key('file'):
-        messages.warning(request, "No File Detected")
-        return redirect(reverse("malawi_places_upload"))
-
-    # move files around, save old one with datestamp
-
-    f = request.FILES.get('file')
-    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
-    write_file = open(destination, 'wb+')
-
-    for chunk in f.chunks():
-        write_file.write(chunk)
-    write_file.close()
-
-    import os
-    if not os.path.getsize(destination) == f.size:
-        # move files around, put old one back
-        messages.warning(request, "Unknown Error - Upload Failed")
-        return redirect(reverse("malawi_places_upload"))
-
-    # run malawi_init and partial runner
-
-    return redirect(reverse("malawi_places"))
-
 def products(request):
     prds = Product.objects.filter(is_active=True)
     table = {
@@ -257,36 +227,6 @@ def products(request):
     }
     return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
-
-def products_upload(request):
-    if request.method == 'GET':
-        upload_link = reverse("malawi_products_upload")
-        return render_to_response("%s/products-upload.html" % settings.MANAGEMENT_FOLDER,
-            {"upload_link": upload_link}, context_instance=RequestContext(request))
-
-    if not request.FILES.has_key('file'):
-        messages.warning(request, "No File Detected")
-        return redirect(reverse("malawi_products_upload"))
-
-    # move files around, save old one with datestamp
-
-    f = request.FILES.get('file')
-    destination = '%s/%s.%s' % (settings.STATIC_RESOURCES, f.name.split('.')[-2], 'csv')
-    write_file = open(destination, 'wb+')
-
-    for chunk in f.chunks():
-        write_file.write(chunk)
-    write_file.close()
-
-    import os
-    if not os.path.getsize(destination) == f.size:
-        # move files around, put old one back
-        messages.warning(request, "Unknown Error - Upload Failed")
-        return redirect(reverse("malawi_products_upload"))
-
-    # run malawi_init and partial runner
-
-    return redirect(reverse("malawi_products"))
 
 @datespan_default
 def sms_tracking(request):
@@ -432,77 +372,6 @@ def register_user(request, template="malawi/register-user.html"):
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
 
-
-
-
-############################
-# old reports
-############################
-
-
-def contacts_OLD(request):
-    return render_to_response("malawi/contacts.html",
-        {
-            "contacts_table": MalawiContactTable(Contact.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-
-def organizations_OLD(request):
-    return render_to_response("malawi/organizations.html",
-        {
-            "organization_table": OrganizationTable(Organization.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-
-def places_OLD(request):
-    return render_to_response("malawi/places.html",
-        {
-            "location_table": MalawiLocationTable(Location.objects.exclude(type__slug="hsa"), request=request)
-        }, context_instance=RequestContext(request)
-    )
-
-def products_OLD(request):
-    return render_to_response("malawi/products.html",
-        {
-            "product_table": MalawiProductTable(Product.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-
-@datespan_in_request()
-def sms_tracking_OLD(request):
-    
-    class ContactCache(object):
-        def __init__(self):
-            self.contacts = {}
-        
-        def get(self, pk):
-            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
-    
-    orgs = dict(zip(Organization.objects.all(), 
-                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
-
-    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
-                                          date__lte=request.datespan.computed_enddate)
-    inbound_counts = all_messages.filter(direction="I").\
-                        values('contact').annotate(messages=Count("contact"))
-    outbound_counts = all_messages.filter(direction="O").\
-                        values('contact').annotate(messages=Count("contact"))
-    
-    cache = ContactCache()
-    def _update(key, row):
-        if row["contact"] is not None:
-            contact = cache.get(row["contact"])
-            if contact.organization:
-                orgs[contact.organization][key] = row["messages"]
-        
-    for row in inbound_counts:
-        _update("inbound", row)
-    for row in outbound_counts:
-        _update("outbound", row)
-
-    return render_to_response("malawi/sms_tracking.html",
-                              {"organizations": orgs},
-                              context_instance=RequestContext(request))
 
 
 #@cache_page(60 * 15)
