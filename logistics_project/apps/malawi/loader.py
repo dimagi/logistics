@@ -123,11 +123,20 @@ def load_locations(file):
         #leave out first line
         if "district code" in line.lower():
             continue
-        district_code, district_name, facility_code, facility_name = line.split(",")
-
+        district_code, district_name, facility_code, facility_name = \
+            [token.strip() for token in line.split(",")]
+        
         #create/load district
+        def _pad_to(val, target_len):
+            if len(val) < target_len:
+                val = "%s%s" % ("0" * (len(val) - target_len), val)
+            assert len(val) == target_len
+            return val 
+        
+        district_code = _pad_to(district_code, 2)
+        
         try:
-            district = Location.objects.get(code=district_code)
+            district = Location.objects.get(code__iexact=district_code)
         except Location.DoesNotExist:
             district = Location.objects.create(name=district_name.strip(), type=district_type, 
                                                code=district_code, parent=country)
