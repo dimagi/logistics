@@ -50,3 +50,8 @@ class LogisticsProfileForm(forms.ModelForm):
     class Meta:
         model = LogisticsProfile
         exclude = ('user', 'location','designation')
+
+
+class UploadFacilityFileForm(forms.Form):
+    file  = forms.FileField()
+

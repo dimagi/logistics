@@ -7,6 +7,7 @@ from logistics.const import Reports
 from logistics.util import config
 from logistics.shortcuts import supply_point_from_location
 from logistics_project.loader.base import load_report_types, load_roles
+import csv
 
 class LoaderException(Exception):
     pass
@@ -88,6 +89,20 @@ def load_locations_from_path(path, log_to_console=True):
             for msg in msgs:
                 print msg
 
+def get_facility_export(file_handle):
+    """
+    Gets an export of all the facilities in the system as a csv.
+    """
+    writer = csv.writer(file_handle)
+    writer.writerow(['District CODE', 'District', 'CODE', 'Health Center'])
+    _par_attr = lambda sp, attr: getattr(sp.supplied_by, attr) if sp.supplied_by else ""
+    for sp in SupplyPoint.objects.filter(active=True, 
+                                         type__code=config.SupplyPointCodes.FACILITY).order_by("code"):
+        writer.writerow([_par_attr(sp, 'code'), 
+                         _par_attr(sp, 'name'), 
+                         sp.code, 
+                         sp.name])
+    
 def load_locations(file):
     # create/load static types    
     country_type = LocationType.objects.get_or_create(slug=config.LocationCodes.COUNTRY, name=config.LocationCodes.COUNTRY)[0]
@@ -108,7 +123,7 @@ def load_locations(file):
         #leave out first line
         if "district code" in line.lower():
             continue
-        district_code, district_name, facility_code, facility_seq, facility_name, hsa_count = line.split(",")
+        district_code, district_name, facility_code, facility_name = line.split(",")
 
         #create/load district
         try:

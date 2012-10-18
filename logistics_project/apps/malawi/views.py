@@ -1,5 +1,4 @@
 from datetime import datetime, date, timedelta
-from urllib import urlencode
 from urllib2 import urlopen
 from collections import defaultdict
 import logging
@@ -47,9 +46,13 @@ from logistics_project.apps.malawi.util import get_districts, get_facilities, hs
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
-from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm
+from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
+    UploadFacilityFileForm
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
+from logistics_project.apps.malawi.loader import load_locations,\
+    get_facility_export
+from django.views.decorators.http import require_POST
 
 
 def organizations(request):
@@ -772,6 +775,35 @@ def verify_ajax(request):
         if SupplyPoint.objects.filter(type__code='hf', code=val).exists():
             return json.dump(True)
 
+def manage_facilities(request):
+    form = UploadFacilityFileForm()
+    return render_to_response("malawi/manage_facilities.html", 
+        {'form': form}, context_instance=RequestContext(request))
+
+def download_facilities(request):
+    response = HttpResponse()
+    response['Content-Disposition'] = 'attachment; filename=cstock-facilities.csv'
+    get_facility_export(response)
+    return response
+
+@require_POST
+def upload_facilities(request):
+    form = UploadFacilityFileForm(request.POST, request.FILES)
+    if form.is_valid():
+        f = request.FILES['file']
+        try: 
+            msgs = load_locations(f)
+            for m in msgs:
+                messages.info(request, m)
+        except Exception, e:
+            messages.error(request, "Something went wrong with that upload. " 
+                           "Please double check the file format or "
+                           "try downloading a new copy. Your error message "
+                           "is: %s" % e)
+    else:
+        messages.error(request, "Please select a file")    
+    return HttpResponseRedirect(reverse("malawi_manage_facilities"))
+    
 @datespan_in_request()
 def export_amc_csv(request):
     response = HttpResponse(mimetype='text/csv')
