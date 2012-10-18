@@ -548,7 +548,7 @@ def update_consumption_values(transactions):
 
 def update_user_profile_data():
     print "updating user profile data"
-    for supply_point in SupplyPoint.objects.all():
+    for supply_point in SupplyPoint.objects.filter(active=True):
         new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
 
         new_obj.facility_children = facility_supply_points_below(supply_point.location).count()

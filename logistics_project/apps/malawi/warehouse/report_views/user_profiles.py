@@ -50,8 +50,9 @@ class View(warehouse_view.DistrictOnlyView):
         if request.GET.get('facility'):
             facility = SupplyPoint.objects.get(code=request.GET.get('facility'))
 
-
-        for up in UserProfileData.objects.all():
+        
+        for sp in SupplyPoint.objects.filter(active=True):
+            up = UserProfileData.objects.get(supply_point=sp)
             if up.supply_point.type.code == config.SupplyPointCodes.DISTRICT:
                 district_table["data"].append({ "url": _get_url(up.supply_point), "data":
                         [up.supply_point.name, up.supply_point.code, up.facility_children, 
