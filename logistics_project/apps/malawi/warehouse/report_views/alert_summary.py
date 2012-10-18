@@ -3,35 +3,35 @@ from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.warehouse.models import Alert
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
-	facility_supply_points_below
+    facility_supply_points_below
 
 class View(warehouse_view.DistrictOnlyView):
 
-	def custom_context(self, request):
-		table = {
-			"id": "current-alert-summary",
-			"is_datatable": True,
+    def custom_context(self, request):
+        table = {
+            "id": "current-alert-summary",
+            "is_datatable": True,
             "is_downloadable": True,
-			"header": ["Facility", "#HSAs", "%HSAs stocked out",\
-			"%HSAs with EOs that HCs cannot resupply", "%HSAs resupplied but remain below EO",\
-			"%HSAs registered but not added products managed", "%HSAs not reporting receipts"],
-			"data": [],
-		}
+            "header": ["Facility", "#HSAs", "%HSAs stocked out",\
+            "%HSAs with EOs that HCs cannot resupply", "%HSAs resupplied but remain below EO",\
+            "%HSAs registered but not added products managed", "%HSAs not reporting receipts"],
+            "data": [],
+        }
 
-		sp = SupplyPoint.objects.get(location=request.location)\
-			if request.location else get_default_supply_point(request.user)
+        sp = SupplyPoint.objects.get(location=request.location)\
+            if request.location else get_default_supply_point(request.user)
 
-		facilities = facility_supply_points_below(sp.location)
+        facilities = facility_supply_points_below(sp.location)
 
-		for fac in facilities:
-			alerts = Alert.objects.get(supply_point=fac)
-			table["data"].append([fac.name, alerts.num_hsas,\
-				fmt_pct(alerts.have_stockouts, alerts.total_requests),\
-				fmt_pct(alerts.eo_without_resupply, alerts.eo_total),\
-				fmt_pct(alerts.eo_with_resupply, alerts.eo_total),\
-				fmt_pct(alerts.without_products_managed, alerts.num_hsas),\
-				fmt_pct((alerts.order_readys - alerts.reporting_receipts), alerts.order_readys)])
+        for fac in facilities:
+            alerts = Alert.objects.get(supply_point=fac)
+            table["data"].append([fac.name, alerts.num_hsas,\
+                fmt_pct(alerts.have_stockouts, alerts.total_requests),\
+                fmt_pct(alerts.eo_without_resupply, alerts.eo_total),\
+                fmt_pct(alerts.eo_with_resupply, alerts.eo_total),\
+                fmt_pct(alerts.without_products_managed, alerts.num_hsas),\
+                fmt_pct((alerts.order_readys - alerts.reporting_receipts), alerts.order_readys)])
 
-		table["height"] = min(480, (facilities.count()+1)*30)
+        table["height"] = min(480, (facilities.count()+1)*30)
 
-		return {"table": table}
+        return {"table": table}
