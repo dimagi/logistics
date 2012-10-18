@@ -191,7 +191,11 @@ def places(request):
         "data": [],
     }
     for loc in locs:
-        sp = SupplyPoint.objects.get(location=loc)
+        try:
+            sp = SupplyPoint.objects.get(location=loc)
+        except SupplyPoint.DoesNotExist:
+            # if for whatever reason this isn't found don't fail hard.
+            continue
         table["data"].append([loc.name, loc.code,
             loc.type.name if loc.type else "",
             sp.supplied_by.name if sp.supplied_by else ""])
