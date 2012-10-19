@@ -118,7 +118,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
                          
                         },
                         {"data" : without_data,
-                         "label": "Missing Data",
+                         "label": "No Data",
                          "bars": { "show" : "true"},
                          "color": "#bbb",
                         }]
