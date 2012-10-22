@@ -73,6 +73,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
         
         start = run_record.start
         end = run_record.end
+        first_activity = Message.objects.order_by('date')[0].date
+        if start < first_activity:
+            start = first_activity
         
         # first populate all the warehouse tables for all facilities
         hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
