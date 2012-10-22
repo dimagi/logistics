@@ -104,6 +104,9 @@ def get_in_charge(supply_point):
 def get_imci_coordinators(supply_point):
     return _contact_set(supply_point, config.Roles.IMCI_COORDINATOR)
     
+def get_district_pharmacists(supply_point):
+    return _contact_set(supply_point, config.Roles.DISTRICT_PHARMACIST)
+    
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
 
