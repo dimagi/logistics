@@ -12,7 +12,7 @@ import csv
 class LoaderException(Exception):
     pass
 
-def init_static_data(log_to_console=False):
+def init_static_data(log_to_console=False, do_locations=False, do_products=True):
     """
     Initialize any data that should be static here
     """
@@ -21,10 +21,10 @@ def init_static_data(log_to_console=False):
     load_report_types()
     load_roles()
     loc_file = getattr(settings, "STATIC_LOCATIONS")
-    if loc_file:
+    if do_locations and loc_file:
         load_locations_from_path(loc_file, log_to_console=log_to_console)
     product_file = getattr(settings, "STATIC_PRODUCTS")
-    if product_file:
+    if do_products and product_file:
         load_products(product_file, log_to_console=log_to_console)
     
     
