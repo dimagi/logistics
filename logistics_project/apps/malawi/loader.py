@@ -134,6 +134,7 @@ def load_locations(file):
             return val 
         
         district_code = _pad_to(district_code, 2)
+        facility_code = _pad_to(facility_code, 4)
         
         try:
             district = Location.objects.get(code__iexact=district_code)
