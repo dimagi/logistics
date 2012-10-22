@@ -5,9 +5,9 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import UserProfileData
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    get_district_supply_points, get_imci_coordinator,\
+    get_district_supply_points, get_imci_coordinators,\
     facility_supply_points_below, get_in_charge, hsa_supply_points_below,\
-    get_supervisors, get_hsa_supervisors
+    get_supervisors
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -48,7 +48,7 @@ class View(warehouse_view.DistrictOnlyView):
             up = UserProfileData.objects.get(supply_point=sp)
             district_data.append({ "url": _get_url(up.supply_point), "data":
                                   [sp.name, sp.code, up.facility_children, up.hsa_children] + \
-                                  _names_and_numbers(get_imci_coordinator(sp))})
+                                  _names_and_numbers(get_imci_coordinators(sp))})
         
         district_table = {
             "id": "district_table",

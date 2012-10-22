@@ -101,7 +101,7 @@ def get_in_charge(supply_point):
     """
     return _contact_set(supply_point, config.Roles.IN_CHARGE)
     
-def get_imci_coordinator(supply_point):
+def get_imci_coordinators(supply_point):
     return _contact_set(supply_point, config.Roles.IMCI_COORDINATOR)
     
 def get_districts():
