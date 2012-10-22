@@ -232,146 +232,6 @@ def products(request):
     return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
 
-@datespan_default
-def sms_tracking(request):
-    
-    class ContactCache(object):
-        def __init__(self):
-            self.contacts = {}
-        
-        def get(self, pk):
-            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
-    
-    orgs = dict(zip(Organization.objects.all(), 
-                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
-
-    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
-                                          date__lte=request.datespan.computed_enddate)
-    inbound_counts = all_messages.filter(direction="I").\
-                        values('contact').annotate(messages=Count("contact"))
-    outbound_counts = all_messages.filter(direction="O").\
-                        values('contact').annotate(messages=Count("contact"))
-    
-    cache = ContactCache()
-    def _update(key, row):
-        if row["contact"] is not None:
-            contact = cache.get(row["contact"])
-            if contact.organization:
-                orgs[contact.organization][key] = row["messages"]
-        
-    for row in inbound_counts:
-        _update("inbound", row)
-    for row in outbound_counts:
-        _update("outbound", row)
-
-    table = {
-        "id": "sms-table",
-        "is_datatable": False,
-        "is_downloadable": False,
-        "header": ["Organization", "Inbound Messages", "Outbound Messages"],
-        "data": [],
-    }
-    for org, vals in orgs.iteritems():
-        table["data"].append([org.name, vals["inbound"] if vals.has_key("inbound") else 0, 
-                            vals["outbound"] if vals.has_key("outbound") else 0])
-
-    return render_to_response("%s/sms-tracking.html" % settings.MANAGEMENT_FOLDER,
-                              {"table": table},
-                              context_instance=RequestContext(request))
-
-@datespan_default
-def telco_tracking(request):
-    start_date = request.datespan.computed_startdate
-    end_date = request.datespan.computed_enddate
-
-    results = []
-
-    for year, month in months_between(start_date,end_date):
-        date1 = datetime(year,month,1)
-        endyear, endmonth = add_months(year,month,1)
-        date2 = datetime(endyear,endmonth,1)
-        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
-                date__range=(date1,date2))
-        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
-                date__range=(date1,date2))
-        results.append((date1, tnm_msgs.count(), airtel_msgs.count()))
-
-    table = {
-        "id": "telco-table",
-        "is_datatable": False,
-        "is_downloadable": True,
-        "header": ["Date", "TNM", "Airtel"],
-        "data": [],
-    }
-    for result in results:
-        table["data"].append([result[0].strftime("%B, %Y"), result[1], result[2]])
-
-    return render_to_response("%s/telco-tracking.html" % settings.MANAGEMENT_FOLDER,
-                              {"table": table},
-                              context_instance=RequestContext(request))
-
-@permission_required("is_superuser")
-def register_user(request, template="malawi/register-user.html"):
-    context = dict()
-    context['facilities'] = SupplyPoint.objects.filter(type__code="hf").order_by('code')
-    context['backends'] = Backend.objects.all()
-    context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
-    if request.method != 'POST':
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    id = request.POST.get("id", None)
-    facility = request.POST.get("facility", None)
-    name = request.POST.get("name", None)
-    number = request.POST.get("number", None)
-    backend = request.POST.get("backend", None)
-
-    if not (id and facility and name and number and backend):
-        messages.error(request, "All fields must be filled in.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-    hsa_id = None
-    try:
-        hsa_id = format_id(facility, id)
-    except IdFormatException:
-        messages.error(request, "HSA ID must be a number between 0 and 99.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    try:
-        parent = SupplyPoint.objects.get(code=facility)
-    except SupplyPoint.DoesNotExist:
-        messages.error(request, "No facility with that ID.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    if Location.objects.filter(code=hsa_id).exists():
-        messages.error(request, "HSA with that code already exists.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    try:
-        number = int(number)
-    except ValueError:
-        messages.error(request, "Phone number must contain only numbers.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
-
-    hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
-                                          code=hsa_id, parent=parent.location)
-    sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=config.hsa_supply_point_type(),
-                                        location=hsa_loc, supplied_by=parent, active=True)
-    sp.save()
-    contact = Contact()
-    contact.name = name
-    contact.supply_point = sp
-    contact.role = ContactRole.objects.get(code=config.Roles.HSA)
-    contact.is_active = True
-    contact.save()
-
-    connection = Connection()
-    connection.backend = Backend.objects.get(pk=int(backend))
-    connection.identity = "+%s%s" % (settings.COUNTRY_DIALLING_CODE, number) #TODO: Check validity of numbers
-    connection.contact = contact
-    connection.save()
-
-    messages.success(request, "HSA added!")
-
-    return render_to_response(template, context, context_instance=RequestContext(request))
 
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
@@ -716,4 +576,134 @@ class MonthPager(object):
         self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
         self.datespan = DateSpan(self.begin_date, self.end_date)
 
+
+@permission_required("is_superuser")
+def register_user(request, template="malawi/register-user.html"):
+    context = dict()
+    context['facilities'] = SupplyPoint.objects.filter(type__code="hf").order_by('code')
+    context['backends'] = Backend.objects.all()
+    context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
+    if request.method != 'POST':
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    id = request.POST.get("id", None)
+    facility = request.POST.get("facility", None)
+    name = request.POST.get("name", None)
+    number = request.POST.get("number", None)
+    backend = request.POST.get("backend", None)
+
+    if not (id and facility and name and number and backend):
+        messages.error(request, "All fields must be filled in.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+    hsa_id = None
+    try:
+        hsa_id = format_id(facility, id)
+    except IdFormatException:
+        messages.error(request, "HSA ID must be a number between 0 and 99.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    try:
+        parent = SupplyPoint.objects.get(code=facility)
+    except SupplyPoint.DoesNotExist:
+        messages.error(request, "No facility with that ID.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    if Location.objects.filter(code=hsa_id).exists():
+        messages.error(request, "HSA with that code already exists.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    try:
+        number = int(number)
+    except ValueError:
+        messages.error(request, "Phone number must contain only numbers.")
+        return render_to_response(template, context, context_instance=RequestContext(request))
+
+    hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
+                                          code=hsa_id, parent=parent.location)
+    sp = SupplyPoint.objects.create(name=name, code=hsa_id, type=config.hsa_supply_point_type(),
+                                        location=hsa_loc, supplied_by=parent, active=True)
+    sp.save()
+    contact = Contact()
+    contact.name = name
+    contact.supply_point = sp
+    contact.role = ContactRole.objects.get(code=config.Roles.HSA)
+    contact.is_active = True
+    contact.save()
+
+    connection = Connection()
+    connection.backend = Backend.objects.get(pk=int(backend))
+    connection.identity = "+%s%s" % (settings.COUNTRY_DIALLING_CODE, number) #TODO: Check validity of numbers
+    connection.contact = contact
+    connection.save()
+
+    messages.success(request, "HSA added!")
+
+    return render_to_response(template, context, context_instance=RequestContext(request))
+
+@datespan_in_request()
+def sms_tracking(request):
     
+    class ContactCache(object):
+        def __init__(self):
+            self.contacts = {}
+        
+        def get(self, pk):
+            return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
+    
+    orgs = dict(zip(Organization.objects.all(), 
+                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
+    # if I was smarter I'd figure out a way to do this query with django aggregates,
+    # but for now we'll just do it all in memory
+    all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,
+                                          date__lte=request.datespan.computed_enddate)
+    inbound_counts = all_messages.filter(direction="I").\
+                        values('contact').annotate(messages=Count("contact"))
+    outbound_counts = all_messages.filter(direction="O").\
+                        values('contact').annotate(messages=Count("contact"))
+    
+    cache = ContactCache()
+    def _update(key, row):
+        if row["contact"] is not None:
+            contact = cache.get(row["contact"])
+            if contact.organization:
+                orgs[contact.organization][key] = row["messages"]
+        
+    for row in inbound_counts:
+        _update("inbound", row)
+    for row in outbound_counts:
+        _update("outbound", row)
+    
+    return render_to_response("malawi/sms_tracking.html",
+                              {"organizations": orgs},
+                              context_instance=RequestContext(request))
+
+def telco_tracking(request):
+    start = request.GET.get('from') or "2011-01-01"
+    end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
+
+    start_date = datetime.strptime(start, '%Y-%m-%d')
+    end_date = datetime.strptime(end, '%Y-%m-%d')
+
+    from dimagi.utils.dates import months_between, add_months
+
+    results = []
+
+    for year, month in months_between(start_date,end_date):
+        date1 = datetime(year,month,1)
+        endyear, endmonth = add_months(year,month,1)
+        date2 = datetime(endyear,endmonth,1)
+        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
+                date__range=(date1,date2))
+        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
+                date__range=(date1,date2))
+        results.append((date1.strftime("%B, %Y"), 
+                        tnm_msgs.filter(direction="I").count(),
+                        tnm_msgs.filter(direction="O").count(),
+                        tnm_msgs.count(),
+                        airtel_msgs.filter(direction="I").count(),
+                        airtel_msgs.filter(direction="O").count(),
+                        airtel_msgs.count()))
+
+    return render_to_response("malawi/telco_tracking.html",
+                              {"results": results},
+                              context_instance=RequestContext(request))
