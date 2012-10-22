@@ -151,7 +151,7 @@ def load_locations(file):
         #create/load district
         def _pad_to(val, target_len):
             if len(val) < target_len:
-                val = "%s%s" % ("0" * (len(val) - target_len), val)
+                val = "%s%s" % ("0" * (target_len - len(val)), val)
             assert len(val) == target_len
             return val 
         
