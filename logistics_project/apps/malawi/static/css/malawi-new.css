@@ -154,3 +154,15 @@ div.tickLabel {
 .clear {
     clear: both;
 }
+
+#login-info {
+    float: right; 
+    width: 550px; 
+    border-left: 1px solid #ddd; 
+    padding-left: 20px;
+}
+
+form#login {
+    width: 300px; 
+    border: none;
+}
