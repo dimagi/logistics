@@ -42,6 +42,6 @@ class MalawiTestBase(OutputtingTestScript):
     
     def setUp(self):
         super(MalawiTestBase, self).setUp()
-        loader.init_static_data()
+        loader.init_static_data(do_locations=True, do_products=True)
         settings.LOGISTICS_APPROVAL_REQUIRED = False
     
