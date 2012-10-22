@@ -82,13 +82,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if self.hsa_limit:
             hsas = hsas[:self.hsa_limit]
         
+        count = len(hsas)
         if not self.skip_hsas:
-            for hsa in hsas:
+            for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 is_em_group = (group_for_location(hsa.location) == config.Groups.EM)
                 products_managed = set([c.pk for c in hsa.commodities_stocked()])
                         
-                print "processing hsa %s (%s) is em: %s" % (hsa.name, str(hsa.id), is_em_group)
+                print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
                 
                 if not self.skip_current_consumption:
                     update_current_consumption(hsa)
