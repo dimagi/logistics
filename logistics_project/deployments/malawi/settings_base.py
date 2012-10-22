@@ -5,6 +5,7 @@ APPS = [
     "auditcare",
     "django.contrib.webdesign",
     "logistics_project.apps.malawi",
+    "scheduler",
     "warehouse"
 ]
 

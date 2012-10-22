@@ -1,13 +1,17 @@
 import os
 from django.conf import settings
-from rapidsms.contrib.locations.models import LocationType, Location, Point
+from rapidsms.contrib.locations.models import LocationType, Location
 from logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole, Product, ProductType
-from logistics.const import Reports
 from logistics.util import config
 from logistics.shortcuts import supply_point_from_location
 from logistics_project.loader.base import load_report_types, load_roles
 import csv
+from pytz import timezone
+from datetime import datetime
+import pytz
+from scheduler.models import EventSchedule
+from django.core.exceptions import ObjectDoesNotExist
 
 class LoaderException(Exception):
     pass
@@ -20,6 +24,7 @@ def init_static_data(log_to_console=False, do_locations=False, do_products=True)
     # Really this should be app logic, I think.
     load_report_types()
     load_roles()
+    load_schedules()
     loc_file = getattr(settings, "STATIC_LOCATIONS")
     if do_locations and loc_file:
         load_locations_from_path(loc_file, log_to_console=log_to_console)
@@ -36,6 +41,23 @@ def clear_products():
     Product.objects.all().delete()
     ProductType.objects.all().delete()
 
+
+def load_schedules():
+    malawi_tz = timezone("Africa/Blantyre") 
+    def _malawi_to_utc(hours):
+        localized = malawi_tz.normalize(malawi_tz.localize(datetime(2011, 1, 1, hours, 0)))
+        utced = localized.astimezone(pytz.utc)
+        return (utced.hour)
+    
+    func = "warehouse.runner.update_warehouse"
+    try:
+        schedule = EventSchedule.objects.get(callback=func)
+    except ObjectDoesNotExist:
+        schedule = EventSchedule(callback=func)
+    schedule.hours = [_malawi_to_utc(h) for h in (0, 12)]
+    schedule.minutes = [0]
+    schedule.save()
+    
 def load_products(file_path, log_to_console=True):
     if log_to_console: print "loading static products from %s" % file_path
     # give django some time to bootstrap itself
