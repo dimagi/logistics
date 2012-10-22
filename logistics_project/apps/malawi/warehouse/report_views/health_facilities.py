@@ -1,16 +1,13 @@
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    hsas_below, hsa_supply_points_below, fmt_pct, group_for_location
+    hsa_supply_points_below, fmt_pct, group_for_location
 from static.malawi import config
 from logistics_project.apps.malawi.warehouse.report_utils import previous_report_period,\
     get_lead_time_table_data, get_stock_status_table_data,\
     WarehouseProductAvailabilitySummary
 from collections import defaultdict
-from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
-    TIME_TRACKER_TYPES, TimeTracker
-from datetime import datetime
-from dimagi.utils.dates import months_between
+from logistics_project.apps.malawi.warehouse.models import ReportingRate
 
 class View(warehouse_view.DistrictOnlyView):
 
