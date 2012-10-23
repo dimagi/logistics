@@ -19,7 +19,7 @@ class TestProductLevels(MalawiTestBase):
                 if "product name" in line.lower():
                     continue
                 #Product Name,Code,Dose,AMC,Family,Formulation,EOP Quantity,# of patients a month,
-                name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats = line.strip().split(",")
+                name, code, dose, monthly_consumption, typename, form, eop_quant, num_pats, min_pack_size = line.strip().split(",")
                 try:
                     eo = int(eop_quant)
                     product = Product.objects.get(sms_code__iexact=code)
