@@ -205,7 +205,7 @@ DATABASE_ENGINE = "mysql"
 
 
 SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
+    'rapidsms': 'logistics_project.deployments.malawi.migrations.rapidsms',
     # NOTE: can't fix this without breaking tests and/or doing a major 
     # migration dependency cleanup
     #'logistics': 'ignore', 
