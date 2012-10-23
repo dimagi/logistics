@@ -218,7 +218,7 @@ def get_multiple_reporting_rates_chart(supply_points, date):
                  for k in ["on time", "late", "not reported"]]
     
     ret_data.append({'data': [[i + 1, data["complete"][sp]] for i, sp in enumerate(supply_points)],
-                     'label': 'complete', 'lines': {"show": True}, "bars": {"show": False},
+                     'label': 'complete', 'lines': {"show": True}, "points": {"show": True}, "bars": {"show": False},
                      'yaxis': 2})
     
     report_chart['xlabels'] = json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)])
