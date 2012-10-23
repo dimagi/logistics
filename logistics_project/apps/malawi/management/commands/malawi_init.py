@@ -5,4 +5,5 @@ class Command(BaseCommand):
     help = "Initialize static data for malawi"
 
     def handle(self, *args, **options):
-        loader.init_static_data(log_to_console=True)
+        do_locs = "locations" in args
+        loader.init_static_data(log_to_console=True, do_locations=do_locs)
