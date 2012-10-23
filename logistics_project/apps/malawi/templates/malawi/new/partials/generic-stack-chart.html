@@ -4,7 +4,7 @@ $(document).ready(function() {
        series: {
          stack: 0,
          lines: { show: false, steps: false },
-         bars: { show: true, barWidth: 0.75, align: 'center' }
+         bars: { show: true, barWidth: 0.75, align: 'center', fill: 1 }
        },
        xaxis: { 
                ticks: {{ graphdata.xlabels|safe }}
