@@ -5,14 +5,13 @@ from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.tests.util import create_manager, create_hsa,\
     report_stock
 __author__ = 'ternus'
-from logistics.models import Location, SupplyPoint, ContactRole
+from logistics.models import Location, SupplyPoint
 from logistics.util import config
 
 class TestApproval(MalawiTestBase):
 
     def setUp(self):
-        super(MalawiTestBase,self).setUp()
-        loader.init_static_data()
+        super(TestApproval, self).setUp()
         settings.LOGISTICS_APPROVAL_REQUIRED = True
 
     def testBasicApprovalWorkflow(self):

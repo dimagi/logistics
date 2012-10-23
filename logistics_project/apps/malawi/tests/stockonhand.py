@@ -78,7 +78,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             self.assertFalse(req.is_pending())
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
-            self.assertTrue(req.received_on > req.responded_on > req.requested_on)
+            self.assertTrue(req.received_on >= req.responded_on >= req.requested_on)
         
         # stocks should now be updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)

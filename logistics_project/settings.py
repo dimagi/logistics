@@ -7,6 +7,8 @@
 
 VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
+STYLE = 'left' # formats the navigation: 'right' 'left' or 'both'
+
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
 BASE_APPS = [
@@ -56,7 +58,8 @@ BASE_APPS = [
     "registration",
     "groupmessaging",
     "taggit",
-    "django_extensions"
+    "django_extensions",
+    # "logistics_project.apps.malawi.reporting"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
@@ -260,12 +263,6 @@ try:
         from localsettings import *
 except ImportError:
     pass
-if ('test' in sys.argv) and ('sqlite' not in DATABASES['default']['ENGINE']):
-    DATABASES = TESTING_DATABASES
-    for db_name in DATABASES:
-        DATABASES[db_name]['TEST_NAME'] = os.path.join(
-            tempfile.gettempdir(),
-            "%s.rapidsms.test.sqlite3" % db_name)
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 

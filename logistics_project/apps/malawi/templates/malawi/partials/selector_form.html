@@ -1,11 +1,10 @@
 <form method="get" id="selector">
-
 {% if request.select_location %}
 {% include "malawi/partials/location_selector.html" %}
 {% endif %}
 
-{% if request.datespan %}&nbsp;
-{% include "malawi/partials/date_selector.html" %}
+{% if request.datespan %}
+{% include "malawi/new/partials/month-selector.html" %}
 {% endif %}
 
 <input type="submit" value="Go!" />

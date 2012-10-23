@@ -1,201 +1,201 @@
-District CODE,District,CODE,ID in District,Health Centers,HSAs/HC
-26,Machinga,2616,1,Ntaja,28
-26,Machinga,2601,2,Chamba,28
-26,Machinga,2614,3,Ngokwe,18
-26,Machinga,2650,4,Mangamba,13
-26,Machinga,2605,5,DHO,61
-26,Machinga,2651,6,Mlomba,
-26,Machinga,2606,7,Machinga HC,19
-26,Machinga,2612,8,Nainunje,14
-26,Machinga,2604,9,Kawinga,16
-26,Machinga,2613,10,Nayuchi,13
-26,Machinga,2610,11,Namandanje,9
-26,Machinga,2603,12,Gawanani,11
-26,Machinga,2609,13,Mposa,17
-26,Machinga,2608,14,Mpiri,8
-26,Machinga,2652,15,Ntholowa,3
-26,Machinga,2617,16,Nyambi,13
-26,Machinga,2615,17,Nsanama,18
-26,Machinga,2611,18,Namanja,14
-26,Machinga,2607,19,Mbonechera,10
-26,Machinga,2602,20,Chikweyo,22
-26,Machinga,2653,21,Mkwepere,8
-03,Nkhatabay,0311,1,Liuzi,2
-03,Nkhatabay,0308,2,Kachere,3
-03,Nkhatabay,0309,3,Kande,4
-03,Nkhatabay,0305,4,Chintheche,4
-03,Nkhatabay,0302,5,Chesamu,1
-03,Nkhatabay,0316,6,Maula,5
-03,Nkhatabay,0315,7,Nkhatabay DHO,5
-03,Nkhatabay,0313,8,Mpamba,4
-03,Nkhatabay,0303,9,Chikwina,3
-03,Nkhatabay,0301,10,Bula,3
-03,Nkhatabay,0319,11,Usisya,1
-03,Nkhatabay,0310,12,Khondowe,1
-03,Nkhatabay,0317,13,Ruarwe,1
-03,Nkhatabay,0306,14,Chitheka,2
-03,Nkhatabay,0314,15,Mzenga,6
-03,Nkhatabay,0350,16,Nthungwa,2
-03,Nkhatabay,0304,17,Chilambwe,0
-03,Nkhatabay,0312,18,Lwazi,0
-03,Nkhatabay,0307,19,Chizumulo,1
-03,Nkhatabay,0318,20,Likoma,4
-32,Mulanje,3213,1,Mulomba,17
-32,Mulanje,3219,2,Thuchira,12
-32,Mulanje,3201,3,Bondo,11
-32,Mulanje,3250,4,Lujeri Estate,3
-32,Mulanje,3209,5,Mimosa,3
-32,Mulanje,3210,6,Mpala,5
-32,Mulanje,3202,7,Chambe,19
-32,Mulanje,3206,8,Kambenje,10
-32,Mulanje,3205,9,Dzenje,1
-32,Mulanje,3208,10,Milonde,6
-32,Mulanje,3211,11,Mulanje DHO,5
-32,Mulanje,3203,12,Chinyama,6
-32,Mulanje,3218,13,Thembe,1
-32,Mulanje,3204,14,Chonde,Not yet trained`
-32,Mulanje,3207,15,Mbiza,Not yet trained
-32,Mulanje,3212,16,Mulanje Mission,Not yet trained
-32,Mulanje,3214,17,Muloza,Not yet trained
-32,Mulanje,3215,18,Namasalima,Not yet trained
-32,Mulanje,3216,19,Namphungo,Not yet trained
-32,Mulanje,3217,20,Namulenga,Not yet trained
-11,Nkhotakota,1104,1,Dwambazi,4
-11,Nkhotakota,1150,2,Lupachi,3
-11,Nkhotakota,1151,3,Kasitu,4
-11,Nkhotakota,1110,4,Ngala,7
-11,Nkhotakota,1112,5,Nkhunga,7
-11,Nkhotakota,1152,6,Dwangwa Cane Growers,1
-11,Nkhotakota,1106,7,Liwaladzi,5
-11,Nkhotakota,1153,8,Msenjere,5
-11,Nkhotakota,1114,9,Katimbira,5
-11,Nkhotakota,1102,10,Bua,4
-11,Nkhotakota,1111,11,DHO/ST,28
-11,Nkhotakota,1107,12,Mpamantha,4
-11,Nkhotakota,1103,13,Chididi,3
-11,Nkhotakota,1105,14,Kapiri,7
-11,Nkhotakota,1116,15,Malowa,4
-11,Nkhotakota,1109,16,Mwansambo,9
-11,Nkhotakota,1101,17,Benga,6
-11,Nkhotakota,1108,18,Ntosa,1
-11,Nkhotakota,1113,19,Alinafe,10
-34,Nsanje,3403,1,Lurwe,
-34,Nsanje,3408,2,Ndamera,9
-34,Nsanje,3406,3,Mbenje,11
-34,Nsanje,3409,4,Nsanje DH,8
-34,Nsanje,3401,5,Chididi,3
-34,Nsanje,3413,6,Tengani,7
-34,Nsanje,3410,7,Nyamithuthu,2
-34,Nsanje,3417,8,Phokera,3
-34,Nsanje,3402,9,Kalemba,7
-34,Nsanje,3412,10,Sorgin,7
-34,Nsanje,3414,11,Trinity,6
-34,Nsanje,3405,12,Masenjere,4
-34,Nsanje,3411,13,Sankhulani,4
-34,Nsanje,3404,14,Makhanga,2
-10,Kasungu,1005,1,Kaluluma,7
-10,Kasungu,1017,2,Mpepa/Chisinga,6
-10,Kasungu,1016,3,Wimbe,6
-10,Kasungu,1011,4,Mtunthama,5
-10,Kasungu,1050,5,Mziza,2
-10,Kasungu,1001,6,Bua,3
-10,Kasungu,1012,7,Newa,3
-10,Kasungu,1004,8,Dwangwa,0
-10,Kasungu,1002,9,Chamwavi,7
-10,Kasungu,1051,10,Lodjwa,2
-10,Kasungu,1009,11,Kawamba,9
-10,Kasungu,1052,12,Khola,2
-10,Kasungu,1010,13,Mkhota,3
-10,Kasungu,1008,14,Kasungu D.Hospital,6
-10,Kasungu,1006,15,Kamboni,3
-10,Kasungu,1007,16,Kapelula,6
-10,Kasungu,1014,17,Santhe,6
-10,Kasungu,1053,18,Gogode,2
-10,Kasungu,1054,19,Ofesi,4
-10,Kasungu,1055,20,Linyangwa,4
-10,Kasungu,1003,21,Chulu,8
-10,Kasungu,1015,22,Simlemba,5
-10,Kasungu,1013,23,Nkhamenya,6
-10,Kasungu,1018,24,Kasalika,0
-17,Dedza,1701,1,Bembeke,8
-17,Dedza,1702,2,Chikuse,5
-17,Dedza,1703,3,Chimoto,6
-17,Dedza,1704,4,Chiphwanta ,4
-17,Dedza,1705,5,Chitowo,5
-17,Dedza,1706,6,Chongoni ,5
-17,Dedza,1707,7,Dedza DHO,8
-17,Dedza,1708,8,Dzindevu,9
-17,Dedza,1709,9,Kafele,8
-17,Dedza,1710,10,Kalulu,5
-17,Dedza,1711,11,Kanyama ,8
-17,Dedza,1712,12,Kanyezi,6
-17,Dedza,1713,13,Kaphuka,12
-17,Dedza,1714,14,Kasina,5
-17,Dedza,1715,15,Lobi,7
-17,Dedza,1716,16,Maonde,4
-17,Dedza,1717,17,Matumba,4
-17,Dedza,1718,18,Mayani,7
-17,Dedza,1719,19,Mikondo ,8
-17,Dedza,1720,20,Mlangali,5
-17,Dedza,1721,21,Mphathi,7
-17,Dedza,1722,22,Mphunzi,6
-17,Dedza,1723,23,Mtendere ,8
-17,Dedza,1724,24,Tsoyo,10
-17,Dedza,1750,25,Nakalazi,7
-17,Dedza,1751,26,Kaundu,5
-17,Dedza,1752,27,Kachindamoto,4
-17,Dedza,1753,28,Mtakataka,7
-17,Dedza,1754,29,Golomoti,10
-17,Dedza,1755,30,Mua,5
-17,Dedza,1756,31,Mganja,6
-17,Dedza,1757,32,Mjini,7
-17,Dedza,1758,33,Mdeza,8
-15,Lilongwe,1501,1,Area 18,1
-15,Lilongwe,1502,2,Area 25,5
-15,Lilongwe,1503,3,Bwaila,3
-15,Lilongwe,1504,4,Chokowa,4
-15,Lilongwe,1505,5,Chileka,2
-15,Lilongwe,1506,6,Chimbalanga,5
-15,Lilongwe,1507,7,Chitedze,4
-15,Lilongwe,1508,8,Chiunjidza,5
-15,Lilongwe,1509,9,Chiwamba,7
-15,Lilongwe,1510,10,Chiwe,2
-15,Lilongwe,1511,11,Diamphwe,3
-15,Lilongwe,1512,12,Dickson,10
-15,Lilongwe,1513,13,Dzenza,0
-15,Lilongwe,1514,14,Kabudul,2
-15,Lilongwe,1515,15,Kang'oma,4
-15,Lilongwe,1516,16,Kachale ,3
-15,Lilongwe,1517,17,Kawale,0
-15,Lilongwe,1518,18,Khongoni,3
-15,Lilongwe,1519,19,Likuni,3
-15,Lilongwe,1520,20,Lemwe,3
-15,Lilongwe,1521,21,Lumbadzi,3
-15,Lilongwe,1522,22,Malingunde,2
-15,Lilongwe,1523,23,Maluwa,0
-15,Lilongwe,1524,24,Matapira,4
-15,Lilongwe,1525,25,Mbabvi,4
-15,Lilongwe,1526,26,Mbang'ombe I,2
-15,Lilongwe,1527,27,Mbang'ombe II,3
-15,Lilongwe,1528,28,Mbwatakali,3
-15,Lilongwe,1529,29,Ming'ongo,2
-15,Lilongwe,1530,30,Mitundu,6
-15,Lilongwe,1531,31,Milale,3
-15,Lilongwe,1532,32,Mtenthera,3
-15,Lilongwe,1533,33,Nambuma,3
-15,Lilongwe,1534,34,Nathenje,2
-15,Lilongwe,1535,35,Ndaula,2
-15,Lilongwe,1536,36,New state house,0
-15,Lilongwe,1537,37,Ngoni,3
-15,Lilongwe,1538,38,Nkhoma,4
-15,Lilongwe,1539,39,Nsaru,3
-15,Lilongwe,1540,40,Nthondo,3
-15,Lilongwe,1541,41,St Gabriel,1
-15,Lilongwe,1542,42,Ukwe,5
-15,Lilongwe,1543,43,Dzalanyama,1
-15,Lilongwe,1544,44,Police Area 30,0
-15,Lilongwe,1545,45,Kamuzu Barracks,0
-15,Lilongwe,1546,46,Khasu,2
-99,Test,9901,01,Test Facility 1,5
-99,Test,9902,02,Test Facility 2,4
-99,Test,9903,03,Test Facility 3,7
+District CODE,District,CODE,Health Centers
+26,Machinga,2616,Ntaja
+26,Machinga,2601,Chamba
+26,Machinga,2614,Ngokwe
+26,Machinga,2650,Mangamba
+26,Machinga,2605,DHO
+26,Machinga,2651,Mlomba
+26,Machinga,2606,Machinga HC
+26,Machinga,2612,Nainunje
+26,Machinga,2604,Kawinga
+26,Machinga,2613,Nayuchi
+26,Machinga,2610,Namandanje
+26,Machinga,2603,Gawanani
+26,Machinga,2609,Mposa
+26,Machinga,2608,Mpiri
+26,Machinga,2652,Ntholowa
+26,Machinga,2617,Nyambi
+26,Machinga,2615,Nsanama
+26,Machinga,2611,Namanja
+26,Machinga,2607,Mbonechera
+26,Machinga,2602,Chikweyo
+26,Machinga,2653,Mkwepere
+3,Nkhatabay,311,Liuzi
+3,Nkhatabay,308,Kachere
+3,Nkhatabay,309,Kande
+3,Nkhatabay,305,Chintheche
+3,Nkhatabay,302,Chesamu
+3,Nkhatabay,316,Maula
+3,Nkhatabay,315,Nkhatabay DHO
+3,Nkhatabay,313,Mpamba
+3,Nkhatabay,303,Chikwina
+3,Nkhatabay,301,Bula
+3,Nkhatabay,319,Usisya
+3,Nkhatabay,310,Khondowe
+3,Nkhatabay,317,Ruarwe
+3,Nkhatabay,306,Chitheka
+3,Nkhatabay,314,Mzenga
+3,Nkhatabay,350,Nthungwa
+3,Nkhatabay,304,Chilambwe
+3,Nkhatabay,312,Lwazi
+3,Nkhatabay,307,Chizumulo
+3,Nkhatabay,318,Likoma
+32,Mulanje,3213,Mulomba
+32,Mulanje,3219,Thuchira
+32,Mulanje,3201,Bondo
+32,Mulanje,3250,Lujeri Estate
+32,Mulanje,3209,Mimosa
+32,Mulanje,3210,Mpala
+32,Mulanje,3202,Chambe
+32,Mulanje,3206,Kambenje
+32,Mulanje,3205,Dzenje
+32,Mulanje,3208,Milonde
+32,Mulanje,3211,Mulanje DHO
+32,Mulanje,3203,Chinyama
+32,Mulanje,3218,Thembe
+32,Mulanje,3204,Chonde
+32,Mulanje,3207,Mbiza
+32,Mulanje,3212,Mulanje Mission
+32,Mulanje,3214,Muloza
+32,Mulanje,3215,Namasalima
+32,Mulanje,3216,Namphungo
+32,Mulanje,3217,Namulenga
+11,Nkhotakota,1104,Dwambazi
+11,Nkhotakota,1150,Lupachi
+11,Nkhotakota,1151,Kasitu
+11,Nkhotakota,1110,Ngala
+11,Nkhotakota,1112,Nkhunga
+11,Nkhotakota,1152,Dwangwa Cane Growers
+11,Nkhotakota,1106,Liwaladzi
+11,Nkhotakota,1153,Msenjere
+11,Nkhotakota,1114,Katimbira
+11,Nkhotakota,1102,Bua
+11,Nkhotakota,1111,DHO/ST
+11,Nkhotakota,1107,Mpamantha
+11,Nkhotakota,1103,Chididi
+11,Nkhotakota,1105,Kapiri
+11,Nkhotakota,1116,Malowa
+11,Nkhotakota,1109,Mwansambo
+11,Nkhotakota,1101,Benga
+11,Nkhotakota,1108,Ntosa
+11,Nkhotakota,1113,Alinafe
+34,Nsanje,3403,Lurwe
+34,Nsanje,3408,Ndamera
+34,Nsanje,3406,Mbenje
+34,Nsanje,3409,Nsanje DH
+34,Nsanje,3401,Chididi
+34,Nsanje,3413,Tengani
+34,Nsanje,3410,Nyamithuthu
+34,Nsanje,3417,Phokera
+34,Nsanje,3402,Kalemba
+34,Nsanje,3412,Sorgin
+34,Nsanje,3414,Trinity
+34,Nsanje,3405,Masenjere
+34,Nsanje,3411,Sankhulani
+34,Nsanje,3404,Makhanga
+10,Kasungu,1005,Kaluluma
+10,Kasungu,1017,Mpepa/Chisinga
+10,Kasungu,1016,Wimbe
+10,Kasungu,1011,Mtunthama
+10,Kasungu,1050,Mziza
+10,Kasungu,1001,Bua
+10,Kasungu,1012,Newa
+10,Kasungu,1004,Dwangwa
+10,Kasungu,1002,Chamwavi
+10,Kasungu,1051,Lodjwa
+10,Kasungu,1009,Kawamba
+10,Kasungu,1052,Khola
+10,Kasungu,1010,Mkhota
+10,Kasungu,1008,Kasungu D.Hospital
+10,Kasungu,1006,Kamboni
+10,Kasungu,1007,Kapelula
+10,Kasungu,1014,Santhe
+10,Kasungu,1053,Gogode
+10,Kasungu,1054,Ofesi
+10,Kasungu,1055,Linyangwa
+10,Kasungu,1003,Chulu
+10,Kasungu,1015,Simlemba
+10,Kasungu,1013,Nkhamenya
+10,Kasungu,1018,Kasalika
+17,Dedza,1701,Bembeke
+17,Dedza,1702,Chikuse
+17,Dedza,1703,Chimoto
+17,Dedza,1704,Chiphwanta 
+17,Dedza,1705,Chitowo
+17,Dedza,1706,Chongoni 
+17,Dedza,1707,Dedza DHO
+17,Dedza,1708,Dzindevu
+17,Dedza,1709,Kafele
+17,Dedza,1710,Kalulu
+17,Dedza,1711,Kanyama 
+17,Dedza,1712,Kanyezi
+17,Dedza,1713,Kaphuka
+17,Dedza,1714,Kasina
+17,Dedza,1715,Lobi
+17,Dedza,1716,Maonde
+17,Dedza,1717,Matumba
+17,Dedza,1718,Mayani
+17,Dedza,1719,Mikondo 
+17,Dedza,1720,Mlangali
+17,Dedza,1721,Mphathi
+17,Dedza,1722,Mphunzi
+17,Dedza,1723,Mtendere 
+17,Dedza,1724,Tsoyo
+17,Dedza,1750,Nakalazi
+17,Dedza,1751,Kaundu
+17,Dedza,1752,Kachindamoto
+17,Dedza,1753,Mtakataka
+17,Dedza,1754,Golomoti
+17,Dedza,1755,Mua
+17,Dedza,1756,Mganja
+17,Dedza,1757,Mjini
+17,Dedza,1758,Mdeza
+15,Lilongwe,1501,Area 18
+15,Lilongwe,1502,Area 25
+15,Lilongwe,1503,Bwaila
+15,Lilongwe,1504,Chokowa
+15,Lilongwe,1505,Chileka
+15,Lilongwe,1506,Chimbalanga
+15,Lilongwe,1507,Chitedze
+15,Lilongwe,1508,Chiunjidza
+15,Lilongwe,1509,Chiwamba
+15,Lilongwe,1510,Chiwe
+15,Lilongwe,1511,Diamphwe
+15,Lilongwe,1512,Dickson
+15,Lilongwe,1513,Dzenza
+15,Lilongwe,1514,Kabudul
+15,Lilongwe,1515,Kang'oma
+15,Lilongwe,1516,Kachale 
+15,Lilongwe,1517,Kawale
+15,Lilongwe,1518,Khongoni
+15,Lilongwe,1519,Likuni
+15,Lilongwe,1520,Lemwe
+15,Lilongwe,1521,Lumbadzi
+15,Lilongwe,1522,Malingunde
+15,Lilongwe,1523,Maluwa
+15,Lilongwe,1524,Matapira
+15,Lilongwe,1525,Mbabvi
+15,Lilongwe,1526,Mbang'ombe I
+15,Lilongwe,1527,Mbang'ombe II
+15,Lilongwe,1528,Mbwatakali
+15,Lilongwe,1529,Ming'ongo
+15,Lilongwe,1530,Mitundu
+15,Lilongwe,1531,Milale
+15,Lilongwe,1532,Mtenthera
+15,Lilongwe,1533,Nambuma
+15,Lilongwe,1534,Nathenje
+15,Lilongwe,1535,Ndaula
+15,Lilongwe,1536,New state house
+15,Lilongwe,1537,Ngoni
+15,Lilongwe,1538,Nkhoma
+15,Lilongwe,1539,Nsaru
+15,Lilongwe,1540,Nthondo
+15,Lilongwe,1541,St Gabriel
+15,Lilongwe,1542,Ukwe
+15,Lilongwe,1543,Dzalanyama
+15,Lilongwe,1544,Police Area 30
+15,Lilongwe,1545,Kamuzu Barracks
+15,Lilongwe,1546,Khasu
+99,Test,9901,Test Facility 1
+99,Test,9902,Test Facility 2
+99,Test,9903,Test Facility 3

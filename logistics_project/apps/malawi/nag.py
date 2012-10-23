@@ -11,7 +11,11 @@ from rapidsms.contrib.messaging.utils import send_message
 from logistics.const import Reports
 from logistics.util import config
 from static.malawi.config import Messages
-from logistics_project.apps.malawi.util import hsa_supply_points_below
+from logistics_project.apps.malawi.util import hsa_supply_points_below,\
+    get_districts, get_district_supply_points, get_imci_coordinators,\
+    get_district_pharmacists
+import itertools
+from logistics_project.apps.malawi.warehouse.models import Alert
 
 DAYS_BETWEEN_FIRST_AND_SECOND_WARNING = 3
 DAYS_BETWEEN_SECOND_AND_THIRD_WARNING = 2
@@ -237,3 +241,30 @@ def nag_hsas_em():
     locs = [Location.objects.get(name=loc) for loc in config.Groups.GROUPS[config.Groups.EM]]
     for l in locs:
         nag_hsas_soh(since, l)
+        
+def send_district_reminders():
+    for d in get_district_supply_points():
+        _send_eo_notice(d)
+        _send_so_notice(d)
+
+def _district_contacts(district):
+    all = itertools.chain(get_imci_coordinators(district),
+                          get_district_pharmacists(district))
+    for c in all:
+        if c.default_connection:
+            yield c
+    
+def _send_eo_notice(district):        
+    relevant_alert = Alert.objects.get(supply_point=district)
+    msg = config.Messages.DISTRICT_NAG_EO % {"pct": relevant_alert.eo_without_resupply }
+    for contact in _district_contacts(district):
+        send_message(contact.default_connection, msg)
+    
+def _send_so_notice(district):
+    relevant_alert = Alert.objects.get(supply_point=district)
+    msg = config.Messages.DISTRICT_NAG_SO % {"pct": relevant_alert.have_stockouts }
+    for contact in _district_contacts(district):
+        send_message(contact.default_connection, msg)
+        
+        
+        

@@ -1,0 +1,32 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+{% if national_view_level %}
+	<div class="module">
+		<h2>Districts</h2>
+		<p>Click on a row for more information, or</p>
+		{% with district_table as table %}
+		{% include "malawi/new/partials/selector-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+
+{% if district %}
+	<div class="module">
+		<h2>Facilities under {{ district }}</h2>
+		<p>Click on a row for more information, or</p>
+		{% with facility_table as table %}
+		{% include "malawi/new/partials/selector-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+
+{% if facility %}
+	<div class="module">
+		<h2>HSAs under {{ facility }}</h2>
+		{% with hsa_table as table %}
+		{% include "malawi/new/partials/selector-table.html" %}
+		{% endwith %}
+	</div>
+{% endif %}
+{% endblock %}

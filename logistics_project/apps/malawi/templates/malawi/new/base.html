@@ -2,7 +2,6 @@
 {% block stylesheets %}{{ block.super }}
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
     <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}malawi/css/malawi-new.css" />
 {% endblock %}
 {% block javascripts %}
     <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
@@ -14,19 +13,22 @@
 {% block imports %}
     {% include "imports/jquery-ui.html" %}
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.dataTables.min.js"></script>
 {% endblock %}
 {% block content %}
-    <div class="side-tabs">
+{% if show_report_nav %}
+    <section class="subtabs">
         <ul> 
             {% for report in report_list %}
                 {% if report.slug %}
-                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{{ settings.REPORT_URL }}/{{ report.slug }}">{{ report.name }}</a></li>
+                    <li class="report {% ifequal slug report.slug %}selected{% endifequal %}"><a href="{{ settings.REPORT_URL }}/{{ report.slug }}/{{ querystring }}">{{ report.name }}</a></li>
                 {% endif %}
              {% empty %}
                 <div class="error">No reports found!</div>
             {% endfor %}
         </ul>
-    </div>
+    </section>
+{% endif %}
     <div class="report-content">
 	    <div class="inner">
 	    {% block report_content %}{% endblock %}
@@ -34,23 +36,24 @@
     </div>
     <div class="sidebar">
         <div class="inner">
+            <div id="sidebarFlag"></div>
+            <h4>Current National Picture</h4>
             <table>
                 <tr><th colspan="2">Number Registered</th></tr>
-                <tr><th>Districts</th><td>{{ districts.count }}</td></tr>
-                <tr><th>H facilities</th><td>{{ facilities.count }}</td></tr>
+                <tr><th>Districts</th><td>{{ district_count }}</td></tr>
+                <tr><th>H facilities</th><td>{{ facility_count }}</td></tr>
                 <tr><th>HSAs</th><td>{{ hsas }}</td></tr>
             </table>
-
-            <p>Reporting Rate: {{ reporting_rate }}%</p>
-            
             <table>
-                <tr><th colspan="2">National Status for Current Month</th></tr>
-                <tr><th>Product</th><th>% HSAs w Stkout</th></tr>
-                {% for product in products %}                
-                    <tr><th>{{ product.sms_code }}</th>
-<!-- Get real info -->
-                        <td>76.3%</td>
-<!-- -->
+                <tr><th>Reporting Rate</th><td>{{ reporting_rate }}</td></tr>
+            </table>
+            <table>
+                <tr><th colspan="3">National Stock Out Rate</th></tr>
+                <tr><th>Product</th><th>HSAs</th><th>% SO</th></tr>
+                {% for product, pct in product_stockout_pcts.items %}                
+                    <tr class="{% cycle 'odd' 'even' %}"><td>{{ product.sms_code }}</td>
+                        <td>{{ pct.1 }}</td>
+                        <td>{{ pct.0|floatformat }}%</td>
                     </tr>
                 {% endfor %}
             </table>

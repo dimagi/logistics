@@ -1,0 +1,39 @@
+{% extends "malawi/new/base.html" %}
+{% load malawi_warehouse_tags %}
+{% block report_content %}
+
+<form method="get" id="selector">
+	{% include "malawi/partials/location_selector.html" %}
+    <input type="submit" value="Go!" />
+</form>
+
+<div class="two-columns" style="margin-top: 2em;">
+    <div class="col-1">
+        <div class="module">
+            <h2>Stockout rates</h2>
+            {% with dsummary_table as table %}
+                {% include "malawi/new/partials/generic-table.html" %}
+            {% endwith %}
+		</div>
+    </div>
+    <div class="col-2">
+        <div class="module">
+            <h2>Current alerts</h2>
+            {% with alert_table as table %}
+                {% include "malawi/new/partials/generic-table.html" %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+
+<div class="module">
+    <h2>Reporting rates</h2>
+    {% include "malawi/new/partials/reporting-rate-chart.html" %}
+</div>
+
+<div class="module">
+    <h2>Current stock status by product</h2>
+    {% warehouse_product_availability_summary location request.datespan.enddate default_chart_width %} 
+</div>
+
+{% endblock %}

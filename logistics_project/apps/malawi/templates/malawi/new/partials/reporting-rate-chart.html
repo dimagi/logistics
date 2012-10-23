@@ -1,0 +1,31 @@
+{# this is custom enough that it needs its own file #}
+<script language="javascript">
+$(document).ready(function() {
+    bar_options = {                     
+       series: {
+         lines: { show: true, steps: false },
+         bars: { show: true, barWidth: 0.75, align: 'center' }
+       },
+       xaxis: { 
+               ticks: {{ graphdata.xlabels|safe }}
+              }, 
+       legend: {show: true, container: $("#{{ graphdata.legenddiv }}"), noColumns: {{ graphdata.legendcols|default:3 }}},
+       yaxis: { min: 0,
+                max: {{ graphdata.max_value }},
+                tickDecimals: 0 },
+       y2axis: { min: 0,
+                 max: {{ graphdata.max_value }},
+                 show: false },
+       grid: {show: true,
+              tickColor: 'gray',
+              backgroundColor: '#FFFFFF',
+              hoverable: false,
+              autoHighlight:false}
+    };
+    $.plot($("#{{ graphdata.div }}"), {{ graphdata.data|safe }}, bar_options );    
+});
+</script>
+<div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
+<p>{{ graphdata.yaxistitle }}</p>
+<div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
+<p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>

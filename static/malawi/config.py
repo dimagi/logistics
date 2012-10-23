@@ -43,9 +43,17 @@ class SupplyPointCodes(object):
     """
     These correspond to SupplyPointType.code
     """
+    COUNTRY = "c"
     DISTRICT = "d"
     FACILITY = "hf"
     HSA = "hsa"
+    
+    ALL = {
+        COUNTRY: "country",
+        DISTRICT: "district",
+        FACILITY: "facility",
+        HSA: "hsa"
+    }
 
 class LocationCodes(object):
     """
@@ -199,6 +207,8 @@ class Messages(object):
     HSA_RECEIPT_NAG_THIRD = "Dear %(hsa)s, you have still not confirmed receipt of your products. Your supervisor has been notified."
     HSA_RECEIPT_SUPERVISOR_NAG = "%(hsa)s has a fulfilled stock request they have not yet picked up."
 
+    DISTRICT_NAG_EO = "%(pct)s%% of HSAs in your district have EOs that HC cannot resupply - visit the dashboard."
+    DISTRICT_NAG_SO = "%(pct)s%% of HSAs in your district are stocked out of at least one product - please visit the dashboard."
 
     # create user
 
@@ -227,7 +237,7 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     
-	# messages originally in logistics.models.py
+    # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
@@ -252,3 +262,7 @@ class Alerts(object):
     
     HSA_NO_PRODUCTS = "%(hsa)s is registered but is not associated with any products"
     FACILITY_NO_SUPERVISOR = "No HSA supervisor or in-charge is registered for %(facility)s but there are HSAs registered there."
+
+class TimeTrackerTypes:
+    ORD_READY = 'ord-ready'
+    READY_REC = 'ready-rec'

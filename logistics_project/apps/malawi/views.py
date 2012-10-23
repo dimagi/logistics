@@ -1,61 +1,242 @@
 from datetime import datetime, date, timedelta
+from urllib2 import urlopen
+from collections import defaultdict
+import logging
+
+from django.conf import settings
 from django.contrib import messages
 from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template.context import RequestContext
-from urllib import urlencode
-from urllib2 import urlopen
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
-import logging
 from django.views.decorators.vary import vary_on_cookie
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User as auth_user
+from django.contrib.auth.models import Group as auth_group
+from django.db.models.aggregates import Count
+
+from dimagi.utils.csv import UnicodeWriter
+from dimagi.utils.dates import DateSpan, months_between, add_months
+from dimagi.utils.django.permission_required import permission_required_with_403
+from dimagi.utils.decorators.datespan import datespan_in_request
+
+from rapidsms.models import Contact
+from rapidsms.contrib.locations.models import Location
+from rapidsms.models import Backend, Connection
+from rapidsms.contrib.messagelog.models import Message
+
+from logistics.models import SupplyPoint, Product, LogisticsProfile,\
+    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
+from logistics.decorators import place_in_request
+from logistics.charts import stocklevel_plot
+from logistics.view_decorators import filter_context
+from logistics.reports import ReportingBreakdown
+from logistics.util import config
+from logistics.charts import amc_plot
+
+from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
     MalawiProductTable, HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable, ConsumptionDataTable, OrganizationTable
-from rapidsms.models import Contact
-from rapidsms.contrib.locations.models import Location
-from logistics.models import SupplyPoint, Product, \
-    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below
-from logistics.decorators import place_in_request
-from logistics.charts import stocklevel_plot
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.core.urlresolvers import reverse
-from logistics.view_decorators import filter_context
-from logistics.reports import ReportingBreakdown
-from logistics.util import config
-from dimagi.utils.dates import DateSpan
-from dimagi.utils.django.permission_required import permission_required_with_403
-from dimagi.utils.decorators.datespan import datespan_in_request
-from django.contrib.auth.decorators import permission_required
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
-from rapidsms.models import Backend, Connection
-from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
-from django.conf import settings
-from dimagi.utils.csv import UnicodeWriter
-from logistics.charts import amc_plot
 from logistics_project.apps.malawi.models import Organization
-from logistics_project.apps.malawi.forms import OrganizationForm
-from rapidsms.contrib.messagelog.models import Message
-from django.db.models.aggregates import Count
-from collections import defaultdict
+from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
+    UploadFacilityFileForm
 
-class MonthPager(object):
-    """
-    Utility class to show a month pager, e.g. << August 2011 >>
-    """
-    def __init__(self, request):
-        self.month = int(request.GET.get('month', datetime.utcnow().month))
-        self.year = int(request.GET.get('year', datetime.utcnow().year))
-        self.begin_date = datetime(year=self.year, month=self.month, day=1)
-        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
-        self.prev_month = self.begin_date - timedelta(days=1)
-        self.next_month = self.end_date + timedelta(days=1)
-        self.show_next = self.end_date < datetime.utcnow().replace(day=1)
-        self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
-        self.datespan = DateSpan(self.begin_date, self.end_date)
+from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
+from logistics_project.apps.malawi.loader import load_locations,\
+    get_facility_export
+from django.views.decorators.http import require_POST
+
+
+def organizations(request):
+    orgs = Organization.objects.all()
+    table = {
+        "id": "org-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Members", "Managed Supply Points"],
+        "data": [],
+    }
+    for org in orgs:
+        table["data"].append({"url": reverse("malawi_edit_organization", kwargs={'pk': org.id}),
+            "data": [org.name, org.contact_set.all().count(),
+                " ".join([s.name for s in org.managed_supply_points.all()])]})
+
+    table["height"] = min(480, (orgs.count()+1)*30)
+
+    context = {
+        "orgs": orgs,
+        "table": table,
+    }
+    return render_to_response("%s/organizations.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def edit_organization(request, pk):
+    org = get_object_or_404(Organization, pk=pk)
+    if request.method == 'POST': 
+        form = OrganizationForm(request.POST, instance=org) 
+        if form.is_valid(): 
+            org = form.save()
+            messages.success(request, "Organization '%s' was successfully saved"  % org.name)
+            return HttpResponseRedirect(reverse('malawi_organizations'))
+    else:
+        form = OrganizationForm(instance=org) 
+
+    return render_to_response('malawi/edit_organization.html', {
+        'form': form,
+        'is_new': False
+    }, context_instance=RequestContext(request))
+    
+def new_organization(request):
+    if request.method == 'POST': 
+        form = OrganizationForm(request.POST) 
+        if form.is_valid(): 
+            new_org = form.save()
+            messages.success(request, "Organization '%s' was successfully created"  % new_org.name)
+            return HttpResponseRedirect(reverse('malawi_organizations'))
+    else:
+        form = OrganizationForm() 
+
+    return render_to_response('malawi/edit_organization.html', {
+        'form': form,
+        'is_new': True
+    }, context_instance=RequestContext(request))
+
+def contacts(request):
+    contacts = Contact.objects.all()
+    table = {
+        "id": "contacts-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Role", "HSA Id", "SupplyPoint",
+                   "Phone Number", "Commodities", "Organization"],
+        "data": [],
+    }
+    for c in contacts:
+        table["data"].append({"url": "/registration/%d/edit" % c.id, "data": [c.name, 
+            c.role.name if c.role else "", c.hsa_id,
+            c.supply_point.name if c.supply_point else "",
+            c.default_connection.identity if c.default_connection else "",
+            " ".join([com.sms_code for com in c.commodities.all()]),
+            c.organization.name if c.organization else ""]})
+
+    table["height"] = min(480, (contacts.count()+1)*30)
+
+    context = {
+        "contacts": contacts,
+        "table": table,
+    }
+    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def permissions(request):
+    users = auth_user.objects.all()
+    groups = auth_group.objects.all()
+    table = {
+        "id": "user-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["User", "District", "Organization", "Groups"],
+        "data": [],
+    }
+    for u in users:
+        prof = u.get_profile()
+        table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': prof.id}), 
+            "data": [u.username, prof.supply_point,
+                prof.organization.name if prof.organization else "",
+                " ".join([g.name for g in u.groups.all()])]})
+
+    table["height"] = min(480, (users.count()+1)*30)
+
+    context = {
+        "users": users,
+        "groups": groups,
+        "table": table,
+    }
+    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def edit_permission(request, pk):
+    prof = get_object_or_404(LogisticsProfile, pk=pk)
+    if request.method == 'POST':
+        form = LogisticsProfileForm(request.POST, instance=prof) 
+        if form.is_valid(): 
+            prof = form.save()
+            messages.success(request, "Permissions for '%s' were successfully saved"  % prof.user.username)
+            return HttpResponseRedirect(reverse('malawi_permissions'))
+
+    form = LogisticsProfileForm(instance=prof) 
+
+    context = { 'user': prof.user.username,
+                'form': form,
+              }
+
+    return render_to_response("%s/edit_permission.html" % settings.MANAGEMENT_FOLDER,
+        context, context_instance=RequestContext(request))
+
+def places(request):
+    locs = Location.objects.filter(is_active=True)
+    table = {
+        "id": "loc-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Code", "Type", "Supplied By"],
+        "data": [],
+    }
+    for loc in locs:
+        try:
+            sp = SupplyPoint.objects.get(location=loc)
+        except SupplyPoint.DoesNotExist:
+            # if for whatever reason this isn't found don't fail hard.
+            continue
+        table["data"].append([loc.name, loc.code,
+            loc.type.name if loc.type else "",
+            sp.supplied_by.name if sp.supplied_by else ""])
+
+    table["height"] = min(480, (locs.count()+1)*30)
+
+    context = {
+        "locs": locs,
+        "table": table,
+    }
+    return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+def products(request):
+    prds = Product.objects.filter(is_active=True)
+    table = {
+        "id": "prd-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "SMS Code", "Avg Monthly Consumption",
+                   "Emergency Order Level", "Type"],
+        "data": [],
+    }
+    for prd in prds:
+        table["data"].append([prd.name, prd.sms_code, prd.average_monthly_consumption,
+            prd.emergency_order_level, prd.type.name if prd.type else ""])
+
+    table["height"] = min(480, (prds.count()+1)*30)
+
+    context = {
+        "prds": prds,
+        "table": table,
+    }
+    return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+
+def help(request):
+    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
+
+
 
 #@cache_page(60 * 15)
 @place_in_request()
@@ -91,66 +272,6 @@ def dashboard(request):
                                
                               context_instance=RequestContext(request))
 
-def places(request):
-    return render_to_response("malawi/places.html",
-        {
-            "location_table": MalawiLocationTable(Location.objects.exclude(type__slug="hsa"), request=request)
-        }, context_instance=RequestContext(request)
-    )
-    
-def contacts(request):
-    return render_to_response("malawi/contacts.html",
-        {
-            "contacts_table": MalawiContactTable(Contact.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-    
-def organizations(request):
-    return render_to_response("malawi/organizations.html",
-        {
-            "organization_table": OrganizationTable(Organization.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-    
-def products(request):
-    return render_to_response("malawi/products.html",
-        {
-            "product_table": MalawiProductTable(Product.objects, request=request)
-        }, context_instance=RequestContext(request)
-    )
-
-def edit_organization(request, pk):
-    org = get_object_or_404(Organization, pk=pk)
-    if request.method == 'POST': 
-        form = OrganizationForm(request.POST, instance=org) 
-        if form.is_valid(): 
-            org = form.save()
-            messages.success(request, "Organization '%s' was successfully saved"  % org.name)
-            return HttpResponseRedirect(reverse('malawi_organizations'))
-    else:
-        form = OrganizationForm(instance=org) 
-
-    return render_to_response('malawi/edit_organization.html', {
-        'form': form,
-        'is_new': False
-    }, context_instance=RequestContext(request))
-    
-def new_organization(request):
-    if request.method == 'POST': 
-        form = OrganizationForm(request.POST) 
-        if form.is_valid(): 
-            new_org = form.save()
-            messages.success(request, "Organization '%s' was successfully created"  % new_org.name)
-            return HttpResponseRedirect(reverse('malawi_organizations'))
-    else:
-        form = OrganizationForm() 
-
-    return render_to_response('malawi/edit_organization.html', {
-        'form': form,
-        'is_new': True
-    }, context_instance=RequestContext(request))
-    
-    
 @cache_page(60 * 15)
 @place_in_request()
 @vary_on_cookie
@@ -225,8 +346,6 @@ def reactivate_hsa(request, code, name):
         "name": hsa.name,
     })
     return redirect('malawi_hsa', code=hsa.supply_point.code)
-
-
 
 @cache_page(60 * 15)
 @place_in_request()
@@ -323,9 +442,6 @@ def monitoring_report(request, report_slug):
 
 def monitoring_report_ajax(): pass
 
-def help(request):
-    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
-
 @permission_required("auth.admin_read")
 def status(request):
     #TODO Put these settings in localsettings, probably
@@ -335,11 +451,6 @@ def status(request):
         r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
         
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
-
-def _sort_date(x,y):
-    if x['registered'] < y['registered']: return -1
-    if x['registered'] > y['registered']: return 1
-    return 0
 
 @permission_required("auth.admin_read")
 def airtel_numbers(request):
@@ -397,6 +508,35 @@ def verify_ajax(request):
         if SupplyPoint.objects.filter(type__code='hf', code=val).exists():
             return json.dump(True)
 
+def manage_facilities(request):
+    form = UploadFacilityFileForm()
+    return render_to_response("malawi/manage_facilities.html", 
+        {'form': form}, context_instance=RequestContext(request))
+
+def download_facilities(request):
+    response = HttpResponse()
+    response['Content-Disposition'] = 'attachment; filename=cstock-facilities.csv'
+    get_facility_export(response)
+    return response
+
+@require_POST
+def upload_facilities(request):
+    form = UploadFacilityFileForm(request.POST, request.FILES)
+    if form.is_valid():
+        f = request.FILES['file']
+        try: 
+            msgs = load_locations(f)
+            for m in msgs:
+                messages.info(request, m)
+        except Exception, e:
+            messages.error(request, "Something went wrong with that upload. " 
+                           "Please double check the file format or "
+                           "try downloading a new copy. Your error message "
+                           "is: %s" % e)
+    else:
+        messages.error(request, "Please select a file")    
+    return HttpResponseRedirect(reverse("malawi_manage_facilities"))
+    
 @datespan_in_request()
 def export_amc_csv(request):
     response = HttpResponse(mimetype='text/csv')
@@ -415,6 +555,27 @@ def export_amc_csv(request):
             row.append(v[p.sms_code])
         writer.writerow(row)
     return response
+
+def _sort_date(x,y):
+    if x['registered'] < y['registered']: return -1
+    if x['registered'] > y['registered']: return 1
+    return 0
+
+class MonthPager(object):
+    """
+    Utility class to show a month pager, e.g. << August 2011 >>
+    """
+    def __init__(self, request):
+        self.month = int(request.GET.get('month', datetime.utcnow().month))
+        self.year = int(request.GET.get('year', datetime.utcnow().year))
+        self.begin_date = datetime(year=self.year, month=self.month, day=1)
+        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
+        self.prev_month = self.begin_date - timedelta(days=1)
+        self.next_month = self.end_date + timedelta(days=1)
+        self.show_next = self.end_date < datetime.utcnow().replace(day=1)
+        self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
+        self.datespan = DateSpan(self.begin_date, self.end_date)
+
 
 @permission_required("is_superuser")
 def register_user(request, template="malawi/register-user.html"):
@@ -516,7 +677,6 @@ def sms_tracking(request):
                               {"organizations": orgs},
                               context_instance=RequestContext(request))
 
-@datespan_in_request()
 def telco_tracking(request):
     start = request.GET.get('from') or "2011-01-01"
     end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
@@ -543,9 +703,7 @@ def telco_tracking(request):
                         airtel_msgs.filter(direction="I").count(),
                         airtel_msgs.filter(direction="O").count(),
                         airtel_msgs.count()))
-                        
 
     return render_to_response("malawi/telco_tracking.html",
                               {"results": results},
                               context_instance=RequestContext(request))
-    

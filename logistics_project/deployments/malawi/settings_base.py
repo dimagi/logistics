@@ -5,6 +5,8 @@ APPS = [
     "auditcare",
     "django.contrib.webdesign",
     "logistics_project.apps.malawi",
+    "scheduler",
+    "warehouse"
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -36,18 +38,34 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
+
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.malawi.views.dashboard",       "Dashboard"),
-    ("logistics_project.apps.malawi.views.facilities",       "Facilities"),
-    ("logistics_project.apps.malawi.views.hsas",       "HSAs"),
-    ("logistics_project.apps.malawi.views.help",       "Help"),
-   ("logistics_project.apps.malawi.views.contacts",       "Management", "auth.admin_read"),
+    ("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard", None, "/malawi/r/dashboard/"),
+    ("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs", None, "/malawi/r/hsas/"),
+    ("logistics_project.apps.malawi.warehouse.views.health_facilities", "Health Facilities", None, "/malawi/r/health-facilities/"),
+    ("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles", None, "/malawi/r/user-profiles/"),    
     ("logistics_project.apps.malawi.views.monitoring",       "M & E", "auth.admin_read"),
-#    ("registration",                          "Registration", "is_superuser"),
-#    ("groupmessaging.views.group_message", "Group Message", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "auth.admin_read"),
+    ("rapidsms.contrib.messagelog.views.message_log", "Message Log", "auth.admin_read"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.contacts", "Management", "is_superuser", "/malawi/management/"),
+    ("logistics_project.apps.malawi.views.help", "Help"),
 ]
+
+from django.utils.datastructures import SortedDict
+
+REPORT_LIST = SortedDict([
+    ("Reporting Rate", "reporting-rate"),
+    ("Stock Status", "stock-status"),
+    ("Consumption Profiles", "consumption-profiles"),
+    ("Alert Summary", "alert-summary"),
+    ("Re-supply Qts Required", "re-supply-qts-required"),
+    ("Lead Times", "lead-times"),
+    ("Order Fill Rate", "order-fill-rate"),
+    ("Emergency Orders", "emergency-orders"),
+])
+
+REPORT_FOLDER = "malawi/new/reports"
+MANAGEMENT_FOLDER = "malawi/new/management"
 
 # the rapidsms backend configuration is designed to resemble django's
 # database configuration, as a nested dict of (name, configuration).
@@ -125,6 +143,7 @@ import os
 filedir = os.path.dirname(__file__)
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "health_centers.csv")
 STATIC_PRODUCTS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "malawi", "products.csv")
+STATIC_RESOURCES = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "logistics_project", "apps", "malawi", "static", "resources")
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
@@ -136,7 +155,7 @@ LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS = 2
 LOGISTICS_AGGRESSIVE_SOH_PARSING = False
 LOGISTICS_GHANA_HACK_CREATE_SCHEDULES = False
 LOGISTICS_EXCEL_EXPORT_ENABLED = False
-LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
+LOGISTICS_LOGIN_TEMPLATE = "malawi/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_USE_AUTO_CONSUMPTION = True
 LOGISTICS_APPROVAL_REQUIRED = False
@@ -144,6 +163,14 @@ LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 LOGISTICS_USERS_HAVE_ADMIN_ACCESS = True
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 2
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 30
+
+LOGISTICS_CONSUMPTION = {
+    "MINIMUM_TRANSACTIONS": 2,
+    "MINIMUM_DAYS": 10,
+    "LOOKBACK_DAYS": 60,            
+    "INCLUDE_END_STOCKOUTS": True, 
+}
+
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
@@ -178,5 +205,14 @@ DATABASE_ENGINE = "mysql"
 
 
 SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics_project.migrations.malawi',
+    'rapidsms': 'logistics.migrations',
+    # NOTE: can't fix this without breaking tests and/or doing a major 
+    # migration dependency cleanup
+    #'logistics': 'ignore', 
+    #'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
+    'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
+    # 'malawi': 'ignore'
 }
+
+# data warehouse config
+WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'

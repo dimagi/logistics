@@ -1,0 +1,15 @@
+{% extends "malawi/new/base.html" %}
+
+{% block report_content %}
+
+{% include "malawi/partials/location_only_selector_form.html" %}
+
+<div class="module">
+	<h2>All HSAs</h2>
+	<p>Click on a row for more information, or</p>
+	{% with table as table %}
+	{% include "malawi/new/partials/selector-table.html" %}
+	{% endwith %}
+</div>
+
+{% endblock %}

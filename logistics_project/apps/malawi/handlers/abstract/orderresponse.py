@@ -1,7 +1,7 @@
 from django.db import transaction
 from logistics.util import config
 from logistics.decorators import logistics_contact_and_permission_required
-from logistics_project.apps.malawi import util
+from logistics_project.apps.malawi.util import get_hsa
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 
 
@@ -23,7 +23,7 @@ class OrderResponseBaseHandler(RecordResponseHandler):
     
         words = text.split(" ")
         hsa_id = words[0]
-        self.hsa = util.get_hsa(hsa_id)
+        self.hsa = get_hsa(hsa_id)
         if self.hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:

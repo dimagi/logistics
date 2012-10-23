@@ -1,11 +1,10 @@
 from __future__ import absolute_import
 from django.db import models
 from django.db.models.fields.related import ForeignKey
-from logistics_project.apps.malawi.models import Organization
 
 class MalawiContactExtension(models.Model):
     
-    organization = ForeignKey(Organization, null=True, blank=True)
+    organization = ForeignKey('malawi.Organization', null=True, blank=True)
     
     class Meta:
         abstract = True

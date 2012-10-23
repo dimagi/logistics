@@ -1,0 +1,6 @@
+<label for="product" id="product">Product: </label> 
+<select name="product" id="product">
+    {% for p in products %}
+        <option value="{{ p.sms_code }}" {% if p.pk == selected_product.pk %}selected{% endif %}>{{ p.name }}</option>
+    {% endfor %}
+</select>

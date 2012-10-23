@@ -1,0 +1,36 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+
+<div class="module">
+    <h2>Average reporting rate by month</h2>
+    {% with graphdata as graphdata %}
+    {% include "malawi/new/partials/reporting-rate-chart.html" %}
+    {% endwith %}
+</div>
+
+<div class="module">
+	{% with month_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+{% if location_table %}
+    <div class="module">
+        <h2>Average reporting rate ({{location_table.location_type}})</h2>
+        {% with location_table as table %}
+        {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+    </div>
+{% endif %}
+
+{% if hsa_table %}
+<div class="module">
+	<h2>HSA reporting profiles</h2>
+	{% with hsa_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+{% endif %}
+{% endblock %}

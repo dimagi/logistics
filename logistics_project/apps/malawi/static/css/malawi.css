@@ -103,7 +103,13 @@ td.prompt {
 .order-approved {
     color:blue;
 }
-
 .n-a {
     color:#d3d3d3;
+}
+.download-csv{
+    width: 25px;
+    height: 30px;
+    float: right;
+    cursor: hand;
+    cursor: pointer;
 }

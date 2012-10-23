@@ -1,22 +1,32 @@
-<div id="placeholder" style="width:{{ line.width }};height:{{ line.height }};"></div>
-
-{% block javascripts %}
 <script language="javascript" type="text/javascript">
     $(document).ready(function () {
-$.plot(
- $("#placeholder"),
- [
-
-    {% for serie in line.series %}
-        {
-            label: "{{ serie.title }}",
-            data: {{ serie.data }},
-            lines: {show: true},
-            points: {show: true},
-        },
-    {% endfor %}
- ]
-);
-});
+		$.plot(
+			$("#{{ graphdata.div }}"),
+			{{ graphdata.data|safe }},
+			{   // options
+				xaxis: { 
+                    ticks: {{ graphdata.xlabels|safe }}
+                },
+                yaxis: { min: 0,
+                         max: {{ graphdata.max_value|default:"null" }},
+                         tickDecimals: 0 },
+                legend: { show: true, container: $("#{{ graphdata.legenddiv }}"), 
+                          noColumns: {{ graphdata.legendcols|default:3}} },
+				series: {
+         			lines: { show: true, steps: false },
+         			points: { show: true },
+	    		},
+            }
+		);
+	});
 </script>
-{% endblock %}
+<div id="{{ graphdata.legenddiv }}" style="width:100%"></div>
+{% if graphdata.yaxistitle %}
+<p class="yaxislabel">{{ graphdata.yaxistitle }}</p>
+{% endif %}
+{% if graphdata.y2axistitle %}
+<p class="y2axislabel">{{ graphdata.y2axistitle }}</p>
+{% endif %}
+<div class="clear"></div>
+<div id="{{ graphdata.div }}" style="width:{{ graphdata.width }};height:{{ graphdata.height }};" ></div>
+<p style="text-align:center; width:100%;">{{ graphdata.xaxistitle }}</p>

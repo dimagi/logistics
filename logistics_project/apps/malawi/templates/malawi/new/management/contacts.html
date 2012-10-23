@@ -1,0 +1,14 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Contacts - {{ block.super }}{% endblock %}
+{% block subcontent %}
+
+<div class="module">
+    <h2>All SMS Contacts</h2>
+	<a href="/registration">New Contact</a><br>
+	{% with table as table %}
+	{% include "malawi/new/partials/selector-table.html" %}
+	{% endwith %}
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+ <div class="module">
+	<h2>Average % of HSAs with EO each month</h2>
+	{% with summary as graphdata %}
+	{% include "malawi/new/partials/generic-stack-chart.html" %}
+	{% endwith %}
+</div>
+
+<div class="module">
+	<h2>% of HSAs with EO by month</h2>
+	{% with eo_pct_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+<div class="module">
+	<form method="get" id="selector">
+	    {% include "malawi/new/partials/product-type-selector.html" %}
+	    <input type="submit" value="Go!" />
+	</form>
+	<h2>% HSA with EO by product</h2>
+	{% with line as graphdata %}
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+	{% endwith %}
+</div>
+
+{% if hsa_eo_table %}
+<div class="module">
+    <h2>HSA emergency orders</h2>
+    {% with hsa_eo_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
+</div>
+{% endif %}
+{% endblock %}

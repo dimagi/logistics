@@ -1,0 +1,35 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+<form method="get" id="selector">
+    <fieldset>
+    {% include "malawi/new/partials/product-type-selector.html" %}
+    {% include "malawi/partials/location_selector.html" %}
+    </fieldset>
+    <br>
+    {% include "malawi/new/partials/month-selector.html" %}
+    <input type="submit" value="Go!" />
+</form>
+
+<div class="module">
+	<h2>Monthly average OFR by product</h2>
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+</div>
+
+<div class="module">
+	<h2>Monthly average OFR by product (%)</h2>
+	{% with monthly_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+{% if facility_table %}
+    <div class="module">
+    	<h2>OFR for selected time period by facility and product (%)</h2>
+        {% with facility_table as table %}	
+    	{% include "malawi/new/partials/generic-table.html" %}
+    	{% endwith %}
+    </div>
+{% endif %}
+
+{% endblock %}

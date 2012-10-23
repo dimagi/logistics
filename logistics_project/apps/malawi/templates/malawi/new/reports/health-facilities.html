@@ -1,0 +1,58 @@
+{% extends warehouse_base_template %}
+{% block stylesheets %}{{ block.super }}
+<style>
+    a.print {
+        float: right;
+        padding: .3em .8em 0 0;
+    }
+    .ui-icon-print {
+        float: right;
+    }
+</style>    
+{% endblock %}
+
+{% load malawi_warehouse_tags %}
+{% load logistics_report_tags %}
+
+{% block report_content %}
+
+{% include "malawi/partials/selector_form.html" %}
+{% if facility %}
+<a class="print" href="?{{ request.GET.urlencode }}&print">print</a><span class="ui-icon ui-icon-print"></span>
+<div class="module">
+    <h2>Current stock status by product</h2>
+        {% with pa_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <h2>Reporting rates</h2>
+        {% with rr_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <h2>Average lead times</h2>
+        {% with lt_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <h2>Current AMC, MOS and stock status by product</h2>
+        {% with ss_table as table %}
+            {% include "malawi/new/partials/generic-table.html" %}
+        {% endwith %}
+</div>
+<div class="module">
+    <div style="clear:both;">
+         {% order_fill_stats location.get_children "hsa" request.datespan %}
+     </div>
+</div>
+
+{% else %}
+<div class="module">
+    <p>Select a facility to see report data.</p>
+</div>
+
+{% endif %}
+{% endblock %}

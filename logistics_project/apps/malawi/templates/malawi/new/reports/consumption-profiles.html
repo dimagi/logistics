@@ -1,0 +1,47 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+<form method="get" class="selector">
+    <fieldset>
+    {% include "malawi/partials/location_selector.html" %}
+    {% include "malawi/new/partials/month-selector.html" %}
+    </fieldset>
+    <br>
+    {% if hsa_list %}
+	    <label for="hsa">HSA: </label> 
+	    <select name="hsa" id="hsa">
+	    {% for hsa in hsa_list %}
+	        <option value="{{ hsa.code }}" {% if hsa.pk == selected_hsa.pk %}selected{% endif %}>{{ hsa.name }}</option>
+	    {% endfor %}
+    </select>
+    {% endif %}
+    {% include "malawi/new/partials/product-selector.html" %}
+    <input type="submit" value="Go!" />
+</form>
+
+{% if location_table %}
+<div class="module">
+	<h2>{{ location_table.location_type|capfirst }} consumption profiles</h2>
+	{% with location_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+{% endif %}
+
+{% if selected_hsa %}
+<div class="module">
+    <h2>HSA consumption profiles</h2>
+    {% with hsa_table as table %}
+    {% include "malawi/new/partials/generic-table.html" %}
+    {% endwith %}
+</div>
+{% endif %}
+
+<div class="module">
+	<h2>AMC and MOS by product</h2>
+	{% with line_chart as graphdata %}
+	{% include "malawi/new/partials/generic-line-chart.html" %}
+	{% endwith %}
+</div>
+
+{% endblock %}

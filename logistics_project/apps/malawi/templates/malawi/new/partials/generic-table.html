@@ -1,17 +1,42 @@
-<h2>{{ table.title}} </h2>
-<table>
+<style>
+.malawi-report tfoot{
+    font-size: 100%;
+    font-weight: bold;
+}
+</style>
+
+{% if table.is_downloadable %}
+
+<a href="{{ request.get_full_path }}{% if request.GET %}&{% else %}?{% endif %}export_csv=true&table={{ table.id }}">
+	<img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
+{% endif %}
+</a>
+
+{% if table.is_datatable %}
+	{% include "malawi/new/partials/data-table.html" %}
+	<br>
+{% endif %}
+
+<table id="{{ table.id }}" class="malawi-report">
 	<thead><tr>
-	{% for column_title in table.header %}
-		<th style="width:{{ table.cell_width }};">{{ column_title }}</th>
-	{% endfor %}
-	</tr></thead>
-	<tbody>
-	{% for row in table.data %}
-		<tr>
-		{% for item in row %}
-			<td style="width:{{ table.cell_width }};">{{ item }}</td>
+		{% for column_title in table.header %}
+			<th>{{ column_title }}</th>
 		{% endfor %}
-		</tr>
-	{% endfor %}
+	</tr></thead>
+	{% if table.footer %}
+		<tfoot><tr>
+			{% for item in table.footer %}
+				<th>{{ item }}</th>
+			{% endfor %}
+		</tr></tfoot>
+	{% endif %}
+	<tbody>
+		{% for row in table.data %}
+			<tr>
+				{% for item in row %}
+					<td>{{ item }}</td>
+				{% endfor %}
+				</tr>
+		{% endfor %}
 	</tbody>
 </table>

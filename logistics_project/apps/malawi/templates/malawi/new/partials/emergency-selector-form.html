@@ -1,0 +1,12 @@
+<form method="get" id="selector">
+    {% include "malawi/partials/location_selector.html" %}
+	<label for="order-type" id="order-type-label">Order Type: </label> 
+	<select name="emergency" id="emergency">
+	    <option value="yes" {% if not selected_type %}selected{% endif %}>Emergency</option>
+		<option value="no" {% if "no" == selected_type %}selected{% endif %}>Regular</option>
+	</select>
+	<input type="submit" value="Go!" />
+</form>
+
+
+

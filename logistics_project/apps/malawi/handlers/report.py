@@ -5,7 +5,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.const import Reports
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.util import config
-from logistics_project.apps.malawi import util
+from logistics_project.apps.malawi.util import get_hsa
 from logistics_project.apps.malawi.shortcuts import \
     send_emergency_responses, send_soh_responses, send_transfer_responses
 from logistics.shortcuts import create_stock_report
@@ -31,7 +31,7 @@ class ReportRegistrationHandler(KeywordHandler):
         hsa_id = words[0]
         keyword = words[1].lower()
         self.report_data = " ".join(words[2:])
-        self.hsa = util.get_hsa(hsa_id)
+        self.hsa = get_hsa(hsa_id)
         if self.hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         elif keyword not in SUPPORTED_REPORT_KEYWORDS:
@@ -108,7 +108,7 @@ class ReportRegistrationHandler(KeywordHandler):
             return self.help()
         hsa_id = words[0]
         remainder = " ".join(words[1:])
-        hsa = util.get_hsa(hsa_id)
+        hsa = get_hsa(hsa_id)
         if hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:

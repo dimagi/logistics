@@ -1,0 +1,55 @@
+<style>
+.malawi-report tfoot{
+    font-size: 100%;
+    font-weight: bold;
+}
+</style>
+
+{% if table.is_downloadable %}
+<a href="{{ request.get_full_path }}{% if request.GET %}&{% else %}?{% endif %}export_csv=true&table={{ table.id }}">
+    <img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" /> 
+</a>
+{% endif %}
+
+{% if table.is_datatable %}
+	{% include "malawi/new/partials/data-table.html" %}
+	<br>
+{% endif %}
+
+<table id="{{ table.id }}" class="malawi-report">
+	<thead><tr>
+		{% for column_title in table.header %}
+			<th>{{ column_title }}</th>
+		{% endfor %}
+	</tr></thead>
+	{% if table.footer %}
+		<tfoot><tr>
+			{% for item in table.footer %}
+				<th>{{ item }}</th>
+			{% endfor %}
+		</tr></tfoot>
+	{% endif %}
+	<tbody>
+		{% for row in table.data %}
+			<tr data-url="{{ row.url }}">
+				{% for item in row.data %}
+					<td>{{ item }}</td>
+				{% endfor %}
+				</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<script language="javascript">
+$(document).ready(function() {
+	$("#{{ table.id }} tbody tr").live('click',function(){
+		var url = $(this).data('url');
+		window.location = url;
+	});
+	$("#{{ table.id }} tbody tr").live('hover',function(){
+		$(this).parent().children().css({"background-color": "#FFFFFF", "text-decoration": "none"});
+		$(this).css({"background-color": "#A0DEFF", "text-decoration": "underline", "cursor": "hand", "cursor": "pointer"});
+	});
+
+});
+</script>

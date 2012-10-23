@@ -5,7 +5,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.models import StockTransfer
 from logistics.const import Reports
 from logistics.util import config
-from logistics_project.apps.malawi import util
+from logistics_project.apps.malawi.util import get_hsa
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics_project.apps.malawi.shortcuts import send_transfer_responses
 from logistics.shortcuts import create_stock_report
@@ -29,7 +29,7 @@ class TransferHandler(KeywordHandler):
             return self.help()
         hsa_id = words[0]
         remainder = " ".join(words[1:])
-        hsa = util.get_hsa(hsa_id)
+        hsa = get_hsa(hsa_id)
         if hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:

@@ -1,0 +1,12 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Permissions - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h2>Edit Permissions</h2>
+    	<h4>{{ user }}</h4>
+    	<form method="post">{% csrf_token %}
+    		{{ form.as_p }}
+    		<input type="submit" value="Save" />
+		</form> 
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<label for="product-type" id="product-type-label">Product Category: </label> 
+<select name="product-type" id="product-type">
+    <option value="" {% if not selected_type %}selected{% endif %}>All</option>
+    {% for ptype in product_types %}
+        <option value="{{ ptype.code }}" {% if ptype.pk == selected_type.pk %}selected{% endif %}>{{ ptype.name }}</option>
+    {% endfor %}
+</select>
