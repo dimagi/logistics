@@ -678,6 +678,8 @@ class SupplyPointRow():
     def good_supply_count(self): return self._call_stock_count("good_supply_count")
     def overstocked_count(self): return self._call_stock_count("overstocked_count")
     
+    def total(self): return len(self.facility_list)
+    
     @property
     def consumption(self): 
         if self.commodity_filter is not None:
