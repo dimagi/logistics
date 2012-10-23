@@ -2,15 +2,14 @@ from django.contrib import messages
 
 from rapidsms.contrib.messagelog.models import Message
 
-from logistics.models import SupplyPoint, Product, StockRequest, ProductStock
+from logistics.models import SupplyPoint, StockRequest, ProductStock
 
 from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
-    ProductAvailabilityDataSummary, ProductAvailabilityData, ReportingRate
+    ProductAvailabilityDataSummary, ReportingRate
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct,\
+from logistics_project.apps.malawi.util import get_default_supply_point, \
     hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from rapidsms.models import Contact
 
 class View(warehouse_view.DistrictOnlyView):
