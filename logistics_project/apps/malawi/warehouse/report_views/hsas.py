@@ -70,7 +70,6 @@ class View(warehouse_view.DistrictOnlyView):
 
         # this will fail hard if misconfigured, which is desirable for now
         contact = Contact.objects.get(supply_point=hsa)
-        print hsa.pk
         header_table = {
             "id": "header-table",
             "is_datatable": False,

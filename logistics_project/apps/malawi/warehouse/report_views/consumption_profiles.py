@@ -35,8 +35,8 @@ class View(warehouse_view.DistrictOnlyView):
         def _consumption_row(sp, p):
             
             relevant = CalculatedConsumption.objects.filter(supply_point=sp, product=p,
-                                                  date__gte=request.datespan.startdate,
-                                                  date__lte=request.datespan.enddate)
+                                                            date__gte=request.datespan.startdate,
+                                                            date__lte=request.datespan.enddate)
             now = datetime.utcnow()
             end = now if request.datespan.enddate.year == now.year and \
                          request.datespan.enddate.month == now.month \
