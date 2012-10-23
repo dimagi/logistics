@@ -32,7 +32,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     Malawi's implementation of the warehouse runner. 
     """
     # debug stuff
-    skip_hsas = False
+    skip_hsas = True
     skip_aggregates = False
     skip_reporting_rates = False
     skip_product_availability = False
@@ -337,7 +337,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     if not self.skip_historical_stock:
                         _update_historical_stock()
         
-        if not self.skip_consumption:
+        if not self.skip_consumption and False:
             # any consumption value that was touched potentially needs to have its
             # time_needing_data updated
             for c in CalculatedConsumption.objects.filter(update_date__gte=run_record.start_run):
@@ -351,7 +351,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         non_hsas = SupplyPoint.objects.filter(active=True)\
             .exclude(type__code='hsa').order_by('id')
         # national only
-        # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
+        non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
         all_products = Product.objects.all()
         if not self.skip_aggregates: 
             
