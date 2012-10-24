@@ -18,7 +18,7 @@ class View(warehouse_view.DistrictOnlyView):
     def custom_context(self, request):        
         typecode = request.GET.get("product-type")
         selected_type = get_object_or_404(ProductType, code=typecode) \
-            if typecode else ProductType.objects.all()[0]
+            if typecode else None
         
         pcode = request.GET.get("product")
         selected_product = get_object_or_404(Product, sms_code=pcode) \
@@ -126,7 +126,8 @@ class View(warehouse_view.DistrictOnlyView):
                              request.datespan.enddate)
         
         # product line chart 
-        products = Product.objects.filter(type=selected_type) 
+        products = Product.objects.filter(type=selected_type) \
+            if selected_type else Product.objects.all() 
         for p in products:
             for dt in dates:
                 pad = ProductAvailabilityData.objects.get\
