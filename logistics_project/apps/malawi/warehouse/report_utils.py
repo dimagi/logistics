@@ -163,7 +163,6 @@ def _reporting_rate_chart_defaults():
         "max_value": 100,
         "width": "100%",
         "height": "200px",
-        "xaxistitle": "month",
         "legendcols": 4,
         "yaxistitle": "% reported"
     }
@@ -194,8 +193,11 @@ def get_reporting_rates_chart(location, start, end):
                      'label': 'complete', 'lines': {"show": True}, 'points': {"show": True}, "bars": {"show": False},
                      'yaxis': 2})
     
-    report_chart['xlabels'] = [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)]
-    report_chart['data'] = json.dumps(ret_data)
+    report_chart.update({
+        'xlabels': [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        'data': json.dumps(ret_data),
+        'xaxistitle': 'month',
+    })
     return report_chart
 
 def get_multiple_reporting_rates_chart(supply_points, date):
@@ -221,8 +223,11 @@ def get_multiple_reporting_rates_chart(supply_points, date):
                      'label': 'complete', 'lines': {"show": True}, "points": {"show": True}, "bars": {"show": False},
                      'yaxis': 2})
     
-    report_chart['xlabels'] = json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)])
-    report_chart['data'] = json.dumps(ret_data)
+    report_chart.update({
+        'xlabels': json.dumps([[i + 1, '%s' % sp.name] for i, sp in enumerate(supply_points)]),
+        'data': json.dumps(ret_data),
+        'xaxistitle': 'location',
+    })
     return report_chart
 
 
