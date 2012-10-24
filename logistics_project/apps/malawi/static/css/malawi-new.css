@@ -63,8 +63,6 @@ div.module h2 {
 }
 
 #stock-out-rates-module {
-    height: 350px;
-    overflow-y: scroll;
     border-bottom: 1 px solid #dddddd;
     margin-bottom: 1em;
 }
