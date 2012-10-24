@@ -1,7 +1,7 @@
 <label for="place" id="place_label">Site: </label> 
 <select name="place" id="place">
     <option value="" {% if not location %}selected{% endif %}>Select a site</option>
-    {% if country %}
+    {% if country and national_view_level %}
     <option value="{{ country.location.code }}" {% if country.location.pk == location.pk %}selected{% endif %}>{{ country.name }}</option>
     {% endif %}
     <optgroup label="Districts">
