@@ -4,7 +4,7 @@
 {% if national_view_level %}
 	<div class="module">
 		<h2>Districts</h2>
-		<p>Click on a row for more information, or</p>
+		<p>For more information, click on a row.</p>
 		{% with district_table as table %}
 		{% include "malawi/new/partials/selector-table.html" %}
 		{% endwith %}
@@ -14,7 +14,7 @@
 {% if district %}
 	<div class="module">
 		<h2>Facilities under {{ district }}</h2>
-		<p>Click on a row for more information, or</p>
+		<p>For more information, click on a row.</p>
 		{% with facility_table as table %}
 		{% include "malawi/new/partials/selector-table.html" %}
 		{% endwith %}
@@ -24,6 +24,7 @@
 {% if facility %}
 	<div class="module">
 		<h2>HSAs under {{ facility }}</h2>
+		<p>For more information, click on a row.</p>
 		{% with hsa_table as table %}
 		{% include "malawi/new/partials/selector-table.html" %}
 		{% endwith %}
