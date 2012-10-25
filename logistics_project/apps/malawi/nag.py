@@ -5,12 +5,9 @@ from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Contact
 from logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole, StockRequest, StockRequestStatus
-from celery.schedules import crontab
-from celery.decorators import periodic_task
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.const import Reports
 from logistics.util import config
-from static.malawi.config import Messages
 from logistics_project.apps.malawi.util import hsa_supply_points_below,\
     get_districts, get_district_supply_points, get_imci_coordinators,\
     get_district_pharmacists
@@ -242,11 +239,14 @@ def nag_hsas_em():
     for l in locs:
         nag_hsas_soh(since, l)
         
-def send_district_reminders():
+def send_district_so_reminders():
+    for d in get_district_supply_points():
+        _send_so_notice(d)
+        
+def send_district_eo_reminders():
     for d in get_district_supply_points():
         _send_eo_notice(d)
-        _send_so_notice(d)
-
+        
 def _district_contacts(district):
     all = itertools.chain(get_imci_coordinators(district),
                           get_district_pharmacists(district))

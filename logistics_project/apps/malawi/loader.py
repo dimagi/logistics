@@ -49,14 +49,27 @@ def load_schedules():
         utced = localized.astimezone(pytz.utc)
         return (utced.hour)
     
-    func = "warehouse.runner.update_warehouse"
-    try:
-        schedule = EventSchedule.objects.get(callback=func)
-    except ObjectDoesNotExist:
-        schedule = EventSchedule(callback=func)
-    schedule.hours = [_malawi_to_utc(h) for h in (0, 12)]
-    schedule.minutes = [0]
-    schedule.save()
+    def _get_schedule(func):
+        try:
+            schedule = EventSchedule.objects.get(callback=func)
+        except ObjectDoesNotExist:
+            schedule = EventSchedule(callback=func)
+        schedule.minutes = [0]
+        return schedule
+    
+    warehouse = _get_schedule("warehouse.runner.update_warehouse")
+    warehouse.hours = [_malawi_to_utc(h) for h in  (0, 12)]
+    warehouse.save()
+    
+    eo = _get_schedule("logistics_project.apps.malawi.nag.send_district_eo_reminders")
+    eo.hours = [_malawi_to_utc(9)]
+    eo.days_of_week = [1] # tuesday
+    eo.save()
+    
+    so = _get_schedule("logistics_project.apps.malawi.nag.send_district_so_reminders")
+    so.hours = [_malawi_to_utc(9)]
+    so.days_of_week = [3] # thursday
+    so.save()
     
 def load_products(file_path, log_to_console=True):
     if log_to_console: print "loading static products from %s" % file_path
