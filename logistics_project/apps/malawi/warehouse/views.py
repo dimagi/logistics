@@ -12,6 +12,7 @@ from logistics_project.apps.malawi.warehouse.report_views import dashboard, emer
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas, health_facilities
 from dimagi.utils.parsing import string_to_boolean
+import logging
 
 
 reports_slug_map = {
@@ -55,7 +56,8 @@ def get_report(request, slug=''):
                 messages.error(request, "Sorry, we can't find that table to export.")
         
         return report.get_response(request)
-    except Exception:
+    except Exception, e:
+        logging.exception("problem loading a warehouse view: %s" % e)
         messages.warning(request,
                          "It looks like there's no data for your filters. "
                          "You've been redirected.")
