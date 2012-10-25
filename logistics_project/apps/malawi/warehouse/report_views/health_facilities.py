@@ -8,6 +8,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import previous_report
     WarehouseProductAvailabilitySummary
 from collections import defaultdict
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
+from dimagi.utils.dates import DateSpan
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -81,8 +82,8 @@ class View(warehouse_view.DistrictOnlyView):
                 "header": ['Facility', "Order to order ready (days)",
                            "Order ready to order received (days)", "Total lead time (days)"],
                 "data": get_lead_time_table_data([sp],
-                                                 request.datespan.startdate, 
-                                                 request.datespan.enddate),
+                                                 report_date,
+                                                 report_date),
             }   
             
             # stock status table
@@ -107,9 +108,10 @@ class View(warehouse_view.DistrictOnlyView):
                 "ss_table": ss_table,
                 "current_date": current_date,
                 "warehouse_base_template": template,
-                "show_single_date": True
+                "show_single_date": True,
+                "order_fill_datespan": DateSpan.month(report_date.year, report_date.month)
             }
-                        
+        
         return {
             "facility": facility,
             "current_date": current_date,
