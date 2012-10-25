@@ -11,6 +11,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point, \
     hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 from rapidsms.models import Contact
+from django.core.exceptions import ObjectDoesNotExist
 
 class View(warehouse_view.DistrictOnlyView):
     
@@ -42,7 +43,10 @@ class View(warehouse_view.DistrictOnlyView):
         hsas = hsa_supply_points_below(sp.location)
 
         for hsa in hsas:
-            up = UserProfileData.objects.get(supply_point=hsa)
+            try:
+                up = UserProfileData.objects.get(supply_point=hsa)
+            except ObjectDoesNotExist:
+                up = None    
             try:
                 pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
             except IndexError:
@@ -56,9 +60,10 @@ class View(warehouse_view.DistrictOnlyView):
             
             table["data"].append({"url": get_hsa_url(hsa, sp.code), 
                                   "data": [hsa.supplied_by.name, hsa.name,
-                                           hsa.code, up.products_managed] + 
+                                           hsa.code, 
+                                           up.products_managed if up else ""] + 
                                            pads_vals +
-                                           [_date_fmt(up.last_message.date) if up.last_message else "" ]})
+                                           [_date_fmt(up.last_message.date) if up and up.last_message else "" ]})
 
         table["height"] = min(480, (hsas.count()+1)*30)
 
