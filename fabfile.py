@@ -243,7 +243,7 @@ def deploy():
     if env.stop_start:
         sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
-        sudo("service memcached restart")
+        # sudo("service memcached restart")
     
 
 def test_and_deploy():
