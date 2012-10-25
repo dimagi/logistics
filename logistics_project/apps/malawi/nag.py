@@ -81,19 +81,11 @@ def nag_hsas_soh(since, location=None):
         hsa_third_warnings = hsas.intersection(x.supply_point for x in \
                                                nags_in_range.filter(warning=2)) - \
                              set(x.supply_point for x in nags_in_range.filter(warning__gte=3))
-    if now > since + timedelta(days=WARNING_DAYS + DAYS_BETWEEN_FIRST_AND_SECOND_WARNING +\
-                               DAYS_BETWEEN_SECOND_AND_THIRD_WARNING + DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING):
-        
-        # everyone who hasn't gotten a nag level 4 or higher, but has gotten a third.
-        hsa_fourth_warnings = hsas.intersection(x.supply_point for x in \
-                                                nags_in_range.filter(warning=3)) - \
-                              set(x.supply_point for x in nags_in_range.filter(warning__gte=4))
-
+    
     # These should never fail.
     assert(hsa_first_warnings.intersection(hsa_second_warnings) == set())
     assert(hsa_second_warnings.intersection(hsa_third_warnings) == set())
-    assert(hsa_third_warnings.intersection(hsa_fourth_warnings) == set())
-
+    
     warnings = [
             {'hsas': hsa_first_warnings,
              'number': 1,
@@ -112,13 +104,6 @@ def nag_hsas_soh(since, location=None):
              'days': DAYS_BETWEEN_SECOND_AND_THIRD_WARNING,
              'code': Reports.SOH,
              'message': config.Messages.HSA_NAG_THIRD,
-             'flag_supervisor': True,
-             'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG},
-            {'hsas': hsa_fourth_warnings,
-             'number': 4,
-             'days': DAYS_BETWEEN_THIRD_AND_FOURTH_WARNING,
-             'code': Reports.SOH,
-             'message': config.Messages.HSA_NAG_THIRD, # Same messages
              'flag_supervisor': True,
              'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG}
             ]
