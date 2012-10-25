@@ -39,9 +39,10 @@
 
 <div class="module">
 	<form method="get" class="selector">
-	    {% include "malawi/new/partials/product-type-selector.html" %}
-	    {% include "malawi/new/partials/month-selector.html" %}
-	    <input type="submit" value="Go!" />
+        {% include "malawi/new/partials/product-type-selector.html" %}
+        {% include "malawi/new/partials/month-selector.html" %}
+        <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
+        <input type="submit" value="Go!" />
 	</form>
 	<h2>% HSA stockouts by product</h2>
 	{% with graphdata as graphdata %}
