@@ -83,7 +83,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "id": "average-lead-times-district",
                 "is_datatable": True,
                 "is_downloadable": True,
-                "header": ['Facility', 'Ord-Ord Ready (days)', 'Ord-Ord Received(days)', 'Total Lead Time (days)'],
+                "header": ['Facility', 'Order - Ready (days)', 'Ready - Received (days)', 'Total Lead Time (days)'],
                 "data": d_data,
             }   
 
