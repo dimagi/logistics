@@ -112,7 +112,7 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "calc-consumption-stock-levels",
             "is_datatable": False,
             "is_downloadable": True,
-            "header": ["Product", "Total Daily Consumption (adjusted for stock outs)",
+            "header": ["Product", "Total Daily Consumption",
                        "Average Monthly Consumption", "Current SOH", "Months of Stock on hand",
                        "Resupply Qty Required"],
             "data": [[p.name] + _to_table_values(ps) for p, ps in product_stock_tuples]
