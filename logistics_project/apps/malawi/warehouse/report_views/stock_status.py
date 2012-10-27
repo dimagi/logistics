@@ -142,7 +142,6 @@ class View(warehouse_view.DistrictOnlyView):
             "div": "product-stockouts-chart",
             "legenddiv": "product-stockouts-chart-legend",
             "legendcols": 10,
-            "max_value": 100,
             "yaxistitle": "% SO",
             "height": "350px",
             "width": "100%", # "300px",
