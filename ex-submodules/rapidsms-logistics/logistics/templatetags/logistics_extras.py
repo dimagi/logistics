@@ -19,4 +19,6 @@ def klass(ob):
 def historical_date_last_stocked(productstock, date):
     return productstock.date_last_stocked(date)
 
-
+@register.filter
+def times(a,b):
+    return a * b
