@@ -207,8 +207,8 @@ class Messages(object):
     HSA_RECEIPT_NAG_THIRD = "Dear %(hsa)s, you have still not confirmed receipt of your products. Your supervisor has been notified."
     HSA_RECEIPT_SUPERVISOR_NAG = "%(hsa)s has a fulfilled stock request they have not yet picked up."
 
-    DISTRICT_NAG_EO = "%(pct)s%% of HSAs in your district have EOs that HC cannot resupply - visit the dashboard."
-    DISTRICT_NAG_SO = "%(pct)s%% of HSAs in your district are stocked out of at least one product - visit the dashboard."
+    DISTRICT_NAG_EO = "%(pct)s%%%% of HSAs in your district have EOs that HC cannot resupply - visit the dashboard."
+    DISTRICT_NAG_SO = "%(pct)s%%%% of HSAs in your district are stocked out of at least one product - visit the dashboard."
 
     # create user
 
