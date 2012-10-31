@@ -1,7 +1,7 @@
 couchdbkit==0.5.4
 Django==1.3
 celery==2.2.5
-cpserver
+django-cpserver
 django-celery==2.2.4
 django-nose>=0.1
 djappsettings==0.1.0
@@ -11,7 +11,7 @@ django-registration==0.7
 git+https://github.com/adammck/djtables.git#egg=djtables
 gdata
 johnny-cache
-kombu
+kombu==1.0.6
 nose==1.0.0
 nose-exclude
 python-dateutil==1.5
