@@ -11,3 +11,9 @@
 
 {% endblock %}
 
+{% block toolbar %}
+{{ block.super }}
+<div class="toolbar">
+    <a href="{% url auditor_export %}" class="toolbar">Export to Excel</a>
+</div>
+{% endblock %}
