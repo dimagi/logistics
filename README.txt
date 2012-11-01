@@ -29,7 +29,6 @@ SETUP
 * cp localsettings.py.example localsettings.py
 * ./manage.py syncdb
 * ./manage.py migrate
-* python import_facilities.py Facilities.csv
 * update relevant settings in settings.py or localsettings.py
 ** most notably, use real email credentials
 * sudo /etc/init.d.couchdb start
