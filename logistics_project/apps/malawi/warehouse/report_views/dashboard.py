@@ -1,14 +1,9 @@
-from django.conf import settings
 from django.utils.datastructures import SortedDict
-
 from logistics.models import SupplyPoint
-
-from logistics_project.apps.malawi.util import get_districts, pct, fmt_pct,\
-    get_default_supply_point
+from logistics_project.apps.malawi.util import pct, fmt_pct, get_default_supply_point
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
-    ReportingRate, Alert
-from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart,\
-    current_report_period, get_window_date, previous_report_period,\
+    Alert
+from logistics_project.apps.malawi.warehouse.report_utils import current_report_period, \
     get_multiple_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from django.core.exceptions import ObjectDoesNotExist
