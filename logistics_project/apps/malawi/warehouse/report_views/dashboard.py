@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 class View(warehouse_view.DashboardView):
 
     def custom_context(self, request):
-        window_date = previous_report_period()
+        window_date = current_report_period()
         sp = SupplyPoint.objects.get(location=request.location)\
             if request.location else get_default_supply_point(request.user)
 
