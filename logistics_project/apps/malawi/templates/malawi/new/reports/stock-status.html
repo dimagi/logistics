@@ -28,6 +28,7 @@
 <div class="module">
     <form method="get" class="selector">
         {% include "malawi/new/partials/product-selector.html" %}
+        <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
         <input type="submit" value="Go!" />
     </form>
     <h2>Current stock status across {{ location_table.location_type|lower }}</h2>

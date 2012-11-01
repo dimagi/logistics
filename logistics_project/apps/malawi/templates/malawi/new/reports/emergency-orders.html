@@ -19,7 +19,10 @@
 <div class="module">
 	<form method="get" id="selector">
 	    {% include "malawi/new/partials/product-type-selector.html" %}
-	    <input type="submit" value="Go!" />
+	    <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
+        <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
+        <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
+        <input type="submit" value="Go!" />
 	</form>
 	<h2>% HSA with EO by product</h2>
 	{% with line as graphdata %}
