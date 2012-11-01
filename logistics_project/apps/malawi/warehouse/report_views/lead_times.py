@@ -33,7 +33,7 @@ class View(warehouse_view.DistrictOnlyView):
         for dt in dates:
             for code, name in TIME_TRACKER_TYPES:
                 data[code][dt] = TimeTracker.objects.get\
-                    (supply_point=sp, date=dt, type=code).avg_time_in_days
+                    (supply_point=sp, date=dt, type=code).avg_time_in_days or 0
             
         ret_data = [{'data': [[i + 1, data[code][dt]] for i, dt in enumerate(dates)],
                      'label': name, 'lines': {"show": False}, "bars": {"show": True, "fill": 1 },
