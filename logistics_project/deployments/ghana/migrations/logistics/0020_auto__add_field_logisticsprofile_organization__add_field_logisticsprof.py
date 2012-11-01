@@ -7,28 +7,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
-        # Adding field 'LogisticsProfile.organization'
-        db.add_column('logistics_logisticsprofile', 'organization', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True), keep_default=False)
-
-        # Adding field 'LogisticsProfile.contact'
-        db.add_column('logistics_logisticsprofile', 'contact', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['rapidsms.Contact'], unique=True, null=True, blank=True), keep_default=False)
-
         # Adding field 'SupplyPoint.supervised_by'
         db.add_column('logistics_supplypoint', 'supervised_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='supervising_facility', null=True, to=orm['logistics.SupplyPoint']), keep_default=False)
 
-
     def backwards(self, orm):
-        
-        # Deleting field 'LogisticsProfile.organization'
-        db.delete_column('logistics_logisticsprofile', 'organization')
-
-        # Deleting field 'LogisticsProfile.contact'
-        db.delete_column('logistics_logisticsprofile', 'contact_id')
-
         # Deleting field 'SupplyPoint.supervised_by'
         db.delete_column('logistics_supplypoint', 'supervised_by_id')
-
 
     models = {
         'auth.group': {
