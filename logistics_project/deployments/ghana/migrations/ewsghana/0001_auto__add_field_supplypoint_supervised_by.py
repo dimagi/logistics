@@ -6,17 +6,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
     def forwards(self, orm):
+        pass
         
-        # Adding field 'SupplyPoint.supervised_by'
-        db.add_column('logistics_supplypoint', 'supervised_by', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='supervising_facility', null=True, to=orm['logistics.SupplyPoint']), keep_default=False)
-
-
     def backwards(self, orm):
+        pass
         
-        # Deleting field 'SupplyPoint.supervised_by'
-        db.delete_column('logistics_supplypoint', 'supervised_by_id')
-
-
     models = {
         'auth.group': {
             'Meta': {'object_name': 'Group'},
