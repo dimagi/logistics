@@ -55,7 +55,7 @@ class View(warehouse_view.DashboardView):
         except ObjectDoesNotExist:
             pass
         
-        # report chart
-        return {"dsummary_table": dsummary_table,
+        return {"window_date": window_date,
+                "dsummary_table": dsummary_table,
                 "alert_table": alert_table,
                 "graphdata": get_multiple_reporting_rates_chart(child_sps, window_date)}
