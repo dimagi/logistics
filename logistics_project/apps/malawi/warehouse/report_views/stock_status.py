@@ -8,7 +8,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct
     facility_supply_points_below, get_district_supply_points
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
-    get_stock_status_table_data, previous_report_period
+    get_stock_status_table_data, previous_report_period, current_report_period
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
 from django.db.models.aggregates import Sum
 from django.shortcuts import get_object_or_404
@@ -151,7 +151,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         return {
             'product_types': ProductType.objects.all(),
-            'window_date': previous_report_period(),
+            'window_date': current_report_period(),
             'selected_type': selected_type,
             'selected_product': selected_product,
             'status_table': status_table,
