@@ -70,9 +70,8 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
     
     running = ReportRun.objects.filter(complete=False)
     if running.count() > 0:
-        print "Warehouse already running, will do nothing..."
-        return
-
+        raise Exception("Warehouse already running, will do nothing...")
+        
     # start new run
     new_run = ReportRun.objects.create(start=start_date, end=end_date,
                                        start_run=datetime.utcnow())
