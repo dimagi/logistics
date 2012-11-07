@@ -20,11 +20,12 @@ class View(warehouse_view.DashboardView):
         child_sps = SupplyPoint.objects.filter(active=True, supplied_by=sp)
         
         summary_data = SortedDict()
-        for csp in child_sps:
-            avail_sum = ProductAvailabilityDataSummary.objects.get(supply_point=csp, date=window_date)
+        avail_sums = ProductAvailabilityDataSummary.objects.filter(supply_point__in=child_sps, 
+                                                                   date=window_date)
+        for avail_sum in avail_sums:
             stockout_pct = pct(avail_sum.any_without_stock,
                                avail_sum.any_managed) 
-            summary_data[csp] = {"stockout_pct": stockout_pct}
+            summary_data[avail_sum.supply_point] = {"stockout_pct": stockout_pct}
         
         dsummary_table = {
             "id": "reporting-rates-and-stockout-summary",

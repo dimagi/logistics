@@ -48,11 +48,15 @@ class View(warehouse_view.DistrictOnlyView):
                 spdata = defaultdict(lambda: 0)
                 for year, month in months_between(startdate, 
                                                   enddate):
-                    rr = ReportingRate.objects.get(supply_point=sp,
-                                                   date=datetime(year, month, 1))
-                    spdata['total'] += rr.total
-                    for k in shared_slugs:
-                        spdata[k] += getattr(rr, k)
+                    try:
+                        rr = ReportingRate.objects.get(supply_point=sp,
+                                                       date=datetime(year, month, 1))
+                        spdata['total'] += rr.total
+                        for k in shared_slugs:
+                            spdata[k] += getattr(rr, k)
+                    except ReportingRate.DoesNotExist:
+                        pass # hopefully just a new facility or otherwise not-warehoused thing
+                    
                 datamap[sp] = spdata
                         
             return [[sp.name] + [fmt_pct(data[k], data['reported'] if k == 'complete' else data['total']) \

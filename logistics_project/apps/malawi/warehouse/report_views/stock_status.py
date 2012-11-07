@@ -59,8 +59,8 @@ class View(warehouse_view.DistrictOnlyView):
                                       Sum('managed_and_without_data'),
                                       Sum('managed'))
                 ret.append([s.name] + \
-                           [fmt_pct(values["managed_and_%s__sum" % k], 
-                                    values["managed__sum"]) \
+                           [fmt_pct(values["managed_and_%s__sum" % k] or 0, 
+                                    values["managed__sum"] or 0) \
                             for k in ordered_slugs])
             return ret
             

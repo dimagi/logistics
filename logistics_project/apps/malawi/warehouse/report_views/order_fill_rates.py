@@ -65,8 +65,8 @@ class View(warehouse_view.DistrictOnlyView):
             stats = OrderFulfillment.objects.filter\
                 (supply_point=f, product=p, date__in=dates).aggregate\
                     (*[Sum(f) for f in ["quantity_requested", "quantity_received"]])
-            return fmt_pct(stats["quantity_received__sum"], 
-                           stats["quantity_requested__sum"])  
+            return fmt_pct(stats["quantity_received__sum"] or 0, 
+                           stats["quantity_requested__sum"] or 0)  
         
         facility_table = None        
         if sp.type.code == config.SupplyPointCodes.DISTRICT:

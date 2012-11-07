@@ -207,7 +207,9 @@ def get_multiple_reporting_rates_chart(supply_points, date):
     """
     report_chart = _reporting_rate_chart_defaults()
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-    for sp in supply_points:
+    rrs = ReportingRate.objects.filter(supply_point__in=supply_points, date=date)
+    for rr in rrs:
+        sp = rr.supply_point
         rr = ReportingRate.objects.get(supply_point=sp, date=date)
         data["on time"][sp] = pct(rr.on_time, rr.total)
         data["late"][sp] = pct(rr.reported - rr.on_time, rr.total)
@@ -251,11 +253,11 @@ def get_consumption_chart(supply_point, product, start, end):
     hss = [HistoricalStock.objects.get(supply_point=supply_point, 
                                        product=product,date=d) for d in dates]
     
-    cons_series = [[i + 1, cc.average_adjusted_consumption] for i, cc in enumerate(ccs)]
+    cons_series = [[i + 1, cc.average_adjusted_consumption] for i, cc in enumerate(ccs) if cc.total]
     
     mos_series = [[i + 1, hs.stock / ccs[i].adjusted_consumption \
                    if ccs[i].adjusted_consumption else 0] \
-                  for i, hs in enumerate(hss)]
+                  for i, hs in enumerate(hss) if hs.total]
     ret_data = []
     ret_data.append({'data': cons_series,
                      'label': "Monthly Consumption", 
