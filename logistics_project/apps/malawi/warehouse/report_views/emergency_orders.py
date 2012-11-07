@@ -53,7 +53,6 @@ class View(warehouse_view.DistrictOnlyView):
             "legenddiv": "legend-div",
             "show_legend": "true",
             "div": "chart-div",
-            "max_value": 100,
             "width": "100%",
             "height": "200px",
             "data": [],
@@ -103,7 +102,6 @@ class View(warehouse_view.DistrictOnlyView):
             "legendcols": 10,
             "xaxistitle": '',
             "yaxistitle": '% HSA with EO',
-            "max_value": 100,
             "xlabels": [],
             "data": []
         }
