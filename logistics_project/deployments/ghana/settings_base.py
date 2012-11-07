@@ -16,6 +16,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
+    'logistics_project.apps.ewsghana.middleware.AutoLogout',
     'logistics.middleware.CachedTemplateMiddleware',
 )
 
@@ -165,3 +166,5 @@ SOUTH_MIGRATION_MODULES = {
     'ewsghana': 'deployments.ghana.migrations.ewsghana',
     'email_reports': 'deployments.ghana.migrations.email_reports',
 }
+
+AUTO_LOGOUT_DELAY = 300

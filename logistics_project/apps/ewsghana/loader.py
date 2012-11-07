@@ -2,6 +2,7 @@ import csv
 import random
 from rapidsms.conf import settings
 from logistics import loader as logistics_loader
+from logistics.util import config
 
 class LoaderException(Exception):
     pass
@@ -309,13 +310,12 @@ def _get_or_create_location(location_name, parent):
         location = Location.objects.get(name=location_name)
     except Location.DoesNotExist:
         created = True
-        facility_type = LocationType.objects.get(slug='facility')
+        facility_type = LocationType.objects.get(slug=config.LocationCodes.FACILITY)
         location_code = _generate_facility_code(location_name)
         location = Location.objects.create(name=location_name, 
                                            code=location_code, 
                                            parent=parent, 
                                            type =facility_type)
-        print "Created new location %s" % location_name
     return location, created
 
 def _generate_facility_code(facility_name):

@@ -17,6 +17,7 @@ from rapidsms.contrib.locations.models import Location, Point
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock
+from logistics_project.apps.ewsghana import loader
 from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from logistics_project.apps.registration.validation import intl_clean_phone_number, \
@@ -131,10 +132,12 @@ class EWSGhanaAdminWebRegistrationForm(EWSGhanaManagerWebRegistrationForm):
 class FacilityForm(forms.ModelForm):
     latitude = forms.DecimalField(required=False)
     longitude = forms.DecimalField(required=False)
+    parent_location = forms.ModelChoiceField(Location.objects.exclude(type__slug=config.LocationCodes.FACILITY).order_by('name'), 
+                                             required=True)
     
     class Meta:
         model = GhanaFacility
-        exclude = ("last_reported", "groups", "supervised_by")
+        exclude = ("last_reported", "groups", "supervised_by", "location")
     
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = {}
@@ -147,9 +150,11 @@ class FacilityForm(forms.ModelForm):
                                               is_active=True, 
                                               product__is_active=True)
             kwargs['initial']['commodities'] = [p.product.pk for p in pss]
-            if initial_sp.location and initial_sp.location.point:
-                kwargs['initial']['latitude'] = initial_sp.location.point.latitude
-                kwargs['initial']['longitude'] = initial_sp.location.point.longitude
+            if initial_sp.location:
+                kwargs['initial']['parent_location'] = initial_sp.location.tree_parent
+                if initial_sp.location.point:
+                    kwargs['initial']['latitude'] = initial_sp.location.point.latitude
+                    kwargs['initial']['longitude'] = initial_sp.location.point.longitude
         super(FacilityForm, self).__init__(*args, **kwargs)
         if initial_sp:
             self.fields["primary_reporter"].queryset = Contact.objects\
@@ -164,7 +169,24 @@ class FacilityForm(forms.ModelForm):
         #self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
 				
     def save(self, *args, **kwargs):
-        facility = super(FacilityForm, self).save(*args, **kwargs)
+        facility = super(FacilityForm, self).save(commit=False, *args, **kwargs)
+        if self.cleaned_data['parent_location']:
+            def _create_new_fac_location(fac, parent):
+                loc, created = loader._get_or_create_location(fac.name, 
+                                                              parent)
+                fac.location = loc
+            try:
+                previous_instance = GhanaFacility.objects.get(code=self.instance.code)
+            except GhanaFacility.DoesNotExist:
+                _create_new_fac_location(facility, self.cleaned_data['parent_location'])
+            else:
+                if facility.location.tree_parent and \
+                  facility.location.tree_parent != self.cleaned_data['parent_location']:
+                    if facility.location.name == facility.name:
+                        facility.location.set_parent(self.cleaned_data['parent_location'])
+                    else:
+                        _create_new_fac_location(facility, self.cleaned_data['parent_location'])
+        facility.save()
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
             if commodity.sms_code in self.data:
@@ -229,10 +251,15 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
     set the first registered SMS reporter to be the primary reporter
     This is mostly a usability tweak for Ghana. TBD whether it's appropriate elsewhere.
      """
+     
     class Meta:
         model = Contact
         exclude = ("user", "language", "commodities")
     
+    def __init__(self, *args, **kwargs):
+        super(EWSGhanaSMSRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['name'].label = "First Name"
+        
     def save(self, *args, **kwargs):
         contact = super(EWSGhanaSMSRegistrationForm, self).save(*args, **kwargs)
         if contact.supply_point:

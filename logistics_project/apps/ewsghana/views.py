@@ -13,6 +13,7 @@ from logistics.views import message_log as rapidsms_message_log
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
+from dimagi.utils import csv 
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
 from auditcare.views import auditAll
@@ -86,10 +87,9 @@ def export_messagelog(request, format='xls'):
     response['Content-Disposition'] = 'attachment; filename=messagelog.xls'
     return response
 
-def auditor(request, template="ewsghana/auditor.html"):
-    auditEvents = AccessAudit.view("auditcare/by_date_access_events", descending=True, include_docs=True).all()
+def _prep_audit_for_display(auditevents):
     realEvents = []
-    for a in auditEvents:
+    for a in auditevents:
         designation = organization = facility = location = first_name = last_name = ''
         try:
             user = User.objects.get(username=a.user)
@@ -118,8 +118,44 @@ def auditor(request, template="ewsghana/auditor.html"):
                            'organization': organization, 
                            'facility': facility, 
                            'location': location })
+    return realEvents
+
+def auditor_export(request):
+    auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
+                                   descending=True, include_docs=True).all()
+    detailedEvents = _prep_audit_for_display(auditEvents)
+    response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
+    response['Content-Disposition'] = 'attachment; filename=webusage.xls'
+    writer = csv.UnicodeWriter(response)
+    writer.writerow(["Date ", "User", "Access_Type", "Designation", 
+                     "Organization", "Facility", "Location", "First_Name", 
+                     "Last_Name"])
+    for e in detailedEvents:
+        writer.writerow([e['date'], e['user'], e['class'], e['designation'],
+                         e['organization'], e['facility'], e['location'], 
+                         e['first_name'], e['last_name']])
+    return response    
+
+def auditor(request, template="ewsghana/auditor.html"):
+    """
+    NOTE: this truncates the log by default to the last 750 entries
+    To get the complete usage log, web users should export to excel 
+    This does a wildly inefficient couch<->postgres join. optimize later if need be.
+    """
+    MAX_ENTRIES = 500
+    if request.method == "GET" and 'search' in request.GET:
+            search = request.GET['search']
+            auditEvents = AccessAudit.view("auditcare/by_user_access_events", 
+                                   limit=MAX_ENTRIES, endkey=[search], 
+                                   startkey=[search, {}, {}, {}, {}, {}, {}], 
+                                   descending=True, include_docs=True).all()
+    else:
+            auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
+                                   limit=MAX_ENTRIES, 
+                                   descending=True, include_docs=True).all()
+    detailedEvents = _prep_audit_for_display(auditEvents)
     return render_to_response(template, 
-                              {"audit_table": AuditLogTable(realEvents, request=request)}, 
+                              {"audit_table": AuditLogTable(detailedEvents, request=request)}, 
                               context_instance=RequestContext(request))
 
 def register_web_user(request, pk=None, 
@@ -182,8 +218,12 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
                                 data=req.POST)
             if form.is_valid():
                 facility = form.save()
+                if pk is not None:
+                    url = "%s?updated=%s"
+                else:
+                    url = "%s?created=%s"
                 return HttpResponseRedirect(
-                    "%s?created=%s" % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
+                    url % (reverse('facility_edit', kwargs={'pk':facility.pk}), 
                                        unicode(facility)))
     else:
         form = FacilityForm(instance=facility)
