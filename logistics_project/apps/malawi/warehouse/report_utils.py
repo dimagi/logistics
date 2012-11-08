@@ -182,7 +182,7 @@ def get_reporting_rates_chart(location, start, end):
         data["on time"][dt] = pct(rr.on_time, rr.total)
         data["late"][dt] = pct(rr.reported - rr.on_time, rr.total)
         data["not reported"][dt] = pct(rr.total - rr.reported, rr.total)
-        data["complete"][dt] = pct(rr.complete, rr.total)
+        data["complete"][dt] = pct(rr.complete, rr.reported)
     
     ret_data = [{'data': [[i + 1, data[k][dt]] for i, dt in enumerate(dates)],
                  'label': k, 'lines': {"show": False}, "bars": {"show": True, "fill": 1},
