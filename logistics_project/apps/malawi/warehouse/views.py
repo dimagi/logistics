@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.template.context import RequestContext
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response
 from django.contrib import messages
 
 from logistics.decorators import place_in_request
@@ -57,6 +57,8 @@ def get_report(request, slug=''):
         
         return report.get_response(request)
     except Exception, e:
+        if settings.DEBUG:
+            raise
         logging.exception("problem loading a warehouse view: %s" % e)
         messages.warning(request,
                          "It looks like there's no data for your filters. "
