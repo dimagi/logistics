@@ -67,3 +67,10 @@
 </div>
 </div>
 </div>
+{% if edit_user %}
+     <div class="end_note"><strong>
+          <a href="{% url ewsghana_scheduled_reports edit_user.pk %}">
+          Configure Email Reports
+          </a>
+     </strong></div>
+{% endif %}
