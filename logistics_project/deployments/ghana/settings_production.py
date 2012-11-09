@@ -85,11 +85,11 @@ INSTALLED_BACKENDS = {
     #    "PORT": "/dev/ttyUSB1"
     #},
     "smsgh": {
-        "ENGINE": "rapidsms.backends.smsgh_http",
+        "ENGINE": "logistics_project.backends.smsgh_http",
         "PORT": 8002,
         "HOST": "50.56.82.64",
         "gateway_url" : "http://api.smsgh.com/v2/messages/send",
-        "params_outgoing": "username=username&password=password&from=1945&to=%(phone_number)s&text=%(message)s",
+        "params_outgoing": "username=username&password=password&from=%(from)s&to=%(phone_number)s&text=%(message)s",
         "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
     },
     #"end2end": {

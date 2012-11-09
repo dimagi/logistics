@@ -64,12 +64,12 @@ INSTALLED_BACKENDS = {
 #        "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
 #    },
     "smsgh": {
-        "ENGINE": "rapidsms.backends.smsgh_http",
+        "ENGINE": "logistics_project.backends.smsgh_http",
         "PORT": 8002,
         "HOST": "localhost",
         "gateway_url" : "http://localhost",
         #"gateway_url" : "http://127.0.0.1:8080",
-        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s",
+        "params_outgoing": "user=my_username&snr=%2B&password=my_password&id=%(phone_number)s&text=%(message)s&from=%(from)s",
         "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
     },
     "message_tester": {
@@ -168,3 +168,4 @@ SOUTH_MIGRATION_MODULES = {
 }
 
 AUTO_LOGOUT_DELAY = 300
+
