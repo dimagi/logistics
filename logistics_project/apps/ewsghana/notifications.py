@@ -88,7 +88,7 @@ def missing_report_notifications():
         Note that this supply point has not reported in the given window.
         """
         params = {
-            'start': statedate.strftime('%d %B %Y'),
+            'start': startdate.strftime('%d %B %Y'),
             'end': enddate.strftime('%d %B %Y'),
             'name': point.name
         }
