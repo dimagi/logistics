@@ -11,11 +11,8 @@ from alerts.models import NotificationType, Notification
 from logistics.const import Reports
 from logistics.models import SupplyPoint, LogisticsProfile, ProductReport
 
-# Forward compatible import to work with Django 1.4 timezone support
-try:
-    from django.utils.timezone import now
-except ImportError:
-    now = datetime.datetime.now
+from .compat import now, send_message
+
 
 CONTINUOUS_ERROR_WINDOW = getattr(settings, 'NOTIFICATION_ERROR_WINDOW', 2)
 
@@ -201,3 +198,17 @@ incomplete_report_notifications = IncompleteReportsNotification()
 
 def stockout_notifications():
     "Generate notifications when faciltities have stockouts."
+
+
+def sms_notifications(sender, instance, created, **kwargs):
+    """
+    Post-save handler for NotificationVisibility to send an SMS
+    when the notification is created.
+    """
+    if created:
+        notification = instance.notif
+        profile = instance.user.get_profile()
+        if profile.contact:
+            connection = profile.contact.default_connection
+            if connection:
+                send_message(connection, notification.text)
