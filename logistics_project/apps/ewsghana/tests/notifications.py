@@ -318,3 +318,27 @@ class SMSNotificationTestCase(NotificationTestCase):
             # Sets initial escalation level and reveals to users
             self.notification.initialize()
             self.assertFalse(send.called)
+
+    def test_different_location(self):
+        "User will not get SMS if they are in another location."
+        self.profile.location = self.create_location()
+        self.profile.save()
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertFalse(send.called)
+
+    def test_multiple_recipients(self):
+        "Each user will get their own SMS."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.location
+        other_profile.contact = self.create_contact()
+        other_profile.save()
+        other_connection = self.create_connection(contact=other_profile.contact)
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertEqual(send.call_count, 2)
+
