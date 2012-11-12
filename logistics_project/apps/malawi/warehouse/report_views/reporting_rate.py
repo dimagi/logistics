@@ -101,7 +101,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "data": []
             }
 
-            hsas = hsa_supply_points_below(sp)
+            hsas = hsa_supply_points_below(sp.location)
             for hsa in hsas:
                 rr = ReportingRate.objects.filter(supply_point=hsa,
                     date__range=(request.datespan.startdate, request.datespan.enddate))
