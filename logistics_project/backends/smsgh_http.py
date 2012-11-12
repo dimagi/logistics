@@ -28,7 +28,7 @@ class SmsghHttpBackend(RapidHttpBackend):
             conn, text, received_at)
 
     def handle_request(self, request):
-        self.error('Received request: %s' % request.GET)
+        self.debug('Received request: %s' % request.GET)
         sms = request.GET.get(self.incoming_message_param, '')
         sender = request.GET.get(self.incoming_phone_number_param, '')
         to = request.GET.get('to', None)
@@ -65,7 +65,7 @@ class SmsghHttpBackend(RapidHttpBackend):
             urllib2.quote(from_number))
         url = "%s?%s" % (self.gateway_url, http_params_outgoing)
         try:
-            self.error('Sending: %s' % url)
+            self.debug('Sending: %s' % url)
             response = urllib2.urlopen(url)
         except Exception, e:
             self.exception(e)
