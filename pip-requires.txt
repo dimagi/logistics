@@ -22,3 +22,4 @@ south>=0.7.2
 supervisor
 twilio
 virtualenv==1.4.5
+mock==1.0.1
