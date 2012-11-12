@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from alerts.models import NotificationType, Notification
 from logistics.const import Reports
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, LogisticsProfile
 
 # Forward compatible import to work with Django 1.4 timezone support
 try:
@@ -19,13 +19,20 @@ except ImportError:
 CONTINUOUS_ERROR_WINDOW = getattr(settings, 'NOTIFICATION_ERROR_WINDOW', 2)
 
 
-class NoEscalationType(NotificationType):
-    "Notifaction type with no escalations."
+class LocationNotificationType(NotificationType):
+    """
+    Notification type which has no escalation levels and instead creates
+    notifications based on the location associated with the user and
+    the notification.
+    """
 
     escalation_levels = ('everyone', )
 
     def users_for_escalation_level(self, esc_level):
-        return User.objects.all()
+        # NotificationType hijacks attribute lookups and passes them
+        # on to the underlying notification
+        location = self.originating_location
+        return User.objects.filter(logisticsprofile__location=location).distinct()
 
     def auto_escalation_interval(self, esc_level):
         return None
@@ -34,15 +41,15 @@ class NoEscalationType(NotificationType):
         return 'everyone'
 
 
-class NotReporting(NoEscalationType):
+class NotReporting(LocationNotificationType):
     "Facility has not reported recently."
 
 
-class IncompelteReporting(NoEscalationType):
+class IncompelteReporting(LocationNotificationType):
     "Facility has submitted incomplete stock report."
 
 
-class Stockout(NoEscalationType):
+class Stockout(LocationNotificationType):
     "Facility has a stockout."
 
 
