@@ -4,6 +4,7 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from alerts.models import NotificationType, Notification
@@ -64,12 +65,9 @@ def missing_report_notifications():
     startdate = enddate - offset
 
     # Get facilities which have and haven't reported in the window
-    reporting = SupplyPoint.active_objects.filter(
-        productreport__report_type__code=Reports.SOH,
-        productreport__report_date__gte=startdate,
-        productreport__report_date__lte=end,
-    ).distinct()
-    non_reporting = SupplyPoint.active_objects.exclude(pk__in=reporting)
+    reporting = SupplyPoint.objects.filter(last_reported__gte=startdate, active=True)
+    non_reporting = SupplyPoint.objects.filter(
+        Q(last_reported=None) | Q(last_reported__lt=startdate), active=True)
 
     def _generate_uid(point):
         """
