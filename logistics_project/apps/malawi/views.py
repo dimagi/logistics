@@ -640,7 +640,7 @@ def register_user(request, template="malawi/register-user.html"):
 
     return render_to_response(template, context, context_instance=RequestContext(request))
 
-@datespan_in_request()
+@datespan_default
 def sms_tracking(request):
     
     class ContactCache(object):
@@ -673,7 +673,7 @@ def sms_tracking(request):
     for row in outbound_counts:
         _update("outbound", row)
     
-    return render_to_response("malawi/sms_tracking.html",
+    return render_to_response("malawi/new/management/sms-tracking.html",
                               {"organizations": orgs},
                               context_instance=RequestContext(request))
 
