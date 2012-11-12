@@ -7,11 +7,13 @@ import string
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from alerts.models import Notification
+from alerts.models import Notification, NotificationVisibility
 from logistics.const import Reports
 from logistics.models import SupplyPoint, SupplyPointType, ProductType, Product
 from logistics.models import ProductStock, ProductReportType, ProductReport
+from mock import patch
 from rapidsms.contrib.locations.models import Location
+from rapidsms.models import Connection, Contact, Backend
 
 from logistics_project.apps.ewsghana import notifications
 
@@ -119,6 +121,49 @@ class NotificationTestCase(TestCase):
             info['report_type'] = self.create_product_report_type()
         return ProductReport.objects.create(**info)
 
+    def create_backend(self, **kwargs):
+        "Create test backend."
+        info = {
+            'name': self.get_random_string(),
+        }
+        info.update(kwargs)
+        return Backend.objects.create(**info)
+
+    def create_contact(self, **kwargs):
+        "Create test contact."
+        info = {
+            'name': self.get_random_string(),
+        }
+        info.update(kwargs)
+        return Contact.objects.create(**info)
+
+    def create_connection(self, **kwargs):
+        info = {
+            'identity': self.get_random_string(),
+        }
+        info.update(kwargs)
+        if 'backend' not in info:
+            info['backend'] = self.create_backend()
+        return Connection.objects.create(**info)
+
+    def create_notification(self, **kwargs):
+        "Create a test notification."
+        alert_class = random.choice([
+            notifications.NotReporting,
+            notifications.IncompelteReporting,
+            notifications.Stockout,
+        ])
+        alert_type = alert_class.__module__ + '.' + alert_class.__name__
+        info = {
+            'uid': self.get_random_string(),
+            'text': self.get_random_string(),
+            'alert_type': alert_type,
+            'escalation_level': '',
+            'escalated_on': datetime.datetime.now(),
+        }
+        info.update(kwargs)
+        return Notification.objects.create(**info)
+
 
 class MissingReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for non-reporting facilities."
@@ -218,3 +263,58 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         self.assertEqual(notification.originating_location, self.location)
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
+
+    def test_inactive_product(self):
+        "Don't trigger notifications for missing products if they are not active."
+        product = self.create_product_stock(supply_point=self.facility)
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand
+        )
+        other_product = self.create_product_stock(supply_point=self.facility, is_active=False)
+        generated = notifications.incomplete_report_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+
+class SMSNotificationTestCase(NotificationTestCase):
+    "Saved notifications should trigger SMS to users with associated contacts."
+
+    def setUp(self):
+        self.facility = self.create_supply_point()
+        self.location = self.facility.location
+        self.user = self.create_user()
+        # Created by post-save handler
+        self.profile = self.user.get_profile()
+        self.profile.location = self.location
+        self.profile.contact = self.create_contact()
+        self.profile.save()
+        self.connection = self.create_connection(contact=self.profile.contact)
+        self.notification = self.create_notification(originating_location=self.location)
+
+    def test_send_sms(self):
+        "Successful SMS sent."
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertTrue(send.called)
+            args, kwargs = send.call_args
+            connection, text = args
+            self.assertEqual(connection, self.connection)
+            self.assertEqual(text, self.notification.text)
+
+    def test_no_contact(self):
+        "No message will be sent if user doesn't have an associated contact."
+        self.profile.contact = None
+        self.profile.save()
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertFalse(send.called)
+
+    def test_no_connections(self):
+        "No message will be sent if contact doesn't have an associated connection."
+        self.connection.delete()
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertFalse(send.called)
