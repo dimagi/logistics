@@ -677,26 +677,20 @@ def sms_tracking(request):
                               {"organizations": orgs},
                               context_instance=RequestContext(request))
 
+@datespan_default
 def telco_tracking(request):
-    start = request.GET.get('from') or "2011-01-01"
-    end = request.GET.get('to') or datetime.now().strftime('%Y-%m-%d')
-
-    start_date = datetime.strptime(start, '%Y-%m-%d')
-    end_date = datetime.strptime(end, '%Y-%m-%d')
-
-    from dimagi.utils.dates import months_between, add_months
-
     results = []
 
-    for year, month in months_between(start_date,end_date):
-        date1 = datetime(year,month,1)
+    for year, month in months_between(request.datespan.computed_startdate,
+                                      request.datespan.computed_enddate):
+        period_start = datetime(year,month,1)
         endyear, endmonth = add_months(year,month,1)
-        date2 = datetime(endyear,endmonth,1)
+        period_end = datetime(endyear,endmonth,1)
         tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
-                date__range=(date1,date2))
+                                          date__range=(period_start, period_end))
         airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
-                date__range=(date1,date2))
-        results.append((date1.strftime("%B, %Y"), 
+                                             date__range=(period_start, period_end))
+        results.append((period_start.strftime("%B, %Y"),
                         tnm_msgs.filter(direction="I").count(),
                         tnm_msgs.filter(direction="O").count(),
                         tnm_msgs.count(),
@@ -704,6 +698,6 @@ def telco_tracking(request):
                         airtel_msgs.filter(direction="O").count(),
                         airtel_msgs.count()))
 
-    return render_to_response("malawi/telco_tracking.html",
+    return render_to_response("malawi/new/management/telco-tracking.html",
                               {"results": results},
                               context_instance=RequestContext(request))

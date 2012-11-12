@@ -11,8 +11,33 @@
 </div>
 <div class="module">
     <h2>Telco Tracking {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>
-    {% with table as table %}
-    {% include "malawi/new/partials/generic-table.html" %}
-    {% endwith %}
+    <div class="toppadded">
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="3">TNM</th>
+                    <th colspan="3">Airtel</th>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>in</th>
+                    <th>out</th>
+                    <th>total</th>
+                    <th>in</th>
+                    <th>out</th>
+                    <th>total</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for result in results %}
+                <tr>
+                    {% for val in result %}<td>{{ val }}</td>{% endfor %}
+                </tr>
+            {% endfor %}        
+            </tbody>
+
+        </table>
+    </div>
 </div>
 {% endblock %}
