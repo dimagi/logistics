@@ -4,12 +4,12 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, F
 from django.utils.translation import ugettext_lazy as _
 
 from alerts.models import NotificationType, Notification
 from logistics.const import Reports
-from logistics.models import SupplyPoint, LogisticsProfile
+from logistics.models import SupplyPoint, LogisticsProfile, ProductReport
 
 # Forward compatible import to work with Django 1.4 timezone support
 try:
@@ -70,12 +70,14 @@ class FacilityNotification(object):
         else:
             offset = datetime.timedelta(weeks=CONTINUOUS_ERROR_WINDOW)
         self.startdate = self.enddate - offset
-        matching_facilities = self.get_matching_facilities()
-        remaining_facilites = SupplyPoint.objects.filter(active=True).exclude(pk__in=matching_facilities)
+        matching_facilities, remaining_facilites = self.get_facilities()
         alert_type = self.notification_type.__module__ + '.' + self.notification_type.__name__
-        # Resolve matches for previously matched
-        uids_to_remove = map(self._generate_uid, remaining_facilites)
-        Notification.objects.filter(alert_type=alert_type, uid__in=uids_to_remove).update(is_open=False)
+        if remaining_facilites is not None:
+            # Resolve matches for previously matched
+            uids_to_remove = map(self._generate_uid, remaining_facilites)
+            Notification.objects.filter(
+                alert_type=alert_type, uid__in=uids_to_remove
+            ).update(is_open=False)
         # Create a notification for this point
         # rapidsms-alerts will handle the duplicate uids
         for point in matching_facilities:
@@ -83,8 +85,12 @@ class FacilityNotification(object):
             text = self._generate_nofitication_text(point)
             yield Notification(alert_type=alert_type, uid=uid, text=text, originating_location=point.location)
 
-    def get_matching_facilities(self):
-        "Return the set of facilities which should get the notifications."
+    def get_facilities(self):
+        """
+        Return the set of facilities which should get the notifications and
+        optionally the set of facilities which did not match.
+        (matching, non_matching or None)
+        """
         raise NotImplemented("Defined in the subclass")
 
     def _generate_uid(self, point):
@@ -105,12 +111,16 @@ class MissingReportsNotification(FacilityNotification):
 
     notification_type = NotReporting
 
-    def get_matching_facilities(self):
-        "Return the set of facilities which should get the notifications."
-        return SupplyPoint.objects.filter(
+    def get_facilities(self):
+        "Return the set of facilities which have not reported since the start period."
+        matching = SupplyPoint.objects.filter(
             Q(last_reported__isnull=True) | Q(last_reported__lt=self.startdate),
             active=True
         )
+        remaining = SupplyPoint.objects.filter(
+            last_reported__gte=self.startdate, active=True
+        )
+        return matching, remaining
 
     def _generate_uid(self, point):
         """
@@ -135,58 +145,58 @@ class MissingReportsNotification(FacilityNotification):
 
 missing_report_notifications = MissingReportsNotification()
 
-#def missing_report_notifications():
-#    "Generate notifications when faciltities have not reported"
 
-#    enddate = now()
-#    if isinstance(CONTINUOUS_ERROR_WINDOW, datetime.timedelta):
-#        offset = CONTINUOUS_ERROR_WINDOW
-#    else:
-#        offset = datetime.timedelta(weeks=CONTINUOUS_ERROR_WINDOW)
-#    startdate = enddate - offset
-
-#    # Get facilities which have and haven't reported in the window
-#    reporting = SupplyPoint.objects.filter(last_reported__gte=startdate, active=True)
-#    non_reporting = SupplyPoint.objects.filter(
-#        Q(last_reported=None) | Q(last_reported__lt=startdate), active=True)
-
-#    def _generate_uid(point):
-#        """
-#        Create a unique notification identifier for this supply point.
-
-#        Use year/week portion of the end date and the point pk.
-#        This mean the noficitaion will not be generated more than once a week.
-#        """
-#        year, week, weekday = enddate.isocalendar()
-#        return u'non-reporting-{pk}-{year}-{week}'.format(pk=point.pk, year=year, week=week)
-
-#    # If previously non-reporting for this window then resolve the notification
-#    uids_to_remove = map(_generate_uid, reporting)
-#    Notification.objects.filter(uid__in=uids_to_remove).update(is_open=False)
-
-#    def _generate_nofitication_text(point):
-#        """
-#        Note that this supply point has not reported in the given window.
-#        """
-#        params = {
-#            'start': startdate.strftime('%d %B %Y'),
-#            'end': enddate.strftime('%d %B %Y'),
-#            'name': point.name
-#        }
-#        msg = _(u'No supply reports were recieved from %(name)s between %(start)s and %(end)s.')
-#        return msg % params
-#   
-#    alert_type = NotReporting.__module__ + '.' + NotReporting.__name__
-#    # Create a notification for this point
-#    # rapidsms-alerts will handle the duplicate uids
-#    for point in non_reporting:
-#        uid = _generate_uid(point)
-#        text = _generate_nofitication_text(point)
-#        yield Notification(alert_type=alert_type, uid=uid, text=text, originating_location=point.location)
-
-
-def incomplete_report_notifications():
+class IncompleteReportsNotification(FacilityNotification):
     "Generate notifications when faciltities have incomplete stock reports."
+
+    notification_type = IncompelteReporting
+
+    def get_facilities(self):
+        """
+        Return the set of facilities which do not have supply reports for all
+        products in the time period.
+        """
+        complete = []
+        incomplete = []
+        facility_products = {}
+        reports = ProductReport.objects.filter(
+            report_type__code=Reports.SOH, supply_point__active=True,
+            report_date__gte=self.startdate, report_date__lte=self.enddate,
+        )
+        for report in reports:
+            products = facility_products.get(report.supply_point, set([]))
+            products.add(report.product)
+            facility_products[report.supply_point] = products
+        for supply_point, reported in facility_products:
+            expected = set(list(supply_point.commodities_stocked()))
+            if expected - reported:
+                incomplete.append(supply_point)
+            else:
+                complete.append(supply_point)
+        return incomplete, complete
+
+    def _generate_uid(self, point):
+        """
+        Use year/week portion of the end date and the point pk.
+        This mean the noficitaion will not be generated more than once a week.
+        """
+        year, week, weekday = self.enddate.isocalendar()
+        return u'incomplete-{pk}-{year}-{week}'.format(pk=point.pk, year=year, week=week)
+
+    def _generate_nofitication_text(self, point):
+        """
+        Note that this supply point sent an imcomplete report.
+        """
+        params = {
+            'start': self.startdate.strftime('%d %B %Y'),
+            'end': self.enddate.strftime('%d %B %Y'),
+            'name': point.name
+        }
+        msg = _(u'Incomplete stock reports were recieved from %(name)s between %(start)s and %(end)s.')
+        return msg % params
+
+
+incomplete_report_notifications = IncompleteReportsNotification()
 
 
 def stockout_notifications():
