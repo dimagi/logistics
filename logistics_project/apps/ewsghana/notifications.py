@@ -167,7 +167,7 @@ class IncompleteReportsNotification(FacilityNotification):
             products = facility_products.get(report.supply_point, set([]))
             products.add(report.product)
             facility_products[report.supply_point] = products
-        for supply_point, reported in facility_products:
+        for supply_point, reported in facility_products.items():
             expected = set(list(supply_point.commodities_stocked()))
             if expected - reported:
                 incomplete.append(supply_point)
