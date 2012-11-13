@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import re
 from django.conf import settings
 from django.db.models import Q
 from django.template import RequestContext
@@ -108,9 +109,12 @@ def registration(req, pk=None, template="registration/dashboard.html",
             deleted = req.GET['deleted']
         if 'search' in req.GET:
             search = req.GET['search']
-            contacts = contacts.filter(Q(name__iregex=search) |\
-                                       Q(connection__identity__iregex=search) |\
-                                       Q(supply_point__name__iregex=search))
+            # this is here because otherwise searching for "+233"
+            # makes postgres complain that '+' is not preceded by a #
+            safe_search = re.escape(search)
+            contacts = contacts.filter(Q(name__iregex=safe_search) |\
+                                       Q(connection__identity__iregex=safe_search) |\
+                                       Q(supply_point__name__iregex=safe_search))
     return render_to_response(
         template, {
             "contacts_table": ContactTable(contacts, request=req),

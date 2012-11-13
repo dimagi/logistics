@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import re
 import sys
 from datetime import datetime
 from django.db.models import Q
@@ -63,12 +64,13 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context={},
     context['users'] = User.objects.all().order_by('username')
     if request.method == 'GET' and 'search' in request.GET: 
         search = context['search'] = request.GET['search']
-        context['users'] = context['users'].filter(Q(username__iregex=search) |\
-                                   Q(email__iregex=search) |\
-                                   Q(first_name__iregex=search) |\
-                                   Q(last_name__iregex=search) |\
-                                   Q(logisticsprofile__supply_point__name__iregex=search) |\
-                                   Q(logisticsprofile__location__name__iregex=search))
+        safe_search = re.escape(search)
+        context['users'] = context['users'].filter(Q(username__iregex=safe_search) |\
+                                   Q(email__iregex=safe_search) |\
+                                   Q(first_name__iregex=safe_search) |\
+                                   Q(last_name__iregex=safe_search) |\
+                                   Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
+                                   Q(logisticsprofile__location__name__iregex=safe_search))
     context['form'] = form
     return render_to_response(template, context, 
                               context_instance = RequestContext(request)) 
