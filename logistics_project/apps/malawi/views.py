@@ -53,6 +53,7 @@ from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from logistics_project.apps.malawi.loader import load_locations,\
     get_facility_export
 from django.views.decorators.http import require_POST
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def organizations(request):
@@ -147,7 +148,10 @@ def permissions(request):
         "data": [],
     }
     for u in users:
-        prof = u.get_profile()
+        try:
+            prof = u.get_profile()
+        except ObjectDoesNotExist:
+            prof = LogisticsProfile.objects.create(user=u)
         table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': prof.id}), 
             "data": [u.username, prof.supply_point,
                 prof.organization.name if prof.organization else "",
