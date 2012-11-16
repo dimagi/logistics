@@ -22,8 +22,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
-    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'logistics_project.apps.ewsghana.middleware.AutoLogout',
+    'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'logistics.middleware.CachedTemplateMiddleware',
 )
 
