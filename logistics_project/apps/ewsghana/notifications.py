@@ -14,7 +14,7 @@ from logistics.models import SupplyPoint, LogisticsProfile, ProductReport
 from .compat import now, send_message
 
 
-CONTINUOUS_ERROR_WINDOW = getattr(settings, 'NOTIFICATION_ERROR_WINDOW', 2)
+CONTINUOUS_ERROR_WEEKS = getattr(settings, 'NOTIFICATION_ERROR_WEEKS', 2)
 
 
 class LocationNotificationType(NotificationType):
@@ -62,10 +62,7 @@ class FacilityNotification(object):
     def __call__(self):
         "Generate notifcations."
         self.enddate = now()
-        if isinstance(CONTINUOUS_ERROR_WINDOW, datetime.timedelta):
-            offset = CONTINUOUS_ERROR_WINDOW
-        else:
-            offset = datetime.timedelta(weeks=CONTINUOUS_ERROR_WINDOW)
+        offset = datetime.timedelta(weeks=CONTINUOUS_ERROR_WEEKS)
         self.startdate = self.enddate - offset
         matching_facilities, remaining_facilites = self.get_facilities()
         alert_type = self.notification_type.__module__ + '.' + self.notification_type.__name__
