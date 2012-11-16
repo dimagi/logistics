@@ -289,7 +289,7 @@ class SMSNotificationTestCase(NotificationTestCase):
         self.profile.contact = self.create_contact()
         self.profile.save()
         self.connection = self.create_connection(contact=self.profile.contact)
-        self.notification = self.create_notification(originating_location=self.location)
+        self.notification = self.create_notification(owner=self.user)
 
     def test_send_sms(self):
         "Successful SMS sent."

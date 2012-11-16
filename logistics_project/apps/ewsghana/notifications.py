@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from alerts.models import NotificationType, Notification
 from logistics.const import Reports
 from logistics.models import SupplyPoint, LogisticsProfile, ProductReport
+from logistics.util import config
 
 from .compat import now, send_message
 
@@ -17,42 +18,43 @@ from .compat import now, send_message
 CONTINUOUS_ERROR_WEEKS = getattr(settings, 'NOTIFICATION_ERROR_WEEKS', 2)
 
 
-class LocationNotificationType(NotificationType):
+class OwnerNotificationType(NotificationType):
     """
     Notification type which has no escalation levels and instead creates
-    notifications based on the location associated with the user and
-    the notification.
+    notifications based on the notification owner.
     """
 
-    escalation_levels = ('everyone', )
+    escalation_levels = ('owner', )
 
     def users_for_escalation_level(self, esc_level):
         # NotificationType hijacks attribute lookups and passes them
         # on to the underlying notification
-        location = self.originating_location
-        return User.objects.filter(logisticsprofile__location=location).distinct()
+        return (self.owner, )
 
     def auto_escalation_interval(self, esc_level):
         return None
 
     def escalation_level_name(self, esc_level):
-        return 'everyone'
+        return 'owner'
 
 
-class NotReporting(LocationNotificationType):
-    "Facility has not reported recently."
+class NotReporting(OwnerNotificationType):
+    "Facilities have not reported recently."
 
 
-class IncompelteReporting(LocationNotificationType):
-    "Facility has submitted incomplete stock report."
+class IncompelteReporting(OwnerNotificationType):
+    "Facilities have submitted incomplete stock report."
 
 
-class Stockout(LocationNotificationType):
-    "Facility has a stockout."
+class Stockout(OwnerNotificationType):
+    "Facilities have a stockout."
 
 
-class FacilityNotification(object):
-    "Base class for creating facility related notifications."
+class UserFacilitiesNotification(object):
+    """
+    Base class for creating user notificatoins based on the facilities they are
+    interested in or overseeing.
+    """
 
     notification_type = None
 
@@ -64,22 +66,24 @@ class FacilityNotification(object):
         self.enddate = now()
         offset = datetime.timedelta(weeks=CONTINUOUS_ERROR_WEEKS)
         self.startdate = self.enddate - offset
-        matching_facilities, remaining_facilites = self.get_facilities()
         alert_type = self.notification_type.__module__ + '.' + self.notification_type.__name__
-        if remaining_facilites is not None:
-            # Resolve matches for previously matched
-            uids_to_remove = map(self._generate_uid, remaining_facilites)
-            Notification.objects.filter(
-                alert_type=alert_type, uid__in=uids_to_remove
-            ).update(is_open=False)
-        # Create a notification for this point
-        # rapidsms-alerts will handle the duplicate uids
-        for point in matching_facilities:
-            uid = self._generate_uid(point)
-            text = self._generate_nofitication_text(point)
-            yield Notification(alert_type=alert_type, uid=uid, text=text, originating_location=point.location)
+        for profile in self.get_profiles():
+            uid = self._generate_uid(profile)
+            matching_facilities = self.get_facilities(profile)
+            if not matching_facilities:
+                # Issue has since been resolved
+                Notification.objects.filter(
+                    alert_type=alert_type, uid=uid
+                ).update(is_open=False)
+            else:
+                text = self._generate_nofitication_text(profile, matching_facilities)
+                yield Notification(alert_type=alert_type, uid=uid, text=text, owner=profile.user)
 
-    def get_facilities(self):
+    def get_profiles(self):
+        "Return the set of all LogisticsProfiles which may recieve a notification."
+        raise NotImplemented("Defined in the subclass")
+
+    def get_facilities(self, profile):
         """
         Return the set of facilities which should get the notifications and
         optionally the set of facilities which did not match.
@@ -87,69 +91,74 @@ class FacilityNotification(object):
         """
         raise NotImplemented("Defined in the subclass")
 
-    def _generate_uid(self, point):
+    def _generate_uid(self, profile):
         """
-        Create a unique notification identifier for this supply point.
+        Create a unique notification identifier for this user.
         """
         raise NotImplemented("Defined in the subclass")
 
-    def _generate_nofitication_text(self, point):
+    def _generate_nofitication_text(self, profile, matches):
         """
         Text for user notification
         """
         raise NotImplemented("Defined in the subclass")
 
 
-class MissingReportsNotification(FacilityNotification):
+class DistrictUserNotification(UserFacilitiesNotification):
+    "Base for generating notifications for district level users."
+
+    def get_profiles(self):
+        "Return all users associated with a district location."
+        return LogisticsProfile.objects.filter(
+            location__code=config.LocationCodes.DISTRICT
+        ).select_related('location')
+
+
+class MissingReportsNotification(DistrictUserNotification):
     "Generate notifications when faciltities have not reported"
 
     notification_type = NotReporting
 
-    def get_facilities(self):
+    def get_facilities(self, profile):
         "Return the set of facilities which have not reported since the start period."
-        matching = SupplyPoint.objects.filter(
-            Q(last_reported__isnull=True) | Q(last_reported__lt=self.startdate),
-            active=True
+        return profile.location.all_facilities.filter(
+            Q(last_reported__isnull=True) | Q(last_reported__lt=self.startdate)
         )
-        remaining = SupplyPoint.objects.filter(
-            last_reported__gte=self.startdate, active=True
-        )
-        return matching, remaining
 
-    def _generate_uid(self, point):
+    def _generate_uid(self, profile):
         """
         Use year/week portion of the end date and the point pk.
         This mean the noficitaion will not be generated more than once a week.
         """
         year, week, weekday = self.enddate.isocalendar()
-        return u'non-reporting-{pk}-{year}-{week}'.format(pk=point.pk, year=year, week=week)
+        return u'non-reporting-{pk}-{year}-{week}'.format(pk=profile.pk, year=year, week=week)
 
-    def _generate_nofitication_text(self, point):
+    def _generate_nofitication_text(self, profile, matches):
         """
         Note that this supply point has not reported in the given window.
         """
         params = {
-            'start': self.startdate.strftime('%d %B %Y'),
-            'end': self.enddate.strftime('%d %B %Y'),
-            'name': point.name
+            'count': CONTINUOUS_ERROR_WEEKS,
+            'names': u', '.join([m.name for m in matches]),
         }
-        msg = _(u'No supply reports were recieved from %(name)s between %(start)s and %(end)s.')
+        msg = _(u'These facilities have not submitted their SMS stock report in %(count)s weeks! Please follow up: %(names)s')
         return msg % params
 
 
 missing_report_notifications = MissingReportsNotification()
 
 
-class IncompleteReportsNotification(FacilityNotification):
+class IncompleteReportsNotification(DistrictUserNotification):
     "Generate notifications when faciltities have incomplete stock reports."
 
     notification_type = IncompelteReporting
 
-    def get_facilities(self):
+    def get_facilities(self, profile):
         """
         Return the set of facilities which do not have supply reports for all
         products in the time period.
         """
+        return []
         complete = []
         incomplete = []
         facility_products = {}
@@ -169,24 +178,23 @@ class IncompleteReportsNotification(FacilityNotification):
                 complete.append(supply_point)
         return incomplete, complete
 
-    def _generate_uid(self, point):
+    def _generate_uid(self, profile):
         """
         Use year/week portion of the end date and the point pk.
         This mean the noficitaion will not be generated more than once a week.
         """
         year, week, weekday = self.enddate.isocalendar()
-        return u'incomplete-{pk}-{year}-{week}'.format(pk=point.pk, year=year, week=week)
+        return u'incomplete-{pk}-{year}-{week}'.format(pk=profile.pk, year=year, week=week)
 
-    def _generate_nofitication_text(self, point):
+    def _generate_nofitication_text(self, profile, matches):
         """
         Note that this supply point sent an imcomplete report.
         """
         params = {
-            'start': self.startdate.strftime('%d %B %Y'),
-            'end': self.enddate.strftime('%d %B %Y'),
-            'name': point.name
+            'count': CONTINUOUS_ERROR_WEEKS,
+            'names': u', '.join([m.name for m in matches]),
         }
-        msg = _(u'Incomplete stock reports were recieved from %(name)s between %(start)s and %(end)s.')
+        msg = _(u'These facilities have not submitted complete SMS stock reports in %(count)s weeks! Please follow up: %(names)s')
         return msg % params
 
 
