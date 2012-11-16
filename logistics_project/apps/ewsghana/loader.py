@@ -247,6 +247,13 @@ def init_reminders():
     except EventSchedule.DoesNotExist:
         # 2:15 pm on the 28th
         set_monthly_event("logistics_project.apps.ewsghana.schedule.reminder_to_submit_RRIRV",7,14,15)
+
+    # set up rapdidsms-alerts to trigger notifications
+    try:
+        EventSchedule.objects.get(callback="alerts.utils.trigger_notifications")
+    except EventSchedule.DoesNotExist:
+        # 9 am on Monday
+        set_weekly_event("alerts.utils.trigger_notifications", 0, 9, 0)
         
 
 def _get_or_create_region_rms(region_name, region):
