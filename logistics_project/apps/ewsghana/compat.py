@@ -15,4 +15,4 @@ except ImportError:
 else:
     def send_message(connection, text):
         "Replicate old method signature."
-        return send(text, connection=connection)
+        return send(text, connection)
