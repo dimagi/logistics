@@ -277,6 +277,47 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         self.assertRaises(StopIteration, generated.next)
 
 
+class StockoutReportNotificationTestCase(NotificationTestCase):
+    "Trigger notifications for facilities with stockouts."
+
+    def setUp(self):
+        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.facility = self.create_supply_point(location=self.district)
+        self.user = self.create_user()
+        # Created by post-save handler
+        self.profile = self.user.get_profile()
+        self.profile.location = self.district
+        self.profile.save()
+        self.stock_on_hand = self.create_product_report_type(code=Reports.SOH)
+
+    def test_missing_notification(self):
+        "No notification if there were no reports. Covered by missing report."
+        generated = notifications.stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_all_products_stocked(self):
+        "No notification if all products are stocked."
+        product = self.create_product_stock(supply_point=self.facility)
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=10
+        )
+        generated = notifications.stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_simple_stockout(self):
+        "Single product, single report with 0 quantity."
+        product = self.create_product_stock(supply_point=self.facility)
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        generated = notifications.stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.Stockout))
+        self.assertEqual(notification.owner, self.user)
+
+
 class SMSNotificationTestCase(NotificationTestCase):
     "Saved notifications should trigger SMS to users with associated contacts."
 
@@ -319,4 +360,3 @@ class SMSNotificationTestCase(NotificationTestCase):
             # Sets initial escalation level and reveals to users
             self.notification.initialize()
             self.assertFalse(send.called)
-

@@ -4,7 +4,7 @@ import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q, F
+from django.db.models import Q, F, Max
 from django.utils.translation import ugettext_lazy as _
 
 from alerts.models import NotificationType, Notification
@@ -198,8 +198,45 @@ class IncompleteReportsNotification(DistrictUserNotification):
 incomplete_report_notifications = IncompleteReportsNotification()
 
 
-def stockout_notifications():
+class StockoutNotification(DistrictUserNotification):
     "Generate notifications when faciltities have stockouts."
+
+    notification_type = Stockout
+
+    def get_facilities(self, profile):
+        """
+        Return the set of facilities have stockouts for the period.
+        """
+        facilities = profile.location.all_facilities()
+        results = []
+        # Requires product is stocked out for the entire period
+        stockouts = ProductReport.objects.filter(
+            report_type__code=Reports.SOH, supply_point__in=facilities,
+            report_date__gte=self.startdate, report_date__lte=self.enddate,
+        ).annotate(max_quantity=Max('quantity')).filter(max_quantity=0).values(
+            'supply_point', 'product', 'max_quantity'
+        )
+        results = set([so['supply_point'] for so in stockouts])
+        return SupplyPoint.objects.filter(pk__in=results)
+
+    def _generate_uid(self, profile):
+        """
+        Use year/week portion of the end date and the point pk.
+        This mean the noficitaion will not be generated more than once a week.
+        """
+        year, week, weekday = self.enddate.isocalendar()
+        return u'stockout-{pk}-{year}-{week}'.format(pk=profile.pk, year=year, week=week)
+
+    def _generate_nofitication_text(self, profile, matches):
+        params = {
+            'count': CONTINUOUS_ERROR_WEEKS,
+            'names': u', '.join([m.name for m in matches]),
+        }
+        msg = _(u'These facilities experienced stockouts for the past %(count)s weeks! Please follow up: %(names)s')
+        return msg % params
+
+
+stockout_notifications = StockoutNotification()
 
 
 def sms_notifications(sender, instance, created, **kwargs):
