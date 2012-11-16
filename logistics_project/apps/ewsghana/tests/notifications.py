@@ -11,6 +11,7 @@ from alerts.models import Notification, NotificationVisibility
 from logistics.const import Reports
 from logistics.models import SupplyPoint, SupplyPointType, ProductType, Product
 from logistics.models import ProductStock, ProductReportType, ProductReport
+from logistics.util import config
 from mock import patch
 from rapidsms.contrib.locations.models import Location
 from rapidsms.models import Connection, Contact, Backend
@@ -169,12 +170,12 @@ class MissingReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for non-reporting facilities."
 
     def setUp(self):
-        self.facility = self.create_supply_point()
-        self.location = self.facility.location
+        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.facility = self.create_supply_point(location=self.district)
         self.user = self.create_user()
         # Created by post-save handler
         self.profile = self.user.get_profile()
-        self.profile.location = self.location
+        self.profile.location = self.district
         self.profile.save()
 
     def test_all_facilities_reported(self):
@@ -191,7 +192,7 @@ class MissingReportNotificationTestCase(NotificationTestCase):
         generated = notifications.missing_report_notifications()
         notification = generated.next()
         self.assertTrue(isinstance(notification._type, notifications.NotReporting))
-        self.assertEqual(notification.originating_location, self.location)
+        self.assertEqual(notification.owner, self.user)
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
 
@@ -200,12 +201,12 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with incomplete reports."
 
     def setUp(self):
-        self.facility = self.create_supply_point()
-        self.location = self.facility.location
+        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.facility = self.create_supply_point(location=self.district)
         self.user = self.create_user()
         # Created by post-save handler
         self.profile = self.user.get_profile()
-        self.profile.location = self.location
+        self.profile.location = self.district
         self.profile.save()
         self.stock_on_hand = self.create_product_report_type(code=Reports.SOH)
 
@@ -240,7 +241,7 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         generated = notifications.incomplete_report_notifications()
         notification = generated.next()
         self.assertTrue(isinstance(notification._type, notifications.IncompelteReporting))
-        self.assertEqual(notification.originating_location, self.location)
+        self.assertEqual(notification.owner, self.user)
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
 
@@ -260,7 +261,7 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         generated = notifications.incomplete_report_notifications()
         notification = generated.next()
         self.assertTrue(isinstance(notification._type, notifications.IncompelteReporting))
-        self.assertEqual(notification.originating_location, self.location)
+        self.assertEqual(notification.owner, self.user)
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
 
