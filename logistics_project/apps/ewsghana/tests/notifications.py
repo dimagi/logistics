@@ -196,6 +196,33 @@ class MissingReportNotificationTestCase(NotificationTestCase):
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
 
+    def test_facility_in_district(self):
+        "Facility location can be any child of the district."
+        location = self.create_location(parent=self.district)
+        self.facility.location = location
+        self.facility.last_reported = datetime.datetime.now() - datetime.timedelta(days=365)
+        self.facility.save()
+        generated = notifications.missing_report_notifications()
+        notification = generated.next()
+        self.assertEqual(notification.owner, self.user)
+
+    def test_multiple_users(self):
+        "Each user will get their own notification."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        other_profile.save()
+        self.facility.last_reported = datetime.datetime.now() - datetime.timedelta(days=365)
+        self.facility.save()
+        notified_users = set()
+        count = 0
+        for notification in notifications.missing_report_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
+
 
 class IncompleteReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with incomplete reports."
@@ -275,6 +302,42 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         other_product = self.create_product_stock(supply_point=self.facility, is_active=False)
         generated = notifications.incomplete_report_notifications()
         self.assertRaises(StopIteration, generated.next)
+
+    def test_facility_in_district(self):
+        "Facility location can be any child of the district."
+        location = self.create_location(parent=self.district)
+        self.facility.location = location
+        self.facility.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        generated = notifications.incomplete_report_notifications()
+        notification = generated.next()
+        self.assertEqual(notification.owner, self.user)
+
+    def test_multiple_users(self):
+        "Each user will get their own notification."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        other_profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        notified_users = set()
+        count = 0
+        for notification in notifications.incomplete_report_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
 
 
 class StockoutReportNotificationTestCase(NotificationTestCase):
@@ -369,10 +432,44 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
         )
         generated = notifications.stockout_notifications()
         notification = generated.next()
-        self.assertTrue(isinstance(notification._type, notifications.Stockout))
         self.assertEqual(notification.owner, self.user)
         # There should only be one notification
         self.assertRaises(StopIteration, generated.next)
+
+    def test_facility_in_district(self):
+        "Facility location can be any child of the district."
+        location = self.create_location(parent=self.district)
+        self.facility.location = location
+        self.facility.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        generated = notifications.stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.Stockout))
+        self.assertEqual(notification.owner, self.user)
+
+    def test_multiple_users(self):
+        "Each user will get their own notification."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        other_profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
 
 
 class SMSNotificationTestCase(NotificationTestCase):
