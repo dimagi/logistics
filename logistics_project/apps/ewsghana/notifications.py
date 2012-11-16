@@ -213,10 +213,10 @@ class StockoutNotification(DistrictUserNotification):
         stockouts = ProductReport.objects.filter(
             report_type__code=Reports.SOH, supply_point__in=facilities,
             report_date__gte=self.startdate, report_date__lte=self.enddate,
-        ).annotate(max_quantity=Max('quantity')).filter(max_quantity=0).values(
-            'supply_point', 'product', 'max_quantity'
-        )
-        results = set([so['supply_point'] for so in stockouts])
+        ).values(
+            'supply_point', 'product'
+        ).annotate(max_quantity=Max('quantity'))
+        results = set([so['supply_point'] for so in stockouts if so['max_quantity'] == 0])
         return SupplyPoint.objects.filter(pk__in=results)
 
     def _generate_uid(self, profile):

@@ -298,7 +298,7 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
     def test_all_products_stocked(self):
         "No notification if all products are stocked."
         product = self.create_product_stock(supply_point=self.facility)
-        product_report = self.create_product_report(
+        self.create_product_report(
             supply_point=self.facility, product=product.product,
             report_type=self.stock_on_hand, quantity=10
         )
@@ -308,7 +308,7 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
     def test_simple_stockout(self):
         "Single product, single report with 0 quantity."
         product = self.create_product_stock(supply_point=self.facility)
-        product_report = self.create_product_report(
+        self.create_product_report(
             supply_point=self.facility, product=product.product,
             report_type=self.stock_on_hand, quantity=0
         )
@@ -316,6 +316,63 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
         notification = generated.next()
         self.assertTrue(isinstance(notification._type, notifications.Stockout))
         self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_multi_report_stockout(self):
+        "Single product, mutliple reports with 0 quantity."
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        generated = notifications.stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.Stockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_partial_duration_stockout(self):
+        "Some reports indicate a stockout but did not last the entire period. No notification."
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=1
+        )
+        generated = notifications.stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_partial_product_stockout(self):
+        "Multiple products but only one is stocked out. Should be reported."
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=other_product.product,
+            report_type=self.stock_on_hand, quantity=10
+        )
+        generated = notifications.stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.Stockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
 
 
 class SMSNotificationTestCase(NotificationTestCase):
