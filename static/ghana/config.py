@@ -57,18 +57,22 @@ class SupplyPointCodes(object):
     DISTRICT_HOSPITAL = "dh"
     REGIONAL_HOSPITAL = "rh"
     PSYCHIATRIC_HOSPITAL = "ph"
+    TEACHING_HOSPITAL = "th"
     HOSPITAL = "hospital"
     HEALTH_CENTER = "hc"
     CHPS = "chps"
+    POLYCLINIC = "pc"
     CLINIC = "c"
     ALL = {
         REGIONAL_MEDICAL_STORE: "regional medical store",
         REGIONAL_HOSPITAL: "regional hospital",
         DISTRICT_HOSPITAL: "dh", 
         PSYCHIATRIC_HOSPITAL: "ph", 
+        TEACHING_HOSPITAL: "th", 
         HOSPITAL: "hospital",
         HEALTH_CENTER: "health center",
         CHPS: "chps",
+        POLYCLINIC: "pc",
         CLINIC: "clinic",
     }
     
@@ -88,9 +92,11 @@ class SupplyPointPolicies(object):
           SupplyPointCodes.HOSPITAL: POLICY_1, 
           SupplyPointCodes.HEALTH_CENTER: POLICY_1, 
           SupplyPointCodes.CHPS: POLICY_1, 
+          SupplyPointCodes.POLYCLINIC: POLICY_1, 
           SupplyPointCodes.CLINIC: POLICY_1, 
           SupplyPointCodes.DISTRICT_HOSPITAL: POLICY_1, 
           SupplyPointCodes.PSYCHIATRIC_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.TEACHING_HOSPITAL: POLICY_1, 
           SupplyPointCodes.REGIONAL_MEDICAL_STORE: POLICY_2
     }
 

@@ -1,6 +1,7 @@
 import csv
 import random
 from rapidsms.conf import settings
+from rapidsms.contrib.locations.models import Location
 from logistics import loader as logistics_loader
 from logistics.util import config
 
@@ -25,7 +26,7 @@ def AddFacilities(filename):
     """ For DELIVER facilities
     
     This function expects a csv file in the format: 
-    id, region, district, facility name, facility type, x, y, z, etc. 
+    id, region, district, "facility name", "facility type", x, y, z, etc. 
     """
     from logistics.models import SupplyPoint, SupplyPointType
     from logistics.models import Location
@@ -39,10 +40,14 @@ def AddFacilities(filename):
     errors = 0
     regions = 0
     districts = 0
-    locations = 0
+    facility_locations_count = 0
     rmses = 0
     facilities = 0
+    count = 0
+    already_exists = 0
     for row in reader:
+        #print "line: %s" % count
+        count = count + 1
         region_name = row[1].strip()
         district_name = row[2].strip()
         facility_name = row[3].strip()
@@ -57,11 +62,12 @@ def AddFacilities(filename):
             districts = districts + 1
         facility_location, location_created = _get_or_create_location(facility_name, district)
         if location_created:
-            locations = locations + 1
+            facility_locations_count = facility_locations_count + 1
+            #print ("  %s location created" % facility_name.lower())
         facility_code = _generate_facility_code(facility_name)
-        facility_type_name = row[4]
+        facility_type_name = row[4].strip()
         try:
-            facility_type = SupplyPointType.objects.get(name=facility_type_name)
+            facility_type = SupplyPointType.objects.get(name__iexact=facility_type_name)
         except SupplyPointType.DoesNotExist:
             print "ERROR: SupplyPoint type for %s not found" % facility_type_name
             errors = errors + 1
@@ -71,8 +77,8 @@ def AddFacilities(filename):
         except SupplyPoint.DoesNotExist:
             pass
         else:
-            print "ERROR: Facility %s already exists. Why?" % facility_name
-            errors = errors + 1
+            print "  (info: facility %s already exists.)" % facility_name.lower()
+            already_exists = already_exists + 1
             continue
         facility, created = SupplyPoint.objects.get_or_create(code=facility_code,
                                                               name=facility_name,
@@ -81,20 +87,24 @@ def AddFacilities(filename):
                                                               supplied_by=rms)
         if created:
             facilities = facilities + 1
-            print ("%s created" % facility_name.lower())
+            print ("  %s created" % facility_name.lower())
+            if not location_created:
+                print ("  but %s location already existed as %s" % (facility_name, facility_location.name)).lower()
         else:
             print ("%s already exists" % facility_name).lower()
-        if facilities != locations:
-            print "what's going on??? %s" % facility_location.name 
-        _load_DELIVER_products_into_facility(facility, 0, None)
+        if facilities != facility_locations_count:
+            print "INFO: facility: %s, facilities created:%s, locations created:%s" % \
+                (facility_location.name, facilities, facility_locations_count)
+        # DELIVER specific
+        #_load_DELIVER_products_into_facility(facility, 0, None)
     print "Success!"
     print "There were %s errors" % errors    
     print "%s regions created" % regions
     print "%s rms's created" % rmses
     print "%s districts created" % districts
-    print "%s locations created" % locations
+    print "%s facility locations created" % facility_locations_count
     print "%s facilities created" % facilities
-    
+    print "%s facilities already existed" % already_exists
     
 def _load_DELIVER_products_into_facility(fac, max_facility_consumption, facility_consumption):
     from logistics.models import Product, ProductStock   
@@ -115,11 +125,11 @@ def _load_DELIVER_products_into_facility(fac, max_facility_consumption, facility
                      product=product,
                      monthly_consumption=facility_consumption, 
                      use_auto_consumption=False).save()
-    print "Products loaded into %s" % fac.name
+    print "\tProducts loaded into %s" % fac.name
     
 def LoadFacilities(filename):
     """ This function expects a csv file in the format: 
-    id, region, district, facility name, facility type, x, y, z, etc. 
+    id, region, district, "facility name", "facility type", x, y, z, etc. 
     
     THIS IS LARGELY DEPRECATED. Use the addFacilities function above for future updates.
     We keep this around for now so as not to break certain book scripts.
@@ -277,13 +287,26 @@ def _get_or_create_region(region_name, parent):
     except Location.DoesNotExist:
         created = True
         region_type = LocationType.objects.get(slug='region')
+        _print_similar_locations(region_name, region_type, parent)
         region_code = _generate_region_code(region_name)
         region = Location.objects.create(name=region_name, 
                                          code=region_code, 
                                          parent=parent, 
                                          type = region_type)
-        print "Created new region %s" % region_name
+        print "REGION: Created new region %s" % region_name
     return region, created
+
+def _print_similar_locations(name, loc_type, parent):
+    try:
+        from fuzzywuzzy import process
+    except ImportError:
+        pass
+    else: 
+        choices = Location.objects.filter(type=loc_type, parent_id=parent.pk).values_list('name', flat=True)
+        if choices:
+            closest_match, ratio = process.extractOne(name, choices)
+            if ratio > 75:
+                print "NOTE: %s is very similar to %s" % (name, closest_match)
 
 def _get_or_create_district(district_name, parent):
     from logistics.models import Location
@@ -294,12 +317,13 @@ def _get_or_create_district(district_name, parent):
     except Location.DoesNotExist:
         created = True
         district_type = LocationType.objects.get(slug='district')
+        _print_similar_locations(district_name, district_type, parent)
         district_code = _generate_district_code(district_name)
         district = Location.objects.create(name=district_name, 
                                            code=district_code, 
                                            parent=parent, 
                                            type =district_type)
-        print "Created new district %s" % district_name
+        print "DISTRICT: Created new district %s" % district_name
     return district, created
 
 def _get_or_create_location(location_name, parent):
@@ -307,10 +331,11 @@ def _get_or_create_location(location_name, parent):
     from rapidsms.contrib.locations.models import LocationType
     created = False
     try:
-        location = Location.objects.get(name=location_name)
+        location = Location.objects.get(name__iexact=location_name)
     except Location.DoesNotExist:
         created = True
         facility_type = LocationType.objects.get(slug=config.LocationCodes.FACILITY)
+        _print_similar_locations(location_name, facility_type, parent)
         location_code = _generate_facility_code(location_name)
         location = Location.objects.create(name=location_name, 
                                            code=location_code, 
@@ -336,6 +361,7 @@ def _generate_facility_code(facility_name):
 
 def _generate_district_code(district_name):
     from logistics.models import Location
+    #print "DISTRICT %s" % district_name
     code = district_name.split()[0].lower()
     code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
     postfix = ''
