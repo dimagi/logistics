@@ -86,7 +86,7 @@ class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm):
                                                  'that user to input stock for that facility from the website.'), 
                                                  required=False)
     is_facility_manager = forms.BooleanField(label='CAN ADD/REMOVE USERS AND FACILITIES', 
-                                          help_text='e.g. A DHIO. This includes managing commodities per facility.', 
+                                          help_text='e.g. DHIO, RHIO. This includes managing commodities per facility.', 
                                           initial=False, required=False)
 
     def __init__(self, *args, **kwargs):
