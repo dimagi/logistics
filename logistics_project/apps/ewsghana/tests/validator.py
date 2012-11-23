@@ -25,10 +25,8 @@ class TestValidator (TestScript):
                           validator.validate, 
                           self.facility, product_stock={'ov':18})
         # increase in soh w/o receipt too small
-        self.assertRaises(ValueError, 
-                          validator.validate, 
-                          self.facility, product_stock={'ov':18}, 
-                           product_received={'ov':1})
+        validator.validate(self.facility, product_stock={'ov':18}, 
+                          product_received={'ov':1})
         # increase in soh w matching receipt
         validator.validate(self.facility, product_stock={'ov':18}, 
                            product_received={'ov':2})
@@ -49,11 +47,15 @@ class TestValidator (TestScript):
            16176023315 > soh ov 16
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            16176023315 > soh ov 18
-           16176023315 < You reported an increase in ov without an associated receipt. Pls report receipt in the format "[code] [stock on hand] [amount received]"
-           16176023315 > soh ov 18 2
+           16176023315 < ERROR: Report rejected. You submitted increases in stock without corresponding receipts. Did you mean: ov18.2?
+           16176023315 > soh ov 18 2 ml 2
            16176023315 < Dear stella, thank you for reporting the commodities you have. You received ov 2.
            16176023315 > soh ov 20 ml 2
-           16176023315 < You reported an increase in ov without an associated receipt. Pls report receipt in the format "[code] [stock on hand] [amount received]"
+           16176023315 < ERROR: Report rejected. You submitted increases in stock without corresponding receipts. Did you mean: ov20.2?
+           16176023315 > soh ov 50 ml 2
+           16176023315 < ERROR: Report rejected. You submitted increases in stock without corresponding receipts. Did you mean: ov50.32?
+           16176023315 > soh ov20 ml30
+           16176023315 < ERROR: Report rejected. You submitted increases in stock without corresponding receipts. Did you mean: ov20.2 ml30.28?
            """
         self.runScript(a)
 
