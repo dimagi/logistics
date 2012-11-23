@@ -16,7 +16,7 @@ from django.contrib.auth.models import Group
 from rapidsms.contrib.locations.models import Location, Point
 from rapidsms.conf import settings
 from rapidsms.models import Contact
-from logistics.models import Product, SupplyPoint, ProductStock
+from logistics.models import Product, SupplyPoint, ProductStock, ProductType
 from logistics_project.apps.ewsghana import loader
 from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
@@ -36,20 +36,24 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
     phone = forms.CharField(required=False)
+    program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
+                                     required=False)
     
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs and kwargs['user'] is not None:
             # display the provided user's information on page load
-            user = kwargs['user']
+            self.edit_user = kwargs['user']
             profile = self.edit_user.get_profile()
             if profile.organization is not None:
                 self._add_to_kwargs_initial(kwargs, 'organization', profile.organization)
+            if profile.program is not None:
+                self._add_to_kwargs_initial(kwargs, 'program', profile.program)
             if profile.contact and profile.contact.default_connection is not None:
                 self._add_to_kwargs_initial(kwargs, 'phone', profile.contact.default_connection.identity)
-            if user.first_name is not None:
-                self._add_to_kwargs_initial(kwargs, 'first_name', user.first_name)
-            if user.last_name is not None:
-                self._add_to_kwargs_initial(kwargs, 'last_name', user.last_name)
+            if self.edit_user.first_name is not None:
+                self._add_to_kwargs_initial(kwargs, 'first_name', self.edit_user.first_name)
+            if self.edit_user.last_name is not None:
+                self._add_to_kwargs_initial(kwargs, 'last_name', self.edit_user.last_name)
         return super(EWSGhanaBasicWebRegistrationForm, self).__init__(*args, **kwargs)
     
     def clean_phone(self):
@@ -65,6 +69,8 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
         profile = user.get_profile()
         if 'organization' in self.cleaned_data:
             profile.organization = self.cleaned_data['organization']
+        if 'program' in self.cleaned_data:
+            profile.program = self.cleaned_data['program']
         if 'first_name' in self.cleaned_data:
             user.first_name = self.cleaned_data['first_name']
         if 'last_name' in self.cleaned_data:
@@ -217,6 +223,8 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
     last_name = forms.CharField(required=False)
     organization = forms.CharField(required=False)
     phone = forms.CharField(required=False)
+    program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
+                                     required=False)
 
     def clean_phone(self):
         self.cleaned_data['phone'] = intl_clean_phone_number(self.cleaned_data['phone'])
@@ -227,8 +235,9 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
         new_user = super(EWSGhanaSelfRegistrationForm, self).save(*args, **kwargs)
         profile = new_user.get_profile()
         if 'designation' in self.cleaned_data and self.cleaned_data['designation']:
-            profile = new_user.get_profile()
             profile.designation = self.cleaned_data['designation']
+        if 'program' in self.cleaned_data and self.cleaned_data['program']:
+            profile.program = self.cleaned_data['program']
         if 'organization' in self.cleaned_data:
             profile.organization = self.cleaned_data['organization']
         if 'first_name' in self.cleaned_data:
