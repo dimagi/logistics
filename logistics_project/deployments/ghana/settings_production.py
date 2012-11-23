@@ -172,6 +172,7 @@ SOUTH_MIGRATION_MODULES = {
     'logistics': 'deployments.ghana.migrations.logistics',
     'ewsghana': 'deployments.ghana.migrations.ewsghana',
     'email_reports': 'deployments.ghana.migrations.email_reports',
+    'locations': 'deployments.ghana.migrations.locations',
 }
 
 AUTO_LOGOUT_DELAY = 300
