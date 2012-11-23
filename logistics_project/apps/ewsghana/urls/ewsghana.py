@@ -8,7 +8,6 @@ from registration.views import register
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.registration.views import registration as logistics_registration
 from logistics_project.apps.ewsghana.views import my_web_registration, sms_registration
-from logistics_project.apps.web_registration.views import my_web_registration
 from logistics import views as logistics_views
 from logistics_project.apps.ewsghana.views import register_web_user, configure_incharge, help
 from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
