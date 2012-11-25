@@ -20,3 +20,8 @@ class LogisticsProfile(models.Model):
         self.save()
         return self.contact
 
+    def deactivate(self):
+        self.contact.deactivate()
+        self.is_active = False
+        self.save()
+

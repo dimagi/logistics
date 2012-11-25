@@ -60,11 +60,13 @@ def AddFacilities(filename):
         district, district_created = _get_or_create_district(district_name, region)
         if district_created:
             districts = districts + 1
-        facility_location, location_created = _get_or_create_location(facility_name, district)
+        facility_location, location_created = _get_or_create_location(facility_name, 
+                                                                      district, 
+                                                                      print_friendly=True)
         if location_created:
             facility_locations_count = facility_locations_count + 1
             #print ("  %s location created" % facility_name.lower())
-        facility_code = _generate_facility_code(facility_name)
+        facility_code = _generate_code(facility_name)
         facility_type_name = row[4].strip()
         try:
             facility_type = SupplyPointType.objects.get(name__iexact=facility_type_name)
@@ -160,7 +162,7 @@ def LoadFacilities(filename):
             continue
         except SupplyPoint.DoesNotExist:
             pass
-        code = _generate_facility_code(name)
+        code = _generate_code(name)
         type = row[4]
         try:
             facilitytype = SupplyPointType.objects.get(name__icontains=type)
@@ -268,7 +270,7 @@ def _get_or_create_region_rms(region_name, region):
         rms = SupplyPoint.objects.get(type=rms_type, name__icontains=region_name)
     except SupplyPoint.DoesNotExist:
         rms_name = region_name.strip() + " Regional Medical Store"
-        rms = SupplyPoint.objects.create(code=_generate_facility_code(rms_name), 
+        rms = SupplyPoint.objects.create(code=_generate_code(rms_name), 
                                          name=rms_name, 
                                          type=rms_type, 
                                          location=region)
@@ -326,35 +328,38 @@ def _get_or_create_district(district_name, parent):
         print "DISTRICT: Created new district %s" % district_name
     return district, created
 
-def _get_or_create_location(location_name, parent):
+def _get_or_create_location(location_name, parent, print_friendly=False):
     from logistics.models import Location
     from rapidsms.contrib.locations.models import LocationType
     created = False
     try:
-        location = Location.objects.get(name__iexact=location_name)
+        location = Location.objects.get(name__iexact=location_name.strip())
     except Location.DoesNotExist:
         created = True
         facility_type = LocationType.objects.get(slug=config.LocationCodes.FACILITY)
-        _print_similar_locations(location_name, facility_type, parent)
-        location_code = _generate_facility_code(location_name)
+        if print_friendly:
+            _print_similar_locations(location_name, facility_type, parent)
+        location_code = _generate_code(location_name, Location)
         location = Location.objects.create(name=location_name, 
                                            code=location_code, 
                                            parent=parent, 
                                            type =facility_type)
     return location, created
 
-def _generate_facility_code(facility_name):
-    from logistics.models import SupplyPoint
+def _generate_code(facility_name, klass=None):
+    if klass is None:
+        from logistics.models import SupplyPoint
+        klass = SupplyPoint
     code = "".join([word[0] for word in facility_name.split()])
     code = code.lower().replace('(','').replace(')','').replace('.','').replace('&','').replace(',','')
     postfix = ''
     try:
         count = 0
         while True:
-            SupplyPoint.objects.get(code=(code + postfix))
+            klass.objects.get(code=(code + postfix))
             count = count + 1
             postfix = str(count)
-    except SupplyPoint.DoesNotExist:
+    except klass.DoesNotExist:
         pass
     code = code + postfix
     return code
