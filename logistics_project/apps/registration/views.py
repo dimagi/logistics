@@ -42,8 +42,9 @@ def registration(req, pk=None, template="registration/dashboard.html",
             connection = None
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
+            # deactivate instead of delete to preserve logs
             name = unicode(contact)
-            contact.delete()
+            contact.deactivate()
             return HttpResponseRedirect("%s?deleted=%s" % (reverse(registration_view), name))
         elif "bulk" in req.FILES:
             # TODO use csv module

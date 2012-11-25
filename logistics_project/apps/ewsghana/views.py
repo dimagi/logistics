@@ -192,7 +192,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         incharges = list(chain(facility.reportees(), facility.supervised_by.reportees() if facility.supervised_by else []))
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
-            facility.delete()
+            facility.deactivate()
             return HttpResponseRedirect(
                 "%s?deleted=%s" % (reverse('facility_view'), 
                                    unicode(facility)))
