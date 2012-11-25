@@ -21,7 +21,8 @@ from rapidsms.conf import settings
 def first_soh_reminder (router):
     """ thusday reminders """
     logging.info("running first soh reminder")
-    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY, 
+                                       is_active=True).distinct()
     reporters = reporters.filter(needs_reminders=True)
     for reporter in reporters:
         response = config.Messages.STOCK_ON_HAND_REMINDER % {'name':reporter.name}
@@ -30,7 +31,8 @@ def first_soh_reminder (router):
 def second_soh_reminder (router):
     """monday follow-up"""
     logging.info("running second soh reminder")
-    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY, 
+                                       is_active=True).distinct()
     for reporter in reporters:
         if reporter.supply_point:
             on_time_products, missing_products = reporter.supply_point.report_status(days_until_late=5)
@@ -44,14 +46,15 @@ def second_soh_reminder (router):
 
 def third_soh_to_super (router):
     """ wednesday, message the in-charge """
-    facilities = SupplyPoint.objects.all()
+    facilities = SupplyPoint.active_objects.all()
     for facility in facilities:
         if facility.contact_set.count() == 0:
             continue
         on_time_products, missing_products = facility.report_status()
         def _notify_super(facility_to_notify, about, message, products=[]):
             if facility_to_notify is not None:
-                supers = Contact.objects.filter(supply_point=facility_to_notify)
+                supers = Contact.objects.filter(supply_point=facility_to_notify, 
+                                                is_active=True)
                 supers = supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
                 for super in supers:
                     response = message % {'name':super.name, 'facility':about.name, 
@@ -70,7 +73,8 @@ def third_soh_to_super (router):
 def reminder_to_submit_RRIRV(router):
     """ the 30th of each month, verify that they've submitted RRIRV """
     logging.info("running RRIRV reminder")
-    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY).distinct()
+    reporters = Contact.objects.filter(role__responsibilities__code=config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY, 
+                                       is_active=True).distinct()
     for reporter in reporters:
         response = config.Messages.RRIRV_REMINDER % {'name':reporter.name}
         send_message_safe(reporter, response)

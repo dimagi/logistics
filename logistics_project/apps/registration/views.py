@@ -102,7 +102,7 @@ def registration(req, pk=None, template="registration/dashboard.html",
         bulk_form = BulkRegistrationForm()
     created = None
     deleted = None
-    contacts = Contact.objects.all()
+    contacts = Contact.objects.filter(is_active=True)
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']

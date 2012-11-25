@@ -70,7 +70,7 @@ class ContactWithoutPhoneAlert(Alert):
 @return_if_place_not_set()
 def contact_without_phone(request):
     facilities = request.location.all_child_facilities()
-    contacts = Contact.objects.filter(supply_point__in=facilities).distinct()
+    contacts = Contact.objects.filter(is_active=True, supply_point__in=facilities).distinct()
     if not contacts:
         return None
     return [ContactWithoutPhoneAlert(contact) for contact in contacts \
