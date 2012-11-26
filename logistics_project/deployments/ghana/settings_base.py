@@ -157,6 +157,12 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
+LOGISTICS_NOTIF_GENERATORS = (
+    'logistics_project.apps.ewsghana.notifications.missing_report_notifications',
+    'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
+    'logistics_project.apps.ewsghana.notifications.stockout_notifications',
+)
+
 DEFAULT_BACKEND='message_tester'
 DEBUG=True
 
