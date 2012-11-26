@@ -208,9 +208,12 @@ class StockoutNotification(DistrictUserNotification):
         Return the set of facilities have stockouts for the period.
         """
         facilities = profile.location.all_facilities()
+        type_q = Q()
+        if profile.program:
+            type_q = Q(product__type=profile.program)
         results = []
         # Requires product is stocked out for the entire period
-        stockouts = ProductReport.objects.filter(
+        stockouts = ProductReport.objects.filter(type_q,
             report_type__code=Reports.SOH, supply_point__in=facilities,
             report_date__gte=self.startdate, report_date__lte=self.enddate,
         ).values(

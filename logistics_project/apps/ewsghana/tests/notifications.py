@@ -471,6 +471,29 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
         self.assertEqual(count, 2)
         self.assertEqual(set([self.user, other_user, ]), notified_users)
 
+    def test_product_type_filter(self):
+        "User can recieve notifications for only certain product type."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        # This user only cares about another product type
+        # should not get a notification
+        other_profile.program = self.create_product_type()
+        other_profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)
+
 
 class SMSNotificationTestCase(NotificationTestCase):
     "Saved notifications should trigger SMS to users with associated contacts."
