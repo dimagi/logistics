@@ -21,7 +21,8 @@ class LogisticsProfile(models.Model):
         return self.contact
 
     def deactivate(self):
-        self.contact.deactivate()
+        if self.contact:
+            self.contact.deactivate()
         self.is_active = False
         self.save()
 
