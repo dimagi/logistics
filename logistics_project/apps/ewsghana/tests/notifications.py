@@ -223,6 +223,54 @@ class MissingReportNotificationTestCase(NotificationTestCase):
         self.assertEqual(count, 2)
         self.assertEqual(set([self.user, other_user, ]), notified_users)
 
+    def test_product_type_filter(self):
+        "User can recieve missing notifications for only certain product type."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        # This user only cares about another product type
+        # should not get a notification
+        other_profile.program = self.create_product_type()
+        other_profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        other_product = self.create_product_stock(supply_point=self.facility)
+        self.facility.last_reported = datetime.datetime.now() - datetime.timedelta(days=365)
+        self.facility.save()
+        notified_users = set()
+        count = 0
+        for notification in notifications.missing_report_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)
+
+    def test_incomplete_with_filter(self):
+        """
+        User with product type filter will get notification all products of that
+        type are missing reports.
+        """
+        self.profile.program = self.create_product_type()
+        self.profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        product.product.type = self.profile.program
+        product.product.save()
+        stock_on_hand = self.create_product_report_type(code=Reports.SOH)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=stock_on_hand, report_date=datetime.datetime.now() - datetime.timedelta(days=365)
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        other_product.product.type = self.profile.program
+        other_product.product.save()
+        notified_users = set()
+        count = 0
+        for notification in notifications.missing_report_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)
+
 
 class IncompleteReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with incomplete reports."

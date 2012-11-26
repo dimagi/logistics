@@ -121,9 +121,33 @@ class MissingReportsNotification(DistrictUserNotification):
 
     def get_facilities(self, profile):
         "Return the set of facilities which have not reported since the start period."
-        return profile.location.all_facilities().filter(
-            Q(last_reported__isnull=True) | Q(last_reported__lt=self.startdate)
-        )
+        if profile.program:
+            facilities = profile.location.all_facilities()
+            missing = []
+            facility_products = {}
+            reports = ProductReport.objects.filter(product__type=profile.program,
+                report_type__code=Reports.SOH, supply_point__in=facilities,
+                report_date__lte=self.enddate,
+            ).values(
+                'supply_point', 'product',
+            ).annotate(last_reported=Max('report_date'))
+
+            for report in reports:
+                facility_products['%(supply_point)s-%(product)s' % report] = report['last_reported']
+
+            for facility in facilities:
+                def _report_missing(product):
+                    key = '%s-%s' % (facility.pk, product.pk)
+                    last_report = facility_products.get(key, None)
+                    return last_report is None or last_report < self.startdate
+                products = facility.commodities_stocked().filter(type=profile.program)
+                if products and all(map(_report_missing, products)):
+                    missing.append(facility)
+            return missing
+        else:
+            return profile.location.all_facilities().filter(
+                Q(last_reported__isnull=True) | Q(last_reported__lt=self.startdate)
+            )
 
     def _generate_uid(self, profile):
         """
