@@ -339,6 +339,52 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
         self.assertEqual(count, 2)
         self.assertEqual(set([self.user, other_user, ]), notified_users)
 
+    def test_product_type_filter(self):
+        "User can recieve notifications for only certain product type."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.district
+        # This user only cares about another product type
+        # should not get a notification
+        other_profile.program = self.create_product_type()
+        other_profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        notified_users = set()
+        count = 0
+        for notification in notifications.incomplete_report_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)
+
+    def test_incomplete_with_filter(self):
+        """
+        User with product type filter will get notification if only some of
+        products of that type are reported.
+        """
+        self.profile.program = self.create_product_type()
+        self.profile.save()
+        product = self.create_product_stock(supply_point=self.facility)
+        product.product.type = self.profile.program
+        product.product.save()
+        product_report = self.create_product_report(
+            supply_point=self.facility, product=product.product,
+            report_type=self.stock_on_hand
+        )
+        other_product = self.create_product_stock(supply_point=self.facility)
+        other_product.product.type = self.profile.program
+        other_product.product.save()
+        generated = notifications.incomplete_report_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.IncompelteReporting))
+        self.assertEqual(notification.owner, self.user)
+
 
 class StockoutReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with stockouts."

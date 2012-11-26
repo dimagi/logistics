@@ -160,8 +160,11 @@ class IncompleteReportsNotification(DistrictUserNotification):
         """
         facilities = profile.location.all_facilities()
         incomplete = []
+        type_q = Q()
+        if profile.program:
+            type_q = Q(product__type=profile.program)
         facility_products = {}
-        reports = ProductReport.objects.filter(
+        reports = ProductReport.objects.filter(type_q,
             report_type__code=Reports.SOH, supply_point__in=facilities,
             report_date__gte=self.startdate, report_date__lte=self.enddate,
         )
@@ -170,7 +173,10 @@ class IncompleteReportsNotification(DistrictUserNotification):
             products.add(report.product)
             facility_products[report.supply_point] = products
         for supply_point, reported in facility_products.items():
-            expected = set(list(supply_point.commodities_stocked()))
+            expected = supply_point.commodities_stocked()
+            if profile.program:
+                expected = expected.filter(type=profile.program)
+            expected = set(list(expected))
             if expected - reported:
                 incomplete.append(supply_point)
         return incomplete
