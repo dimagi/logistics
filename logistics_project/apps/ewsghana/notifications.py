@@ -280,7 +280,7 @@ def sms_notifications(sender, instance, created, **kwargs):
     if created:
         notification = instance.notif
         profile = instance.user.get_profile()
-        if profile.contact:
+        if profile.sms_notifications and profile.contact:
             connection = profile.contact.default_connection
             if connection:
                 send_message(connection, notification.text)

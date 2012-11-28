@@ -631,3 +631,12 @@ class SMSNotificationTestCase(NotificationTestCase):
             # Sets initial escalation level and reveals to users
             self.notification.initialize()
             self.assertFalse(send.called)
+
+    def test_opt_out(self):
+        "No message will be sent if the user has opted out of the notifications."
+        self.profile.sms_notifications = False
+        self.profile.save()
+        with patch('logistics_project.apps.ewsghana.notifications.send_message') as send:
+            # Sets initial escalation level and reveals to users
+            self.notification.initialize()
+            self.assertFalse(send.called)
