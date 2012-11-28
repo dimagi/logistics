@@ -12,6 +12,13 @@
 	{% endif %}
 {% endif %}
 </h2>
+{% if created %}
+     <br/><div class="success">{{created}} has been successfully registered.</div>
+{% endif %}
+{% if deleted %}
+     <br/><div class="success">{{deleted}} has been successfully deleted.</div>
+{% endif %}
+
 <div class="span-12" style="margin-left:auto; margin-right:auto; float:none">
 <form class="sfb clear" name="form" method="post" action="">
 {% csrf_token %}

@@ -54,21 +54,27 @@ class SupplyPointCodes(object):
     These correspond to SupplyPointType.code
     """
     REGIONAL_MEDICAL_STORE = "RMS"
+    CENTRAL_MEDICAL_STORE = "cms"
     DISTRICT_HOSPITAL = "dh"
     REGIONAL_HOSPITAL = "rh"
     PSYCHIATRIC_HOSPITAL = "ph"
+    TEACHING_HOSPITAL = "th"
     HOSPITAL = "hospital"
     HEALTH_CENTER = "hc"
     CHPS = "chps"
+    POLYCLINIC = "pc"
     CLINIC = "c"
     ALL = {
         REGIONAL_MEDICAL_STORE: "regional medical store",
+        CENTRAL_MEDICAL_STORE: "central medical store",
         REGIONAL_HOSPITAL: "regional hospital",
         DISTRICT_HOSPITAL: "dh", 
         PSYCHIATRIC_HOSPITAL: "ph", 
+        TEACHING_HOSPITAL: "th", 
         HOSPITAL: "hospital",
         HEALTH_CENTER: "health center",
         CHPS: "chps",
+        POLYCLINIC: "pc",
         CLINIC: "clinic",
     }
     
@@ -83,15 +89,23 @@ class SupplyPointPolicies(object):
             "REORDER_LEVEL": 1.5,
             "MAXIMUM_LEVEL":  6,
     }
+    POLICY_3 = {
+            "EMERGENCY_LEVEL": 0.5,
+            "REORDER_LEVEL": 1.5,
+            "MAXIMUM_LEVEL":  12,
+    }
     STOCK_POLICIES = {
           SupplyPointCodes.REGIONAL_HOSPITAL: POLICY_1, 
           SupplyPointCodes.HOSPITAL: POLICY_1, 
           SupplyPointCodes.HEALTH_CENTER: POLICY_1, 
           SupplyPointCodes.CHPS: POLICY_1, 
+          SupplyPointCodes.POLYCLINIC: POLICY_1, 
           SupplyPointCodes.CLINIC: POLICY_1, 
           SupplyPointCodes.DISTRICT_HOSPITAL: POLICY_1, 
           SupplyPointCodes.PSYCHIATRIC_HOSPITAL: POLICY_1, 
-          SupplyPointCodes.REGIONAL_MEDICAL_STORE: POLICY_2
+          SupplyPointCodes.TEACHING_HOSPITAL: POLICY_1, 
+          SupplyPointCodes.REGIONAL_MEDICAL_STORE: POLICY_2, 
+          SupplyPointCodes.CENTRAL_MEDICAL_STORE: POLICY_3
     }
 
 class LocationCodes(object):
@@ -147,6 +161,9 @@ class Messages(object):
                     "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
                                  "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
+    NO_RECEIPT_ERROR = 'ERROR: Report rejected. You submitted increases in stock ' + \
+                       'without corresponding receipts. ' + \
+                       'Did you mean: %(didumean)s?'
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     REGISTER_MESSAGE = "You must be registered on EWS " + \

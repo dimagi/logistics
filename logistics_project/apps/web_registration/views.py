@@ -41,9 +41,13 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context={},
     form = Form(user=user) # An unbound form
     if request.method == 'POST': 
         if request.POST["submit"] == "Delete Contact":
+            name = unicode(user)
+            user.get_profile().deactivate()
+            # here, we choose to completely delete the user
+            # and in so doing free up the username for new users to use
             user.delete()
             return HttpResponseRedirect(
-                reverse(success_url))
+                "%s?deleted=%s" % (reverse(success_url), name))
         form = Form(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
@@ -60,17 +64,22 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context={},
                                           vals, 
                                           context_instance = RequestContext(request))
             else:
-                return HttpResponseRedirect( reverse(success_url))
+                return HttpResponseRedirect("%s?created=%s" % \
+                                            (reverse(success_url), unicode(new_user)))
+                #return HttpResponseRedirect( reverse(success_url))
     context['users'] = User.objects.all().order_by('username')
-    if request.method == 'GET' and 'search' in request.GET: 
-        search = context['search'] = request.GET['search']
-        safe_search = re.escape(search)
-        context['users'] = context['users'].filter(Q(username__iregex=safe_search) |\
-                                   Q(email__iregex=safe_search) |\
-                                   Q(first_name__iregex=safe_search) |\
-                                   Q(last_name__iregex=safe_search) |\
-                                   Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
-                                   Q(logisticsprofile__location__name__iregex=safe_search))
+    if request.method == 'GET': 
+        context['deleted'] = request.GET['deleted'] if "deleted" in request.GET else None
+        context['created'] = request.GET['created'] if "created" in request.GET else None
+        if 'search' in request.GET:
+            search = context['search'] = request.GET['search']
+            safe_search = re.escape(search)
+            context['users'] = context['users'].filter(Q(username__iregex=safe_search) |\
+                                       Q(email__iregex=safe_search) |\
+                                       Q(first_name__iregex=safe_search) |\
+                                       Q(last_name__iregex=safe_search) |\
+                                       Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
+                                       Q(logisticsprofile__location__name__iregex=safe_search))
     context['form'] = form
     return render_to_response(template, context, 
                               context_instance = RequestContext(request)) 

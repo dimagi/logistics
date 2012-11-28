@@ -6,21 +6,24 @@ from logistics.models import ProductReportsHelper, ProductStock
 from logistics.const import Reports
 from logistics.models import Validator
 from logistics.template_app import App as LogisticsApp
+from logistics.util import config
 
 class SohAndReceiptValidator(Validator):
     def validate(self, supply_point, product_stock={}, product_received={}, consumption={}):
-        for stock in product_stock:
+        errors = {}
+        for product in product_stock:
             try:
                 ps = ProductStock.objects.get(supply_point=supply_point, 
-                                              product__sms_code=stock)
+                                              product__sms_code=product)
             except ProductStock.DoesNotExist:
                 return
-            if ps.quantity is not None and ps.quantity < product_stock[stock]:
-                stock_increase = product_stock[stock] - ps.quantity
-                if stock not in product_received or stock_increase > product_received[stock]:
-                    raise ValueError('You reported an increase in %s ' % stock + 
-                                     'without an associated receipt. Pls report receipt ' + 
-                                     'in the format "[code] [stock on hand] [amount received]"')
+            if ps.quantity is not None and ps.quantity < product_stock[product]:
+                stock_increase = product_stock[product] - ps.quantity
+                if product not in product_received or product_received[product] == 0:
+                    errors[product] = [product_stock[product], stock_increase]
+        if errors:
+            didumean = " ".join("%s%s.%s"%(product, errors[product][0],errors[product][1]) for product in errors)
+            raise ValueError(config.Messages.NO_RECEIPT_ERROR % {'didumean': didumean})
 
 class App(LogisticsApp):
     def handle (self, message):
