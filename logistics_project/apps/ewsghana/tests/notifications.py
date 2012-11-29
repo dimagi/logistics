@@ -752,7 +752,7 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
             supply_point=self.other_facility, product=self.product, quantity=0
         )
         self.create_product_stock(
-            supply_point=self.last_facility, product=self.product, quantity=10
+            supply_point=self.last_facility, product=self.product, quantity=0
         )
         notified_users = set()
         count = 0
@@ -779,7 +779,7 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
             supply_point=self.other_facility, product=self.product, quantity=0
         )
         self.create_product_stock(
-            supply_point=self.last_facility, product=self.product, quantity=10
+            supply_point=self.last_facility, product=self.product, quantity=0
         )
         notified_users = set()
         count = 0
@@ -788,3 +788,33 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
             count += 1
         self.assertEqual(count, 2)
         self.assertEqual(set([self.user, other_user, ]), notified_users)
+
+    def test_product_type_filter(self):
+        """
+        Notifications will not be sent if the stockout is a product type does
+        not interest the user.
+        """
+        self.profile.program = self.product.type
+        self.profile.save()
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.region
+        other_profile.program = self.create_product_type()
+        other_profile.save()
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)

@@ -289,7 +289,10 @@ def urgent_stockout_notifications():
         # For all products, check if there are stockouts for 50% or more of
         # of the facilities
         for facility in facilities:
-            for stock in facility.productstock_set.filter(is_active=True):
+            product_stock = facility.productstock_set.filter(is_active=True)
+            if profile.program:
+                product_stock = product_stock.filter(product__type=profile.program)
+            for stock in product_stock:
                 product_info[stock.product]['expected'] += 1
                 if stock.quantity == 0:
                     product_info[stock.product]['missing'] += 1
