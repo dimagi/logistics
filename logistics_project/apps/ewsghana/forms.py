@@ -38,6 +38,7 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
     phone = forms.CharField(required=False)
     program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
                                      required=False)
+    sms_notifications = forms.BooleanField(required=False, initial=True)
     
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs and kwargs['user'] is not None:
@@ -54,6 +55,7 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
                 self._add_to_kwargs_initial(kwargs, 'first_name', self.edit_user.first_name)
             if self.edit_user.last_name is not None:
                 self._add_to_kwargs_initial(kwargs, 'last_name', self.edit_user.last_name)
+            self._add_to_kwargs_initial(kwargs, 'sms_notifications', profile.sms_notifications)
         return super(EWSGhanaBasicWebRegistrationForm, self).__init__(*args, **kwargs)
     
     def clean_phone(self):
@@ -82,6 +84,7 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
             contact = profile.contact
             if contact and contact.default_connection:
                 contact.default_connection.delete()
+        profile.sms_notifications = self.cleaned_data.get('sms_notifications', True)
         profile.save()
         user.save()
         return user
@@ -225,6 +228,7 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
     phone = forms.CharField(required=False)
     program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
                                      required=False)
+    sms_notifications = forms.BooleanField(required=False, initial=True)
 
     def clean_phone(self):
         self.cleaned_data['phone'] = intl_clean_phone_number(self.cleaned_data['phone'])
@@ -251,6 +255,7 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
             contact = profile.contact
             if contact and contact.default_connection:
                 contact.default_connection.delete()
+        profile.sms_notifications = self.cleaned_data.get('sms_notifications', True)
         profile.save()
         new_user.save()
         return new_user
