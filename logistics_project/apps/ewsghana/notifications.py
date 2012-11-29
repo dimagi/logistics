@@ -299,7 +299,7 @@ def urgent_stockout_notifications():
                 'location': profile.location.name,
                 'names': u', '.join([p.name for p in critcal]),
             }
-            msg = _(u'URGENT STOCKOUT: >50% of the facilities in %(location)s are experiencing stockouts of: %(names)s')
+            msg = _(u'URGENT STOCKOUT: >50%% of the facilities in %(location)s are experiencing stockouts of: %(names)s')
             text = msg % params
             alert_type = UrgentStockout.__module__ + '.' + UrgentStockout.__name__
             uid = u'urguent-stockout-{pk}-{year}-{month}'.format(pk=profile.pk, year=today.year, month=today.month)

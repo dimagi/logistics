@@ -640,3 +640,70 @@ class SMSNotificationTestCase(NotificationTestCase):
             # Sets initial escalation level and reveals to users
             self.notification.initialize()
             self.assertFalse(send.called)
+
+
+class UrgentStockoutNotificationTestCase(NotificationTestCase):
+    "Trigger notifications for regions with urgent stockouts."
+
+    def setUp(self):
+        self.region = self.create_location(code=config.LocationCodes.REGION)
+        self.district = self.create_location(code=config.LocationCodes.DISTRICT, parent=self.region)
+        self.facility = self.create_supply_point(location=self.district)
+        self.other_facility = self.create_supply_point(location=self.district)
+        self.last_facility = self.create_supply_point(location=self.district)
+        self.product = self.create_product()
+        self.user = self.create_user()
+        # Created by post-save handler
+        self.profile = self.user.get_profile()
+        self.profile.location = self.region
+        self.profile.save()
+
+    def test_all_facility_stockout(self):
+        "Send a notification because all facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_majority_facility_stockout(self):
+        "Send a notification because > 50% of the facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=10
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_minority_facility_stockout(self):
+        "No notification because < 50% of the facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=10
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=10
+        )
+        generated = notifications.urgent_stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
