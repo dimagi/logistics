@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import collections
 import datetime
 
 from django.conf import settings
@@ -284,16 +285,15 @@ def urgent_stockout_notifications():
     today = now()
     for profile in profiles:
         facilities = profile.location.all_facilities()
-        stocked_out_products = {}
+        product_info = collections.defaultdict(lambda: {'expected': 0, 'missing': 0})
         # For all products, check if there are stockouts for 50% or more of
         # of the facilities
         for facility in facilities:
-            for product in facility.products_stocked_out:
-                current = stocked_out_products.get(product, [])
-                current.append(facility)
-                stocked_out_products[product] = current
-        cutoff = facilities.count() / 2.0
-        critcal = filter(lambda p: len(stocked_out_products[p]) > cutoff, stocked_out_products)
+            for stock in facility.productstock_set.filter(is_active=True):
+                product_info[stock.product]['expected'] += 1
+                if stock.quantity == 0:
+                    product_info[stock.product]['missing'] += 1
+        critcal = filter(lambda p: product_info[p]['missing'] > product_info[p]['expected'] / 2.0, product_info)
         if critcal:
             params = {
                 'location': profile.location.name,

@@ -707,3 +707,34 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
         )
         generated = notifications.urgent_stockout_notifications()
         self.assertRaises(StopIteration, generated.next)
+
+    def test_inactive_product(self):
+        "No notifications for inactive product stocks."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0, is_active=False
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0, is_active=False
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0, is_active=False
+        )
+        generated = notifications.urgent_stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_partial_stock_coverage(self):
+        """
+        Handle the case when not all facilities are expected to have stocked a
+        given product. i.e. if only one facility is expected to have a certain
+        product and it is stocked out then that is an urgent stockout.
+        """
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
