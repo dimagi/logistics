@@ -11,6 +11,7 @@ from logistics_project.apps.ewsghana.views import my_web_registration, sms_regis
 from logistics import views as logistics_views
 from logistics_project.apps.ewsghana.views import register_web_user, configure_incharge, help
 from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
+from logistics_project.apps.ewsghana.views import EWSGhanaMessageLogView
 
 urlpatterns = patterns('',
     url(r'^messagelog/export/?$', 'logistics_project.apps.ewsghana.views.export_messagelog', 
@@ -20,7 +21,7 @@ urlpatterns = patterns('',
         name="auditor_export"),
     url(r'^auditor/?$', 'logistics_project.apps.ewsghana.views.auditor', 
         name="ewsghana_auditor"),
-    url(r'^messagelog/?$', 'logistics_project.apps.ewsghana.views.message_log', 
+    url(r'^messagelog/?$', EWSGhanaMessageLogView.as_view(), 
         name="ewsghana_message_log"),
     url(r'^reporting/?$', 'logistics_project.apps.ewsghana.views.reporting', 
         name="ewsghana_reporting"),

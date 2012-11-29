@@ -9,7 +9,6 @@ from django.db import transaction
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from logistics.views import message_log as rapidsms_message_log
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
@@ -23,7 +22,7 @@ from email_reports.views import email_reports as logistics_email_reports
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context, location_context
-from logistics.views import message_log as logistics_messagelog
+from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
@@ -44,9 +43,10 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
     return logistics_reporting(request=request, location_code=location_code, 
                                context=context, template=template, 
                                destination_url="ewsghana_reporting")
-    
-def message_log(request, template="ewsghana/messagelog.html"):
-    return logistics_messagelog(request, template=template)
+
+class EWSGhanaMessageLogView(LogisticsMessageLogView):
+    def get(self, request, template="ewsghana/messagelog.html"):
+        return super(EWSGhanaMessageLogView, self).get(request, template=template)
 
 @cache_page(60 * 15)
 def export_messagelog(request, format='xls'):
