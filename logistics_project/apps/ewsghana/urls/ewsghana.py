@@ -38,6 +38,8 @@ urlpatterns = patterns('',
     # configure in charge for a given facility
     url(r'^configure/(?P<sp_code>[\w-]+)/incharge/?$', configure_incharge, 
         name="ews_configure_incharge"),
+    url(r'^scheduled_reports/(?P<pk>\d+)/?$', 'logistics_project.apps.ewsghana.views.email_reports', 
+        name="ewsghana_scheduled_reports"),
     url(r'^scheduled_reports/?$', 'logistics_project.apps.ewsghana.views.email_reports', 
         name="ewsghana_scheduled_reports"),
     

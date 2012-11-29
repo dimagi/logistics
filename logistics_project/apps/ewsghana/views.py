@@ -158,8 +158,8 @@ def register_web_user(request, pk=None,
 def web_registration(request, template_name="registration/registration_form.html"):
     return django_register(request)
 
-def email_reports(request, context={}, template="ewsghana/email_reports.html"):
-    return logistics_email_reports(request, context, template)
+def email_reports(request, pk=None, context={}, template="ewsghana/email_reports.html"):
+    return logistics_email_reports(request, pk, context, template)
 
 @location_context
 def facilities_list(request, location_code=None, context={}, template="ewsghana/facilities_list.html"):
