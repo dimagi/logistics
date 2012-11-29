@@ -640,3 +640,181 @@ class SMSNotificationTestCase(NotificationTestCase):
             # Sets initial escalation level and reveals to users
             self.notification.initialize()
             self.assertFalse(send.called)
+
+
+class UrgentStockoutNotificationTestCase(NotificationTestCase):
+    "Trigger notifications for regions with urgent stockouts."
+
+    def setUp(self):
+        self.region = self.create_location(code=config.LocationCodes.REGION)
+        self.district = self.create_location(code=config.LocationCodes.DISTRICT, parent=self.region)
+        self.facility = self.create_supply_point(location=self.district)
+        self.other_facility = self.create_supply_point(location=self.district)
+        self.last_facility = self.create_supply_point(location=self.district)
+        self.product = self.create_product()
+        self.user = self.create_user()
+        # Created by post-save handler
+        self.profile = self.user.get_profile()
+        self.profile.location = self.region
+        self.profile.save()
+
+    def test_all_facility_stockout(self):
+        "Send a notification because all facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_majority_facility_stockout(self):
+        "Send a notification because > 50% of the facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=10
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_minority_facility_stockout(self):
+        "No notification because < 50% of the facilities are stocked out of a product."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=10
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=10
+        )
+        generated = notifications.urgent_stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_inactive_product(self):
+        "No notifications for inactive product stocks."
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0, is_active=False
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0, is_active=False
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0, is_active=False
+        )
+        generated = notifications.urgent_stockout_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_partial_stock_coverage(self):
+        """
+        Handle the case when not all facilities are expected to have stocked a
+        given product. i.e. if only one facility is expected to have a certain
+        product and it is stocked out then that is an urgent stockout.
+        """
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        generated = notifications.urgent_stockout_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentStockout))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_multiple_users(self):
+        "Each user will get their own urgent stockout notification."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.region
+        other_profile.save()
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
+
+    def test_country_user(self):
+        "Country as well as region users should get notifcations."
+        country = self.create_location(code=config.LocationCodes.COUNTRY)
+        self.region.parent = country
+        self.region.save()
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = country
+        other_profile.save()
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
+
+    def test_product_type_filter(self):
+        """
+        Notifications will not be sent if the stockout is a product type does
+        not interest the user.
+        """
+        self.profile.program = self.product.type
+        self.profile.save()
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.region
+        other_profile.program = self.create_product_type()
+        other_profile.save()
+        self.create_product_stock(
+            supply_point=self.facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.other_facility, product=self.product, quantity=0
+        )
+        self.create_product_stock(
+            supply_point=self.last_facility, product=self.product, quantity=0
+        )
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_stockout_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 1)
+        self.assertEqual(set([self.user, ]), notified_users)

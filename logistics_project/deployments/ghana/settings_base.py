@@ -161,6 +161,7 @@ LOGISTICS_NOTIF_GENERATORS = (
     'logistics_project.apps.ewsghana.notifications.missing_report_notifications',
     'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
     'logistics_project.apps.ewsghana.notifications.stockout_notifications',
+    'logistics_project.apps.ewsghana.notifications.urgent_stockout_notifications',
 )
 
 DEFAULT_BACKEND='message_tester'
