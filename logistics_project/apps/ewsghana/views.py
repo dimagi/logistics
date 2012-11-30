@@ -34,7 +34,7 @@ from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
 from logistics_project.apps.registration.views import registration as logistics_registration
 from .forms import FacilityForm
-from .tables import AuditLogTable
+from .tables import AuditLogTable, EWSMessageTable
 
 """ Usage-Related Views """
 @geography_context
@@ -45,6 +45,11 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
                                destination_url="ewsghana_reporting")
 
 class EWSGhanaMessageLogView(LogisticsMessageLogView):
+    def get_context(self, request, context):
+        context = super(EWSGhanaMessageLogView, self).get_context(request, context)
+        context["messages_table"] = EWSMessageTable(context['messages_qs'], request=request)
+        return context
+    
     def get(self, request, template="ewsghana/messagelog.html"):
         return super(EWSGhanaMessageLogView, self).get(request, template=template)
 
