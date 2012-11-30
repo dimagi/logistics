@@ -115,7 +115,7 @@ class DistrictUserNotification(UserFacilitiesNotification):
     def get_profiles(self):
         "Return all users associated with a district location."
         return LogisticsProfile.objects.filter(
-            location__code=config.LocationCodes.DISTRICT
+            location__type__slug=config.LocationCodes.DISTRICT
         ).select_related('location')
 
 
