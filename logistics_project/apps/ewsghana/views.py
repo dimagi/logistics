@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import re
 from itertools import chain
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -235,17 +237,26 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     products = Product.objects.filter(is_active=True).order_by('name')
     created = None
     deleted = None
+    search = None
+    facilities = GhanaFacility.objects.filter(active=True)
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']
         elif "deleted" in req.GET:
             deleted = req.GET['deleted']
+        if 'search' in req.GET:
+            search = req.GET['search']
+            safe_search = re.escape(search)
+            facilities = facilities.filter(Q(name__iregex=safe_search) |\
+                                           Q(location__name__iregex=safe_search))
     return render_to_response(
         template, {
+            "search_enabled": True, 
+            "search": search, 
             "created": created, 
             "deleted": deleted, 
             "incharges": incharges,
-            "table": FacilityTable(GhanaFacility.objects.filter(active=True), request=req),
+            "table": FacilityTable(facilities, request=req),
             "form": form,
             "object": facility,
             "klass": klass,
