@@ -7,6 +7,7 @@ from djtables import Table, Column
 from djtables.column import DateColumn
 from logistics.models import ProductStock
 from logistics.tables import FacilityTable, _location
+from rapidsms.contrib.messagelog.tables import MessageTable
 
 def _facility_view(cell):
     return reverse(
@@ -64,6 +65,25 @@ class AuditLogTable(Table):
     location = Column()
     first_name = Column()
     last_name = Column()
+
+    class Meta:
+        order_by = '-date'
+
+def _supply_point(cell):
+    if cell.object.contact and cell.object.contact.supply_point:
+        return cell.object.contact.supply_point
+    return None
+def _connection(cell):
+    if cell.object.connection:
+        return cell.object.connection.identity
+    return None
+class EWSMessageTable(MessageTable):
+    contact = Column()
+    connection = Column(value=_connection)
+    direction = Column()
+    date = DateColumn(format="H:i d/m/y")
+    text = Column(css_class="message")
+    supply_point = Column(value=_supply_point)
 
     class Meta:
         order_by = '-date'

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
+import re
 from itertools import chain
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -22,7 +24,7 @@ from email_reports.views import email_reports as logistics_email_reports
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context, location_context
-from logistics.views import message_log as logistics_messagelog
+from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
@@ -34,7 +36,7 @@ from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
 from logistics_project.apps.registration.views import registration as logistics_registration
 from .forms import FacilityForm
-from .tables import AuditLogTable
+from .tables import AuditLogTable, EWSMessageTable
 
 """ Usage-Related Views """
 @geography_context
@@ -43,9 +45,15 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
     return logistics_reporting(request=request, location_code=location_code, 
                                context=context, template=template, 
                                destination_url="ewsghana_reporting")
+
+class EWSGhanaMessageLogView(LogisticsMessageLogView):
+    def get_context(self, request, context):
+        context = super(EWSGhanaMessageLogView, self).get_context(request, context)
+        context["messages_table"] = EWSMessageTable(context['messages_qs'], request=request)
+        return context
     
-def message_log(request, template="ewsghana/messagelog.html"):
-    return logistics_messagelog(request, template=template)
+    def get(self, request, template="ewsghana/messagelog.html"):
+        return super(EWSGhanaMessageLogView, self).get(request, template=template)
 
 @cache_page(60 * 15)
 def export_messagelog(request, format='xls'):
@@ -69,7 +77,23 @@ def help(request, template="ewsghana/help.html"):
         template, {'commodities':commodities}, 
         context_instance=RequestContext(request)
     )
-    
+
+@cache_page(60 * 15)
+def export_messagelog(request, format='xls'):
+    class MessageDataSet(ModelDataset):
+        class Meta:
+            # hack to limit the # of messages returns
+            # so that we don't crash the server when the log gets too big
+            # in the long term, should implement asynchronous processing + progress bar
+            queryset = Message.objects.order_by('-date')[:10000]
+    dataset = getattr(MessageDataSet(), format)
+    response = HttpResponse(
+        dataset,
+        mimetype=mimetype_map.get(format, 'application/octet-stream')
+        )
+    response['Content-Disposition'] = 'attachment; filename=messagelog.xls'
+    return response
+
 def _prep_audit_for_display(auditevents):
     realEvents = []
     for a in auditevents:
@@ -213,17 +237,26 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     products = Product.objects.filter(is_active=True).order_by('name')
     created = None
     deleted = None
+    search = None
+    facilities = GhanaFacility.objects.filter(active=True)
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']
         elif "deleted" in req.GET:
             deleted = req.GET['deleted']
+        if 'search' in req.GET:
+            search = req.GET['search']
+            safe_search = re.escape(search)
+            facilities = facilities.filter(Q(name__iregex=safe_search) |\
+                                           Q(location__name__iregex=safe_search))
     return render_to_response(
         template, {
+            "search_enabled": True, 
+            "search": search, 
             "created": created, 
             "deleted": deleted, 
             "incharges": incharges,
-            "table": FacilityTable(GhanaFacility.objects.filter(active=True), request=req),
+            "table": FacilityTable(facilities, request=req),
             "form": form,
             "object": facility,
             "klass": klass,
