@@ -7,6 +7,10 @@ SEND_BROKEN_LINK_EMAILS = True
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
+TEMPLATE_DIRS = [
+    "templates", 
+]
+
 APPS = [
     "auditcare",
     "rapidsms.contrib.scheduler",
