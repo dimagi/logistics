@@ -248,6 +248,8 @@ class StockoutNotification(DistrictUserNotification):
             type_q = Q(product__type=profile.program)
         results = []
         # Requires product is stocked out for the entire period
+        # This doesn't catch facilities which are non-reporting during this period
+        # but that's ok, since those are caught by the non-reporting alert
         stockouts = ProductReport.objects.filter(type_q,
             report_type__code=Reports.SOH, supply_point__in=facilities,
             report_date__gte=self.startdate, report_date__lte=self.enddate,
