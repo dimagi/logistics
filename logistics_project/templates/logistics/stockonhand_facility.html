@@ -55,15 +55,15 @@
                 {% if last_requisition %}
                     {% if last_requisition.report_date|during_this_month %}
                        {% if last_requisition.submitted %}
-                            <p>RRIRV was submitted for the month of June</p>
+                            <p>RRIRV was submitted for the month of {% now "F" %}</p>
                         {% else %}
-                            <div class='plain_error'><p>RRIRV was <strong>NOT</strong> submitted for the month of June</p></div>
+                            <div class='plain_error'><p>RRIRV was <strong>NOT</strong> submitted for the month of {% now "F" %}</p></div>
                         {% endif %}
 	                {% else %}
-                        <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of June.</p>
+                        <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {% now "F" %}.</p>
 	                {%  endif %}
                 {% else %}
-                    <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of June.</p>
+                    <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {% now "F" %}.</p>
                 {% endif %}
                 
 	            </div>
