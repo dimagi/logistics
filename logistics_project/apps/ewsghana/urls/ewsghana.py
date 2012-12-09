@@ -14,6 +14,9 @@ from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 from logistics_project.apps.ewsghana.views import EWSGhanaMessageLogView
 
 urlpatterns = patterns('',
+    url(r'^dashboard/?$',
+        'logistics_project.apps.ewsghana.views.dashboard',
+        name="ghana_dashboard"),
     url(r'^messagelog/export/?$', 'logistics_project.apps.ewsghana.views.export_messagelog', 
         name="export_messagelog"),
     url(r'^help/?$', help, {'template':'ewsghana/help.html'}, name="help"),

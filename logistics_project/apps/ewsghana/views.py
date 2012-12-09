@@ -14,9 +14,11 @@ from django.template.context import RequestContext
 from django_tablib import ModelDataset
 from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.conf import settings
 from auditcare.views import auditAll
 from auditcare.models import AccessAudit
 from registration.views import register as django_register
@@ -26,6 +28,8 @@ from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context, location_context
 from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
+from logistics.views import district_dashboard, aggregate, stockonhand_facility
+from logistics.view_decorators import filter_context
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable
@@ -310,3 +314,25 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
             "klass_view": reverse('facility_view')
         }, context_instance=RequestContext(request)
     )
+
+@csrf_exempt
+@geography_context
+@filter_context
+def dashboard(request, context={}):
+    prof = None 
+    try:
+        if not request.user.is_anonymous():
+            prof = request.user.get_profile()
+    except LogisticsProfile.DoesNotExist:
+        pass
+
+    if prof:
+        if prof.supply_point:
+            return stockonhand_facility(request, prof.supply_point.code)
+        elif prof.location:
+            if prof.location.type.slug == config.LocationCodes.DISTRICT:
+                return HttpResponseRedirect("%s?place=%s" % \
+                                            (reverse("district_dashboard"),prof.location.code) ) 
+            else:
+                return aggregate(request, prof.location.code)
+    return aggregate(request, settings.COUNTRY, context=context)
