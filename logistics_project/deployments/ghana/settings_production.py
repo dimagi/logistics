@@ -124,6 +124,7 @@ EMAIL_HOST_USER='sender@gmail.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
+LOGISTICS_LANDING_PAGE_VIEW = "ghana_dashboard"
 LOGISTICS_LOGIN_TEMPLATE = "ewsghana/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "ewsghana/loggedout.html"
 LOGISTICS_AGGRESSIVE_SOH_PARSING = True
