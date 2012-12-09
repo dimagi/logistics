@@ -331,7 +331,8 @@ def dashboard(request, context={}):
             return stockonhand_facility(request, prof.supply_point.code)
         elif prof.location:
             if prof.location.type.slug == config.LocationCodes.DISTRICT:
-                return district_dashboard(request, district=prof.location)
+                return HttpResponseRedirect("%s?place=%s" % \
+                                            (reverse("district_dashboard"),prof.location.code) ) 
             else:
                 return aggregate(request, prof.location.code)
     return aggregate(request, settings.COUNTRY, context=context)
