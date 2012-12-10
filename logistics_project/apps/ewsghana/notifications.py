@@ -282,7 +282,7 @@ stockout_notifications = StockoutNotification()
 def urgent_stockout_notifications():
     "Monthly SMS notifications for stockouts of more than 50% of the facilities."
     profiles = LogisticsProfile.objects.filter(
-        location__code__in=(config.LocationCodes.COUNTRY, config.LocationCodes.REGION, )
+        location__type__slug__in=(config.LocationCodes.COUNTRY, config.LocationCodes.REGION)
     ).select_related('location')
     today = now()
     for profile in profiles:
@@ -291,7 +291,7 @@ def urgent_stockout_notifications():
         # For all products, check if there are stockouts for 50% or more of
         # of the facilities
         for facility in facilities:
-            product_stock = facility.productstock_set.filter(is_active=True)
+            product_stock = facility.productstock_set.filter(is_active=True, product__is_active=True)
             if profile.program:
                 product_stock = product_stock.filter(product__type=profile.program)
             for stock in product_stock:
@@ -304,12 +304,11 @@ def urgent_stockout_notifications():
                 'location': profile.location.name,
                 'names': u', '.join([p.name for p in critcal]),
             }
-            msg = _(u'URGENT STOCKOUT: >50%% of the facilities in %(location)s are experiencing stockouts of: %(names)s')
+            msg = _(u'URGENT STOCKOUT: More than half of the facilities in %(location)s are experiencing stockouts of: %(names)s')
             text = msg % params
             alert_type = UrgentStockout.__module__ + '.' + UrgentStockout.__name__
             uid = u'urguent-stockout-{pk}-{year}-{month}'.format(pk=profile.pk, year=today.year, month=today.month)
             yield Notification(alert_type=alert_type, uid=uid, text=text, owner=profile.user)
-
 
 def sms_notifications(sender, instance, created, **kwargs):
     """
