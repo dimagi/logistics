@@ -141,7 +141,7 @@ class EWSGhanaAdminWebRegistrationForm(EWSGhanaManagerWebRegistrationForm):
 class FacilityForm(forms.ModelForm):
     latitude = forms.DecimalField(required=False)
     longitude = forms.DecimalField(required=False)
-    parent_location = forms.ModelChoiceField(Location.objects.exclude(type__slug=config.LocationCodes.FACILITY).order_by('name'), 
+    parent_location = forms.ModelChoiceField(Location.objects.exclude(type__slug=config.LocationCodes.FACILITY).order_by('type__display_order', 'name'), 
                                              required=True)
     
     class Meta:

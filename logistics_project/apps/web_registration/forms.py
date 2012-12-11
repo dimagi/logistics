@@ -18,7 +18,7 @@ class RegisterUserForm(RegistrationForm):
     designation = forms.CharField(required=False)
     # don't bother displaying facility locations since facility-specific views are drawn 
     # from user.facility anyways
-    location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('name'), required=False)
+    location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('type__display_order', 'name'), required=False)
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), required=False)
     # these fields must be required=FALSE since admin users should be able to edit web users
     # without knowing their passwords
