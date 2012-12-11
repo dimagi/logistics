@@ -37,6 +37,7 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
     last_name = forms.CharField(required=False)
     phone = forms.CharField(required=False)
     program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
+                                     empty_label='All', 
                                      required=False)
     sms_notifications = forms.BooleanField(required=False, initial=True)
     
@@ -91,9 +92,13 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
 
 class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm): 
     facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), 
-                                      help_text=('Linking a web user with a facility will allow ', 
+                                      help_text=('Linking a web user with a facility will allow ' + 
                                                  'that user to input stock for that facility from the website.'), 
                                                  required=False)
+    location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('type__display_order', 'name'), 
+                                      help_text=('Alerts will be filtered by the selected region or district. ' + 
+                                                 'Facility users do not need to specify location.'), 
+                                      required=False)
     is_facility_manager = forms.BooleanField(label='CAN ADD/REMOVE USERS AND FACILITIES', 
                                           help_text='e.g. DHIO, RHIO. This includes managing commodities per facility.', 
                                           initial=False, required=False)
@@ -227,6 +232,7 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
     organization = forms.CharField(required=False)
     phone = forms.CharField(required=False)
     program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
+                                     empty_label='All', 
                                      required=False)
     sms_notifications = forms.BooleanField(required=False, initial=True)
 
