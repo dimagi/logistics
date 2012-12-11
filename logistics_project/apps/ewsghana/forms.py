@@ -96,7 +96,7 @@ class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm):
                                                  'that user to input stock for that facility from the website.'), 
                                                  required=False)
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('type__display_order', 'name'), 
-                                      help_text=('Alerts will be filtered by the selected region or district. ' + 
+                                      help_text=('EWS will issue alerts to this user on the basis of the selected region or district. ' + 
                                                  'Facility users do not need to specify location.'), 
                                       required=False)
     is_facility_manager = forms.BooleanField(label='CAN ADD/REMOVE USERS AND FACILITIES', 
