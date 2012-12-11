@@ -58,7 +58,7 @@ def load_schedules():
         return schedule
     
     warehouse = _get_schedule("warehouse.runner.update_warehouse")
-    warehouse.hours = [_malawi_to_utc(h) for h in  (0, 12)]
+    warehouse.hours = [0, 12]
     warehouse.save()
     
     eo = _get_schedule("logistics_project.apps.malawi.nag.send_district_eo_reminders")
