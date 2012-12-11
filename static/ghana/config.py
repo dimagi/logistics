@@ -173,8 +173,8 @@ class Messages(object):
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
     HELP_TEXT = "Txt 'help stock' 4 the format of stock reports; 'help codes' 4 commodity codes; 'start' or 'stop' 2 start and stop reminders; 'status' 2 check ur registration."
     
-    REQ_SUBMITTED = "Thank you for confirming you have submitted your requisition this month."
-    REQ_NOT_SUBMITTED = "Please submit your requisition form as soon as possible."
+    REQ_SUBMITTED = "Thank you for confirming you have submitted your RRIRV this month."
+    REQ_NOT_SUBMITTED = "Please submit your RRIRV as soon as possible."
 
     # scheduled reminders
     STOCK_ON_HAND_REMINDER = 'Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.'
@@ -190,7 +190,7 @@ class Messages(object):
     ALERT_MISSING = u'SMS report MISSING from these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_INCOMPLETE = u'SMS report INCOMPLETE at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_STOCKOUT = u'Ongoing STOCKOUTS at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
-    ALERT_URGENT_STOCKOUT = u'URGENT STOCKOUT: More than half of the facilities in %(location)s are experiencing stockouts of: %(names)s'
+    ALERT_URGENT_STOCKOUT = u'URGENT STOCKOUT: More than half of the facilities reporting to EWS in %(location)s are experiencing stockouts of one or more of: %(names)s'
 
 class Alerts(object):
     pass
