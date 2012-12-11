@@ -186,6 +186,11 @@ class Messages(object):
 
     # reports
     NUMBER_OF_SUPPLY_POINTS = "Number of Facilities"
+    
+    ALERT_MISSING = u'SMS report MISSING from these facilities over the past %(count)s weeks! Please follow up: %(names)s'
+    ALERT_INCOMPLETE = u'SMS report INCOMPLETE at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
+    ALERT_STOCKOUT = u'Ongoing STOCKOUTS at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
+    ALERT_URGENT_STOCKOUT = u'URGENT STOCKOUT: More than half of the facilities in %(location)s are experiencing stockouts of: %(names)s'
 
 class Alerts(object):
     pass

@@ -170,8 +170,7 @@ class MissingReportsNotification(DistrictUserNotification):
             'count': CONTINUOUS_ERROR_WEEKS,
             'names': u', '.join([m.name for m in matches]),
         }
-        msg = _(u'These facilities have not submitted their SMS stock report in %(count)s weeks! Please follow up: %(names)s')
-        return msg % params
+        return config.Messages.ALERT_MISSING % params
 
 
 missing_report_notifications = MissingReportsNotification()
@@ -226,8 +225,7 @@ class IncompleteReportsNotification(DistrictUserNotification):
             'count': CONTINUOUS_ERROR_WEEKS,
             'names': u', '.join([m.name for m in matches]),
         }
-        msg = _(u'These facilities have not submitted complete SMS stock reports in %(count)s weeks! Please follow up: %(names)s')
-        return msg % params
+        return config.Messages.ALERT_INCOMPLETE % params
 
 
 incomplete_report_notifications = IncompleteReportsNotification()
@@ -272,8 +270,7 @@ class StockoutNotification(DistrictUserNotification):
             'count': CONTINUOUS_ERROR_WEEKS,
             'names': u', '.join([m.name for m in matches]),
         }
-        msg = _(u'These facilities experienced stockouts for the past %(count)s weeks! Please follow up: %(names)s')
-        return msg % params
+        return config.Messages.ALERT_STOCKOUT % params
 
 
 stockout_notifications = StockoutNotification()
@@ -304,8 +301,7 @@ def urgent_stockout_notifications():
                 'location': profile.location.name,
                 'names': u', '.join([p.name for p in critcal]),
             }
-            msg = _(u'URGENT STOCKOUT: More than half of the facilities in %(location)s are experiencing stockouts of: %(names)s')
-            text = msg % params
+            text = config.Messages.ALERT_URGENT_STOCKOUT % params
             alert_type = UrgentStockout.__module__ + '.' + UrgentStockout.__name__
             uid = u'urguent-stockout-{pk}-{year}-{month}'.format(pk=profile.pk, year=today.year, month=today.month)
             yield Notification(alert_type=alert_type, uid=uid, text=text, owner=profile.user)
