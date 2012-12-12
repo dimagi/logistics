@@ -9,7 +9,10 @@ from logistics.template_app import App as LogisticsApp
 from logistics.util import config
 
 class SohAndReceiptValidator(Validator):
-    def validate(self, supply_point, product_stock={}, product_received={}, consumption={}):
+    def validate(self, supply_point, product_stock=None, product_received=None, consumption=None):
+        product_stock = {} if product_stock is None else product_stock
+        product_received = {} if product_received is None else product_received
+        consumption = {} if consumption is None else consumption
         errors = {}
         for product in product_stock:
             try:
@@ -36,7 +39,12 @@ class App(LogisticsApp):
                                                 Reports.SOH, message.logger_msg, 
                                                 validator=SohAndReceiptValidator())
             stock_report.parse(message.text)
-            stock_report.validate()
+            try:
+                stock_report.validate()
+            except ValueError, e:
+                # in this case, we don't want to fail on the validation error.
+                # we just want to catch and report it.
+                stock_report.errors.append(e)
             stock_report.save()
             self._send_responses(message, stock_report)
             return True

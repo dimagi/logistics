@@ -161,9 +161,9 @@ class Messages(object):
                     "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
                                  "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
-    NO_RECEIPT_ERROR = 'ERROR: Report rejected. You submitted increases in stock ' + \
+    NO_RECEIPT_ERROR = 'You submitted increases in stock ' + \
                        'without corresponding receipts. ' + \
-                       'Did you mean: %(didumean)s?'
+                       'Did you mean: %(didumean)s? '
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     REGISTER_MESSAGE = "You must be registered on EWS " + \
