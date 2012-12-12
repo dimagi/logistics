@@ -98,7 +98,7 @@ class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm):
     location = forms.ModelChoiceField(Location.objects.exclude(type=config.LocationCodes.FACILITY).order_by('type__display_order', 'name'), 
                                       help_text=('EWS will issue alerts to this user on the basis of the selected region or district. ' + 
                                                  'Facility users do not need to specify location.'), 
-                                      required=False)
+                                      required=False, label="Location (Region, District, etc.)")
     is_facility_manager = forms.BooleanField(label='CAN ADD/REMOVE USERS AND FACILITIES', 
                                           help_text='e.g. DHIO, RHIO. This includes managing commodities per facility.', 
                                           initial=False, required=False)
