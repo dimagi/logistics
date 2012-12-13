@@ -64,6 +64,10 @@ class SupplyPointCodes(object):
     CHPS = "chps"
     POLYCLINIC = "pc"
     CLINIC = "c"
+    MEDICAL_STORES = {
+        REGIONAL_MEDICAL_STORE: "regional medical store",
+        CENTRAL_MEDICAL_STORE: "central medical store",
+    }
     ALL = {
         REGIONAL_MEDICAL_STORE: "regional medical store",
         CENTRAL_MEDICAL_STORE: "central medical store",

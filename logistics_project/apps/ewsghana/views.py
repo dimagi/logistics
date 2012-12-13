@@ -336,3 +336,12 @@ def dashboard(request, context={}):
             else:
                 return aggregate(request, prof.location.code)
     return aggregate(request, settings.COUNTRY, context=context)
+
+def medical_stores(request, context={}, template="ewsghana/medical_stores.html"):
+    context['stores'] = SupplyPoint.objects.filter(active=True,
+                                                   type__code__in=config.SupplyPointCodes.MEDICAL_STORES).\
+                                                   order_by('type', 'name')
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+
