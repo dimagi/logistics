@@ -75,9 +75,11 @@
 </div>
 </div>
 {% if edit_user %}
+    {% if edit_user.pk %}
      <div class="end_note"><strong>
           <a href="{% url ewsghana_scheduled_reports edit_user.pk %}">
           Configure Email Reports
           </a>
      </strong></div>
+    {% endif %}
 {% endif %}

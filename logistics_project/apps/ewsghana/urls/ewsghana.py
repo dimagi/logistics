@@ -100,4 +100,7 @@ urlpatterns = patterns('',
        'logistics_project.apps.ewsghana.views.facility_detail', 
        { 'template':"ewsghana/single_facility.html"},
        name='facility_detail'), 
+    url(r'^medical_stores/?$',
+        'logistics_project.apps.ewsghana.views.medical_stores',
+        name="medical_stores"),
 )
