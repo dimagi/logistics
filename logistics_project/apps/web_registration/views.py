@@ -27,9 +27,10 @@ def my_web_registration(request, Form=RegisterUserForm,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 @transaction.commit_on_success
-def admin_does_all(request, pk=None, Form=RegisterUserForm, context={}, 
+def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
+    context = {} if context is None else context
     user = None
     if not request.user.has_perm('auth.add_user') and \
       not (hasattr(request.user, 'pk') and int(pk) == int(request.user.pk)):
