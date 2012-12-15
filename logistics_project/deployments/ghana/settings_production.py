@@ -170,6 +170,8 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
+NOTIFICATION_ERROR_WEEKS = 3
+
 GOOGLE_ANALYTICS_ID = "123"
 
 SOUTH_MIGRATION_MODULES = {
