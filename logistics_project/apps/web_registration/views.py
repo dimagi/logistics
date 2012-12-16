@@ -79,6 +79,7 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                                        Q(email__iregex=safe_search) |\
                                        Q(first_name__iregex=safe_search) |\
                                        Q(last_name__iregex=safe_search) |\
+                                       Q(logisticsprofile__contact__connection__identity__iregex=safe_search) |\
                                        Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
                                        Q(logisticsprofile__location__name__iregex=safe_search))
     context['form'] = form
