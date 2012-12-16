@@ -298,7 +298,9 @@ def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html
                         facility.save()
                 elif incharge.supply_point != facility.supervised_by:
                     facility.supervised_by = incharge.supply_point
-                    facility.save()
+            else:
+                facility.supervised_by = None
+            facility.save()
         return HttpResponseRedirect(
             reverse('facility_edit', kwargs={"pk":facility.pk}))
     form = FacilityForm(instance=facility)

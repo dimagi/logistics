@@ -298,7 +298,7 @@ def urgent_stockout_notifications():
         critcal = filter(lambda p: product_info[p]['missing'] > product_info[p]['expected'] / 2.0, product_info)
         if critcal:
             params = {
-                'location': profile.location.name,
+                'location': profile.location.name if profile.location.type.slug != config.LocationCodes.COUNTRY else 'the country',
                 'names': u', '.join([p.name for p in critcal]),
             }
             text = config.Messages.ALERT_URGENT_STOCKOUT % params

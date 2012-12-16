@@ -58,7 +58,7 @@ def third_soh_to_super (router):
                 supers = supers.filter(role__responsibilities__code=config.Responsibilities.REPORTEE_RESPONSIBILITY).distinct()
                 for super in supers:
                     response = message % {'name':super.name, 'facility':about.name, 
-                                          'products':" ".join([prod.name for prod in products]) if products else None }
+                                          'products':", ".join([prod.name for prod in products]) if products else None }
                     send_message_safe(super, response)
         if not on_time_products:
             # alert to super: no stock reports received
