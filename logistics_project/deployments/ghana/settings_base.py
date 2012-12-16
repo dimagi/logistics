@@ -165,7 +165,7 @@ LOGISTICS_ALERT_GENERATORS = [
     'logistics_project.apps.ewsghana.alerts.contact_without_phone',
 ]
 
-NOTIFICATION_ERROR_WEEKS = 3
+NOTIFICATION_ERROR_WEEKS = 4
 LOGISTICS_NOTIF_GENERATORS = (
     'logistics_project.apps.ewsghana.notifications.missing_report_notifications',
     'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
