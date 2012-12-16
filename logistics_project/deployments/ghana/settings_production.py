@@ -171,6 +171,12 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 NOTIFICATION_ERROR_WEEKS = 3
+LOGISTICS_NOTIF_GENERATORS = (
+    'logistics_project.apps.ewsghana.notifications.missing_report_notifications',
+    'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
+    'logistics_project.apps.ewsghana.notifications.stockout_notifications',
+    'logistics_project.apps.ewsghana.notifications.urgent_stockout_notifications',
+)
 
 GOOGLE_ANALYTICS_ID = "123"
 
