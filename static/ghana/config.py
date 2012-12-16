@@ -187,7 +187,8 @@ class Messages(object):
     THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, your facility has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
     INCOMPLETE_SOH_TO_SUPER = 'Dear %(name)s, %(facility)s\'s SMS stock report was INCOMPLETE. Please report for: %(products)s'
     RRIRV_REMINDER = "Dear %(name)s, have you submitted your RRIRV forms this month? Please reply 'yes' or 'no'"
-
+    WEB_REMINDER = "Dear %(name)s, you have not visited ewsghana.com in a long time. Please log in to find up-to-date info about stock availability and bottlenecks in Ghana."
+    
     # reports
     NUMBER_OF_SUPPLY_POINTS = "Number of Facilities"
     

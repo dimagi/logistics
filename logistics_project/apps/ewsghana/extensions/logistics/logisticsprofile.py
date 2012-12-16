@@ -7,10 +7,13 @@ class LogisticsProfile(models.Model):
     organization = models.CharField(max_length=255, blank=True, null=True)
     contact = models.OneToOneField(Contact, null=True, blank=True)
     program = models.ForeignKey(ProductType, blank=True, null=True)
-    sms_notifications = models.BooleanField(default=True)
+    sms_notifications = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
+        
+    def name(self):
+        return self.user.first_name if self.user.first_name else self.user.username
     
     def get_or_create_contact(self):
         if self.contact is not None:
