@@ -612,6 +612,7 @@ class SMSNotificationTestCase(NotificationTestCase):
         self.profile = self.user.get_profile()
         self.profile.location = self.location
         self.profile.contact = self.create_contact()
+        self.profile.sms_notifications = True
         self.profile.save()
         self.connection = self.create_connection(contact=self.profile.contact)
         self.notification = self.create_notification(owner=self.user)
