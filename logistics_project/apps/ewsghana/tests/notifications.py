@@ -13,7 +13,7 @@ from logistics.models import SupplyPoint, SupplyPointType, ProductType, Product
 from logistics.models import ProductStock, ProductReportType, ProductReport
 from logistics.util import config
 from mock import patch
-from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.locations.models import Location, LocationType
 from rapidsms.models import Connection, Contact, Backend
 
 from logistics_project.apps.ewsghana import notifications
@@ -35,6 +35,15 @@ class NotificationTestCase(TestCase):
         }
         info.update(kwargs)
         return User.objects.create_user(**info)
+
+    def create_location_type(self, **kwargs):
+        "Create a test location type."
+        info = {
+            'name': self.get_random_string(),
+            'slug': self.get_random_string(),
+        }
+        info.update(kwargs)
+        return LocationType.objects.create(**info)
 
     def create_location(self, **kwargs):
         "Create a test location."
@@ -170,7 +179,8 @@ class MissingReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for non-reporting facilities."
 
     def setUp(self):
-        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.district_type = self.create_location_type(slug=config.LocationCodes.DISTRICT)
+        self.district = self.create_location(type=self.district_type)
         self.facility = self.create_supply_point(location=self.district)
         self.user = self.create_user()
         # Created by post-save handler
@@ -276,7 +286,8 @@ class IncompleteReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with incomplete reports."
 
     def setUp(self):
-        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.district_type = self.create_location_type(slug=config.LocationCodes.DISTRICT)
+        self.district = self.create_location(type=self.district_type)
         self.facility = self.create_supply_point(location=self.district)
         self.user = self.create_user()
         # Created by post-save handler
@@ -438,7 +449,8 @@ class StockoutReportNotificationTestCase(NotificationTestCase):
     "Trigger notifications for facilities with stockouts."
 
     def setUp(self):
-        self.district = self.create_location(code=config.LocationCodes.DISTRICT)
+        self.district_type = self.create_location_type(slug=config.LocationCodes.DISTRICT)
+        self.district = self.create_location(type=self.district_type)
         self.facility = self.create_supply_point(location=self.district)
         self.user = self.create_user()
         # Created by post-save handler
@@ -600,6 +612,7 @@ class SMSNotificationTestCase(NotificationTestCase):
         self.profile = self.user.get_profile()
         self.profile.location = self.location
         self.profile.contact = self.create_contact()
+        self.profile.sms_notifications = True
         self.profile.save()
         self.connection = self.create_connection(contact=self.profile.contact)
         self.notification = self.create_notification(owner=self.user)
@@ -646,8 +659,10 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
     "Trigger notifications for regions with urgent stockouts."
 
     def setUp(self):
-        self.region = self.create_location(code=config.LocationCodes.REGION)
-        self.district = self.create_location(code=config.LocationCodes.DISTRICT, parent=self.region)
+        self.region_type = self.create_location_type(slug=config.LocationCodes.REGION)
+        self.region = self.create_location(type=self.region_type)
+        self.district_type = self.create_location_type(slug=config.LocationCodes.DISTRICT)
+        self.district = self.create_location(type=self.district_type, parent=self.region)
         self.facility = self.create_supply_point(location=self.district)
         self.other_facility = self.create_supply_point(location=self.district)
         self.last_facility = self.create_supply_point(location=self.district)
@@ -764,7 +779,8 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
 
     def test_country_user(self):
         "Country as well as region users should get notifcations."
-        country = self.create_location(code=config.LocationCodes.COUNTRY)
+        country_type = self.create_location_type(slug=config.LocationCodes.COUNTRY)
+        country = self.create_location(type=country_type)
         self.region.parent = country
         self.region.save()
         other_user = self.create_user()
