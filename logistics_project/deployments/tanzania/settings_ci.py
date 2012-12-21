@@ -8,10 +8,13 @@ The localsettings.py for CI will only contain:
 from logistics_project.deployments.tanzania.settings_ci import *
 """
 
+import os
+
 from logistics_project.deployments.tanzania.settings_base import *
 
 # Use testing db config until Postgres auth on CI can be determined
 DATABASES['default'] = TESTING_DATABASES['default']
+DATABASES['default']['TEST_NAME'] = os.path.join(os.path.dirname(__file__), "tanzania.test.sqlite3")
 
 # Remove need for auditcare/couchlog to remove the need to run CouchDB on CI
 if "auditcare" in APPS:
