@@ -53,7 +53,6 @@ BASE_APPS = [
 #    "logistics_project.apps.reports",
 #    "logistics_project.apps.groupmessaging",
     #"django_cpserver", # pip install django-cpserver
-    "couchlog",
     "registration",
     "groupmessaging",
     "taggit",
