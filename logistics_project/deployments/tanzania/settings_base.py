@@ -12,6 +12,7 @@ APPS = [
     "logistics_project.apps.tanzania.reporting",    
     "scheduler",
     "taggit",
+    "couchlog",
 ]
 
 RAPIDSMS_TABS = [
@@ -75,7 +76,7 @@ TESTING_DATABASES= {
     }
 }
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,7 +85,7 @@ MIDDLEWARE_CLASSES = (
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'django.middleware.locale.LocaleMiddleware', 
-)
+]
 
 # 1.3
 CACHES = {
