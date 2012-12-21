@@ -7,12 +7,13 @@ TEMPLATE_DIRS = [
 
 APPS = [
     "auditcare",
+    "couchlog",
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -22,7 +23,7 @@ MIDDLEWARE_CLASSES = (
     'logistics_project.apps.ewsghana.middleware.AutoLogout',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'logistics.middleware.CachedTemplateMiddleware',
-)
+]
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
