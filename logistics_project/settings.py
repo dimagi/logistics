@@ -56,7 +56,6 @@ BASE_APPS = [
     "registration",
     "groupmessaging",
     "taggit",
-    "gunicorn",
     "django_extensions",
     "warehouse"
 ]

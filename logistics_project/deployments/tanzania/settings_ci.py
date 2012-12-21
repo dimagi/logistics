@@ -20,6 +20,8 @@ if "auditcare" in PRIORITY_APPS:
     PRIORITY_APPS.remove("auditcare")
 if "couchlog" in APPS:
     APPS.remove("couchlog")
+if "gunicorn" in APPS:
+    APPS.remove("gunicorn")
 if "auditcare.middleware.AuditMiddleware" in MIDDLEWARE_CLASSES:
     MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
 

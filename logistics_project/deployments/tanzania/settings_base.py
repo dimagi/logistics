@@ -13,6 +13,7 @@ APPS = [
     "scheduler",
     "taggit",
     "couchlog",
+    "gunicorn",
 ]
 
 RAPIDSMS_TABS = [
