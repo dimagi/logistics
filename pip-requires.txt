@@ -10,7 +10,8 @@ pytz==2010b
 virtualenv==1.4.5
 django-celery==2.2.4
 celery==2.2.4
-django-kombu
+django-kombu==0.9.4
+kombu==1.5.1
 django-registration
 couchdbkit==0.5.4
 supervisor
