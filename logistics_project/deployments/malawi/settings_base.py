@@ -3,13 +3,14 @@
 
 APPS = [
     "auditcare",
+    "couchlog",
     "django.contrib.webdesign",
     "logistics_project.apps.malawi",
     "scheduler",
     "warehouse"
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -19,7 +20,7 @@ MIDDLEWARE_CLASSES = (
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
 #    'johnny.middleware.CommittingTransactionMiddleware',
 #    'johnny.middleware.QueryCacheMiddleware',
-)
+]
 
 CACHES = {
     'default': {
