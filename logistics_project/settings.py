@@ -53,11 +53,9 @@ BASE_APPS = [
 #    "logistics_project.apps.reports",
 #    "logistics_project.apps.groupmessaging",
     #"django_cpserver", # pip install django-cpserver
-    "couchlog",
     "registration",
     "groupmessaging",
     "taggit",
-    "gunicorn",
     "django_extensions",
     "warehouse"
 ]
@@ -259,8 +257,8 @@ try:
         from settings_test import *
     else: 
         from localsettings import *
-except ImportError:
-    pass
+except ImportError as e:
+    print e
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
 
@@ -282,4 +280,5 @@ AXES_LOGIN_FAILURE_LIMIT=100
 AXES_LOGIN_FAILURE_LIMIT=1
 AXES_LOCK_OUT_AT_FAILURE=False
 AUDITCARE_LOG_ERRORS = False
+
 
