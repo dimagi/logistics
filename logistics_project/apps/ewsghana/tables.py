@@ -69,6 +69,10 @@ class AuditLogTable(Table):
     class Meta:
         order_by = '-date'
 
+def _supply_point_sort(object):
+    if object.contact and object.contact.supply_point:
+        return object.contact.supply_point.name
+    return None
 def _supply_point(cell):
     if cell.object.contact and cell.object.contact.supply_point:
         return cell.object.contact.supply_point
@@ -83,7 +87,7 @@ class EWSMessageTable(MessageTable):
     direction = Column()
     date = DateColumn(format="H:i d/m/y")
     text = Column(css_class="message")
-    supply_point = Column(value=_supply_point)
+    supply_point = Column(value=_supply_point, sort_key_fn=_supply_point_sort)
 
     class Meta:
         order_by = '-date'
