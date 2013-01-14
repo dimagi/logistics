@@ -13,6 +13,7 @@ TEMPLATE_DIRS = [
 
 APPS = [
     "auditcare",
+    "couchlog",
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
