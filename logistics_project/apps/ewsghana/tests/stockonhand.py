@@ -234,13 +234,13 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > lf 0 badcode 10
-           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO for assistance.
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO or RHIO for assistance.
            16176023315 > badcode 10
-           16176023315 < badcode is not a recognized commodity code. Please contact your DHIO for assistance.
+           16176023315 < badcode is not a recognized commodity code. Please contact your DHIO or RHIO for help.
            16176023315 > soh lf 10.10 m20
-           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO for assistance.
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO or RHIO for assistance.
            16176023315 > ad50 -0 as65-0 al25-0 qu0-0 sp0-0 rd0-0
-           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: Unrecognized commodity codes: as. Please contact your DHIO for assistance.
+           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: Unrecognized commodity codes: as. Please contact your DHIO or RHIO for assistance.
            """
         self.runScript(a)
 
@@ -249,9 +249,9 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 0 bad_code 10
-           16176023315 < You reported: lf, but there were errors: BAD_CODE is/are not part of our commodity codes. Please contact your DHIO for assistance.
+           16176023315 < You reported: lf, but there were errors: BAD_CODE is/are not part of our commodity codes. Please contact your DHIO or RHIO for help.
            16176023315 > soh bad_code 10
-           16176023315 < BAD_CODE is/are not part of our commodity codes. Please contact your DHIO for assistance.
+           16176023315 < BAD_CODE is/are not part of our commodity codes. Please contact your DHIO or RHIO for help.
            """
         self.runScript(a)
 

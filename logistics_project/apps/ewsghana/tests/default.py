@@ -21,7 +21,7 @@ class TestDefaults (TestScript):
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > xx10
-           16176023315 < xx is not a recognized commodity code. Please contact your DHIO for assistance.
+           16176023315 < xx is not a recognized commodity code. Please contact your DHIO or RHIO for help.
            """
         self.runScript(a)
 

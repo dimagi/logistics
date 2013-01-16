@@ -47,14 +47,14 @@ class TestValidator (TestScript):
            16176023315 > soh ov 16
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            16176023315 > soh ov 18
-           16176023315 < You reported: ov, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov18.2?  Please contact your DHIO for assistance.
+           16176023315 < You reported: ov, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov18.2?  Please contact your DHIO or RHIO for assistance.
            16176023315 > soh ov 18 2 ml 2
            16176023315 < Dear stella, thank you for reporting the commodities you have. You received ov 2.
            16176023315 > soh ov 20 ml 2
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov20.2?  Please contact your DHIO for assistance.
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov20.2?  Please contact your DHIO or RHIO for assistance.
            16176023315 > soh ov 50 ml 2
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov50.30?  Please contact your DHIO for assistance.
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov50.30?  Please contact your DHIO or RHIO for assistance.
            16176023315 > soh ov65 ml30
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov65.15 ml30.28?  Please contact your DHIO for assistance.
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov65.15 ml30.28?  Please contact your DHIO or RHIO for assistance.
            """
         self.runScript(a)

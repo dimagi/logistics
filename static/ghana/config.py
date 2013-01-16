@@ -157,10 +157,10 @@ def hsa_location_type():
     return LocationType.objects.get(slug=HSA)
     
 class Messages(object):
-    SUPERVISOR_TITLE = 'DHIO'
+    SUPERVISOR_TITLE = 'DHIO or RHIO'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     BAD_CODE_ERROR = ("%(code)s is not a recognized commodity code. "
-                      "Please contact your DHIO for assistance.")
+                      "Please contact your DHIO or RHIO for help.")
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
                     "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
@@ -168,7 +168,7 @@ class Messages(object):
     NO_RECEIPT_ERROR = 'You submitted increases in stock ' + \
                        'without corresponding receipts. ' + \
                        'Did you mean: %(didumean)s? '
-    NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
+    NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO or RHIO for help."
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     REGISTER_MESSAGE = "You must be registered on EWS " + \
                        "before you can submit a stock report. " + \
