@@ -70,19 +70,23 @@ def load_locations(file):
     messages = []
     reader = csv.reader(file, delimiter=',', quotechar='"')
     for row in reader:
-        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row
-        
+        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row[:9]
+
+        name = name.strip()
+        if parent_name:
+            parent_name = parent_name.strip()
+
         # strips off headers, if present
         if count == 0 and "msd code" == msd_code.lower():
             continue
-        
-        # for now assumes these are already create
+
+        # for now assumes these are already created
         try: 
             loc_type = LocationType.objects.get(name__iexact=type)
         except LocationType.DoesNotExist:
             messages.append("Couldn't find type %s (row was ignored)" % (type))
             continue
-            
+
         try:
             parent = Location.objects.get(name__iexact=parent_name,
                                           type__name__iexact=parent_type) \
@@ -107,11 +111,18 @@ def load_locations(file):
             l = Location(code=code)
         l.name = name
         l.type = loc_type
-        l.is_active = string_to_boolean(is_active)
+
+        try:
+            l.is_active = string_to_boolean(is_active)
+        except ValueError:
+            messages.append("in location %s, %s is not a valid value for is_active. Use 't' or 'f' (row was ignored)" % (name, is_active))
+            continue
+
         if parent: l.parent = parent
         if point:  l.point = point
+
         l.save()
-        
+
         sp = supply_point_from_location\
                 (l, SupplyPointType.objects.get(name__iexact=type),
                  SupplyPoint.objects.get(location=parent) if parent else None)
@@ -141,7 +152,7 @@ def populate_org_tree():
     for s in SupplyPoint.objects.all().order_by('id'):
         if s.supplied_by:
             create_org_tree(s, s.supplied_by)
-            print s.name + ' (' + str(s.id) + ')'
+            # print s.name + ' (' + str(s.id) + ')'
 
 def clear_org_tree():
     orgtree = OrganizationTree.objects.all()
