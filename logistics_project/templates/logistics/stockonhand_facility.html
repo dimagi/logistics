@@ -44,7 +44,7 @@
                 {% else %}
 	                {% if request.user.get_profile %}
 		                {% ifequal request.user.get_profile.supply_point facility %}
-			                <a class="noprint" href="{% url input_stock facility.code %}"></strong>INPUT STOCK</strong> for {{ facility.name }}</a>
+			                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK</strong> for {{ facility.name }}</a>
 		                {% endifequal %}
 	                {% endif %}
                 {% endif %}
