@@ -39,9 +39,9 @@ from logistics.charts import amc_plot
 
 from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
-from logistics_project.apps.malawi.tables import MalawiContactTable, MalawiLocationTable, \
-    MalawiProductTable, HSATable, StockRequestTable, \
-    HSAStockRequestTable, DistrictTable, ConsumptionDataTable, OrganizationTable
+from logistics_project.apps.malawi.tables import MalawiContactTable, \
+    HSATable, StockRequestTable, \
+    HSAStockRequestTable, DistrictTable, ConsumptionDataTable
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
@@ -420,7 +420,7 @@ def monitoring(request):
                               context_instance=RequestContext(request))
 @cache_page(60 * 15)
 @permission_required_with_403("auth.admin_read")
-@datespan_in_request()
+@datespan_default
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
     if report_slug in REPORTS_CURRENT: request.datespan = "current"
