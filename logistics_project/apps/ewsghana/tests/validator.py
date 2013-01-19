@@ -40,21 +40,36 @@ class TestValidator (TestScript):
         validator.validate(self.facility, product_stock={'ov':14}, 
                            product_received={'ov':10})        
 
-    def testSMSValidation(self):
+    def testNoReceiptWithStockRiseValidation(self):
+        a = """
+           16176023315 > register stella dedh
+           16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
+           16176023315 > soh ov 16.0
+           16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
+           16176023315 > soh ov 18.0
+           16176023315 < You reported: ov, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov18.2?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov 18 2 ml 2.0
+           16176023315 < Dear stella, thank you for reporting the commodities you have. You received ov 2.
+           16176023315 > soh ov 20.0 ml 2.0
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov20.2?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov 50.0 ml 2.0
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov50.30?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov65.0 ml30.0
+           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov65.15 ml30.28?  Please contact your DHIO or RHIO for assistance.
+           """
+        self.runScript(a)
+
+    def testNoReceiptValidation(self):
         a = """
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh ov 16
-           16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
-           16176023315 > soh ov 18
-           16176023315 < You reported: ov, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov18.2?  Please contact your DHIO or RHIO for assistance.
-           16176023315 > soh ov 18 2 ml 2
+           16176023315 < You reported: ov, but there were errors: You did not report all receipts. Did you mean: ov16.0?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov 16.2
            16176023315 < Dear stella, thank you for reporting the commodities you have. You received ov 2.
-           16176023315 > soh ov 20 ml 2
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov20.2?  Please contact your DHIO or RHIO for assistance.
-           16176023315 > soh ov 50 ml 2
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov50.30?  Please contact your DHIO or RHIO for assistance.
-           16176023315 > soh ov65 ml30
-           16176023315 < You reported: ov, ml, but there were errors: You submitted increases in stock without corresponding receipts. Did you mean: ov65.15 ml30.28?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov16.2 ml3
+           16176023315 < You reported: ov, ml, but there were errors: You did not report all receipts. Did you mean: ml3.0?  Please contact your DHIO or RHIO for assistance.
+           16176023315 > soh ov16.2 ml3.0
+           16176023315 < Dear stella, thank you for reporting the commodities you have. You received ov 2.
            """
         self.runScript(a)

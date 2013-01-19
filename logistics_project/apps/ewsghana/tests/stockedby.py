@@ -29,7 +29,7 @@ class TestStockedBy (TestScript):
         ProductStock.objects.all().delete()
         settings.LOGISTICS_STOCKED_BY = 'user'
         a = """
-           888 > soh mc 10
+           888 > soh mc 10.0
            888 < Dear testuser, still missing lf.
            """
         self.runScript(a)
@@ -44,7 +44,7 @@ class TestStockedBy (TestScript):
                      monthly_consumption=5, last_modified=datetime.now() - timedelta(days=30)).save()
         settings.LOGISTICS_STOCKED_BY = 'facility'
         a = """
-           888 > soh mc 10
+           888 > soh mc 10.0
            888 < Dear testuser, still missing lf, mg.
            """
         self.runScript(a)
@@ -53,7 +53,7 @@ class TestStockedBy (TestScript):
         ProductStock.objects.all().delete()
         settings.LOGISTICS_STOCKED_BY = 'product'
         a = """
-           888 > soh mc 10
+           888 > soh mc 10.0
            888 < Dear testuser, still missing aa, lf, fr, sp, qu, ad, nv, cb, lm, al, ng, rd, jd, cu, oq, mg, ns, dp, zs.
            """
         self.runScript(a)
