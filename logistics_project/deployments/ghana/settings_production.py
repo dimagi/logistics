@@ -177,6 +177,7 @@ LOGISTICS_NOTIF_GENERATORS = (
     'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
     'logistics_project.apps.ewsghana.notifications.stockout_notifications',
     'logistics_project.apps.ewsghana.notifications.urgent_stockout_notifications',
+    'logistics_project.apps.ewsghana.notifications.urgent_nonreporting_notifications',
 )
 
 GOOGLE_ANALYTICS_ID = "123"

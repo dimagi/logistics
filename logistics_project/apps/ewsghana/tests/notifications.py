@@ -834,3 +834,113 @@ class UrgentStockoutNotificationTestCase(NotificationTestCase):
             count += 1
         self.assertEqual(count, 1)
         self.assertEqual(set([self.user, ]), notified_users)
+
+class UrgentNonReportingNotificationTestCase(NotificationTestCase):
+    "Trigger notifications for regions with urgent stockouts."
+
+    def setUp(self):
+        self.region_type = self.create_location_type(slug=config.LocationCodes.REGION)
+        self.region = self.create_location(type=self.region_type)
+        self.district_type = self.create_location_type(slug=config.LocationCodes.DISTRICT)
+        self.district = self.create_location(type=self.district_type, parent=self.region)
+        self.facility = self.create_supply_point(location=self.district)
+        self.other_facility = self.create_supply_point(location=self.district)
+        self.last_facility = self.create_supply_point(location=self.district)
+        self.product = self.create_product()
+        self.user = self.create_user()
+        # Created by post-save handler
+        self.profile = self.user.get_profile()
+        self.profile.location = self.region
+        self.profile.save()
+
+    def _set_non_reporting(self, fac, toDelinquent):
+        if toDelinquent:
+            long_time_ago = datetime.datetime.now() - datetime.timedelta(days=1000)
+            fac.last_reported = long_time_ago
+            fac.save()
+        else:
+            fac.last_reported = datetime.datetime.now()
+            fac.save()
+
+    def test_all_facility_stockout(self):
+        "Send a notification because all facilities are stocked out of a product."
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, True)
+        self._set_non_reporting(self.last_facility, True)
+        generated = notifications.urgent_nonreporting_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentNonReporting))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_majority_facility_stockout(self):
+        "Send a notification because > 50% of the facilities are stocked out of a product."
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, True)
+        self._set_non_reporting(self.last_facility, False)
+        generated = notifications.urgent_nonreporting_notifications()
+        notification = generated.next()
+        self.assertTrue(isinstance(notification._type, notifications.UrgentNonReporting))
+        self.assertEqual(notification.owner, self.user)
+        # There should only be one notification
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_minority_facility_stockout(self):
+        "No notification because < 50% of the facilities are stocked out of a product."
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, False)
+        self._set_non_reporting(self.last_facility, False)
+        generated = notifications.urgent_nonreporting_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_inactive_product(self):
+        "No notifications for inactive product stocks."
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, True)
+        self._set_non_reporting(self.last_facility, True)
+        self.facility.deactivate()
+        self.other_facility.deactivate()
+        self.last_facility.deactivate()
+        generated = notifications.urgent_nonreporting_notifications()
+        self.assertRaises(StopIteration, generated.next)
+
+    def test_multiple_users(self):
+        "Each user will get their own urgent stockout notification."
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = self.region
+        other_profile.save()
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, True)
+        self._set_non_reporting(self.last_facility, True)
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_nonreporting_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)
+
+    def test_country_user(self):
+        "Country as well as region users should get notifcations."
+        country_type = self.create_location_type(slug=config.LocationCodes.COUNTRY)
+        country = self.create_location(type=country_type)
+        self.region.parent = country
+        self.region.save()
+        other_user = self.create_user()
+        # Created by post-save handler
+        other_profile = other_user.get_profile()
+        other_profile.location = country
+        other_profile.save()
+        self._set_non_reporting(self.facility, True)
+        self._set_non_reporting(self.other_facility, True)
+        self._set_non_reporting(self.last_facility, True)
+        notified_users = set()
+        count = 0
+        for notification in notifications.urgent_nonreporting_notifications():
+            notified_users.add(notification.owner)
+            count += 1
+        self.assertEqual(count, 2)
+        self.assertEqual(set([self.user, other_user, ]), notified_users)

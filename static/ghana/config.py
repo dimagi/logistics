@@ -198,6 +198,7 @@ class Messages(object):
     ALERT_INCOMPLETE = u'SMS report INCOMPLETE at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_STOCKOUT = u'Ongoing STOCKOUTS at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_URGENT_STOCKOUT = u'URGENT STOCKOUT: More than half of the facilities reporting to EWS in %(location)s are experiencing stockouts of one or more of: %(names)s'
+    ALERT_URGENT_NONREPORTING = u'URGENT NONREPORTING: More than half of the facilities reporting to EWS in %(location)s have not reported their stock on hand this month'
 
 class Alerts(object):
     pass
