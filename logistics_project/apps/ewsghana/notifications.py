@@ -112,17 +112,29 @@ class UserFacilitiesNotification(object):
         raise NotImplemented("Defined in the subclass")
 
 
-class DistrictUserNotification(UserFacilitiesNotification):
+class EscalatingNotifications(UserFacilitiesNotification):
     "Base for generating notifications for district level users."
 
     def get_profiles(self):
-        "Return all users associated with a district location."
-        return LogisticsProfile.objects.filter(
-            location__type__slug=config.LocationCodes.DISTRICT
-        ).select_related('location')
+        "Return all users from the types registered to receive these alerts"
+        from logistics_project.apps.ewsghana.models import EscalatingAlertRecipients
+        recipients_criteria = EscalatingAlertRecipients.objects.all()
+        if not recipients_criteria:
+            # default to district users
+            return LogisticsProfile.objects.filter(
+                location__type__slug=config.LocationCodes.DISTRICT
+            ).select_related('location')
+        results = LogisticsProfile.objects.none()
+        for criteria in recipients_criteria:
+            recipients = LogisticsProfile.objects.filter(
+                location__type=criteria.location_type
+                ).select_related('location')
+            if criteria.program:
+                recipients = recipients.filter(program=criteria.program)
+            results = results|recipients
+        return results.distinct()
 
-
-class MissingReportsNotification(DistrictUserNotification):
+class MissingReportsNotification(EscalatingNotifications):
     "Generate notifications when faciltities have not reported"
 
     notification_type = NotReporting
@@ -179,7 +191,7 @@ class MissingReportsNotification(DistrictUserNotification):
 missing_report_notifications = MissingReportsNotification()
 
 
-class IncompleteReportsNotification(DistrictUserNotification):
+class IncompleteReportsNotification(EscalatingNotifications):
     "Generate notifications when faciltities have incomplete stock reports."
 
     notification_type = IncompelteReporting
@@ -234,7 +246,7 @@ class IncompleteReportsNotification(DistrictUserNotification):
 incomplete_report_notifications = IncompleteReportsNotification()
 
 
-class StockoutNotification(DistrictUserNotification):
+class StockoutNotification(EscalatingNotifications):
     "Generate notifications when faciltities have stockouts."
 
     notification_type = Stockout
