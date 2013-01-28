@@ -48,8 +48,6 @@ def third_soh_to_super (router):
     """ wednesday, message the in-charge """
     facilities = SupplyPoint.active_objects.all()
     for facility in facilities:
-        if facility.contact_set.count() == 0:
-            continue
         on_time_products, missing_products = facility.report_status()
         def _notify_web_super(facility_to_notify, about, message, products=[]):
             profiles = LogisticsProfile.objects.exclude(contact=None)\

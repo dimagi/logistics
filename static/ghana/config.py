@@ -186,7 +186,7 @@ class Messages(object):
     STOCK_ON_HAND_REMINDER = 'Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.'
     SECOND_STOCK_ON_HAND_REMINDER = 'Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.'
     SECOND_INCOMPLETE_SOH_REMINDER = 'Hi %(name)s, your facility is missing a few SMS stock reports. Please report on: %(products)s.'
-    THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, your facility has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
+    THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, %(facility)s has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
     INCOMPLETE_SOH_TO_SUPER = 'Dear %(name)s, %(facility)s\'s SMS stock report was INCOMPLETE. Please report for: %(products)s'
     RRIRV_REMINDER = "Dear %(name)s, have you submitted your RRIRV forms this month? Please reply 'yes' or 'no'"
     WEB_REMINDER = "Dear %(name)s, you have not visited ewsghana.com in a long time. Please log in to find up-to-date info about stock availability and bottlenecks in Ghana."
