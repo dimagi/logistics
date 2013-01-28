@@ -80,6 +80,23 @@ def third_soh_to_super (router):
             _notify_web_super(facility, facility, config.Messages.INCOMPLETE_SOH_TO_SUPER, missing_products)
             _notify_super(facility.supervised_by, facility, config.Messages.INCOMPLETE_SOH_TO_SUPER, missing_products)
         
+def stockout_notification_to_web_supers(router):
+    """ wednesday, message the web-based supervisors about stockouts """
+    profiles = LogisticsProfile.objects.exclude(contact=None)\
+                                       .exclude(contact__connection=None)\
+                                       .filter(sms_notifications=True)\
+                                       .filter(supply_point__active=True)\
+                                       .filter(supply_point__productstock__quantity=0).distinct()\
+                                       .select_related('contact', 'contact__connection')
+    for profile in profiles:
+        stockouts = profile.supply_point.products_stocked_out
+        date = profile.supply_point.last_reported.strftime('%b %d') if profile.supply_point.last_reported else None
+        response = config.Messages.STOCKOUT_REPORT % {'name':profile.contact.name, 
+                                                      'facility':profile.supply_point.name, 
+                                                      'date':date, 
+                       'products':", ".join([prod.name for prod in stockouts]) if stockouts else None }
+        send_message_safe(profile.contact, response)
+        
 def reminder_to_submit_RRIRV(router):
     """ the 30th of each month, verify that they've submitted RRIRV """
     logging.info("running RRIRV reminder")
