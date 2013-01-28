@@ -13,6 +13,7 @@ TEMPLATE_DIRS = [
 
 APPS = [
     "auditcare",
+    "couchlog",
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
@@ -176,6 +177,7 @@ LOGISTICS_NOTIF_GENERATORS = (
     'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
     'logistics_project.apps.ewsghana.notifications.stockout_notifications',
     'logistics_project.apps.ewsghana.notifications.urgent_stockout_notifications',
+    'logistics_project.apps.ewsghana.notifications.urgent_nonreporting_notifications',
 )
 
 GOOGLE_ANALYTICS_ID = "123"

@@ -68,7 +68,7 @@ def report_stock(testcase, contact, stock, amount):
     Test utility to register a user
     """
     script = """
-          %(phone)s > %(stock_code)s %(amount)s
+          %(phone)s > %(stock_code)s %(amount)s.0
           %(phone)s < Dear %(name)s, thank you for reporting the commodities you have in stock.
         """ % {"stock_code": stock.sms_code, "amount": amount, 
                "phone":contact.default_connection.identity, "name":contact.name}

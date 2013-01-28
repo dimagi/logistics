@@ -40,30 +40,27 @@
                 {% stockonhand_table facility request.datespan %}
                 <br/>
                 {% if request.user.is_superuser %}
-	                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+	                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK</strong> for {{ facility.name }}</a>
                 {% else %}
 	                {% if request.user.get_profile %}
 		                {% ifequal request.user.get_profile.supply_point facility %}
-			                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+			                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK</strong> for {{ facility.name }}</a>
 		                {% endifequal %}
 	                {% endif %}
                 {% endif %}
-                {% if last_reported %}
-                    <p>The last SMS report received was at <strong>{{ last_reported|date:" h:i:s A o\n M d, Y" }}</strong>.</p><br/>
-                {%  endif %}
                 
                 {% if last_requisition %}
                     {% if last_requisition.report_date|during_this_month %}
                        {% if last_requisition.submitted %}
-                            <p>RRIRV was submitted for the month of {% now "F" %}</p>
+                            <p>RRIRV was submitted for the month of {{ previous_month|date:"F" }}</p>
                         {% else %}
-                            <div class='plain_error'><p>RRIRV was <strong>NOT</strong> submitted for the month of {% now "F" %}</p></div>
+                            <div class='plain_error'><p>RRIRV was <strong>NOT</strong> submitted for the month of {{ previous_month|date:"F" }}</p></div>
                         {% endif %}
 	                {% else %}
-                        <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {% now "F" %}.</p>
+                        <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {{ previous_month|date:"F" }}.</p>
 	                {%  endif %}
                 {% else %}
-                    <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {% now "F" %}.</p>
+                    <p>RRIRV: This facility has not indicated whether its RRIRV was submitted for the month of {{ previous_month|date:"F" }}.</p>
                 {% endif %}
                 
 	            </div>

@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from alerts.models import NotificationType, Notification
 from logistics.const import Reports
 from logistics.models import SupplyPoint, LogisticsProfile, ProductReport, Product
+from logistics.reports import get_reporting_and_nonreporting_facilities
 from logistics.util import config
 
 from .compat import now, send_message
@@ -54,6 +55,8 @@ class Stockout(OwnerNotificationType):
 class UrgentStockout(OwnerNotificationType):
     "A number of facilities in a region/country have a stockout."
 
+class UrgentNonReporting(OwnerNotificationType):
+    "A number of facilities in a region/country have not reported their stock."
 
 class UserFacilitiesNotification(object):
     """
@@ -109,17 +112,29 @@ class UserFacilitiesNotification(object):
         raise NotImplemented("Defined in the subclass")
 
 
-class DistrictUserNotification(UserFacilitiesNotification):
+class EscalatingNotifications(UserFacilitiesNotification):
     "Base for generating notifications for district level users."
 
     def get_profiles(self):
-        "Return all users associated with a district location."
-        return LogisticsProfile.objects.filter(
-            location__type__slug=config.LocationCodes.DISTRICT
-        ).select_related('location')
+        "Return all users from the types registered to receive these alerts"
+        from logistics_project.apps.ewsghana.models import EscalatingAlertRecipients
+        recipients_criteria = EscalatingAlertRecipients.objects.all()
+        if not recipients_criteria:
+            # default to district users
+            return LogisticsProfile.objects.filter(
+                location__type__slug=config.LocationCodes.DISTRICT
+            ).select_related('location')
+        results = LogisticsProfile.objects.none()
+        for criteria in recipients_criteria:
+            recipients = LogisticsProfile.objects.filter(
+                location__type=criteria.location_type
+                ).select_related('location')
+            if criteria.program:
+                recipients = recipients.filter(program=criteria.program)
+            results = results|recipients
+        return results.distinct()
 
-
-class MissingReportsNotification(DistrictUserNotification):
+class MissingReportsNotification(EscalatingNotifications):
     "Generate notifications when faciltities have not reported"
 
     notification_type = NotReporting
@@ -176,7 +191,7 @@ class MissingReportsNotification(DistrictUserNotification):
 missing_report_notifications = MissingReportsNotification()
 
 
-class IncompleteReportsNotification(DistrictUserNotification):
+class IncompleteReportsNotification(EscalatingNotifications):
     "Generate notifications when faciltities have incomplete stock reports."
 
     notification_type = IncompelteReporting
@@ -231,7 +246,7 @@ class IncompleteReportsNotification(DistrictUserNotification):
 incomplete_report_notifications = IncompleteReportsNotification()
 
 
-class StockoutNotification(DistrictUserNotification):
+class StockoutNotification(EscalatingNotifications):
     "Generate notifications when faciltities have stockouts."
 
     notification_type = Stockout
@@ -304,6 +319,26 @@ def urgent_stockout_notifications():
             text = config.Messages.ALERT_URGENT_STOCKOUT % params
             alert_type = UrgentStockout.__module__ + '.' + UrgentStockout.__name__
             uid = u'urguent-stockout-{pk}-{year}-{month}'.format(pk=profile.pk, year=today.year, month=today.month)
+            yield Notification(alert_type=alert_type, uid=uid, text=text, owner=profile.user)
+
+def urgent_nonreporting_notifications():
+    """Monthly SMS notifications for non-reporting of more than 50% of the facilities.
+    NOTE: we do not yet support filtering this notification by program / product type
+    """
+    NON_REPORTING_PERIOD = 30
+    profiles = LogisticsProfile.objects.filter(
+        location__type__slug__in=(config.LocationCodes.COUNTRY, config.LocationCodes.REGION)
+    ).select_related('location')
+    today = now()
+    for profile in profiles:
+        facilities = profile.location.all_facilities()
+        on_time, late = get_reporting_and_nonreporting_facilities(datetime.datetime.utcnow() - datetime.timedelta(days=NON_REPORTING_PERIOD), 
+                                                                  location=profile.location)
+        if late.count() > on_time.count(): 
+            params = {'location': profile.location.name if profile.location.type.slug != config.LocationCodes.COUNTRY else 'the country'}
+            text = config.Messages.ALERT_URGENT_NONREPORTING % params
+            alert_type = UrgentNonReporting.__module__ + '.' + UrgentNonReporting.__name__
+            uid = u'urguent-nonreporting-{pk}-{year}-{month}'.format(pk=profile.pk, year=today.year, month=today.month)
             yield Notification(alert_type=alert_type, uid=uid, text=text, owner=profile.user)
 
 def sms_notifications(sender, instance, created, **kwargs):

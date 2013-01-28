@@ -80,11 +80,11 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 10
+           16176023315 > soh lf 10.0
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
-           16176023315 > soh lf 10 mc 20
+           16176023315 > soh lf 10.0 mc 20.0
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
-           16176023315 > SOH LF 10 MC 20
+           16176023315 > SOH LF 10.0 MC 20.0
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            """
         self.runScript(a)
@@ -104,7 +104,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 0 mc 0
+           16176023315 > soh lf 0.0 mc 0.0
            16176023315 < Dear cynthia, these items are stocked out: lf mc. Please order 24 mc, 15 lf.
            """
         self.runScript(a)
@@ -113,7 +113,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh ng 0
+           16176023315 > soh ng 0.0
            16176023315 < Dear cynthia, these items are stocked out: ng.
            """
         self.runScript(a)
@@ -122,7 +122,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 7 mc 9
+           16176023315 > soh lf 7.0 mc 9.0
            16176023315 < Dear cynthia, these items need to be reordered: lf mc. Please order 15 mc, 8 lf.
            """
         self.runScript(a)
@@ -131,7 +131,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh ng 3
+           16176023315 > soh ng 3.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
            """
         self.runScript(a)
@@ -140,7 +140,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 30 mc 40
+           16176023315 > soh lf 30.0 mc 40.0
            16176023315 < Dear cynthia, these items are overstocked: lf mc. The district admin has been informed.
            """
         self.runScript(a)
@@ -149,7 +149,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 10 20 mc 20
+           16176023315 > soh lf 10 20 mc 20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 20.
            """
         self.runScript(a)
@@ -160,7 +160,7 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > soh lf 0 mc 1
+           pharmacist > soh lf 0.0 mc 1.0
            super < Dear super, Test Facility is experiencing the following problems: stockouts Lofem; below reorder level Male Condom
            pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 29 mc, 30 lf.
            """
@@ -172,10 +172,10 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > mc 0 mg 1
+           pharmacist > mc 0.0 mg 1.0
            super < Dear super, Test Facility is experiencing the following problems: stockouts Male Condom; below reorder level Micro-G
            pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 30 mc, 29 mg.
-           pharmacist > mc 0 mg 1 lf 100
+           pharmacist > mc 0.0 mg 1.0 lf 100.0
            super < Dear super, Test Facility is experiencing the following problems: stockouts Male Condom; below reorder level Micro-G; overstocked Lofem
            pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 30 mc, 29 mg.
            """
@@ -187,7 +187,7 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > soh mc 0 mg 1 ng 300
+           pharmacist > soh mc 0.0 mg 1.0 ng 300.0
            super < Dear super, Test Facility is experiencing the following problems: stockouts Male Condom; below reorder level Micro-G
            pharmacist <  Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 30 mc, 29 mg.
            pharmacist > soh mc 0-2 mg 1-1 ng 300-1
@@ -202,7 +202,7 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > soh mc 0 mg 1 ng300-4
+           pharmacist > soh mc 0.0 mg 1.0 ng300-4
            super < Dear super, Test Facility is experiencing the following problems: stockouts Male Condom; below reorder level Micro-G
            pharmacist < Dear cynthia, these items are stocked out: mc. these items need to be reordered: mg. Please order 30 mc, 29 mg.
            """
@@ -214,7 +214,7 @@ class TestStockOnHand (TestScript):
            pharmacist < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            super > register super tf incharge
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
-           pharmacist > mc 16 lf 16 mg300
+           pharmacist > mc 16.0 lf 16.0 mg300.0
            super < Dear super, Test Facility is experiencing the following problems: overstocked Micro-G
            pharmacist < Dear cynthia, these items are overstocked: mg. The district admin has been informed.
            """
@@ -224,7 +224,7 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 10-20 mc 20
+           16176023315 > soh lf 10-20 mc 20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 20.
            """
         self.runScript(a)
@@ -233,14 +233,14 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > lf 0 badcode 10
-           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO for assistance.
-           16176023315 > badcode 10
-           16176023315 < badcode is not a recognized commodity code. Please contact your DHIO for assistance.
+           16176023315 > lf 0.0 badcode 10.0
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: badcode. Please contact your DHIO or RHIO for assistance.
+           16176023315 > badcode 10.0
+           16176023315 < badcode is not a recognized commodity code. Please contact your DHIO or RHIO for help.
            16176023315 > soh lf 10.10 m20
-           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO for assistance.
+           16176023315 < You reported: lf, but there were errors: Unrecognized commodity codes: m. Please contact your DHIO or RHIO for assistance.
            16176023315 > ad50 -0 as65-0 al25-0 qu0-0 sp0-0 rd0-0
-           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: Unrecognized commodity codes: as. Please contact your DHIO for assistance.
+           16176023315 < You reported: rd, sp, qu, ad, al, but there were errors: Unrecognized commodity codes: as. Please contact your DHIO or RHIO for assistance.
            """
         self.runScript(a)
 
@@ -248,10 +248,10 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh lf 0 bad_code 10
-           16176023315 < You reported: lf, but there were errors: BAD_CODE is/are not part of our commodity codes. Please contact your DHIO for assistance.
+           16176023315 > soh lf 0.0 bad_code 10.0
+           16176023315 < You reported: lf, but there were errors: BAD_CODE is/are not part of our commodity codes. Please contact your DHIO or RHIO for help.
            16176023315 > soh bad_code 10
-           16176023315 < BAD_CODE is/are not part of our commodity codes. Please contact your DHIO for assistance.
+           16176023315 < BAD_CODE is/are not part of our commodity codes. Please contact your DHIO or RHIO for help.
            """
         self.runScript(a)
 
@@ -259,25 +259,25 @@ class TestStockOnHand (TestScript):
         a = """
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 >   soh lf 10 mc 20
+           16176023315 >   soh lf 10.0 mc 20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > sohlf10mc20
+           16176023315 > sohlf10.0mc20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > lf10mc20
+           16176023315 > lf10.0mc20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > LF10MC 20
+           16176023315 > LF10.0MC 20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
            16176023315 > LF10-1MC 20,3
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 1, mc 3.
-           16176023315 > LF(10), mc (20)
+           16176023315 > LF(10.0), mc (20.0)
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > LF10-mc20
+           16176023315 > LF10.0-mc20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > LF10-mc20-
+           16176023315 > LF10.0-mc20- 0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have in stock.
-           16176023315 > LF10-3mc20
+           16176023315 > LF10-3mc20 0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 3.
-           16176023315 > LF10----3mc20
+           16176023315 > LF10----3mc20.0
            16176023315 < Dear cynthia, thank you for reporting the commodities you have. You received lf 3.
            """
         self.runScript(a)
@@ -289,10 +289,10 @@ class TestStockOnHand (TestScript):
            111 < Congratulations garep, you have successfully been registered for the Early Warning System. Your facility is Greater Accra Regional Medical Store
            222 > register derep dedh
            222 < Congratulations derep, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           111 > soh lf 0
+           111 > soh lf 0.0
            111 < Dear garep, these items are stocked out: lf.
            222 < Dear derep, Greater Accra Regional Medical Store is STOCKED OUT of: lf
-           111 > soh lf 10
+           111 > soh lf 10.0
            111 < Dear garep, thank you for reporting the commodities you have in stock.
            222 < Dear derep, Greater Accra Regional Medical Store has RESOLVED the following stockouts: lf
            """

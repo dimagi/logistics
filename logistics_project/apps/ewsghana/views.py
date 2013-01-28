@@ -213,11 +213,13 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     facility = None
     form = None
     incharges = None
+    sms_users = None
     klass = "Facility"
     if pk is not None:
         facility = get_object_or_404(
             GhanaFacility, pk=pk)
         incharges = list(chain(facility.reportees(), facility.supervised_by.reportees() if facility.supervised_by else []))
+        sms_users = Contact.objects.filter(is_active=True, supply_point=facility)
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:
             facility.deactivate()
@@ -259,6 +261,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "search": search, 
             "created": created, 
             "deleted": deleted, 
+            "sms_users": sms_users, 
             "incharges": incharges,
             "table": FacilityTable(facilities, request=req),
             "form": form,
@@ -332,7 +335,8 @@ def dashboard(request, context={}):
         if prof.supply_point:
             return stockonhand_facility(request, prof.supply_point.code)
         elif prof.location:
-            if prof.location.type.slug == config.LocationCodes.DISTRICT:
+            if prof.location.type.slug == config.LocationCodes.DISTRICT or \
+              prof.location.type.slug == config.LocationCodes.REGION:
                 return HttpResponseRedirect("%s?place=%s" % \
                                             (reverse("district_dashboard"),prof.location.code) ) 
             else:

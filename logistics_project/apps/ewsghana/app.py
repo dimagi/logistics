@@ -13,6 +13,24 @@ class SohAndReceiptValidator(Validator):
         product_stock = {} if product_stock is None else product_stock
         product_received = {} if product_received is None else product_received
         consumption = {} if consumption is None else consumption
+        self._validate_no_stock_increase_without_receipt(supply_point, 
+                                                         product_stock, 
+                                                         product_received, 
+                                                         consumption)
+        self._validate_receipts(supply_point, product_stock, product_received, consumption)
+
+    def _validate_receipts(self, supply_point, product_stock, product_received, consumption):
+        errors = {}
+        if len(product_received) < len(product_stock):
+            errors = []
+            for product in product_stock:
+                if product not in product_received:
+                    errors.append(product)
+            if errors:
+                didumean = " ".join("%s%s.0"%(product, product_stock[product]) for product in errors)
+                raise ValueError(config.Messages.NO_RECEIPT_ERROR % {'didumean': didumean})
+    def _validate_no_stock_increase_without_receipt(self, supply_point, product_stock, 
+                                                         product_received, consumption):
         errors = {}
         for product in product_stock:
             try:
@@ -26,7 +44,7 @@ class SohAndReceiptValidator(Validator):
                     errors[product] = [product_stock[product], stock_increase]
         if errors:
             didumean = " ".join("%s%s.%s"%(product, errors[product][0],errors[product][1]) for product in errors)
-            raise ValueError(config.Messages.NO_RECEIPT_ERROR % {'didumean': didumean})
+            raise ValueError(config.Messages.NO_RECEIPT_ON_STOCK_INCREASE_ERROR % {'didumean': didumean})
 
 class App(LogisticsApp):
     def handle (self, message):
@@ -42,8 +60,7 @@ class App(LogisticsApp):
             try:
                 stock_report.validate()
             except ValueError, e:
-                # in this case, we don't want to fail on the validation error.
-                # we just want to catch and report it.
+                # we don't want to fail on validation errors, just detect & report
                 stock_report.errors.append(e)
             stock_report.save()
             self._send_responses(message, stock_report)

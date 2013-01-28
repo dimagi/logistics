@@ -3,7 +3,8 @@ from django.core.urlresolvers import reverse
 from rapidsms.models import Contact
 from alerts import Alert
 from logistics.util import config
-from logistics.decorators import place_in_request, return_if_place_not_set
+from logistics.decorators import place_in_request_with_context, \
+    return_if_place_not_set_with_context
 
 class ConsumptionNotSet(Alert):
     # url aggregate view
@@ -18,9 +19,9 @@ class ConsumptionNotSet(Alert):
         return "%(place)s does not have all its consumption values set." % \
                 {"place": self._supply_point.name}
 
-@place_in_request()
-@return_if_place_not_set()
-def consumption_not_set(request):
+@place_in_request_with_context()
+@return_if_place_not_set_with_context()
+def consumption_not_set(context, request):
     facilities = request.location.all_child_facilities()
     if not facilities:
         return None
@@ -41,9 +42,9 @@ class FacilitiesWithoutInChargeAlert(Alert):
         return "%(place)s has no in-charge registered." % \
                 {"place": self._supply_point.name}
 
-@place_in_request()
-@return_if_place_not_set()
-def facilities_without_incharge(request):
+@place_in_request_with_context()
+@return_if_place_not_set_with_context()
+def facilities_without_incharge(context, request):
     facilities = request.location.all_child_facilities()
     # totally ghana-specific
     facilities = facilities.exclude(type=config.SupplyPointCodes.CHPS)\
@@ -66,9 +67,9 @@ class ContactWithoutPhoneAlert(Alert):
         return "No phone numbers associated with: %(contact)s." % \
                 {"contact": self._contacts}
 
-@place_in_request()
-@return_if_place_not_set()
-def contact_without_phone(request):
+@place_in_request_with_context()
+@return_if_place_not_set_with_context()
+def contact_without_phone(context, request):
     facilities = request.location.all_child_facilities()
     contacts = Contact.objects.filter(is_active=True, supply_point__in=facilities).distinct()
     if not contacts:

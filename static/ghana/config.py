@@ -157,18 +157,20 @@ def hsa_location_type():
     return LocationType.objects.get(slug=HSA)
     
 class Messages(object):
-    SUPERVISOR_TITLE = 'DHIO'
+    SUPERVISOR_TITLE = 'DHIO or RHIO'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     BAD_CODE_ERROR = ("%(code)s is not a recognized commodity code. "
-                      "Please contact your DHIO for assistance.")
+                      "Please contact your DHIO or RHIO for help.")
     NO_CODE_ERROR = "Stock report should contain at least one product code. " + \
                     "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
     NO_QUANTITY_ERROR ="Stock report should contain quantity of stock on hand. " + \
                                  "Please contact your %(supervisor)s for assistance." % {'supervisor': SUPERVISOR_TITLE}
-    NO_RECEIPT_ERROR = 'You submitted increases in stock ' + \
+    NO_RECEIPT_ON_STOCK_INCREASE_ERROR = 'You submitted increases in stock ' + \
                        'without corresponding receipts. ' + \
                        'Did you mean: %(didumean)s? '
-    NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO for assistance."
+    NO_RECEIPT_ERROR = 'You did not report all receipts. ' + \
+                       'Did you mean: %(didumean)s? '
+    NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your DHIO or RHIO for help."
     RECEIPT_CONFIRM = 'Thank you, you reported receipts for %(products)s.'
     REGISTER_MESSAGE = "You must be registered on EWS " + \
                        "before you can submit a stock report. " + \
@@ -184,10 +186,11 @@ class Messages(object):
     STOCK_ON_HAND_REMINDER = 'Hi %(name)s! Please text your stock report tomorrow Friday by 2:00 pm. Your stock report can help save lives.'
     SECOND_STOCK_ON_HAND_REMINDER = 'Hi %(name)s, we did not receive your stock report last Friday. Please text your stock report as soon as possible.'
     SECOND_INCOMPLETE_SOH_REMINDER = 'Hi %(name)s, your facility is missing a few SMS stock reports. Please report on: %(products)s.'
-    THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, your facility has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
+    THIRD_STOCK_ON_HAND_REMINDER = 'Dear %(name)s, %(facility)s has not reported its stock this week. Please make sure that the SMS stock report is submitted.'
     INCOMPLETE_SOH_TO_SUPER = 'Dear %(name)s, %(facility)s\'s SMS stock report was INCOMPLETE. Please report for: %(products)s'
     RRIRV_REMINDER = "Dear %(name)s, have you submitted your RRIRV forms this month? Please reply 'yes' or 'no'"
     WEB_REMINDER = "Dear %(name)s, you have not visited ewsghana.com in a long time. Please log in to find up-to-date info about stock availability and bottlenecks in Ghana."
+    STOCKOUT_REPORT = 'Dear %(name)s, %(facility)s reported STOCKOUTS on %(date)s of %(products)s'
     
     # reports
     NUMBER_OF_SUPPLY_POINTS = "Number of Facilities"
@@ -196,6 +199,7 @@ class Messages(object):
     ALERT_INCOMPLETE = u'SMS report INCOMPLETE at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_STOCKOUT = u'Ongoing STOCKOUTS at these facilities over the past %(count)s weeks! Please follow up: %(names)s'
     ALERT_URGENT_STOCKOUT = u'URGENT STOCKOUT: More than half of the facilities reporting to EWS in %(location)s are experiencing stockouts of one or more of: %(names)s'
+    ALERT_URGENT_NONREPORTING = u'URGENT NONREPORTING: More than half of the facilities reporting to EWS in %(location)s have not reported their stock on hand this month'
 
 class Alerts(object):
     pass
