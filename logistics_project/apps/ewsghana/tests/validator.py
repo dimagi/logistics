@@ -15,7 +15,7 @@ class TestValidator (TestScript):
         a = """
            16176023315 > register stella dedh
            16176023315 < Congratulations stella, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
-           16176023315 > soh ov 16
+           16176023315 > soh ov 16.0
            16176023315 < Dear stella, thank you for reporting the commodities you have in stock.
            """
         self.runScript(a)
