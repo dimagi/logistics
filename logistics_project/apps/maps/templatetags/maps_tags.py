@@ -6,12 +6,12 @@ from dimagi.utils.modules import to_function
 register = template.Library()
 
 @register.simple_tag
-def get_map_icon(supply_point, request):
+def get_map_icon(supply_point, request, data_threshold=None):
     """
     Get a custom map icon based on the supply points stock information.
     Used in maps.
     """
-    if supply_point.data_unavailable():
+    if supply_point.data_unavailable(data_threshold):
         icon = "no_data.png"
     elif supply_point.productstock_set.filter(quantity__gt=0).count() <= \
          supply_point.productstock_set.filter(quantity=0).count():
