@@ -14,10 +14,11 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
     ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker,\
     CurrentConsumption
 from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_pct
-from static.malawi.config import TimeTrackerTypes
+from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from dimagi.utils.csv import UnicodeWriter
+from logistics.config import HSA
 
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
@@ -272,6 +273,10 @@ def get_consumption_chart(supply_point, product, start, end):
     report_chart['data'] = json.dumps(ret_data)
     return report_chart
 
+def supply_point_type_display(sptype):
+    def _fmt(str):
+        return str.upper() if str == HSA else str.capitalize()
+    return _fmt(SupplyPointCodes.ALL[sptype.code])
 
 def current_report_period():
     now = datetime.utcnow()
