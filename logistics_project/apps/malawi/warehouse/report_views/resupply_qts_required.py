@@ -7,7 +7,7 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     facility_supply_points_below, is_district, is_country, is_facility,\
     hsa_supply_points_below
-
+from collections import defaultdict
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -18,7 +18,6 @@ class View(warehouse_view.DistrictOnlyView):
             "is_datatable" : True,
             "is_downloadable": True,
             "header": [],
-            "footer": [],
             "data": [],
         }
 
@@ -42,12 +41,11 @@ class View(warehouse_view.DistrictOnlyView):
             table["header"] = ["HSA Name"]
             facilities = hsa_supply_points_below(sp.location)
 
-        for product in Product.objects.all().order_by('sms_code'):
+        products = Product.objects.order_by('sms_code')
+        for product in products:
             table["header"].append(product.name)
 
-        totals = {}
-        for p in Product.objects.all():
-            totals[p] = 0
+        totals = defaultdict(lambda: 0)
         for fac in facilities:
             temp = [fac.name]
             for product in Product.objects.all().order_by('sms_code'):
@@ -59,13 +57,9 @@ class View(warehouse_view.DistrictOnlyView):
             table["data"].append(temp)
 
         # include totals row
-        table["footer"] = ["Totals"]
-        for p in Product.objects.all().order_by('sms_code'):
-            table["footer"].append(totals[p])
-
+        table['data'].append(["Totals"] + [totals[p] for p in products])
         table["height"] = min(480, (facilities.count()+1)*30)
-
         return {
-                "table": table,
-                "selected_type": selected_type
+            "table": table,
+            "selected_type": selected_type
         }
