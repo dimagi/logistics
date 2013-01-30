@@ -1,12 +1,9 @@
 from django.db.models import Q
-
-from logistics.util import config
 from logistics.models import StockRequest, Product, SupplyPoint
-
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     facility_supply_points_below, is_district, is_country, is_facility,\
-    hsa_supply_points_below
+    hsa_supply_points_below, get_district_supply_points
 from collections import defaultdict
 
 class View(warehouse_view.DistrictOnlyView):
@@ -32,7 +29,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         if is_country(sp):
             table["header"] = ["District Name"]
-            facilities = SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT)
+            get_district_supply_points()
         elif is_district(sp):
             table["header"] = ["Facility Name"]
             facilities = facility_supply_points_below(sp.location)
