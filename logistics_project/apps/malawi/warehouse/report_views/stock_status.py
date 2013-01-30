@@ -8,7 +8,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct
     facility_supply_points_below, get_district_supply_points
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
-    get_stock_status_table_data, previous_report_period, current_report_period
+    get_stock_status_table_data, current_report_period
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
 from django.db.models.aggregates import Sum
 from django.shortcuts import get_object_or_404
@@ -99,13 +99,8 @@ class View(warehouse_view.DistrictOnlyView):
                     else:
                         temp.append('-')
                 hsa_table["data"].append(temp)
-            
-            location_table["location_type"] = "HSA"
-            location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = _get_product_status_table\
-                (hsas, 
-                 [selected_product])
-            
+
+            location_table = {} # don't show the location table for HSA's only
         elif is_country(sp):
             location_table["location_type"] = "District"
             location_table["header"] = [location_table["location_type"]] + headings
