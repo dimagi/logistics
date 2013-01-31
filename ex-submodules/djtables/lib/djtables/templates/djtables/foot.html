@@ -1,3 +1,21 @@
+<script type="text/javascript">
+    function validatePageNo()
+    {
+        var page_no=document.forms["page-selector"]["page"].value;
+        var intRegex = /^\d+$/;
+        if (!intRegex.test(page_no))
+        {
+            alert("Not a valid number.");
+            return false;
+        }
+        else if (page_no>{{paginator.num_pages}}||page_no<1)
+        {
+            alert("Number must be between 1 and {{paginator.num_pages}}.");
+            return false;
+        }
+    }
+</script>
+
 <tfoot>
     <tr>
         <td colspan="{{ num_columns }}">
@@ -8,6 +26,14 @@
                 <a href="{{ page.next.url }}" title="Next Page" class="next">&rsaquo;</a>
                 <a href="{{ paginator.last.url }}" title="Last Page" class="last">&raquo;</a>{% endif %}
             </div>
+            
+            <form method="get" id="page-selector" onsubmit="return validatePageNo()" >
+                <div style="float: right; color: #aaa; padding:0em">
+                <span style="padding: 0.5em; float:left;">Jump to Page</span>
+                <input style="margin:0; padding-left:0; width: 3em; height: 1.3em; font-size:0.8em" type="text" id="page" name="page"/>
+                <input style="font-size:0.8em;" type="submit" value="Go!" />
+                   </div>
+            </form>
         </td>
     </tr>
 </tfoot>
