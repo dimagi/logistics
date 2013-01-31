@@ -280,7 +280,11 @@ def is_on_time(sp, status_date, warehouse_date, type):
 def _is_valid_status(facility, date, type):
     if type not in NEEDED_STATUS_TYPES:
         return False
-    code = facility.groups.all()[0].code 
+
+    if not facility.groups.count():
+        return False
+
+    code = facility.groups.all()[0].code
     dg = DeliveryGroups(date.month)
     if type.startswith('rr'):
         return code == dg.current_submitting_group()
