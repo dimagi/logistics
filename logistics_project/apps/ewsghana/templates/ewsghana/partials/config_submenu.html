@@ -7,7 +7,8 @@
     <a href="{% url facility_view %}">FACILITIES</a> | 
     <a href="{% url facilities_list %}">CHECK CONFIGURATION</a>
 	{% if request.user.is_superuser %} | 
-    <a href="{% url commodity_view %}">COMMODITIES</a>
+    <a href="{% url commodity_view %}">COMMODITIES</a> | 
+    <a href="{% url district_view %}">DISTRICTS</a>
 	{% endif %}
 {% else %}	
     <a href="{% url ewsghana_scheduled_reports %}">MY EMAIL REPORTS</a> | 

@@ -5,6 +5,7 @@ import re
 from itertools import chain
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
@@ -18,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.contrib.locations.models import Location
 from rapidsms.conf import settings
 from auditcare.views import auditAll
 from auditcare.models import AccessAudit
@@ -32,9 +34,11 @@ from logistics.views import district_dashboard, aggregate, stockonhand_facility
 from logistics.view_decorators import filter_context
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
-from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics_project.apps.ewsghana.tables import FacilityDetailTable, \
+    LocationTable
 from logistics_project.apps.ewsghana.models import GhanaFacility
-from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm
+from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm, \
+    LocationForm
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
@@ -272,6 +276,71 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         }, context_instance=RequestContext(req)
     )
     
+
+@staff_member_required
+@transaction.commit_on_success
+def district(req, code=None, template="logistics/config.html"):
+    district = None
+    form = None
+    klass = "District"
+    if code is not None:
+        district = get_object_or_404(
+            Location, code=code)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete %s" % klass:
+            district.deactivate()
+            return HttpResponseRedirect(
+                "%s?deleted=%s" % (reverse('district_view'), 
+                                   unicode(district)))
+        else:
+            form = LocationForm(instance=district,
+                                data=req.POST)
+            if form.is_valid():
+                district = form.save()
+                if district:
+                    url = "%s?updated=%s"
+                else:
+                    url = "%s?created=%s"
+                return HttpResponseRedirect(
+                    url % (reverse('district_view'), 
+                           unicode(district)))
+    else:
+        form = LocationForm(instance=district)
+    created = None
+    deleted = None
+    search = None
+    districts = Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, 
+                                        is_active=True)
+    if req.method == "GET":
+        if "created" in req.GET:
+            created = req.GET['created']
+        elif "deleted" in req.GET:
+            deleted = req.GET['deleted']
+        if 'search' in req.GET:
+            search = req.GET['search']
+            safe_search = re.escape(search)
+            districts = districts.filter(name__iregex=safe_search)
+    return render_to_response(
+        template, {
+            "search_enabled": True, 
+            "search": search, 
+            "created": created, 
+            "deleted": deleted, 
+            "table": LocationTable(districts, request=req),
+            "form": form,
+            "object": district,
+            "klass": klass,
+            "klass_view": reverse('district_view'), 
+        }, context_instance=RequestContext(req)
+    )
+
+@staff_member_required
+@transaction.commit_on_success
+def activate_district(request, code):
+    district = get_object_or_404(Location, code=code)
+    district.activate()
+    return HttpResponse("success")
+
 @transaction.commit_on_success
 def my_web_registration(request, 
                         template='web_registration/admin_registration.html', 
@@ -350,4 +419,3 @@ def medical_stores(request, context={}, template="ewsghana/medical_stores.html")
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
-
