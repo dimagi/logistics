@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    url(r'^$',
+    url(r'^blast/?$',
         "groupmessaging.views.group_message",
         name="group_message"),
     url(r'^ajax_contact_count',
