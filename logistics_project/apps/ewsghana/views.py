@@ -64,22 +64,6 @@ class EWSGhanaMessageLogView(LogisticsMessageLogView):
     def get(self, request, template="ewsghana/messagelog.html"):
         return super(EWSGhanaMessageLogView, self).get(request, template=template)
 
-@cache_page(60 * 15)
-def export_messagelog(request, format='xls'):
-    class MessageDataSet(ModelDataset):
-        class Meta:
-            # hack to limit the # of messages returns
-            # so that we don't crash the server when the log gets too big
-            # in the long term, should implement asynchronous processing + progress bar
-            queryset = Message.objects.order_by('-date')[:10000]
-    dataset = getattr(MessageDataSet(), format)
-    response = HttpResponse(
-        dataset,
-        mimetype=mimetype_map.get(format, 'application/octet-stream')
-        )
-    response['Content-Disposition'] = 'attachment; filename=messagelog.xls'
-    return response
-
 def help(request, template="ewsghana/help.html"):
     commodities = Product.objects.filter(is_active=True).order_by('name')
     return render_to_response(
