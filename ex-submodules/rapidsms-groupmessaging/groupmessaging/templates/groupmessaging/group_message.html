@@ -23,6 +23,10 @@
            alert("Cannot send message over 160 characters!");
            return false;
        }
+       else if ($("#msg").val().length == 0){
+           alert("Please provide a message.");
+           return false;
+       }
     });
     $(".contactselect").change(function(){
         var selectmap = {};

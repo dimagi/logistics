@@ -13,7 +13,7 @@ from rapidsms.models import Contact, Backend
 from rapidsms.utils.modules import try_import
 from rapidsms.contrib.messaging.utils import send_message
 
-
+MAX_TO_DISPLAY = 25
 
 def all_contacts():
     return "Everyone", {"All Active Contacts": Q(is_active=True)}
@@ -66,11 +66,14 @@ def get_contact_generator_functions():
         fns.append(getattr(contact_module, func))
     return fns
 
+def _default_contacts():
+    return Contact.objects.filter(is_active=True).exclude(connection=None)
+
 def queries_to_contact_set(selected_qs):
     """
     Given a set of Q objects, return the contacts that match them
     """
-    c = Contact.objects.filter(is_active=True)
+    c = _default_contacts()
     for q in selected_qs:
         c = c.filter(q)
     return c
@@ -98,9 +101,13 @@ def ajax_contact_count(request):
     """
     contacts = post_to_contact_set(request)
     ts = []
-    for c in contacts:
-        ts.append("<tr><td>%s</td><td>%s</td></tr>" % (c.phone, c.name))
-    data = {'num': len(contacts),
+    count = contacts.count()
+    if count == _default_contacts().count() and count > MAX_TO_DISPLAY:
+        ts.append("<tr><td colspan=\"2\">Send a message to all %s registered SMS users.</td></tr>" % count)
+    else:
+        for c in contacts:
+            ts.append("<tr><td>%s</td><td>%s</td></tr>" % (c.phone, c.name))
+    data = {'num': count,
             'table': "\n".join(ts)}
     return HttpResponse(json.dumps(data), mimetype="application/json")
 
