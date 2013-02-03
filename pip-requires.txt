@@ -24,3 +24,4 @@ twilio
 virtualenv==1.4.5
 mock==1.0.1
 html5lib==0.95
+ordereddict==1.1

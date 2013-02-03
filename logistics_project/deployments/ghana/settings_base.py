@@ -11,6 +11,7 @@ APPS = [
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
+    "rapidsms.contrib.messaging",
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -41,6 +42,7 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
+    ("group_messaging",                                     "Broadcast", "is_superuser"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's
@@ -189,3 +191,8 @@ SOUTH_MIGRATION_MODULES = {
 
 AUTO_LOGOUT_DELAY = 300
 
+CONTACT_GROUP_GENERATORS = [
+    "groupmessaging.views.all_contacts_with_all_roles",
+    "logistics_project.apps.ewsghana.message_groups.by_district",
+    "logistics_project.apps.ewsghana.message_groups.by_facility",
+]
