@@ -198,3 +198,7 @@ CONTACT_GROUP_GENERATORS = [
     "logistics_project.apps.ewsghana.message_groups.by_district",
     "logistics_project.apps.ewsghana.message_groups.by_facility",
 ]
+
+CUSTOM_EXPORTS = [
+    ("Web User Activity", "logistics_project.apps.ewsghana.views.auditor_export")
+]

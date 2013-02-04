@@ -34,3 +34,6 @@
 [submodule "submodules/rapidsms-groupmessaging"]
 	path = submodules/rapidsms-groupmessaging
 	url = git://github.com/dimagi/rapidsms-groupmessaging.git
+[submodule "submodules/django-soil"]
+	path = submodules/django-soil
+	url = git://github.com/dimagi/django-soil.git
