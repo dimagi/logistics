@@ -29,7 +29,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         if is_country(sp):
             table["header"] = ["District Name"]
-            get_district_supply_points()
+            facilities = get_district_supply_points()
         elif is_district(sp):
             table["header"] = ["Facility Name"]
             facilities = facility_supply_points_below(sp.location)
