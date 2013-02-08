@@ -32,7 +32,7 @@ MIDDLEWARE_CLASSES = [
 RAPIDSMS_TABS = [
     ("aggregate_ghana",                                     "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
-    ("district_dashboard",                                  "District Dashboard"),
+    ("district_dashboard",                                  "Dashboard"),
     #("input_stock",                                        "Input Stock"),
     ("ewsghana_scheduled_reports",                          "Configuration"),
     #("email_reports",                                      "Email Reports"),
