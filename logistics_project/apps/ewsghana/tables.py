@@ -106,3 +106,4 @@ class EWSMessageTable(MessageTable):
 
     class Meta:
         order_by = '-date'
+        page_jump = True
