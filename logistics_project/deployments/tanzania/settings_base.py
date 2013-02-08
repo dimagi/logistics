@@ -194,7 +194,7 @@ SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.a
 SOUTH_MIGRATION_MODULES = {
     # override migrations folder to match our current deployment path
     'logistics': 'logistics_project.deployments.tanzania.migrations.logistics_prod',
-    'rapidsms': 'ignore',
+    'rapidsms': 'logistics_project.deployments.tanzania.migrations.rapidsms_prod',
 }
 
 WAREHOUSE_RUNNER = "logistics_project.apps.tanzania.reporting.runner.TanzaniaWarehouseRunner"
