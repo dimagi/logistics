@@ -27,6 +27,7 @@
                 <a href="{{ paginator.last.url }}" title="Last Page" class="last">&raquo;</a>{% endif %}
             </div>
             
+            {% if page_jump %}
             <form method="get" id="page-selector" onsubmit="return validatePageNo()" >
                 <div style="float: right; color: #aaa; padding:0em">
                 <span style="padding: 0.5em; float:left;">Jump to Page</span>
@@ -34,6 +35,7 @@
                 <input style="font-size:0.8em;" type="submit" value="Go!" />
                    </div>
             </form>
+            {% endif %}
         </td>
     </tr>
 </tfoot>

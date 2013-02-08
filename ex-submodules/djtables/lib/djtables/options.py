@@ -57,5 +57,6 @@ class TableOptions(Options):
 
         "template": "djtables/table.html",
 
-        'columns': []
+        'columns': [], 
+        'page_jump': False
     }

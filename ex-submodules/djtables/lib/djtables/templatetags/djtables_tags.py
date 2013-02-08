@@ -34,11 +34,11 @@ def table_body(table):
 @register.inclusion_tag("djtables/foot.html")
 def table_foot(table):
     paginator = Paginator(table)
-
     return {
         "num_columns": len(table.columns),
         "page": paginator.current(),
         "paginator": paginator,
+        "page_jump": table._meta.page_jump
     }
 
 
