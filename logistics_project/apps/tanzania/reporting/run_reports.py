@@ -6,11 +6,16 @@ from django.db.models.query_utils import Q
 from dimagi.utils.dates import months_between, get_business_day_of_month, \
     add_months
 
-from logistics.models import StockTransaction, ProductReport
+from logistics.models import StockTransaction, ProductReport, Product
 
-from logistics_project.apps.tanzania.models import *
-from logistics_project.apps.tanzania.reporting.models import *
+from logistics_project.apps.tanzania.models import SupplyPoint,\
+    SupplyPointStatusTypes, SupplyPointStatus, SupplyPointStatusValues,\
+    DeliveryGroups
+from logistics_project.apps.tanzania.reporting.models import OrganizationSummary,\
+    ProductAvailabilityData, GroupSummary, Alert
 from logistics.const import Reports
+from logistics.warehouse_models import SupplyPointWarehouseRecord
+from django.core.exceptions import ObjectDoesNotExist
 
 TESTING = False
 HISTORICAL_DAYS = 900
@@ -52,7 +57,6 @@ def clear_out_reports(start_date, end_date):
     
 def populate_report_data(start_date, end_date):
     # first populate all the warehouse tables for all facilities
-    
     # hard coded to know this is the first date with data
     start_date = max(start_date, datetime(2010, 11, 1))
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
@@ -191,7 +195,11 @@ def populate_report_data(start_date, end_date):
                                'soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
                 sub_alerts = Alert.objects.filter(supply_point__in=facs, date=window_date, type=alert_type)
                 aggregate_response_alerts(org, window_date, sub_alerts, alert_type)
-        
+
+    # finally go back through the history and initialize empty data for any
+    # newly created facilities
+    update_historical_data()
+
 def not_responding_facility(org_summary):
     assert org_summary.supply_point.type.code == "facility"
     def needed_status_types(org_summary):
@@ -511,6 +519,46 @@ def create_alert(org, date, type, details):
         alert.text = text
         alert.url = url
         create_object(alert)
+
+def update_historical_data():
+    """
+    If we don't have a record of this supply point being updated, run
+    through all historical data and just fill in with zeros.
+    """
+    start_date = OrganizationSummary.objects.order_by('date')[0].date
+    for sp in SupplyPoint.objects.all():
+        try:
+            SupplyPointWarehouseRecord.objects.get(supply_point=sp)
+        except ObjectDoesNotExist:
+            # we didn't have a record so go through and historically update
+            # anything we maybe haven't touched
+            for year, month in months_between(start_date, sp.created_at):
+                window_date = datetime(year, month, 1)
+                for cls in [OrganizationSummary, ProductAvailabilityData, GroupSummary]:
+                    _init_warehouse_model(cls, sp, window_date)
+            SupplyPointWarehouseRecord.objects.create(supply_point=sp,
+                                                      create_date=datetime.utcnow())
+
+def _init_warehouse_model(cls, supply_point, date):
+    {
+        OrganizationSummary: _init_default,
+        ProductAvailabilityData: _init_with_product,
+        GroupSummary: _init_group_summary
+    }[cls](cls, supply_point, date)
+
+def _init_default(cls, supply_point, date):
+    cls.objects.get_or_create(supply_point=supply_point, date=date)
+
+def _init_with_product(cls, supply_point, date):
+    for p in Product.objects.all():
+        cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
+
+def _init_group_summary(cls, supply_point, date):
+    assert cls == GroupSummary
+    org_summary = OrganizationSummary.objects.get(supply_point=supply_point, date=date)
+    for title in NEEDED_STATUS_TYPES:
+        GroupSummary.objects.get_or_create(org_summary=org_summary,
+                                           title=title)
 
 
 ##########
