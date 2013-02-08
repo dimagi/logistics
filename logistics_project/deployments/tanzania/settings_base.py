@@ -119,7 +119,7 @@ DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
 LOG_FILE    = "logistics.log"
-LOG_FORMAT  = "[%(name)s]: %(message)s"
+LOG_FORMAT  = "[%(asctime)s - %(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
@@ -187,14 +187,13 @@ LOGISTICS_ALERT_GENERATORS = [
 ]
 
 STATIC_LOCATIONS = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))), "static", "tanzania", "migration", "all_facilities.csv")
-
 REPORT_FOLDER = "tanzania/reports"
 
 SUPERVISION_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","supervision_documents")
 
 SOUTH_MIGRATION_MODULES = {
     # override migrations folder to match our current deployment path
-    'logistics': 'logistics_project.deployments.tanzania.migrations.logistics',
+    'logistics': 'logistics_project.deployments.tanzania.migrations.logistics_prod',
     'rapidsms': 'ignore',
 }
 
