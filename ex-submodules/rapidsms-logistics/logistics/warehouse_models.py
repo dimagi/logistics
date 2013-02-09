@@ -41,4 +41,10 @@ class ReportingModel(BaseReportingModel):
     class Meta:
         abstract = True
 
-    
+class SupplyPointWarehouseRecord(models.Model):
+    """
+    When something gets updated in the warehouse, create a record of having
+    done that.
+    """
+    supply_point = models.ForeignKey('logistics.SupplyPoint')
+    create_date = models.DateTimeField()
