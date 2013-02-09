@@ -6,6 +6,20 @@
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}registration/stylesheets/dashboard.css" />
 {% endblock %}
 
+{% block javascripts %}
+{{ block.super }}
+    <script type="text/javascript">
+    $(document).ready(function() {
+    $("#addPhoneForm").submit(function() {
+       if ($("#phone_to_add").val().length == 0){
+           alert("Please provide a phone number.");
+           return false;
+       }
+    });
+    });
+    </script>
+{% endblock %}
+
 {% block left %}
 <div class="module">
      <h2>SMS Users</h2>
@@ -31,6 +45,9 @@
      {% if deleted %}
           <br/><div class="success">{{deleted}} has been successfully deleted.</div>
      {% endif %}
+     {% if errors %}
+          <br/><div class="error">{{errors}}</div>
+     {% endif %}
 
      <form action="" method="post">
           {% render_form contact_form %}
@@ -41,6 +58,25 @@
                <input type="submit" name="submit" value="Delete Contact" />{% endif %}
           </div>
      </form>
+     {% if contact %}
+	     {% if other_phones %}
+		     <h3>Additional Phone Numbers</h3>
+		     {% for phone in other_phones %}
+			     <form method="post" action="">{% csrf_token %}
+			          <input type="hidden" name="number_to_delete" value="{{phone.pk}}" />
+			          <div class="field">{{phone.identity}} <input type="submit" name="submit" value="Delete Number" /></div><br/>
+			     </form>
+		     {% endfor %}
+	     {% endif %}
+	     <h3>Add a Phone Number</h3>
+	     <form method="post" action="" id="addPhoneForm">{% csrf_token %}
+	          <div class="add_field">
+	            <input id="phone_to_add" type="text" name="phone_to_add" maxlength="100" />
+	            <input type="submit" name="submit" value="Add Number" /><br/>
+	          </div>
+	     </form>
+     {% endif %}
+
      {% if contact and contact.supply_point %}
           <div class="end_note"><strong>
                <a href="{% url facility_edit contact.supply_point.pk %}">
@@ -51,7 +87,7 @@
 </div>
 {% if bulk_form %}
 <div class="module collapsed">
-        <h2>Bulk Registration</h2>
+     <h2>Bulk Registration</h2>
      <form action="" method="post" enctype="multipart/form-data">
           {% render_form bulk_form %}
           {% csrf_token %}
