@@ -22,7 +22,8 @@ class ConsumptionNotSet(Alert):
 @place_in_request_with_context()
 @return_if_place_not_set_with_context()
 def consumption_not_set(context, request):
-    facilities = request.location.all_child_facilities()
+    location = context['location'] if 'location' in context else request.location
+    facilities = location.all_child_facilities()
     if not facilities:
         return None
     return [ConsumptionNotSet(facility) for facility in facilities \
@@ -45,7 +46,8 @@ class FacilitiesWithoutInChargeAlert(Alert):
 @place_in_request_with_context()
 @return_if_place_not_set_with_context()
 def facilities_without_incharge(context, request):
-    facilities = request.location.all_child_facilities()
+    location = context['location'] if 'location' in context else request.location
+    facilities = location.all_child_facilities()
     # totally ghana-specific
     facilities = facilities.exclude(type=config.SupplyPointCodes.CHPS)\
                                          .exclude(type=config.SupplyPointCodes.CLINIC)
@@ -70,7 +72,8 @@ class ContactWithoutPhoneAlert(Alert):
 @place_in_request_with_context()
 @return_if_place_not_set_with_context()
 def contact_without_phone(context, request):
-    facilities = request.location.all_child_facilities()
+    location = context['location'] if 'location' in context else request.location
+    facilities = location.all_child_facilities()
     contacts = Contact.objects.filter(is_active=True, supply_point__in=facilities).distinct()
     if not contacts:
         return None

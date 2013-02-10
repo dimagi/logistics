@@ -25,9 +25,10 @@ from auditcare.views import auditAll
 from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
+from logistics.decorators import place_in_request
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
-from logistics.view_decorators import geography_context, location_context
+from logistics.view_decorators import geography_context
 from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
 from logistics.views import district_dashboard, aggregate, stockonhand_facility
@@ -48,9 +49,9 @@ from .tables import AuditLogTable, EWSMessageTable
 
 """ Usage-Related Views """
 @geography_context
-@location_context
-def reporting(request, location_code=None, context={}, template="ewsghana/reporting.html"):
-    return logistics_reporting(request=request, location_code=location_code, 
+@place_in_request()
+def reporting(request, context={}, template="ewsghana/reporting.html"):
+    return logistics_reporting(request=request,  
                                context=context, template=template, 
                                destination_url="ewsghana_reporting")
 
@@ -193,11 +194,14 @@ def web_registration(request, template_name="registration/registration_form.html
 def email_reports(request, pk=None, context={}, template="ewsghana/email_reports.html"):
     return logistics_email_reports(request, pk, context, template)
 
-@location_context
-def facilities_list(request, location_code=None, context={}, template="ewsghana/facilities_list.html"):
-    facilities = context['location'].all_facilities()
+@place_in_request()
+def facilities_list(request, context={}, template="ewsghana/facilities_list.html"):
+    if request.location is None:
+        request.location = get_object_or_404(Location, code=settings.COUNTRY)
+    facilities = request.location.all_facilities()
     context ['table'] = FacilityDetailTable(facilities, request=request)
     context['destination_url'] = "facilities_list"
+    context['location'] = request.location
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -409,8 +413,9 @@ def dashboard(request, context={}):
                 return HttpResponseRedirect("%s?place=%s" % \
                                             (reverse("district_dashboard"),prof.location.code) ) 
             else:
-                return aggregate(request, prof.location.code)
-    return aggregate(request, settings.COUNTRY, context=context)
+                request.location = prof.location
+                return aggregate(request)
+    return aggregate(request, context=context)
 
 def medical_stores(request, context={}, template="ewsghana/medical_stores.html"):
     context['stores'] = SupplyPoint.objects.filter(active=True,

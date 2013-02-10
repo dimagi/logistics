@@ -30,9 +30,9 @@ MIDDLEWARE_CLASSES = [
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
+    ("aggregate",                                           "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
-    ("district_dashboard",                                  "Dashboard"),
+    ("district_dashboard",                                  "District Dashboard"),
     #("input_stock",                                        "Input Stock"),
     ("ewsghana_scheduled_reports",                          "Configuration"),
     #("email_reports",                                      "Email Reports"),
@@ -145,6 +145,8 @@ LOGISTICS_CONSUMPTION = {
 }
 LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
 LOGISTICS_STOCKED_BY = 'facility'
+LOGISTICS_USE_LOCATION_SESSIONS = True
+LOGISTICS_NAVIGATION_MODE = "param" 
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
