@@ -7,18 +7,19 @@ from django.core.exceptions import ObjectDoesNotExist
 from rapidsms.contrib.locations.models import Location
 
 from logistics.models import SupplyPoint, ProductReport
-from logistics_project.apps.tanzania.models import DeliveryGroups,\
+from logistics_project.apps.tanzania.models import DeliveryGroups, \
     SupplyPointStatusTypes
 from logistics_project.apps.tanzania.models import NoDataError
-from logistics_project.apps.tanzania.reporting.models import OrganizationSummary,\
+from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, \
     GroupSummary, ProductAvailabilityData, OrganizationTree
 from logistics_project.apps.tanzania.views import convert_data_to_pie_chart
 from logistics_project.apps.tanzania.utils import format_percent
+from django.conf import settings
 
 
 class SupplyPointStatusBreakdown(object):
 
-    def __init__(self, org=None, year=None, month=None, facilities=[], report_type=None):
+    def __init__(self, location=None, year=None, month=None, facilities=[], report_type=None):
 
         if not (year and month):
             self.month = datetime.utcnow().month
@@ -30,17 +31,17 @@ class SupplyPointStatusBreakdown(object):
         self.report_month = self.month - 1 if self.month > 1 else 12
         self.report_year = self.year if self.report_month < 12 else self.year - 1
 
-        date = datetime(self.year, self.month,1)
+        date = datetime(self.year, self.month, 1)
 
-        if org is None:
-            org = 'MOHSW-MOHSW'
+        if location is None:
+            location = Location.objects.get(code__iexact=settings.COUNTRY)
 
-        self.supply_point = SupplyPoint.objects.get(code=org)
+        self.supply_point = SupplyPoint.objects.get(location=location)
         self.facilities = facilities
-        
+
         try:
             self.org_summary = OrganizationSummary.objects.get\
-                (date=date, supply_point__code=org)
+                (date=date, supply_point=self.supply_point)
         except ObjectDoesNotExist:
             raise NoDataError()
 
@@ -54,7 +55,7 @@ class SupplyPointStatusBreakdown(object):
 
         # TODO: the list generation stuff is kinda ugly, for compatibility
         # with the old way of doing things
-        if report_type=='SOH' or not report_type:
+        if report_type == 'SOH' or not report_type:
             self.soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
                                             org_summary=self.org_summary)
             self.soh_json = convert_data_to_pie_chart(self.soh_data, date)
@@ -65,7 +66,7 @@ class SupplyPointStatusBreakdown(object):
             self.soh_not_responding = [''] * self.soh_data.not_responding
 
 
-        if report_type=='RandR' or not report_type:
+        if report_type == 'RandR' or not report_type:
             self.rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
                                            org_summary=self.org_summary)
             self.rr_json = convert_data_to_pie_chart(self.rr_data, date)
@@ -84,7 +85,7 @@ class SupplyPointStatusBreakdown(object):
             self.submit_reminder_sent = []
 
 
-        if report_type=='DEL' or not report_type:
+        if report_type == 'DEL' or not report_type:
             self.delivery_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.DELIVERY_FACILITY,
                                                  org_summary=self.org_summary)
             self.delivery_json = convert_data_to_pie_chart(self.delivery_data, date)
@@ -96,7 +97,7 @@ class SupplyPointStatusBreakdown(object):
             self.delivery_reminder_sent = []
 
 
-        if report_type=='SUPER' or not report_type:
+        if report_type == 'SUPER' or not report_type:
             self.supervision_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SUPERVISION_FACILITY,
                                                     org_summary=self.org_summary)
             self.supervision_json = convert_data_to_pie_chart(self.supervision_data, date)
@@ -122,7 +123,7 @@ class SupplyPointStatusBreakdown(object):
 
     def _percent(self, fn=None, of=None):
         if not of:
-            of= len(self.facilities)
+            of = len(self.facilities)
         else:
             of = len(getattr(self, of))
         return format_percent(len(getattr(self, fn)), of)
@@ -146,7 +147,7 @@ class SupplyPointStatusBreakdown(object):
     def supervision_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
+        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year, self.month, 1),
                             org_summary__supply_point=self.supply_point, title='super_fac'):
             if g:
                 total_responses += g.responded
@@ -158,7 +159,7 @@ class SupplyPointStatusBreakdown(object):
     def randr_response_rate(self):
         total_responses = 0
         total_possible = 0
-        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year,self.month,1), 
+        for g in GroupSummary.objects.filter(org_summary__date__lte=datetime(self.year, self.month, 1),
                             org_summary__supply_point=self.supply_point, title='rr_fac'):
             if g:
                 total_responses += g.responded
@@ -170,13 +171,13 @@ class SupplyPointStatusBreakdown(object):
     def percent_stockouts_in_month(self):
         if self.facilities:
             return "%.1f%%" % (ProductReport.objects.filter(supply_point__in=self.facilities, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()\
-                                /len(self.facilities))
+                                / len(self.facilities))
         return "<span class='no_data'>None</span>"
 
     def percent_stocked_out(self, product, year, month):
-        ps = ProductAvailabilityData.objects.filter(supply_point=self.supply_point, product=product, date=datetime(year,month,1))
+        ps = ProductAvailabilityData.objects.filter(supply_point=self.supply_point, product=product, date=datetime(year, month, 1))
         if ps:
-            return format_percent(ps[0].without_stock,ps[0].total)
+            return format_percent(ps[0].without_stock, ps[0].total)
         return "<span class='no_data'>None</span>"
 
 class LocationAggregate(object):
@@ -185,7 +186,10 @@ class LocationAggregate(object):
         facs = []
         if location:
             facs = [s.below for s in OrganizationTree.objects.filter(above__code=location.code, is_facility=True)]
-        self.breakdown = SupplyPointStatusBreakdown(org=location.code, month=month, year=year, facilities=facs, report_type=report_type)
+        self.breakdown = SupplyPointStatusBreakdown(
+            location=location, month=month, year=year, facilities=facs,
+            report_type=report_type)
+
 
     def __unicode__(self):
         return "%s" % self.name

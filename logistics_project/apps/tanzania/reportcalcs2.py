@@ -75,7 +75,7 @@ class TanzaniaReport(object):
         self.dg = DeliveryGroups(self.mp.month, facs=self.facs)
         mp = self.mp
 
-        self.bd = SupplyPointStatusBreakdown(org=org, year=self.mp.year, month=self.mp.month)
+        self.bd = SupplyPointStatusBreakdown(location=self.location, year=self.mp.year, month=self.mp.month)
 
         product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
         product_dashboard = ProductAvailabilityDashboardChart()
