@@ -1,31 +1,29 @@
 from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models.query_utils import Q
-from django.template.loader import get_template
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
 from rapidsms.contrib.messagelog.models import Message
-from dimagi.utils.decorators.profile import profile
+from rapidsms.contrib.locations.models import Location
 
-from logistics.reports import DynamicProductAvailabilitySummaryByFacilitySP
 from logistics.decorators import place_in_request
 from logistics.models import Product
 from logistics.views import MonthPager
 
-from logistics_project.apps.tanzania.reporting.models import *
-from logistics_project.apps.tanzania.views import *
-
 from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable2, DeliveryStatusTable, AggregateRandRTable, AggregateSOHTable, AggregateStockoutPercentColumn, AggregateSupervisionTable, AggregateDeliveryTable, UnrecognizedMessagesTable, AggregateStockoutPercentColumn2
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd, facilities_below, supply_points_below
-from logistics_project.apps.tanzania.models import NoDataError
+from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable,\
+    AggregateRandRTable, AggregateStockoutPercentColumn, AggregateSOHTable,\
+    AggregateSupervisionTable, AggregateDeliveryTable, DeliveryStatusTable2,\
+    UnrecognizedMessagesTable
+from logistics_project.apps.tanzania.models import NoDataError, DeliveryGroups
 
-from models import DeliveryGroups
-from views import get_facilities_and_location, _generate_soh_tables, _generate_soh_tables2, _is_district, _is_region, _is_national
-from django.core.exceptions import ObjectDoesNotExist
-
+from logistics_project.apps.tanzania.utils import randr_on_time_reporting,\
+    supply_points_below
+from logistics_project.apps.tanzania.reporting.models import ProductAvailabilityData,\
+    ProductAvailabilityDashboardChart
+from logistics_project.apps.tanzania.views import convert_product_data_to_sideways_chart,\
+    get_facilities_and_location, _generate_soh_tables
 
 class TanzaniaReport(object):
     """
