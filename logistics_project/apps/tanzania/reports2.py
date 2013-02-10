@@ -19,7 +19,6 @@ from logistics_project.apps.tanzania.utils import format_percent
 class SupplyPointStatusBreakdown(object):
 
     def __init__(self, org=None, year=None, month=None, facilities=[], report_type=None):
-        # write to db instead
 
         if not (year and month):
             self.month = datetime.utcnow().month
