@@ -1,27 +1,19 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.utils.functional import curry
-from django.utils.translation import ugettext as _
 from django.db.models.query_utils import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 from rapidsms.contrib.locations.models import Location
 
-from dimagi.utils.dates import months_between
-
-from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint, ProductReport
-
-from logistics_project.apps.tanzania.models import DeliveryGroups, OnTimeStates
-from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time, facilities_below, historical_response_rate, format_percent, sps_with_status
-
-from logistics_project.apps.tanzania.reporting.models import *
-from logistics_project.apps.tanzania.views import *
+from logistics_project.apps.tanzania.models import DeliveryGroups,\
+    SupplyPointStatusTypes
 from logistics_project.apps.tanzania.models import NoDataError
-
-from models import SupplyPointStatusTypes, SupplyPointStatusValues
-from utils import sps_with_latest_status, avg_past_lead_time
-from calendar import month_name
-from django.core.exceptions import ObjectDoesNotExist
+from logistics_project.apps.tanzania.reporting.models import OrganizationSummary,\
+    GroupSummary, ProductAvailabilityData, OrganizationTree
+from logistics_project.apps.tanzania.views import convert_data_to_pie_chart
+from logistics_project.apps.tanzania.utils import format_percent
 
 
 class SupplyPointStatusBreakdown(object):
@@ -211,9 +203,8 @@ def national_aggregate(year=None, month=None, report_type=None):
     return location_aggregates(location, year=year, month=month, report_type=report_type)
 
 def location_aggregates(location, year=None, month=None, report_type=None):
-    return [LocationAggregate(location=x, month=month, year=year, report_type=report_type) for x in location.get_children()]
-
-
-
-
+    return [LocationAggregate(location=l, month=month,
+                              year=year, report_type=report_type) \
+            for l in location.get_children() \
+            if SupplyPoint.objects.filter(location=l).count() > 0]
 
