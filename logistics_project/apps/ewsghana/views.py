@@ -121,6 +121,7 @@ def _prep_audit_for_display(auditevents):
     return realEvents
 
 def auditor_export(request):
+    """ consider using the async export_auditor task in stead of this view """
     auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
                                    descending=True, include_docs=True).all()
     detailedEvents = _prep_audit_for_display(auditEvents)

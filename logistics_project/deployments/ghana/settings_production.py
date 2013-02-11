@@ -19,6 +19,7 @@ APPS = [
     "logistics_project.apps.smsgh",
     "cpserver",
     "rapidsms.contrib.messaging",
+    "soil",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -204,6 +205,6 @@ CONTACT_GROUP_GENERATORS = [
 ]
 
 CUSTOM_EXPORTS = [
-    ("Web User Activity", "logistics_project.apps.ewsghana.views.auditor_export")
+    ("Web User Activity", "logistics_project.apps.ewsghana.tasks.export_auditor")
 ]
 
