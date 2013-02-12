@@ -19,6 +19,7 @@ APPS = [
     "logistics_project.apps.smsgh",
     "cpserver",
     "rapidsms.contrib.messaging",
+    "soil",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -201,5 +202,9 @@ CONTACT_GROUP_GENERATORS = [
     "groupmessaging.views.all_contacts_with_all_roles",
     "logistics_project.apps.ewsghana.message_groups.by_district",
     "logistics_project.apps.ewsghana.message_groups.by_facility",
+]
+
+CUSTOM_EXPORTS = [
+    ("Web User Activity", "logistics_project.apps.ewsghana.tasks.export_auditor")
 ]
 
