@@ -32,7 +32,7 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                    success_url='admin_web_registration_complete'):
     context = {} if context is None else context
     user = None
-    if not request.user.has_perm('auth.add_user') and \
+    if pk and not request.user.has_perm('auth.add_user') and \
       not (hasattr(request.user, 'pk') and int(pk) == int(request.user.pk)):
         # view is only available to non-admin users if all they do is edit themselves
         return HttpResponseRedirect(settings.LOGIN_URL)
