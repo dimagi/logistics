@@ -12,8 +12,8 @@ class ConsumptionNotSet(Alert):
     def __init__(self, supply_point ):
         self._supply_point = supply_point
         super(ConsumptionNotSet, self).__init__(self._get_text(), 
-                                                reverse('aggregate', 
-                                                        args=(supply_point.code, )))
+                                                "%s?%s" % (reverse('aggregate'), 
+                                                           supply_point.code))
 
     def _get_text(self):
         return "%(place)s does not have all its consumption values set." % \
