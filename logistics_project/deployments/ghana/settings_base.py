@@ -114,7 +114,7 @@ CACHES = {
 
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
-LOG_LEVEL   = "DEBUG"
+LOG_LEVEL   = "WARNING"
 LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
