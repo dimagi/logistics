@@ -316,7 +316,7 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
      
     class Meta:
         model = Contact
-        exclude = ("user", "language", "commodities")
+        exclude = ("user", "language", "commodities", "_default_connection")
     
     def __init__(self, *args, **kwargs):
         super(EWSGhanaSMSRegistrationForm, self).__init__(*args, **kwargs)

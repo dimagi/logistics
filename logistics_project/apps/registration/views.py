@@ -3,28 +3,32 @@
 
 import re
 from django.conf import settings
-from django.db.models import Q
-from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.db.models import Q
 from django.db import transaction
+from django.forms import ValidationError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
 from logistics.models import SupplyPoint
-from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
+from logistics_project.apps.registration.forms import CommoditiesContactForm, \
+    BulkRegistrationForm
+from logistics_project.apps.registration.validation import check_for_dupes, \
+    intl_clean_phone_number
 from .tables import ContactTable
 
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html", 
                  contact_form=CommoditiesContactForm):
+    context = {}
     contact = None
     connection = None
-    bulk_form = None
     search = None
     registration_view = 'registration'
     registration_edit = 'registration_edit'
@@ -37,11 +41,29 @@ def registration(req, pk=None, template="registration/dashboard.html",
         contact = get_object_or_404(
             Contact, pk=pk)
         try:
-            connection = Connection.objects.get(contact=contact)
+            connection = contact.default_connection
         except Connection.DoesNotExist:
             connection = None
     if req.method == "POST":
-        if req.POST["submit"] == "Delete Contact":
+        if req.POST["submit"] == "Delete Number":
+            conn = Connection.objects.get(pk=req.POST['number_to_delete'])
+            conn.delete()
+            return HttpResponseRedirect("%s" % (reverse(registration_edit, 
+                                                        kwargs={'pk':contact.pk})))
+        elif req.POST["submit"] == "Add Number":
+            phone_number = req.POST['phone_to_add']
+            try:
+                check_for_dupes(phone_number)
+                intl_clean_phone_number(phone_number)
+            except ValidationError, e:
+                context['errors'] = e.messages[0] if e.messages else None
+                contact_form = contact_form(
+                    instance=contact)
+            else:
+                contact.add_phone_number(phone_number)
+                return HttpResponseRedirect("%s" % (reverse(registration_edit, 
+                                                            kwargs={'pk':contact.pk})))
+        elif req.POST["submit"] == "Delete Contact":
             # deactivate instead of delete to preserve logs
             name = unicode(contact)
             contact.deactivate()
@@ -56,13 +78,13 @@ def registration(req, pk=None, template="registration/dashboard.html",
                 backend_name = line_list[1].strip()
                 identity = line_list[2].strip()
 
-                contact = Contact(name=name)
-                contact.save()
+                bcontact = Contact(name=name)
+                bcontact.save()
                 # TODO deal with errors!
                 backend = Backend.objects.get(name=backend_name)
 
                 connection = Connection(backend=backend, identity=identity,\
-                    contact=contact)
+                    contact=bcontact)
                 connection.save()
 
             return HttpResponseRedirect(
@@ -71,7 +93,6 @@ def registration(req, pk=None, template="registration/dashboard.html",
             contact_form = contact_form(
                 instance=contact,
                 data=req.POST)
-
             if contact_form.is_valid():
                 created = False
                 if contact is None:
@@ -99,7 +120,6 @@ def registration(req, pk=None, template="registration/dashboard.html",
         else:
             contact_form = contact_form(
                 instance=contact)
-        bulk_form = BulkRegistrationForm()
     created = None
     deleted = None
     contacts = Contact.objects.filter(is_active=True)
@@ -116,17 +136,14 @@ def registration(req, pk=None, template="registration/dashboard.html",
             contacts = contacts.filter(Q(name__iregex=safe_search) |\
                                        Q(connection__identity__iregex=safe_search) |\
                                        Q(supply_point__name__iregex=safe_search))
+    context["other_phones"] = contact.get_other_connections() if contact else None
+    context["contacts_table"] = ContactTable(contacts, request=req)
+    context["contact_form"] = contact_form
+    context["created"] = created
+    context["deleted"] = deleted 
+    context["search"] = search
+    context["contact"] = contact
+    context["registration_view"] = reverse(registration_view)
     return render_to_response(
-        template, {
-            "contacts_table": ContactTable(contacts, request=req),
-            "contact_form": contact_form,
-            "created": created, 
-            "deleted": deleted, 
-            "search": search, 
-            # no one is using or has tested the bulk form in logistics
-            # so we remove it for now
-            # "bulk_form": bulk_form,
-            "contact": contact,
-            "registration_view": reverse(registration_view)
-        }, context_instance=RequestContext(req)
+        template, context, context_instance=RequestContext(req)
     )
