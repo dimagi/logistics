@@ -104,6 +104,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.google_analytics",
     "logistics.context_processors.stocked_by",
+    "logistics.context_processors.global_nav_mode",
     "couchlog.context_processors.static_workaround"
 ]
 

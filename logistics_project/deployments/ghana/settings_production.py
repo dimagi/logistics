@@ -18,6 +18,8 @@ APPS = [
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
     "cpserver",
+    "rapidsms.contrib.messaging",
+    "soil",
 ]
 
 MIDDLEWARE_CLASSES = (
@@ -36,7 +38,7 @@ MIDDLEWARE_CLASSES = (
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate_ghana",                                     "Stock Levels"),
+    ("aggregate",                                     "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
     ("district_dashboard",                                  "District Dashboard"),
     #("input_stock",                                        "Input Stock"),
@@ -48,6 +50,7 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
     #("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
+    ("group_messaging",                                     "Broadcast", "is_superuser"),
 ]
 
 # for postgresql:
@@ -143,6 +146,8 @@ LOGISTICS_CONSUMPTION = {
 }
 LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
 LOGISTICS_STOCKED_BY = 'facility'
+LOGISTICS_USE_LOCATION_SESSIONS = True
+LOGISTICS_NAVIGATION_MODE = "param" 
 
 AUDITCARE_LOG_ERRORS = False
 
@@ -192,3 +197,14 @@ SOUTH_MIGRATION_MODULES = {
 }
 
 AUTO_LOGOUT_DELAY = 300
+
+CONTACT_GROUP_GENERATORS = [
+    "groupmessaging.views.all_contacts_with_all_roles",
+    "logistics_project.apps.ewsghana.message_groups.by_district",
+    "logistics_project.apps.ewsghana.message_groups.by_facility",
+]
+
+CUSTOM_EXPORTS = [
+    ("Web User Activity", "logistics_project.apps.ewsghana.tasks.export_auditor")
+]
+

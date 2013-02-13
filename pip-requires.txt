@@ -1,8 +1,8 @@
 couchdbkit==0.5.4
 Django==1.3
-celery==2.2.5
+celery>=3.0.0
 django-cpserver
-django-celery==2.2.4
+django-celery>=3.0.0
 django-nose>=0.1
 djappsettings==0.1.0
 django-kombu
@@ -24,3 +24,4 @@ twilio
 virtualenv==1.4.5
 mock==1.0.1
 html5lib==0.95
+ordereddict==1.1

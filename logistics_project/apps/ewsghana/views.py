@@ -5,6 +5,7 @@ import re
 from itertools import chain
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
@@ -18,23 +19,27 @@ from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.contrib.locations.models import Location
 from rapidsms.conf import settings
 from auditcare.views import auditAll
 from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
+from logistics.decorators import place_in_request
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
-from logistics.view_decorators import geography_context, location_context
+from logistics.view_decorators import geography_context
 from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
 from logistics.views import district_dashboard, aggregate, stockonhand_facility
 from logistics.view_decorators import filter_context
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
-from logistics_project.apps.ewsghana.tables import FacilityDetailTable
+from logistics_project.apps.ewsghana.tables import FacilityDetailTable, \
+    LocationTable
 from logistics_project.apps.ewsghana.models import GhanaFacility
-from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm
+from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm, \
+    LocationForm
 from logistics_project.apps.ewsghana.permissions import FACILITY_MANAGER_GROUP_NAME
 from .forms import FacilityForm, EWSGhanaBasicWebRegistrationForm, \
     EWSGhanaManagerWebRegistrationForm, EWSGhanaAdminWebRegistrationForm
@@ -44,9 +49,9 @@ from .tables import AuditLogTable, EWSMessageTable
 
 """ Usage-Related Views """
 @geography_context
-@location_context
-def reporting(request, location_code=None, context={}, template="ewsghana/reporting.html"):
-    return logistics_reporting(request=request, location_code=location_code, 
+@place_in_request()
+def reporting(request, context={}, template="ewsghana/reporting.html"):
+    return logistics_reporting(request=request,  
                                context=context, template=template, 
                                destination_url="ewsghana_reporting")
 
@@ -58,22 +63,6 @@ class EWSGhanaMessageLogView(LogisticsMessageLogView):
     
     def get(self, request, template="ewsghana/messagelog.html"):
         return super(EWSGhanaMessageLogView, self).get(request, template=template)
-
-@cache_page(60 * 15)
-def export_messagelog(request, format='xls'):
-    class MessageDataSet(ModelDataset):
-        class Meta:
-            # hack to limit the # of messages returns
-            # so that we don't crash the server when the log gets too big
-            # in the long term, should implement asynchronous processing + progress bar
-            queryset = Message.objects.order_by('-date')[:10000]
-    dataset = getattr(MessageDataSet(), format)
-    response = HttpResponse(
-        dataset,
-        mimetype=mimetype_map.get(format, 'application/octet-stream')
-        )
-    response['Content-Disposition'] = 'attachment; filename=messagelog.xls'
-    return response
 
 def help(request, template="ewsghana/help.html"):
     commodities = Product.objects.filter(is_active=True).order_by('name')
@@ -132,6 +121,7 @@ def _prep_audit_for_display(auditevents):
     return realEvents
 
 def auditor_export(request):
+    """ consider using the async export_auditor task in stead of this view """
     auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
                                    descending=True, include_docs=True).all()
     detailedEvents = _prep_audit_for_display(auditEvents)
@@ -189,11 +179,14 @@ def web_registration(request, template_name="registration/registration_form.html
 def email_reports(request, pk=None, context={}, template="ewsghana/email_reports.html"):
     return logistics_email_reports(request, pk, context, template)
 
-@location_context
-def facilities_list(request, location_code=None, context={}, template="ewsghana/facilities_list.html"):
-    facilities = context['location'].all_facilities()
+@place_in_request()
+def facilities_list(request, context={}, template="ewsghana/facilities_list.html"):
+    if request.location is None:
+        request.location = get_object_or_404(Location, code=settings.COUNTRY)
+    facilities = request.location.all_facilities()
     context ['table'] = FacilityDetailTable(facilities, request=request)
     context['destination_url'] = "facilities_list"
+    context['location'] = request.location
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
@@ -272,6 +265,71 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         }, context_instance=RequestContext(req)
     )
     
+
+@staff_member_required
+@transaction.commit_on_success
+def district(req, code=None, template="logistics/config.html"):
+    district = None
+    form = None
+    klass = "District"
+    if code is not None:
+        district = get_object_or_404(
+            Location, code=code)
+    if req.method == "POST":
+        if req.POST["submit"] == "Delete %s" % klass:
+            district.deactivate()
+            return HttpResponseRedirect(
+                "%s?deleted=%s" % (reverse('district_view'), 
+                                   unicode(district)))
+        else:
+            form = LocationForm(instance=district,
+                                data=req.POST)
+            if form.is_valid():
+                district = form.save()
+                if district:
+                    url = "%s?updated=%s"
+                else:
+                    url = "%s?created=%s"
+                return HttpResponseRedirect(
+                    url % (reverse('district_view'), 
+                           unicode(district)))
+    else:
+        form = LocationForm(instance=district)
+    created = None
+    deleted = None
+    search = None
+    districts = Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, 
+                                        is_active=True)
+    if req.method == "GET":
+        if "created" in req.GET:
+            created = req.GET['created']
+        elif "deleted" in req.GET:
+            deleted = req.GET['deleted']
+        if 'search' in req.GET:
+            search = req.GET['search']
+            safe_search = re.escape(search)
+            districts = districts.filter(name__iregex=safe_search)
+    return render_to_response(
+        template, {
+            "search_enabled": True, 
+            "search": search, 
+            "created": created, 
+            "deleted": deleted, 
+            "table": LocationTable(districts, request=req),
+            "form": form,
+            "object": district,
+            "klass": klass,
+            "klass_view": reverse('district_view'), 
+        }, context_instance=RequestContext(req)
+    )
+
+@staff_member_required
+@transaction.commit_on_success
+def activate_district(request, code):
+    district = get_object_or_404(Location, code=code)
+    district.activate()
+    return HttpResponse("success")
+
 @transaction.commit_on_success
 def my_web_registration(request, 
                         template='web_registration/admin_registration.html', 
@@ -340,8 +398,9 @@ def dashboard(request, context={}):
                 return HttpResponseRedirect("%s?place=%s" % \
                                             (reverse("district_dashboard"),prof.location.code) ) 
             else:
-                return aggregate(request, prof.location.code)
-    return aggregate(request, settings.COUNTRY, context=context)
+                request.location = prof.location
+                return aggregate(request)
+    return aggregate(request, context=context)
 
 def medical_stores(request, context={}, template="ewsghana/medical_stores.html"):
     context['stores'] = SupplyPoint.objects.filter(active=True,
@@ -350,4 +409,3 @@ def medical_stores(request, context={}, template="ewsghana/medical_stores.html")
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
-

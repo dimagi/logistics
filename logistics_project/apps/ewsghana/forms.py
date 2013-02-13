@@ -10,10 +10,13 @@ associated with a facility -> can input stock for that facility
 member of django group 'facility_managers' -> can add/remove/edit users and facilities
 user.is_superuser -> as above, plus can modify commdities globally
 """
+import re
 from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
-from rapidsms.contrib.locations.models import Location, Point
+from django.db import transaction
+from django.forms import ValidationError
+from rapidsms.contrib.locations.models import Location, LocationType, Point
 from rapidsms.conf import settings
 from rapidsms.models import Contact
 from logistics.models import Product, SupplyPoint, ProductStock, ProductType
@@ -26,6 +29,7 @@ from logistics_project.apps.registration.forms import CommoditiesContactForm
 from logistics_project.apps.web_registration.forms import RegisterUserForm, \
     UserSelfRegistrationForm
 from logistics.util import config
+from logistics_project.apps.ewsghana.loader import _generate_district_code
 
 def _get_program_admin_group():
     return Group.objects.get(name=FACILITY_MANAGER_GROUP_NAME)
@@ -227,6 +231,40 @@ class FacilityForm(forms.ModelForm):
                 facility.location.save()
         return facility
 
+class LocationForm(forms.ModelForm):
+    region = forms.ModelChoiceField(Location.objects.filter(type__slug=config.LocationCodes.REGION).order_by('name'), 
+                                    required=True)
+    class Meta:
+        model = Location
+        exclude = ("point", "type", "parent_type", "parent_id", "is_active", "code")
+                        
+    def __init__(self, *args, **kwargs):
+        kwargs['initial'] = {}
+        if 'instance' in kwargs and kwargs['instance']:
+            instance = kwargs['instance']
+            if 'initial' not in kwargs:
+                kwargs['initial'] = {}
+            kwargs['initial']['region'] = instance.parent
+        super(LocationForm, self).__init__(*args, **kwargs)
+        
+    def clean_name(self):
+        match = re.match(r"[\w ]+", self.cleaned_data['name'])
+        if not match:
+            raise ValidationError("Name should only contain letters, numbers, or spaces.")
+        # technically, our system has no problem functioning with districts
+        # that have duplicate names. in practice, we should avoid this.
+        if Location.objects.filter(name__icontains=self.cleaned_data['name']).exists():
+            raise ValidationError("That location already exists.")
+        return self.cleaned_data['name']
+
+    def save(self, *args, **kwargs):
+        district = super(LocationForm, self).save(commit=False, *args, **kwargs)
+        district.code = _generate_district_code(district.name)
+        district.type = LocationType.objects.get(slug=config.LocationCodes.DISTRICT)
+        district.parent = self.cleaned_data['region']
+        district.save()
+        return district
+
 class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
     """
     TODO: merge this into EWSGhanaBasicRegistration form above
@@ -246,6 +284,7 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
         check_for_dupes(self.cleaned_data['phone'])
         return self.cleaned_data['phone']
 
+    @transaction.commit_on_success
     def save(self, *args, **kwargs):
         new_user = super(EWSGhanaSelfRegistrationForm, self).save(*args, **kwargs)
         profile = new_user.get_profile()
@@ -279,7 +318,7 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
      
     class Meta:
         model = Contact
-        exclude = ("user", "language", "commodities")
+        exclude = ("user", "language", "commodities", "_default_connection")
     
     def __init__(self, *args, **kwargs):
         super(EWSGhanaSMSRegistrationForm, self).__init__(*args, **kwargs)
@@ -290,5 +329,3 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
         if contact.supply_point:
             contact.supply_point.add_contact(contact)
         return contact
-
-

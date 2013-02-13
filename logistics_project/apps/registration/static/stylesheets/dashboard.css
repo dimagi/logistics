@@ -14,3 +14,8 @@
 
     .col-1 col { width: 1%; }
     .col-1 col:last-child { width: auto; }
+
+.add_field {
+    padding:1em 0;
+}
+    

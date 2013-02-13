@@ -33,28 +33,31 @@ class ContactForm(forms.ModelForm):
 
     class Meta:
         model = Contact
-        exclude = ("user", )
+        exclude = ("user", "_default_connection")
 
     def __init__(self, *args, **kwargs):
         super(ContactForm, self).__init__(*args, **kwargs)
         self.fields['role'].label = _("Role")
         self.fields['name'].label = _("Name")
-        self.fields['phone'].label = _("Phone")
+        self.fields['phone'].label = _("Primary Phone Number")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
         
         if kwargs.has_key('instance'):
             if kwargs['instance']:
                 instance = kwargs['instance']
                 self.initial['phone'] = instance.phone
-
+    
     def clean_phone(self):
-        self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
-        if self.instance:
-            check_for_dupes(self.cleaned_data['phone'], contact=self.instance)
-        else:
-            check_for_dupes(self.cleaned_data['phone'])
-        return self.cleaned_data['phone']
+        return self._clean_phone_and_check_dupes(self.cleaned_data['phone'])
 
+    def _clean_phone_and_check_dupes(self, phone_number):
+        phone_number = self._clean_phone_number(phone_number)
+        if self.instance:
+            check_for_dupes(phone_number, contact=self.instance)
+        else:
+            check_for_dupes(phone_number)
+        return phone_number
+    
     def _clean_phone_number(self, phone_number):
         """
         TODO: define the number cleaning function as appropriate for whatever country/gateway you're using
@@ -89,7 +92,7 @@ class CommoditiesContactForm(IntlSMSContactForm):
 
     class Meta:
         model = Contact
-        exclude = ("user", "language")
+        exclude = ("user", "language", "_default_connection")
 
     def __init__(self, *args , **kwargs):
         super(CommoditiesContactForm, self ).__init__(*args,**kwargs)

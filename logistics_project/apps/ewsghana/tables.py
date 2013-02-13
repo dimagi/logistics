@@ -69,6 +69,21 @@ class AuditLogTable(Table):
     class Meta:
         order_by = '-date'
 
+def _location_edit(cell):
+    return reverse(
+        'district_edit',
+        args=[cell.row.code])
+def _parent_location(cell):
+    return cell.row.parent.name
+def _location_parent_sort(object):
+    return object.parent.name if object.parent and object.parent.name else None
+class LocationTable(Table):
+    name = Column(link=_location_edit)
+    region = Column(value=_parent_location, sort_key_fn=_location_parent_sort)
+
+    class Meta:
+        order_by = '-pk'
+
 def _supply_point_sort(object):
     if object.contact and object.contact.supply_point:
         return object.contact.supply_point.name
@@ -91,3 +106,4 @@ class EWSMessageTable(MessageTable):
 
     class Meta:
         order_by = '-date'
+        page_jump = True

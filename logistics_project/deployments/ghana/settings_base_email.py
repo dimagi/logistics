@@ -1,21 +1,32 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+# email settings used for sending out email reports
+EMAIL_LOGIN="rluk@dimagi.com"
+EMAIL_PASSWORD="*Apple98"
+EMAIL_SMTP_HOST="smtp.gmail.com"
+EMAIL_SMTP_PORT=587
+ACCOUNT_ACTIVATION_DAYS=30
+
+EMAIL_HOST='smtp.gmail.com'
+EMAIL_HOST_PASSWORD='*Apple98'
+EMAIL_HOST_USER='rluk@dimagi.com'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+
+
 TEMPLATE_DIRS = [
     "templates", 
 ]
 
 APPS = [
     "auditcare",
-    "couchlog",
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
-    "rapidsms.contrib.messaging",
-    "soil",
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -25,13 +36,13 @@ MIDDLEWARE_CLASSES = [
     'logistics_project.apps.ewsghana.middleware.AutoLogout',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'logistics.middleware.CachedTemplateMiddleware',
-]
+)
 
 # this rapidsms-specific setting defines which views are linked by the
 # tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
 # to add it here, also, to expose it in the rapidsms ui.
 RAPIDSMS_TABS = [
-    ("aggregate",                                           "Stock Levels"),
+    ("aggregate_ghana",                                     "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
     ("district_dashboard",                                  "District Dashboard"),
     #("input_stock",                                        "Input Stock"),
@@ -43,7 +54,6 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
-    ("group_message",                                       "Broadcast", "is_superuser"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's
@@ -114,7 +124,7 @@ CACHES = {
 
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
-LOG_LEVEL   = "WARNING"
+LOG_LEVEL   = "DEBUG"
 LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
@@ -146,8 +156,6 @@ LOGISTICS_CONSUMPTION = {
 }
 LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = False
 LOGISTICS_STOCKED_BY = 'facility'
-LOGISTICS_USE_LOCATION_SESSIONS = True
-LOGISTICS_NAVIGATION_MODE = "param" 
 
 LOGO_LEFT_URL="/static/ewsghana/images/ghs_logo.png"
 LOGO_RIGHT_URL=""
@@ -177,7 +185,6 @@ LOGISTICS_NOTIF_GENERATORS = (
     'logistics_project.apps.ewsghana.notifications.incomplete_report_notifications',
     'logistics_project.apps.ewsghana.notifications.stockout_notifications',
     'logistics_project.apps.ewsghana.notifications.urgent_stockout_notifications',
-    'logistics_project.apps.ewsghana.notifications.urgent_nonreporting_notifications',
 )
 
 DEFAULT_BACKEND='message_tester'
@@ -194,12 +201,3 @@ SOUTH_MIGRATION_MODULES = {
 
 AUTO_LOGOUT_DELAY = 300
 
-CONTACT_GROUP_GENERATORS = [
-    "groupmessaging.views.all_contacts_with_all_roles",
-    "logistics_project.apps.ewsghana.message_groups.by_district",
-    "logistics_project.apps.ewsghana.message_groups.by_facility",
-]
-
-CUSTOM_EXPORTS = [
-    ("Web User Activity", "logistics_project.apps.ewsghana.tasks.export_auditor")
-]
