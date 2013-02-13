@@ -50,7 +50,7 @@ RAPIDSMS_TABS = [
     #("rapidsms.contrib.scheduler.views.index",             "Event Scheduler"),
     #("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
-    ("group_messaging",                                     "Broadcast", "is_superuser"),
+    ("group_message",                                     "Broadcast", "is_superuser"),
 ]
 
 # for postgresql:
