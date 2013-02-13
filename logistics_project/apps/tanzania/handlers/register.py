@@ -48,7 +48,7 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
             names = []
             msd_codes = []
             for the_string in words:
-                if re.match('^d\d+', the_string.strip().lower()):
+                if re.match('^(d|m)\d+', the_string.strip().lower()):
                     msd_codes.append(the_string.strip().lower())
                 else:
                     names.append(the_string)
