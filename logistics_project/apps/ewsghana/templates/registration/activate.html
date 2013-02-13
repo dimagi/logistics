@@ -3,8 +3,12 @@
 {% block title %}Login{% endblock %}
 {% block content %}
 
-<h1>Success!</h1>
-
-Your account has been successfully activated. You can now log into <a href="http://www.ewsghana.com/accounts/login">http://www.ewsghana.com.</a>
+{% if account %}
+	<h1>Success!</h1>
+	Hi {{account.username}}, your account has been successfully activated. You can now log into <a href="http://www.ewsghana.com/accounts/login">http://www.ewsghana.com.</a>
+{% else %}
+    <h1>Error</h1>
+    This activation key is invalid or has expired. Please contact an administrator to have your account validated so that you can access <a href="http://www.ewsghana.com/accounts/login">http://www.ewsghana.com.</a>
+{% endif %}
 
 {% endblock %}

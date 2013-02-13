@@ -14,6 +14,7 @@ import re
 from datetime import datetime
 from django import forms
 from django.contrib.auth.models import Group
+from django.db import transaction
 from django.forms import ValidationError
 from rapidsms.contrib.locations.models import Location, LocationType, Point
 from rapidsms.conf import settings
@@ -283,6 +284,7 @@ class EWSGhanaSelfRegistrationForm(UserSelfRegistrationForm):
         check_for_dupes(self.cleaned_data['phone'])
         return self.cleaned_data['phone']
 
+    @transaction.commit_on_success
     def save(self, *args, **kwargs):
         new_user = super(EWSGhanaSelfRegistrationForm, self).save(*args, **kwargs)
         profile = new_user.get_profile()
@@ -327,5 +329,3 @@ class EWSGhanaSMSRegistrationForm(CommoditiesContactForm):
         if contact.supply_point:
             contact.supply_point.add_contact(contact)
         return contact
-
-
