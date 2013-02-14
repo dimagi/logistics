@@ -99,7 +99,8 @@ SITE_ID = 1
 # these weird dependencies should be handled by their respective apps,
 # but they're not, so here they are. most of them are for django admin.
 TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.core.context_processors.auth",
+    # "django.contrib.auth.context_processors.auth", # TODO: django 1.2+ uses this
+    "django.core.context_processors.auth", # deprecated
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
