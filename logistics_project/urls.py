@@ -20,7 +20,10 @@ urlpatterns = patterns('',
     # RapidSMS contrib app URLs
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
-    (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
+    url(r'^httptester/$',
+        'threadless_router.backends.httptester.views.generate_identity',
+        {'backend_name': 'httptester'}, name='httptester-index'),
+    (r'^httptester/', include('threadless_router.backends.httptester.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
@@ -30,7 +33,8 @@ urlpatterns = patterns('',
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
     (r'^maps/', include('logistics_project.apps.maps.urls')),
     (r'^tz/', include('logistics_project.apps.tanzania.urls')),
-    
+    (r'^pushsms/', include('rpush.urls')),
+
     (r'^group/', include('groupmessaging.urls')),
 
     # login/logout. this is order dependent

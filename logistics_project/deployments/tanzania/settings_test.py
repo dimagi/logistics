@@ -18,19 +18,4 @@ INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
-    # message migration
-    "migration": {
-        "ENGINE": "logistics_project.apps.migration.backends.migration",
-    },
-
-    "push": {
-        "ENGINE": "logistics_project.backends.push",
-        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
-        'config': {
-            'url': "http://127.0.0.1:9990/",
-            'channel': "24358",
-            'service': "147118",
-            'password': 'CHANGEME',
-        }
-    },
 }
