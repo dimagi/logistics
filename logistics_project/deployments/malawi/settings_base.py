@@ -43,7 +43,7 @@ RAPIDSMS_TABS = [
 #    ("registration",                          "Registration", "is_superuser"),
 #    ("groupmessaging.views.group_message", "Group Message", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Message Log", "is_superuser"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.default", "Message Tester", "is_superuser"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's

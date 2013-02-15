@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import sys
 from logistics_project.apps.migration import utils
-from rapidsms.contrib.ajax.exceptions import RouterError
 from rapidsms.models import Backend, Connection
 
 class Command(BaseCommand):
@@ -55,10 +54,8 @@ class Command(BaseCommand):
                         utils.send_test_message(identity=number,
                                                 text=msg,
                                                 timestamp=str(parsed_date))
-                    except RouterError, e:
-                        print e.code
-                        print e.content_type
-                        print e.response
+                    except Exception, e:
+                        print e
                         raise
                         
                     if inbound_count % 100 == 0:

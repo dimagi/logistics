@@ -18,7 +18,6 @@ urlpatterns = patterns('',
         name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
-    (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
     (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
@@ -68,10 +67,3 @@ if 'couchlog' in settings.INSTALLED_APPS:
         (r'^couchlog/', include('couchlog.urls')),
     )
 
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        # helper URLs file that automatically serves the 'static' folder in
-        # INSTALLED_APPS via the Django static media server (NOT for use in
-        # production)
-        (r'^', include('rapidsms.urls.static_media')),
-    )

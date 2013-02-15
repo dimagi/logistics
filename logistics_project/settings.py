@@ -20,7 +20,7 @@ BASE_APPS = [
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
-    "rapidsms.contrib.ajax",
+
 
     # enable the django admin using a little shim app (which includes
     # the required urlpatterns), and a bunch of undocumented apps that
@@ -31,7 +31,8 @@ BASE_APPS = [
     "django.contrib.messages",
     "django.contrib.sessions",
     "django.contrib.contenttypes",
-    
+    'django.contrib.staticfiles',
+
     "south",
 
     # nose must come after south because south has its own *test*
@@ -87,7 +88,7 @@ TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
 # for some reason this setting is blank in django's global_settings.py,
 # but it is needed for static assets to be linkable.
-MEDIA_URL = "/static/"
+MEDIA_URL = "/media/"
 
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -105,7 +106,8 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "rapidsms.context_processors.logo",
+    "django.core.context_processors.static",
+    "logistics.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.google_analytics",
     "couchlog.context_processors.static_workaround"
@@ -125,7 +127,6 @@ TEST_EXCLUDED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "rapidsms",
-    "rapidsms.contrib.ajax",
     "rapidsms.contrib.httptester",
     "djcelery"
 ]
@@ -133,14 +134,17 @@ TEST_EXCLUDED_APPS = [
 # the project-level url patterns
 ROOT_URLCONF = "urls"
 
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+)
+
 # since we might hit the database from any thread during testing, the
 # in-memory sqlite database isn't sufficient. it spawns a separate
 # virtual database for each thread, and syncdb is only called for the
 # first. this leads to confusing "no such table" errors. We create
 # a named temporary instance instead.
 import os
-import tempfile
-import sys
 
 # for postgresql:
 DATABASES = {

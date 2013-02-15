@@ -1,5 +1,4 @@
 import csv
-from rapidsms.contrib.ajax.exceptions import RouterNotResponding, RouterError
 from logistics_project.apps.migration import utils
 
 '''
@@ -24,6 +23,8 @@ def utf_8_encoder(unicode_csv_data):
 
 def check_router():
     # quasi-stolen from the httptester
+    # TODO: this is broken on new rapidsms
+    from rapidsms.contrib.ajax.exceptions import RouterNotResponding, RouterError
     try:
         utils.check_status()
         return True

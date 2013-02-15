@@ -1,18 +1,15 @@
-from datetime import datetime, timedelta
 from random import randint, choice, random
-from django.core.management.base import BaseCommand, LabelCommand, CommandError
-from rapidsms.models import Connection, Contact, Backend
-from logistics.models import *
-from logistics_project.apps.tanzania.loader import init_static_data
+from datetime import datetime, timedelta
+from django.core.management.base import LabelCommand, CommandError
+from rapidsms.models import Connection, Contact
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.migration import utils
-from rapidsms.contrib.ajax.exceptions import RouterError, RouterNotResponding
-from dimagi.utils.django.management import are_you_sure
 import sys
-from dimagi.utils.parsing import string_to_datetime
 from logistics_project.apps.tanzania.migration import check_router
 from logistics_project.apps.tanzania.models import DeliveryGroups, SupplyPointStatus, SupplyPointStatusTypes, SupplyPointStatusValues
 from logistics_project.apps.tanzania.utils import supply_points_below
+from logistics.models import ProductStock, ProductReport, StockTransaction,\
+    SupplyPoint, Product
 
 class Command(LabelCommand):
     help = "Generate fake data "

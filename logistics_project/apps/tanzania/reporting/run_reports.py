@@ -1,21 +1,20 @@
 from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
-from django.db.models.query_utils import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 from dimagi.utils.dates import months_between, get_business_day_of_month, \
     add_months
 
 from logistics.models import StockTransaction, ProductReport, Product
+from logistics.const import Reports
+from logistics.warehouse_models import SupplyPointWarehouseRecord
 
 from logistics_project.apps.tanzania.models import SupplyPoint,\
     SupplyPointStatusTypes, SupplyPointStatus, SupplyPointStatusValues,\
     DeliveryGroups
 from logistics_project.apps.tanzania.reporting.models import OrganizationSummary,\
     ProductAvailabilityData, GroupSummary, Alert
-from logistics.const import Reports
-from logistics.warehouse_models import SupplyPointWarehouseRecord
-from django.core.exceptions import ObjectDoesNotExist
 
 TESTING = False
 HISTORICAL_DAYS = 900
@@ -142,7 +141,7 @@ def populate_report_data(start_date, end_date):
                 sum([s.average_lead_time_in_days for s in subs_with_lead_time]) / len(subs_with_lead_time) \
                 if subs_with_lead_time else 0
             
-            create_object(org_summary)    
+            create_object(org_summary)
             # product availability
             prods = Product.objects.all()
             for p in prods:

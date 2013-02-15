@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
-from rapidsms.backends.http import RapidHttpBackend
 from xml.sax.saxutils import escape
 from django.http import HttpResponse
 import datetime
 import urllib2
 
-class PushBackend(RapidHttpBackend):
+raise NotImplementedError('this whole thing needs to be fixed')
+
+class PushBackend(object):
     """
     A RapidSMS backend for PUSH SMS
     

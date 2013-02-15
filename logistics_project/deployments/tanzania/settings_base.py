@@ -30,7 +30,7 @@ RAPIDSMS_TABS = [
 #    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
+    ("rapidsms.contrib.httptester.views.default", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
     ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
     ("tz_sms_schedule",       "Help"),
@@ -40,12 +40,12 @@ RAPIDSMS_TABS = [
 INSTALLED_BACKENDS = {
     # tester
     "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
+        "ENGINE": "rapidsms.contrib.httptester.backend",
     },
     # message migration
-    "migration": {
-        "ENGINE": "logistics_project.apps.migration.backends.migration",
-    },
+#    "migration": {
+#        "ENGINE": "logistics_project.apps.migration.backends.migration",
+#    },
     # push
     "push": {
         "ENGINE": "logistics_project.backends.push",
@@ -105,14 +105,16 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
-    "rapidsms.context_processors.logo",
+    "django.core.context_processors.static",
+    "logistics.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.stock_cutoffs",
     "logistics.context_processors.google_analytics",
     "logistics.context_processors.global_nav_mode",
     "logistics_project.apps.tanzania.context_processors.language_in_request",
     "logistics_project.apps.tanzania.context_processors.location_scope_hide_show",
-    "couchlog.context_processors.static_workaround"
+    "couchlog.context_processors.static_workaround",
+    
 ]
 
 DJANGO_LOG_FILE = "logistics.django.log"
@@ -199,3 +201,6 @@ SOUTH_MIGRATION_MODULES = {
 
 WAREHOUSE_RUNNER = "logistics_project.apps.tanzania.reporting.runner.TanzaniaWarehouseRunner"
 TRAINING_DOCS_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))),"apps","tanzania","static","downloads","training_documents")
+
+# new rapidsms (>=0.10) changes
+RAPIDSMS_ROUTER = 'rapidsms.router.blocking.BlockingRouter'

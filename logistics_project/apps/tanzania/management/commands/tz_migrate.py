@@ -9,7 +9,6 @@ from logistics_project.apps.migration import utils
 from logistics_project.apps.tanzania.config import Messages
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
     SupplyPointStatusValues, SupplyPointStatus
-from rapidsms.contrib.ajax.exceptions import RouterError, RouterNotResponding
 from dimagi.utils.django.management import are_you_sure
 import os
 import sys
@@ -131,10 +130,7 @@ class Command(BaseCommand):
                             utils.send_test_message(identity=phone,
                                                     text=text,
                                                     timestamp=timestamp)
-                        except RouterError, e:
-                            print e.code
-                            print e.content_type
-                            print e.response
+                        except Exception, e:
                             raise
                             
                         if inbound_count % 100 == 0:
