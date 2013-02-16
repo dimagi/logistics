@@ -16,13 +16,11 @@ Server layout:
         (i.e. ~/www/staging/logs and ~/www/demo/logs).
 """
 
-import os, sys
+import os
 
 from fabric.api import *
 from fabric.contrib import files, console
-from fabric.contrib.project import rsync_project
 from fabric import utils
-from fabric.decorators import hosts
 import posixpath
 
 
@@ -44,6 +42,7 @@ def _setup_path():
     env.root = posixpath.join(env.home, 'www', env.environment)
     env.log_dir = posixpath.join(env.home, 'www', env.environment, 'log')
     env.code_root = posixpath.join(env.root, 'code_root')
+    env.requirements_file = posixpath.join(env.code_root, 'deploy', 'tanzania', 'prod-requirements.txt')
     env.project_root = posixpath.join(env.code_root, env.project)
     env.project_media = posixpath.join(env.code_root, 'media')
     env.project_static = posixpath.join(env.project_root, 'static')
@@ -86,13 +85,6 @@ def production():
     env.settings = '%(project)s.settings' % env
     env.db = '%s_%s' % (env.project, env.environment)
     _setup_path()
-
-#    env.code_branch = 'master'
-#    env.sudo_user = 'aremind'
-#    env.environment = 'production'
-#    env.hosts = []
-#    raise NotImplementedError()
-
 
 def install_packages():
     """Install packages, given a list of package names"""
@@ -183,7 +175,7 @@ def deploy():
             sudo('git pull', user=env.sudo_user)
             sudo('git submodule init', user=env.sudo_user)
             sudo('git submodule update', user=env.sudo_user)
-        #update_requirements()
+        update_requirements()
         migrate()
         load_data()
         collectstatic()
@@ -195,13 +187,11 @@ def deploy():
 
 def update_requirements():
     """ update external dependencies on remote host """
-    require('code_root', provided_by=('staging', 'production'))
-    requirements = posixpath.join(env.code_root, 'requirements')
-    with cd(requirements):
-        cmd = ['sudo -u %s -H pip install' % env.sudo_user]
-        cmd += ['-E %(virtualenv_root)s' % env]
-        cmd += ['--requirement %s' % posixpath.join(requirements, 'apps.txt')]
-        run(' '.join(cmd))
+    require('requirements_file', provided_by=('staging', 'production'))
+    cmd = ['sudo -u %s -H pip install' % env.sudo_user]
+    cmd += ['-E %(virtualenv_root)s' % env]
+    cmd += ['--requirement %s' % env.requirements_file]
+    run(' '.join(cmd))
 
 
 def update_services():
@@ -293,36 +283,6 @@ def load_data():
         sudo('%(virtualenv_root)s/bin/python manage.py tz_update_schedules --settings=%(settings)s' % env, user=env.sudo_user)
 
 
-#def reset_local_db():
-#    """ Reset local database from remote host """
-#    require('code_root', provided_by=('production', 'staging'))
-#    if env.environment == 'production':
-#        utils.abort('Local DB reset is for staging environment only')
-#    question = 'Are you sure you want to reset your local ' \
-#               'database with the %(environment)s database?' % env
-#    sys.path.append('.')
-#    if not console.confirm(question, default=False):
-#        utils.abort('Local database reset aborted.')
-#    if env.environment == 'staging':
-#        from aremind.settings_staging import DATABASES as remote
-#    else:
-#        from aremind.settings_production import DATABASES as remote
-#    from aremind.localsettings import DATABASES as loc
-#    local_db = loc['default']['NAME']
-#    remote_db = remote['default']['NAME']
-#    with settings(warn_only=True):
-#        local('dropdb %s' % local_db)
-#    local('createdb %s' % local_db)
-#    host = '%s@%s' % (env.user, env.hosts[0])
-#    local('ssh -C %s sudo -u aremind pg_dump -Ox %s | psql %s' % (host, remote_db, local_db))
-
-#
-#def setup_translation():
-#    """ Setup the git config for commiting .po files on the server """
-#    run('sudo -H -u %s git config --global user.name "aremind Translators"' % env.sudo_user)
-#    run('sudo -H -u %s git config --global user.email "aremind-dev@dimagi.com"' % env.sudo_user)
-
-
 def fix_locale_perms():
     """ Fix the permissions on the locale directory """
     require('root', provided_by=('staging', 'production'))
@@ -331,15 +291,6 @@ def fix_locale_perms():
     run('sudo chgrp -R www-data %s' % locale_dir)
     run('sudo chmod -R g+w %s' % locale_dir)
 
-
-#def commit_locale_changes():
-#    """ Commit locale changes on the remote server and pull them in locally """
-#    fix_locale_perms()
-#    with cd(env.code_root):
-#        run('sudo -H -u %s git add aremind/locale' % env.sudo_user)
-#        run('sudo -H -u %s git commit -m "updating translation"' % env.sudo_user)
-#    local('git pull ssh://%s%s' % (env.host, env.code_root))
-#
 
 def upload_supervisor_conf():
     """Upload and link Supervisor configuration from the template."""
