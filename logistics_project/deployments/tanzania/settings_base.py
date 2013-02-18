@@ -49,7 +49,7 @@ INSTALLED_BACKENDS = {
     #    },
 
     # push
-    "push": {
+    "push_backend": {
         "ENGINE": "rpush.outgoing",
         'sendsms_url': "http://41.77.230.124:8080",
         'sendsms_params': {

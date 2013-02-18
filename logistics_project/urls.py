@@ -36,7 +36,7 @@ urlpatterns = patterns('',
     (r'^tz/', include('logistics_project.apps.tanzania.urls')),
     url(r'^pushsms/in/?$',
         push_views.PushBackendView.as_view(),
-        {'backend_name': 'push'}), # hard coded to match our backend in settings
+        {'backend_name': 'push_backend'}), # hard coded to match our backend in settings
 
     (r'^group/', include('groupmessaging.urls')),
 
