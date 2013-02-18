@@ -14,3 +14,4 @@ class Organization(models.Model):
         return self.name
 
 from .warehouse.models import *
+from .signals import *
