@@ -8,15 +8,22 @@ Reminders can fire up to three times.
  - The text of all three reminders is the same for each category of reminder.
  
 """
-from rapidsms.contrib.messaging.utils import send_message
 from django.utils.translation import ugettext as _
 from datetime import datetime
 from logistics_project.apps.tanzania.models import SupplyPointStatus
+from threadless_router.router import Router
+from rapidsms import router
+
+def send_message(contact, message):
+    # this hack sets the global router to threadless router.
+    # should maybe be cleaned up.
+    router.router = Router()
+    contact.message(message)
 
 def send_reminders(contacts, message):
     for contact in contacts:
         if contact.default_connection and contact.is_active:
-            send_message(contact.default_connection, _(message))
+            send_message(contact, _(message))
         
 def update_statuses(contacts, type, value):
     now = datetime.utcnow()
