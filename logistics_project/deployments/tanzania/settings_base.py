@@ -49,10 +49,8 @@ INSTALLED_BACKENDS = {
     #    },
 
     # push
-    # due to legacy reasons, the backend must be called "in"
-    "in": {
+    "push": {
         "ENGINE": "rpush.outgoing",
-        # 'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
         'sendsms_url': "http://41.77.230.124:8080",
         'sendsms_params': {
             'channel': "24358",

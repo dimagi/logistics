@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.views import login as django_login
 from django.contrib.auth.views import logout as django_logout
 from django.contrib.auth.views import password_change as django_password_change
+from rpush import views as push_views
 
 admin.autodiscover()
 
@@ -33,7 +34,9 @@ urlpatterns = patterns('',
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
     (r'^maps/', include('logistics_project.apps.maps.urls')),
     (r'^tz/', include('logistics_project.apps.tanzania.urls')),
-    (r'^pushsms/', include('rpush.urls')),
+    url(r'^pushsms/in/?$',
+        push_views.PushBackendView.as_view(),
+        {'backend_name': 'push'}), # hard coded to match our backend in settings
 
     (r'^group/', include('groupmessaging.urls')),
 
