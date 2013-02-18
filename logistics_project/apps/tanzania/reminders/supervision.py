@@ -1,8 +1,7 @@
 from scheduler.decorators import businessday
-from logistics.util import config
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes, SupplyPointStatusValues
-from logistics_project.apps.tanzania.reminders import send_reminders, update_statuses
+from logistics_project.apps.tanzania.reminders import update_statuses
 from logistics_project.apps.tanzania.reminders.randr import get_facility_cutoff
 from rapidsms.models import Contact
 
