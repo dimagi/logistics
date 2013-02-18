@@ -1,5 +1,5 @@
 from scheduler.decorators import businessday_before
-from datetime import datetime, timedelta
+from datetime import datetime
 from logistics.util import config
 from logistics_project.apps.tanzania.reminders import send_reminders,\
     update_statuses

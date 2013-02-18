@@ -30,7 +30,7 @@ RAPIDSMS_TABS = [
 #    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Tester", "is_superuser"),
+    ("httptester-index", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision"),
     ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
     ("tz_sms_schedule",       "Help"),
@@ -39,21 +39,22 @@ RAPIDSMS_TABS = [
 
 INSTALLED_BACKENDS = {
     # tester
-    "message_tester": {
-        "ENGINE": "rapidsms.backends.bucket",
+    "httptester": {
+        "ENGINE": "threadless_router.backends.httptester.backend",
     },
     # message migration
-    "migration": {
-        "ENGINE": "logistics_project.apps.migration.backends.migration",
-    },
+    # TODO: fix/port if necessary
+    #    "migration": {
+    #        "ENGINE": "logistics_project.apps.migration.backends.migration",
+    #    },
+
     # push
-    "push": {
-        "ENGINE": "logistics_project.backends.push",
-        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
-        'config': {
-            'url': "https://dragon.operatelecom.com:1089/Gateway",
+    "push_backend": {
+        "ENGINE": "rpush.outgoing",
+        'sendsms_url': "http://41.77.230.124:8080",
+        'sendsms_params': {
             'channel': "24358",
-            'service': "147118",
+            'service': "CHANGEME",
             'password': 'CHANGEME',
         }
     },
@@ -140,7 +141,9 @@ NO_LOGIN_REQUIRED_FOR = ['password/reset',
                          'activate',
                          'help',
                          'scmgr',
-                         'reports/pdf']
+                         'reports/pdf',
+                         'pushsms',
+                         ]
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana

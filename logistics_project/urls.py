@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.views import login as django_login
 from django.contrib.auth.views import logout as django_logout
 from django.contrib.auth.views import password_change as django_password_change
+from rpush import views as push_views
 
 admin.autodiscover()
 
@@ -20,7 +21,10 @@ urlpatterns = patterns('',
     # RapidSMS contrib app URLs
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
-    (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
+    url(r'^httptester/$',
+        'threadless_router.backends.httptester.views.generate_identity',
+        {'backend_name': 'httptester'}, name='httptester-index'),
+    (r'^httptester/', include('threadless_router.backends.httptester.urls')),
     (r'^locations/', include('rapidsms.contrib.locations.urls')),
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
@@ -30,7 +34,10 @@ urlpatterns = patterns('',
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
     (r'^maps/', include('logistics_project.apps.maps.urls')),
     (r'^tz/', include('logistics_project.apps.tanzania.urls')),
-    
+    url(r'^pushsms/in/?$',
+        push_views.PushBackendView.as_view(),
+        {'backend_name': 'push_backend'}), # hard coded to match our backend in settings
+
     (r'^group/', include('groupmessaging.urls')),
 
     # login/logout. this is order dependent

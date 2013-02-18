@@ -5,12 +5,12 @@ from scheduler.decorators import businessday_before, businessday
 from rapidsms.models import Contact
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from datetime import datetime
-from rapidsms.contrib.messaging.utils import send_message
 from logistics.util import config
 from logistics_project.apps.tanzania.utils import supply_points_with_latest_status_by_datespan
 from logistics_project.apps.tanzania.models import SupplyPointStatusTypes,\
     SupplyPointStatusValues, DeliveryGroups, AdHocReport
-from logistics_project.apps.tanzania.reminders import stockonhand, randr, delivery
+from logistics_project.apps.tanzania.reminders import stockonhand, randr, delivery,\
+    send_message
 from dimagi.utils.dates import DateSpan
 from django.utils.translation import ugettext as _
 from logistics_project.apps.tanzania.tasks import email_report
@@ -78,7 +78,7 @@ def delivery_summary():
     """
     for contact in get_district_people():
         if contact.default_connection:
-            send_message(contact.default_connection,
+            send_message(contact,
                          construct_delivery_summary_message(contact.supply_point))
             
 
@@ -90,7 +90,7 @@ def soh_summary():
     """
     for contact in get_district_people():
         if contact.default_connection:
-            send_message(contact.default_connection,
+            send_message(contact,
                          construct_soh_summary_message(contact.supply_point))
             
 @businessday_before(17)
@@ -100,7 +100,7 @@ def randr_summary():
     """
     for contact in get_district_people():
         if contact.default_connection:
-            send_message(contact.default_connection,
+            send_message(contact,
                          construct_randr_summary_message(contact.supply_point))
             
 #@businessday(6)

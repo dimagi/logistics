@@ -35,3 +35,4 @@ supervisor==3.0a10
 twilio==3.2.3
 virtualenv==1.4.5
 wsgiref==0.1.2
+-e git+http://github.com/caktus/rapidsms-threadless-router.git@269dbc8404ec7e376e7418ffb8dc3c2eae396f3b#egg=rapidsms_threadless_router-dev

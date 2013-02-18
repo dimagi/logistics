@@ -19,6 +19,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
 sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-groupmessaging'))
+sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-push-backend'))
 sys.path.append(os.path.join(filedir,'..','submodules','django-datawarehouse'))
 
 sys.path.insert(0, os.path.join(filedir,'..','submodules','dimagi-djtables','lib'))
