@@ -6,7 +6,6 @@ from logistics.decorators import logistics_contact_and_permission_required
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from rapidsms.models import Contact
 from logistics.models import ContactRole, SupplyPoint
-from logistics_project.apps.malawi.handlers.abstract.register import RegistrationBaseHandler
 from rapidsms.contrib.locations.models import Location
 from logistics_project.apps.malawi.exceptions import IdFormatException
 from static.malawi import config

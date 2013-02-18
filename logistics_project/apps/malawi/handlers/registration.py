@@ -18,24 +18,23 @@ class HSARegistrationHandler(RegistrationBaseHandler):
     """
 
     keyword = "reg|register"
-    
+
     def help(self):
         self.respond(config.Messages.HSA_HELP)
     
     def handle(self, text):
         if self.handle_preconditions(text):
             return
-        
+
         # default to HSA
         role = ContactRole.objects.get(code=config.Roles.HSA)
-        
 
         try:
             hsa_id = format_id(self.supply_point.code, self.extra)
         except IdFormatException, e:
             self.respond(str(e))
             return
-        
+
         if Location.objects.filter(code=hsa_id, is_active=True).exists():
             self.respond("Sorry, a location with %(code)s already exists. Another HSA may have already registered this ID", code=hsa_id)
             return
