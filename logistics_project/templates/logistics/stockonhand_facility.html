@@ -64,6 +64,20 @@
                 {% endif %}
                 
 	            </div>
+
+
+				<div class="end_note">
+				    <h4>SMS Users</h4>
+				    {% for user in facility.active_contact_set %}
+                        {% if perms.logistics %}<a href="{% url ewsghana_registration_edit user.pk %}">{% endif %}
+				            {{ user.name }} 
+				            {% if perms.logistics %}
+				            {% if user.default_connection %}({{ user.default_connection.identity }}){% endif %}
+   				            {% endif %}
+				        {% if perms.logistics %}</a>{% endif %}<br/>
+				    {% endfor %}
+				</div>
+
             {% else %}<p></p>
                 <div class="error">
                     <p>{{ facility.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
