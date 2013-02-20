@@ -35,3 +35,14 @@ class SupplyPoint(models.Model):
           self.primary_reporter is None:
             self.primary_reporter = contact
             self.save()
+
+    def deactivate(self):
+        self.active = False
+        self.save()
+        # this is in ewsghana app only because the facility code is deployment-specific
+        # if it's a 'real' location, we keep it. if it was only created to track
+        # this facility, we deactivate it.
+        if not self.location.get_children().exists() and \
+          not self.location.facilities().exists() and \
+          self.location.type.slug == config.LocationCodes.FACILITY:
+            self.location.deactivate()

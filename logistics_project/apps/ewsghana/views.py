@@ -4,7 +4,8 @@
 import re
 from itertools import chain
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import permission_required, \
+    login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -264,9 +265,8 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "products": products
         }, context_instance=RequestContext(req)
     )
-    
 
-@staff_member_required
+@user_passes_test(lambda u: u.is_superuser)
 @transaction.commit_on_success
 def district(req, code=None, template="logistics/config.html"):
     district = None
