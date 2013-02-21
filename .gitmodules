@@ -37,3 +37,6 @@
 [submodule "submodules/django-datawarehouse"]
 	path = submodules/django-datawarehouse
 	url = git://github.com/dimagi/django-datawarehouse.git
+[submodule "submodules/rapidsms-push-backend"]
+	path = submodules/rapidsms-push-backend
+	url = git://github.com/dimagi/rapidsms-push-backend.git

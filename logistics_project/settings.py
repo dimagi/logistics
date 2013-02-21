@@ -40,7 +40,8 @@ BASE_APPS = [
     # the rapidsms contrib apps.
     #"rapidsms.contrib.default",
     #"rapidsms.contrib.export",
-    "rapidsms.contrib.httptester",
+    "threadless_router.backends.httptester",
+    #rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",

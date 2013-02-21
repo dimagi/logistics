@@ -16,4 +16,3 @@ class MigrationBackend(BucketBackend):
         self.bucket.append(msg)
         return msg
 
-    
