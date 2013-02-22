@@ -6,7 +6,6 @@ from logistics.decorators import logistics_contact_required
 from logistics.models import SupplyPoint, Product
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
-from datetime import datetime
 from logistics_project.apps.tanzania.reminders import reports
 from logistics_project.apps.tanzania.utils import send_if_connection
 
