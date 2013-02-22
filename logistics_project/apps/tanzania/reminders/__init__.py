@@ -14,11 +14,11 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus
 from threadless_router.router import Router
 from rapidsms import router
 
-def send_message(contact, message):
+def send_message(contact, message, **kwargs):
     # this hack sets the global router to threadless router.
     # should maybe be cleaned up.
     router.router = Router()
-    contact.message(message)
+    contact.message(message, **kwargs)
 
 def send_reminders(contacts, message):
     for contact in contacts:

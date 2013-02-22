@@ -9,6 +9,7 @@ from logistics.const import Reports
 from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_month_before
 import logging
 from django.core.cache import cache
+from logistics_project.apps.tanzania.reminders import send_message
 
 logger = logging.getLogger(__name__)
 
@@ -328,5 +329,5 @@ def historical_response_rate(supply_point, type):
 
 def send_if_connection(c, message, **kwargs):
     if c.default_connection is not None:
-        c.message(message, **kwargs)
+        send_message(c, message, **kwargs)
 
