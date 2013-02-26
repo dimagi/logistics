@@ -85,5 +85,13 @@
                 </div>
             {% endif %}
         </div>
+
+        <div>
+            <h2>Recent Messages</h2>
+            {% recent_messages_sp facility %}
+            <p><a href="{% url ewsghana_message_log %}?place={{ facility.location.code }}">All Messages</a></p>
+        </div>
+
+
     </div>
 {% endblock %}
