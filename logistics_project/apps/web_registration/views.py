@@ -11,7 +11,8 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, \
+    HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from rapidsms.conf import settings
@@ -26,7 +27,7 @@ def my_web_registration(request, Form=RegisterUserForm,
     context['hide_delete'] = True
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
-@transaction.commit_on_success
+@transaction.commit_manually
 def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
@@ -35,9 +36,14 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
     if pk and not request.user.has_perm('auth.add_user') and \
       not (hasattr(request.user, 'pk') and int(pk) == int(request.user.pk)):
         # view is only available to non-admin users if all they do is edit themselves
+        transaction.rollback()
         return HttpResponseRedirect(settings.LOGIN_URL)
     if pk is not None:
-        user = get_object_or_404(User, pk=pk)
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            transaction.commit()
+            raise Http404
         context['edit_user'] = user
     form = Form(user=user) # An unbound form
     if request.method == 'POST': 
@@ -47,6 +53,7 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
             # here, we choose to completely delete the user
             # and in so doing free up the username for new users to use
             user.delete()
+            transaction.commit()
             return HttpResponseRedirect(
                 "%s?deleted=%s" % (reverse(success_url), name))
         form = Form(request.POST, user=user) # A form bound to the POST data
@@ -61,10 +68,13 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                 vals = {'error_msg':'There was a problem with your request',
                         'error_details':sys.exc_info(),
                         'show_homepage_link': 1 }
-                return render_to_response('web_registration/error.html', 
+                response = render_to_response('web_registration/error.html', 
                                           vals, 
                                           context_instance = RequestContext(request))
+                transaction.rollback()
+                return response
             else:
+                transaction.commit()
                 return HttpResponseRedirect("%s?created=%s" % \
                                             (reverse(success_url), unicode(new_user)))
                 #return HttpResponseRedirect( reverse(success_url))
@@ -83,8 +93,10 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                                        Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
                                        Q(logisticsprofile__location__name__iregex=safe_search))
     context['form'] = form
-    return render_to_response(template, context, 
+    response = render_to_response(template, context, 
                               context_instance = RequestContext(request)) 
+    transaction.commit()
+    return response
 
 def _send_user_registration_email(recipient, username, password):
     """ Raises exception on error - returns nothing """
