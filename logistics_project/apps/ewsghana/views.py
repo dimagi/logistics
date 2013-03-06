@@ -153,9 +153,9 @@ def auditor(request, template="ewsghana/auditor.html"):
     if request.method == "GET" and 'search' in request.GET:
             search = request.GET['search']
             matches = AccessAudit.get_db().search("auditcare/search", 
-                                                      handler="_fti/_design",
-                                                      q=search, 
-                                                      include_docs=True)
+                                                  handler="_fti/_design",
+                                                  q=search, 
+                                                  include_docs=True)
             auditEvents = [AccessAudit.wrap(res["doc"]) for res in matches]
     else:
             auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
