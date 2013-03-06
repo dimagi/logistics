@@ -17,6 +17,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from rapidsms.conf import settings
 from rapidsms.models import Connection, Backend, Contact
+from logistics.decorators import place_in_request
 from .forms import RegisterUserForm
 
 @transaction.commit_on_success
@@ -28,6 +29,7 @@ def my_web_registration(request, Form=RegisterUserForm,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 @transaction.commit_manually
+@place_in_request()
 def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None, 
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
@@ -55,7 +57,7 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
             user.delete()
             transaction.commit()
             return HttpResponseRedirect(
-                "%s?deleted=%s" % (reverse(success_url), name))
+              "%s?deleted=%s" % (reverse(success_url), name))
         form = Form(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
@@ -74,10 +76,10 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                 transaction.rollback()
                 return response
             else:
-                transaction.commit()
-                return HttpResponseRedirect("%s?created=%s" % \
+                response = HttpResponseRedirect("%s?created=%s" % \
                                             (reverse(success_url), unicode(new_user)))
-                #return HttpResponseRedirect( reverse(success_url))
+                transaction.commit()
+                return response
     context['users'] = User.objects.all().order_by('username')
     if request.method == 'GET': 
         context['deleted'] = request.GET['deleted'] if "deleted" in request.GET else None
@@ -92,9 +94,18 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
                                        Q(logisticsprofile__contact__connection__identity__iregex=safe_search) |\
                                        Q(logisticsprofile__supply_point__name__iregex=safe_search) |\
                                        Q(logisticsprofile__location__name__iregex=safe_search))
+    if 'search' not in request.GET and request.location and \
+      request.location.code != settings.COUNTRY:
+        all_locations = request.location.get_descendants_plus_self()
+        context['users'] = context['users'].filter(Q(logisticsprofile__location__in=all_locations)|
+                                                   Q(logisticsprofile__supply_point__location__in=\
+                                                     all_locations))
     context['form'] = form
+    context['location'] = request.location
+    if 'destination_url' not in context:
+        context['destination_url'] = 'admin_web_registration'
     response = render_to_response(template, context, 
-                              context_instance = RequestContext(request)) 
+                                  context_instance = RequestContext(request)) 
     transaction.commit()
     return response
 

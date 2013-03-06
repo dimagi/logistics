@@ -140,7 +140,8 @@ def registration(req, pk=None, template="registration/dashboard.html",
                                        Q(supply_point__name__iregex=safe_search))
     if 'search' not in req.GET and req.location and \
       req.location.code != settings.COUNTRY: 
-        contacts = contacts.filter(supply_point__location__pk__in=req.location.get_descendants_plus_self())
+        contacts = contacts.filter(supply_point__location__in=\
+                                   req.location.get_descendants_plus_self())
     context["other_phones"] = contact.get_other_connections() if contact else None
     context["contacts_table"] = ContactTable(contacts, request=req)
     context["contact_form"] = contact_form
