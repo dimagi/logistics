@@ -206,6 +206,7 @@ def facility_detail(request, code, context={}, template="ewsghana/single_facilit
 
 @permission_required('logistics.add_supplypoint')
 @transaction.commit_on_success
+@place_in_request()
 def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     facility = None
     form = None
@@ -241,7 +242,9 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     created = None
     deleted = None
     search = None
-    facilities = GhanaFacility.objects.filter(active=True)
+    facilities = all_facilities = GhanaFacility.objects.filter(active=True)
+    if req.location: 
+        facilities = req.location.all_facilities()
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']
@@ -250,7 +253,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         if 'search' in req.GET:
             search = req.GET['search']
             safe_search = re.escape(search)
-            facilities = facilities.filter(Q(name__iregex=safe_search) |\
+            facilities = all_facilities.filter(Q(name__iregex=safe_search) |\
                                            Q(location__name__iregex=safe_search))
     return render_to_response(
         template, {
@@ -265,7 +268,9 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "object": facility,
             "klass": klass,
             "klass_view": reverse('facility_view'), 
-            "products": products
+            "products": products, 
+            "location": req.location, 
+            "destination_url": "facility_view"
         }, context_instance=RequestContext(req)
     )
 
