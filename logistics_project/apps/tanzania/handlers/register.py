@@ -10,6 +10,8 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 import re
 
+DISTRICT_PREFIXES = ['d', 'm', 'tb', 'tg', 'dm', 'mz', 'mt']
+
 class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
     """
     Registration for ILS Gateway
@@ -47,8 +49,9 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
             words = text.split()
             names = []
             msd_codes = []
+            location_regex = '^({prefs})\d+'.format(prefs='|'.join(p.lower() for p in DISTRICT_PREFIXES))
             for the_string in words:
-                if re.match('^(d|m|tb)\d+', the_string.strip().lower()):
+                if re.match(location_regex, the_string.strip().lower()):
                     msd_codes.append(the_string.strip().lower())
                 else:
                     names.append(the_string)
