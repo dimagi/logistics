@@ -16,6 +16,7 @@ from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
+from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint
 from logistics_project.apps.registration.forms import CommoditiesContactForm, \
     BulkRegistrationForm
@@ -24,9 +25,10 @@ from logistics_project.apps.registration.validation import check_for_dupes, \
 from .tables import ContactTable
 
 @permission_required('rapidsms.add_contact')
+@place_in_request()
 def registration(req, pk=None, template="registration/dashboard.html", 
-                 contact_form=CommoditiesContactForm):
-    context = {}
+                 context=None, contact_form=CommoditiesContactForm):
+    context = {} if context is None else context
     contact = None
     connection = None
     search = None
@@ -136,6 +138,9 @@ def registration(req, pk=None, template="registration/dashboard.html",
             contacts = contacts.filter(Q(name__iregex=safe_search) |\
                                        Q(connection__identity__iregex=safe_search) |\
                                        Q(supply_point__name__iregex=safe_search))
+    if 'search' not in req.GET and req.location and \
+      req.location.code != settings.COUNTRY: 
+        contacts = contacts.filter(supply_point__location__pk__in=req.location.get_descendants_plus_self())
     context["other_phones"] = contact.get_other_connections() if contact else None
     context["contacts_table"] = ContactTable(contacts, request=req)
     context["contact_form"] = contact_form
@@ -144,6 +149,9 @@ def registration(req, pk=None, template="registration/dashboard.html",
     context["search"] = search
     context["contact"] = contact
     context["registration_view"] = reverse(registration_view)
+    context["location"] = req.location
+    if "destination_url" not in context:
+        context["destination_url"] = "registration"
     return render_to_response(
         template, context, context_instance=RequestContext(req)
     )

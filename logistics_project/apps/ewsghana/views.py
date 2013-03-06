@@ -242,9 +242,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     created = None
     deleted = None
     search = None
-    facilities = all_facilities = GhanaFacility.objects.filter(active=True)
-    if req.location: 
-        facilities = req.location.all_facilities()
+    facilities = GhanaFacility.objects.filter(active=True)
     if req.method == "GET":
         if "created" in req.GET:
             created = req.GET['created']
@@ -253,8 +251,11 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
         if 'search' in req.GET:
             search = req.GET['search']
             safe_search = re.escape(search)
-            facilities = all_facilities.filter(Q(name__iregex=safe_search) |\
+            facilities = facilities.filter(Q(name__iregex=safe_search) |\
                                            Q(location__name__iregex=safe_search))
+    if 'search' not in req.GET and req.location and \
+      req.location.code != settings.COUNTRY: 
+        facilities = req.location.all_facilities()
     return render_to_response(
         template, {
             "search_enabled": True, 
@@ -348,8 +349,10 @@ def my_web_registration(request,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 def sms_registration(request, *args, **kwargs):
+    context = {}
+    context['destination_url'] = "ewsghana_sms_registration"
     kwargs['contact_form'] = EWSGhanaSMSRegistrationForm
-    ret = logistics_registration(request, *args, **kwargs)
+    ret = logistics_registration(request, *args, context=context, **kwargs)
     return ret
 
 def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html"):
