@@ -422,7 +422,9 @@ def medical_stores(request, context={}, template="ewsghana/medical_stores.html")
 @filter_context
 @magic_token_required()
 @datespan_in_request()
-def facilities_by_products(request, location_code=None, context={}, template="ewsghana/facilities_by_products.html"):
+@place_in_request()
+def facilities_by_products(request, context={}, template="ewsghana/facilities_by_products.html"):
     context['stores'] = _get_medical_stores()
-    return logistics_facilities_by_products(request, location_code, 
-                                            context=context, template=template)
+    context['destination_url'] = "ewsghana_facilities_by_products"
+    return logistics_facilities_by_products(request, context=context, 
+                                            template=template)
