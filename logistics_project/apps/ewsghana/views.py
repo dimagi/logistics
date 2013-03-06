@@ -152,10 +152,11 @@ def auditor(request, template="ewsghana/auditor.html"):
     MAX_ENTRIES = 500
     if request.method == "GET" and 'search' in request.GET:
             search = request.GET['search']
-            auditEvents = AccessAudit.view("auditcare/by_user_access_events", 
-                                   limit=MAX_ENTRIES, endkey=[search], 
-                                   startkey=[search, {}, {}, {}, {}, {}, {}], 
-                                   descending=True, include_docs=True).all()
+            matches = AccessAudit.get_db().search("auditcare/search", 
+                                                      handler="_fti/_design",
+                                                      q=search, 
+                                                      include_docs=True)
+            auditEvents = [AccessAudit.wrap(res["doc"]) for res in matches]
     else:
             auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
                                    limit=MAX_ENTRIES, 
