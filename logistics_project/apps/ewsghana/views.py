@@ -18,6 +18,7 @@ from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
+from dimagi.utils.decorators.datespan import datespan_in_request
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.locations.models import Location
@@ -27,11 +28,13 @@ from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
 from logistics.decorators import place_in_request
+from email_reports.decorators import magic_token_required
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context
 from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
+from logistics.views import facilities_by_products as logistics_facilities_by_products
 from logistics.views import district_dashboard, aggregate, stockonhand_facility
 from logistics.view_decorators import filter_context
 from logistics.util import config
@@ -402,10 +405,26 @@ def dashboard(request, context={}):
                 return aggregate(request)
     return aggregate(request, context=context)
 
+def _get_medical_stores():
+    return SupplyPoint.objects.filter(active=True,
+                                      type__code__in=config.SupplyPointCodes.MEDICAL_STORES).\
+                                      order_by('type', 'name')
+                                      
 def medical_stores(request, context={}, template="ewsghana/medical_stores.html"):
-    context['stores'] = SupplyPoint.objects.filter(active=True,
-                                                   type__code__in=config.SupplyPointCodes.MEDICAL_STORES).\
-                                                   order_by('type', 'name')
+    context['stores'] = _get_medical_stores()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
+
+@csrf_exempt
+@cache_page(60 * 15)
+@geography_context
+@filter_context
+@magic_token_required()
+@datespan_in_request()
+@place_in_request()
+def facilities_by_products(request, context={}, template="ewsghana/facilities_by_products.html"):
+    context['stores'] = _get_medical_stores()
+    context['destination_url'] = "ewsghana_facilities_by_products"
+    return logistics_facilities_by_products(request, context=context, 
+                                            template=template)
