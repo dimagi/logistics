@@ -14,6 +14,9 @@ from logistics_project.apps.ewsghana.forms import EWSGhanaSelfRegistrationForm
 from logistics_project.apps.ewsghana.views import EWSGhanaMessageLogView
 
 urlpatterns = patterns('',
+    url(r'^comments/', include('django.contrib.comments.urls')),
+    url(r'^comments/hub', 'logistics_project.apps.ewsghana.views.comments',
+        name="ewsghana_comments"),
     url(r'^dashboard/?$',
         'logistics_project.apps.ewsghana.views.dashboard',
         name="ghana_dashboard"),

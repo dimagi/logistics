@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, \
     login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.comments.models import Comment
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
@@ -40,7 +42,7 @@ from logistics.view_decorators import filter_context
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable, \
-    LocationTable
+    LocationTable, CommentTable
 from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm, \
     LocationForm
@@ -436,3 +438,11 @@ def facilities_by_products(request, context={}, template="ewsghana/facilities_by
     context['destination_url'] = "ewsghana_facilities_by_products"
     return logistics_facilities_by_products(request, context=context, 
                                             template=template)
+
+def comments(request, context={}, template="ewsghana/comments.html"):
+    context['site'] = Site.objects.all()[0]
+    context ['comment_table'] = CommentTable(Comment.objects.all(), request=request)
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+

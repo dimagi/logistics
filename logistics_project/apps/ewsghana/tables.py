@@ -107,3 +107,12 @@ class EWSMessageTable(MessageTable):
     class Meta:
         order_by = '-date'
         page_jump = True
+
+class CommentTable(Table):
+    user = Column()
+    comment = Column()
+    submit_date = Column()
+
+    class Meta:
+        order_by = '-submit_date'
+        page_jump = True

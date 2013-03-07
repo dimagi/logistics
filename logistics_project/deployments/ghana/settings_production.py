@@ -20,6 +20,7 @@ APPS = [
     "cpserver",
     "rapidsms.contrib.messaging",
     "soil",
+    "django.contrib.comments",
 ]
 
 MIDDLEWARE_CLASSES = (

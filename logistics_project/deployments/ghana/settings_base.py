@@ -13,6 +13,7 @@ APPS = [
     "logistics_project.apps.smsgh",
     "rapidsms.contrib.messaging",
     "soil",
+    "django.contrib.comments",
 ]
 
 MIDDLEWARE_CLASSES = [

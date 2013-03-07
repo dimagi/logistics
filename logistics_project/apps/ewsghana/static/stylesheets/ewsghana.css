@@ -95,5 +95,8 @@
 
 .djtable {
 	width: 100%;
+}
 
+.textarea_comment { 
+	width: 98%; height: 30px; padding:5px; 
 }
