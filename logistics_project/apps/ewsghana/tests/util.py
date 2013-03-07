@@ -2,10 +2,15 @@ from rapidsms.tests.scripted import TestScript
 from rapidsms.models import Contact
 from logistics.models import SupplyPointType, \
     ProductReportType, SupplyPoint, Product, ProductStock, \
-    ProductType
+    ProductType, StockTransaction, ProductReport
 from rapidsms.contrib.locations.models import Location
 from logistics.const import Reports
 from logistics.util import config
+
+def clear_state():
+    StockTransaction.objects.all().delete()
+    ProductReport.objects.all().delete()
+    ProductStock.objects.all().delete()
 
 def load_test_data():
     try:
