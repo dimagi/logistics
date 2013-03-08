@@ -38,8 +38,9 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
     if pk and not request.user.has_perm('auth.add_user') and \
       not (hasattr(request.user, 'pk') and int(pk) == int(request.user.pk)):
         # view is only available to non-admin users if all they do is edit themselves
+        response = HttpResponseRedirect(settings.LOGIN_URL)
         transaction.rollback()
-        return HttpResponseRedirect(settings.LOGIN_URL)
+        return response
     if pk is not None:
         try:
             user = User.objects.get(pk=pk)
@@ -55,9 +56,10 @@ def admin_does_all(request, pk=None, Form=RegisterUserForm, context=None,
             # here, we choose to completely delete the user
             # and in so doing free up the username for new users to use
             user.delete()
+            response = HttpResponseRedirect(
+                       "%s?deleted=%s" % (reverse(success_url), name))
             transaction.commit()
-            return HttpResponseRedirect(
-              "%s?deleted=%s" % (reverse(success_url), name))
+            return response
         form = Form(request.POST, user=user) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             try:
