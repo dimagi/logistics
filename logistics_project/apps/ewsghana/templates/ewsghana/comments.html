@@ -1,0 +1,39 @@
+{% extends "logistics/base.html" %}
+{% load i18n %}
+{% load comments %}
+
+{% block content %}
+    <div class="module">
+	<h2>Add a comment</h2>
+		{% get_comment_form for site as form %}
+		<form action="{% comment_form_target %}" method="post"><div>
+            {% csrf_token %}
+		    {{ form.non_field_errors }}
+		    {% for field in form %}
+		    {% ifequal field.name "name" %}
+	                <input type="hidden" id="id_name" name="name" value="{{ user.username }}" readonly/>
+		    {% else %}{% ifequal field.name "email" %}
+                <input type="hidden" name="email" value="{{ user.email }}" id="id_email" />
+            {% else %}{% ifequal field.name "url" %}
+                <input type="hidden" name="url" value="" id="id_url" />
+            {% else %}{% ifequal field.name "honeypot" %}
+                <input type="hidden" name="honeypot" value="" id="id_honeypot" />
+            {% else %}{% ifequal field.name "comment" %}
+                <div class="field">
+                    {{ form.comment.errors }}
+                    <label for="id_comment">Comment</label>
+                    <textarea class="textarea_comment" id="id_comment" rows="2" cols="100" name="comment"></textarea>
+                </div>
+            {% else %}{{ field }}{% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}
+		    {% endfor %}  
+		    </div>  
+		    <div class="submit">
+			    <input type="submit" name="submit" value="Post">
+		    </div>
+        </form>
+    </div>  
+    <div class="module">
+    <h2>Comments</h2>
+        {{ comment_table.as_html }}
+    </div>
+{% endblock %}

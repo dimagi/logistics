@@ -13,6 +13,7 @@ APPS = [
     "logistics_project.apps.smsgh",
     "rapidsms.contrib.messaging",
     "soil",
+    "django.contrib.comments",
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -33,7 +34,7 @@ MIDDLEWARE_CLASSES = [
 RAPIDSMS_TABS = [
     ("aggregate",                                           "Stock Levels"),
     ("ewsghana_reporting",                                  "Usage"),
-    ("district_dashboard",                                  "District Dashboard"),
+    ("district_dashboard",                                  "Dashboard"),
     #("input_stock",                                        "Input Stock"),
     ("ewsghana_scheduled_reports",                          "Configuration"),
     #("email_reports",                                      "Email Reports"),

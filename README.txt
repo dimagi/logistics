@@ -36,6 +36,18 @@ SETUP
 * ./manage.py runserver &
 * ./manage.py runrouter &
 
+ENABLING COUCH-LUCENE
+To enable full-text search on the couch models, you'll need to set up couch-lucene. Follow these instructions: https://github.com/rnewson/couchdb-lucene. Basically:
+* install java
+  * sudo add-apt-repository "deb http://archive.canonical.com/ lucid partner"
+  * sudo apt-get update
+  * sudo apt-get install sun-java6-jre sun-java6-plugin
+  * sudo update-alternatives --config java
+* apt-get install maven2
+* git pull https://github.com/rnewson/couchdb-lucene, mvn, unzip target, and run
+* configure couchdb settings 
+* syncdb to install the index views
+* done!
 
 SUPPORTED OPERATING SYSTEM
 Ubuntu Lucid Lynx 10.0.4 LTS

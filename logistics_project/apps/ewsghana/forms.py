@@ -92,7 +92,7 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
         return user
 
 class EWSGhanaManagerWebRegistrationForm(EWSGhanaBasicWebRegistrationForm): 
-    facility = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'), 
+    facility = forms.ModelChoiceField(SupplyPoint.objects.filter(active=True).order_by('name'), 
                                       help_text=('Linking a web user with a facility will allow ' + 
                                                  'that user to input stock for that facility from the website.'), 
                                                  required=False)

@@ -2,5 +2,8 @@
 
 {% block breadcrumbs %}
 {% include "ewsghana/partials/config_submenu.html" %}
+{% if perms.logistics %}
+    <br/>{% include "logistics/partials/breadcrumbs.html" %}
+{% endif %}
 {% endblock %}
 

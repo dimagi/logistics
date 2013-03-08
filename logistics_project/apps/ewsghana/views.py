@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, \
     login_required, user_passes_test
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.comments.models import Comment
+from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
@@ -18,6 +20,7 @@ from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
+from dimagi.utils.decorators.datespan import datespan_in_request
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.locations.models import Location
@@ -27,17 +30,19 @@ from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
 from logistics.decorators import place_in_request
+from email_reports.decorators import magic_token_required
 from logistics.models import Product, SupplyPoint, LogisticsProfile
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context
 from logistics.views import LogisticsMessageLogView
 from logistics.views import reporting as logistics_reporting
+from logistics.views import facilities_by_products as logistics_facilities_by_products
 from logistics.views import district_dashboard, aggregate, stockonhand_facility
 from logistics.view_decorators import filter_context
 from logistics.util import config
 from logistics_project.apps.web_registration.views import admin_does_all
 from logistics_project.apps.ewsghana.tables import FacilityDetailTable, \
-    LocationTable
+    LocationTable, CommentTable
 from logistics_project.apps.ewsghana.models import GhanaFacility
 from logistics_project.apps.ewsghana.forms import EWSGhanaSMSRegistrationForm, \
     LocationForm
@@ -147,10 +152,11 @@ def auditor(request, template="ewsghana/auditor.html"):
     MAX_ENTRIES = 500
     if request.method == "GET" and 'search' in request.GET:
             search = request.GET['search']
-            auditEvents = AccessAudit.view("auditcare/by_user_access_events", 
-                                   limit=MAX_ENTRIES, endkey=[search], 
-                                   startkey=[search, {}, {}, {}, {}, {}, {}], 
-                                   descending=True, include_docs=True).all()
+            matches = AccessAudit.get_db().search("auditcare/search", 
+                                                  handler="_fti/_design",
+                                                  q=search, 
+                                                  include_docs=True)
+            auditEvents = [AccessAudit.wrap(res["doc"]) for res in matches]
     else:
             auditEvents = AccessAudit.view("auditcare/by_date_access_events", 
                                    limit=MAX_ENTRIES, 
@@ -203,6 +209,7 @@ def facility_detail(request, code, context={}, template="ewsghana/single_facilit
 
 @permission_required('logistics.add_supplypoint')
 @transaction.commit_on_success
+@place_in_request()
 def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     facility = None
     form = None
@@ -249,6 +256,9 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             safe_search = re.escape(search)
             facilities = facilities.filter(Q(name__iregex=safe_search) |\
                                            Q(location__name__iregex=safe_search))
+    if 'search' not in req.GET and req.location and \
+      req.location.code != settings.COUNTRY: 
+        facilities = req.location.all_facilities()
     return render_to_response(
         template, {
             "search_enabled": True, 
@@ -262,7 +272,9 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
             "object": facility,
             "klass": klass,
             "klass_view": reverse('facility_view'), 
-            "products": products
+            "products": products, 
+            "location": req.location, 
+            "destination_url": "facility_view"
         }, context_instance=RequestContext(req)
     )
 
@@ -340,8 +352,10 @@ def my_web_registration(request,
     return admin_does_all(request, request.user.pk, Form, context, template, success_url)
 
 def sms_registration(request, *args, **kwargs):
+    context = {}
+    context['destination_url'] = "ewsghana_sms_registration"
     kwargs['contact_form'] = EWSGhanaSMSRegistrationForm
-    ret = logistics_registration(request, *args, **kwargs)
+    ret = logistics_registration(request, *args, context=context, **kwargs)
     return ret
 
 def configure_incharge(request, sp_code, template="ewsghana/config_incharge.html"):
@@ -402,10 +416,34 @@ def dashboard(request, context={}):
                 return aggregate(request)
     return aggregate(request, context=context)
 
+def _get_medical_stores():
+    return SupplyPoint.objects.filter(active=True,
+                                      type__code__in=config.SupplyPointCodes.MEDICAL_STORES).\
+                                      order_by('type', 'name')
+                                      
 def medical_stores(request, context={}, template="ewsghana/medical_stores.html"):
-    context['stores'] = SupplyPoint.objects.filter(active=True,
-                                                   type__code__in=config.SupplyPointCodes.MEDICAL_STORES).\
-                                                   order_by('type', 'name')
+    context['stores'] = _get_medical_stores()
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
+
+@csrf_exempt
+@cache_page(60 * 15)
+@geography_context
+@filter_context
+@magic_token_required()
+@datespan_in_request()
+@place_in_request()
+def facilities_by_products(request, context={}, template="ewsghana/facilities_by_products.html"):
+    context['stores'] = _get_medical_stores()
+    context['destination_url'] = "ewsghana_facilities_by_products"
+    return logistics_facilities_by_products(request, context=context, 
+                                            template=template)
+
+def comments(request, context={}, template="ewsghana/comments.html"):
+    context['site'] = Site.objects.all()[0]
+    context ['comment_table'] = CommentTable(Comment.objects.all(), request=request)
+    return render_to_response(
+        template, context, context_instance=RequestContext(request)
+    )
+
