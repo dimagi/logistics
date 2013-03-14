@@ -11,6 +11,7 @@ from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product, StockRequest
 from logistics.util import config
 from logistics.const import Reports
+from logistics.warehouse_models import SupplyPointWarehouseRecord
 
 from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
@@ -70,7 +71,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             
     def generate(self, run_record):
         print "Malawi warehouse generate!"
-        
+
         start = run_record.start
         end = run_record.end
         first_activity = Message.objects.order_by('date')[0].date
@@ -446,6 +447,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if not self.skip_alerts:
             update_alerts()
 
+        update_historical_data()
+
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
                additonal_query_params={}):
@@ -620,4 +623,47 @@ def update_alerts():
         
         new_obj.save()
     return True
+
+def _init_warehouse_model(cls, supply_point, date):
+    if hasattr(cls, 'product'):
+        _init_with_product(cls, supply_point, date)
+    else:
+        _init_default(cls, supply_point, date)
+
+def _init_default(cls, supply_point, date):
+    return cls.objects.get_or_create(supply_point=supply_point, date=date)[1]
+
+def _init_with_product(cls, supply_point, date):
+    ret = False
+    for p in Product.objects.all():
+        ret = cls.objects.get_or_create(supply_point=supply_point, date=date, product=p) or ret
+    return ret
+
+def update_historical_data():
+    """
+    If we don't have a record of this supply point being updated, run
+    through all historical data and just fill in with zeros.
+    """
+    start_date = ReportingRate.objects.order_by('date')[0].date
+    warehouse_classes = [
+        ProductAvailabilityData,
+        ProductAvailabilityDataSummary,
+        ReportingRate,
+        OrderRequest,
+        OrderFulfillment,
+        CalculatedConsumption,
+        HistoricalStock,
+    ]
+    for sp in SupplyPoint.objects.filter(pk=2520):
+        try:
+            SupplyPointWarehouseRecord.objects.get(supply_point=sp)
+        except ObjectDoesNotExist:
+            # we didn't have a record so go through and historically update
+            # anything we maybe haven't touched
+            for year, month in months_between(start_date, sp.created_at):
+                window_date = datetime(year, month, 1)
+                for cls in warehouse_classes:
+                    _init_warehouse_model(cls, sp, window_date)
+            SupplyPointWarehouseRecord.objects.create(supply_point=sp,
+                                                      create_date=datetime.utcnow())
 
