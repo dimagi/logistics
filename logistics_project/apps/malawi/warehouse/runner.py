@@ -656,7 +656,7 @@ def update_historical_data():
         CalculatedConsumption,
         HistoricalStock,
     ]
-    for sp in SupplyPoint.objects.filter(pk=2520):
+    for sp in SupplyPoint.objects.all():
         try:
             SupplyPointWarehouseRecord.objects.get(supply_point=sp)
         except ObjectDoesNotExist:
