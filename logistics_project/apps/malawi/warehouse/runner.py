@@ -353,11 +353,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
             .exclude(type__code='hsa').order_by('id')
         # national only
         # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
+        non_hsa_count = non_hsas.count()
         all_products = Product.objects.all()
         if not self.skip_aggregates: 
             
-            for place in non_hsas:
-                print "processing non-hsa %s (%s)" % (place.name, str(place.id))
+            for i, place in enumerate(non_hsas):
+                print "processing non-hsa %s (%s) (%s/%s)" % (place.name, str(place.id),
+                                                              i, non_hsa_count)
                 relevant_hsas = hsa_supply_points_below(place.location)
                 
                 if not self.skip_current_consumption:
