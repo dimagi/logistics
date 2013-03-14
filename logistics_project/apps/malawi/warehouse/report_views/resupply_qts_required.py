@@ -45,7 +45,7 @@ class View(warehouse_view.DistrictOnlyView):
         totals = defaultdict(lambda: 0)
         for fac in facilities:
             temp = [fac.name]
-            for product in Product.objects.all().order_by('sms_code'):
+            for product in products:
                 temp.append(sum([r.amount_requested for r in StockRequest.pending_requests()\
                     .filter(Q(supply_point=fac) | Q(supply_point__supplied_by=fac)\
                         | Q(supply_point__supplied_by__supplied_by=fac))\
