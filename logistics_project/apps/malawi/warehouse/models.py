@@ -286,7 +286,7 @@ class Alert(models.Model):
         app_label = "malawi"
 
 
-class HistoricalStock(ReportingModel):
+class HistoricalStock(MalawiWarehouseModel):
     """
     A simple class to cache historical stock levels by month/year 
     per product/supply point
@@ -294,8 +294,4 @@ class HistoricalStock(ReportingModel):
     product = models.ForeignKey('logistics.Product')
     stock = models.BigIntegerField(default=0)
     total = models.PositiveIntegerField(default=0)
-    
-    class Meta:
-        app_label = "malawi"
-
     
