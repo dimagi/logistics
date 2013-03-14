@@ -42,7 +42,8 @@ from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, \
     HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable, ConsumptionDataTable
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below,\
+    deactivate_product
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
@@ -223,8 +224,14 @@ def products(request):
                    "Emergency Order Level", "Type"],
         "data": [],
     }
+    def _fmt_name(product):
+        return '<a href="{url}">{name}</a>'.format(
+            url=reverse('malawi_single_product', args=[str(product.pk)]),
+            name=product.name,
+        )
+
     for prd in prds:
-        table["data"].append([prd.name, prd.sms_code, prd.average_monthly_consumption,
+        table["data"].append([_fmt_name(prd), prd.sms_code, prd.average_monthly_consumption,
             prd.emergency_order_level, prd.type.name if prd.type else ""])
 
     table["height"] = min(480, (prds.count()+1)*30)
@@ -236,6 +243,21 @@ def products(request):
     return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
 
+def single_product(request, pk):
+    p = get_object_or_404(Product, pk=pk)
+    return render_to_response("%s/single_product.html" % settings.MANAGEMENT_FOLDER,
+                              {'product': p},
+                              context_instance=RequestContext(request))
+
+def deactivate_product_view(request, pk):
+    p = get_object_or_404(Product, pk=pk)
+    if request.method=="POST":
+        deactivate_product(p)
+        messages.success(request, "%s was successfully deactivated" % p.name)
+        return HttpResponseRedirect(reverse('malawi_products'))
+    return render_to_response("%s/deactivate_product.html" % settings.MANAGEMENT_FOLDER,
+                              {'product': p},
+                              context_instance=RequestContext(request))
 
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))

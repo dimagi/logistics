@@ -34,7 +34,7 @@
 		{% for row in table.data %}
 			<tr>
 				{% for item in row %}
-					<td>{{ item }}</td>
+					<td>{{ item|safe }}</td>
 				{% endfor %}
 				</tr>
 		{% endfor %}

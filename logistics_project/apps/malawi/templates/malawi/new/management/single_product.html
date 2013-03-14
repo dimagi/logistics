@@ -1,0 +1,36 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Single Product - {{ block.super }}{% endblock %}
+{% block stylesheets %}{{ block.super }}
+<style type="text/css">
+    dl {
+        margin-bottom:50px;
+	}
+	dl dt {
+	    float:left;
+	    clear: both;
+	    font-weight:bold; 
+	    margin-right:10px; 
+	    padding:5px;  
+	    width:100px; 
+	}
+	dl dd {
+	    margin:2px 0; 
+	    padding:5px 0;
+	}
+</style>
+{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <dl>
+        <dt>Name: </dt>
+        <dd>{{ product.name }}</dd>
+        <dt>SMS Code: </dt>
+        <dd>{{ product.sms_code }}</dd>
+        <dt>Category: </dt>
+        <dd>{{ product.type.name }}</dd>
+    </dl>
+    <form action="{% url malawi_deactivate_product product.pk %}" method="get">
+        <input type="submit" value="Deactivate Product">
+    </form>
+</div>
+{% endblock %}

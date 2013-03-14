@@ -1,0 +1,16 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Single Product - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <p class="warning">
+    Deactivating a product will remove it from all HSAs who manage it.
+    This operation is NOT reverisble. Confirm you want to do this by
+    clicking "deactivate" below, otherwise you can 
+    <a href="{% url malawi_single_product product.pk%}">go back</a>.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="Deactivate {{ product.name }}">
+    </form>
+</div>
+{% endblock %}

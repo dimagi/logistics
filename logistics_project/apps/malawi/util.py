@@ -255,6 +255,14 @@ def get_all_visible_locations(user):
         locations.append(sp)
     return locations
 
+def deactivate_product(product):
+    product.is_active = False
+    product.save()
+    managers = Contact.objects.filter(commodities__in=[product.pk])
+    for c in managers:
+        assert product in c.commodities.all()
+        c.commodities.remove(product)
+
 class ConsumptionData(object):
     def __init__(self, product, sps):
         self.product = product
