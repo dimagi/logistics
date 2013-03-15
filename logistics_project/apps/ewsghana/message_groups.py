@@ -17,7 +17,7 @@ def by_district():
     """ return an ordered dictionary listing all districts """
     r = OrderedDict()
     locs = Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)\
-                           .order_by('code')
+                           .filter(is_active=True).order_by('code')
     for d in locs:
         r.update(below_location(d))
     return "Districts", r
@@ -26,7 +26,7 @@ def by_facility():
     """ return an ordered dictionary listing all facilities """
     r = OrderedDict()
     locs = Location.objects.filter(type__slug=config.LocationCodes.FACILITY)\
-                           .order_by('name')
+                           .filter(is_active=True).order_by('name')
     for d in locs:
         r.update(below_location(d))
     return "Facilities", r
