@@ -45,6 +45,7 @@ RAPIDSMS_TABS = [
     ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
     ("maps_dashboard",                                      "Maps"),
     ("group_message",                                       "Broadcast", "is_superuser"),
+    ("ewsghana_comments",                                   "Comments"),
 ]
 
 # the rapidsms backend configuration is designed to resemble django's
