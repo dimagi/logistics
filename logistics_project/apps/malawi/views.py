@@ -2,10 +2,10 @@ from datetime import datetime, date, timedelta
 from urllib2 import urlopen
 from collections import defaultdict
 import logging
+import json
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.serializers import json
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template.context import RequestContext
 from django.views.decorators.cache import cache_page
@@ -55,6 +55,9 @@ from logistics_project.apps.malawi.loader import load_locations,\
     get_facility_export
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist
+from logistics_project.apps.outreach.models import OutreachMessage, OutreachQuota
+from django.db.models.query_utils import Q
+from rapidsms.contrib.messaging.utils import send_message
 
 
 def organizations(request):
@@ -497,7 +500,7 @@ def scmgr_receiver(request):
     if request.method != 'POST':
         return HttpResponse("You must submit POST data to this url.")
     data = request.POST.get('data', None)
-    result = json.simplejson.loads(data)
+    result = json.loads(data)
     processed = 0
     for r in result:
         try:
@@ -562,6 +565,57 @@ def upload_facilities(request):
     else:
         messages.error(request, "Please select a file")    
     return HttpResponseRedirect(reverse("malawi_manage_facilities"))
+
+def outreach(request):
+    contacts = []
+    if request.GET.get('q'):
+        search = request.GET['q']
+        contacts = Contact.objects.filter(
+            Q(name__icontains=search) | Q(connection__identity__icontains=search)
+        )
+
+    sent = OutreachMessage.sent_this_month(request.user)
+    allowed = OutreachQuota.get_quota(request.user)
+    remaining = OutreachQuota.get_remaining(request.user)
+    return render_to_response("malawi/outreach.html",
+        {
+            'sent': sent,
+            'remaining': remaining,
+            'allowed': allowed,
+            'contacts': contacts,
+         },
+         context_instance=RequestContext(request)
+    )
+
+@require_POST
+def send_outreach(req):
+    text = req.POST["text"]
+    data = json.loads(req.POST["recipients"])
+    to_send = len(data)
+    remaining = OutreachQuota.get_remaining(req.user)
+    resp = {}
+    if to_send > remaining:
+        resp = {
+            'status': 'error',
+            'msg': ('Sorry that would exceed your quota for the month '
+                    '({rem} messages remaining).').format(
+                        amt=to_send, rem=remaining),
+            'remaining': remaining,
+        }
+    else:
+        sent_to = []
+        for item in data:
+            contact = get_object_or_404(Contact, pk=item)
+            send_message(contact.default_connection, text)
+            sent_to.append(contact)
+            OutreachMessage.objects.create(sent_by=req.user)
+        resp = {
+            'status': 'success',
+            'msg': '%s sent to %s' % (text, ', '.join(str(c) for c in sent_to)),
+            'remaining': OutreachQuota.get_remaining(req.user),
+        }
+    return HttpResponse(json.dumps(resp), mimetype='application/json')
+
     
 @datespan_in_request()
 def export_amc_csv(request):

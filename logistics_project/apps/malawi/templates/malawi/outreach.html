@@ -1,0 +1,152 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Outreach - {{ block.super }}{% endblock %}
+{% block stylesheets %}{{ block.super }}
+<style type="text/css">
+	.selected {
+	    background-color: #fff6bf;
+	}
+	.error, .notice, .success {padding:.8em;margin-bottom:1em;border:2px solid #ddd;}
+	.error {background:#FBE3E4;color:#8a1f11;border-color:#FBC2C4;}
+	.notice {background:#FFF6BF;color:#514721;border-color:#FFD324;}
+	.success {background:#E6EFC2;color:#264409;border-color:#C6D880;}
+	.inline-error { color: red; font-weight: bold; }
+</style>
+{% endblock %}
+{% block javascripts %}
+{{ block.super }}
+<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/jquery.simplyCountable.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/csrf_ajax.js"></script>
+<script type="text/javascript">
+    var REC = "recipients";
+    var update_ui = function() {
+        rec = $("body").data(REC);
+        if (rec.length == 1) {
+            $("#helptext").text("Sending to 1 person.");
+        } else {
+            $("#helptext").text("Sending to " + rec.length + " people.");
+        }
+    };
+    var reset = function() {
+        $("tr.contact").removeClass("selected");
+        $("body").data(REC, []);
+        $("#compose").val("");
+        $("#counter").html("140");
+        update_ui();
+    };
+    $(function(){
+        // countable
+        $('#compose').simplyCountable();
+
+        // initialize data 
+        $("body").data(REC, []);
+        // contact add/remove
+        $("tr.contact").click(function() {
+            id = $(this).attr("id");
+            rec = $("body").data(REC);
+            if (rec.indexOf(id) != -1) {
+                rec.splice(rec.indexOf(id), 1);
+                $(this).removeClass("selected");
+            } else {
+                rec.push(id);
+                $(this).addClass("selected");
+            }
+            update_ui();
+        });
+        var checkRemaining = function () {
+            if ($("#remaining").text() == "0") {
+                $("#remaining").addClass("inline-error");
+            }
+        };
+        checkRemaining();
+        // send messages
+        $("#send").click(function() {
+            $("#notifications").removeClass("success error");
+            $("#notifications").html("");
+            rec = $("body").data(REC);
+            text = $("#compose").val();
+            if (rec.length > 0 && text.length > 0) {
+                // do post
+                $.ajax({url: "{% url malawi_manage_outreach_send %}", 
+                        type: "POST",
+                        data: {"recipients": JSON.stringify(rec), "text": text},
+                        success: function(resp) {
+                            $("#notifications").addClass(resp.status);
+                            $("#notifications").html(resp.msg);
+                            $("#remaining").text(resp.remaining);
+                            checkRemaining();
+                        },
+                        error: function(msg) {
+                            $("#notifications").addClass("error");
+                            $("#notifications").html("<strong>Problem sending message! Please contact your administrator if this keeps happening</strong>");
+                        }
+                       });
+                reset();
+            } else {
+                $("#notifications").addClass("error");
+                var not_html = "<strong>Message NOT sent. Please correct the errors below</strong>";
+                if (rec.length == 0) {
+                    not_html = not_html + "<p>" + "Please specify at least one recipient." + "</p>";
+                } 
+                if (text.length == 0) {
+                    not_html = not_html + "<p>" + "You have to write a message." + "</p>";
+                }
+                $("#notifications").html(not_html);
+            }
+            
+        });
+    });
+    
+</script>
+{% endblock %}
+{% block subcontent %}
+<div class="module" id="outreach">
+    <h3>Outreach</h3>
+    <p>You have <span id="remaining">{{ remaining }}</span> of {{ allowed }} messages left for the month.</p>
+    <form name="search-form" method="get">
+        <label for="search">Type a contact name or number to get started</label>
+        <input name="q" type="text"></input>
+        <input type="submit" value="Find Contacts"></input>
+    </form>
+{% if contacts %}
+{# hack - copied and pasted from the messaging tab #}
+<p>Select contacts below to send a message.</p>
+<div id="notifications"></div>
+<div class="two-columns">
+    <div class="col-1">
+        <div class="module recipients">
+            <h2>Recipients</h2>
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <th>Person</a></th>
+                        <th>Phone Number</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+{% for person in contacts %}
+                    <tr {% if person.default_connection %}class="contact"{% endif %} id="{{ person.pk }}">
+                        <td>{{ person }}</td>
+                        <td>{% if person.default_connection %}{{ person.default_connection.identity }}{% else %}no contact information{% endif %}</td>
+                    </tr>
+{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-2">
+        <div class="module contents">
+            <h2>Message</h2>
+            <p>You have <span id="counter"></span> characters left.  <span id="helptext">Sending to 0 people.</span></p>
+            <p></p> 
+            <div>
+                <textarea id="compose" cols="54" rows="5"></textarea>
+                <input type="button" id="send" class="send" value="Send Messages" />
+                <input type="button" class="cancel" value="Cancel" disabled="disabled" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clear-hack"></div>
+{% endif %}
+</div>
+{% endblock %}
