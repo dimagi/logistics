@@ -2,6 +2,7 @@ import os
 import tempfile
 from celery.task import task
 from django.core.servers.basehttp import FileWrapper
+from dimagi.utils import csv 
 from soil.util import expose_download
 from auditcare.models import AccessAudit
 from logistics_project.apps.ewsghana.views import _prep_audit_for_display
@@ -13,22 +14,16 @@ def export_auditor(download_id, expiry=10*60*60):
     detailedEvents = _prep_audit_for_display(auditEvents)
     fd, path = tempfile.mkstemp()
     with os.fdopen(fd, "w") as f:
-        f.write("%s\n" % ", ".join(["Date ", "User", "Access_Type",
-                                         "Designation", "Organization", 
-                                         "Facility", "Location", "First_Name", 
-                                         "Last_Name"]))
+        writer = csv.UnicodeWriter(f)
+        writer.writerow(["Date ", "User", "Access_Type", "Designation", 
+                         "Organization", "Facility", "Location", 
+                         "First_Name", "Last_Name"])
         for e in detailedEvents:
-            f.write("%s, " % e['date'])
-            f.write("%s, " % e['user'])
-            f.write("%s, " % e['class'])
-            f.write("%s, " % e['designation'])
-            f.write("%s, " % e['organization'])
-            f.write("%s, " % e['facility'])
-            f.write("%s, " % e['location'])
-            f.write("%s, " % e['first_name'])
-            f.write("%s\n" % e['last_name'])
+            writer.writerow([e['date'], e['user'], e['class'], e['designation'], 
+                            e['organization'], e['facility'], e['location'], 
+                            e['first_name'], e['last_name']])
     payload = FileWrapper(file(path))
     expose_download(payload, expiry,
                     mimetype="application/octet-stream",
-                    content_disposition='attachment; filename=export.xls',
+                    content_disposition='attachment; filename=export_webusage.csv',
                     download_id=download_id)    
