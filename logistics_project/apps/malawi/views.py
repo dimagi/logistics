@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.vary import vary_on_cookie
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import permission_required, user_passes_test
 from django.contrib.auth.models import User as auth_user
 from django.contrib.auth.models import Group as auth_group
 from django.db.models.aggregates import Count
@@ -58,6 +58,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from logistics_project.apps.outreach.models import OutreachMessage, OutreachQuota
 from django.db.models.query_utils import Q
 from rapidsms.contrib.messaging.utils import send_message
+from logistics_project.apps.malawi.templatetags.malawi_warehouse_tags import is_district_user
 
 
 def organizations(request):
@@ -566,6 +567,7 @@ def upload_facilities(request):
         messages.error(request, "Please select a file")    
     return HttpResponseRedirect(reverse("malawi_manage_facilities"))
 
+@user_passes_test(is_district_user)
 def outreach(request):
     contacts = []
     if request.GET.get('q'):
@@ -588,6 +590,7 @@ def outreach(request):
     )
 
 @require_POST
+@user_passes_test(is_district_user)
 def send_outreach(req):
     text = req.POST["text"]
     data = json.loads(req.POST["recipients"])

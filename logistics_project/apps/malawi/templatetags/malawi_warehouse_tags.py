@@ -12,3 +12,7 @@ def warehouse_product_availability_summary(location, date, width=900, height=300
     summary = WarehouseProductAvailabilitySummary(sp, date, width, height)
     return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
+
+@register.filter
+def is_district_user(user):
+    return user.is_superuser or user.groups.filter(name='district').count()

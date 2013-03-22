@@ -1,4 +1,5 @@
 {% extends base_template %}
+{% load malawi_warehouse_tags %}
 {% block imports %}
     {% include "imports/jquery-ui.html" %}
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
@@ -16,7 +17,9 @@
         <li><a href="{% url malawi_sms_tracking %}">SMS Tracking</a></li>
         <li><a href="{% url malawi_telco_tracking %}">Telco Tracking</a></li>
         <li><a href="{% url malawi_manage_facilities %}">Manage Facilities</a></li>
+{% if request.user|is_district_user %}
         <li><a href="{% url malawi_manage_outreach %}">SMS</a></li>
+{% endif %}
     </ul>
 </div>
 {% block subcontent %}{% endblock %}
