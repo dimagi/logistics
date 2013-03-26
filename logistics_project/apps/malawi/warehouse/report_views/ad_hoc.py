@@ -1,9 +1,10 @@
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics.models import SupplyPoint, ProductReport
+from logistics.models import SupplyPoint, ProductReport, Product
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     hsa_supply_points_below
 from dimagi.utils.dates import first_of_next_month
 import itertools
+from logistics_project.apps.malawi.warehouse.report_views.consumption_profiles import consumption_row
 
 class SubReport(object):
 
@@ -30,6 +31,7 @@ class View(warehouse_view.DashboardView):
     def custom_context(self, request):
         subreports = [
             SubReport('hc-requests', 'Requests per HC', hc_context, 'hc-reqs.html'),
+            SubReport('amc-averages', 'AMC per period', amc_context, 'amc-averages.html'),
         ]
         context = {
             'subreports': subreports,
@@ -88,6 +90,33 @@ def hc_context(request):
         "is_downloadable": True,
         "header": ["Health Center", "HC Code", "HSA", "HSA Code", "Report Date"],
         "data": itertools.chain(*[_reports_for_hsa(hsa) for hsa in hsas]),
+    }
+
+    return {
+        'table': table,
+    }
+
+def amc_context(request):
+    """
+    AMC for Nov and Dec period for all HSAs in the list attached. The last
+    column in the consumption profiles report is is the information we require.
+    """
+    sp = SupplyPoint.objects.get(location=request.location) \
+        if request.location else get_default_supply_point(request.user)
+
+    hsas = hsa_supply_points_below(sp.location).order_by('code')
+    products = Product.objects.all()
+
+    def _rows_for_hsa(hsa):
+        rows = [consumption_row(hsa, p, request.datespan) for p in products]
+        return [[hsa.name, hsa.code, row[0], row[-1]] for row in rows]
+
+    table = {
+        "id": "main-table",
+        "is_datatable": False,
+        "is_downloadable": True,
+        "header": ["HSA", "HSA Code", "Product", "AMC"],
+        "data": itertools.chain(*[_rows_for_hsa(hsa) for hsa in hsas]),
     }
 
     return {
