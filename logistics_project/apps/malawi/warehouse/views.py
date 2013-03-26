@@ -10,7 +10,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import datespan_defaul
 
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
-    lead_times, reporting_rate, user_profiles, hsas, health_facilities
+    lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc
 from dimagi.utils.parsing import string_to_boolean
 import logging
 
@@ -28,6 +28,7 @@ reports_slug_map = {
     'user-profiles': user_profiles,
     'hsas': hsas,
     'health-facilities': health_facilities,
+    'ad-hoc': ad_hoc,
 }
 
 @place_in_request()

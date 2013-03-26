@@ -1,0 +1,31 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+
+<form method="get" id="selector">
+<label for="subreport" id="subreport_label">Report: </label> 
+<select name="subreport" id="subreport">
+    <option value="" {% if not subreport %}selected{% endif %}>Select a report</option>
+{% for sr in subreports %}
+    <option value="{{ sr.slug }}" {% if subreport.slug == sr.slug %}selected{% endif %}>{{ sr.name }}</option>
+{% endfor %}
+</select>
+
+{% if request.select_location %}
+{% include "malawi/partials/location_selector.html" %}
+{% endif %}
+
+{% if request.datespan %}
+{% include "malawi/new/partials/month-selector.html" %}
+{% endif %}
+
+<input type="submit" value="Go!" />
+</form>
+
+<div class="module">
+{% if subreport %}
+    <h2>{{ subreport.name }}</h2>
+    {% include subreport.template %}
+{% endif %}
+</div>
+
+{% endblock %}
