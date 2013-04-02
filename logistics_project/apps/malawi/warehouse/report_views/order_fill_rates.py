@@ -4,7 +4,8 @@ from logistics.util import config
 from logistics.models import Product, SupplyPoint, ProductType
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    facility_supply_points_below, fmt_pct, fmt_or_none
+    facility_supply_points_below, fmt_pct, fmt_or_none, is_district, is_facility,\
+    hsa_supply_points_below
 from logistics_project.apps.malawi.warehouse.models import OrderFulfillment
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -69,14 +70,19 @@ class View(warehouse_view.DistrictOnlyView):
                            stats["quantity_requested__sum"] or 0)  
         
         facility_table = None        
-        if sp.type.code == config.SupplyPointCodes.DISTRICT:
+        if is_district(sp) or is_facility(sp):
+            if is_district(sp):
+                base_set = facility_supply_points_below(sp.location)
+            else:
+                assert is_facility(sp)
+                base_set = hsa_supply_points_below(sp.location)
             facility_table = {
                 "id": "ofr-facility-product",
                 "is_datatable": True,
                 "is_downloadable": True,
                 "header": ["Facility"] + [p.sms_code for p in products],
                 "data": [[f.name] + [_avg_fill_rate(f, p, dates) for p in products] \
-                         for f in facility_supply_points_below(sp.location).order_by('name')]
+                         for f in base_set.order_by('name')]
             }
         
         return {
