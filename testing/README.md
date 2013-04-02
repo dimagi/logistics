@@ -13,6 +13,22 @@ Creating the environment
 First setup a development environment by following the instructions in the project readme. Then get a database
 up and running with the some data by using a tool like mysqldump or pgdump on a real (or demo) data set.
 
+If you are going to be conducting the SMS load testing you should add a load testing backend to the
+`INSTALLED_BACKENDS` property of your `localsettings.py` file. The configuration for this backend should
+look something like this:
+
+    INSTALLED_BACKENDS = {
+        # other backends go here...
+        'loadtest': {
+            "ENGINE":  "rapidsms.backends.http",
+            "port": 9988,
+            "gateway_url": "http://www.example.com",
+            "params_outgoing": "id=%(phone_number)s&text=%(message)s",
+            "params_incoming": "id=%(phone_number)s&text=%(message)s"
+        },
+    }
+
+
 Generating Data
 ---------------
 
@@ -30,7 +46,26 @@ Load Testing the SMS
 We setup a basic SMS load test using [multi-mechanize](http://testutils.org/multi-mechanize/) to allow for the
 simulation of any number of SMS stock messages coming in at the same time.
 
-Better documentation coming soon.
+There are a few steps to setup SMS load testing.
+
+### Install multimechanise
+
+Follow [these instructions](http://testutils.org/multi-mechanize/setup.html) for your platform.
+
+### Configure scripts
+
+Edit the `config.cfg` file in the `cstock_sms_test` directory according to the number of concurrent messages you
+want to test and any other settings.
+
+Edit the `test_scripts/test_sms` file in the same directory and set the `BACKEND_URL` parameter to your server's
+address and port of the loadtest backend that you configured.
+
+### Run scripts
+
+    ./multimech-run cstock_sms_test
+
+The results will show up in the `cstock_sms_test` directory.
+
 
 Load Testing the Reports
 ------------------------
