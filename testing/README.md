@@ -70,8 +70,11 @@ The results will show up in the `cstock_sms_test` directory.
 Load Testing the Reports
 ------------------------
 
-We setup some basic [selenium](http://docs.seleniumhq.org/) tests to login to the site and hit the reports.
-You can use a tool like [Neustar Web Performance](http://www.neustar.biz/enterprise/web-performance) to turn
-this into a load test. For details on how to do this (which require creating an account) please see the Neustar
-web page.
+It should be very easy to use existing tools / macros to setup some basic [selenium](http://docs.seleniumhq.org/)
+tests to login to the site and hit the reports. For creating scripts we recommend using Mozilla Firefox and
+[Selenium IDE](http://docs.seleniumhq.org/docs/02_selenium_ide.jsp).
+
+You can use a tool like [Neustar Web Performance](http://www.neustar.biz/enterprise/web-performance/what-is-load-testing)
+to turn this into a load test. For details on how to do this (which require creating an account) please see the
+Neustar web page.
 
