@@ -4,7 +4,6 @@ from random import randint
 import time
 import urllib
 import random
-import sys
 
 BACKEND_URL = 'localhost:9988'
 
@@ -43,6 +42,6 @@ class Transaction(object):
             'REC LA 15 LB 60 CO 220 PA 270 OR 12 ZI 130 TE 7 PB 0',
             'quit',
         ]
-        time.sleep(4)
         for msg in msgs:
             _send(msg)
+            time.sleep(1)
