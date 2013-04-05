@@ -75,11 +75,17 @@
 				            {% if user.default_connection %}({{ user.default_connection.identity }}){% endif %}
    				            {% endif %}
 				        {% if perms.logistics %}</a>{% endif %}
-				            {% if user.last_reported %}
-				                reported {{ user.last_reported|date:"M d/y" }}.
-				            {% else %}
-                                never reported.
-				            {% endif %}
+				        
+				        
+				            {% if not user.is_incharge %}
+					            {% if user.last_reported %}
+					                reported {{ user.last_reported|date:"M d/y" }}.
+					            {% else %}
+	                                never reported.
+					            {% endif %}
+					        {% else %}
+					           In Charge
+                            {% endif %}
 				    <br/>
 				    {% endfor %}
 				</div>
