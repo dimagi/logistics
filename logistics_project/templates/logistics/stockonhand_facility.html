@@ -40,11 +40,11 @@
                 {% stockonhand_table facility request.datespan %}
                 <br/>
                 {% if perms.logistics %}
-	                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK</strong> for {{ facility.name }}</a>
+	                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK FOR {{ facility.name|upper }}</strong></a>
                 {% else %}
 	                {% if request.user.get_profile %}
 		                {% ifequal request.user.get_profile.supply_point facility %}
-			                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK</strong> for {{ facility.name }}</a>
+			                <a class="noprint" href="{% url input_stock facility.code %}"><strong>INPUT STOCK FOR {{ facility.name|upper }}</strong></a>
 		                {% endifequal %}
 	                {% endif %}
                 {% endif %}
@@ -65,30 +65,45 @@
                 
 	            </div>
 
-
-				<div class="end_note">
-				    <h4>SMS Users</h4>
-				    {% for user in facility.active_contact_set %}
+                <div class="end_note">
+                    <h4>SMS Users</h4>
+                    {% for user in facility.reporters %}
                         {% if perms.logistics %}<a href="{% url ewsghana_registration_edit user.pk %}">{% endif %}
-				            {{ user.name }} 
-				            {% if perms.logistics %}
-				            {% if user.default_connection %}({{ user.default_connection.identity }}){% endif %}
-   				            {% endif %}
-				        {% if perms.logistics %}</a>{% endif %}
-				        
-				        
-				            {% if not user.is_incharge %}
-					            {% if user.last_reported %}
-					                reported {{ user.last_reported|date:"M d/y" }}.
-					            {% else %}
-	                                never reported.
-					            {% endif %}
-					        {% else %}
-					           In Charge
+                            {{ user.name }} 
+                            {% if perms.logistics %}
+                            {% if user.default_connection %}({{ user.default_connection.identity }}){% endif %}
                             {% endif %}
-				    <br/>
-				    {% endfor %}
-				</div>
+                        {% if perms.logistics %}</a>{% endif %}
+                            {% if user.last_reported %}
+                                reported {{ user.last_reported|date:"M d/y" }}.
+                            {% else %}
+                                never reported.
+                            {% endif %}
+                        <br/>
+                    {% endfor %}
+                    {% if perms.logistics %}
+                    <a href="{% url ewsghana_sms_registration %}?supplypoint={{facility.code}}">
+                        Register SMS Users
+                    </a>
+                    {% endif%}
+                </div>
+                <div class="end_note"><p>
+                    <h4>In Charge</h4>
+                    {% for rep in facility.incharges %}
+                        {% if perms.logistics %}<a href="{% url ewsghana_registration_edit rep.pk %}">{% endif %}
+                        {{ rep.name }}
+                        {% if perms.logistics %}</a>{% endif %}
+                            {% if object != rep.supply_point %}
+                                from {{ rep.supply_point.name }}
+                            {% endif %}
+                        <br/>
+                    {% endfor %}
+                    {% if perms.logistics %}
+                    <a href="{% url ews_configure_incharge facility.code %}">
+                        Configure In-Charge
+                    </a>
+                    {% endif %}
+                </p></div>
 
             {% else %}<p></p>
                 <div class="error">
