@@ -1,8 +1,5 @@
-import logging
-from datetime import datetime
 from django.db import transaction
 from django.dispatch import Signal
-from logistics.const import Reports
 
 stockout_reported = Signal(providing_args=["supply_point", "products", "reported_by"])
 stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
