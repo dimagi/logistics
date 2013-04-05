@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 import re
-from itertools import chain
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import permission_required, \
     login_required, user_passes_test
@@ -219,7 +218,7 @@ def facility(req, pk=None, template="ewsghana/facilityconfig.html"):
     if pk is not None:
         facility = get_object_or_404(
             GhanaFacility, pk=pk)
-        incharges = list(chain(facility.reportees(), facility.supervised_by.reportees() if facility.supervised_by else []))
+        incharges = facility.incharges()
         sms_users = Contact.objects.filter(is_active=True, supply_point=facility)
     if req.method == "POST":
         if req.POST["submit"] == "Delete %s" % klass:

@@ -151,6 +151,9 @@ class EWSGhanaAdminWebRegistrationForm(EWSGhanaManagerWebRegistrationForm):
         return user
 
 class FacilityForm(forms.ModelForm):
+    # TODO: merge this with logistics.forms.FacilityForm
+    # note that this handles assignment location assignment by 'parent_location'
+    # rather than location directly, on request from end users
     latitude = forms.DecimalField(required=False)
     longitude = forms.DecimalField(required=False)
     parent_location = forms.ModelChoiceField(Location.objects.exclude(type__slug=config.LocationCodes.FACILITY).order_by('name'), 
@@ -191,6 +194,19 @@ class FacilityForm(forms.ModelForm):
         # self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
         #self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
 				
+    def clean_latitude(self):
+        latitude = float(self.cleaned_data['latitude'])
+        if latitude and latitude <= 90.0 and latitude >= -90.0:
+            return self.cleaned_data['latitude']
+        raise forms.ValidationError("Invalid value for latitude. Must be between -90 and +90.")
+    
+    def clean_longitude(self):
+        longitude = float(self.cleaned_data['longitude'])
+        if longitude and longitude <= 180.0 and longitude >= -180.0:
+            return self.cleaned_data['longitude']
+        print longitude
+        raise forms.ValidationError("Invalid value for longitude. Must be between -180 and +180.")
+
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(commit=False, *args, **kwargs)
         if self.cleaned_data['parent_location']:

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from itertools import chain
 from django.db import models
 from django.db.models import Q
 from logistics.util import config
@@ -46,3 +47,7 @@ class SupplyPoint(models.Model):
           not self.location.facilities().exists() and \
           self.location.type.slug == config.LocationCodes.FACILITY:
             self.location.deactivate()
+            
+    def incharges(self):
+        return list(chain(self.reportees(), 
+                          self.supervised_by.reportees() if self.supervised_by else []))
