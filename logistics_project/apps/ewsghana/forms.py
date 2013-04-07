@@ -195,17 +195,18 @@ class FacilityForm(forms.ModelForm):
         #self.fields['location'].queryset = Location.objects.exclude(type__slug=config.LocationCodes.FACILITY)
 				
     def clean_latitude(self):
-        latitude = float(self.cleaned_data['latitude'])
-        if latitude and latitude <= 90.0 and latitude >= -90.0:
-            return self.cleaned_data['latitude']
-        raise forms.ValidationError("Invalid value for latitude. Must be between -90 and +90.")
+        if self.cleaned_data['latitude']:
+            latitude = float(self.cleaned_data['latitude'])
+            if latitude and (latitude > 90.0 or latitude < -90.0):
+                raise forms.ValidationError("Invalid value for latitude. Must be between -90 and +90.")
+        return self.cleaned_data['latitude']
     
     def clean_longitude(self):
-        longitude = float(self.cleaned_data['longitude'])
-        if longitude and longitude <= 180.0 and longitude >= -180.0:
-            return self.cleaned_data['longitude']
-        print longitude
-        raise forms.ValidationError("Invalid value for longitude. Must be between -180 and +180.")
+        if self.cleaned_data['longitude']:
+            longitude = float(self.cleaned_data['longitude'])
+            if longitude and (longitude > 180.0 or longitude < -180.0):
+                raise forms.ValidationError("Invalid value for longitude. Must be between -180 and +180.")
+        return self.cleaned_data['longitude']
 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(commit=False, *args, **kwargs)
@@ -232,7 +233,8 @@ class FacilityForm(forms.ModelForm):
                 facility.activate_product(commodity)
             else:
                 facility.deactivate_product(commodity)
-        if self.cleaned_data['latitude'] and self.cleaned_data['longitude']:
+        if (self.cleaned_data['latitude'] or self.cleaned_data['latitude'] == 0) and \
+          (self.cleaned_data['longitude'] or self.cleaned_data['longitude'] == 0):
             lat = self.cleaned_data['latitude']
             lon = self.cleaned_data['longitude']
             point, created = Point.objects.get_or_create(latitude=lat, longitude=lon)
@@ -241,7 +243,7 @@ class FacilityForm(forms.ModelForm):
                                                             code=facility.code)
             facility.location.point = point
             facility.location.save()
-        elif not self.cleaned_data['latitude'] and not self.cleaned_data['longitude']:
+        else:
             if facility.location.point is not None:
                 facility.location.point = None
                 facility.location.save()
