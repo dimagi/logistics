@@ -114,6 +114,21 @@ CACHES = {
     }
 }
 
+TEMPLATE_CONTEXT_PROCESSORS = [
+    "django.core.context_processors.auth",
+    "django.core.context_processors.debug",
+    "django.core.context_processors.i18n",
+    "django.core.context_processors.media",
+    "django.core.context_processors.request",
+    "rapidsms.context_processors.logo",
+    "logistics.context_processors.custom_settings",
+    "logistics.context_processors.google_analytics",
+    "logistics.context_processors.stocked_by",
+    "logistics.context_processors.global_nav_mode",
+    "logistics_project.apps.ewsghana.context_processors.global_nav_hide_up",
+    "couchlog.context_processors.static_workaround"
+]
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "WARNING"
@@ -123,6 +138,7 @@ LOG_BACKUPS = 256 # number of logs to keep
 
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
 COUNTRY = "ghana"
+DEFAULT_LOCATION = "gar"
 TIME_ZONE="Africa/Accra"
 COUNTRY_DIALLING_CODE = 233
 
