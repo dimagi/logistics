@@ -412,8 +412,8 @@ def dashboard(request, context={}):
                                             (reverse("district_dashboard"),prof.location.code) ) 
             else:
                 request.location = prof.location
-                return aggregate(request)
-    return aggregate(request, context=context)
+                return HttpResponseRedirect("%s?place=%s" % (reverse("district_dashboard"), settings.DEFAULT_LOCATION) )
+    return HttpResponseRedirect("%s?place=%s" % (reverse("district_dashboard"), settings.DEFAULT_LOCATION) )
 
 def _get_medical_stores():
     return SupplyPoint.objects.filter(active=True,

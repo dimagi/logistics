@@ -123,6 +123,7 @@ LOG_BACKUPS = 256 # number of logs to keep
 
 DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your DHIO for help, or visit http://www.ewsghana.com"
 COUNTRY = "ghana"
+DEFAULT_LOCATION = "gar"
 TIME_ZONE="Africa/Accra"
 COUNTRY_DIALLING_CODE = 233
 
