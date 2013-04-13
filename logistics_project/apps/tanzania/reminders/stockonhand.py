@@ -36,9 +36,9 @@ def last_yearmonth():
             
 def _shared(people):
     people = list(people)
-    send_reminders(people, config.Messages.REMINDER_STOCKONHAND) 
     update_statuses(people, SupplyPointStatusTypes.SOH_FACILITY,
                     SupplyPointStatusValues.REMINDER_SENT)        
+    send_reminders(people, config.Messages.REMINDER_STOCKONHAND) 
     
 @businessday(-1)
 def first():

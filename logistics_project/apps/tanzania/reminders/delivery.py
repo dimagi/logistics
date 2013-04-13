@@ -46,9 +46,9 @@ def get_district_cutoff():
 
 def _facility_shared():
     people = list(get_facility_people(get_facility_cutoff()))
-    send_reminders(people, config.Messages.REMINDER_DELIVERY_FACILITY)
     update_statuses(people, SupplyPointStatusTypes.DELIVERY_FACILITY,
                     SupplyPointStatusValues.REMINDER_SENT)
+    send_reminders(people, config.Messages.REMINDER_DELIVERY_FACILITY)
     
 @businessday_before(15)
 def first_facility():
