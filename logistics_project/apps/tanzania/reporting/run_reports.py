@@ -331,7 +331,7 @@ def process_facility_statuses(facility, statuses):
             
             group_summary.complete = 1 if status.status_value in [SupplyPointStatusValues.SUBMITTED,
                                                                   SupplyPointStatusValues.RECEIVED] \
-                                    else 0 
+                                    else (group_summary.complete or 0)
             if group_summary.complete:
                 group_summary.on_time = 1 if is_on_time(facility, status.status_date, warehouse_date, status.status_type)\
                                         else group_summary.on_time # if we already had an on-time, don't override a second one with late
