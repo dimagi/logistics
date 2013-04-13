@@ -2,7 +2,7 @@
 {% block report_content %}
     <div class="module">
         {% with rr_json as chart_data %}
-        {% with month_pager.prev_month as last_month %}
+        {% with month_pager.begin_date as last_month %}
         {% include "tanzania/reports/rr_pie_chart.html" %}
         {% endwith %}{% endwith %}
     </div>
