@@ -68,9 +68,8 @@ class SupplyPointStatusBreakdown(object):
 
         if report_type == 'RandR' or not report_type:
             self.rr_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.R_AND_R_FACILITY,
-                                           org_summary=self.org_summary)
+                                                    org_summary=self.org_summary)
             self.rr_json = convert_data_to_pie_chart(self.rr_data, date)
-
             self.submitted = [''] * self.rr_data.complete
             self.submitted_on_time = [''] * self.rr_data.on_time
             self.submitted_late = [''] * self.rr_data.late
