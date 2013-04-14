@@ -1,7 +1,10 @@
 from __future__ import absolute_import
 from django.db import models
 from rapidsms.models import Contact
+from email_reports.models import ReportSubscription, \
+    SchedulableReport, WeeklyReportSubscription
 from logistics.models import ProductType
+from rapidsms.conf import settings
 
 class LogisticsProfile(models.Model):
     sms_notifications = models.BooleanField(default=False)
@@ -30,4 +33,36 @@ class LogisticsProfile(models.Model):
             self.contact.deactivate()
         self.is_active = False
         self.save()
+        
+    def is_subscribed_to_email_summary(self):
+        if ReportSubscription.objects.filter(report__view_name__contains='summary')\
+                                     .filter(users=self).exists():
+            return True
+        return False
 
+    def subscribe_to_email_summary(self):
+        TUESDAY = 1
+        NINE_AM = 9
+        try:
+            summary = SchedulableReport.objects.get(view_name__contains='summary')
+        except SchedulableReport.DoesNotExist, SchedulableReport.MultipleObjectsReturned:
+            raise
+        report = WeeklyReportSubscription()
+        report.day_of_week = TUESDAY
+        report.hours = NINE_AM
+        report.report = summary
+        if self.supply_point:
+            location_code = self.supply_point.location.code
+        elif self.location:
+            location_code = self.location.code
+        else:
+            location_code = settings.COUNTRY
+        report.view_args = {'place':location_code}
+        report.save()
+        report.users.add(self.user)
+        report.save()
+        
+    def unsubscribe_to_email_summary(self):
+        subscribed = ReportSubscription.objects.filter(report__view_name__contains='summary')\
+                                       .filter(users=self)
+        subscribed.delete()

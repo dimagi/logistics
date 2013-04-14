@@ -43,6 +43,9 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
     program = forms.ModelChoiceField(ProductType.objects.all().order_by('name'), 
                                      empty_label='All', 
                                      required=False)
+    email_report = forms.BooleanField(label='Subscribe to summary email report.', 
+                                      help_text='Sent every Tuesday at 9:00 AM GMT', 
+                                      initial=False, required=False)
     
     def __init__(self, *args, **kwargs):
         if 'user' in kwargs and kwargs['user'] is not None:
@@ -59,6 +62,8 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
                 self._add_to_kwargs_initial(kwargs, 'first_name', self.edit_user.first_name)
             if self.edit_user.last_name is not None:
                 self._add_to_kwargs_initial(kwargs, 'last_name', self.edit_user.last_name)
+            if profile and profile.is_subscribed_to_email_summary():
+                self._add_to_kwargs_initial(kwargs, 'email_report', True)
         return super(EWSGhanaBasicWebRegistrationForm, self).__init__(*args, **kwargs)
     
     def clean_phone(self):
@@ -80,6 +85,10 @@ class EWSGhanaBasicWebRegistrationForm(RegisterUserForm):
             user.first_name = self.cleaned_data['first_name']
         if 'last_name' in self.cleaned_data:
             user.last_name = self.cleaned_data['last_name']
+        if self.cleaned_data['email_report']:
+            profile.subscribe_to_email_summary()
+        else:
+            profile.unsubscribe_to_email_summary()
         if 'phone' in self.cleaned_data and self.cleaned_data['phone']:
             phone_number = intl_clean_phone_number(self.cleaned_data['phone'])
             profile.get_or_create_contact().set_default_connection_identity(phone_number, backend_name=settings.DEFAULT_BACKEND)
