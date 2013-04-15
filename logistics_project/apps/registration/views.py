@@ -8,12 +8,12 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.db.models.query_utils import Q
-from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
-from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
+from logistics_project.apps.registration.forms import CommoditiesContactForm
 from .tables import ContactTable
+from logistics_project.apps.tanzania.reminders import send_message
 
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
