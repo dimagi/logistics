@@ -382,7 +382,7 @@ def process_facility_product_reports(facility, reports):
         group_summary.responded = 1
         group_summary.complete = 1 
         group_summary.on_time = 1 if is_on_time(facility, report.report_date, warehouse_date,
-                                                     SupplyPointStatusTypes.SOH_FACILITY)\
+                                                SupplyPointStatusTypes.SOH_FACILITY)\
                                   else group_summary.on_time # if we already had an on-time, don't override a second one with late
         create_object(group_summary)
         months_updated[warehouse_date] = None # update the cache of stuff we've dealt with

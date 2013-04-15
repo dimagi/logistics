@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-from copy import deepcopy
 from django.conf import settings
 from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.db import transaction
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.db.models.query_utils import Q
 from rapidsms.contrib.messaging.utils import send_message
@@ -21,7 +19,6 @@ from .tables import ContactTable
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None
-    bulk_form = None
     registration_view = 'registration'
     if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
         registration_view = settings.SMS_REGISTRATION_VIEW
@@ -81,7 +78,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     else:
         contact_form = CommoditiesContactForm(
             instance=contact)
-        bulk_form = BulkRegistrationForm()
 
     contacts_table = ContactTable(Contact.objects.all(), request=req)
     search_term = req.GET.get('search_term')
@@ -99,9 +95,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
         template, {
             "contacts_table": contacts_table,
             "contact_form": contact_form,
-            # no one is using or has tested the bulk form in logistics
-            # so we remove it for now
-            # "bulk_form": bulk_form,
             "contact": contact,
             "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)
