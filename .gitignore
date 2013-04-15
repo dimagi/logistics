@@ -3,6 +3,7 @@
 .idea
 .settings
 *.pyc
+*.pyo
 *.db
 *.swp
 *~
