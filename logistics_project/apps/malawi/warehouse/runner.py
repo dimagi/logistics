@@ -28,6 +28,17 @@ from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
 from django.core.exceptions import ObjectDoesNotExist
 
 
+class ReportPeriod(object):
+
+    def __init__(self, supply_point, window_date, start, end):
+        self.supply_point = supply_point
+        self.window_date = window_date
+        self.start = start
+        self.end = end
+        self.next_window_date = first_of_next_month(self.window_date)
+        self.period_start = max(window_date, start)
+        self.period_end = min(self.next_window_date, end)
+
 class MalawiWarehouseRunner(WarehouseRunner):
     """
     Malawi's implementation of the warehouse runner. 
@@ -97,6 +108,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 
                 for year, month in months_between(start, end):
                     window_date = datetime(year, month, 1)
+                    report_period = ReportPeriod(hsa, window_date, start, end)
                     next_window_date = first_of_next_month(window_date)
                     period_start = max(window_date, start)
                     period_end = min(next_window_date, end)
@@ -289,23 +301,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
                             if requests_in_range.count():
                                 order_fulfill.save()
                     
-                    def _update_consumption():
-                        for p in Product.objects.all():
-                            c = CalculatedConsumption.objects.get_or_create\
-                                (supply_point=hsa, date=window_date, product=p)[0]
-                            
-                            start_time = max(hsa.created_at, window_date)
-                            if start_time < period_end and hsa.supplies(p):
-                                assert start_time.year == window_date.year 
-                                assert start_time.month == window_date.month
-                                c.time_needing_data = delta_secs(period_end - start_time)
-                                c.save()
-                            transactions = StockTransaction.objects.filter\
-                                (supply_point=hsa, product=p,
-                                 date__gte=period_start, 
-                                 date__lt=period_end).order_by('date')
-                            update_consumption_values(transactions)
-                            
                     def _update_historical_stock():
                         # set the historical stock values to the last report before 
                         # the end of the period (even if it's not in the period)
@@ -334,18 +329,12 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     if not self.skip_order_fulfillment:
                         _update_order_fulfillment()
                     if not self.skip_consumption:
-                        _update_consumption()
+                        update_consumption(report_period)
                     if not self.skip_historical_stock:
                         _update_historical_stock()
         
         if not self.skip_consumption:
-            # any consumption value that was touched potentially needs to have its
-            # time_needing_data updated
-            for c in CalculatedConsumption.objects.filter(update_date__gte=run_record.start_run):
-                # if they supply the product it is already set based on above
-                if not c.supply_point.supplies(c.product):
-                    c.time_needing_data = c.time_with_data
-                    c.save()
+            update_consumption_times(run_record.start_run)
                 
                 
         # rollup aggregates
@@ -481,7 +470,9 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
     additonal_query_params["date"] = window_date
     return _aggregate_raw(modelclass, supply_point, base_supply_points, fields, 
                           additonal_query_params)
-    
+
+aggregate = _aggregate
+
 def update_current_consumption(hsa):
     """
     Update the actual consumption data
@@ -640,6 +631,38 @@ def _init_with_product(cls, supply_point, date):
     for p in Product.objects.all():
         ret = cls.objects.get_or_create(supply_point=supply_point, date=date, product=p) or ret
     return ret
+
+
+def update_consumption(report_period):
+    for p in Product.objects.all():
+        c = CalculatedConsumption.objects.get_or_create(
+            supply_point=report_period.supply_point,
+            date=report_period.window_date,
+            product=p
+        )[0]
+
+        start_time = max(report_period.supply_point.created_at,
+                         report_period.window_date)
+        if start_time < report_period.period_end and report_period.supply_point.supplies(p):
+            assert start_time.year == report_period.window_date.year
+            assert start_time.month == report_period.window_date.month
+            c.time_needing_data = delta_secs(report_period.period_end - start_time)
+            c.save()
+        transactions = StockTransaction.objects.filter(
+            supply_point=report_period.supply_point, product=p,
+            date__gte=report_period.period_start,
+            date__lt=report_period.period_end
+        ).order_by('date')
+        update_consumption_values(transactions)
+
+def update_consumption_times(since):
+    # any consumption value that was touched potentially needs to have its
+    # time_needing_data updated
+    for c in CalculatedConsumption.objects.filter(update_date__gte=since):
+        # if they supply the product it is already set based on above
+        if not c.supply_point.supplies(c.product):
+            c.time_needing_data = c.time_with_data
+            c.save()
 
 def update_historical_data():
     """
