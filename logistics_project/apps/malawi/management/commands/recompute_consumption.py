@@ -44,7 +44,7 @@ class Command(LabelCommand):
 def recompute(run_record):
     hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
     count = hsas.count()
-    for i, hsa in enumerate(hsas[:1]):
+    for i, hsa in enumerate(hsas):
         print "processing hsa %s (%s) (%s of %s)" % (
             hsa.name, str(hsa.id), i+1, count
         )
@@ -60,7 +60,7 @@ def recompute(run_record):
     non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
     count = non_hsas.count()
     all_products = Product.objects.all()
-    for i, place in enumerate(non_hsas[:1]):
+    for i, place in enumerate(non_hsas):
         print "processing non-hsa %s (%s) (%s/%s)" % (
             place.name, str(place.id), i+1, count
         )
