@@ -661,7 +661,7 @@ def update_consumption_times(since):
     consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
     count = consumptions_to_update.count()
     print 'updating %s consumption objects' % count
-    for i, c in enumerate(consumptions_to_update):
+    for i, c in enumerate(consumptions_to_update.iterator()):
         if i % 500 == 0:
             print '%s/%s consumptions updated' % (i, count)
         # if they supply the product it is already set based on above
