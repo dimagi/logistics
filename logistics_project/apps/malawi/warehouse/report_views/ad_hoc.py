@@ -109,13 +109,14 @@ def amc_context(request):
 
     def _rows_for_hsa(hsa):
         rows = [consumption_row(hsa, p, request.datespan) for p in products]
-        return [[hsa.name, hsa.code, row[0], row[-1]] for row in rows]
+        return [[hsa.name, hsa.code, row[0], row[1], row[5], row[6]] for row in rows]
 
     table = {
         "id": "main-table",
         "is_datatable": False,
         "is_downloadable": True,
-        "header": ["HSA", "HSA Code", "Product", "AMC"],
+        "header": ["HSA", "HSA Code", "Product", "Total Consumption",
+                   "Total Adjusted Consumption", "AMC"],
         "data": itertools.chain(*[_rows_for_hsa(hsa) for hsa in hsas]),
     }
 
