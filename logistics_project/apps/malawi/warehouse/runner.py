@@ -658,7 +658,9 @@ def update_consumption(report_period):
 def update_consumption_times(since):
     # any consumption value that was touched potentially needs to have its
     # time_needing_data updated
-    for c in CalculatedConsumption.objects.filter(update_date__gte=since):
+    consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
+    print 'updating %s consumption objects' % consumptions_to_update.count()
+    for c in consumptions_to_update:
         # if they supply the product it is already set based on above
         if not c.supply_point.supplies(c.product):
             c.time_needing_data = c.time_with_data
