@@ -659,8 +659,11 @@ def update_consumption_times(since):
     # any consumption value that was touched potentially needs to have its
     # time_needing_data updated
     consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
-    print 'updating %s consumption objects' % consumptions_to_update.count()
-    for c in consumptions_to_update:
+    count = consumptions_to_update.count()
+    print 'updating %s consumption objects' % count
+    for i, c in enumerate(consumptions_to_update):
+        if i % 500 == 0:
+            print '%s/%s consumptions updated' % (i, count)
         # if they supply the product it is already set based on above
         if not c.supply_point.supplies(c.product):
             c.time_needing_data = c.time_with_data
