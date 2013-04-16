@@ -8,32 +8,43 @@ from dimagi.utils.dates import months_between
 from logistics_project.apps.malawi.warehouse.runner import ReportPeriod,\
     update_consumption, aggregate, update_consumption_times
 from logistics_project.apps.malawi.util import hsa_supply_points_below
+from optparse import make_option
 
 class Command(LabelCommand):
     
     help = "recompute the CalculatedConsumption models for all data in the system."
-    
+    option_list = LabelCommand.option_list + (
+        make_option('--aggregate', action='store_true', dest='aggregate_only', default=False,
+                    help='Cleanup the tables before starting the warehouse'),)
+
     def handle(self, *args, **options):
-        last_run = ReportRun.last_success()
-        first_run = ReportRun.objects.filter(complete=True,
-                                             has_error=False).order_by("start")[0]
-
-        start_date = first_run.start
-        first_activity = Message.objects.order_by('date')[0].date
-        if start_date < first_activity:
-            start_date = first_activity
-
-        end_date = last_run.end
+        aggregate_only = options['aggregate_only']
 
         running = ReportRun.objects.filter(complete=False)
         if running.count() > 0:
             raise Exception("Warehouse already running, will do nothing...")
 
-        # start new run
-        new_run = ReportRun.objects.create(start=start_date, end=end_date,
-                                           start_run=datetime.utcnow())
+        if aggregate_only:
+            # resume from the last run
+            new_run = ReportRun.objects.order_by('-start_run')[0]
+            new_run.complete = False
+            new_run.save()
+
+        else:
+            last_run = ReportRun.last_success()
+            first_run = ReportRun.objects.filter(complete=True,
+                                                 has_error=False).order_by("start")[0]
+
+            start_date = first_run.start
+            first_activity = Message.objects.order_by('date')[0].date
+            if start_date < first_activity:
+                start_date = first_activity
+
+            end_date = last_run.end
+            new_run = ReportRun.objects.create(start=start_date, end=end_date,
+                                               start_run=datetime.utcnow())
         try:
-            recompute(new_run)
+            recompute(new_run, aggregate_only)
         finally:
             # complete run
             new_run.end_run = datetime.utcnow()
@@ -41,18 +52,19 @@ class Command(LabelCommand):
             new_run.save()
             print "End time: %s" % datetime.now()
 
-def recompute(run_record):
-    hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
-    count = hsas.count()
-    for i, hsa in enumerate(hsas):
-        print "processing hsa %s (%s) (%s of %s)" % (
-            hsa.name, str(hsa.id), i+1, count
-        )
-        clear_calculated_consumption(hsa)
-        for year, month in months_between(run_record.start, run_record.end):
-            window_date = datetime(year, month, 1)
-            report_period = ReportPeriod(hsa, window_date, run_record.start, run_record.end)
-            update_consumption(report_period)
+def recompute(run_record, aggregate_only):
+    if not aggregate_only:
+        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        count = hsas.count()
+        for i, hsa in enumerate(hsas):
+            print "processing hsa %s (%s) (%s of %s)" % (
+                hsa.name, str(hsa.id), i+1, count
+            )
+            clear_calculated_consumption(hsa)
+            for year, month in months_between(run_record.start, run_record.end):
+                window_date = datetime(year, month, 1)
+                report_period = ReportPeriod(hsa, window_date, run_record.start, run_record.end)
+                update_consumption(report_period)
 
     update_consumption_times(run_record.start_run)
 
