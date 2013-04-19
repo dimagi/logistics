@@ -74,7 +74,7 @@ class View(warehouse_view.DistrictOnlyView):
     def single_hsa_context(self, request, hsa):
 
         # this will fail hard if misconfigured, which is desirable for now
-        contact = Contact.objects.get(supply_point=hsa)
+        contact = Contact.objects.get(supply_point=hsa, is_active=True)
         header_table = {
             "id": "header-table",
             "is_datatable": False,
