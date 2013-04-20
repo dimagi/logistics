@@ -68,19 +68,26 @@ def populate_report_data(start_date, end_date):
             alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
             alert.delete()
 
-        new_statuses = SupplyPointStatus.objects.filter\
-            (supply_point=fac, status_date__gte=start_date,
-             status_date__lt=end_date).order_by('status_date')
+        new_statuses = SupplyPointStatus.objects.filter(
+            supply_point=fac,
+            status_date__gte=start_date,
+            status_date__lt=end_date
+        ).order_by('status_date')
         process_facility_statuses(fac, new_statuses)
 
-        new_reports = ProductReport.objects.filter\
-            (supply_point=fac, report_date__gte=start_date,
-             report_date__lt=end_date, report_type__code=Reports.SOH).order_by('report_date')
+        new_reports = ProductReport.objects.filter(
+            supply_point=fac,
+            report_date__gte=start_date,
+            report_date__lt=end_date,
+            report_type__code=Reports.SOH
+        ).order_by('report_date')
         process_facility_product_reports(fac, new_reports)
         
-        new_trans = StockTransaction.objects.filter\
-            (supply_point=fac, date__gte=start_date,
-             date__lt=end_date).order_by('date')
+        new_trans = StockTransaction.objects.filter(
+            supply_point=fac,
+            date__gte=start_date,
+            date__lt=end_date
+        ).order_by('date')
         process_facility_transactions(fac, new_trans)
         
         # go through all the possible values in the date ranges
@@ -305,7 +312,7 @@ def _get_window_date(type, date):
             return datetime(year, month, 1)
     return datetime(date.year, date.month, 1)
 
-def process_facility_statuses(facility, statuses):
+def process_facility_statuses(facility, statuses, alerts=True):
     """
     For a given facility and list of statuses, update the appropriate 
     data warehouse tables. This should only be called on supply points
@@ -340,17 +347,18 @@ def process_facility_statuses(facility, statuses):
             
             create_object(group_summary)
             
-            # update facility alerts
-            if status.status_value == SupplyPointStatusValues.NOT_SUBMITTED \
-                and status.status_type == SupplyPointStatusTypes.R_AND_R_FACILITY:
-                create_alert(facility, status.status_date, 'rr_not_submitted',
-                             {'number': 1})
+            if alerts:
+                # update facility alerts
+                if status.status_value == SupplyPointStatusValues.NOT_SUBMITTED \
+                    and status.status_type == SupplyPointStatusTypes.R_AND_R_FACILITY:
+                    create_alert(facility, status.status_date, 'rr_not_submitted',
+                                 {'number': 1})
+
+                if status.status_value == SupplyPointStatusValues.NOT_RECEIVED \
+                    and status.status_type == SupplyPointStatusTypes.DELIVERY_FACILITY:
+                    create_alert(facility, status.status_date, 'delivery_not_received',
+                                 {'number': 1})
             
-            if status.status_value == SupplyPointStatusValues.NOT_RECEIVED \
-                and status.status_type == SupplyPointStatusTypes.DELIVERY_FACILITY:
-                create_alert(facility, status.status_date, 'delivery_not_received',
-                             {'number': 1})
-        
 def process_facility_product_reports(facility, reports):
     """
     For a given facility and list of ProductReports, update the appropriate 
