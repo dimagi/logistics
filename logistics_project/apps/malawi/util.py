@@ -111,26 +111,21 @@ def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
 
 def get_em_districts():
-    return get_districts().filter(name__in=list(config.Groups.GROUPS[config.Groups.EM]))
+    # todo: everything is EM now so this method is no longer necessary
+    return get_districts()
     
 def get_ept_districts():
-    return get_districts().filter(name__in=list(config.Groups.GROUPS[config.Groups.EPT]))
+    # todo: everything is EM now so this method is no longer necessary
+    return get_districts().none()
 
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY, is_active=True)
 
 def group_for_location(location):
-    ''' This is specific for the Malawi case, separating HSAs into groups by district. '''
-    if location.type.slug == config.LocationCodes.DISTRICT:
-        for key in config.Groups.GROUPS:
-            if location.name in config.Groups.GROUPS[key]:
-                return key
-    elif location.type.slug == config.LocationCodes.COUNTRY:
-        return None # No country-level groups yet
-    elif location.parent:
-        return group_for_location(location.parent)
-    else:
-        return None
+    ''' This is specific for the Malawi case, separating HSAs into groups by district.'''
+    # todo: we've changed it such that all locations are EM
+    # this function and all code that branches on it should be cleaned up
+    return config.Groups.EM
 
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
