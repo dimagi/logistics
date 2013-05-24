@@ -112,8 +112,8 @@ def hsa_location_type():
 class Groups(object):
     EPT = "ept"
     EM = "em"
-    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu"),
-              EPT: ("Machinga", "Nkhatabay", "Mulanje")}
+    GROUPS = {EM: ("Nkhotakota", "Nsanje", "Kasungu", "Machinga", "Nkhatabay", "Mulanje"),
+              EPT: ()}
 
 
 class Messages(object):

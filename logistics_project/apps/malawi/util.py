@@ -111,12 +111,10 @@ def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
 
 def get_em_districts():
-    # TODO, better abstraction of this
-    return get_districts().filter(name__in=["Nkhotakota", "Nsanje", "Kasungu"])
+    return get_districts().filter(name__in=list(config.Groups.GROUPS[config.Groups.EM]))
     
 def get_ept_districts():
-    # TODO, better abstraction of this
-    return get_districts().filter(name__in=["Machinga", "Nkhatabay", "Mulanje"])
+    return get_districts().filter(name__in=list(config.Groups.GROUPS[config.Groups.EPT]))
 
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY, is_active=True)
