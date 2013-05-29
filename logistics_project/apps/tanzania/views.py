@@ -219,7 +219,11 @@ def dashboard2(request):
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
 
-    alerts = Alert.objects.filter(supply_point__code=org,date__lte=mp.end_date,expires__gt=mp.end_date).order_by('-id')
+    alerts = Alert.objects.filter(
+        supply_point__code=org,
+        date__lte=mp.end_date,
+        expires__lte=mp.end_date
+    ).order_by('-id')
 
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
