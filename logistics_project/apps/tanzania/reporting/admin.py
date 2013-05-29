@@ -24,3 +24,4 @@ class ProductAvailabilityDataAdmin(admin.ModelAdmin):
 admin.site.register(OrganizationSummary, OrganizationSummaryAdmin)
 admin.site.register(GroupSummary, GroupSummaryAdmin)
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
+admin.site.register(Alert)
