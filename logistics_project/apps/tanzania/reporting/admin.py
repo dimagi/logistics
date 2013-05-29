@@ -20,8 +20,13 @@ class ProductAvailabilityDataAdmin(admin.ModelAdmin):
     list_display = ('supply_point', 'date', 'product', 'total', 'with_stock', 
                     'without_stock', 'without_data')
     list_filter = ('supply_point', 'date', 'product')
-    
+
+class AlertAdmin(admin.ModelAdmin):
+    model = Alert
+    list_display = ('supply_point', 'date', 'type', 'expires', 'number', 'text')
+    list_filter = ('supply_point', 'date', 'type', 'expires')
+
 admin.site.register(OrganizationSummary, OrganizationSummaryAdmin)
 admin.site.register(GroupSummary, GroupSummaryAdmin)
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
-admin.site.register(Alert)
+admin.site.register(Alert, AlertAdmin)
