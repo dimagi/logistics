@@ -483,7 +483,8 @@ def create_alert(org, date, type, details):
     text = ''
     url = ''
     date = datetime(date.year, date.month, 1)
-    expires = datetime(date.year, (date.month % 12) + 1, 1)
+    expyear, expmonth = add_months(date.year, date.month, 1)
+    expires = datetime(expyear, expmonth, 1)
 
     number = 0 if not details.has_key('number') else details['number']
 
