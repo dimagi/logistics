@@ -181,17 +181,22 @@ def _msd_class(cell):
 def _fac_name_class(cell):
     return "fac_name"
 
+
 def _stock_class(cell):
-    
+    NO_DATA = -1
+    STOCKOUT = 0.00
+    LOW = 3
+    ADEQUATE = 6
+
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
     mos = float(mos)
-    if mos == -1:
+    if mos == NO_DATA:
         return "insufficient_data prod-%s" % cell.column.product.sms_code
-    elif mos == 0.00:
+    elif mos == STOCKOUT:
         return "zero_count stock_iconified prod-%s" % cell.column.product.sms_code
-    elif mos < 1:
+    elif mos < LOW:
         return "low_stock stock_iconified prod-%s" % cell.column.product.sms_code
-    elif mos <= 3:
+    elif mos <= ADEQUATE:
         return "adequate_stock stock_iconified prod-%s" % cell.column.product.sms_code
     else:
         return "overstock stock_iconified prod-%s" % cell.column.product.sms_code
