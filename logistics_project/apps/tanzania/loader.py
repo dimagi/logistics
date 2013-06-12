@@ -129,7 +129,7 @@ def load_locations(file):
         
         if group:
             group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
-            sp.groups.add(group_obj)
+            sp.groups = [group_obj]
             sp.save()
         
         count += 1
