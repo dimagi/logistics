@@ -11,7 +11,7 @@ django-registration==0.7
 git+https://github.com/adammck/djtables.git#egg=djtables
 gdata
 johnny-cache
-kombu==1.0.6
+kombu
 nose==1.0.0
 nose-exclude
 python-dateutil==1.5
