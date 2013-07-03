@@ -116,5 +116,5 @@ urlpatterns = patterns('',
        name='district_activate'),
     url(r'^stock_at_medical_stores/?$',
         'logistics_project.apps.ewsghana.views.stock_at_medical_stores',
-        name="stock-at-medical-stores$"),
+        name="stock-at-medical-stores"),
 )
