@@ -114,4 +114,7 @@ urlpatterns = patterns('',
     url(r'^district/(?P<code>\w+)/activate/?$',
        'logistics_project.apps.ewsghana.views.activate_district', 
        name='district_activate'),
+    url(r'^stock_at_medical_stores/?$',
+        'logistics_project.apps.ewsghana.views.stock_at_medical_stores',
+        name="stock-at-medical-stores$"),
 )

@@ -19,6 +19,7 @@ from django_tablib.base import mimetype_map
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from dimagi.utils import csv 
+from dimagi.utils.dates import DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 from rapidsms.models import Contact
 from rapidsms.contrib.messagelog.models import Message
@@ -28,9 +29,10 @@ from auditcare.views import auditAll
 from auditcare.models import AccessAudit
 from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
-from logistics.decorators import place_in_request
 from email_reports.decorators import magic_token_required
+from logistics.decorators import place_in_request
 from logistics.models import Product, SupplyPoint, LogisticsProfile
+from logistics.reports import ReportingBreakdown, TotalStockByLocation
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context
 from logistics.views import LogisticsMessageLogView
@@ -445,4 +447,29 @@ def comments(request, context={}, template="ewsghana/comments.html"):
     return render_to_response(
         template, context, context_instance=RequestContext(request)
     )
+
+@cache_page(60 * 15)
+@place_in_request()
+def stock_at_medical_stores(request, context=None):
+    """
+    View for generating HTML email reports via email-reports submodule
+    While this can be viewed on the web, primarily this is rendered using a fake
+    request object so care should be taken accessing items on the request.
+    However request.user will be set.
+    """
+    request.location = get_object_or_404(Location, code=settings.COUNTRY)
+    context = context or {}
+    facilities = _get_medical_stores()
+    datespan = DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+    report = ReportingBreakdown(facilities, datespan, 
+        days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+    products_by_location = TotalStockByLocation(facilities, datespan).products
+    context.update({
+        'location': request.location,
+        'facilities': facilities,
+        'facility_count': facilities.count(),
+        'report': report,
+        'product_stats': products_by_location,
+    })
+    return render_to_response("logistics/summary.html", context, context_instance=RequestContext(request))
 
