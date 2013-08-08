@@ -38,7 +38,7 @@ SETUP
 NOTES
 * You might need to remove the distribute install line from the prod-requirements.txt file if you get weird pip errors
 
-== Running Tests
+## Running Tests
 
 Because the threadless router doesn't play nice with initiation of outbound messages in the tests you have
 to make one modification to the code to get the tests to pass. Comment out the following line in
@@ -54,6 +54,7 @@ def send_message(contact, message, **kwargs):
 
 
 ## Supported Operating Systems
+
 Ubuntu Lucid Lynx 10.0.4 LTS
 Ubuntu 12.0.4 LTS
 
