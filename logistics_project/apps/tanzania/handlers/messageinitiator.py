@@ -9,7 +9,7 @@ from logistics_project.apps.tanzania.models import SupplyPointStatus,\
 from logistics_project.apps.tanzania.reminders import reports
 from logistics_project.apps.tanzania.utils import send_if_connection
 
-class MessageInitiator(KeywordHandler,TaggingHandler):
+class MessageInitiator(KeywordHandler, TaggingHandler):
     """
     Initiate test messages for trainings.
     """

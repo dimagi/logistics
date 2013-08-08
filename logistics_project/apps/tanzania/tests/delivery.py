@@ -1,6 +1,6 @@
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.tests.util import register_user, add_products
-from logistics.models import Product, ProductStock
+from logistics.models import ProductStock
 from django.utils.translation import ugettext as _
 from logistics.util import config
 from django.utils import translation

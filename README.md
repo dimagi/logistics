@@ -38,7 +38,24 @@ SETUP
 NOTES
 * You might need to remove the distribute install line from the prod-requirements.txt file if you get weird pip errors
 
-SUPPORTED OPERATING SYSTEM
+## Running Tests
+
+Because the threadless router doesn't play nice with initiation of outbound messages in the tests you have
+to make one modification to the code to get the tests to pass. Comment out the following line in
+`logistics_project.apps.tanzania.reminders.send_message` so that it looks like the following:
+
+```
+def send_message(contact, message, **kwargs):
+    # this hack sets the global router to threadless router.
+    # should maybe be cleaned up.
+    # router.router = Router()   # <---- this line commented out
+    contact.message(message, **kwargs)
+```
+
+
+## Supported Operating Systems
+
 Ubuntu Lucid Lynx 10.0.4 LTS
+Ubuntu 12.0.4 LTS
 
 
