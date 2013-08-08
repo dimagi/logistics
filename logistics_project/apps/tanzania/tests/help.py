@@ -8,7 +8,7 @@ class TestHelp(TanzaniaTestScriptBase):
 
     def testHelpUnregistered(self):
         translation.activate("en")
-        
+
         # Unregistered user
         script = """
           743 > help
@@ -18,7 +18,7 @@ class TestHelp(TanzaniaTestScriptBase):
 
     def testHelpRegistered(self):
         translation.activate("sw")
-        
+
         # Registered user
         contact = register_user(self, "778", "someone")
         script = """
