@@ -1,9 +1,10 @@
+from threadless_router.tests.scripted import TestScript
 from logistics_project.apps.tanzania import loader
-from logistics_project.apps.malawi.tests.base import OutputtingTestScript
 import os
 from django.conf import settings
 
-class TanzaniaTestScriptBase(OutputtingTestScript):
+
+class TanzaniaTestScriptBase(TestScript):
     """
     Base test class that prepopulates tests with tanzania's static data
     """
@@ -18,4 +19,3 @@ class TanzaniaTestScriptBase(OutputtingTestScript):
                             
     def tearDown(self):
         super(TanzaniaTestScriptBase, self).tearDown()
-        
