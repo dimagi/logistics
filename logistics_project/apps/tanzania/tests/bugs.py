@@ -16,4 +16,3 @@ class TestBugs(TanzaniaTestScriptBase):
             778 < %(soh_confirm)s
         """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
-                

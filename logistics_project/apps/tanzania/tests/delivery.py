@@ -7,7 +7,6 @@ from django.utils import translation
 from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     SupplyPointStatusTypes, SupplyPointStatusValues
-from datetime import datetime
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.models import Contact
 
