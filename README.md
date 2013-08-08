@@ -40,6 +40,18 @@ NOTES
 
 ## Running Tests
 
+The tests expect that your default language will be English. In order to set this, you may have to add
+the following line to your `localsettings.py`:
+
+```
+LANGUAGES = (
+  ('en', 'English'),
+  ('sw', 'Swahili'),
+)
+
+LANGUAGE_CODE = "en"
+```
+
 Because the threadless router doesn't play nice with initiation of outbound messages in the tests you have
 to make one modification to the code to get the tests to pass. Comment out the following line in
 `logistics_project.apps.tanzania.reminders.send_message` so that it looks like the following:
