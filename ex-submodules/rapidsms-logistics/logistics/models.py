@@ -1544,7 +1544,10 @@ class ProductReportsHelper(object):
 
     def all(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_stock.items())
-        
+
+    def all_sorted(self):
+        return ", ".join('%s %s' % (key, val) for key, val in sorted(self.product_stock.items()))
+
     def received(self):
         return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
 
