@@ -85,7 +85,7 @@ class DeliveryHandler(KeywordHandler,TaggingHandler):
                                     .values_list("product", flat=True))
 
             self.respond(_(config.Messages.DELIVERY_CONFIRM),
-                         reply_list=','.join(sorted(stock_report.reported_products())))
+                         reply_list=stock_report.all_sorted())
 
             SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.DELIVERY_FACILITY,
