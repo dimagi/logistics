@@ -46,7 +46,7 @@ class TestDelivery(TanzaniaTestScriptBase):
         script = """
             778 > nimepokea Id 400 Dp 569 Ip 678
             778 < %(received_message)s
-            """ % {'received_message': _(config.Messages.DELIVERED_CONFIRM) % {"reply_list":"dp,id,ip"}}
+            """ % {'received_message': _(config.Messages.DELIVERED_CONFIRM) % {"reply_list":"dp 569, id 400, ip 678"}}
         self.runScript(script)
         self.assertEqual(3, ProductStock.objects.count())
         for ps in ProductStock.objects.all():
