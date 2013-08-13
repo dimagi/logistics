@@ -5,6 +5,8 @@ from django.contrib import admin
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     AdHocReport
 from rapidsms.contrib.locations.models import Location
+from rapidsms.contrib.messagelog.models import Message
+
 
 class SupplyPointStatusAdmin(admin.ModelAdmin):
     model = SupplyPointStatus
@@ -25,3 +27,14 @@ except Exception:
     pass
 
 admin.site.register(Location, TzLocationAdmin)
+
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('text', 'direction', 'who', 'date')
+    list_filter = ('direction', 'contact', 'connection', 'date')
+
+try:
+    admin.site.unregister(Message)
+except Exception:
+    pass
+
+admin.site.register(Message, MessageAdmin)
