@@ -3,8 +3,7 @@
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
-from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_noop as _
 from logistics.util import config
 from logistics.models import Product
 from logistics.shortcuts import create_stock_report

@@ -1,8 +1,8 @@
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.tests.util import register_user
-from django.utils.translation import ugettext as _
 from logistics.util import config
 from django.utils import translation
+from django.utils.translation import ugettext_noop as _
 
 class TestLanguage(TanzaniaTestScriptBase):
 
