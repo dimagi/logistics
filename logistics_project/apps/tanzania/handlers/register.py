@@ -30,16 +30,20 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
                 return True
             name = phrases[0]
             sp_name = phrases[1]
+
+            def _respond_error(sp_name):
+                kwargs = {'name': sp_name}
+                self.respond_error(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
+                return True
             try:
                 sdp = SupplyPoint.objects.get(type__code="district", name__istartswith=sp_name)
             except SupplyPoint.DoesNotExist:
-                kwargs = {'name': sp_name}
-                self.respond_error(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
-                return True
+                return _respond_error(sp_name)
             except SupplyPoint.MultipleObjectsReturned:
-                kwargs = {'name': sp_name}
-                self.respond_error(_(config.Messages.REGISTER_UNKNOWN_DISTRICT), **kwargs)
-                return True
+                try:
+                    sdp = SupplyPoint.objects.get(type__code="district", name__iexact=sp_name)
+                except (SupplyPoint.DoesNotExist, SupplyPoint.MultipleObjectsReturned):
+                    return _respond_error(sp_name)
 
         else:
             words = text.split()
