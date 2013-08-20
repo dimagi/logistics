@@ -4,8 +4,7 @@
 from datetime import datetime, timedelta
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
-from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_noop as _
 from logistics.util import config
 from logistics.shortcuts import create_stock_report
 from logistics.const import Reports
