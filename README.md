@@ -6,35 +6,39 @@ NON-PYTHON DEPENDENCIES
 * pip
 * couchdb
 * wkhtmltopdf (for pdf report functionality only)
+* other dev stuff (see below)
 
 You can install all of the above by running:
 ```
-sudo apt-get install git-core postgresql python-psycopg2 couchdb python-pip
+sudo apt-get update
+sudo apt-get install git-core postgresql python-psycopg2 couchdb python-pip libpq-dev python-dev
 ```
 Install pip >=0.6.3. Don't use apt-get on Lucid, it'll give you 0.3.1
 
 DB SETUP
+
 * Change authentication method from ident to MD5 in /etc/postgresql/8.4/main/pg_hba.conf 
 * Restart postgres
 * Set up a postgres user with the appropriate username and password
 * Create the DB
 
 SETUP
-* git clone git://github.com/dimagi/logistics.git
-* cd logistics/deploy/tanzania
-* pip install -r prod-requirements.txt
-* cd ../..
-* git submodule init
-* git submodule update
-* cd logistics_project
-* cp localsettings.py.example localsettings.py
-* ./manage.py syncdb
-* ./manage.py migrate
-* update relevant settings in settings.py or localsettings.py
+```
+git clone git://github.com/dimagi/logistics.git
+git checkout tz-master
+git submodule update --init --recursive
+pip install -r deploy/tanzania/prod-requirements.txt
+cd logistics_project
+cp localsettings.py.example localsettings.py
+./manage.py syncdb
+./manage.py migrate
+
+# update relevant settings in settings.py or localsettings.py
 ** most notably, use real email credentials
 * sudo /etc/init.d.couchdb start
 * ./manage.py celeryd &
 * ./manage.py runserver &
+```
 
 NOTES
 * You might need to remove the distribute install line from the prod-requirements.txt file if you get weird pip errors
