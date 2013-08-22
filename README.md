@@ -8,8 +8,9 @@ NON-PYTHON DEPENDENCIES
 * wkhtmltopdf (for pdf report functionality only)
 
 You can install all of the above by running:
-> sudo apt-get install git-core postgresql python-psycopg2 couchdb
-
+```
+> sudo apt-get install git-core postgresql python-psycopg2 couchdb pip
+```
 Install pip >=0.6.3. Don't use apt-get on Lucid, it'll give you 0.3.1
 
 DB SETUP
