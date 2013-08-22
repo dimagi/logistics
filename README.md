@@ -9,7 +9,7 @@ NON-PYTHON DEPENDENCIES
 
 You can install all of the above by running:
 ```
-> sudo apt-get install git-core postgresql python-psycopg2 couchdb pip
+sudo apt-get install git-core postgresql python-psycopg2 couchdb python-pip
 ```
 Install pip >=0.6.3. Don't use apt-get on Lucid, it'll give you 0.3.1
 
