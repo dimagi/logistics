@@ -16,6 +16,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.forms import ValidationError
+from django.template.defaultfilters import slugify
 from rapidsms.contrib.locations.models import Location, LocationType, Point
 from rapidsms.conf import settings
 from rapidsms.models import Contact
@@ -235,6 +236,7 @@ class FacilityForm(forms.ModelForm):
                         facility.location.set_parent(self.cleaned_data['parent_location'])
                     else:
                         _create_new_fac_location(facility, self.cleaned_data['parent_location'])
+        facility.code = slugify(facility.code)
         facility.save()
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
