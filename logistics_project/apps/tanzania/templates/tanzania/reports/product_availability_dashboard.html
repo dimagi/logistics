@@ -18,12 +18,32 @@
            grid: {show: true,
                   tickColor: 'gray',
                   backgroundColor: '#FFFFFF',
-                  hoverable: false,
+                  hoverable: true,
                   autoHighlight:false}
         };
-        $.plot($("#{{ chart_info.div }}"), {{ summary.data|safe }}, bar_options);    
+        $.plot($("#{{ chart_info.div }}"), {{ summary.data|safe }}, bar_options);
+
+        function showTooltip(x, y, contents) {
+            $('<div id="tooltip">' + contents + '</div>').css( {
+                position: 'absolute',
+                top: y + 15,
+                left: x + 15,
+                border: '1px solid #fdd',
+                padding: '2px',
+                'background-color': '#fee',
+                opacity: 0.80
+            }).appendTo("body");
+        }
+
+        $("#{{ chart_info.div }}").bind("plothover", function(e, pos, item) {
+            $("#tooltip").remove();
+            if (item) {
+                var count = item.datapoint[1] - item.datapoint[2];
+                showTooltip(pos.pageX, pos.pageY, y + ' ' + item.series.label);
+            }
+        });
     });
-	</script>
+    </script>
 {% endblock %}
 <div id="{{ chart_info.legenddiv }}" style="width:100%"></div>
 <p>{{ chart_info.yaxistitle }}</p>
