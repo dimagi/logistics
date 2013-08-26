@@ -26,8 +26,8 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm,\
-    UploadFacilityFileForm
-from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes
+    UploadFacilityFileForm, SupervisionDocumentForm
+from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes, SupervisionDocument
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
@@ -40,6 +40,7 @@ from warehouse.tasks import update_warehouse_async
 from django_tablib.base import mimetype_map
 from logistics_project.apps.tanzania.loader import get_facility_export,\
     load_locations
+import mimetypes
 
 PRODUCTS_PER_TABLE = 100 #7
 
@@ -649,20 +650,36 @@ def ad_hoc_reports(request):
 
 
 def supervision(request):
-    files = []
-    docs = os.listdir(getattr(settings, 'SUPERVISION_DOCS_FOLDER'))
+    if request.method == 'POST':
+        form = SupervisionDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            newdoc = SupervisionDocument(document=request.FILES['document'])
+            newdoc.save()
 
-    for doc in docs:
-        item = {}
-        item['link'] = doc
-        item['name'] = ' '.join(doc.split('.')[0].split('_'))
-        files.append(item)
+    files = SupervisionDocument.objects.all()
 
     return render_to_response(
         "tanzania/supervision-docs.html", {
             "files": files,
+            "form": SupervisionDocumentForm(),
         }, context_instance=RequestContext(request))
 
+
+def download_supervision_doc(request, document_id):
+    doc = SupervisionDocument.objects.get(id=document_id)
+    response = HttpResponse(doc.document)
+
+    type, encoding = mimetypes.guess_type(doc.filename())
+
+    if type is None:
+        type = 'application/octet-stream'
+        response['Content-Type'] = type
+
+    if encoding is not None:
+        response['Content-Encoding'] = encoding
+
+    response['Content-Disposition'] = 'attachment; filename=%s' % doc.filename()
+    return response
 
 def training(request):
     if request.method == "GET":

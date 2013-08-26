@@ -10,18 +10,23 @@ class AdHocReportForm(forms.ModelForm):
     supply_point = forms.ModelChoiceField(queryset=SupplyPoint.objects.filter\
                                           (type__code__in=[SupplyPointCodes.DISTRICT,
                                                            SupplyPointCodes.REGION]))
-    
+
     def clean_recipients(self):
         data = self.cleaned_data['recipients']
         recipients = data.split(",")
         for email in recipients:
             validate_email(email.strip())
         return data
-        
+
     class Meta:
         model = AdHocReport
-        
-        
+
+
 class UploadFacilityFileForm(forms.Form):
-    file  = forms.FileField()
-    
+    file = forms.FileField()
+
+
+class SupervisionDocumentForm(forms.Form):
+    document = forms.FileField(
+        label='Upload a file',
+    )

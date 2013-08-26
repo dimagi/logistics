@@ -29,4 +29,5 @@ urlpatterns = patterns('',
     url(r'^change_language/$', 'logistics_project.apps.tanzania.views.change_language', name="tz_language"),
     url(r'^change_language/post/$', 'logistics_project.apps.tanzania.views.change_language_real', name="tz_language_redirect"),
     url(r'^schedule/$', direct_to_template, {'template': 'tanzania/sms_schedule.html'}, name="tz_sms_schedule"),
+    url(r'^download_supervisor_document/(?P<document_id>\w+)/$', 'logistics_project.apps.tanzania.views.download_supervision_doc', name='download_supervision_doc'),
 )
