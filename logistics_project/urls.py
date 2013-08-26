@@ -10,7 +10,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Django URLs
-    (r'^admin/', include(admin.site.urls)),
+    (r'^django-admin/', include(admin.site.urls)),
     
     # RapidSMS core URLs
     #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
