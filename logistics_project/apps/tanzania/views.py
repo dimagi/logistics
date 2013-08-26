@@ -646,21 +646,23 @@ def ad_hoc_reports(request):
     return render_to_response("tanzania/edit_adhoc_report.html", {
         "form": form,
     }, context_instance=RequestContext(request))
-    
-def supervision(request):
 
+
+def supervision(request):
     files = []
     docs = os.listdir(getattr(settings, 'SUPERVISION_DOCS_FOLDER'))
-    
+
     for doc in docs:
         item = {}
         item['link'] = doc
-        item['name'] =  ' '.join(doc.split('.')[0].split('_'))
+        item['name'] = ' '.join(doc.split('.')[0].split('_'))
         files.append(item)
 
-    return render_to_response("tanzania/supervision-docs.html", {
-        "files": files,
+    return render_to_response(
+        "tanzania/supervision-docs.html", {
+            "files": files,
         }, context_instance=RequestContext(request))
+
 
 def training(request):
     if request.method == "GET":
