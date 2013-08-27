@@ -41,8 +41,11 @@ from django_tablib.base import mimetype_map
 from logistics_project.apps.tanzania.loader import get_facility_export,\
     load_locations
 import mimetypes
+from django.shortcuts import redirect
+
 
 PRODUCTS_PER_TABLE = 100 #7
+
 
 def tz_location_url(location):
     try:
@@ -665,6 +668,12 @@ def supervision(request):
         }, context_instance=RequestContext(request))
 
 
+def delete_supervision_doc(request, document_id):
+    doc = SupervisionDocument.objects.get(id=document_id)
+    doc.delete()
+    return redirect('supervision')
+
+
 def download_supervision_doc(request, document_id):
     doc = SupervisionDocument.objects.get(id=document_id)
     response = HttpResponse(doc.document)
@@ -680,6 +689,7 @@ def download_supervision_doc(request, document_id):
 
     response['Content-Disposition'] = 'attachment; filename=%s' % doc.filename()
     return response
+
 
 def training(request):
     if request.method == "GET":

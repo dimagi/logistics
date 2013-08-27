@@ -4,6 +4,7 @@ from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from django.forms.fields import EmailField
 from django.core.validators import EmailValidator, validate_email
+from django.utils.translation import ugettext as _
 
 
 class AdHocReportForm(forms.ModelForm):
@@ -28,5 +29,5 @@ class UploadFacilityFileForm(forms.Form):
 
 class SupervisionDocumentForm(forms.Form):
     document = forms.FileField(
-        label='Upload a file',
+        label=_('Upload a file'),
     )

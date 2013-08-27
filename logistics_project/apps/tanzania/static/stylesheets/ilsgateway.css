@@ -93,6 +93,10 @@ div.crumbs, div.welcome {
     background: #f8f8f8;
 }
 
+    .module.half {
+        width: 50%;
+    }
+
     .module.map {
     }
 
@@ -134,6 +138,11 @@ div.crumbs, div.welcome {
             padding-bottom: 0.25em;
         }
 
+a.delete {
+    font-weight: bold;
+    color: #FF3333;
+    float: right;
+}
 
 ul.reports {
 }
