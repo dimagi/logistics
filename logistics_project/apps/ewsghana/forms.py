@@ -218,6 +218,12 @@ class FacilityForm(forms.ModelForm):
                 raise forms.ValidationError("Invalid value for longitude. Must be between -180 and +180.")
         return self.cleaned_data['longitude']
 
+    def clean_code(self):
+        if SupplyPoint.objects.filter(code__icontains=self.cleaned_data['code']).exists() or \
+          SupplyPoint.objects.filter(code__icontains=slugify(self.cleaned_data['code'])).exists():
+            raise ValidationError("That code already exists.")
+        return self.cleaned_data['code']
+
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(commit=False, *args, **kwargs)
         if self.cleaned_data['parent_location']:
