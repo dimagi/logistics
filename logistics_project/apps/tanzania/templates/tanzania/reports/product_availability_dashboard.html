@@ -39,7 +39,7 @@
             $("#tooltip").remove();
             if (item) {
                 var count = item.datapoint[1] - item.datapoint[2];
-                showTooltip(pos.pageX, pos.pageY, y + ' ' + item.series.label);
+                showTooltip(pos.pageX, pos.pageY, count + ' ' + item.series.label);
             }
         });
     });
