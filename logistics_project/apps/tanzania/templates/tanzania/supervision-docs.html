@@ -8,12 +8,30 @@
 <h2>{% trans "Supervision Documents" %}</h2>
 
 <div class="module">
-	<br>
-	{% for f in files %}
-		<br>
-		<a href="/static/tanzania/downloads/supervision_documents/{{ f.link }}">{{ f.name }}</a>
-		<br>
-	{% endfor %}
-	<br>
+    <br />
+    {% if files %}
+        <ul>
+        {% for f in files %}
+            <li>
+                <a href="{% url download_supervision_doc f.id %}">
+                    {{ f.filename }}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No documents.</p>
+    {% endif %}
 </div>
+
+<form action="{% url supervision %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <p>{{ form.non_field_errors }}</p>
+    <p>{{ form.document.label_tag }} {{ form.document.help_text }}</p>
+    <p>
+        {{ form.document.errors }}
+        {{ form.document }}
+    </p>
+    <p><input type="submit" value="Upload" /></p>
+</form>
 {% endblock %}
