@@ -97,12 +97,12 @@ class View(warehouse_view.DistrictOnlyView):
         for rr in reports:
             report_table["data"].append([rr.date.strftime('%b-%Y'), _yes_or_no(rr.on_time),\
                 _yes_or_no(rr.late), _yes_or_no(rr.complete)])
-            
+
         product_stock_tuples = [(p, ProductStock.objects.get(supply_point=hsa, product=p) \
                                     if ProductStock.objects.filter(supply_point=hsa, product=p).exists() \
                                     else None)
                                  for p in hsa.commodities_stocked().order_by("sms_code")]
-        
+
         def _to_table_values(ps):
             return [ps.daily_consumption, ps.monthly_consumption, 
                     ps.quantity, fmt_or_none(ps.months_remaining, percent=False), 
