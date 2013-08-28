@@ -322,10 +322,12 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         """ what are all the commodities which we are actively stocking at this facility? """
         if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER: 
             # do a join on all commodities associated with all users
-            return Product.objects.filter(is_active=True, reported_by__supply_point=self)
+            return Product.objects.filter(is_active=True,
+                                          reported_by__supply_point=self,
+                                          reported_by__is_active=True)
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY: 
             # look for products with active ProductStocks linked to his facility
-            return Product.objects.filter(productstock__supply_point=self, 
+            return Product.objects.filter(productstock__supply_point=self,
                                           productstock__is_active=True, 
                                           is_active=True)
         elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT: 
