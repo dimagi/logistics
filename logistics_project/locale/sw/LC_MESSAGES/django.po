@@ -146,7 +146,7 @@ msgstr "Samahani, Unatakiwa kujisajili kwanza"
 
 #: handlers/help.py:13
 msgid "Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la"
-msgstr "Karibu kwenye mfumo wa ILSGateway.maneno yaliyopo ya kuambrisha ni hmk, nimepokea, sijapokea, nimetuma, sijatuma, lugha sw, lugha en, acha, usimamizi, um"
+msgstr "Karibu kwenye mfumo wa ILSGateway.maneno yaliyopo ya kuamrisha ni hmk, nimepokea, sijapokea, nimetuma, sijatuma, lugha sw, lugha en, acha, usimamizi, um"
 
 msgid "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"
 msgstr "Kujisajili tuma sajili <Jina> <namba ya MSD> au sajili <jina> kwa <jina la wilaya>. Mfano: sajili John Patel d34002 au sajili John Patel : tandahimba"
