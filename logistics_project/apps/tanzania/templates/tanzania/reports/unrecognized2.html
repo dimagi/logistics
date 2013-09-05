@@ -7,3 +7,5 @@
             {{ table.as_html }}
     </div>
 {% endblock %}
+
+{% block export_url %}{% url export_report "unrecognized" %}{% endblock export_url %}

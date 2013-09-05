@@ -18,6 +18,7 @@ urlpatterns = patterns('',
         name='upload_facilities'),
 #    url(r'^reports/$', 'logistics_project.apps.tanzania.views.new_reports', name='reports'),
     url(r'^reports/(?P<slug>\w+)/$', 'logistics_project.apps.tanzania.views.reports_shared', name='new_reports'),
+    url(r'^export_report/(?P<slug>\w+)/$', 'logistics_project.apps.tanzania.views.export_report', name='export_report'),
     url(r'^reports/$', 'logistics_project.apps.tanzania.views.reports_shared', name='new_reports'),
 
 #    url(r'^reports/pdf/$', 'logistics_project.apps.tanzania.views.reporting_pdf', name="tz_pdf_reports"),
