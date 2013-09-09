@@ -11,3 +11,5 @@
         {{ randr_table.as_html }}
     </div>
 {% endblock %}
+
+{% block export_url %}{% url export_report "randr" %}{% endblock export_url %}
