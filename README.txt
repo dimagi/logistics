@@ -54,3 +54,6 @@ Ubuntu Lucid Lynx 10.0.4 LTS
 
 CODE LAYOUT
 The goal of this project setup was to reuse code among different logistics deployments which also supported custom reports and dashboards. Between deployments, the 'switch' is flipped by importing different settings in localsettings.py. Most apps are shared, although truly deployment-specific code lives in a deployment specific app (i.e. ewsghana app, tanzania app, malawi app). Future contributors should aim to put all generic code in the shared apps and minimize contributions to the deployment-specific app.
+
+TESTS
+Tests are run from the root of the checkout directory, as "./logistics_project/manage.py test logistics_project.apps.<YOUR APP>.tests"

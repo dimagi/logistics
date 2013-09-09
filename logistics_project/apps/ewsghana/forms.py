@@ -219,9 +219,10 @@ class FacilityForm(forms.ModelForm):
         return self.cleaned_data['longitude']
 
     def clean_code(self):
-        if SupplyPoint.objects.filter(code__icontains=self.cleaned_data['code']).exists() or \
-          SupplyPoint.objects.filter(code__icontains=slugify(self.cleaned_data['code'])).exists():
-            raise ValidationError("That code already exists.")
+        if not self.instance:
+            if SupplyPoint.objects.filter(code__icontains=self.cleaned_data['code']).exists() or \
+              SupplyPoint.objects.filter(code__icontains=slugify(self.cleaned_data['code'])).exists():
+                raise ValidationError("That code already exists.")
         return self.cleaned_data['code']
 
     def save(self, *args, **kwargs):
@@ -288,8 +289,9 @@ class LocationForm(forms.ModelForm):
             raise ValidationError("Name should only contain letters, numbers, or spaces.")
         # technically, our system has no problem functioning with districts
         # that have duplicate names. in practice, we should avoid this.
-        if Location.objects.filter(name__icontains=self.cleaned_data['name']).exists():
-            raise ValidationError("That location already exists.")
+        if not self.instance:
+            if Location.objects.filter(name__icontains=self.cleaned_data['name']).exists():
+                raise ValidationError("That location already exists.")
         return self.cleaned_data['name']
 
     def save(self, *args, **kwargs):
