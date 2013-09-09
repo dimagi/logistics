@@ -105,7 +105,7 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 0.0 mc 0.0
-           16176023315 < Dear cynthia, these items are stocked out: lf mc. Please order 24 mc, 15 lf.
+           16176023315 < Dear cynthia, these items are stocked out: lf mc. Please order 15 lf, 24 mc.
            """
         self.runScript(a)
 
@@ -123,7 +123,7 @@ class TestStockOnHand (TestScript):
            16176023315 > register cynthia dedh
            16176023315 < Congratulations cynthia, you have successfully been registered for the Early Warning System. Your facility is Dangme East District Hospital
            16176023315 > soh lf 7.0 mc 9.0
-           16176023315 < Dear cynthia, these items need to be reordered: lf mc. Please order 15 mc, 8 lf.
+           16176023315 < Dear cynthia, these items need to be reordered: lf mc. Please order 8 lf, 15 mc.
            """
         self.runScript(a)
 
@@ -162,7 +162,7 @@ class TestStockOnHand (TestScript):
            super < Congratulations super, you have successfully been registered for the Early Warning System. Your facility is Test Facility
            pharmacist > soh lf 0.0 mc 1.0
            super < Dear super, Test Facility is experiencing the following problems: stockouts Lofem; below reorder level Male Condom
-           pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 29 mc, 30 lf.
+           pharmacist < Dear cynthia, these items are stocked out: lf. these items need to be reordered: mc. Please order 30 lf, 29 mc.
            """
         self.runScript(a)
 
