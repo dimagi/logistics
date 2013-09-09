@@ -27,6 +27,16 @@
     {% include "imports/jquery-ui.html" %}
     <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
 {% endblock %}
+<script type="text/javascript">
+    $(function() {
+        if (window.self !== window.top) {
+            $('head').append('<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tanzania/stylesheets/iframe-overrides.css" />');
+            {% if not user.is_authenticated %}
+                $('head').append('<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tanzania/stylesheets/login-iframe-overrides.css" />');
+            {% endif %}
+        }
+    });
+</script>
 </head>
 <body>
 	<div id="wrapper">
