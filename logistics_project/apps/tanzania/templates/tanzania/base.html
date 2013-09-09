@@ -35,10 +35,11 @@
                 $('head').append('<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tanzania/stylesheets/login-iframe-overrides.css" />');
             {% endif %}
         }
+        $('body').show();
     });
 </script>
 </head>
-<body>
+<body style="display: none">
 	<div id="wrapper">
 		{% region "top" %}
 		{% block header %}
