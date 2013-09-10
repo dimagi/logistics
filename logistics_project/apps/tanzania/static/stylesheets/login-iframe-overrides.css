@@ -5,3 +5,44 @@
 #footer {
     display: none;
 }
+
+form {
+    border: 1px solid #b9b9b9;
+    width: 400px;
+    padding-top: 12px;
+}
+
+form table, form table td, form table th {
+    border: 0px;
+}
+
+form table tr {
+    line-height: 2;
+}
+
+form label {
+    margin-left: 20px;
+    margin-right: 60px;
+}
+
+form input[type="text"], form input[type="password"] {
+    width: 180px;
+}
+
+form input[type="submit"] {
+    margin: 8px 0px 15px 222px;
+}
+
+form .note {
+    display: none;
+}
+
+#inner h1 {
+    font-size: 14px;
+    font-weight: normal;
+    border: 1px solid #b9b9b9;
+    border-bottom: 1px solid #fff;
+    display: inline-block;
+    padding: 10px;
+    margin-bottom: -1px;
+}
