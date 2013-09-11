@@ -219,11 +219,12 @@ class FacilityForm(forms.ModelForm):
         return self.cleaned_data['longitude']
 
     def clean_code(self):
-        if not self.instance:
-            if SupplyPoint.objects.filter(code__icontains=self.cleaned_data['code']).exists() or \
-              SupplyPoint.objects.filter(code__icontains=slugify(self.cleaned_data['code'])).exists():
+        code = self.cleaned_data['code']
+        if not self.instance or self.instance.code != code:
+            if SupplyPoint.objects.filter(code__icontains=code).exists() or \
+              SupplyPoint.objects.filter(code__icontains=slugify(code)).exists():
                 raise ValidationError("That code already exists.")
-        return self.cleaned_data['code']
+        return code
 
     def save(self, *args, **kwargs):
         facility = super(FacilityForm, self).save(commit=False, *args, **kwargs)
