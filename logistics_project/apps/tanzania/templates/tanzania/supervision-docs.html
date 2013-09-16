@@ -5,22 +5,6 @@
 
 {% block title %}Supervision Documents {{ block.super }}{% endblock %}
 
-{% block javascripts %}
-{{ block.super }}
-<script type="text/javascript">
-    $(function () {
-        function confirmDelete() {
-            var x = confirm("Are you sure you want to delete?");
-            if (x) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    });
-</script>
-{% endblock %}
-
 {% block content %}
 <h2>{% trans "Supervision Documents" %}</h2>
 
