@@ -15,7 +15,7 @@ from models import DeliveryGroups, SupplyPointStatusValues
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from logistics_project.apps.tanzania.decorators import gdata_required
+from logistics_project.apps.tanzania.decorators import gdata_required, require_superuser
 import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
@@ -42,6 +42,7 @@ from logistics_project.apps.tanzania.loader import get_facility_export,\
     load_locations
 import mimetypes
 from django.shortcuts import redirect
+from django.core.exceptions import PermissionDenied
 
 
 PRODUCTS_PER_TABLE = 100 #7
@@ -654,10 +655,13 @@ def ad_hoc_reports(request):
 
 def supervision(request):
     if request.method == 'POST':
-        form = SupervisionDocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            newdoc = SupervisionDocument(document=request.FILES['document'])
-            newdoc.save()
+        if request.user.is_superuser:
+            form = SupervisionDocumentForm(request.POST, request.FILES)
+            if form.is_valid():
+                newdoc = SupervisionDocument(document=request.FILES['document'])
+                newdoc.save()
+        else:
+            raise PermissionDenied
 
     files = SupervisionDocument.objects.all()
 
@@ -668,6 +672,7 @@ def supervision(request):
         }, context_instance=RequestContext(request))
 
 
+@require_superuser
 def delete_supervision_doc(request, document_id):
     doc = SupervisionDocument.objects.get(id=document_id)
     doc.delete()

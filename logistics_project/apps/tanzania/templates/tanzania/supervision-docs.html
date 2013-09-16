@@ -33,11 +33,13 @@
                 <a href="{% url download_supervision_doc f.id %}">
                     {{ f.filename }}
                 </a>
-                <a class="delete"
-                    href="{% url delete_supervision_doc f.id %}"
-                    onclick="return confirm('{% trans "Are you sure want to delete this document" %}');">
-                    {% trans "Delete" %}
-                </a>
+                {% if user.is_superuser %}
+                    <a class="delete"
+                        href="{% url delete_supervision_doc f.id %}"
+                        onclick="return confirm('{% trans "Are you sure want to delete this document" %}');">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
             </li>
         {% endfor %}
         </ul>
@@ -45,15 +47,17 @@
         <p>{% trans "No documents." %}</p>
     {% endif %}
 
-    <form action="{% url supervision %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <p>{{ form.non_field_errors }}</p>
-        <p>{{ form.document.label_tag }} {{ form.document.help_text }}</p>
-        <p>
-            {{ form.document.errors }}
-            {{ form.document }}
-        </p>
-        <p><input type="submit" value="{% trans 'Upload' %}" /></p>
-    </form>
+    {% if user.is_superuser %}
+        <form action="{% url supervision %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.document.label_tag }} {{ form.document.help_text }}</p>
+            <p>
+                {{ form.document.errors }}
+                {{ form.document }}
+            </p>
+            <p><input type="submit" value="{% trans 'Upload' %}" /></p>
+        </form>
+    {% endif %}
 </div>
 {% endblock %}
