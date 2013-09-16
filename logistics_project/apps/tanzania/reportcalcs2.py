@@ -4,6 +4,8 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 
+from django.http import HttpResponse
+
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.contrib.locations.models import Location
 
@@ -24,6 +26,10 @@ from logistics_project.apps.tanzania.reporting.models import ProductAvailability
     ProductAvailabilityDashboardChart
 from logistics_project.apps.tanzania.views import convert_product_data_to_sideways_chart,\
     get_facilities_and_location, _generate_soh_tables
+
+import xlwt
+import re
+
 
 class TanzaniaReport(object):
     """
@@ -123,6 +129,47 @@ class TanzaniaReport(object):
         if self.level == 'district':
             return "%s/%s-%s.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug, self.level)
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
+
+    def as_xls(self):
+        self.reset_context()
+        self.common_report()
+
+        if self.level == 'mohsw':
+            self.national_report()
+        elif self.level == 'region':
+            self.regional_report()
+        elif self.level == 'district':
+            self.district_report()
+        elif self.level == 'facility':
+            raise NotImplementedError
+
+        if self.slug != 'unrecognized':
+            report_table = '%s_table' % self.context['slug']
+        else:
+            report_table = 'table'
+
+        columns = self.context[report_table].columns
+        rows = self.context[report_table].rows
+
+        normal_style = xlwt.easyxf("""
+                                   font:
+                                   name Verdana
+                                   """)
+        response = HttpResponse(mimetype='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=report_export.xls'
+
+        wb = xlwt.Workbook()
+        ws0 = wb.add_sheet('Worksheet')
+
+        for ix, column in enumerate(columns):
+            ws0.write(0, ix, column.name, normal_style)
+
+        for iy, row in enumerate(rows):
+            for ix, cell in enumerate(row):
+                ws0.write(iy + 1, ix, re.sub('<[^<]+?>', '', str(cell.column.value(cell))), normal_style)
+
+        wb.save(response)
+        return response
 
     def as_view(self):
         try:
@@ -270,3 +317,10 @@ def new_reports(request, slug=None):
             return ri.as_view()
     ri = REPORT_LIST[0](request)
     return ri.as_view()
+
+@place_in_request()
+def export_new_report(request, slug=None):
+    for r in REPORT_LIST:
+        if r.slug == slug:
+            ri = r(request)
+            return ri.as_xls()
