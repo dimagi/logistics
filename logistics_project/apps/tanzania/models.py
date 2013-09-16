@@ -171,3 +171,9 @@ class DeliveryGroupReport(models.Model):
     class Meta:
         ordering = ('-report_date',)
 
+
+class SupervisionDocument(models.Model):
+    document = models.FileField(upload_to='supervision_documents/')
+
+    def filename(self):
+        return self.document.file.name.split('/')[-1]
