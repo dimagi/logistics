@@ -90,6 +90,7 @@ TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 # but it is needed for static assets to be linkable.
 MEDIA_URL = "/static/"
 
+MEDIA_ROOT = "documents/"
 
 # this is required for the django.contrib.sites tests to run, but also
 # not included in global_settings.py, and is almost always ``1``.

@@ -4,16 +4,44 @@
 {% load i18n %}
 
 {% block title %}Supervision Documents {{ block.super }}{% endblock %}
+
 {% block content %}
 <h2>{% trans "Supervision Documents" %}</h2>
 
-<div class="module">
-	<br>
-	{% for f in files %}
-		<br>
-		<a href="/static/tanzania/downloads/supervision_documents/{{ f.link }}">{{ f.name }}</a>
-		<br>
-	{% endfor %}
-	<br>
+<div class="module half">
+    <br />
+    {% if files %}
+        <ul>
+        {% for f in files %}
+            <li>
+                <a href="{% url download_supervision_doc f.id %}">
+                    {{ f.filename }}
+                </a>
+                {% if user.is_superuser %}
+                    <a class="delete"
+                        href="{% url delete_supervision_doc f.id %}"
+                        onclick="return confirm('{% trans "Are you sure want to delete this document" %}');">
+                        {% trans "Delete" %}
+                    </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>{% trans "No documents." %}</p>
+    {% endif %}
+
+    {% if user.is_superuser %}
+        <form action="{% url supervision %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+            <p>{{ form.document.label_tag }} {{ form.document.help_text }}</p>
+            <p>
+                {{ form.document.errors }}
+                {{ form.document }}
+            </p>
+            <p><input type="submit" value="{% trans 'Upload' %}" /></p>
+        </form>
+    {% endif %}
 </div>
 {% endblock %}
