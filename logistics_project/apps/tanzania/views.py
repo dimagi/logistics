@@ -160,6 +160,11 @@ def reports_shared(request, slug=None):
     return _render_warehouseable(request, old_reports, warehouse_reports, slug=slug)
 
 @place_in_request()
+def export_report(request, slug=None):
+    from logistics_project.apps.tanzania.reportcalcs2 import export_new_report
+    return export_new_report(request, slug=slug)
+
+@place_in_request()
 def dashboard(request):
 
     mp = MonthPager(request)
