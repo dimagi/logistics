@@ -232,7 +232,7 @@ class FacilityForm(forms.ModelForm):
             def _create_new_fac_location(fac, parent):
                 loc, created = loader._get_or_create_location(fac.name, 
                                                               parent)
-                fac.location = loc
+                fac.set_location(loc)
             try:
                 previous_instance = GhanaFacility.objects.get(code=self.instance.code)
             except GhanaFacility.DoesNotExist:
