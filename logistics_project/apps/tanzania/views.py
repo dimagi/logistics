@@ -692,7 +692,8 @@ def download_supervision_doc(request, document_id):
 
     if type is None:
         type = 'application/octet-stream'
-        response['Content-Type'] = type
+
+    response['Content-Type'] = type
 
     if encoding is not None:
         response['Content-Encoding'] = encoding
