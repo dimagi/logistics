@@ -8,7 +8,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, soh_on_time_reporting, latest_status, randr_on_time_reporting, submitted_to_msd
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, \
+    soh_on_time_reporting, latest_status, randr_on_time_reporting, \
+    submitted_to_msd, send_reporting_group_list_sms, send_facility_list_sms, \
+    send_region_list_sms, send_district_list_sms
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
 from models import DeliveryGroups, SupplyPointStatusValues
@@ -26,7 +29,7 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm,\
-    UploadFacilityFileForm, SupervisionDocumentForm
+    UploadFacilityFileForm, SupervisionDocumentForm, SMSFacilityForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes, SupervisionDocument
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
@@ -702,9 +705,50 @@ def download_supervision_doc(request, document_id):
     return response
 
 
+@require_superuser
+def sms_broadcast(request):
+    if request.method == "POST":
+        form = SMSFacilityForm(request.POST)
+        if form.is_valid():
+            select_type = form.cleaned_data['recipient_select_type']
+
+            group_a = 'A' if form.cleaned_data['group_a'] else None
+            group_b = 'B' if form.cleaned_data['group_b'] else None
+            group_c = 'C' if form.cleaned_data['group_c'] else None
+
+            regions = form.cleaned_data['regions']
+            districts = form.cleaned_data['districts']
+            facilities = form.cleaned_data['facilities']
+
+            message = form.cleaned_data['message']
+
+            if select_type == 'groups':
+                # remove any groups that weren't selected out
+                group_list = filter(None, [group_a, group_b, group_c])
+                send_reporting_group_list_sms(group_list, message)
+            elif select_type == 'regions':
+                send_region_list_sms(regions, message)
+            elif select_type == 'districts':
+                send_district_list_sms(districts, message)
+            elif select_type == 'facilities':
+                send_facility_list_sms(facilities, message)
+
+            # don't leave the data on the page to prevent
+            # an accidental double send
+            form = SMSFacilityForm()
+    else:
+        form = SMSFacilityForm()
+
+    return render_to_response(
+        "tanzania/sms_broadcast.html", {
+            'form': form,
+        }, context_instance=RequestContext(request)
+    )
+
+
 def training(request):
     if request.method == "GET":
-        
+
         latest_run_time = None
         latest_incomplete_time = None
 
@@ -762,5 +806,5 @@ def upload_facilities(request):
     else:
         messages.error(request, "Please select a file")    
     return HttpResponseRedirect(reverse("training"))
-    
-    
+
+
