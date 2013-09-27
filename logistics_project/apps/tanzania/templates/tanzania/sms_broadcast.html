@@ -1,0 +1,103 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load cache %}
+{% load i18n %}
+{% load forms_tags %}
+
+{% block title %}SMS Facility List {{ block.super }}{% endblock %}
+
+{% block stylesheets %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}tanzania/stylesheets/select2.css" />
+{% endblock %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <!-- Hack, load a recent version of jquery to support select2 !-->
+    <script type="text/javascript" src="{{ MEDIA_URL }}tanzania/js/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}tanzania/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('#id_regions, #id_districts').select2({'width': '450px'});
+            $('#id_facilities').select2({'minimumInputLength': 2, 'width': '450px'});
+
+            $('#id_recipient_select_type').change(function(e) {
+                $('.selector').hide();
+                if(this.value === 'groups') {
+                    $('.group').slideDown();
+                } else if(this.value === 'regions') {
+                    $('.region').slideDown();
+                } else if(this.value === 'districts') {
+                    $('.district').slideDown();
+                } else if(this.value === 'facilities') {
+                    $('.facility').slideDown();
+                }
+            }).change();
+
+            $('#id_message').keydown(function(e) {
+                $('#character_count').text(this.value.length);
+            });
+            $('#id_message').keyup(function(e) {
+                $('#character_count').text(this.value.length);
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+        <h2>{% trans "SMS Broadcast" %}</h2>
+
+        <p>{% trans "Filter facilities to send an SMS broadcast to all associated users." %}</p>
+    </div>
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        <div class="recipient_type field">
+            <h3>Select how to filter recipients</h3>
+            {{ form.recipient_select_type }}
+        </div>
+
+        <div class="group selector field">
+            <h3>{% trans "Select groups" %}</h3>
+            <div class="field">
+                {{ form.group_a.label_tag }} {{ form.group_a }}
+            </div>
+            <div class="field">
+                {{ form.group_b.label_tag }} {{ form.group_b }}
+            </div>
+            <div class="field">
+                {{ form.group_c.label_tag }} {{ form.group_c }}
+            </div>
+        </div>
+
+        <div class="region selector field">
+            <h3>{{ form.regions.label }}</h3>
+            {{ form.regions }}
+        </div>
+
+        <div class="district selector field">
+            <h3>{{ form.districts.label }}</h3>
+            {{ form.districts }}
+        </div>
+
+        <div class="facility selector field">
+            <h3>{{ form.facilities.label }}</h3>
+            {{ form.facilities }}
+        </div>
+
+        <div class="field">
+            <h3>Enter your message</h3>
+            {{ form.message }}
+            <div>
+                {% trans "Characters" %}: <span id="character_count">0</span>
+            </div>
+        </div>
+
+        <div class="submit">
+            <input type="submit" value="{% trans 'Send messages' %}" />
+        </div>
+    </form>
+
+{% endblock %}

@@ -32,4 +32,5 @@ urlpatterns = patterns('',
     url(r'^schedule/$', direct_to_template, {'template': 'tanzania/sms_schedule.html'}, name="tz_sms_schedule"),
     url(r'^download_supervision_document/(?P<document_id>\w+)/$', 'logistics_project.apps.tanzania.views.download_supervision_doc', name='download_supervision_doc'),
     url(r'^delete_supervision_document/(?P<document_id>\w+)/$', 'logistics_project.apps.tanzania.views.delete_supervision_doc', name='delete_supervision_doc'),
+    url(r'^sms_broadcast/$', 'logistics_project.apps.tanzania.views.sms_broadcast', name='sms_broadcast'),
 )
