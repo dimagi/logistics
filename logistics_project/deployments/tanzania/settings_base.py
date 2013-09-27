@@ -33,6 +33,7 @@ RAPIDSMS_TABS = [
     ("httptester-index", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision Tools"),
     ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", "is_superuser"),
     ("tz_sms_schedule",       "Help"),
 
 ]
