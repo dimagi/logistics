@@ -16,13 +16,6 @@
 <!-- TODO: this is ugly -->
 {% include "logistics/partials/breadcrumbs.html" %} 
 
-<div class="module noprint">
-    <h2>{% trans 'Alerts' %}</h2>
-    {% with alerts as alerts %}
-        {% include "alerts/partials/alerts.html" %}
-    {% endwith %}
-</div>
-
 {% include "logistics/partials/month_pager.html" %}
 
 <div class="two-columns toppadded">

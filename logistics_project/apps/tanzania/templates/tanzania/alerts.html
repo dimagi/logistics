@@ -1,0 +1,18 @@
+{% extends base_template %}
+{% load nav_tags %}
+{% load i18n %}
+
+{% block title %}Alerts {{ block.super }}{% endblock %}
+
+{% block content %}
+    {% include "logistics/partials/breadcrumbs.html" %} 
+
+    {% include "logistics/partials/month_pager.html" %}
+
+    <div class="module noprint">
+        <h2>{% trans 'Alerts' %}</h2>
+        {% with alerts as alerts %}
+            {% include "alerts/partials/alerts.html" %}
+        {% endwith %}
+    </div>
+{% endblock %}
