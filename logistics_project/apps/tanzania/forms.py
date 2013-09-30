@@ -59,8 +59,12 @@ class SMSFacilityForm(forms.Form):
         required=False,
     )
 
-    facilities = forms.ModelMultipleChoiceField(
-        SupplyPoint.objects.all().order_by('name'),
+    facility_district = forms.ModelChoiceField(
+        Location.objects.filter(type__name='DISTRICT'),
+        label=_('First select a district'),
+        required=False,
+    )
+    facilities = forms.MultipleChoiceField(
         label=_('Facilities'),
         required=False,
     )
