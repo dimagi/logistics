@@ -22,6 +22,7 @@ RAPIDSMS_TABS = [
 #    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
 #    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
     ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
+    ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
 
 #    ("logistics.views.dashboard",       "Facilities"),

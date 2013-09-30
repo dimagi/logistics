@@ -198,10 +198,8 @@ def dashboard(request):
                                
                               context_instance=RequestContext(request))
 
-@place_in_request()
-def dashboard2(request):
-    mp = MonthPager(request)
 
+def get_org(request):
     org = request.GET.get('place')
     if not org:
         if request.user.get_profile() is not None:
@@ -212,6 +210,15 @@ def dashboard2(request):
     if not org:
         # TODO: Get this from config
         org = 'MOHSW-MOHSW'
+
+    return org
+
+
+@place_in_request()
+def dashboard2(request):
+    mp = MonthPager(request)
+
+    org = get_org(request)
 
     # TODO: don't use location like this (district summary)
     location = Location.objects.get(code=org)
@@ -231,12 +238,6 @@ def dashboard2(request):
                                "location": location,
                                "destination_url": "tz_dashboard"
                                }, context_instance=RequestContext(request))
-
-    alerts = Alert.objects.filter(
-        supply_point__code=org,
-        date__lte=mp.end_date,
-        expires__lte=mp.end_date
-    ).order_by('-id')
 
     total = org_summary.total_orgs
     avg_lead_time = org_summary.average_lead_time_in_days
@@ -268,7 +269,6 @@ def dashboard2(request):
 
     return render_to_response("tanzania/dashboard2.html",
                               {"month_pager": mp,
-                               "alerts": alerts,
                                "soh_json": soh_json,
                                "rr_json": rr_json,
                                "delivery_json": delivery_json,
@@ -292,6 +292,31 @@ def dashboard2(request):
                                },
                                
                               context_instance=RequestContext(request))
+
+
+@place_in_request()
+def alerts(request):
+    mp = MonthPager(request)
+    org = get_org(request)
+    location = Location.objects.get(code=org)
+
+    alerts = Alert.objects.filter(
+        supply_point__code=org,
+        date__lte=mp.end_date,
+        expires__lte=mp.end_date
+    ).order_by('-id')
+
+    return render_to_response(
+        "tanzania/alerts.html",
+        {
+            "month_pager": mp,
+            "location": location,
+            "alerts": alerts,
+            "destination_url": "tz_alerts"
+        },
+        context_instance=RequestContext(request)
+    )
+
 
 def has_nonzero_key(json, key):
     return json.has_key(key) and json[key]
