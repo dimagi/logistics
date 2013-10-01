@@ -18,8 +18,8 @@
     <script type="text/javascript" src="{{ MEDIA_URL }}tanzania/js/select2.min.js"></script>
     <script type="text/javascript">
         $(function() {
-            $('#id_regions, #id_districts').select2({'width': '450px'});
-            $('#id_facilities').select2({'minimumInputLength': 2, 'width': '450px'});
+            $('#id_regions, #id_districts, #id_facilities').select2({'width': '450px'});
+            $('#id_facilities').select2('enable', false);
 
             $('#id_recipient_select_type').change(function(e) {
                 $('.selector').hide();
@@ -39,6 +39,23 @@
             });
             $('#id_message').keyup(function(e) {
                 $('#character_count').text(this.value.length);
+            });
+
+            $('#id_facility_district').change(function(e) {
+                // http://stackoverflow.com/questions/3233850/django-jquery-cascading-select-boxes
+                $.getJSON(
+                    '/tz/facilities_by_district/?district_id=' + $(this).val(),
+                    function(data) {
+                        var opt = $('#id_facilities');
+                        opt.html('');
+                        $.each(data, function() {
+                            opt.append($('<option/>').val(this.id).text(this.value));
+                        });
+                        opt.change();
+
+                        $('#id_facilities').select2('enable', data.length > 0);
+                    }
+                );
             });
         });
     </script>
@@ -84,6 +101,11 @@
 
         <div class="facility selector field">
             <h3>{{ form.facilities.label }}</h3>
+            <p>
+                {% trans "Filter by district:" %}
+                {{ form.facility_district }}
+            </p>
+            {% trans "Select facilities:" %}
             {{ form.facilities }}
         </div>
 
