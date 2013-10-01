@@ -34,4 +34,5 @@ urlpatterns = patterns('',
     url(r'^delete_supervision_document/(?P<document_id>\w+)/$', 'logistics_project.apps.tanzania.views.delete_supervision_doc', name='delete_supervision_doc'),
     url(r'^sms_broadcast/$', 'logistics_project.apps.tanzania.views.sms_broadcast', name='sms_broadcast'),
     url(r'^facilities_by_district/$', 'logistics_project.apps.tanzania.views.facilities_by_district', name='facilities_by_district'),
+    url(r'^alerts/$', 'logistics_project.apps.tanzania.views.alerts', name='tz_alerts'),
 )
