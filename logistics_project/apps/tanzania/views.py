@@ -46,6 +46,7 @@ from logistics_project.apps.tanzania.loader import get_facility_export,\
 import mimetypes
 from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied
+from django.utils import simplejson
 
 
 PRODUCTS_PER_TABLE = 100 #7
@@ -728,6 +729,27 @@ def download_supervision_doc(request, document_id):
 
     response['Content-Disposition'] = 'attachment; filename=%s' % doc.filename()
     return response
+
+
+def facilities_by_district(request):
+    """
+    http://stackoverflow.com/questions/3233850/django-jquery-cascading-select-boxes
+    """
+    ret = []
+    try:
+        district = Location.objects.get(id=request.GET.get('district_id'))
+
+        if district:
+            for facility in district.get_children():
+                ret.append(dict(id=facility.id, value=unicode(facility)))
+            if len(ret) != 1:
+                ret.insert(0, dict(id='', value=''))
+    except Exception:
+        # this catches user reselecting empty district
+        pass
+
+    return HttpResponse(simplejson.dumps(ret),
+                        content_type='application/json')
 
 
 @require_system_admin

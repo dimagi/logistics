@@ -16,7 +16,6 @@ APPS = [
     "gunicorn",
 ]
 
-SYSTEM_ADMINS = ['amchau@tz.pfscm.org', 'mmwencha@jsi.com', 'nalpha@tz.pfscm.org']
 
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
