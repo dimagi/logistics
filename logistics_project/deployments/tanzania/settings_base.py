@@ -16,6 +16,8 @@ APPS = [
     "gunicorn",
 ]
 
+SYSTEM_ADMINS = ['amchau@tz.pfscm.org', 'mmwencha@jsi.com', 'nalpha@tz.pfscm.org']
+
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
@@ -34,7 +36,7 @@ RAPIDSMS_TABS = [
     ("httptester-index", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision Tools"),
     ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
-    ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", lambda x: hasattr(x, 'email') and x.email in SYSTEM_ADMINS),
     ("tz_sms_schedule",       "Help"),
 
 ]
