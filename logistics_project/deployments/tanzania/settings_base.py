@@ -16,6 +16,12 @@ APPS = [
     "gunicorn",
 ]
 
+
+def is_system_admin(user):
+    from django.conf import settings
+    return hasattr(user, 'email') and user.email in settings.SYSTEM_ADMINS
+
+
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
@@ -34,7 +40,7 @@ RAPIDSMS_TABS = [
     ("httptester-index", "Tester", "is_superuser"),
     ("logistics_project.apps.tanzania.views.supervision",       "Supervision Tools"),
     ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
-    ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", is_system_admin),
     ("tz_sms_schedule",       "Help"),
 
 ]
