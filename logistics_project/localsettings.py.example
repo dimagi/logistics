@@ -42,3 +42,6 @@ LANGUAGES = (
   ('sw', 'Swahili'),
   ('en', 'English'),
 )
+
+# Modify this list this to set the list of system admins
+SYSTEM_ADMINS = ['bob@test.com', 'bill@test.com']
