@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from httplib import HTTPSConnection
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 
 
 def gdata_required(f):
@@ -43,6 +44,15 @@ def gdata_required(f):
 def require_superuser(f):
     def wrap(request, *args, **kwargs):
         if not request.user.is_superuser:
+            raise PermissionDenied
+        return f(request, *args, **kwargs)
+
+    return wrap
+
+
+def require_system_admin(f):
+    def wrap(request, *args, **kwargs):
+        if request.user.email not in settings.SYSTEM_ADMINS:
             raise PermissionDenied
         return f(request, *args, **kwargs)
 
