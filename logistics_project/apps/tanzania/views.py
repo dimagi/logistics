@@ -18,7 +18,7 @@ from models import DeliveryGroups, SupplyPointStatusValues
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from logistics_project.apps.tanzania.decorators import gdata_required, require_superuser
+from logistics_project.apps.tanzania.decorators import gdata_required, require_superuser, require_system_admin
 import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
@@ -752,7 +752,7 @@ def facilities_by_district(request):
                         content_type='application/json')
 
 
-@require_superuser
+@require_system_admin
 def sms_broadcast(request):
     if request.method == "POST":
         form = SMSFacilityForm(request.POST)
