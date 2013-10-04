@@ -19,7 +19,7 @@ APPS = [
 
 def is_system_admin(user):
     from django.conf import settings
-    return hasattr(user, 'email') and user.email in settings.SYSTEM_ADMINS
+    return user.username in settings.SYSTEM_ADMINS
 
 
 RAPIDSMS_TABS = [

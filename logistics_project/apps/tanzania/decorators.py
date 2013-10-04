@@ -52,7 +52,7 @@ def require_superuser(f):
 
 def require_system_admin(f):
     def wrap(request, *args, **kwargs):
-        if request.user.email not in settings.SYSTEM_ADMINS:
+        if request.user.username not in settings.SYSTEM_ADMINS:
             raise PermissionDenied
         return f(request, *args, **kwargs)
 
