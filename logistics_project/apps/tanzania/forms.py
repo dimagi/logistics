@@ -64,7 +64,8 @@ class SMSFacilityForm(forms.Form):
         label=_('First select a district'),
         required=False,
     )
-    facilities = forms.MultipleChoiceField(
+    facilities = forms.ModelMultipleChoiceField(
+        Location.objects.filter(type__name='FACILITY'),
         label=_('Facilities'),
         required=False,
     )
