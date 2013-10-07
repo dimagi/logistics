@@ -23,9 +23,6 @@ TESTING_DATABASES= {
     }
 }
 
-INSTALLED_BACKENDS["push"]["password"] = 'CHANGEME'
-
-
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
