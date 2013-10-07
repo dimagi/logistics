@@ -219,10 +219,10 @@ class FacilityForm(forms.ModelForm):
         return self.cleaned_data['longitude']
 
     def clean_code(self):
-        code = self.cleaned_data['code']
+        code = slugify(self.cleaned_data['code'])
         if not self.instance or self.instance.code != code:
             if SupplyPoint.objects.filter(code__icontains=code).exists() or \
-              SupplyPoint.objects.filter(code__icontains=slugify(code)).exists():
+               SupplyPoint.objects.filter(code__icontains=slugify(code)).exists():
                 raise ValidationError("That code already exists.")
         return code
 
@@ -244,7 +244,6 @@ class FacilityForm(forms.ModelForm):
                         facility.location.set_parent(self.cleaned_data['parent_location'])
                     else:
                         _create_new_fac_location(facility, self.cleaned_data['parent_location'])
-        facility.code = slugify(facility.code)
         facility.save()
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
