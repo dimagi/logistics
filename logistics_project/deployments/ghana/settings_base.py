@@ -206,3 +206,6 @@ CONTACT_GROUP_GENERATORS = [
 CUSTOM_EXPORTS = [
     ("Web User Activity", "logistics_project.apps.ewsghana.tasks.export_auditor")
 ]
+
+AUDIT_MODEL_SAVE = []
+AUDIT_VIEWS = []
