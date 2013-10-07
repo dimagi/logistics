@@ -244,7 +244,6 @@ class FacilityForm(forms.ModelForm):
                         facility.location.set_parent(self.cleaned_data['parent_location'])
                     else:
                         _create_new_fac_location(facility, self.cleaned_data['parent_location'])
-        facility.code = slugify(facility.code)
         facility.save()
         commodities = Product.objects.filter(is_active=True).order_by('name')
         for commodity in commodities:
