@@ -30,11 +30,6 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-DEFAULT_RESPONSE = "Sorry, I could not understand your message. Please contact your supervisor for help."
-COUNTRY = "MOHSW-MOHSW"
-TIME_ZONE="Africa/Maputo"
-COUNTRY_DIALLING_CODE = 265
-
 LANGUAGES = (
   ('sw', 'Swahili'),
   ('en', 'English'),
