@@ -10,7 +10,8 @@ from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, \
     soh_on_time_reporting, latest_status, randr_on_time_reporting, \
-    submitted_to_msd, send_reporting_group_list_sms, send_facility_list_sms, \
+    submitted_to_msd
+from logistics_project.apps.tanzania.tasks import send_reporting_group_list_sms, send_facility_list_sms, \
     send_region_list_sms, send_district_list_sms
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
