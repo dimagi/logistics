@@ -10,8 +10,6 @@ from dimagi.utils.dates import get_business_day_of_month, get_business_day_of_mo
 import logging
 from django.core.cache import cache
 from logistics_project.apps.tanzania.reminders import send_message
-from logistics_project.apps.tanzania.config import SupplyPointCodes
-from rapidsms.models import Contact
 
 
 logger = logging.getLogger(__name__)
@@ -335,32 +333,3 @@ def send_if_connection(c, message, **kwargs):
     if c.default_connection is not None:
         send_message(c, message, **kwargs)
 
-
-def send_facility_list_sms(facilities, message):
-    contact_list = Contact.objects.filter(
-        supply_point__type__code=SupplyPointCodes.FACILITY,
-        is_active=True,
-        supply_point__in=facilities,
-    )
-
-    for contact in contact_list:
-        send_message(
-            contact,
-            message
-        )
-
-
-def send_reporting_group_list_sms(reporting_groups, message):
-    for group in reporting_groups:
-        facilities = SupplyPoint.objects.filter(groups__code=group)
-        send_facility_list_sms(facilities, message)
-
-
-def send_district_list_sms(district_list, message):
-    for district in district_list:
-        send_facility_list_sms(district.get_children(), message)
-
-
-def send_region_list_sms(region_list, message):
-    for region in region_list:
-        send_district_list_sms(region.get_children(), message)
