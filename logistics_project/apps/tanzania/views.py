@@ -773,13 +773,13 @@ def sms_broadcast(request):
             if select_type == 'groups':
                 # remove any groups that weren't selected out
                 group_list = filter(None, [group_a, group_b, group_c])
-                send_reporting_group_list_sms(group_list, message)
+                send_reporting_group_list_sms.delay(group_list, message)
             elif select_type == 'regions':
-                send_region_list_sms(regions, message)
+                send_region_list_sms.delay(regions, message)
             elif select_type == 'districts':
-                send_district_list_sms(districts, message)
+                send_district_list_sms.delay(districts, message)
             elif select_type == 'facilities':
-                send_facility_list_sms(facilities, message)
+                send_facility_list_sms.delay(facilities, message)
 
             # don't leave the data on the page to prevent
             # an accidental double send
