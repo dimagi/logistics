@@ -23,12 +23,12 @@ def is_system_admin(user):
 
 
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
 #    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
     ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
+    ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
 
 #    ("logistics.views.dashboard",       "Facilities"),
@@ -155,7 +155,7 @@ NO_LOGIN_REQUIRED_FOR = ['password/reset',
 
 # change to not make product reports "active" by default
 # should be True for Malawi, False for Ghana
-LOGISTICS_LANDING_PAGE_VIEW = "tz_alerts"
+LOGISTICS_LANDING_PAGE_VIEW = "tz_dashboard"
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = True
 LOGISTICS_DEFAULT_PRODUCT_ACTIVATION_STATUS = True
 LOGISTICS_REORDER_LEVEL_IN_MONTHS = 3
