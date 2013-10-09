@@ -115,6 +115,7 @@ def new_organization(request):
         'is_new': True
     }, context_instance=RequestContext(request))
 
+@cache_page(60 * 15)
 def contacts(request):
     contacts = Contact.objects.all()
     table = {
