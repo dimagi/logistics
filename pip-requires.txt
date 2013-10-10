@@ -21,3 +21,5 @@ gdata
 django-taggit
 #mysql-python
 django-extensions
+django-redis==3.3
+redis==2.8.0
