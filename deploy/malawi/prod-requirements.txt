@@ -22,3 +22,5 @@ python-memcached
 pytz==2010b
 supervisor==3.0a10
 twilio==2.0.10
+django-redis==3.3
+redis==2.8.0
