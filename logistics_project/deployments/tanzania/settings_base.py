@@ -24,7 +24,6 @@ def is_system_admin(user):
 
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
-#    ("logistics_project.apps.tanzania.reportcalcs.new_reports",       "Dashboard"),
 #    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
 #    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
     ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
