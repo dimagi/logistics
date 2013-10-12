@@ -24,16 +24,9 @@ def is_system_admin(user):
 
 RAPIDSMS_TABS = [
     ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
-#    ("logistics_project.apps.tanzania.views.facilities_index",       "Current Stock Status"),
-#    ("logistics_project.apps.tanzania.views.facilities_ordering",       "Ordering Status"),
     ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
     ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
     ("logistics_project.apps.maps.views.dashboard",       "Maps"),
-
-#    ("logistics.views.dashboard",       "Facilities"),
-#    ("logistics_project.apps.malawi.views.help",       "Help"),
-#    ("logistics_project.apps.malawi.views.contacts",       "Management", "is_superuser"),
-#    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "is_superuser"),
     ("registration",                          "Registration", "is_superuser"),
     ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
     ("httptester-index", "Tester", "is_superuser"),
