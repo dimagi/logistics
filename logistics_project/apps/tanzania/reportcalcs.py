@@ -13,7 +13,7 @@ from logistics.decorators import place_in_request
 from logistics.models import Product
 from logistics.views import MonthPager
 
-from logistics_project.apps.tanzania.reports2 import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
+from logistics_project.apps.tanzania.warehouse_reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable,\
     AggregateRandRTable, AggregateStockoutPercentColumn, AggregateSOHTable,\
     AggregateSupervisionTable, AggregateDeliveryTable, DeliveryStatusTable2,\
