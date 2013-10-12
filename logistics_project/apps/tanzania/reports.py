@@ -3,10 +3,10 @@ from logistics.reports import Colors, PieChartData
 from logistics.models import SupplyPoint, ProductReport
 from django.utils.functional import curry
 from logistics_project.apps.tanzania.models import DeliveryGroups, OnTimeStates
-from logistics_project.apps.tanzania.utils import submitted_to_msd, randr_reported_on_time, soh_reported_on_time, facilities_below, historical_response_rate, format_percent, sps_with_status
+from logistics_project.apps.tanzania.utils import (randr_reported_on_time, soh_reported_on_time,
+                                                   historical_response_rate, format_percent, sps_with_status)
 from models import SupplyPointStatusTypes, SupplyPointStatusValues
 from django.utils.translation import ugettext as _
-from rapidsms.contrib.locations.models import Location
 from utils import sps_with_latest_status, avg_past_lead_time
 from calendar import month_name
 
