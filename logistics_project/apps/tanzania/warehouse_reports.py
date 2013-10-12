@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.utils.functional import curry
-from django.db.models.query_utils import Q
 from django.core.exceptions import ObjectDoesNotExist
 
 from rapidsms.contrib.locations.models import Location
@@ -200,13 +199,14 @@ class LocationAggregate(object):
     def url(self):
         pass
 
+
 def national_aggregate(year=None, month=None, report_type=None):
     location = Location.objects.get(type__name="MOHSW")
     return location_aggregates(location, year=year, month=month, report_type=report_type)
+
 
 def location_aggregates(location, year=None, month=None, report_type=None):
     return [LocationAggregate(location=l, month=month,
                               year=year, report_type=report_type) \
             for l in location.get_children() \
             if SupplyPoint.objects.filter(location=l).count() > 0]
-
