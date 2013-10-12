@@ -23,18 +23,17 @@ def is_system_admin(user):
 
 
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.tanzania.views.dashboard_shared",       "Dashboard"),
+    ("logistics_project.apps.tanzania.views.dashboard_shared", "Dashboard"),
     ("logistics_project.apps.tanzania.views.alerts", "Alerts"),
-    ("logistics_project.apps.tanzania.views.reports_shared",       "Reports"),
-    ("logistics_project.apps.maps.views.dashboard",       "Maps"),
-    ("registration",                          "Registration", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.message_log",       "Log", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.reports_shared", "Reports"),
+    ("logistics_project.apps.maps.views.dashboard", "Maps"),
+    ("registration", "Registration", "is_superuser"),
+    ("rapidsms.contrib.messagelog.views.message_log", "Log", "is_superuser"),
     ("httptester-index", "Tester", "is_superuser"),
-    ("logistics_project.apps.tanzania.views.supervision",       "Supervision Tools"),
-    ("logistics_project.apps.tanzania.views.training",       "Training", "is_superuser"),
+    ("logistics_project.apps.tanzania.views.supervision", "Supervision Tools"),
+    ("logistics_project.apps.tanzania.views.training", "Training", "is_superuser"),
     ("logistics_project.apps.tanzania.views.sms_broadcast", "SMS Broadcast", is_system_admin),
-    ("tz_sms_schedule",       "Help"),
-
+    ("tz_sms_schedule", "Help"),
 ]
 
 INSTALLED_BACKENDS = {
