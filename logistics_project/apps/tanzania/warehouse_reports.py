@@ -19,8 +19,8 @@ from django.conf import settings
 
 class SupplyPointStatusBreakdown(object):
 
-    def __init__(self, location=None, year=None, month=None, facilities=[], report_type=None):
-
+    def __init__(self, location=None, year=None, month=None, facilities=None, report_type=None):
+        facilities = facilities or []
         if not (year and month):
             self.month = datetime.utcnow().month
             self.year = datetime.utcnow().year
