@@ -389,25 +389,3 @@ class SupplyPointStatusBreakdown(object):
             ]
         self._soh_chart = PieChartData(_("Supervision Summary") + " (%s %s)" % (month_name[self.report_month], self.report_year), graph_data)
         return self._soh_chart
-
-class LocationAggregate(object):
-    def __init__(self, location=None, month=None, year=None, view=None):
-        self.location = location
-        self.breakdown = SupplyPointStatusBreakdown(facilities=facilities_below(location), month=month, year=year)
-
-    def __unicode__(self):
-        return "%s" % self.name
-
-    @property
-    def name(self):
-        return self.location.name
-
-    def url(self):
-        pass
-
-def national_aggregate(year=None, month=None):
-    location = Location.objects.get(type__name="MOHSW")
-    return location_aggregates(location, year=year, month=month)
-
-def location_aggregates(location, year=None, month=None):
-    return [LocationAggregate(location=x, month=month, year=year) for x in location.get_children()]
