@@ -440,7 +440,6 @@ def _generate_soh_tables2(request, facs, mp, products=None):
     return tables, products, product_set, show
 
 
-#@login_required
 @place_in_request()
 def facilities_index(request):
     facs, location = get_facilities_and_location(request)
@@ -475,7 +474,6 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-#            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year),
             "destination_url": "ordering"
         },
         context_instance=RequestContext(request))
