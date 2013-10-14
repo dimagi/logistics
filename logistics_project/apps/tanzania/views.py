@@ -164,32 +164,6 @@ def export_report(request, slug=None):
     from logistics_project.apps.tanzania.reportcalcs import export_new_report
     return export_new_report(request, slug=slug)
 
-@place_in_request()
-def dashboard(request):
-
-    mp = MonthPager(request)
-
-    base_facilities, location = get_facilities_and_location(request)
-
-    dg = DeliveryGroups(mp.month, facs=base_facilities)
-    sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
-    msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
-    return render_to_response("tanzania/dashboard.html",
-                              {"sub_data": sub_data,
-                               "graph_width": 300,
-                               "graph_height": 300,
-                               "dg": dg,
-                               "month_pager": mp,
-                               "msd_sub_count": msd_sub_count,
-                               "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
-                               "districts": _user_districts(request.user),
-                               "regions": _user_regions(request.user),
-                               "location": location,
-                               "destination_url": "tz_dashboard"
-                               },
-                               
-                              context_instance=RequestContext(request))
-
 
 def get_org(request):
     org = request.GET.get('place')
