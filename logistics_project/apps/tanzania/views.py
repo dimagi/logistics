@@ -1,5 +1,6 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
+from dimagi.utils.dates import DateSpan
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
 from collections import defaultdict
@@ -30,7 +31,7 @@ from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
 from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm,\
-    UploadFacilityFileForm, SupervisionDocumentForm, SMSFacilityForm
+    UploadFacilityFileForm, SupervisionDocumentForm, SMSFacilityForm, QuarterForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes, SupervisionDocument
 from rapidsms.contrib.messagelog.models import Message
 from dimagi.utils.decorators.profile import profile
@@ -52,6 +53,26 @@ from django.utils import simplejson
 
 PRODUCTS_PER_TABLE = 100 #7
 
+
+class QuarterPager(object):
+
+    def __init__(self, request):
+        self.quarter = int(request.GET.get('quarter', datetime.utcnow().month / 3))
+        print self.quarter
+        self.year = int(request.GET.get('year', datetime.utcnow().year))
+        self.begin_date = datetime(year=self.year, month=self.quarter * 3 - 2, day=1)
+        # last second of third month
+        self.end_date = (self.begin_date + timedelta(days=94)).replace(day=1) - timedelta(seconds=1)
+        self.datespan = DateSpan(self.begin_date, self.end_date)
+
+
+class DateRangeSelector(object):
+
+    def __init__(self, request):
+        self.month_pager = MonthPager(request)
+        self.quarter_pager = QuarterPager(request)
+        self.mode = request.GET.get('type', 'month')
+        self.quarter_form = QuarterForm()
 
 def tz_location_url(location):
     try:

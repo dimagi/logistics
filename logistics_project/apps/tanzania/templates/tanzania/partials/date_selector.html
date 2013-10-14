@@ -1,0 +1,56 @@
+<script type="text/javascript">
+    $(function () {
+        var mode = '{{ date_selector.mode }}';
+        var setMode = function (mode) {
+            if (mode === 'month') {
+                $('#month-pager').show();
+                $('#quarter-pager').hide();
+            }
+            else {
+                $('#month-pager').hide();
+                $('#quarter-pager').show();
+            }
+        };
+
+        setMode(mode);
+
+        $("#mode-toggle a").click(function () {
+            setMode($(this).data('mode'));
+        })
+
+    });
+
+</script>
+<style>
+    section#month-pager {
+        display:none;
+    }
+    section#quarter-pager {
+        display:none;
+    }
+
+    section#quarter-pager form {
+        display: block;
+    }
+    section#quarter-pager form:first-child {
+        padding-left: 28em;
+    }
+    section#quarter-pager form p {
+        display: inline-block;
+        padding: 1em 2em 1em 0;
+    }
+</style>
+<section id="mode-toggle">
+    show:
+    <a data-mode="month" href="#select-month">months</a> |
+    <a data-mode="quarter" href="#select-quarter">quarters</a>
+</section>
+<section id="quarter-pager">
+    <form id="quarter-selector">
+        {{ date_selector.quarter_form.as_p }}
+        <input type="submit" value="Submit" />
+    </form>
+</section>
+<section id="month-pager">
+    {% include "logistics/partials/month_pager.html" %}
+</section>

@@ -1,9 +1,9 @@
+from datetime import datetime
 from django import forms
 from logistics_project.apps.tanzania.models import AdHocReport
 from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.config import SupplyPointCodes
-from django.forms.fields import EmailField
-from django.core.validators import EmailValidator, validate_email
+from django.core.validators import validate_email
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.locations.models import Location
 
@@ -74,3 +74,13 @@ class SMSFacilityForm(forms.Form):
         label=_('Message'),
         widget=forms.Textarea,
     )
+
+class QuarterForm(forms.Form):
+
+    quarter = forms.ChoiceField(choices=((i + 1, i + 1) for i in range(4)))
+    year = forms.ChoiceField()
+
+    def __init__(self, *args, **kwargs):
+        super(QuarterForm, self).__init__(*args, **kwargs)
+        current_year = datetime.utcnow().year
+        self.fields['year'] = forms.ChoiceField(choices=((y, y) for y in range(2010, current_year + 1)))

@@ -11,7 +11,6 @@ from rapidsms.contrib.locations.models import Location
 
 from logistics.decorators import place_in_request
 from logistics.models import Product
-from logistics.views import MonthPager
 
 from logistics_project.apps.tanzania.warehouse_reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable,\
@@ -25,7 +24,7 @@ from logistics_project.apps.tanzania.utils import randr_on_time_reporting,\
 from logistics_project.apps.tanzania.reporting.models import ProductAvailabilityData,\
     ProductAvailabilityDashboardChart
 from logistics_project.apps.tanzania.views import convert_product_data_to_sideways_chart,\
-    get_facilities_and_location, _generate_soh_tables
+    get_facilities_and_location, _generate_soh_tables, DateRangeSelector
 
 import xlwt
 import re
@@ -46,7 +45,8 @@ class TanzaniaReport(object):
         # This should always be available even if the data isn't 
         # found
         self.context = self.base_context.copy()
-        self.mp = MonthPager(self.request)
+        self.date_selector = DateRangeSelector(self.request)
+        self.mp = self.date_selector.month_pager
         org = self.request.GET.get('place')
         if not org:
             if self.request.user.get_profile() is not None:
@@ -63,6 +63,7 @@ class TanzaniaReport(object):
         # hack to get around 1.3 brokenness
         report_list = [{"name": r.name, "slug": r.slug} for r in REPORT_LIST] 
         self.context.update({
+            "date_selector": self.date_selector,
             "month_pager": self.mp,
             "location": self.location,
             "level": self.level,
