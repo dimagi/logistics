@@ -2,7 +2,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
-    url(r'^dashboard/$', 'logistics_project.apps.tanzania.views.dashboard_shared', name="tz_dashboard"),
+    url(r'^dashboard/$', 'logistics_project.apps.tanzania.views.dashboard', name="tz_dashboard"),
     url('^facilities/index/$', 'logistics_project.apps.tanzania.views.facilities_index', name="facilities_index"),
     url(r'^facilities/(?P<facility_id>\d+)/message_history/$', 'logistics_project.apps.tanzania.views.facility_messages', name="facility_messages"),
     url('^facility/(?P<facility_id>\d+)/$', 'logistics_project.apps.tanzania.views.facility_details', name="tz_facility_details"),

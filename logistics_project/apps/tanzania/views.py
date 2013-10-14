@@ -148,10 +148,7 @@ def district_supply_points_below(location, sps):
         return sps.filter(location__parent_id=location.id, location__type__name="DISTRICT")
     else:
         return sps.filter(location__type__name="DISTRICT")
-    
-@place_in_request()
-def dashboard_shared(request):
-    return dashboard2(request)
+
 
 @place_in_request()
 @cache_page
@@ -181,7 +178,8 @@ def get_org(request):
 
 
 @place_in_request()
-def dashboard2(request):
+@cache_page
+def dashboard(request):
     mp = MonthPager(request)
 
     org = get_org(request)
@@ -233,7 +231,7 @@ def dashboard2(request):
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
 
-    return render_to_response("tanzania/dashboard2.html",
+    return render_to_response("tanzania/dashboard.html",
                               {"month_pager": mp,
                                "soh_json": soh_json,
                                "rr_json": rr_json,
