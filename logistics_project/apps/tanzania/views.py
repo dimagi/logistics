@@ -148,10 +148,7 @@ def district_supply_points_below(location, sps):
         return sps.filter(location__parent_id=location.id, location__type__name="DISTRICT")
     else:
         return sps.filter(location__type__name="DISTRICT")
-    
-@place_in_request()
-def dashboard_shared(request):
-    return dashboard2(request)
+
 
 @place_in_request()
 @cache_page
@@ -163,32 +160,6 @@ def reports_shared(request, slug=None):
 def export_report(request, slug=None):
     from logistics_project.apps.tanzania.reportcalcs import export_new_report
     return export_new_report(request, slug=slug)
-
-@place_in_request()
-def dashboard(request):
-
-    mp = MonthPager(request)
-
-    base_facilities, location = get_facilities_and_location(request)
-
-    dg = DeliveryGroups(mp.month, facs=base_facilities)
-    sub_data = SupplyPointStatusBreakdown(base_facilities, month=mp.month, year=mp.year)
-    msd_sub_count = submitted_to_msd(district_supply_points_below(location, dg.processing()), mp.month, mp.year)
-    return render_to_response("tanzania/dashboard.html",
-                              {"sub_data": sub_data,
-                               "graph_width": 300,
-                               "graph_height": 300,
-                               "dg": dg,
-                               "month_pager": mp,
-                               "msd_sub_count": msd_sub_count,
-                               "facs": list(base_facilities), # Not named 'facilities' so it won't trigger the selector
-                               "districts": _user_districts(request.user),
-                               "regions": _user_regions(request.user),
-                               "location": location,
-                               "destination_url": "tz_dashboard"
-                               },
-                               
-                              context_instance=RequestContext(request))
 
 
 def get_org(request):
@@ -207,7 +178,8 @@ def get_org(request):
 
 
 @place_in_request()
-def dashboard2(request):
+@cache_page
+def dashboard(request):
     mp = MonthPager(request)
 
     org = get_org(request)
@@ -259,7 +231,7 @@ def dashboard2(request):
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
 
-    return render_to_response("tanzania/dashboard2.html",
+    return render_to_response("tanzania/dashboard.html",
                               {"month_pager": mp,
                                "soh_json": soh_json,
                                "rr_json": rr_json,
@@ -468,7 +440,6 @@ def _generate_soh_tables2(request, facs, mp, products=None):
     return tables, products, product_set, show
 
 
-#@login_required
 @place_in_request()
 def facilities_index(request):
     facs, location = get_facilities_and_location(request)
@@ -503,7 +474,6 @@ def facilities_ordering(request):
             "districts": _user_districts(request.user),
             "regions": _user_regions(request.user),
             "location": location,
-#            "table": OrderingStatusTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year),
             "destination_url": "ordering"
         },
         context_instance=RequestContext(request))
@@ -589,47 +559,6 @@ def change_language_real(request):
                     {"lang": dict(settings.LANGUAGES)[request.POST.get("language")]})
     return i18n_views.set_language(request)
 
-@place_in_request()
-def reporting(request):
-    facs, location = get_facilities_and_location(request)
-    mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
-    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
-    ot = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
-
-    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
-
-    return render_to_response("tanzania/new-reports.html",
-        {
-          "location": location,
-          "month_pager": mp,
-          "districts": _user_districts(request.user),
-          "regions": _user_regions(request.user),
-          "facs": facs,
-          "product_set": product_set,
-          "products": products,
-          "tables": tables,
-          "show": show,
-          "dg": dg,
-          "bd": bd,
-          "on_time": ot,
-          "reporting_percentage": (float(len(bd.submitted)) / float(len(dg.submitting())) * 100) if len(dg.submitting()) else 0.0,
-          "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
-          "supervision_table": SupervisionTable(object_list=dg.submitting().select_related(), request=request,
-                                                month=mp.month, year=mp.year, prefix="supervision"),
-          "randr_status_table": RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year),
-          "delivery_status_table": DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year),
-          "randr_history_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
-                                                    month=mp.month, year=mp.year, prefix="randr_history"),
-          "destination_url": "reports"
-        },
-        context_instance=RequestContext(request))
-
-
-@place_in_request()
-@magic_token_required()
-def reporting_pdf(request):
-    return reporting(request)
 
 @place_in_request()
 def ad_hoc_reports(request):

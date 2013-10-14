@@ -1,10 +1,7 @@
 {% extends base_template %}
 {% load i18n %}
 {% load webdesign %} 
-{% load alerts_tags %}
-{% load cache %}
 {% load nav_tags %}
-{% load logistics_report_tags %}
 
 {% block javascripts %}
     <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
@@ -16,14 +13,8 @@
 
 {% block content %}
 
-{% include "logistics/partials/breadcrumbs.html" %}
-
-<div class="module noprint">
-    <h2>{% trans 'Alerts' %}</h2>
-    {% cache 86400 alerts location language %}
-    {% alerts request %}
-    {% endcache %}
-</div>
+<!-- TODO: this is ugly -->
+{% include "logistics/partials/breadcrumbs.html" %} 
 
 {% include "logistics/partials/month_pager.html" %}
 
@@ -31,45 +22,56 @@
 
     <div class="col-1">
         <div class="module">
-         <h2>{{ sub_data.submission_chart.title }}</h2>
-        {% with sub_data.submission_chart.data as chart_data %}{% with "submission_chart" as chartdiv %}{% with "submission_hover" as hoverdiv %}
-        {% with "No facilities are due to submit R&R's this month" as no_data_text %}
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-        </div>
 
+            {% with rr_json as chart_data %}
+            {% with month_pager.prev_month as last_month %}
+                {% include "tanzania/reports/rr_pie_chart.html" %}
+            {% endwith %}{% endwith %}
+
+        </div>
     </div>
     <div class="col-2">
-        {% include "tanzania/partials/district-summary.html" %}
+        <div class="module">
+            
+            <!-- TODO: {with} what? -->
+            {% include "tanzania/reports/district_summary_dashboard.html" %}
+        
+        </div>
     </div>
     <div class="clear-hack"></div>
 </div>
 <div class="two-columns toppadded">
-{#{% cache 10000 sub_data location month_pager.month month_pager.year %}#}
     <div class="col-1">
         <div class="module">
-         <h2>{{ sub_data.soh_chart.title }}</h2>
-        {% with sub_data.soh_chart.data as chart_data %}{% with "soh_chart" as chartdiv %}{% with "soh_hover" as hoverdiv %}
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}
-        </div>
 
+            {% with soh_json as chart_data %}
+            {% with month_pager.prev_month as last_month %}
+                {% include "tanzania/reports/soh_pie_chart.html" %}
+            {% endwith %}{% endwith %}
+
+        </div>
     </div>
     <div class="col-2">
         <div class="module">
-         <h2>{{ sub_data.delivery_chart.title }}</h2>
-        {% with sub_data.delivery_chart.data as chart_data %}{% with "delivery_chart" as chartdiv %}{% with "delivery_hover" as hoverdiv %}
-        {% with "No facilities are reporting deliveries this month" as no_data_text %}
-        {% include "logistics/partials/pie_reporting_generic.html" %}
-        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+
+            {% with delivery_json as chart_data %}
+            {% with month_pager.prev_month as last_month %}
+                {% include "tanzania/reports/delivery_pie_chart.html" %}
+            {% endwith %}{% endwith %}
+
         </div>
     </div>
     <div class="clear-hack"></div>
-{#{% endcache %}#}
 </div>
 
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
-        {% product_availability_summary_by_facility_sp location month_pager.year month_pager.month %}
+
+    {% with product_json as summary %}
+    {% with chart_info as chart_info %}
+    {% with total as max_value %}
+        {% include "tanzania/reports/product_availability_dashboard.html" %}
+    {% endwith %}{% endwith %}{% endwith %}
+
 </div>
 {% endblock %}
