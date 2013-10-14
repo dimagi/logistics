@@ -149,29 +149,19 @@ def district_supply_points_below(location, sps):
     else:
         return sps.filter(location__type__name="DISTRICT")
     
-def _render_warehouseable(request, normal_view, warehouse_view, *args, **kwargs):
-    use_warehouse = string_to_boolean(request.REQUEST["warehouse"]) \
-        if "warehouse" in request.REQUEST \
-        else settings.LOGISTICS_USE_WAREHOUSE_TABLES 
-    if use_warehouse:
-        return warehouse_view(request, *args, **kwargs)
-    else:
-        return normal_view(request, *args, **kwargs)
-
 @place_in_request()
 def dashboard_shared(request):
-    return _render_warehouseable(request, dashboard, dashboard2)
+    return dashboard2(request)
 
 @place_in_request()
 @cache_page
 def reports_shared(request, slug=None):
-    from logistics_project.apps.tanzania.reportcalcs import new_reports as old_reports
-    from logistics_project.apps.tanzania.reportcalcs2 import new_reports as warehouse_reports
-    return _render_warehouseable(request, old_reports, warehouse_reports, slug=slug)
+    from logistics_project.apps.tanzania.reportcalcs import new_reports as warehouse_reports
+    return warehouse_reports(request, slug=slug)
 
 @place_in_request()
 def export_report(request, slug=None):
-    from logistics_project.apps.tanzania.reportcalcs2 import export_new_report
+    from logistics_project.apps.tanzania.reportcalcs import export_new_report
     return export_new_report(request, slug=slug)
 
 @place_in_request()
