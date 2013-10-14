@@ -589,47 +589,6 @@ def change_language_real(request):
                     {"lang": dict(settings.LANGUAGES)[request.POST.get("language")]})
     return i18n_views.set_language(request)
 
-@place_in_request()
-def reporting(request):
-    facs, location = get_facilities_and_location(request)
-    mp = MonthPager(request)
-    dg = DeliveryGroups(mp.month, facs=facs)
-    bd = SupplyPointStatusBreakdown(facs, mp.year, mp.month)
-    ot = randr_on_time_reporting(dg.submitting(), mp.year, mp.month)
-
-    tables, products, product_set, show = _generate_soh_tables(request, facs, mp)
-
-    return render_to_response("tanzania/new-reports.html",
-        {
-          "location": location,
-          "month_pager": mp,
-          "districts": _user_districts(request.user),
-          "regions": _user_regions(request.user),
-          "facs": facs,
-          "product_set": product_set,
-          "products": products,
-          "tables": tables,
-          "show": show,
-          "dg": dg,
-          "bd": bd,
-          "on_time": ot,
-          "reporting_percentage": (float(len(bd.submitted)) / float(len(dg.submitting())) * 100) if len(dg.submitting()) else 0.0,
-          "on_time_percentage": (float(len(ot)) / float(len(bd.submitted)) * 100) if len(bd.submitted) else 0.0,
-          "supervision_table": SupervisionTable(object_list=dg.submitting().select_related(), request=request,
-                                                month=mp.month, year=mp.year, prefix="supervision"),
-          "randr_status_table": RandRStatusTable(object_list=dg.submitting().select_related(), request=request, month=mp.month, year=mp.year),
-          "delivery_status_table": DeliveryStatusTable(object_list=dg.delivering().select_related(), request=request, month=mp.month, year=mp.year),
-          "randr_history_table": RandRReportingHistoryTable(object_list=dg.submitting().select_related(), request=request,
-                                                    month=mp.month, year=mp.year, prefix="randr_history"),
-          "destination_url": "reports"
-        },
-        context_instance=RequestContext(request))
-
-
-@place_in_request()
-@magic_token_required()
-def reporting_pdf(request):
-    return reporting(request)
 
 @place_in_request()
 def ad_hoc_reports(request):
