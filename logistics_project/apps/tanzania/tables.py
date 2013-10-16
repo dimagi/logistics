@@ -264,16 +264,20 @@ class SupervisionTable(MonthTable):
         per_page = 9999
         order_by = ["Facility Name"]
 
+def historical_stock_display(supply_point, product, year, month, default_value="No data"):
+    if not supply_point.supplies(product):
+        return default_value
+    else:
+        return historical_stock(supply_point, product, year, month, default_value)
 
 class ProductStockColumn(Column):
     def __init__(self, product, month, year):
         self.product = product
         super(ProductStockColumn, self).__init__(name=self.product.sms_code,
-                                            value=lambda cell: historical_stock(cell.object,
+                                            value=lambda cell: historical_stock_display(cell.object,
                                                                                        self.product,
                                                                                        year,
-                                                                                       month,
-                                                                                       "No data"),
+                                                                                       month),
                                             sort_key_fn=lambda sp: historical_stock(sp,
                                                                                        self.product,
                                                                                        year,
