@@ -190,7 +190,7 @@ def _stock_class(cell):
 
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
     mos = float(mos)
-    if mos == NO_DATA:
+    if not cell.object.supplies_product(cell.column.product) or mos == NO_DATA:
         return "insufficient_data prod-%s" % cell.column.product.sms_code
     elif mos == STOCKOUT:
         return "zero_count stock_iconified prod-%s" % cell.column.product.sms_code
