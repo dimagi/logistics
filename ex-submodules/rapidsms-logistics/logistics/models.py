@@ -332,7 +332,10 @@ class SupplyPointBase(models.Model, StockCacheMixin):
             # all active Products in the system
             return Product.objects.filter(is_active=True)
         raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
-    
+
+    def commodities_not_stocked(self):
+        return list(set(Product.objects.filter(is_active=True)) - set(self.commodities_stocked()))
+
     def supplies(self, product):
         return product in self.commodities_stocked()
     
@@ -1462,7 +1465,12 @@ class ProductReportsHelper(object):
             except ProductStock.DoesNotExist:
                 original_quantity = 0
             new_quantity = self.product_stock[stock_code]
+
+            if original_quantity == 0 and new_quantity == 0 and settings.LOGISTICS_IGNORE_EMPTY_STOCKS:
+                continue
+
             self._record_product_report(self.get_product(stock_code), new_quantity, self.report_type)
+
             # in the case of transfers out this logic is broken
             # for now that's ok, since malawi doesn't do anything with this 
             if original_quantity == 0 and new_quantity > 0:

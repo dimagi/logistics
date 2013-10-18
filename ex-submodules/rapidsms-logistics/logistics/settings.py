@@ -36,6 +36,7 @@ LOGISTICS_USE_LOCATION_SESSIONS = False # keep persistent locations across reque
 LOGISTICS_NAVIGATION_MODE = "url" # "url" or "param", depending how your site navigation works
 LOGISTICS_USE_SPOT_CACHING = False # use spot caches in various places we've found performance hits
 LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60 # spot cache timeout, in seconds, defaults to an hour
+LOGISTICS_IGNORE_EMPTY_STOCKS = False # if there is no stock, ignore 0 soh values
 
 # this is the set of allowable values for STOCKED_BY
 STOCKED_BY_USER='user' # sp's are responsible for reporting commodities registered to specific users
