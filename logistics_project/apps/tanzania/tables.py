@@ -190,7 +190,7 @@ def _stock_class(cell):
 
     mos = historical_months_of_stock(cell.object, cell.column.product, cell.row.table.year, cell.row.table.month, -1)
     mos = float(mos)
-    if mos == NO_DATA:
+    if not cell.object.supplies_product(cell.column.product) or mos == NO_DATA:
         return "insufficient_data prod-%s" % cell.column.product.sms_code
     elif mos == STOCKOUT:
         return "zero_count stock_iconified prod-%s" % cell.column.product.sms_code
@@ -266,24 +266,38 @@ class SupervisionTable(MonthTable):
 
 
 class ProductStockColumn(Column):
+    def historical_stock_display(self, supply_point, product, year, month, default_value="No data"):
+        # there are some products marked as not supplied that have data
+        # so shouldn't hide that
+        historical_value = historical_stock(supply_point, product, year, month, default_value)
+        if not supply_point.supplies(product) and historical_value == 0:
+            return default_value
+        else:
+            return historical_value
+
     def __init__(self, product, month, year):
         self.product = product
-        super(ProductStockColumn, self).__init__(name=self.product.sms_code,
-                                            value=lambda cell: historical_stock(cell.object,
-                                                                                       self.product,
-                                                                                       year,
-                                                                                       month,
-                                                                                       "No data"),
-                                            sort_key_fn=lambda sp: historical_stock(sp,
-                                                                                       self.product,
-                                                                                       year,
-                                                                                       month, -1),
-                                            titleized=False,
-                                            safe=True,
-                                            css_class=_stock_class,
-                                            header_class = "prod-%s" % product.sms_code
-
-       )
+        super(ProductStockColumn, self).__init__(
+            name=self.product.sms_code,
+            value=lambda cell: self.historical_stock_display(
+                cell.object,
+                self.product,
+                year,
+                month,
+                "No data"
+            ),
+            sort_key_fn=lambda sp: historical_stock(
+                sp,
+                self.product,
+                year,
+                month,
+                -1
+            ),
+            titleized=False,
+            safe=True,
+            css_class=_stock_class,
+            header_class="prod-%s" % product.sms_code
+        )
 
 
 class ProductMonthsOfStockColumn(Column):

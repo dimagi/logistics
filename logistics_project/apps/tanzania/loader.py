@@ -1,7 +1,7 @@
 import os
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location, Point
-from logistics.models import SupplyPoint, SupplyPointType, SupplyPointGroup
+from logistics.models import SupplyPoint, SupplyPointType, SupplyPointGroup, Product
 
 from logging import info
 from logistics_project.loader.base import load_report_types, load_roles
@@ -50,27 +50,31 @@ def get_facility_export(file_handle):
     Gets an export of all the facilities in the system as a csv.
     """
     writer = csv.writer(file_handle)
-    writer.writerow(['Name', 'Active?', 'MSD Code', 'Parent Name', 
-                     'Parent Type', 'Latitude', 'Longitude', 
-                     'Group', 'Type'])
+    writer.writerow(['Name', 'Active?', 'MSD Code', 'Parent Name',
+                     'Parent Type', 'Latitude', 'Longitude',
+                     'Group', 'Type', 'Unmmanged Commodities'])
     _par_attr = lambda sp, attr: getattr(sp.supplied_by, attr) if sp.supplied_by else ""
     for sp in SupplyPoint.objects.select_related().order_by("code"):
-        writer.writerow([sp.name, 
-                         sp.active, 
-                         sp.code, 
-                         sp.supplied_by.name if sp.supplied_by else '', 
-                         sp.supplied_by.type.name if sp.supplied_by else '',
-                         sp.latitude or "",
-                         sp.longitude or "", 
-                         sp.groups.all()[0].code if sp.groups.count() else '', 
-                         sp.type.name])
-    
+        unmanaged_codes = [p.code for p in sp.unmanaged_commodities()]
+        writer.writerow([
+            sp.name,
+            sp.active,
+            sp.code,
+            sp.supplied_by.name if sp.supplied_by else '',
+            sp.supplied_by.type.name if sp.supplied_by else '',
+            sp.latitude or "",
+            sp.longitude or "",
+            sp.groups.all()[0].code if sp.groups.count() else '',
+            sp.type.name,
+            ' '.join(unmanaged_codes)
+        ])
+
 def load_locations(file):
     count = 0
     messages = []
-    reader = csv.reader(file, delimiter=',', quotechar='"')
+    reader = csv.reader(file, delimiter=',', quotechar='"', dialect=csv.excel_tab)
     for row in reader:
-        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row[:9]
+        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type, unmanaged = row[:10]
 
         name = name.strip()
         if parent_name:
@@ -126,12 +130,17 @@ def load_locations(file):
         sp = supply_point_from_location\
                 (l, SupplyPointType.objects.get(name__iexact=type),
                  SupplyPoint.objects.get(location=parent) if parent else None)
-        
+
+        unmanaged = unmanaged.split()
+        for code in unmanaged:
+            product = Product.objects.get(sms_code=code)
+            sp.deactivate_product(product)
+
         if group:
             group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
             sp.groups = [group_obj]
             sp.save()
-        
+
         count += 1
     messages.append("Processed %d locations"  % count)
     populate_org_tree()
