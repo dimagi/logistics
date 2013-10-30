@@ -220,6 +220,8 @@ class FacilityForm(forms.ModelForm):
 
     def clean_code(self):
         code = slugify(self.cleaned_data['code'])
+        # for some reason, using dashes breaks alerts
+        code = code.replace('-','_')
         if not self.instance or self.instance.code != code:
             if SupplyPoint.objects.filter(code__icontains=code).exists() or \
                SupplyPoint.objects.filter(code__icontains=slugify(code)).exists():
