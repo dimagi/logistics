@@ -55,7 +55,7 @@ def get_facility_export(file_handle):
                      'Group', 'Type', 'Unmmanged Commodities'])
     _par_attr = lambda sp, attr: getattr(sp.supplied_by, attr) if sp.supplied_by else ""
     for sp in SupplyPoint.objects.select_related().order_by("code"):
-        unmanaged_codes = [p.code for p in sp.unmanaged_commodities()]
+        unmanaged_codes = [p.code for p in sp.commodities_not_stocked()]
         writer.writerow([
             sp.name,
             sp.active,
