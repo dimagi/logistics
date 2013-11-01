@@ -53,7 +53,9 @@
     
     {% endblock %}
     <br />
-    <a href="{% block export_url %}{% url export_report "soh" %}{% endblock export_url %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">{% trans "Export report to excel" %}</a>
+    {% if not no_data %}
+        <a href="{% block export_url %}{% url export_report "soh" %}{% endblock export_url %}{% if request.META.QUERY_STRING %}?{{ request.META.QUERY_STRING }}{% endif %}">{% trans "Export report to excel" %}</a>
+    {% endif %}
     </div>
     </div>
 

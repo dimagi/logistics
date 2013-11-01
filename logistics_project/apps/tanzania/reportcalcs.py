@@ -131,42 +131,48 @@ class TanzaniaReport(object):
         return "%s/%s2.html" % (getattr(settings, 'REPORT_FOLDER'), self.slug)        
 
     def as_xls(self):
-        self.reset_context()
-        self.common_report()
-
-        if self.level == 'mohsw':
-            self.national_report()
-        elif self.level == 'region':
-            self.regional_report()
-        elif self.level == 'district':
-            self.district_report()
-        elif self.level == 'facility':
-            raise NotImplementedError
-
-        if self.slug != 'unrecognized':
-            report_table = '%s_table' % self.context['slug']
-        else:
-            report_table = 'table'
-
-        columns = self.context[report_table].columns
-        rows = self.context[report_table].rows
-
-        normal_style = xlwt.easyxf("""
-                                   font:
-                                   name Verdana
-                                   """)
         response = HttpResponse(mimetype='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename=report_export.xls'
 
         wb = xlwt.Workbook()
         ws0 = wb.add_sheet('Worksheet')
 
-        for ix, column in enumerate(columns):
-            ws0.write(0, ix, column.name, normal_style)
+        try:
+            self.reset_context()
+            self.common_report()
 
-        for iy, row in enumerate(rows):
-            for ix, cell in enumerate(row):
-                ws0.write(iy + 1, ix, re.sub('<[^<]+?>', '', str(cell.column.value(cell))), normal_style)
+            if self.level == 'mohsw':
+                self.national_report()
+            elif self.level == 'region':
+                self.regional_report()
+            elif self.level == 'district':
+                self.district_report()
+            elif self.level == 'facility':
+                raise NotImplementedError
+
+            if self.slug != 'unrecognized':
+                report_table = '%s_table' % self.context['slug']
+            else:
+                report_table = 'table'
+
+            columns = self.context[report_table].columns
+            rows = self.context[report_table].rows
+
+            normal_style = xlwt.easyxf("""
+                                       font:
+                                       name Verdana
+                                       """)
+
+            for ix, column in enumerate(columns):
+                ws0.write(0, ix, column.name, normal_style)
+
+            for iy, row in enumerate(rows):
+                for ix, cell in enumerate(row):
+                    ws0.write(iy + 1, ix, re.sub('<[^<]+?>', '', str(cell.column.value(cell))), normal_style)
+        except NoDataError:
+            # if there is no data we will just send an empty spreadsheet back
+            # but this link is hidden anyway
+            pass
 
         wb.save(response)
         return response
@@ -176,7 +182,10 @@ class TanzaniaReport(object):
             self.reset_context()
             self.common_report()
         except NoDataError:
-            return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'), 
+            self.context.update({
+                'no_data': True,
+            })
+            return render_to_response("%s/no_data.html" % getattr(settings, 'REPORT_FOLDER'),
                                       self.context, context_instance=RequestContext(self.request))
         try:
             if self.level == 'mohsw':
