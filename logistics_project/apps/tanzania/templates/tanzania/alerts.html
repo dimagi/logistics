@@ -1,6 +1,7 @@
 {% extends base_template %}
 {% load nav_tags %}
 {% load i18n %}
+{% load cache %}
 
 {% block title %}Alerts {{ block.super }}{% endblock %}
 
@@ -12,7 +13,9 @@
     <div class="module noprint">
         <h2>{% trans 'Alerts' %}</h2>
         {% with alerts as alerts %}
-            {% include "alerts/partials/alerts.html" %}
+            {% cache 86400 alerts location %}
+                {% include "alerts/partials/alerts.html" %}
+            {% endcache %}
         {% endwith %}
     </div>
 {% endblock %}
