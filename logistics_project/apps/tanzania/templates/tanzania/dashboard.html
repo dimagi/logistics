@@ -1,7 +1,8 @@
 {% extends base_template %}
 {% load i18n %}
-{% load webdesign %} 
+{% load webdesign %}
 {% load nav_tags %}
+{% load cache %}
 
 {% block javascripts %}
     <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
@@ -67,11 +68,13 @@
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
 
-    {% with product_json as summary %}
-    {% with chart_info as chart_info %}
-    {% with total as max_value %}
-        {% include "tanzania/reports/product_availability_dashboard.html" %}
-    {% endwith %}{% endwith %}{% endwith %}
+    {% cache 1000 product_availability location %}
+        {% with product_json as summary %}
+        {% with chart_info as chart_info %}
+        {% with total as max_value %}
+            {% include "tanzania/reports/product_availability_dashboard.html" %}
+        {% endwith %}{% endwith %}{% endwith %}
+    {% endcache %}
 
 </div>
 {% endblock %}

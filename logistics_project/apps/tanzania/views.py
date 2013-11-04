@@ -37,7 +37,6 @@ from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
 import os
 from logistics_project.apps.tanzania.reporting.models import *
-from django.views.decorators.cache import cache_page
 from warehouse.models import ReportRun
 from warehouse.runner import update_warehouse
 from warehouse.tasks import update_warehouse_async
@@ -151,7 +150,6 @@ def district_supply_points_below(location, sps):
 
 
 @place_in_request()
-@cache_page
 def reports_shared(request, slug=None):
     from logistics_project.apps.tanzania.reportcalcs import new_reports as warehouse_reports
     return warehouse_reports(request, slug=slug)
@@ -178,7 +176,6 @@ def get_org(request):
 
 
 @place_in_request()
-@cache_page
 def dashboard(request):
     mp = MonthPager(request)
 
