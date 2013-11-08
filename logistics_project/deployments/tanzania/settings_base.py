@@ -105,6 +105,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
+    'django.contrib.messages.context_processors.messages',
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.stock_cutoffs",
