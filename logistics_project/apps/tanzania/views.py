@@ -6,16 +6,13 @@ from collections import defaultdict
 from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable, NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn, RandRStatusTable, DeliveryStatusTable
-from logistics_project.apps.tanzania.utils import chunks, get_user_location, \
-    soh_on_time_reporting, latest_status, randr_on_time_reporting, \
-    submitted_to_msd
+from logistics_project.apps.tanzania.tables import NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn
+from logistics_project.apps.tanzania.utils import chunks, get_user_location, latest_status
 from logistics_project.apps.tanzania.tasks import send_reporting_group_list_sms, send_facility_list_sms, \
     send_region_list_sms, send_district_list_sms
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
-from models import DeliveryGroups, SupplyPointStatusValues
+from models import DeliveryGroups
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -24,21 +21,18 @@ import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
 from django.http import HttpResponseRedirect, HttpResponse
-from dimagi.utils.parsing import string_to_datetime, string_to_boolean
+from dimagi.utils.parsing import string_to_datetime
 from django.views.decorators.http import require_POST
 from django.views import i18n as i18n_views
 from django.utils.translation import ugettext as _
-from logistics_project.decorators import magic_token_required
 from logistics_project.apps.tanzania.forms import AdHocReportForm,\
     UploadFacilityFileForm, SupervisionDocumentForm, SMSFacilityForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes, SupervisionDocument
 from rapidsms.contrib.messagelog.models import Message
-from dimagi.utils.decorators.profile import profile
 from logistics_project.apps.tanzania.models import NoDataError
 import os
 from logistics_project.apps.tanzania.reporting.models import *
 from warehouse.models import ReportRun
-from warehouse.runner import update_warehouse
 from warehouse.tasks import update_warehouse_async
 from django_tablib.base import mimetype_map
 from logistics_project.apps.tanzania.loader import get_facility_export,\
@@ -425,15 +419,6 @@ def _generate_soh_tables2(request, facs, mp, products=None):
     if not products: products = Product.objects.all().order_by('sms_code')
     product_set = products
     tables = [StockOnHandTable(object_list=facs.select_related(), request=request, month=mp.month, year=mp.year, order_by=["D G", "Facility Name"])]
-
-    # for count in enumerate(iter):
-    #     t = tables[count[0]]
-    #     for prod in count[1]:
-    #         if show == "months":
-    #             pc = ProductMonthsOfStockColumn(prod, mp.month, mp.year)
-    #         else:
-    #             pc = ProductStockColumn(prod, mp.month, mp.year)
-    #         t.add_column(pc, "pc_"+prod.sms_code)
     return tables, products, product_set, show
 
 
