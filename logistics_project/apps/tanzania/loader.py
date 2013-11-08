@@ -74,7 +74,8 @@ def load_locations(file):
     messages = []
     reader = csv.reader(file, delimiter=',', quotechar='"', dialect=csv.excel_tab)
     for row in reader:
-        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type, unmanaged = row[:10]
+        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row[:9]
+        unmanaged = row[9] if len(row) > 9 else ''
 
         name = name.strip()
         if parent_name:
