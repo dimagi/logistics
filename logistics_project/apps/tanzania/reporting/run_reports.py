@@ -66,145 +66,155 @@ def populate_report_data(start_date, end_date):
     start_date = max(start_date, default_start_date())
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
     for fac in facilities:
-        # process all the facility-level warehouse tables
-        print "processing facility %s (%s)" % (fac.name, str(fac.id))
+        process_facility_warehouse_data(fac, start_date, end_date)
 
-        
-        for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
-            alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
-            alert.delete()
-
-        new_statuses = SupplyPointStatus.objects.filter(
-            supply_point=fac,
-            status_date__gte=start_date,
-            status_date__lt=end_date
-        ).order_by('status_date')
-        process_facility_statuses(fac, new_statuses)
-
-        new_reports = ProductReport.objects.filter(
-            supply_point=fac,
-            report_date__gte=start_date,
-            report_date__lt=end_date,
-            report_type__code=Reports.SOH
-        ).order_by('report_date')
-        process_facility_product_reports(fac, new_reports)
-        
-        new_trans = StockTransaction.objects.filter(
-            supply_point=fac,
-            date__gte=start_date,
-            date__lt=end_date
-        ).order_by('date')
-        process_facility_transactions(fac, new_trans)
-        
-        # go through all the possible values in the date ranges
-        # and make sure there are warehouse tables there 
-        for year, month in months_between(start_date, end_date):
-            window_date = datetime(year, month, 1)
-            
-            # create org_summary for every fac/date combo
-            org_summary, created = OrganizationSummary.objects.get_or_create\
-                (supply_point=fac, date=window_date)
-            
-            org_summary.total_orgs = 1
-            alt = average_lead_time(fac, window_date)
-            if alt:
-                alt = alt.days
-            org_summary.average_lead_time_in_days = alt or 0
-            create_object(org_summary)
-
-            # create group_summary for every org_summary title combo
-            for title in NEEDED_STATUS_TYPES:
-                group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
-                                                                            title=title)                
-            # update all the non-response data
-            not_responding_facility(org_summary)
-            
-            # update product availability data
-            update_product_availability_facility_data(org_summary)
-
-            # alerts
-            populate_no_primary_alerts(fac, window_date)
-            populate_facility_stockout_alerts(fac, window_date)
-        
     # then populate everything above a facility off a warehouse table
     non_facilities = SupplyPoint.objects.filter(active=True).exclude(type__code='facility').order_by('id')
     for org in non_facilities:
-        
-        facs = list(active_facilities_below(org))
-        print "processing non-facility %s (%s), %s children" % (org.name, str(org.id), len(facs))
-        for year, month in months_between(start_date, end_date):
-            window_date = datetime(year, month, 1)
-            org_summary = OrganizationSummary.objects.get_or_create\
-                (supply_point=org, date=window_date)[0]
-            
-            
-            org_summary.total_orgs = len(facs)
-            sub_summaries = OrganizationSummary.objects.filter\
-                (date=window_date, supply_point__in=facs)
-        
-            subs_with_lead_time = [s for s in sub_summaries if s.average_lead_time_in_days]
-            # lead times
-            org_summary.average_lead_time_in_days = \
-                sum([s.average_lead_time_in_days for s in subs_with_lead_time]) / len(subs_with_lead_time) \
-                if subs_with_lead_time else 0
-            
-            create_object(org_summary)    
-            # product availability
-            prods = Product.objects.all()
-            for p in prods:
-                product_data = ProductAvailabilityData.objects.get_or_create\
-                    (product=p, supply_point=org,
-                     date=window_date)[0]
-                
-                sub_prods = ProductAvailabilityData.objects.filter\
-                    (product=p, supply_point__in=facs,
-                     date=window_date)
-                
-                
-                product_data.total = sum([p.total for p in sub_prods])
-                assert product_data.total == len(facs), \
-                    "total should match number of sub facilities"
-                product_data.with_stock = sum([p.with_stock for p in sub_prods])
-                product_data.without_stock = sum([p.without_stock for p in sub_prods])
-                product_data.without_data = product_data.total - product_data.with_stock \
-                                                - product_data.without_stock
-                create_object(product_data)
-                
-            
-            dg = DeliveryGroups(month=month, facs=SupplyPoint.objects.filter(pk__in=[f.pk for f in facs]))
-            for type in NEEDED_STATUS_TYPES:
-                gsum = GroupSummary.objects.get_or_create\
-                    (org_summary=org_summary, title=type)[0]
-                sub_sums = GroupSummary.objects.filter\
-                    (title=type, org_summary__in=sub_summaries).all()
-                
-                # TODO: see if moving the aggregation to the db makes it 
-                # faster, if this is slow
-                gsum.total = sum([s.total for s in sub_sums])
-                gsum.responded = sum([s.responded for s in sub_sums])
-                gsum.on_time = sum([s.on_time for s in sub_sums])
-                gsum.complete = sum([s.complete for s in sub_sums])
-                # gsum.missed_response = sum([s.missed_response for s in sub_sums])
-                create_object(gsum)
-                
-                if type == SupplyPointStatusTypes.DELIVERY_FACILITY:
-                    expected = dg.delivering().count()
-                elif type == SupplyPointStatusTypes.R_AND_R_FACILITY:
-                    expected = dg.submitting().count()
-                elif type == SupplyPointStatusTypes.SOH_FACILITY or \
-                     type == SupplyPointStatusTypes.SUPERVISION_FACILITY:
-                    expected = len(facs)
-                if gsum.total != expected:
-                    print "expected %s but was %s for %s" % (expected, gsum.total, gsum)
-
-            for alert_type in ['rr_not_submitted', 'delivery_not_received',
-                               'soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
-                sub_alerts = Alert.objects.filter(supply_point__in=facs, date=window_date, type=alert_type)
-                aggregate_response_alerts(org, window_date, sub_alerts, alert_type)
+        process_non_facility_warehouse_data(org, start_date, end_date)
 
     # finally go back through the history and initialize empty data for any
     # newly created facilities
     update_historical_data()
+
+
+def process_facility_warehouse_data(fac, start_date, end_date):
+    """
+    process all the facility-level warehouse tables
+    """
+    print "processing facility %s (%s)" % (fac.name, str(fac.id))
+
+
+    for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
+        alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
+        alert.delete()
+
+    new_statuses = SupplyPointStatus.objects.filter(
+        supply_point=fac,
+        status_date__gte=start_date,
+        status_date__lt=end_date
+    ).order_by('status_date')
+    process_facility_statuses(fac, new_statuses)
+
+    new_reports = ProductReport.objects.filter(
+        supply_point=fac,
+        report_date__gte=start_date,
+        report_date__lt=end_date,
+        report_type__code=Reports.SOH
+    ).order_by('report_date')
+    process_facility_product_reports(fac, new_reports)
+
+    new_trans = StockTransaction.objects.filter(
+        supply_point=fac,
+        date__gte=start_date,
+        date__lt=end_date
+    ).order_by('date')
+    process_facility_transactions(fac, new_trans)
+
+    # go through all the possible values in the date ranges
+    # and make sure there are warehouse tables there
+    for year, month in months_between(start_date, end_date):
+        window_date = datetime(year, month, 1)
+
+        # create org_summary for every fac/date combo
+        org_summary, created = OrganizationSummary.objects.get_or_create\
+            (supply_point=fac, date=window_date)
+
+        org_summary.total_orgs = 1
+        alt = average_lead_time(fac, window_date)
+        if alt:
+            alt = alt.days
+        org_summary.average_lead_time_in_days = alt or 0
+        create_object(org_summary)
+
+        # create group_summary for every org_summary title combo
+        for title in NEEDED_STATUS_TYPES:
+            group_summary, created = GroupSummary.objects.get_or_create(org_summary=org_summary,
+                                                                        title=title)
+        # update all the non-response data
+        not_responding_facility(org_summary)
+
+        # update product availability data
+        update_product_availability_facility_data(org_summary)
+
+        # alerts
+        populate_no_primary_alerts(fac, window_date)
+        populate_facility_stockout_alerts(fac, window_date)
+
+
+def process_non_facility_warehouse_data(org, start_date, end_date):
+    facs = list(active_facilities_below(org))
+    print "processing non-facility %s (%s), %s children" % (org.name, str(org.id), len(facs))
+    for year, month in months_between(start_date, end_date):
+        window_date = datetime(year, month, 1)
+        org_summary = OrganizationSummary.objects.get_or_create\
+            (supply_point=org, date=window_date)[0]
+
+
+        org_summary.total_orgs = len(facs)
+        sub_summaries = OrganizationSummary.objects.filter\
+            (date=window_date, supply_point__in=facs)
+
+        subs_with_lead_time = [s for s in sub_summaries if s.average_lead_time_in_days]
+        # lead times
+        org_summary.average_lead_time_in_days = \
+            sum([s.average_lead_time_in_days for s in subs_with_lead_time]) / len(subs_with_lead_time) \
+            if subs_with_lead_time else 0
+
+        create_object(org_summary)
+        # product availability
+        prods = Product.objects.all()
+        for p in prods:
+            product_data = ProductAvailabilityData.objects.get_or_create\
+                (product=p, supply_point=org,
+                 date=window_date)[0]
+
+            sub_prods = ProductAvailabilityData.objects.filter\
+                (product=p, supply_point__in=facs,
+                 date=window_date)
+
+
+            product_data.total = sum([p.total for p in sub_prods])
+            assert product_data.total == len(facs), \
+                "total should match number of sub facilities"
+            product_data.with_stock = sum([p.with_stock for p in sub_prods])
+            product_data.without_stock = sum([p.without_stock for p in sub_prods])
+            product_data.without_data = product_data.total - product_data.with_stock \
+                                            - product_data.without_stock
+            create_object(product_data)
+
+
+        dg = DeliveryGroups(month=month, facs=SupplyPoint.objects.filter(pk__in=[f.pk for f in facs]))
+        for type in NEEDED_STATUS_TYPES:
+            gsum = GroupSummary.objects.get_or_create\
+                (org_summary=org_summary, title=type)[0]
+            sub_sums = GroupSummary.objects.filter\
+                (title=type, org_summary__in=sub_summaries).all()
+
+            # TODO: see if moving the aggregation to the db makes it
+            # faster, if this is slow
+            gsum.total = sum([s.total for s in sub_sums])
+            gsum.responded = sum([s.responded for s in sub_sums])
+            gsum.on_time = sum([s.on_time for s in sub_sums])
+            gsum.complete = sum([s.complete for s in sub_sums])
+            # gsum.missed_response = sum([s.missed_response for s in sub_sums])
+            create_object(gsum)
+
+            if type == SupplyPointStatusTypes.DELIVERY_FACILITY:
+                expected = dg.delivering().count()
+            elif type == SupplyPointStatusTypes.R_AND_R_FACILITY:
+                expected = dg.submitting().count()
+            elif type == SupplyPointStatusTypes.SOH_FACILITY or \
+                 type == SupplyPointStatusTypes.SUPERVISION_FACILITY:
+                expected = len(facs)
+            if gsum.total != expected:
+                print "expected %s but was %s for %s" % (expected, gsum.total, gsum)
+
+        for alert_type in ['rr_not_submitted', 'delivery_not_received',
+                           'soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
+            sub_alerts = Alert.objects.filter(supply_point__in=facs, date=window_date, type=alert_type)
+            aggregate_response_alerts(org, window_date, sub_alerts, alert_type)
+
 
 def not_responding_facility(org_summary):
     assert org_summary.supply_point.type.code == "facility"
