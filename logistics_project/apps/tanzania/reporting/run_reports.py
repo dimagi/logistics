@@ -54,15 +54,21 @@ def clear_out_reports(start_date, end_date):
         group_summary.delete()
         product_availability.delete()
         alerts.delete()
-    
+
+
+def default_start_date():
+    return datetime(2010, 11, 1)
+
+
 def populate_report_data(start_date, end_date):
     # first populate all the warehouse tables for all facilities
     # hard coded to know this is the first date with data
-    start_date = max(start_date, datetime(2010, 11, 1))
+    start_date = max(start_date, default_start_date())
     facilities = SupplyPoint.objects.filter(active=True, type__code='facility').order_by('id')
     for fac in facilities:
         # process all the facility-level warehouse tables
         print "processing facility %s (%s)" % (fac.name, str(fac.id))
+
         
         for alert_type in ['soh_not_responding', 'rr_not_responded', 'delivery_not_responding']:
             alert = Alert.objects.filter(supply_point=fac, date__gte=start_date, date__lt=end_date, type=alert_type)
