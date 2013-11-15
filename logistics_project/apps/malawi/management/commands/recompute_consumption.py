@@ -15,7 +15,13 @@ class Command(LabelCommand):
     help = "recompute the CalculatedConsumption models for all data in the system."
     option_list = LabelCommand.option_list + (
         make_option('--aggregate', action='store_true', dest='aggregate_only', default=False,
-                    help='Cleanup the tables before starting the warehouse'),)
+                    help='Cleanup the tables before starting the warehouse'),
+        make_option('--hsa',
+                    action='store',
+                    dest='hsa',
+                    default=None,
+                    help="Only run this for a single HSA"),
+    )
 
     def handle(self, *args, **options):
         aggregate_only = options['aggregate_only']
@@ -44,7 +50,7 @@ class Command(LabelCommand):
             new_run = ReportRun.objects.create(start=start_date, end=end_date,
                                                start_run=datetime.utcnow())
         try:
-            recompute(new_run, aggregate_only)
+            recompute(new_run, aggregate_only, hsa_code=options['hsa'])
         finally:
             # complete run
             new_run.end_run = datetime.utcnow()
@@ -52,9 +58,10 @@ class Command(LabelCommand):
             new_run.save()
             print "End time: %s" % datetime.now()
 
-def recompute(run_record, aggregate_only):
+def recompute(run_record, aggregate_only, hsa_code=None):
     if not aggregate_only:
-        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        hsas = SupplyPoint.objects.filter(code=hsa_code) if hsa_code else \
+            SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
         count = hsas.count()
         for i, hsa in enumerate(hsas):
             print "processing hsa %s (%s) (%s of %s)" % (
@@ -69,8 +76,12 @@ def recompute(run_record, aggregate_only):
     update_consumption_times(run_record.start_run)
 
     # aggregates
-    non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
-    count = non_hsas.count()
+    if not hsa_code:
+        non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
+        count = non_hsas.count()
+    else:
+        non_hsas, count = get_affected_parents(hsa_code)
+
     all_products = Product.objects.all()
     for i, place in enumerate(non_hsas):
         print "processing non-hsa %s (%s) (%s/%s)" % (
@@ -93,3 +104,12 @@ def clear_calculated_consumption(supply_point):
                   'time_needing_data', 'time_stocked_out']:
             setattr(cc, f, 0)
         cc.save()
+
+def get_affected_parents(hsa_code):
+    hsa = SupplyPoint.objects.get(code=hsa_code, type__code='hsa')
+    parent = hsa.supplied_by
+    parents = []
+    while parent:
+        parents.append(parent)
+        parent = parent.supplied_by
+    return parents, len(parents)

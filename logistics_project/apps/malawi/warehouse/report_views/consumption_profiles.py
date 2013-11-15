@@ -15,7 +15,6 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
     is_facility
 
 def consumption_row(sp, p, datespan):
-            
     relevant = CalculatedConsumption.objects.filter(supply_point=sp, product=p,
                                                     date__gte=datespan.startdate,
                                                     date__lte=datespan.enddate)
@@ -33,7 +32,6 @@ def consumption_row(sp, p, datespan):
     tot_time_with_data = vals['time_with_data__sum'] or 0
     tot_time_needing_data = vals['time_needing_data__sum'] or 0
 
-    num_hsas = 0
     avg_so_time = 0
     if relevant.count() > 0:
         if relevant[0].total:
