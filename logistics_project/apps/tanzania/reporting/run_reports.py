@@ -142,7 +142,7 @@ def process_facility_warehouse_data(fac, start_date, end_date):
         populate_facility_stockout_alerts(fac, window_date)
 
 
-def process_non_facility_warehouse_data(org, start_date, end_date):
+def process_non_facility_warehouse_data(org, start_date, end_date, strict=True):
     facs = list(active_facilities_below(org))
     print "processing non-facility %s (%s), %s children" % (org.name, str(org.id), len(facs))
     for year, month in months_between(start_date, end_date):
@@ -175,8 +175,9 @@ def process_non_facility_warehouse_data(org, start_date, end_date):
 
 
             product_data.total = sum([p.total for p in sub_prods])
-            assert product_data.total == len(facs), \
-                "total should match number of sub facilities"
+            if strict:
+                assert product_data.total == len(facs), \
+                    "total should match number of sub facilities"
             product_data.with_stock = sum([p.with_stock for p in sub_prods])
             product_data.without_stock = sum([p.without_stock for p in sub_prods])
             product_data.without_data = product_data.total - product_data.with_stock \
