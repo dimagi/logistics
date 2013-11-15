@@ -1,0 +1,34 @@
+{% extends base_template %}
+{% block content %}
+<h2>Global stats</h2>
+<table>
+    <tr>
+        <th>Facilities</th>
+        <td>{{ facilities }}</td>
+    </tr>
+    <tr>
+        <th>CHWs</th>
+        <td>{{ hsas }}</td>
+    </tr>
+    <tr>
+        <th>Contacts</th>
+        <td>{{ contacts }}</td>
+    </tr>
+    <tr>
+        <th>Product stocks</th>
+        <td>{{ product_stocks }}</td>
+    </tr>
+    <tr>
+        <th>Stock transactions</th>
+        <td>{{ stock_transactions }}</td>
+    </tr>
+    <tr>
+        <th>Inbound messages</th>
+        <td>{{ inbound_messages }}</td>
+    </tr>
+    <tr>
+        <th>Outbound messages</th>
+        <td>{{ outbound_messages }}</td>
+    </tr>
+</table>
+{% endblock %}

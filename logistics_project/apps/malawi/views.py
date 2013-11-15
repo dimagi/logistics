@@ -29,7 +29,7 @@ from rapidsms.models import Backend, Connection
 from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, Product, LogisticsProfile,\
-    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
+    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole, ProductStock
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
 from logistics.view_decorators import filter_context
@@ -761,6 +761,7 @@ def sms_tracking(request):
                               {"organizations": orgs},
                               context_instance=RequestContext(request))
 
+
 @datespan_default
 def telco_tracking(request):
     results = []
@@ -784,4 +785,19 @@ def telco_tracking(request):
 
     return render_to_response("malawi/new/management/telco-tracking.html",
                               {"results": results},
+                              context_instance=RequestContext(request))
+
+
+def global_stats(request):
+    active_sps = SupplyPoint.objects.filter(active=True)
+    context = {
+        'facilities': active_sps.filter(type__code=config.SupplyPointCodes.FACILITY).count(),
+        'hsas': active_sps.filter(type__code=config.SupplyPointCodes.HSA).count(),
+        'contacts': Contact.objects.filter(is_active=True).count(),
+        'product_stocks': ProductStock.objects.filter(is_active=True).count(),
+        'stock_transactions': StockTransaction.objects.count(),
+        'inbound_messages': Message.objects.filter(direction='I').count(),
+        'outbound_messages': Message.objects.filter(direction='O').count(),
+    }
+    return render_to_response('malawi/global_stats.html', context,
                               context_instance=RequestContext(request))
