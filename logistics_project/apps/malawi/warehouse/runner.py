@@ -345,91 +345,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
         non_hsa_count = non_hsas.count()
         all_products = Product.objects.all()
         if not self.skip_aggregates: 
-            
             for i, place in enumerate(non_hsas):
                 print "processing non-hsa %s (%s) (%s/%s)" % (place.name, str(place.id),
                                                               i, non_hsa_count)
-                relevant_hsas = hsa_supply_points_below(place.location)
-                
-                if not self.skip_current_consumption:
-                    for p in all_products:
-                        _aggregate_raw(CurrentConsumption, place, relevant_hsas,
-                                       fields=["total", "current_daily_consumption", "stock_on_hand"], 
-                                       additonal_query_params={"product": p})
-                        
-                for year, month in months_between(start, end):
-                    window_date = datetime(year, month, 1)
-                    if not self.skip_reporting_rates:
-                        _aggregate(ReportingRate, window_date, place, relevant_hsas, 
-                                   fields=['total', 'reported', 'on_time', 'complete'])
-                    if not self.skip_product_availability:
-                        for p in all_products:
-                            _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
-                                       fields=['total', 'managed'] + \
-                                            ProductAvailabilityData.STOCK_CATEGORIES + \
-                                            ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
-                                       additonal_query_params={"product": p})
-                        _aggregate(ProductAvailabilityDataSummary, window_date, place, 
-                                   relevant_hsas, fields=['total', 'any_managed'] + \
-                                   ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
-                    if not self.skip_lead_times:
-                        for code, name in TIME_TRACKER_TYPES:
-                            _aggregate(TimeTracker, window_date, place, relevant_hsas,
-                                       fields=['total', 'time_in_seconds'],
-                                       additonal_query_params={"type": code})
-                    if not self.skip_order_requests:
-                        for p in all_products:
-                            _aggregate(OrderRequest, window_date, place, relevant_hsas,
-                                       fields=['total', 'emergency'],
-                                       additonal_query_params={"product": p})
-                    if not self.skip_order_fulfillment:
-                        for p in all_products:
-                            _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
-                                       fields=['total', 'quantity_requested', 'quantity_received'],
-                                       additonal_query_params={"product": p})
-                    
-                    if not self.skip_consumption and self.consumption_test_mode:
-                        for p in all_products:
-                            # NOTE: this is not correct, but is for testing / iteration
-                            _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
-                                       fields=['calculated_consumption', 
-                                               'time_stocked_out',
-                                               'time_with_data',
-                                               'time_needing_data'],
-                                       additonal_query_params={"product": p})
-                    
-                    if not self.skip_historical_stock:
-                        for p in all_products:
-                            _aggregate(HistoricalStock, window_date, place, relevant_hsas,
-                                       fields=["total", "stock"],
-                                       additonal_query_params={"product": p})
-                        
-                
-                if not self.skip_consumption and not self.consumption_test_mode:
-                    for p in all_products:
-                        # We have to use a special date range filter here, 
-                        # since the warehouse can update historical values
-                        # outside the range we are looking at
-                        agg = CalculatedConsumption.objects.filter(
-                            update_date__gte=run_record.start_run,
-                            supply_point__in=hsas
-                        ).aggregate(Min('date'))
-                        new_start = agg.get('date__min', None)
-                        if new_start:
-                            assert new_start <= end
-                            for year, month in months_between(new_start, end):
-                                window_date = datetime(year, month, 1)
-                                _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
-                                   fields=['calculated_consumption', 
-                                           'time_stocked_out',
-                                           'time_with_data',
-                                           'time_needing_data'],
-                                   additonal_query_params={"product": p})
-                        
-                            
-                        
-                        
-        
+                self.update_non_hsa_data(place, run_record, all_products=all_products)
+
         # run user profile summary
         if not self.skip_profile_data: 
             update_user_profile_data()
@@ -439,6 +359,88 @@ class MalawiWarehouseRunner(WarehouseRunner):
             update_alerts()
 
         update_historical_data()
+
+    def update_non_hsa_data(self, place, run_record, all_products=None):
+        start = run_record.start
+        end = run_record.end
+
+        all_products = all_products or Product.objects.all()
+        relevant_hsas = hsa_supply_points_below(place.location)
+
+        if not self.skip_current_consumption:
+            for p in all_products:
+                _aggregate_raw(CurrentConsumption, place, relevant_hsas,
+                               fields=["total", "current_daily_consumption", "stock_on_hand"],
+                               additonal_query_params={"product": p})
+
+        for year, month in months_between(start, end):
+            window_date = datetime(year, month, 1)
+            if not self.skip_reporting_rates:
+                _aggregate(ReportingRate, window_date, place, relevant_hsas,
+                           fields=['total', 'reported', 'on_time', 'complete'])
+            if not self.skip_product_availability:
+                for p in all_products:
+                    _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
+                               fields=['total', 'managed'] + \
+                                    ProductAvailabilityData.STOCK_CATEGORIES + \
+                                    ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
+                               additonal_query_params={"product": p})
+                _aggregate(ProductAvailabilityDataSummary, window_date, place,
+                           relevant_hsas, fields=['total', 'any_managed'] + \
+                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
+            if not self.skip_lead_times:
+                for code, name in TIME_TRACKER_TYPES:
+                    _aggregate(TimeTracker, window_date, place, relevant_hsas,
+                               fields=['total', 'time_in_seconds'],
+                               additonal_query_params={"type": code})
+            if not self.skip_order_requests:
+                for p in all_products:
+                    _aggregate(OrderRequest, window_date, place, relevant_hsas,
+                               fields=['total', 'emergency'],
+                               additonal_query_params={"product": p})
+            if not self.skip_order_fulfillment:
+                for p in all_products:
+                    _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
+                               fields=['total', 'quantity_requested', 'quantity_received'],
+                               additonal_query_params={"product": p})
+
+            if not self.skip_consumption and self.consumption_test_mode:
+                for p in all_products:
+                    # NOTE: this is not correct, but is for testing / iteration
+                    _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
+                               fields=['calculated_consumption',
+                                       'time_stocked_out',
+                                       'time_with_data',
+                                       'time_needing_data'],
+                               additonal_query_params={"product": p})
+
+            if not self.skip_historical_stock:
+                for p in all_products:
+                    _aggregate(HistoricalStock, window_date, place, relevant_hsas,
+                               fields=["total", "stock"],
+                               additonal_query_params={"product": p})
+
+        if not self.skip_consumption and not self.consumption_test_mode:
+            for p in all_products:
+                # We have to use a special date range filter here,
+                # since the warehouse can update historical values
+                # outside the range we are looking at
+                agg = CalculatedConsumption.objects.filter(
+                    update_date__gte=run_record.start_run,
+                    supply_point__in=relevant_hsas,
+                ).aggregate(Min('date'))
+                new_start = agg.get('date__min', None)
+                if new_start:
+                    assert new_start <= end
+                    for year, month in months_between(new_start, end):
+                        window_date = datetime(year, month, 1)
+                        _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
+                           fields=['calculated_consumption',
+                                   'time_stocked_out',
+                                   'time_with_data',
+                                   'time_needing_data'],
+                           additonal_query_params={"product": p},
+                        )
 
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
