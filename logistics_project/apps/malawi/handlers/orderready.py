@@ -31,4 +31,3 @@ class OrderReadyHandler(OrderResponseBaseHandler):
         for req in pending_reqs:
             if self.msg.logistics_contact.supply_point.stock(req.product) == 0:
                 self.msg.logistics_contact.supply_point.update_stock(req.product, 1)
-        

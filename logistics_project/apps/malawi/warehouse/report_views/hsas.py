@@ -122,16 +122,22 @@ class View(warehouse_view.DistrictOnlyView):
             "id": "order-response-time",
             "is_datatable": True,
             "is_downloadable": True,
-            "header": ["Product", "Is Emergency", "Balance", "Amt Requested", "Amt Received", "Requested On",
-                "Responded On", "Received On", "Status"],
+            "header": [
+                'pk',
+                "Product", "Is Emergency", "Balance", "Amt Requested", "Amt Received", "Requested On",
+                "Responded On", "Received On", "Status",
+            ],
             "data": [],
         }
 
         stock_requests = StockRequest.objects.filter(supply_point=hsa).order_by('-requested_on')
         for sr in stock_requests:
-            request_table["data"].append([sr.product.name, _yes_or_no(sr.is_emergency), sr.balance, sr.amount_requested,\
-                sr.amount_received, _date_fmt(sr.requested_on), _date_fmt(sr.responded_on),\
-                _date_fmt(sr.received_on), sr.status])
+            request_table["data"].append([
+                sr.pk,
+                sr.product.name, _yes_or_no(sr.is_emergency), sr.balance, sr.amount_requested,
+                sr.amount_received, _date_fmt(sr.requested_on), _date_fmt(sr.responded_on),
+                _date_fmt(sr.received_on), sr.status
+            ])
 
         request_table["height"] = min(480, (stock_requests.count()+1)*30)
 

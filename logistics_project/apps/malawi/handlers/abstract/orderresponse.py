@@ -20,7 +20,7 @@ class OrderResponseBaseHandler(RecordResponseHandler):
         Calls handle custom if things go well, otherwise responds directly and 
         doesn't call the subclass method.
         """
-    
+
         words = text.split(" ")
         hsa_id = words[0]
         self.hsa = get_hsa(hsa_id)
@@ -28,4 +28,3 @@ class OrderResponseBaseHandler(RecordResponseHandler):
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:
             self.handle_custom(text)
-            
