@@ -1,11 +1,10 @@
 import json
-from datetime import datetime
 from logistics.decorators import place_in_request
 from logistics.models import SupplyPoint, Product
-from collections import defaultdict
 from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
+from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, GroupSummary, ProductAvailabilityData, ProductAvailabilityDashboardChart, Alert
 from logistics_project.apps.tanzania.tables import NotesTable, StockOnHandTable, ProductStockColumn, ProductMonthsOfStockColumn
 from logistics_project.apps.tanzania.utils import chunks, get_user_location, latest_status
 from logistics_project.apps.tanzania.tasks import send_reporting_group_list_sms, send_facility_list_sms, \
@@ -31,7 +30,6 @@ from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote,
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.tanzania.models import NoDataError
 import os
-from logistics_project.apps.tanzania.reporting.models import *
 from warehouse.models import ReportRun
 from warehouse.tasks import update_warehouse_async
 from django_tablib.base import mimetype_map

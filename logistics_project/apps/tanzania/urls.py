@@ -24,4 +24,5 @@ urlpatterns = patterns('',
     url(r'^sms_broadcast/$', 'logistics_project.apps.tanzania.views.sms_broadcast', name='sms_broadcast'),
     url(r'^facilities_by_district/$', 'logistics_project.apps.tanzania.views.facilities_by_district', name='facilities_by_district'),
     url(r'^alerts/$', 'logistics_project.apps.tanzania.views.alerts', name='tz_alerts'),
+    url(r'^global_stats/$', 'logistics.views.global_stats', name='tz_global_stats'),
 )
