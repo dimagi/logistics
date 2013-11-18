@@ -108,7 +108,7 @@ urlpatterns = patterns('',
         "logistics_project.apps.malawi.views.export_amc_csv",
         name="export_amc_csv"),
     url(r'^global_stats/$',
-        "logistics_project.apps.malawi.views.global_stats",
+        "logistics.views.global_stats",
         name="global_stats"),
 
 ) + reportpatterns
