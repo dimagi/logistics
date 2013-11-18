@@ -37,7 +37,7 @@ from logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from rapidsms.contrib.messagelog.models import Message
-from rapidsms.models import Backend
+from rapidsms.models import Backend, Contact
 from .tables import FacilityTable, CommodityTable, MessageTable
 
 
@@ -509,3 +509,20 @@ class MonthPager(object):
         self.next_month = self.end_date + timedelta(days=1)
         self.show_next = True if self.end_date < datetime.utcnow().replace(day=1) else False
         self.datespan = DateSpan(self.begin_date, self.end_date)
+
+
+def global_stats(request):
+    active_sps = SupplyPoint.objects.filter(active=True)
+    hsa_type = getattr(config.SupplyPointCodes, 'HSA', 'nomatch')
+    facility_type = getattr(config.SupplyPointCodes,'FACILITY', 'nomatch')
+    context = {
+        'facilities': active_sps.filter(type__code=facility_type).count(),
+        'hsas': active_sps.filter(type__code=hsa_type).count(),
+        'contacts': Contact.objects.filter(is_active=True).count(),
+        'product_stocks': ProductStock.objects.filter(is_active=True).count(),
+        'stock_transactions': StockTransaction.objects.count(),
+        'inbound_messages': Message.objects.filter(direction='I').count(),
+        'outbound_messages': Message.objects.filter(direction='O').count(),
+    }
+    return render_to_response('logistics/global_stats.html', context,
+                              context_instance=RequestContext(request))
