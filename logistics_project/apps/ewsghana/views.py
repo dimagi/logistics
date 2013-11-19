@@ -31,7 +31,8 @@ from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
 from email_reports.decorators import magic_token_required
 from logistics.decorators import place_in_request
-from logistics.models import Product, SupplyPoint, LogisticsProfile
+from logistics.models import Product, SupplyPoint, LogisticsProfile, \
+    ProductStock, StockTransaction
 from logistics.reports import ReportingBreakdown, TotalStockByLocation
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context
@@ -473,3 +474,16 @@ def stock_at_medical_stores(request, context=None):
     })
     return render_to_response("logistics/summary.html", context, context_instance=RequestContext(request))
 
+def global_stats(request):
+    active_sps = SupplyPoint.objects.filter(active=True)
+    context = {
+        'facilities': active_sps.count(),
+        'hsas': 0,
+        'contacts': Contact.objects.filter(is_active=True).count(),
+        'product_stocks': ProductStock.objects.filter(is_active=True).count(),
+        'stock_transactions': StockTransaction.objects.count(),
+        'inbound_messages': Message.objects.filter(direction='I').count(),
+        'outbound_messages': Message.objects.filter(direction='O').count(),
+    }
+    return render_to_response('ewsghana/global_stats.html', context,
+                              context_instance=RequestContext(request))
