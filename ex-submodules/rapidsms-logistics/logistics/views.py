@@ -516,6 +516,7 @@ def global_stats(request):
     hsa_type = getattr(config.SupplyPointCodes, 'HSA', 'nomatch')
     facility_type = getattr(config.SupplyPointCodes,'FACILITY', 'nomatch')
     context = {
+        'supply_points': active_sps.count(),
         'facilities': active_sps.filter(type__code=facility_type).count(),
         'hsas': active_sps.filter(type__code=hsa_type).count(),
         'contacts': Contact.objects.filter(is_active=True).count(),
