@@ -542,6 +542,14 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         """
         return SupplyPoint.objects.filter(supplied_by=self, active=True).order_by('name')
 
+    def get_parents(self):
+        parent = self.supplied_by
+        parents = set()
+        while parent and parent not in parents:
+            yield parent
+            parents.add(parent)
+            parent = parent.supplied_by
+
     def report_to_supervisor(self, report, kwargs, exclude=None):
         reportees = self.reportees()
         if exclude:
