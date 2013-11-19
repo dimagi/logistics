@@ -1169,8 +1169,10 @@ class ProductReport(models.Model):
         I guess 1+3 could go on a stocktransaction signal. 
         Something to consider if we start saving stocktransactions anywhere else.
         """
-        if not created:             return
-        # 1. Update the facility report date information 
+        if not created:
+            return
+
+        # 1. Update the facility report date information
         self.supply_point.last_reported = datetime.utcnow()
         self.supply_point.save()
         # 2. update the stock information at the given facility """
@@ -1221,14 +1223,11 @@ class StockTransaction(models.Model):
         st = cls(product_report=pr, supply_point=pr.supply_point, 
                  product=pr.product, date=pr.report_date)
 
-    
         st.beginning_balance = beginning_balance
-        if pr.report_type.code == Reports.SOH or \
-           pr.report_type.code == Reports.EMERGENCY_SOH:
+        if pr.report_type.code in (Reports.SOH, Reports.EMERGENCY_SOH):
             st.ending_balance = pr.quantity
             st.quantity = st.ending_balance - st.beginning_balance
-        elif pr.report_type.code == Reports.REC or \
-             pr.report_type.code == Reports.LOSS_ADJUST:
+        elif pr.report_type.code in (Reports.REC, Reports.LOSS_ADJUST):
             st.ending_balance = st.beginning_balance + pr.quantity
             st.quantity = pr.quantity
         elif pr.report_type.code == Reports.GIVE:
