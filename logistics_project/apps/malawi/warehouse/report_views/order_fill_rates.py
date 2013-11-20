@@ -35,10 +35,13 @@ class View(warehouse_view.DistrictOnlyView):
                     (supply_point=sp, product=p, date=dt)
                 data[p][dt] = of.average_fill_rate
             
-        raw_graphdata = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
-                       'label': p.sms_code, 'lines': {"show": True}, 
-                       "bars": {"show": False}} \
-                       for p in products]
+        raw_graphdata = [
+            {
+                'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
+                'label': p.sms_code, 'lines': {"show": True},
+                "bars": {"show": False}
+            } for p in products
+        ]
         
         graphdata = {
             "div": "order-fillrate-chart",
@@ -66,7 +69,7 @@ class View(warehouse_view.DistrictOnlyView):
             stats = OrderFulfillment.objects.filter\
                 (supply_point=f, product=p, date__in=dates).aggregate\
                     (*[Sum(f) for f in ["quantity_requested", "quantity_received"]])
-            return fmt_pct(stats["quantity_received__sum"] or 0, 
+            return fmt_pct(stats["quantity_received__sum"] or 0,
                            stats["quantity_requested__sum"] or 0)  
         
         facility_table = None        
