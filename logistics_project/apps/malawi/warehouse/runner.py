@@ -18,7 +18,7 @@ from warehouse.models import ReportRun
 
 from static.malawi.config import TimeTrackerTypes
 
-from logistics_project.apps.malawi.util import group_for_location, hsas_below,\
+from logistics_project.apps.malawi.util import group_for_location, \
     hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
     get_hsa_supervisors, get_in_charge
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
@@ -175,9 +175,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     # unfortunately, we have to walk all avaialable
                     # transactions in the period every month
                     # in order to do this correctly.
-                    this_months_reports = ProductReport.objects.filter\
-                        (supply_point=hsa, report_type__code=Reports.SOH,
-                         report_date__gte=window_date, report_date__lte=period_end)
+                    this_months_reports = ProductReport.objects.filter(
+                        supply_point=hsa, report_type__code=Reports.SOH,
+                        report_date__gte=window_date, report_date__lte=period_end
+                    )
 
                     found = set(this_months_reports.values_list("product", flat=True).distinct())
                     period_rr.complete = 0 if found and (products_managed - found) else \
@@ -202,16 +203,17 @@ class MalawiWarehouseRunner(WarehouseRunner):
                         # initally assume we have no data on anything
                         product_data.without_data = 1
 
-                    transactions = StockTransaction.objects.filter\
-                        (supply_point=hsa, product=p,
-                         date__gte=period_start,
-                         date__lt=period_end).order_by('-date')
+                    transactions = StockTransaction.objects.filter(
+                        supply_point=hsa, product=p,
+                        date__gte=period_start,
+                        date__lt=period_end).order_by('-date')
                     product_data.total = 1
                     product_data.managed = 1 if hsa.supplies(p) else 0
                     if transactions:
                         trans = transactions[0]
-                        product_stock = ProductStock.objects.get\
-                            (product=trans.product, supply_point=hsa)
+                        product_stock = ProductStock.objects.get(
+                            product=trans.product, supply_point=hsa
+                        )
 
                         product_data.without_data = 0
                         if trans.ending_balance <= 0:
@@ -252,11 +254,12 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
                 if hsa.commodities_stocked():
                     product_summary.any_managed = 1
-                    agg_results = ProductAvailabilityData.objects.filter\
-                        (supply_point=hsa, date=window_date,
-                         managed=1).aggregate\
-                         (*[Max("managed_and_%s" % c) for c in \
-                            ProductAvailabilityData.STOCK_CATEGORIES])
+                    agg_results = ProductAvailabilityData.objects.filter(
+                        supply_point=hsa, date=window_date,
+                        managed=1
+                    ).aggregate(
+                        *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
+                    )
                     for c in ProductAvailabilityData.STOCK_CATEGORIES:
                         setattr(product_summary, "any_%s" % c,
                                 agg_results["managed_and_%s__max" % c])
@@ -317,7 +320,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     ord_req.save()
 
             def _update_order_fulfillment():
-                requests_in_range = StockRequest.objects.filter(\
+                requests_in_range = StockRequest.objects.filter(
                     received_on__gte=period_start,
                     received_on__lt=period_end,
                     supply_point=hsa,
@@ -401,9 +404,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                additonal_query_params={"product": p})
             if not self.skip_order_fulfillment:
                 for p in all_products:
+
                     _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
-                               fields=['total', 'quantity_requested', 'quantity_received'],
-                               additonal_query_params={"product": p})
+                           fields=['total', 'quantity_requested', 'quantity_received'],
+                           additonal_query_params={"product": p})
 
             if not self.skip_consumption and self.consumption_test_mode:
                 for p in all_products:

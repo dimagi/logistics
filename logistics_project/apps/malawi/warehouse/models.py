@@ -155,8 +155,8 @@ class OrderFulfillment(MalawiWarehouseModel):
     total = models.PositiveIntegerField(default=0)
     quantity_requested = models.PositiveIntegerField(default=0)
     quantity_received = models.PositiveIntegerField(default=0)
-    
-    @property 
+
+    @property
     def average_fill_rate(self):
         return pct(self.quantity_received, self.quantity_requested) \
             if self.quantity_requested else None
