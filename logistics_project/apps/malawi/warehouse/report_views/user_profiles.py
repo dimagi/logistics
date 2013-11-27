@@ -45,7 +45,7 @@ class View(warehouse_view.DistrictOnlyView):
                             
         district_data = []
         for sp in get_district_supply_points():
-            up = UserProfileData.objects.get(supply_point=sp)
+            up = UserProfileData.objects.get_or_create(supply_point=sp)[0]
             district_data.append({ "url": _get_url(up.supply_point), "data":
                                   [sp.name, sp.code, up.facility_children, up.hsa_children] + \
                                   _names_and_numbers(get_imci_coordinators(sp))})
