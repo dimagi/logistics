@@ -37,7 +37,8 @@ class TanzaniaReport(object):
     """
     slug = "foo"
     name = "bar"
-    def __init__(self, request, base_context={}):
+    def __init__(self, request, base_context=None):
+        base_context = base_context or {}
         self.request = request
         self.base_context = base_context
 
