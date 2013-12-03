@@ -67,8 +67,7 @@
 
 <div class="module toppadded">
     <h2>{% trans "Product Availability Summary" %}</h2>
-
-    {% cache 1000 product_availability location %}
+    {% cache 1000 product_availability location month_pager.next_month %}
         {% with product_json as summary %}
         {% with chart_info as chart_info %}
         {% with total as max_value %}
