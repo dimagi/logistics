@@ -3,7 +3,7 @@
 import os
 LOGISTICS_CONFIG = 'logistics_project.apps.tanzania.config'
 
-PRIORITY_APPS = [ "auditcare","logistics_project.apps.migration" ]
+PRIORITY_APPS = ["auditcare", "logistics_project.apps.migration"]
     
                  
 APPS = [
