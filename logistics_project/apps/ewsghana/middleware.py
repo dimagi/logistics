@@ -43,16 +43,14 @@ class RequireLoginMiddleware(object):
         self.require_login_path = getattr(settings, 'REQUIRE_LOGIN_PATH', '/accounts/login/')
     
     def process_request(self, request):
-        if request.path != self.require_login_path and \
-          settings.MEDIA_URL not in request.path and \
-          settings.STATIC_URL not in request.path and \
-          request.user.is_anonymous():
+        if (request.path != self.require_login_path and
+                settings.MEDIA_URL not in request.path and
+                settings.STATIC_URL not in request.path and
+                request.user.is_anonymous()):
             for url in settings.NO_LOGIN_REQUIRED_FOR:
                 if url in request.path:
                     return
-            if request.POST:
-                # hm. is this ok?
-                # return login(request)
+            if request.method == 'POST':
                 return HttpResponseRedirect(self.require_login_path)
             else:
                 return HttpResponseRedirect('%s?next=%s' % (self.require_login_path, request.path))
