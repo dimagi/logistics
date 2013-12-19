@@ -1,5 +1,6 @@
 import csv
 from optparse import make_option
+import re
 from logistics.models import SupplyPoint
 from django.core.management.base import LabelCommand
 from logistics_project.apps.tanzania.reporting.run_reports import default_start_date, process_non_facility_warehouse_data
@@ -24,8 +25,7 @@ class Command(LabelCommand):
 
         def _clean(string):
             # remove excess spaces from a string
-            while "  " in string:
-                string = string.replace('  ', ' ')
+            string = re.sub('\s+', ' ', string)
             return string.strip()
 
         with open(data_file, 'r') as f:
@@ -57,6 +57,7 @@ class Command(LabelCommand):
                     parents.update((fac.supplied_by, new_parent))
                     if not dryrun:
                         fac.save()
+                        fac.location.save()
 
         if not dryrun:
             for parent in parents:
