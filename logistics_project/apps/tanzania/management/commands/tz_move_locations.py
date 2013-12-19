@@ -1,55 +1,64 @@
+import csv
+from optparse import make_option
 from logistics.models import SupplyPoint
 from django.core.management.base import LabelCommand
-import sys
 from logistics_project.apps.tanzania.reporting.run_reports import default_start_date, process_non_facility_warehouse_data
 from warehouse.models import ReportRun
 
 
 class Command(LabelCommand):
-    help = "For a given list of locations, move them from one parent to another."
+    help = "For a given list of locations, move them from one parent to another, if necessary."
+    option_list = LabelCommand.option_list + (
+        make_option('--dryrun', action='store_true', dest='dryrun', help='Dry run', default=False),
+        make_option('--strict', action='store_true', dest='strict', help='Strict', default=False),
+
+    )
 
     def handle(self, *args, **options):
-        strict = True
-        facs_to_move = (
-            ("D30082", "KILOSA", "GAIRO"),
-            ("D30079", "KILOSA", "GAIRO"),
-            ("D33574", "KILOSA", "GAIRO"),
-            ("D30911", "KILOSA", "GAIRO"),
-            ("D30075", "KILOSA", "GAIRO"),
-            ("D30083", "KILOSA", "GAIRO"),
-            ("D30098", "KILOSA", "GAIRO"),
-            ("D30103", "KILOSA", "GAIRO"),
-            ("D30914", "KILOSA", "GAIRO"),
-            ("D30071", "KILOSA", "GAIRO"),
-            ("D30111", "KILOSA", "GAIRO"),
-            ("D35264", "KILOSA", "GAIRO"),
-            ("D30913", "KILOSA", "GAIRO"),
-            ("D30093", "KILOSA", "GAIRO"),
-            ("D30084", "KILOSA", "GAIRO"),
-        )
+        strict = options['strict']
+        dryrun = options['dryrun']
         parents = set()
         warehouse_start_date = default_start_date()
         warehouse_end_date = ReportRun.last_success().end
-        for code, current_parent_name, new_parent_name in facs_to_move:
-            fac = SupplyPoint.objects.get(code=code)
-            parent = fac.supplied_by
-            expected_parent = SupplyPoint.objects.get(name__iexact=current_parent_name)
-            new_parent = SupplyPoint.objects.get(
-                type__code=parent.type.code,
-                name__iexact=new_parent_name,
-            )
-            if strict:
-                assert parent == expected_parent
+        data_file = args[0]
 
-            assert fac.location.parent == parent.location
-            assert fac.type.code == 'facility'
-            assert parent.type.code != 'facility'
-            assert new_parent.type.code != 'facility'
-            fac.supplied_by = new_parent
-            fac.location.parent = new_parent.location
-            fac.save()
-            parents.update((parent, new_parent))
+        def _clean(string):
+            # remove excess spaces from a string
+            while "  " in string:
+                string = string.replace('  ', ' ')
+            return string.strip()
 
-        for parent in parents:
-            # for all affected parents, rerun the aggregate warehouse update
-            process_non_facility_warehouse_data(parent, warehouse_start_date, warehouse_end_date, strict=False)
+        with open(data_file, 'r') as f:
+            reader = csv.reader(f)
+            first = True
+            for row in reader:
+                if first:
+                    first = False
+                    continue
+
+                name, active, code, parent, new_parent_name = row[:5]
+                new_parent_name = new_parent_name.replace(' - ', '-').replace(' ', '-')
+                fac = SupplyPoint.objects.get(code=code)
+                new_parent = SupplyPoint.objects.get(code__iexact=new_parent_name)
+                if strict:
+                    assert fac.supplied_by.name == parent
+
+                assert _clean(fac.name) == name, 'expected %s but was %s' % (fac.name, name)
+                assert fac.location.parent == fac.supplied_by.location
+                assert fac.type.code == 'facility'
+                assert new_parent.type.code != 'facility'
+                if fac.supplied_by == new_parent:
+                    print 'already set %s' % fac
+                else:
+                    print '%s, %s --> %s' % (fac, fac.supplied_by, new_parent)
+                    fac.supplied_by = new_parent
+                    fac.location.parent = new_parent.location
+                    fac.name = name
+                    parents.update((fac.supplied_by, new_parent))
+                    if not dryrun:
+                        fac.save()
+
+        if not dryrun:
+            for parent in parents:
+                # for all affected parents, rerun the aggregate warehouse update
+                process_non_facility_warehouse_data(parent, warehouse_start_date, warehouse_end_date, strict=False)
