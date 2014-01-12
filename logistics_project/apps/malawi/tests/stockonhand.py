@@ -30,7 +30,6 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testBasicSupplyFlow(self):
         hsa, ic, sh = self._setup_users()[0:3]
         report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
-        
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
@@ -50,7 +49,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
                     {"hsa": "wendy"},
                "hsa_notice": config.Messages.APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
-        
+
 
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.count())
@@ -60,12 +59,12 @@ class TestStockOnHandMalawi(MalawiTestBase):
             self.assertTrue(req.is_pending())
             self.assertEqual(Contact.objects.get(name="sally"), req.responded_by)
             self.assertEqual(req.amount_requested, req.amount_approved)
-            self.assertTrue(req.responded_on > req.requested_on)
-                    
+            self.assertTrue(req.responded_on >= req.requested_on)
+
         # stocks shouldn't get updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 10)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 15)
-        
+
         c = """
            16175551000 > rec zi 190 la 345
            16175551000 < Thank you, you reported receipts for zi la.
@@ -79,7 +78,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             self.assertEqual(Contact.objects.get(name="wendy"), req.received_by)
             self.assertEqual(req.amount_received, req.amount_requested)
             self.assertTrue(req.received_on >= req.responded_on >= req.requested_on)
-        
+
         # stocks should now be updated
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 200)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 360)
@@ -166,7 +165,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testNothingToFill(self):
         self._setup_users()
         a = """
-            16175551000 > soh zi 2000 la 5000
+            16175551000 > soh zi 600 la 1000
             16175551000 < %(response)s
             16175551001 < %(super)s
         """ % {"response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % \
@@ -192,9 +191,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
-        
+
         report_stock(self, hsa, "zi 10 la 15", [ic], "zi 190, la 345")
-        
+
         a = """
            16175551001 > os 261601
            16175551000 < %(hsa_notice)s
@@ -206,8 +205,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
                "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"},
                "district": config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
-                    
-                    
+
+
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -219,8 +218,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
-        
-    
+
+
     def testEmergencyStockOnHand(self):
         self._setup_users()
         a = """
@@ -228,7 +227,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
-                    
+
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -245,11 +244,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 300)
-    
+
     def testEmergencyStockOut(self):
         self.testEmergencyStockOnHand()
         # the difference here is that only emergency products are
-        # reported/escalated 
+        # reported/escalated
         a = """
            16175551001 > os 261601
            16175551001 < %(confirm)s
@@ -262,7 +261,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
                "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi"}}
         self.runScript(a)
-        
+
     def testEmergencyOrderNoProductsInEmergency(self):
         self._setup_users()
         a = """
@@ -270,9 +269,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
-                    
+
         self.runScript(a)
-        
+
     def testEmergencyOrderNoProductsNotInEmergency(self):
         self._setup_users()
         a = """
@@ -280,7 +279,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
-                    
+
         self.runScript(a)
 
     def testEmergencyHFStockOut(self):
@@ -326,10 +325,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
 
     def _setup_users(self):
-        hsa = create_hsa(self, "16175551000", "wendy", products="la lb zi")
+        hsa = create_hsa(self, "16175551000", "wendy", products="co la lb zi")
         ic = create_manager(self, "16175551001", "sally")
         sh = create_manager(self, "16175551004", "robert", config.Roles.HSA_SUPERVISOR)
         im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
         dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
-        return (hsa, ic, sh, im, dp) 
-        
+        return (hsa, ic, sh, im, dp)
