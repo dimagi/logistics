@@ -116,4 +116,3 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                         supply_point=contact.supply_point.supplied_by.name)
     
         
-    

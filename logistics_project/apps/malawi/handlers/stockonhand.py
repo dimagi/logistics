@@ -1,5 +1,3 @@
-from rapidsms.models import Contact
-from logistics.models import ContactRole
 from logistics.const import Reports
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
@@ -20,4 +18,3 @@ class StockOnHandReportHandler(StockReportBaseHandler):
       
     def send_responses(self, stock_report):
         send_soh_responses(self.msg, self.msg.logistics_contact, stock_report, self.requests)
-        
