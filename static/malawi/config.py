@@ -149,8 +149,8 @@ class Messages(object):
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s."
-    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up."
-    
+    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. If you have already collected your products please send a receipt."
+
     # "OS" keyword
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
