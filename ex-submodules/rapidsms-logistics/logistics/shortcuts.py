@@ -1,15 +1,16 @@
 from logistics.models import ProductReportsHelper, SupplyPoint
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None, 
-                        timestamp=None):
+                        timestamp=None, additional_validation=lambda report: True):
     """
     Gets a stock report helper object parses it, and saves it.
     """
     stock_report = ProductReportsHelper(supply_point, 
                                         report_type,  
-                                        logger_msg, 
+                                        logger_msg,
                                         timestamp)
     stock_report.newparse(text)
+    additional_validation(stock_report)
     stock_report.save()
     return stock_report
 
