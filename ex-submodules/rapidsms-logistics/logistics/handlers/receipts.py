@@ -2,14 +2,17 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.utils.translation import ugettext as _
+from logistics.exceptions import TooMuchStockError
+from logistics.validators import check_max_levels
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
-from logistics.models import ProductReportsHelper, \
-    StockRequest, StockTransfer
+from logistics.models import ProductReportsHelper, StockRequest, StockTransfer
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.const import Reports
 from logistics.util import config
 from logistics.handlers import logistics_keyword
+from rapidsms.conf import settings
+
 
 class ReceiptHandler(KeywordHandler,TaggingHandler):
     """
@@ -35,12 +38,24 @@ class ReceiptHandler(KeywordHandler,TaggingHandler):
             supplier = None
         
         # parse the report and save as normal receipt
-        stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
+        stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point,
                                             Reports.REC, self.msg.logger_msg)
         stock_report.parse(text)
+        # check max stock levels
+        if settings.LOGISTICS_MAX_REPORT_LEVEL_FACTOR:
+            try:
+                check_max_levels(stock_report)
+            except TooMuchStockError, e:
+                self.respond(config.Messages.TOO_MUCH_STOCK % {
+                    'req': e.amount,
+                    'prod': e.product,
+                    'max': e.max,
+                })
+                return True
+
         stock_report.save()
-        
-        # Close pending requests. This logic only applies if you are using the 
+
+        # Close pending requests. This logic only applies if you are using the
         # StockRequest workflow, but should not break anything if you are not
         StockRequest.close_pending_from_receipt_report(stock_report, self.msg.logistics_contact)
         

@@ -38,6 +38,11 @@ LOGISTICS_USE_SPOT_CACHING = False # use spot caches in various places we've fou
 LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60 # spot cache timeout, in seconds, defaults to an hour
 LOGISTICS_IGNORE_EMPTY_STOCKS = False # if there is no stock, ignore 0 soh values
 
+# set to a non-zero integer to enable max stock thresholds for sms reporting
+# the number is the factor of the maximum level that represents the max allowed
+# report amount
+LOGISTICS_MAX_REPORT_LEVEL_FACTOR = None
+
 # this is the set of allowable values for STOCKED_BY
 STOCKED_BY_USER='user' # sp's are responsible for reporting commodities registered to specific users
 STOCKED_BY_FACILITY='facility' # sp's are respnsible for reporting commodities registered to specific facilities
