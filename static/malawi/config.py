@@ -236,6 +236,7 @@ class Messages(object):
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
+    TOO_MUCH_STOCK = '%(req)s is too much %(prod)s. The max amount you can report is %(max)s.'
     
     # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'

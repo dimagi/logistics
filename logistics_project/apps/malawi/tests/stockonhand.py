@@ -324,6 +324,23 @@ class TestStockOnHandMalawi(MalawiTestBase):
                      "hsa_id": "261601"}}
         self.runScript(a)
 
+    def testMaxSupplyLevel(self):
+        create_hsa(self, "16175551234", "stella", products="zi")
+        for keyword in ['soh', 'eo', 'rec']:
+            a = """
+               16175551234 > %(keyword)s zi 100000000 la 15
+               16175551234 < %(too_much)s
+            """ % {
+                'keyword': keyword,
+                "too_much": config.Messages.TOO_MUCH_STOCK % {
+                    'req': '100000000',
+                    'prod': 'Zinc 20mg',
+                    'max': '600'
+                }
+            }
+            self.runScript(a)
+            self.assertEqual(0, StockRequest.objects.count())
+
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy", products="co la lb zi")
         ic = create_manager(self, "16175551001", "sally")
