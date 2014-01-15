@@ -91,7 +91,7 @@ class ReportRegistrationHandler(KeywordHandler):
                                            self.hsa.supply_point,
                                            self.report_data, 
                                            self.msg.logger_msg)
-        requests = StockRequest.close_pending_from_receipt_report(stock_report, self.hsa)
+        StockRequest.close_pending_from_receipt_report(stock_report, self.hsa)
         if stock_report.errors:
             # TODO: respond better.
             self.respond(config.Messages.GENERIC_ERROR)
