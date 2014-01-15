@@ -1004,7 +1004,7 @@ class StockRequest(models.Model):
         return self.respond(StockRequestStatus.STOCKED_OUT, by, on)
     
     def respond(self, status, by, on, amt=None):
-        assert(self.is_pending()) # we should only approve pending requests
+        assert(self.is_pending())  # we should only approve pending requests
         # and only respond with valid response statuses
         assert(status in StockRequestStatus.CHOICES_RESPONSE) 
         self.responded_by = by
@@ -1016,7 +1016,7 @@ class StockRequest(models.Model):
         self.save()
         
     def receive(self, by, amt, on):
-        assert(self.is_pending()) # we should only receive pending requests
+        assert(self.is_pending())  # we should only receive pending requests
         self.received_by = by
         self.amount_received = amt
         self.received_on = on
@@ -1027,10 +1027,10 @@ class StockRequest(models.Model):
         """
         Cancel a supply request, in lieu of a newer one
         """
-        assert(self.is_pending()) # we should only cancel pending requests
+        assert(self.is_pending())  # we should only cancel pending requests
         self.status = StockRequestStatus.CANCELED
         self.canceled_for = canceled_for
-        self.amount_received = 0 # if you cancel it, you didn't get it
+        self.amount_received = 0  # if you cancel it, you didn't get it
         self.save()
     
     def sms_format(self):
@@ -1042,7 +1042,7 @@ class StockRequest(models.Model):
         elif self.status == StockRequestStatus.RECEIVED:
             return "%s %s" % (self.product.sms_code, self.amount_received)
         elif self.status in [StockRequestStatus.PARTIALLY_STOCKED, StockRequestStatus.STOCKED_OUT]:
-            return self.product.sms_code # no valid amount information
+            return self.product.sms_code  # no valid amount information
         raise Exception("bad call to sms format, unexpected status: %s" % self.status)
     
     @classmethod
