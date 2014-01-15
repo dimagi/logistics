@@ -1076,7 +1076,7 @@ class StockRequest(models.Model):
                                                   is_emergency=is_emergency,
                                                   balance=stock)
                 requests.append(req)
-                pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
+                pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point,
                                                                           product=product).exclude(pk=req.pk)
                 
                 # close/delete existing pending stock requests. 
@@ -1084,7 +1084,15 @@ class StockRequest(models.Model):
                 assert(pending_requests.count() <= 1) # we should never have more than one pending request
                 for pending in pending_requests:
                     pending.cancel(req)
-                
+
+        # when not using back orders, every soh report should close out all other pending requests
+        if not settings.LOGISTICS_USE_BACKORDERS:
+            created_ids = [req.pk for req in requests]
+            pending_requests = StockRequest.pending_requests().filter(
+                supply_point=stock_report.supply_point).exclude(pk__in=created_ids)
+            for pending in pending_requests:
+                pending.cancel(None)
+
         return requests
     
     @classmethod
