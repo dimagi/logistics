@@ -94,6 +94,43 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 390)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 705)
 
+    def testBackOrdersCanceledByReceipt(self):
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, StockRequest.objects.count())
+        c = """
+           16175551000 > rec zi 190
+           16175551000 < Thank you, you reported receipts for zi.
+        """
+        self.runScript(c)
+        self.assertEqual(2, StockRequest.objects.count())
+
+        filled = StockRequest.objects.get(product__sms_code='zi')
+        canceled = StockRequest.objects.get(product__sms_code='la')
+
+        # filled order should be marked as such
+        self.assertEqual(StockRequestStatus.RECEIVED, filled.status)
+        self.assertFalse(filled.is_pending())
+
+        # canceled order should also be marked as such
+        self.assertEqual(StockRequestStatus.CANCELED, canceled.status)
+        self.assertFalse(canceled.is_pending())
+
+    def testBackOrdersCanceledBySoH(self):
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, StockRequest.objects.count())
+
+        report_stock(self, hsa, "zi 20", [ic,sh], "zi 180")
+        self.assertEqual(3, StockRequest.objects.count())
+
+        pending_zi = StockRequest.objects.get(product__sms_code='zi', status=StockRequestStatus.REQUESTED)
+        canceled_zi = StockRequest.objects.get(product__sms_code='zi', status=StockRequestStatus.CANCELED)
+        canceled_la = StockRequest.objects.get(product__sms_code='la')
+
+        self.assertEqual(pending_zi, canceled_zi.canceled_for)
+        self.assertEqual(None, canceled_la.canceled_for)
+
 
     def testReceiptNoRequest(self):
         hsa = self._setup_users()[0]
@@ -110,13 +147,15 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
 
     def testAppendStockOnHand(self):
+        # with the removal of back orders this test is sort of redundant with testBackOrdersCanceledBySoH
+        # though is a bit more expansive
         hsa, ic, sh = self._setup_users()[0:3]
         report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
         self.assertEqual(2, StockRequest.objects.count())
-        report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "la 345, lb 172, zi 195")
+        report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "lb 172, zi 195")
         self.assertEqual(4, StockRequest.objects.count())
-        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
-        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
         b = """
            16175551001 > ready 261601
            16175551001 < %(confirm)s
@@ -126,8 +165,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
                "hsa_notice": config.Messages.APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
         self.runScript(b)
-        self.assertEqual(3, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
-        self.assertEqual(1, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
+        self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
 
 
     def testSOHBeforeReceipt(self):
@@ -168,10 +207,10 @@ class TestStockOnHandMalawi(MalawiTestBase):
             16175551000 > soh zi 600 la 1000
             16175551000 < %(response)s
             16175551001 < %(super)s
-        """ % {"response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % \
-               {"contact": "wendy", "products": "zi la"},
-               "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % \
-               {"hsa": "wendy"}}
+        """ % {
+            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "zi la"},
+            "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"hsa": "wendy"}
+        }
         self.runScript(a)
         self.assertEqual(0, StockRequest.objects.count())
 
