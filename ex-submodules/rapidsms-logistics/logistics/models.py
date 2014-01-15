@@ -1093,21 +1093,32 @@ class StockRequest(models.Model):
         From a stock report helper object, close any pending stock requests.
         """
         requests = []
-        pending_reqs = StockRequest.pending_requests().filter\
-            (supply_point=stock_report.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys()).order_by('-received_on')
+        pending_reqs = StockRequest.pending_requests().filter(
+            supply_point=stock_report.supply_point,
+            product__sms_code__in=stock_report.product_stock.keys()
+        ).order_by('-received_on')
         now = datetime.utcnow()
         ps = set(stock_report.product_stock.keys())
         for req in pending_reqs:
             if req.product.sms_code in ps:
-                req.receive(contact, 
-                        stock_report.product_stock[req.product.sms_code],
-                        now)
+                req.receive(
+                    contact,
+                    stock_report.product_stock[req.product.sms_code],
+                    now
+                )
                 ps.remove(req.product.sms_code)
             else:
                 req.receive(contact, 0, now)
             requests.append(req)
-        return requests
+
+        # if not using backorders also close out orders for non-matching products
+        if not settings.LOGISTICS_USE_BACKORDERS:
+            requests_to_cancel = StockRequest.pending_requests().filter(
+                supply_point=stock_report.supply_point
+            ).order_by('-received_on')
+            for req in requests_to_cancel:
+                req.cancel(None)
+
     
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""
