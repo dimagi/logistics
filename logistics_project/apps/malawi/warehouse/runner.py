@@ -125,7 +125,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         # run alerts
         if not self.skip_alerts:
-            update_alerts()
+            update_alerts(hsas, non_hsas)
 
         update_historical_data()
 
@@ -584,44 +584,49 @@ def update_user_profile_data():
         new_obj.save()
     return True
 
-def update_alerts():
+def update_alerts(hsas, non_hsas):
     print "updating alerts"
 
-    for sp in SupplyPoint.objects.all():
-        new_obj = Alert.objects.get_or_create(supply_point=sp)[0]
+    def _qs_to_int(queryset):
+        return 1 if queryset.count() else 0
 
-        hsas = hsa_supply_points_below(sp.location)
-        new_obj.num_hsas = hsas.count()
+    for hsa in hsas:
+        base_requests = StockRequest.objects.filter(supply_point=hsa)
+        pending_requests = StockRequest.pending_requests().filter(supply_point=hsa)
+        emergency_requests = base_requests.filter(is_emergency=True)
+        with_resupply = emergency_requests.filter(amount_received__gt=0,
+                                                  balance__lt=F('product__emergency_order_level'))
+        reporting_receipts = base_requests.exclude(received_on=None, responded_on=None,
+                                                   response_status='stocked_out')
 
-        new_obj.without_products_managed = 0
-        new_obj.total_requests = 0
-        new_obj.have_stockouts = 0
-        new_obj.eo_total = 0
-        new_obj.eo_with_resupply = 0
-        new_obj.eo_without_resupply = 0
-        new_obj.reporting_receipts = 0
-        new_obj.order_readys = 0
-        for hsa in hsas:
-            new_obj.without_products_managed += 1 if hsa.commodities_stocked().count() == 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa)
-            new_obj.total_requests += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa, balance=0)
-            new_obj.have_stockouts += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True)
-            new_obj.eo_total += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa, is_emergency=True,\
-                    amount_received__gt=0, balance__lt=F('product__emergency_order_level'))
-            new_obj.eo_with_resupply += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.pending_requests().filter(supply_point=hsa, is_emergency=True)
-            new_obj.eo_without_resupply += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa)\
-                .exclude(received_on=None, responded_on=None, response_status='stocked_out')
-            new_obj.reporting_receipts += 1 if sreq.count() > 0 else 0
-            sreq = StockRequest.objects.filter(supply_point=hsa)\
-                .exclude(responded_on=None, response_status='stocked_out')
-            new_obj.order_readys += 1 if sreq.count() > 0 else 0
-        
+        new_obj = Alert.objects.get_or_create(supply_point=hsa)[0]
+        new_obj.num_hsas = 1
+        new_obj.without_products_managed = 1 if hsa.commodities_stocked().count() == 0 else 0
+        new_obj.total_requests = _qs_to_int(base_requests)
+        new_obj.have_stockouts = _qs_to_int(base_requests.filter(balance=0))
+        new_obj.eo_total = _qs_to_int(emergency_requests)
+        new_obj.eo_with_resupply = _qs_to_int(with_resupply)
+        new_obj.eo_without_resupply = _qs_to_int(pending_requests.filter(is_emergency=True))
+        new_obj.reporting_receipts = _qs_to_int(reporting_receipts)
+        new_obj.order_readys = _qs_to_int(base_requests.exclude(responded_on=None, response_status='stocked_out'))
         new_obj.save()
+
+    for non_hsa in non_hsas:
+        relevant_hsas = hsa_supply_points_below(non_hsa.location)
+        _aggregate_raw(
+            Alert, non_hsa, relevant_hsas,
+            fields=[
+                "num_hsas",
+                "without_products_managed",
+                "total_requests",
+                "have_stockouts",
+                "eo_total",
+                "eo_with_resupply",
+                "eo_without_resupply",
+                "reporting_receipts",
+                "order_readys",
+            ],
+        )
     return True
 
 def _init_warehouse_model(cls, supply_point, date):
