@@ -58,6 +58,12 @@ class View(warehouse_view.DashboardView):
                 fmt_pct(alerts.eo_without_resupply, alerts.eo_total)])
             alert_table["data"].append(["Resupplied but remain below EO",\
                 fmt_pct(alerts.eo_with_resupply, alerts.eo_total)])
+            alert_table["data"].append(["With any pending orders",\
+                fmt_pct(alerts.products_requested, alerts.total_requests)])
+            alert_table["data"].append(["With any pending approved orders",\
+                fmt_pct(alerts.products_approved, alerts.total_requests)])
+
+
 
         except ObjectDoesNotExist:
             pass

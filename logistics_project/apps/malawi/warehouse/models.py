@@ -281,6 +281,8 @@ class Alert(models.Model):
     reporting_receipts = models.PositiveIntegerField(default=0)
     order_readys = models.PositiveIntegerField(default=0)
     without_products_managed = models.PositiveIntegerField(default=0)
+    products_requested = models.PositiveIntegerField(default=0)
+    products_approved = models.PositiveIntegerField(default=0)
 
     class Meta:
         app_label = "malawi"
@@ -294,4 +296,3 @@ class HistoricalStock(MalawiWarehouseModel):
     product = models.ForeignKey('logistics.Product')
     stock = models.BigIntegerField(default=0)
     total = models.PositiveIntegerField(default=0)
-    

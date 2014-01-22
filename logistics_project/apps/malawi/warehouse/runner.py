@@ -8,7 +8,7 @@ from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
 from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
-    ProductStock, Product, StockRequest
+    ProductStock, Product, StockRequest, StockRequestStatus
 from logistics.util import config
 from logistics.const import Reports
 from logistics.warehouse_models import SupplyPointWarehouseRecord
@@ -609,6 +609,8 @@ def update_alerts(hsas, non_hsas):
         new_obj.eo_without_resupply = _qs_to_int(pending_requests.filter(is_emergency=True))
         new_obj.reporting_receipts = _qs_to_int(reporting_receipts)
         new_obj.order_readys = _qs_to_int(base_requests.exclude(responded_on=None, response_status='stocked_out'))
+        new_obj.products_requested = _qs_to_int(base_requests.filter(status=StockRequestStatus.REQUESTED))
+        new_obj.products_approved = _qs_to_int(base_requests.filter(status=StockRequestStatus.APPROVED))
         new_obj.save()
 
     for non_hsa in non_hsas:
@@ -625,6 +627,8 @@ def update_alerts(hsas, non_hsas):
                 "eo_without_resupply",
                 "reporting_receipts",
                 "order_readys",
+                "products_requested",
+                "products_approved",
             ],
         )
     return True
