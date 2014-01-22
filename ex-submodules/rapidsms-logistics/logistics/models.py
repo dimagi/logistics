@@ -1004,7 +1004,7 @@ class StockRequest(models.Model):
         return self.respond(StockRequestStatus.STOCKED_OUT, by, on)
     
     def respond(self, status, by, on, amt=None):
-        assert(self.is_pending()) # we should only approve pending requests
+        assert(self.is_pending())  # we should only approve pending requests
         # and only respond with valid response statuses
         assert(status in StockRequestStatus.CHOICES_RESPONSE) 
         self.responded_by = by
@@ -1016,7 +1016,7 @@ class StockRequest(models.Model):
         self.save()
         
     def receive(self, by, amt, on):
-        assert(self.is_pending()) # we should only receive pending requests
+        assert(self.is_pending())  # we should only receive pending requests
         self.received_by = by
         self.amount_received = amt
         self.received_on = on
@@ -1027,10 +1027,10 @@ class StockRequest(models.Model):
         """
         Cancel a supply request, in lieu of a newer one
         """
-        assert(self.is_pending()) # we should only cancel pending requests
+        assert(self.is_pending())  # we should only cancel pending requests
         self.status = StockRequestStatus.CANCELED
         self.canceled_for = canceled_for
-        self.amount_received = 0 # if you cancel it, you didn't get it
+        self.amount_received = 0  # if you cancel it, you didn't get it
         self.save()
     
     def sms_format(self):
@@ -1042,7 +1042,7 @@ class StockRequest(models.Model):
         elif self.status == StockRequestStatus.RECEIVED:
             return "%s %s" % (self.product.sms_code, self.amount_received)
         elif self.status in [StockRequestStatus.PARTIALLY_STOCKED, StockRequestStatus.STOCKED_OUT]:
-            return self.product.sms_code # no valid amount information
+            return self.product.sms_code  # no valid amount information
         raise Exception("bad call to sms format, unexpected status: %s" % self.status)
     
     @classmethod
@@ -1076,7 +1076,7 @@ class StockRequest(models.Model):
                                                   is_emergency=is_emergency,
                                                   balance=stock)
                 requests.append(req)
-                pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point, 
+                pending_requests = StockRequest.pending_requests().filter(supply_point=stock_report.supply_point,
                                                                           product=product).exclude(pk=req.pk)
                 
                 # close/delete existing pending stock requests. 
@@ -1084,7 +1084,15 @@ class StockRequest(models.Model):
                 assert(pending_requests.count() <= 1) # we should never have more than one pending request
                 for pending in pending_requests:
                     pending.cancel(req)
-                
+
+        # when not using back orders, every soh report should close out all other pending requests
+        if not settings.LOGISTICS_USE_BACKORDERS:
+            created_ids = [req.pk for req in requests]
+            pending_requests = StockRequest.pending_requests().filter(
+                supply_point=stock_report.supply_point).exclude(pk__in=created_ids)
+            for pending in pending_requests:
+                pending.cancel(None)
+
         return requests
     
     @classmethod
@@ -1093,21 +1101,32 @@ class StockRequest(models.Model):
         From a stock report helper object, close any pending stock requests.
         """
         requests = []
-        pending_reqs = StockRequest.pending_requests().filter\
-            (supply_point=stock_report.supply_point,
-             product__sms_code__in=stock_report.product_stock.keys()).order_by('-received_on')
+        pending_reqs = StockRequest.pending_requests().filter(
+            supply_point=stock_report.supply_point,
+            product__sms_code__in=stock_report.product_stock.keys()
+        ).order_by('-received_on')
         now = datetime.utcnow()
         ps = set(stock_report.product_stock.keys())
         for req in pending_reqs:
             if req.product.sms_code in ps:
-                req.receive(contact, 
-                        stock_report.product_stock[req.product.sms_code],
-                        now)
+                req.receive(
+                    contact,
+                    stock_report.product_stock[req.product.sms_code],
+                    now
+                )
                 ps.remove(req.product.sms_code)
             else:
                 req.receive(contact, 0, now)
             requests.append(req)
-        return requests
+
+        # if not using backorders also close out orders for non-matching products
+        if not settings.LOGISTICS_USE_BACKORDERS:
+            requests_to_cancel = StockRequest.pending_requests().filter(
+                supply_point=stock_report.supply_point
+            ).order_by('-received_on')
+            for req in requests_to_cancel:
+                req.cancel(None)
+
     
 class ProductReportType(models.Model):
     """ e.g. a 'stock on hand' report, or a losses&adjustments reports, or a receipt report"""

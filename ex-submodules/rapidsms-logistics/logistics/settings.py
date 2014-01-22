@@ -37,6 +37,7 @@ LOGISTICS_NAVIGATION_MODE = "url" # "url" or "param", depending how your site na
 LOGISTICS_USE_SPOT_CACHING = False # use spot caches in various places we've found performance hits
 LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60 # spot cache timeout, in seconds, defaults to an hour
 LOGISTICS_IGNORE_EMPTY_STOCKS = False # if there is no stock, ignore 0 soh values
+LOGISTICS_USE_BACKORDERS = True  # enable back orders or set to false to cancel pending orders on receipt
 
 # set to a non-zero integer to enable max stock thresholds for sms reporting
 # the number is the factor of the maximum level that represents the max allowed
