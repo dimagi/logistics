@@ -47,7 +47,7 @@ class MalawiWarehouseView(ReportView):
         for key in request.GET.keys():
             querystring += '%s=%s&' % (key, request.GET[key])
 
-        districts = get_districts()
+        districts = get_districts(request.user.is_superuser)
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,

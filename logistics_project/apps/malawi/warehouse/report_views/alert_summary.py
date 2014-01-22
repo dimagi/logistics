@@ -22,7 +22,7 @@ class View(warehouse_view.DistrictOnlyView):
             if request.location else get_default_supply_point(request.user)
 
         if is_country(sp):
-            facilities = get_district_supply_points()
+            facilities = get_district_supply_points(request.user.is_superuser)
         else:
             facilities = facility_supply_points_below(sp.location)
 

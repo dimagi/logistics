@@ -107,8 +107,14 @@ def get_imci_coordinators(supply_point):
 def get_district_pharmacists(supply_point):
     return _contact_set(supply_point, config.Roles.DISTRICT_PHARMACIST)
     
-def get_districts():
-    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
+def get_districts(include_test=False):
+    base = Location.objects.filter(type__slug=config.LocationCodes.DISTRICT, is_active=True)
+    if not include_test:
+        return remove_test_district(base)
+    return base
+
+def remove_test_district(qs):
+    return qs.exclude(code='99')
 
 def get_em_districts():
     # todo: everything is EM now so this method is no longer necessary
@@ -137,9 +143,12 @@ def facility_supply_points_below(location):
                            Q(supplied_by__supplied_by__location=location))
     return facs
 
-def get_district_supply_points():
-    return SupplyPoint.objects.filter(active=True, 
+def get_district_supply_points(include_test=False):
+    base = SupplyPoint.objects.filter(active=True,
                                       type__code=config.SupplyPointCodes.DISTRICT)
+    if not include_test:
+        return remove_test_district(base)
+    return base
 
 def get_facility_supply_points():
     return SupplyPoint.objects.filter(active=True, 
@@ -186,7 +195,7 @@ def get_visible_districts(user):
     Given a user, what districts can they see
     """
     if get_view_level(user) == 'national':
-        return get_districts()
+        return get_districts(user.is_superuser)
 
     prof = user.get_profile()
     loc = None

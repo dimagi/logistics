@@ -105,7 +105,7 @@ class View(warehouse_view.DistrictOnlyView):
             location_table["location_type"] = "District"
             location_table["header"] = [location_table["location_type"]] + headings
             location_table["data"] = _get_product_status_table\
-                (get_district_supply_points().order_by('name'), 
+                (get_district_supply_points(request.user.is_superuser).order_by('name'),
                  [selected_product])
             
         else:

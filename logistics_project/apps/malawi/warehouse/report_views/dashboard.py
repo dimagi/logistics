@@ -1,6 +1,6 @@
 from django.utils.datastructures import SortedDict
 from logistics.models import SupplyPoint
-from logistics_project.apps.malawi.util import pct, fmt_pct, get_default_supply_point
+from logistics_project.apps.malawi.util import pct, fmt_pct, get_default_supply_point, remove_test_district
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
     Alert
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period, \
@@ -17,6 +17,11 @@ class View(warehouse_view.DashboardView):
 
         # reporting rates + stockout summary
         child_sps = SupplyPoint.objects.filter(active=True, supplied_by=sp)
+
+        # filter 'test district' out for non-superusers
+        if not request.user.is_superuser:
+            child_sps = remove_test_district(child_sps)
+
         child_sp_type = "Location" if not child_sps \
             else supply_point_type_display(child_sps[0].type)
 
