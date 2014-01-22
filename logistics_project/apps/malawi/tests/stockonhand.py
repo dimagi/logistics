@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock
+from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock, ProductReport
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
@@ -130,21 +130,6 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         self.assertEqual(pending_zi, canceled_zi.canceled_for)
         self.assertEqual(None, canceled_la.canceled_for)
-
-
-    def testReceiptNoRequest(self):
-        hsa = self._setup_users()[0]
-
-        c = """
-           16175551000 > rec zi 190 la 345
-           16175551000 < Thank you, you reported receipts for zi la.
-        """
-        self.runScript(c)
-
-        self.assertEqual(190, ProductStock.objects.get(supply_point__code="261601", product__sms_code='zi').quantity)
-        self.assertEqual(345, ProductStock.objects.get(supply_point__code="261601", product__sms_code='la').quantity)
-
-
 
     def testAppendStockOnHand(self):
         # with the removal of back orders this test is sort of redundant with testBackOrdersCanceledBySoH
@@ -379,6 +364,16 @@ class TestStockOnHandMalawi(MalawiTestBase):
             }
             self.runScript(a)
             self.assertEqual(0, StockRequest.objects.count())
+
+    def testSoHKeepDupes(self):
+        ProductReport.objects.all().delete()
+        hsa, ic, sh = self._setup_users()[0:3]
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(2, ProductReport.objects.count())
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(4, ProductReport.objects.count())
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        self.assertEqual(6, ProductReport.objects.count())
 
     def _setup_users(self):
         hsa = create_hsa(self, "16175551000", "wendy", products="co la lb zi")

@@ -1,6 +1,10 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+PRIORITY_APPS = [
+    'dupechecker',
+]
+
 APPS = [
     "auditcare",
     "couchlog",
@@ -8,7 +12,7 @@ APPS = [
     "logistics_project.apps.malawi",
     "logistics_project.apps.outreach",
     "scheduler",
-    "warehouse"
+    "warehouse",
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -217,6 +221,9 @@ SOUTH_MIGRATION_MODULES = {
     'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
     # 'malawi': 'ignore'
 }
+
+DUPECHECKER_RESPONSE = "Your receipt has already been received. To report a new receipt please change product order or amounts."
+DUPECHECKER_INCLUDE = ['rec|receipts|received']
 
 # data warehouse config
 WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'
