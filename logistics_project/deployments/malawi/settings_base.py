@@ -222,7 +222,7 @@ SOUTH_MIGRATION_MODULES = {
     # 'malawi': 'ignore'
 }
 
-DUPECHECKER_RESPONSE = "Your receipt has already been received. To report a new receipt please change product order or amounts."
+DUPECHECKER_RESPONSE = None
 DUPECHECKER_INCLUDE = ['rec|receipts|received']
 
 # data warehouse config
