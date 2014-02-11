@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 from logistics.exceptions import TooMuchStockError
 from logistics.validators import check_max_levels
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
-from logistics.models import ProductReportsHelper, StockRequest, StockTransfer
+from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, ProductReport
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.const import Reports
 from logistics.util import config
 from logistics.handlers import logistics_keyword
 from rapidsms.conf import settings
+from rapidsms.contrib.messagelog.models import Message
 
 
-class ReceiptHandler(KeywordHandler,TaggingHandler):
+class ReceiptHandler(KeywordHandler, TaggingHandler):
     """
     Allows SMS reporters to send in "rec jd 10 mc 30" to report 10 jadelle and 30 male condoms received
     """
@@ -26,6 +28,15 @@ class ReceiptHandler(KeywordHandler,TaggingHandler):
 
     @logistics_contact_and_permission_required(config.Operations.REPORT_RECEIPT)
     def handle(self, text):
+        dupes = Message.objects.filter(direction="I",
+                                       connection=self.msg.connection,
+                                       text__iexact=self.msg.raw_text).exclude(pk=self.msg.logger_msg.pk)
+        if settings.LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN:
+            dupe_ignore_threshold = datetime.utcnow() - timedelta(seconds=settings.LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN)
+            ignore = dupes.filter(date__gte=dupe_ignore_threshold)
+            if ignore.count() and ProductReport.objects.filter(message__in=dupes).count():
+                return True
+
         # at the end of your receipt message you can write:
         # 'from xxx' to indicate the source of the supplies.
         # this is used in the stock transfer workflow
