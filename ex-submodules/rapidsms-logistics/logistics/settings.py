@@ -44,6 +44,9 @@ LOGISTICS_USE_BACKORDERS = True  # enable back orders or set to false to cancel 
 # report amount
 LOGISTICS_MAX_REPORT_LEVEL_FACTOR = None
 
+# set to a value (in seconds) to ignore duplicate receipts within that time range
+LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN = None
+
 # this is the set of allowable values for STOCKED_BY
 STOCKED_BY_USER='user' # sp's are responsible for reporting commodities registered to specific users
 STOCKED_BY_FACILITY='facility' # sp's are respnsible for reporting commodities registered to specific facilities
