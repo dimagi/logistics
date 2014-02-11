@@ -54,15 +54,22 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         stock_report.parse(text)
         # check max stock levels
         if settings.LOGISTICS_MAX_REPORT_LEVEL_FACTOR:
+
             try:
                 check_max_levels(stock_report)
             except TooMuchStockError, e:
-                self.respond(config.Messages.TOO_MUCH_STOCK % {
-                    'req': e.amount,
-                    'prod': e.product,
-                    'max': e.max,
-                })
-                return True
+                # bit of a hack, also check if there was a recent message
+                # that matched this and if so force it through
+                override_threshold = datetime.utcnow() - timedelta(seconds=60*60*4)
+                override = dupes.filter(date__gte=override_threshold)
+                if override.count() == 0:
+                    self.respond(config.Messages.TOO_MUCH_STOCK % {
+                        'keyword': self.msg.text.split()[0],
+                        'req': e.amount,
+                        'prod': e.product,
+                        'max': e.max,
+                    })
+                    return True
 
         stock_report.save()
 
