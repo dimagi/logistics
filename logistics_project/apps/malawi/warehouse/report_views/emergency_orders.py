@@ -44,9 +44,6 @@ class View(warehouse_view.DistrictOnlyView):
                 type_map[oreq.product.type]['pct'][date] = pct(type_map[oreq.product.type]['emergency'][date],
                                                                type_map[oreq.product.type]['total'][date])
         
-        # prd_map = remove_zeros_from_dict(prd_map, 'total')[0]
-        # type_map = remove_zeros_from_dict(type_map, 'total')[0]
-
         summary = {
             "legendcols": 0,
             "xlabels": [],
@@ -116,28 +113,40 @@ class View(warehouse_view.DistrictOnlyView):
                                      ([eo.sms_code],
                                       [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])
             
-        # for type in type_map.keys():
+        hsa_emergencies = {
+            "id": "hsa-emergencies",
+            "header": ['Product'] + [dt.strftime("%b %Y") for dt in datelist],
+        }
+        hsa_emergencies_data = []
         selected_products = Product.objects.all()
         if selected_type:
             selected_products = Product.objects.filter(type=selected_type)
         for prd in selected_products:
             count = 0
-            temp = {'data': [],
-                    # 'label': str(type.name),
-                    'label': str(prd.sms_code),
-                    'lines': {"show": 1},
-                    'bars': {"show": 0}
-                    }
+            temp = {
+                'data': [],
+                'label': str(prd.sms_code),
+                'lines': {"show": 1},
+                'bars': {"show": 0}
+            }
+            nums = []
+            denoms = []
             for date in datelist:
                 count += 1
-                # if type_map[type]['pct'].has_key(date):
-                #     temp["data"].append([count, type_map[type]['pct'][date]])
                 if prd_map[prd]['pct'].has_key(date):
                     temp["data"].append([count, prd_map[prd]['pct'][date]])
+                    nums.append(prd_map[prd]['emergency'][date])
+                    denoms.append(prd_map[prd]['total'][date])
                 else:
                     temp["data"].append([count, "No Data"])
+                    nums.append(0)
+                    denoms.append(0)
+            hsa_emergencies_data.append(['%s - num' % prd.name] + nums)
+            hsa_emergencies_data.append(['%s - denom' % prd.name] + denoms)
+            hsa_emergencies_data.append(['%s - pct' % prd.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
             line_chart["data"].append(temp)
 
+        hsa_emergencies['data'] = hsa_emergencies_data
         # HSA emergency orders table
         hsa_eo_table = None
         if is_facility(sp):
@@ -156,10 +165,11 @@ class View(warehouse_view.DistrictOnlyView):
             }
 
         return {
-                'product_types': ProductType.objects.all(),
-                'selected_type': selected_type,
-                'summary': summary,
-                'eo_pct_table': eo_pct_table,
-                'hsa_eo_table': hsa_eo_table,
-                'line': line_chart
-                }
+            'product_types': ProductType.objects.all(),
+            'selected_type': selected_type,
+            'summary': summary,
+            'eo_pct_table': eo_pct_table,
+            'hsa_eo_table': hsa_eo_table,
+            'hsa_emergencies': hsa_emergencies,
+            'line': line_chart
+        }
