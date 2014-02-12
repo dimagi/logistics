@@ -121,14 +121,25 @@ class View(warehouse_view.DistrictOnlyView):
                              request.datespan.enddate)
         
         # product line chart 
-        products = Product.objects.filter(type=selected_type) \
-            if selected_type else Product.objects.all() 
+        hsa_stockouts = {
+            "id": "hsa-stockouts",
+            "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
+        }
+        hsa_stockout_data = []
+        products = Product.objects.filter(type=selected_type) if selected_type else Product.objects.all()
         for p in products:
+            nums = []
+            denoms = []
             for dt in dates:
-                pad = ProductAvailabilityData.objects.get\
-                    (supply_point=sp, product=p, date=dt)
+                pad = ProductAvailabilityData.objects.get(supply_point=sp, product=p, date=dt)
                 data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
-        
+                nums.append(pad.managed_and_without_stock)
+                denoms.append(pad.managed)
+            hsa_stockout_data.append(['%s - num' % p.name] + nums)
+            hsa_stockout_data.append(['%s - denom' % p.name] + denoms)
+            hsa_stockout_data.append(['%s - pct' % p.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
+
+        hsa_stockouts['data'] = hsa_stockout_data
         graph_data = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
                        'label': p.sms_code, 'lines': {"show": True}, 
                        "bars": {"show": False}} \
@@ -140,7 +151,7 @@ class View(warehouse_view.DistrictOnlyView):
             "yaxistitle": "% SO",
             "height": "350px",
             "width": "100%", # "300px",
-            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+            "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
             "data": json.dumps(graph_data),
         }
 
@@ -151,6 +162,7 @@ class View(warehouse_view.DistrictOnlyView):
             'selected_product': selected_product,
             'status_table': status_table,
             'location_table': location_table,
+            'hsa_stockouts': hsa_stockouts,
             'hsa_table': hsa_table,
             'graphdata': graph_chart,
         }
