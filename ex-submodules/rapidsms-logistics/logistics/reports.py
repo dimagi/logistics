@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta, datetime
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
 from django.shortcuts import render_to_response
@@ -800,5 +801,8 @@ class ReportView(object):
         if not self._context:
             self._context = {"slug": self.slug}
             self._context.update(self.shared_context(request))
-            self._context.update(self.custom_context(request))
+            try:
+                self._context.update(self.custom_context(request))
+            except ObjectDoesNotExist:
+                self._context['custom_context_failure'] = True
         return self._context
