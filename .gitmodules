@@ -37,6 +37,3 @@
 [submodule "submodules/django-datawarehouse"]
 	path = submodules/django-datawarehouse
 	url = git://github.com/dimagi/django-datawarehouse.git
-[submodule "submodules/rapidsms-dupe-checker"]
-	path = submodules/rapidsms-dupe-checker
-	url = https://github.com/dimagi/rapidsms-dupe-checker.git

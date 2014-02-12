@@ -86,12 +86,12 @@ class TestStockOnHandMalawi(MalawiTestBase):
         # Second receipt should increase normally
 
         c = """
-           16175551000 > rec zi 190 la 345
+           16175551000 > rec zi 180 la 345
            16175551000 < Thank you, you reported receipts for zi la.
         """
         self.runScript(c)
 
-        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 390)
+        self.assertEqual(ProductStock.objects.get(pk=zi.pk).quantity, 380)
         self.assertEqual(ProductStock.objects.get(pk=la.pk).quantity, 705)
 
     def testBackOrdersCanceledByReceipt(self):
@@ -349,21 +349,41 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
 
     def testMaxSupplyLevel(self):
-        create_hsa(self, "16175551234", "stella", products="zi")
-        for keyword in ['soh', 'eo', 'rec']:
+        self._setup_users()
+        keyword_response_pairs = (
+            ('soh', 'Thank you, you reported stock for zi la. The health center has been notified and you will receive a message when products are ready.'),
+            ('eo', 'We have received your emergency order for zi la and the health center has been notified. You will be notified when your products are available to pick up.'),
+            ('rec', 'Thank you, you reported receipts for zi la.'),
+        )
+
+        for keyword, response in keyword_response_pairs:
+            report_count = ProductReport.objects.count()
             a = """
-               16175551234 > %(keyword)s zi 100000000 la 15
-               16175551234 < %(too_much)s
+               16175551000 > %(keyword)s zi 100000000 la 15
+               16175551000 < %(too_much)s
             """ % {
                 'keyword': keyword,
                 "too_much": config.Messages.TOO_MUCH_STOCK % {
-                    'req': '100000000',
-                    'prod': 'Zinc 20mg',
-                    'max': '600'
+                    'keyword': keyword,
                 }
             }
             self.runScript(a)
-            self.assertEqual(0, StockRequest.objects.count())
+            self.assertEqual(report_count, ProductReport.objects.count())
+
+            # the second time it should go through
+            a = """
+               16175551000 > %(keyword)s zi 100000000 la 15
+               16175551000 < %(response)s
+            """ % {
+                'keyword': keyword,
+                'response': response,
+            }
+            self.runScript(a)
+            # one new report for each product
+            self.assertEqual(report_count + 2, ProductReport.objects.count())
+
+
+
 
     def testSoHKeepDupes(self):
         ProductReport.objects.all().delete()

@@ -1,9 +1,7 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-PRIORITY_APPS = [
-    'dupechecker',
-]
+PRIORITY_APPS = []
 
 APPS = [
     "auditcare",
@@ -171,6 +169,7 @@ LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 2
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 30
 LOGISTICS_MAX_REPORT_LEVEL_FACTOR = 3
 LOGISTICS_USE_BACKORDERS = False
+LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN = 60*60*24*2
 
 LOGISTICS_CONSUMPTION = {
     "MINIMUM_TRANSACTIONS": 2,
@@ -221,9 +220,6 @@ SOUTH_MIGRATION_MODULES = {
     'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
     # 'malawi': 'ignore'
 }
-
-DUPECHECKER_RESPONSE = None
-DUPECHECKER_INCLUDE = ['rec|receipts|received']
 
 # data warehouse config
 WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'
