@@ -17,17 +17,17 @@
 </div>
 
 <div class="module">
-	<form method="get" id="selector">
+    <form method="get" id="selector">
 	    {% include "malawi/new/partials/product-type-selector.html" %}
 	    <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
         <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
         <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
         <input type="submit" value="Go!" />
-	</form>
-	<h2>% HSA with EO by product</h2>
-	{% with line as graphdata %}
-	{% include "malawi/new/partials/generic-line-chart.html" %}
-	{% endwith %}
+    </form>
+    <h2>% HSA with EO by product</h2>
+    {% with line as graphdata %}
+        {% include "malawi/new/partials/generic-line-chart.html" %}
+    {% endwith %}
 </div>
 
 {% if hsa_eo_table %}
