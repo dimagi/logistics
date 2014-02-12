@@ -11,7 +11,7 @@ from logistics.models import SupplyPoint
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    facility_supply_points_below, hsa_supply_points_below
+    facility_supply_points_below, hsa_supply_points_below, get_district_supply_points
 from logistics_project.apps.malawi.warehouse.models import TimeTracker,\
     TIME_TRACKER_TYPES
 
@@ -76,7 +76,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         dis_lt_table = fac_lt_table = hsa_lt_table = None
         if sp.type.code == config.SupplyPointCodes.COUNTRY:
-            d_data = get_lead_time_table_data(SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.DISTRICT).order_by('name'),
+            d_data = get_lead_time_table_data(get_district_supply_points(request.user.is_superuser).order_by('name'),
                                               request.datespan.startdate, request.datespan.enddate)
 
             dis_lt_table = {

@@ -57,7 +57,6 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
     """
     Reports stock. 
     """
-    
     stock_report = ProductReportsHelper(SupplyPoint(), Reports.SOH)
     stock_report.parse(product_string)
     product_list = " ".join(stock_report.reported_products()).strip()
@@ -82,4 +81,3 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
                "confirm": config.Messages.SOH_ORDER_CONFIRM % {"products": product_list},
                "manager_msgs": "".join(manager_msgs)}
     test_class.runScript(a)
-    

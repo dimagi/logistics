@@ -149,8 +149,8 @@ class Messages(object):
     # "Ready" keyword 
     ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s."
-    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up."
-    
+    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. If you have already collected your products please send a receipt."
+
     # "OS" keyword
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
@@ -236,6 +236,7 @@ class Messages(object):
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
+    TOO_MUCH_STOCK = 'Your %(keyword)s amount is too much and the message has been rejected. please resend your %(keyword)s message.'
     
     # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'

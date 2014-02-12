@@ -6,3 +6,4 @@ class MultipleHSAException(Exception):
 
 class IdFormatException(Exception):
     pass
+

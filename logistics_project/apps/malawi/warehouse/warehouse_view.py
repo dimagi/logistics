@@ -30,14 +30,24 @@ class MalawiWarehouseView(ReportView):
         # national stockout percentages by product
         stockout_pcts = SortedDict()
         for p in products:
-            availability = ProductAvailabilityData.objects.get(supply_point=country,
-                                                               date=date,
-                                                               product=p)
-            stockout_pcts[p] = (pct(availability.managed_and_without_stock,
-                                    availability.managed), availability.managed)
-        
-        current_rr = ReportingRate.objects.get\
-            (date=date, supply_point=country)
+            try:
+                availability = ProductAvailabilityData.objects.get(
+                    supply_point=country,
+                    date=date,
+                    product=p
+                )
+                stockout_pcts[p] = (pct(availability.managed_and_without_stock,
+                                        availability.managed),
+                                    availability.managed)
+            except ProductAvailabilityData.DoesNotExist:
+                stockout_pcts[p] = ('?', '?')
+
+        pct_reported = '?'
+        try:
+            current_rr = ReportingRate.objects.get(date=date, supply_point=country)
+            pct_reported = current_rr.pct_reported
+        except ReportingRate.DoesNotExist:
+            pass
 
         default_sp = get_default_supply_point(request.user)
         visible_facilities = get_visible_facilities(request.user).order_by('parent_id')
@@ -47,7 +57,7 @@ class MalawiWarehouseView(ReportView):
         for key in request.GET.keys():
             querystring += '%s=%s&' % (key, request.GET[key])
 
-        districts = get_districts()
+        districts = get_districts(request.user.is_superuser)
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
@@ -58,7 +68,7 @@ class MalawiWarehouseView(ReportView):
                                                          type__code=config.SupplyPointCodes.FACILITY).count(),
             "visible_hsas": visible_hsas,
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
-            "reporting_rate": current_rr.pct_reported,
+            "reporting_rate": pct_reported,
             "products": products,
             "product_stockout_pcts": stockout_pcts,
             "location": request.location or default_sp.location,

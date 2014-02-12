@@ -72,7 +72,7 @@ class View(warehouse_view.DistrictOnlyView):
                 "is_datatable": False,
                 "is_downloadable": True,
                 "header": ["Districts"] + shared_headers,
-                "data": _avg_report_rate_table_data(get_district_supply_points().order_by('name'), 
+                "data": _avg_report_rate_table_data(get_district_supply_points(request.user.is_superuser).order_by('name'),
                                                     request.datespan.startdate,
                                                     request.datespan.enddate),
                 "location_type": "districts"
