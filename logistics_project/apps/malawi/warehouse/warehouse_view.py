@@ -73,7 +73,8 @@ class MalawiWarehouseView(ReportView):
             "product_stockout_pcts": stockout_pcts,
             "location": request.location or default_sp.location,
             "querystring": querystring,
-            "show_report_nav": self.show_report_nav
+            "show_report_nav": self.show_report_nav,
+            "window_date": current_report_period(),
         })
         return base_context
 
