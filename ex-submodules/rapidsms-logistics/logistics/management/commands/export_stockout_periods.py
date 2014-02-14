@@ -45,6 +45,7 @@ class Command(LabelCommand):
                 _display(district),
                 _display(facility),
                 _display(start.supply_point),
+                start.supply_point.code,
                 start.date.strftime(EXCEL_DATE_FORMAT),
                 enddate.strftime(EXCEL_DATE_FORMAT),
                 enddate == END_DATE,
@@ -58,7 +59,7 @@ class Command(LabelCommand):
         filename = args[0]
         f = file(filename, 'w')
         out = csv.writer(f)
-        out.writerow(['Product', 'District', 'Facility', 'HSA', 'Start Date', 'End Date',
+        out.writerow(['Product', 'District', 'Facility', 'HSA', 'HSA Code', 'Start Date', 'End Date',
                       'Ongoing', 'Duration (days)', 'Duration (seconds)'])
         transactions = StockTransaction.objects.order_by('product', 'supply_point', 'date')
         count = StockTransaction.objects.count()
