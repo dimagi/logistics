@@ -20,7 +20,7 @@ from static.malawi.config import TimeTrackerTypes
 
 from logistics_project.apps.malawi.util import group_for_location, \
     hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
-    get_hsa_supervisors, get_in_charge
+    get_hsa_supervisors, get_in_charge, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
@@ -456,11 +456,15 @@ def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
     
     Returns the updated reporting model class.
     """
+    # hack: remove test district users from national level
+    if supply_point == get_country_sp():
+        base_supply_points = base_supply_points.exclude(supplied_by__supplied_by__code='99')
+
     period_instance = modelclass.objects.get_or_create\
         (supply_point=supply_point, **additonal_query_params)[0]
     children_qs = modelclass.objects.filter\
         (supply_point__in=base_supply_points, **additonal_query_params)
-         
+
     totals = children_qs.aggregate(*[Sum(f) for f in fields])
     [setattr(period_instance, f, totals["%s__sum" % f] or 0) for f in fields]
     period_instance.save()
