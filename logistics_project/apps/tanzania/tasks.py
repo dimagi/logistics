@@ -63,3 +63,6 @@ def send_district_list_sms(district_list, message):
 def send_region_list_sms(region_list, message):
     for region in region_list:
         send_district_list_sms(region.get_children(), message)
+
+# make sure threadless router tasks are registered
+from threadless_router.celery.tasks import *
