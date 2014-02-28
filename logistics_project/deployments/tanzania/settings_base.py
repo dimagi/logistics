@@ -16,6 +16,7 @@ APPS = [
     "gunicorn",
 ]
 
+SYSTEM_ADMINS = []  # override locally
 
 def is_system_admin(user):
     from django.conf import settings
