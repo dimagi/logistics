@@ -2,11 +2,11 @@ from datetime import datetime, timedelta
 from django.db import transaction
 from logistics.exceptions import TooMuchStockError
 from logistics.util import config
-from logistics.validators import check_max_levels
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from logistics.models import StockRequest, ProductStock
+from logistics.models import StockRequest
 from logistics.decorators import logistics_contact_and_permission_required, managed_products_required
 from logistics.shortcuts import create_stock_report
+from logistics_project.apps.malawi.validators import check_max_levels_malawi
 from rapidsms.contrib.messagelog.models import Message
 
 
@@ -43,7 +43,7 @@ class StockReportBaseHandler(RecordResponseHandler):
                                           connection=self.msg.connection,
                                           text__iexact=self.msg.raw_text,
                                           date__gt=cutoff)
-            validation_function = check_max_levels if msgs.count() <= 1 else None
+            validation_function = check_max_levels_malawi if msgs.count() <= 1 else None
             stock_report = create_stock_report(
                 self.get_report_type(),
                 self.hsa.supply_point,
