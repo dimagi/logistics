@@ -43,6 +43,8 @@ LOGISTICS_USE_BACKORDERS = True  # enable back orders or set to false to cancel 
 # the number is the factor of the maximum level that represents the max allowed
 # report amount
 LOGISTICS_MAX_REPORT_LEVEL_FACTOR = None
+# alternatively, completely override the max level function
+LOGISTICS_MAX_REPORT_LEVEL_FUNCTION = None
 
 # set to a value (in seconds) to ignore duplicate receipts within that time range
 LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN = None
