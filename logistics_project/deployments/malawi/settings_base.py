@@ -21,8 +21,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
-#    'johnny.middleware.CommittingTransactionMiddleware',
-#    'johnny.middleware.QueryCacheMiddleware',
 ]
 
 CACHES = {
@@ -35,8 +33,6 @@ CACHES = {
     }
 }
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-
-#CACHE_BACKEND = 'johnny.backends.memcached://127.0.0.1:11211/'
 
 
 # this rapidsms-specific setting defines which views are linked by the
@@ -167,7 +163,7 @@ LOGISTICS_USE_COMMODITY_EQUIVALENTS = False
 LOGISTICS_USERS_HAVE_ADMIN_ACCESS = True
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 2
 LOGISTICS_REPORTING_CYCLE_IN_DAYS = 30
-LOGISTICS_MAX_REPORT_LEVEL_FACTOR = 3
+LOGISTICS_MAX_REPORT_LEVEL_FUNCTION = 'logistics_project.apps.malawi.validators.check_max_levels_malawi'
 LOGISTICS_USE_BACKORDERS = False
 LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN = 60*60*24*2
 
