@@ -1,3 +1,4 @@
+from dimagi.utils.modules import to_function
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
 from rapidsms.conf import settings
@@ -18,3 +19,11 @@ def check_max_levels(stock_report):
                 raise TooMuchStockError(product=product, amount=stock, max=max)
         except ProductStock.DoesNotExist:
             pass
+
+def get_max_level_function():
+    if settings.LOGISTICS_MAX_REPORT_LEVEL_FUNCTION:
+        return to_function(settings.LOGISTICS_MAX_REPORT_LEVEL_FUNCTION)
+    elif settings.LOGISTICS_MAX_REPORT_LEVEL_FACTOR:
+        return check_max_levels
+    else:
+        return None

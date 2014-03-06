@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 from logistics.exceptions import TooMuchStockError
-from logistics.validators import check_max_levels
+from logistics.validators import check_max_levels, get_max_level_function
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, ProductReport
@@ -53,10 +53,11 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
                                             Reports.REC, self.msg.logger_msg)
         stock_report.parse(text)
         # check max stock levels
-        if settings.LOGISTICS_MAX_REPORT_LEVEL_FACTOR:
+        max_level_function = get_max_level_function()
+        if max_level_function:
 
             try:
-                check_max_levels(stock_report)
+                max_level_function(stock_report)
             except TooMuchStockError, e:
                 # bit of a hack, also check if there was a recent message
                 # that matched this and if so force it through
