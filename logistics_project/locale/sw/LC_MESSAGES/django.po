@@ -72,6 +72,15 @@ msgstr "Asante, umetoa taarifa kuwa 'usimamizi ndiyo'"
 msgid "Thank you for reporting your stock on hand this month"
 msgstr "Asante kwa kutoa taarifa za hesabu ya mkono kwa mwezi huu"
 
+msgid "To report an arrival, please send 'arrived <MSD code>'."
+msgstr ""
+
+msgid "Thank you for confirming your arrival at the health facility."
+msgstr "Asante kwa kuthibitisha kufika kwako katika Kituo cha Afya"
+
+msgid "Thank you for confirming your arrival at %(facility)s."
+msgstr "Asante kwa kuthibitisha kufika kwako katika %(facility)s"
+
 msgid "help"
 msgstr "msaada"
 
