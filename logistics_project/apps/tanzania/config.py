@@ -225,6 +225,11 @@ class Messages(object):
     STOCK_INQUIRY_MESSAGE = "How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  Please respond 'si %(msd_code)s <amount>'"
     STOCK_INQUIRY_NOT_A_FACILITY_ERROR = "Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
 
+    # "arrived" keyword
+    ARRIVED_HELP = "To report an arrival, please send 'arrived <MSD code>'."
+    ARRIVED_DEFAULT = "Thank you for confirming your arrival at the health facility."
+    ARRIVED_KNOWN = "Thank you for confirming your arrival at %(facility)s."
+
     INVALID_PRODUCT_CODE = "Sorry, invalid product code %(product_code)s"
 
     #test handler
