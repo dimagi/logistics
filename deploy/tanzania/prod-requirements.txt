@@ -36,4 +36,4 @@ twilio==3.2.3
 virtualenv==1.4.5
 wsgiref==0.1.2
 xlwt==0.7.5
--e git+http://github.com/dimagi/rapidsms-threadless-router.git@3765671a10ffe8dc820c68e4d9763f764a6aa05e#egg=rapidsms_threadless_router-dev
+-e git+git://github.com/dimagi/rapidsms-threadless-router.git@f6eb7e95b6d1531a0d33f13cb4b5629a2bad79f7#egg=rapidsms_threadless_router-dev
