@@ -572,8 +572,8 @@ def update_user_profile_data():
 
         new_obj.contact_info = ''
         if supply_point.type.code == "hsa":
-            if supply_point.contacts().count():
-                contact = supply_point.contacts()[0]
+            if supply_point.active_contacts().count():
+                contact = supply_point.active_contacts()[0]
                 if contact.default_connection:
                     new_obj.contact_info = contact.default_connection.identity
                 
