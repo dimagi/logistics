@@ -78,8 +78,7 @@ class View(warehouse_view.DistrictOnlyView):
         if facility:
             hsa_data = []
             for sp in hsa_supply_points_below(facility.location):
-                up = UserProfileData.objects.get(supply_point=sp)
-                hsa_data.append({"url": get_hsa_url(sp), 
+                hsa_data.append({"url": get_hsa_url(sp),
                                  "data": [sp.name, sp.code, 
                                           sp.contacts()[0].default_connection.identity] + \
                                          _names_and_numbers(get_supervisors(sp.supplied_by))})

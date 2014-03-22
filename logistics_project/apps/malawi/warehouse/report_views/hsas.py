@@ -149,29 +149,24 @@ class View(warehouse_view.DistrictOnlyView):
             "data": [],
         }
 
-        if hsa.contacts().count() > 0:
-            contact = hsa.contacts()[0]
-
-            msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')[:10]
-            for msg in msgs:
-                msgs_table["data"].append([_date_fmt(msg.date), msg.text])
+        msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')[:10]
+        for msg in msgs:
+            msgs_table["data"].append([_date_fmt(msg.date), msg.text])
 
         details_table = {
             "id": "hsa-details",
             "is_datatable": False,
             "is_downloadable": True,
             "header": ["", ""],
-            "data": [],
+            "data": [
+                ['Name', hsa.name],
+                ['Code', hsa.code],
+                ['Phone Number', contact.default_connection.identity if contact.default_connection else 'none'],
+                ['Products', ' '.join(c.sms_code for c in hsa.commodities_stocked())],
+                ['Facility', hsa.supplied_by.name],
+                ['District', hsa.supplied_by.supplied_by.name],
+            ],
         }
-
-        up = UserProfileData.objects.get(supply_point=hsa)
-        details_table["data"].append(['Name', hsa.name])
-        details_table["data"].append(['Code', hsa.code])
-        details_table["data"].append(['Phone Number', up.contact_info])
-        details_table["data"].append(['Products', up.products_managed])
-        details_table["data"].append(['Facility', hsa.supplied_by.name])
-        details_table["data"].append(['District', hsa.supplied_by.supplied_by.name])
-
         return {
                 "header_table": header_table,
                 "report_table": report_table,
