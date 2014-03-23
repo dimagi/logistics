@@ -189,13 +189,28 @@ class CalculatedConsumption(MalawiWarehouseModel):
     time_with_data = models.BigIntegerField(default=0)    # in seconds
     time_needing_data = models.BigIntegerField(default=0) # in seconds
     time_stocked_out = models.BigIntegerField(default=0)  # in seconds
-    
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return '{0}:{1} ({2}) data: {3} needing: {4} stockedout: {5}'.format(
+            self.supply_point, self.product, self.date,
+            self.time_with_data, self.time_needing_data, self.time_stocked_out
+        )
+
     _total = None
     @property
     def total(self):
         if self._total is None:
-            # TODO: this should be replaced with the warehouse property
-            self._total = hsas_below(self.supply_point.location).count()
+            try:
+                self._total = ProductAvailabilityData.objects.get(
+                    supply_point=self.supply_point,
+                    date=self.date,
+                    product=self.product
+                ).total
+            except ProductAvailabilityData.DoesNotExist:
+                self._total = hsas_below(self.supply_point.location).count()
         return self._total
     
     @property
