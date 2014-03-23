@@ -360,6 +360,9 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def contacts(self):
         return Contact.objects.filter(supply_point=self)
     
+    def active_contacts(self):
+        return Contact.objects.filter(supply_point=self, is_active=True)
+
     def deprecate(self, new_code=None):
         """
         Deprecates this supply point, by changing the id and location id,
