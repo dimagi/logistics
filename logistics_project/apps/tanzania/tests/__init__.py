@@ -1,3 +1,4 @@
+from .arrived import *
 from .bugs import *
 from .delivery import *
 from .deliverygroups import *
