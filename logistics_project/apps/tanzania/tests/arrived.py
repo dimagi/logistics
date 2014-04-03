@@ -12,11 +12,6 @@ class TestArrival(TanzaniaTestScriptBase):
           743 < %(arrived_help)s
         """ % {"arrived_help": _(config.Messages.ARRIVED_HELP)}
         self.runScript(script)
-        script = """
-          743 > arrived with too many words
-          743 < %(arrived_help)s
-        """ % {"arrived_help": _(config.Messages.ARRIVED_HELP)}
-        self.runScript(script)
 
     def testArrivedUnknownCode(self):
         translation.activate("en")
@@ -34,3 +29,10 @@ class TestArrival(TanzaniaTestScriptBase):
         """ % {"arrived_known": _(config.Messages.ARRIVED_KNOWN) % {"facility": "VETA 1"}}
         self.runScript(script)
 
+    def testArrivedWithTime(self):
+        translation.activate("en")
+        script = """
+          743 > arrived D10001 10:00
+          743 < %(arrived_known)s
+        """ % {"arrived_known": _(config.Messages.ARRIVED_KNOWN) % {"facility": "VETA 1"}}
+        self.runScript(script)

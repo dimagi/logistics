@@ -12,14 +12,13 @@ class Arrived(KeywordHandler, TaggingHandler):
 
     def handle(self, text):
         words = text.split()
-        if len(words) != 1:
+        if len(words) < 1:
             self.respond_error(_(config.Messages.ARRIVED_HELP))
             return True
 
         msdcode = words[0]
         try:
             sp = SupplyPoint.objects.get(code__iexact=msdcode)
-            # we still use respond error because we want it to show up in the unrecognized message log
             self.respond(_(config.Messages.ARRIVED_KNOWN), facility=sp.name)
         except SupplyPoint.DoesNotExist:
             self.respond(_(config.Messages.ARRIVED_DEFAULT))
