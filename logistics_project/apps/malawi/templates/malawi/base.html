@@ -43,17 +43,12 @@
 			<div id="branding">
 				<h1>
 					<a title="{% trans "Return to the Dashboard" %}" href="{% url rapidsms-dashboard %}">
-                           <img src="{{ logo_left_url }}" alt="" id="logo_left">
-                           <span>
-						&nbsp;
-	                        {% if site_title %}
-								{{ site_title }}
-							{% else %}
-								RapidSMS
-							{% endif %}
+                        <span>
+                            <img src="{{ MEDIA_URL }}malawi/images/cstock-logo.png" alt="cStock" style="height: 60px; width: auto;">
 						</span>
 					</a>
-                       <img src="{{ logo_right_url }}" alt="" id="logo_right">           
+                       <img src="{{ logo_right_url }}" alt="" id="logo_right" style="padding-left: .5em;">
+                       <img src="{{ logo_left_url }}" alt="" id="logo_right">
 				</h1>
 			</div>
 
