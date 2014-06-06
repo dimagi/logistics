@@ -30,4 +30,3 @@ class DeregistrationHandler(KeywordHandler):
                 self.msg.logistics_contact.supply_point.location.save()
 
             self.respond(config.Messages.LEAVE_CONFIRM)
-        
