@@ -27,4 +27,3 @@ class DeregistrationHandler(KeywordHandler):
                self.msg.logistics_contact.supply_point.type == config.hsa_supply_point_type():
                 self.msg.logistics_contact.supply_point.deprecate()
             self.respond(config.Messages.LEAVE_CONFIRM)
-        
