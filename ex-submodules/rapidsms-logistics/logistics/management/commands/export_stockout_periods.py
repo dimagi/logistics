@@ -24,6 +24,12 @@ class Command(LabelCommand):
                     start_trans.product == end_trans.product)
 
         def _get_row(start, end):
+            def _ignore(supply_point):
+                return 'deprecated' in supply_point.code
+
+            if _ignore(start.supply_point):
+                return []
+
             if end is not None:
                 assert start.date < end.date
                 assert start.supply_point == end.supply_point
@@ -34,6 +40,7 @@ class Command(LabelCommand):
 
             def _parent(supply_point):
                 return supply_point.supplied_by if supply_point else None
+
             def _display(supply_point):
                 return supply_point.name if supply_point else '-'
 
@@ -52,6 +59,11 @@ class Command(LabelCommand):
                 (enddate - start.date).days,
                 (enddate - start.date).seconds,
             ]
+
+        def _write_row(outfile, period_start, trans):
+            row = _get_row(period_start, trans)
+            if row:
+                outfile.writerow(row)
 
         if len(args) == 0:
             print 'please specify a filename'
@@ -80,11 +92,11 @@ class Command(LabelCommand):
                     # nothing to do
                     pass
                 else:
-                    out.writerow(_get_row(period_start, trans))
+                    _write_row(out, period_start, trans)
                     period_start = None
             else:
                 # we ran out of matches, just end it with the current date
-                out.writerow(_get_row(period_start, None))
+                _write_row(out, period_start, None)
                 period_start = None
 
             i += 1
