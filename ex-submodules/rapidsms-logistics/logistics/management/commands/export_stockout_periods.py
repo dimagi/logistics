@@ -53,6 +53,11 @@ class Command(LabelCommand):
                 (enddate - start.date).seconds,
             ]
 
+        def _write_row(outfile, period_start, trans):
+            row = _get_row(period_start, trans)
+            if row:
+                outfile.writerow(row)
+
         if len(args) == 0:
             print 'please specify a filename'
             return
@@ -80,11 +85,11 @@ class Command(LabelCommand):
                     # nothing to do
                     pass
                 else:
-                    out.writerow(_get_row(period_start, trans))
+                    _write_row(out, period_start, trans)
                     period_start = None
             else:
                 # we ran out of matches, just end it with the current date
-                out.writerow(_get_row(period_start, None))
+                _write_row(out, period_start, None)
                 period_start = None
 
             i += 1
