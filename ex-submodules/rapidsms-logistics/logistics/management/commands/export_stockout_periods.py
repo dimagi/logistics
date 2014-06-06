@@ -31,7 +31,7 @@ class Command(LabelCommand):
                 return []
 
             if end is not None:
-                assert start.date < end.date
+                assert start.date <= end.date
                 assert start.supply_point == end.supply_point
                 assert start.product == end.product
                 enddate = end.date
