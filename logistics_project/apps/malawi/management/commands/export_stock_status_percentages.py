@@ -1,7 +1,6 @@
 import csv
 from django.db.models import Sum
 from dimagi.utils.dates import months_between
-from logistics.models import StockTransaction
 from datetime import datetime
 from django.core.management.base import LabelCommand
 from logistics_project.apps.malawi.util import get_facility_supply_points, fmt_pct
@@ -78,8 +77,8 @@ class Command(LabelCommand):
         now = datetime.now()
         facs = get_facility_supply_points()
 
-
-        for year, month in months_between(start_date, now)[:1]:
+        for year, month in months_between(start_date, now):
+            print 'getting data for %s-%s' % (month, year)
             window_date = datetime(year, month, 1)
-            for fac in facs[:20]:
+            for fac in facs:
                 out.writerow(_get_row(window_date, fac))
