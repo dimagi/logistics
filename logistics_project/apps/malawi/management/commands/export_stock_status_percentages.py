@@ -3,8 +3,10 @@ from django.db.models import Sum
 from dimagi.utils.dates import months_between
 from datetime import datetime
 from django.core.management.base import LabelCommand
+from logistics.models import Product, SupplyPoint
 from logistics_project.apps.malawi.util import get_facility_supply_points, fmt_pct
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData
+from static.malawi import config
 
 
 CATEGORIES = [
@@ -28,34 +30,38 @@ class Command(LabelCommand):
         Exports a table of stock status percentages with the following headings:
         product    district    facility    has    start date    end date    length
         """
+        products = Product.objects.all()
 
-        def _get_row(window_date, facility):
-
-            filtered = ProductAvailabilityData.objects.filter(
+        def _get_rows(window_date, facility):
+            initial = ProductAvailabilityData.objects.filter(
                 supply_point=facility,
                 date=window_date,
             )
-            # stolen from stock status report
-            ordered_slugs_managed = ['managed_and_%s' % slug for slug in CATEGORIES]
-            values = filtered.aggregate(*[Sum(slug) for slug in ordered_slugs_managed + ['managed']])
-            raw_vals = [values["managed_and_%s__sum" % k] or 0 for k in CATEGORIES]
-            denom = values["managed__sum"] or 0
-            pcts = [fmt_pct(val, denom) for val in raw_vals]
+            for p in products:
+                filtered = initial.filter(product=p)
+                if filtered.count():
+                    # stolen from stock status report
+                    ordered_slugs_managed = ['managed_and_%s' % slug for slug in CATEGORIES]
+                    values = filtered.aggregate(*[Sum(slug) for slug in ordered_slugs_managed + ['managed']])
+                    raw_vals = [values["managed_and_%s__sum" % k] or 0 for k in CATEGORIES]
+                    denom = values["managed__sum"] or 0
+                    pcts = [fmt_pct(val, denom) for val in raw_vals]
 
-            def _parent(supply_point):
-                return supply_point.supplied_by if supply_point else None
+                    def _parent(supply_point):
+                        return supply_point.supplied_by if supply_point else None
 
-            def _display(supply_point):
-                return supply_point.name if supply_point else '-'
+                    def _display(supply_point):
+                        return supply_point.name if supply_point else '-'
 
-            district = _parent(facility)
-            EXCEL_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-            return [
-                window_date.strftime(EXCEL_DATE_FORMAT),
-                _display(district),
-                _display(facility),
-                facility.code,
-            ] + [denom] + raw_vals + pcts
+                    EXCEL_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+                    yield [
+                        window_date.strftime(EXCEL_DATE_FORMAT),
+                        facility.type.name,
+                        _display(_parent(facility)),
+                        _display(facility),
+                        facility.code,
+                        p.name,
+                    ] + [denom] + raw_vals + pcts
 
         if len(args) == 0:
             print 'please specify a filename'
@@ -66,19 +72,29 @@ class Command(LabelCommand):
         out = csv.writer(f)
         out.writerow([
             'date',
-            'district',
-            'facility',
-            'facility code',
+            'location type',
+            'location parent',
+            'location',
+            'location code',
+            'product',
             'total hsas',
         ] + ['hsas %s' % _fmt_cat(cat) for cat in CATEGORIES] + ['%% %s' % _fmt_cat(cat) for cat in CATEGORIES])
 
 
         start_date = datetime(2012, 1, 1)
         now = datetime.now()
-        facs = get_facility_supply_points()
+        sites = SupplyPoint.objects.filter(
+            active=True,
+            type__code__in=[
+                config.SupplyPointCodes.FACILITY,
+                config.SupplyPointCodes.DISTRICT,
+                config.SupplyPointCodes.COUNTRY,
+            ]
+        ).order_by('type__code')
 
         for year, month in months_between(start_date, now):
             print 'getting data for %s-%s' % (month, year)
             window_date = datetime(year, month, 1)
-            for fac in facs:
-                out.writerow(_get_row(window_date, fac))
+            for site in sites:
+                for row in _get_rows(window_date, site):
+                    out.writerow(row)
