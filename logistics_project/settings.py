@@ -58,7 +58,8 @@ BASE_APPS = [
     "groupmessaging",
     "taggit",
     "django_extensions",
-    "warehouse"
+    "warehouse",
+    "logistics_project.apps.api"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
@@ -218,6 +219,8 @@ LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
 LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
 LOGISTICS_APPROVAL_REQUIRED = False
 LOGISTICS_USE_WAREHOUSE_TABLES = True
+
+API_LIMIT_PER_PAGE = 0
 
 MAGIC_TOKEN = "changeme"
 
