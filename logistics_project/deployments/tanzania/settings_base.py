@@ -144,6 +144,7 @@ NO_LOGIN_REQUIRED_FOR = ['password/reset',
                          'scmgr',
                          'reports/pdf',
                          'pushsms',
+                         'api',
                          ]
 
 # change to not make product reports "active" by default

@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
     url(r'^/?$', 'logistics.views.landing_page',
         name="rapidsms-dashboard"),
-
+    (r'^api/', include('logistics_project.apps.api.urls')),
     # RapidSMS contrib app URLs
     (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
     (r'^export/', include('rapidsms.contrib.export.urls')),
