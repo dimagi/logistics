@@ -7,6 +7,7 @@ from dimagi.utils.decorators import inline
 API_LIST = (
     ((0, 1), (
         v0_1.ProductResources,
+        v0_1.WebUserResources
     )),
 )
 
