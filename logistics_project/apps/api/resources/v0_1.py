@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
+from tastypie.paginator import Paginator
 from tastypie.resources import ModelResource
 from tastypie import fields, utils
 from logistics.models import Product
@@ -22,7 +23,6 @@ class ProductResources(ModelResource):
         include_resource_uri = False
         fields = ['name', 'units', 'sms_code', 'description', 'is_active']
         list_allowed_methods = ['get']
-
 
 class UserResource(ModelResource):
     username = fields.CharField('username', null=True)
@@ -63,7 +63,7 @@ class PointResource(ModelResource):
         fields = ['latitude', 'longitude']
         include_resource_uri = False
 
-class LocationResource(ModelResource):
+class LocationResources(ModelResource):
     id = fields.IntegerField('id')
     name = fields.CharField('name')
     type = fields.CharField('type')
@@ -77,6 +77,17 @@ class LocationResource(ModelResource):
         details_allowed_methods = ['get']
         fields = ['id', 'name', 'parent_id', 'code']
         include_resource_uri = False
+
+    def get_object_list(self, request, **kwargs):
+        objects = super(LocationResources, self).get_object_list(request)
+        date = request.GET.get('date', None)
+        type = request.GET.get('loc_type', None)
+        if date and type:
+            return objects.filter(type__slug=type, date_updated=date)
+        elif type and not date:
+            return objects.filter(type__slug=type)
+        else:
+            return objects.all()
 
     def dehydrate(self, bundle):
         bundle.data['latitude'] = ""
