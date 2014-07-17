@@ -86,10 +86,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        max_limit = None
         queryset = Contact.objects.all()
         include_resource_uri = False
         list_allowed_methods = ['get']
-        paginator_class = Paginator
-
         fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active']
