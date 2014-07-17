@@ -89,10 +89,17 @@ class LocationResources(ModelResource):
         objects = super(LocationResources, self).get_object_list(request)
         date = request.GET.get('date', None)
         type = request.GET.get('loc_type', None)
-        if date and type:
-            return objects.filter(type__slug=type, date_updated=date)
-        elif type and not date:
-            return objects.filter(type__slug=type)
+
+        kwargs = {}
+
+        if date:
+            kwargs['date_updated__gt'] = date
+
+        if type:
+            kwargs['type__slug'] = type
+
+        if kwargs:
+            return objects.filter(**kwargs)
         else:
             return objects.all()
 
