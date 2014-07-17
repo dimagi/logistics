@@ -73,7 +73,7 @@ class SMSUserResources(ModelResource):
         date = request.GET.get('date', None)
         if not date:
             return objects.all()
-        return objects.filter(date_modified__gt=date)
+        return objects.filter(date_updated__gt=date)
 
     def dehydrate(self, bundle):
         try:
