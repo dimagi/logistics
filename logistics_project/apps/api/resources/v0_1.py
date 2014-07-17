@@ -5,6 +5,7 @@ from tastypie.resources import ModelResource
 from tastypie import fields, utils
 from logistics.models import Product
 from logistics.models import LogisticsProfile
+from rapidsms.contrib.locations.models import Point, Location
 
 
 class CustomResourceMeta(object):
@@ -50,4 +51,38 @@ class WebUserResources(ModelResource):
         queryset = LogisticsProfile.objects.all()
         include_resource_uri = False
         list_allowed_methods = ['get']
-        fields=['location', 'supply_point']
+        fields = ['location', 'supply_point']
+
+class PointResource(ModelResource):
+    latitude = fields.CharField('latitude')
+    longitude = fields.CharField('longitude')
+
+    class Meta(CustomResourceMeta):
+        queryset = Point.objects.all()
+        list_allowed_methods = ['get']
+        fields = ['latitude', 'longitude']
+        include_resource_uri = False
+
+class LocationResource(ModelResource):
+    id = fields.IntegerField('id')
+    name = fields.CharField('name')
+    type = fields.CharField('type')
+    parent_id = fields.IntegerField('parent_id', null=True)
+    points = fields.ToOneField(PointResource, 'point', full=True, null=True)
+    code = fields.CharField('code')
+
+    class Meta(CustomResourceMeta):
+        queryset = Location.objects.all()
+        list_allowed_methods = ['get']
+        details_allowed_methods = ['get']
+        fields = ['id', 'name', 'parent_id', 'code']
+        include_resource_uri = False
+
+    def dehydrate(self, bundle):
+        bundle.data['latitude'] = ""
+        bundle.data['longitude'] = ""
+        if bundle.data['points']:
+            bundle.data['latitude'] = bundle.data['points'].data['latitude']
+            bundle.data['longitude'] = bundle.data['points'].data['longitude']
+        del bundle.data['points']
+        return bundle
