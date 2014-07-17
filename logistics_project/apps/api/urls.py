@@ -8,7 +8,8 @@ API_LIST = (
     ((0, 1), (
         v0_1.ProductResources,
         v0_1.WebUserResources,
-        v0_1.LocationResources
+        v0_1.LocationResources,
+        v0_1.SMSUserResources
     )),
 )
 

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -6,6 +7,11 @@ class TanzaniaContactExtension(models.Model):
 
     user = models.OneToOneField(User, null=True, blank=True)
     email = models.EmailField(blank=True)
+    date_updated = models.DateTimeField(blank=True, auto_now_add=True)
+
+    def save(self, force_insert=False, force_update=False, using=None):
+        self.date_updated = datetime.today()
+        super(TanzaniaContactExtension, self).save(force_insert, force_update, using)
     
     class Meta:
         abstract = True

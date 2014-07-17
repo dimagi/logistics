@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
-from tastypie.paginator import Paginator
 from tastypie.resources import ModelResource
-from tastypie import fields, utils
-from logistics.models import Product
-from logistics.models import LogisticsProfile
 from rapidsms.contrib.locations.models import Point, Location
+from tastypie import fields
+from logistics.models import Product, LogisticsProfile
+from rapidsms.models import Contact, Connection
+
 
 
 class CustomResourceMeta(object):
@@ -39,6 +39,13 @@ class WebUserResources(ModelResource):
     user = fields.ToOneField(UserResource, 'user', full=True)
     location = fields.IntegerField('location_id', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    def get_object_list(self, request):
+        objects = super(WebUserResources, self).get_object_list(request)
+        date = request.GET.get('date', None)
+        if not date:
+            return objects.all()
+        return objects.filter(user__date_joined__gt=date)
 
     def dehydrate(self, bundle):
         bundle.data['user'].data['location'] = bundle.data['location']
@@ -97,3 +104,33 @@ class LocationResources(ModelResource):
             bundle.data['longitude'] = bundle.data['points'].data['longitude']
         del bundle.data['points']
         return bundle
+
+class SMSUserResources(ModelResource):
+    name = fields.CharField('name')
+    email = fields.CharField('email', null=True)
+    role = fields.CharField('role', null=True)
+    supply_point = fields.CharField('supply_point', null=True)
+    is_active = fields.CharField('is_active')
+
+    def get_object_list(self, request):
+        objects = super(SMSUserResources, self).get_object_list(request)
+        date = request.GET.get('date', None)
+        if not date:
+            return objects.all()
+        return objects.filter(date_updated__gt=date)
+
+    def dehydrate(self, bundle):
+        try:
+            connection = Connection.objects.get(contact_id=bundle.data['id'])
+            bundle.data['backend'] = str(connection.backend)
+            bundle.data['phone_numbers'] = [connection.identity]
+        except Connection.DoesNotExist:
+            bundle.data['backend'] = ""
+            bundle.data['phone_numbers'] = []
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = Contact.objects.all()
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active']
