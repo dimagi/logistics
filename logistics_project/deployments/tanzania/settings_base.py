@@ -201,6 +201,7 @@ SOUTH_MIGRATION_MODULES = {
     # override migrations folder to match our current deployment path
     'logistics': 'logistics_project.deployments.tanzania.migrations.logistics_prod',
     'rapidsms': 'logistics_project.deployments.tanzania.migrations.rapidsms_prod',
+    'locations': 'logistics_project.deployments.tanzania.migrations.locations_prod'
 }
 
 WAREHOUSE_RUNNER = "logistics_project.apps.tanzania.reporting.runner.TanzaniaWarehouseRunner"

@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
-from tastypie.paginator import Paginator
 from tastypie.resources import ModelResource
+from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
 from logistics.models import Product, LogisticsProfile
 from rapidsms.models import Contact, Connection
+
 
 
 class CustomResourceMeta(object):
@@ -22,7 +23,6 @@ class ProductResources(ModelResource):
         include_resource_uri = False
         fields = ['name', 'units', 'sms_code', 'description', 'is_active']
         list_allowed_methods = ['get']
-
 
 class UserResource(ModelResource):
     username = fields.CharField('username', null=True)
@@ -60,6 +60,57 @@ class WebUserResources(ModelResource):
         list_allowed_methods = ['get']
         fields = ['location', 'supply_point']
 
+class PointResource(ModelResource):
+    latitude = fields.CharField('latitude')
+    longitude = fields.CharField('longitude')
+
+    class Meta(CustomResourceMeta):
+        queryset = Point.objects.all()
+        list_allowed_methods = ['get']
+        fields = ['latitude', 'longitude']
+        include_resource_uri = False
+
+class LocationResources(ModelResource):
+    id = fields.IntegerField('id')
+    name = fields.CharField('name')
+    type = fields.CharField('type')
+    parent_id = fields.IntegerField('parent_id', null=True)
+    points = fields.ToOneField(PointResource, 'point', full=True, null=True)
+    code = fields.CharField('code')
+
+    class Meta(CustomResourceMeta):
+        queryset = Location.objects.all()
+        list_allowed_methods = ['get']
+        details_allowed_methods = ['get']
+        fields = ['id', 'name', 'parent_id', 'code']
+        include_resource_uri = False
+
+    def get_object_list(self, request, **kwargs):
+        objects = super(LocationResources, self).get_object_list(request)
+        date = request.GET.get('date', None)
+        type = request.GET.get('loc_type', None)
+
+        kwargs = {}
+
+        if date:
+            kwargs['date_updated__gt'] = date
+
+        if type:
+            kwargs['type__slug'] = type
+
+        if kwargs:
+            return objects.filter(**kwargs)
+        else:
+            return objects.all()
+
+    def dehydrate(self, bundle):
+        bundle.data['latitude'] = ""
+        bundle.data['longitude'] = ""
+        if bundle.data['points']:
+            bundle.data['latitude'] = bundle.data['points'].data['latitude']
+            bundle.data['longitude'] = bundle.data['points'].data['longitude']
+        del bundle.data['points']
+        return bundle
 
 class SMSUserResources(ModelResource):
     name = fields.CharField('name')
