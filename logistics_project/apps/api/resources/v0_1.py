@@ -116,7 +116,7 @@ class SMSUserResources(ModelResource):
     name = fields.CharField('name')
     email = fields.CharField('email', null=True)
     role = fields.CharField('role', null=True)
-    supply_point = fields.CharField('supply_point', null=True)
+    supply_point = fields.IntegerField('supply_point_id', null=True)
     is_active = fields.CharField('is_active')
 
     def get_object_list(self, request):
