@@ -17,7 +17,6 @@ class Command(LabelCommand):
         Exports a table of stock status percentages with the following headings:
         product    district    facility    has    start date    end date    length
         """
-        products = Product.objects.all()
 
         def _iter_rows():
             EXCEL_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
