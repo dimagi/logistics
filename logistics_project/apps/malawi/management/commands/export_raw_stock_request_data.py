@@ -64,5 +64,3 @@ class Command(LabelCommand):
 
         for i, row in enumerate(_iter_rows()):
             out.writerow(row)
-            if i > 100:
-                break
