@@ -4,7 +4,7 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.resources import ModelResource
 from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
-from logistics.models import Product, LogisticsProfile
+from logistics.models import Product, LogisticsProfile, SupplyPoint
 from rapidsms.models import Contact, Connection
 
 
@@ -77,12 +77,13 @@ class LocationResources(ModelResource):
     parent_id = fields.IntegerField('parent_id', null=True)
     points = fields.ToOneField(PointResource, 'point', full=True, null=True)
     code = fields.CharField('code')
+    groups = fields.ListField(null=True, default=[])
 
     class Meta(CustomResourceMeta):
         queryset = Location.objects.all()
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
-        fields = ['id', 'name', 'parent_id', 'code']
+        fields = ['id', 'name', 'parent_id', 'code', 'groups']
         include_resource_uri = False
 
     def get_object_list(self, request, **kwargs):
@@ -104,6 +105,11 @@ class LocationResources(ModelResource):
             return objects.all()
 
     def dehydrate(self, bundle):
+        try:
+            sp = SupplyPoint.objects.get(pk=bundle.data['id'])
+            bundle.data['groups'] = list(sp.groups.all())
+        except SupplyPoint.DoesNotExist:
+            bundle.data['groups'] = []
         bundle.data['latitude'] = ""
         bundle.data['longitude'] = ""
         if bundle.data['points']:
@@ -111,6 +117,7 @@ class LocationResources(ModelResource):
             bundle.data['longitude'] = bundle.data['points'].data['longitude']
         del bundle.data['points']
         return bundle
+
 
 class SMSUserResources(ModelResource):
     name = fields.CharField('name')
