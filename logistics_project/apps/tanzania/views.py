@@ -215,7 +215,9 @@ def dashboard(request):
     
     processing_numbers = prepare_processing_info([total, rr_data, delivery_data])
 
-    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
+    product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date),
+                                                                  product__is_active=True,
+                                                                  supply_point__code=org).order_by('product__sms_code')
     product_dashboard = ProductAvailabilityDashboardChart()
 
     product_json = convert_product_data_to_stack_chart(product_availability, product_dashboard)
