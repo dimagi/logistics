@@ -105,13 +105,14 @@ class View(warehouse_view.DistrictOnlyView):
         p_code = request.REQUEST.get("product", "")
         
         p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
-        line_chart = get_consumption_chart(sp, p, request.datespan.startdate, 
-                                           request.datespan.enddate)
+        amc_table, line_chart = get_consumption_chart(sp, p, request.datespan.startdate,
+                                                      request.datespan.enddate)
         return {
             "location_table": l_table,
             "hsa_table": hsa_table,
             "hsa_list": hsa_list,
             "selected_hsa": selected_hsa,
+            "amc_mos_table": amc_table,
             "line_chart": line_chart,
             "selected_product": p
         }
