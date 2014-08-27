@@ -45,8 +45,13 @@ class Command(LabelCommand):
 
                 assert _clean(fac.name) == name, 'expected %s but was %s' % (fac.name, name)
                 assert fac.location.parent == fac.supplied_by.location
-                assert fac.type.code == 'facility'
-                assert new_parent.type.code != 'facility'
+                if fac.type.code == 'facility':
+                    assert new_parent.type.code == 'district'
+                elif fac.type.code == 'district':
+                    assert new_parent.type.code == 'region'
+                else:
+                    raise AssertionError('wrong type {0}'.format(fac.type.code))
+
                 if fac.supplied_by == new_parent:
                     print 'already set %s' % fac
                 else:
