@@ -41,16 +41,66 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             self.assertEqual(contact.supply_point, ps.supply_point)
             self.assertTrue(0 != ps.quantity)
         
+    def testStockOnHandStockouts(self):
+        translation.activate("sw")
+        contact = register_user(self, "778", "someone")
+        add_products(contact, ["id", "dp", "ip"])
+        script = """
+            778 > Hmk Id 0 Dp 0 Ip 0
+            778 < %(soh_confirm)s
+        """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
+        self.runScript(script)
+        self.assertEqual(3, ProductReport.objects.count())
+        self.assertEqual(3, ProductStock.objects.count())
+
+        for ps in ProductStock.objects.all():
+            self.assertEqual(contact.supply_point, ps.supply_point)
+            self.assertEqual(0, ps.quantity)
+
+    def testStockOnHandStockoutsUpdate(self):
+        translation.activate("sw")
+        contact = register_user(self, "778", "someone")
+        add_products(contact, ["id", "dp", "ip"])
+
+        prod_amt_configs = [
+            (('Id', 100), ('Dp', 200), ('Ip', 300)),
+            (('Id', 0), ('Dp', 100), ('Ip', 200)),
+            (('Id', 100), ('Dp', 0), ('Ip', 0)),
+            (('Id', 50), ('Dp', 150), ('Ip', 250)),
+            (('Id', 0), ('Dp', 0), ('Ip', 0)),
+        ]
+        pkmax = -1
+        for prod_amt_config in prod_amt_configs:
+            this_pkmax = pkmax
+            product_string = ' '.join(['{p} {v}'.format(p=p, v=v) for p, v in prod_amt_config])
+            script = """
+                778 > Hmk {products}
+                778 < {soh_confirm}
+            """.format(
+                products=product_string,
+                soh_confirm= _(config.Messages.SOH_CONFIRM)
+            )
+            self.runScript(script)
+            self.assertEqual(3, ProductReport.objects.filter(pk__gt=pkmax).count())
+            self.assertEqual(3, ProductStock.objects.count())
+            for code, amt in prod_amt_config:
+                ps = ProductStock.objects.get(product__sms_code__iexact=code)
+                self.assertEqual(amt, ps.quantity)
+                pr = ProductReport.objects.get(pk__gt=pkmax, product__sms_code__iexact=code)
+                self.assertEqual(amt, ps.quantity)
+                this_pkmax = max(this_pkmax, pr.pk)
+            pkmax = max(this_pkmax, pkmax)
+
     def testStockOnHandPartialReport(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "fs", "md", "ff", "dx", "bp", "pc", "qi"])
         script = """
-            778 > Hmk Id 400 
+            778 > Hmk Id 400
             778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za bp dp dx ff fs md pc qi
         """
         self.runScript(script)
-        
+
         script = """
             778 > Hmk Dp 569 ip 454 ff 5655
             778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za bp dx fs md pc qi
@@ -62,14 +112,14 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             778 < %(soh_confirm)s
         """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
-                
+
     def testProductAliases(self):
         translation.activate("sw")
 
         contact = register_user(self, "778", "someone")
         add_products(contact, ["id", "dp", "ip"])
         script = """
-            778 > Hmk iucd 400 
+            778 > Hmk iucd 400
             778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za dp ip
         """
         self.runScript(script)
@@ -78,13 +128,13 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             778 < Asante someone kwa kutuma taarifa za akiba ya vifaa vilivyopo vya VETA 1, bado taarifa za ip
         """
         self.runScript(script)
-        
+
         script = """
             778 > Hmk IMPL 678
             778 < %(soh_confirm)s
         """ % {"soh_confirm": _(config.Messages.SOH_CONFIRM)}
         self.runScript(script)
-        
+
     def testStockOnHandDelimitersStandard(self):
         translation.activate("sw")
         contact = register_user(self, "+255714774042", "someone")
@@ -212,7 +262,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
             +255714774042 < %(language_confirm)s
         """ % {'language_confirm': _(config.Messages.LANGUAGE_CONFIRM) % {"language": "English"}}
         self.runScript(script)
-        
+
         """
             +255714774042 > soh fs100md100
             +255714774042 < %(soh_confirm)s
