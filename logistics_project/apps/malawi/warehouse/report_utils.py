@@ -236,7 +236,7 @@ def get_multiple_reporting_rates_chart(supply_points, date):
 
 def get_consumption_chart(supply_point, product, start, end):
     dates = get_datelist(start, end)
-    
+
     report_chart = {
         "div": "cons-chart-div",
         "legenddiv": "cons-legend-div",
@@ -255,7 +255,7 @@ def get_consumption_chart(supply_point, product, start, end):
                                        product=product,date=d) for d in dates]
     
     cons_series = [[i + 1, cc.average_adjusted_consumption] for i, cc in enumerate(ccs) if cc.total]
-    
+
     mos_series = [[i + 1, hs.stock / ccs[i].adjusted_consumption \
                    if ccs[i].adjusted_consumption else 0] \
                   for i, hs in enumerate(hss) if hs.total]
@@ -271,7 +271,15 @@ def get_consumption_chart(supply_point, product, start, end):
                      'yaxis': 2})
     
     report_chart['data'] = json.dumps(ret_data)
-    return report_chart
+    table = {
+        "id": "amc-mos-by-product",
+        "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
+        "data": [
+            [product.name] + [cons[1] for cons in cons_series],
+            [product.name] + [mos[1] for mos in mos_series]
+        ]
+    }
+    return table, report_chart
 
 def supply_point_type_display(sptype):
     def _fmt(str):
