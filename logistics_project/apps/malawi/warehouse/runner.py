@@ -704,6 +704,7 @@ def update_historical_data():
         CalculatedConsumption,
         HistoricalStock,
     ]
+    print 'updating historical data'
     for sp in SupplyPoint.objects.all():
         try:
             SupplyPointWarehouseRecord.objects.get(supply_point=sp)
