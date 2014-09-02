@@ -58,7 +58,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_historical_stock = False
     consumption_test_mode = False
     hsa_limit = 0
-    
+    agg_limit_per_type = 0
+
     def cleanup(self, start, end):
         print "Malawi warehouse cleanup!"  
         # TODO: fix this up - currently deletes all records having any data
@@ -106,18 +107,21 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 
                 
         # rollup aggregates
-        non_hsas = SupplyPoint.objects.filter(active=True)\
-            .exclude(type__code='hsa').order_by('id')
-        # national only
-        # non_hsas = SupplyPoint.objects.filter(active=True, type__code='c')
-        non_hsa_count = non_hsas.count()
         all_products = Product.objects.all()
-        if not self.skip_aggregates: 
-            for i, place in enumerate(non_hsas):
-                print "processing non-hsa %s (%s) (%s/%s)" % (place.name, str(place.id),
-                                                              i, non_hsa_count)
-                self.update_non_hsa_data(place, start, end, run_record.start_run,
-                                         all_products=all_products)
+        if not self.skip_aggregates:
+            for agg_type_code, agg_type_name in aggregate_types_in_order():
+                non_hsas = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
+                print 'processing non-hsas of type {0}'.format(agg_type_name)
+                if self.agg_limit_per_type:
+                    non_hsas = non_hsas[:self.agg_limit_per_type]
+
+                non_hsa_count = non_hsas.count()
+                for i, place in enumerate(non_hsas):
+                    print "processing %s %s (%s) (%s/%s)" % (agg_type_name, place.name,
+                                                             str(place.id), i, non_hsa_count)
+
+                    self.update_non_hsa_data(place, start, end, run_record.start_run,
+                                             all_products=all_products)
 
         # run user profile summary
         if not self.skip_profile_data: 
@@ -125,7 +129,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         # run alerts
         if not self.skip_alerts:
-            update_alerts(hsas, non_hsas)
+            update_alerts(hsas)
 
         update_historical_data()
 
@@ -369,50 +373,50 @@ class MalawiWarehouseRunner(WarehouseRunner):
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
 
         all_products = all_products or Product.objects.all()
-        relevant_hsas = hsa_supply_points_below(place.location)
+        relevant_children = proper_children(place)
 
         if not self.skip_current_consumption:
             for p in all_products:
-                _aggregate_raw(CurrentConsumption, place, relevant_hsas,
+                _aggregate_raw(CurrentConsumption, place, relevant_children,
                                fields=["total", "current_daily_consumption", "stock_on_hand"],
                                additonal_query_params={"product": p})
 
         for year, month in months_between(start, end):
             window_date = datetime(year, month, 1)
             if not self.skip_reporting_rates:
-                _aggregate(ReportingRate, window_date, place, relevant_hsas,
+                _aggregate(ReportingRate, window_date, place, relevant_children,
                            fields=['total', 'reported', 'on_time', 'complete'])
             if not self.skip_product_availability:
                 for p in all_products:
-                    _aggregate(ProductAvailabilityData, window_date, place, relevant_hsas,
+                    _aggregate(ProductAvailabilityData, window_date, place, relevant_children,
                                fields=['total', 'managed'] + \
                                     ProductAvailabilityData.STOCK_CATEGORIES + \
                                     ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
                                additonal_query_params={"product": p})
                 _aggregate(ProductAvailabilityDataSummary, window_date, place,
-                           relevant_hsas, fields=['total', 'any_managed'] + \
+                           relevant_children, fields=['total', 'any_managed'] + \
                            ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
             if not self.skip_lead_times:
                 for code, name in TIME_TRACKER_TYPES:
-                    _aggregate(TimeTracker, window_date, place, relevant_hsas,
+                    _aggregate(TimeTracker, window_date, place, relevant_children,
                                fields=['total', 'time_in_seconds'],
                                additonal_query_params={"type": code})
             if not self.skip_order_requests:
                 for p in all_products:
-                    _aggregate(OrderRequest, window_date, place, relevant_hsas,
+                    _aggregate(OrderRequest, window_date, place, relevant_children,
                                fields=['total', 'emergency'],
                                additonal_query_params={"product": p})
             if not self.skip_order_fulfillment:
                 for p in all_products:
 
-                    _aggregate(OrderFulfillment, window_date, place, relevant_hsas,
+                    _aggregate(OrderFulfillment, window_date, place, relevant_children,
                            fields=['total', 'quantity_requested', 'quantity_received'],
                            additonal_query_params={"product": p})
 
             if not self.skip_consumption and self.consumption_test_mode:
                 for p in all_products:
                     # NOTE: this is not correct, but is for testing / iteration
-                    _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
+                    _aggregate(CalculatedConsumption, window_date, place, relevant_children,
                                fields=['calculated_consumption',
                                        'time_stocked_out',
                                        'time_with_data',
@@ -421,7 +425,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
             if not self.skip_historical_stock:
                 for p in all_products:
-                    _aggregate(HistoricalStock, window_date, place, relevant_hsas,
+                    _aggregate(HistoricalStock, window_date, place, relevant_children,
                                fields=["total", "stock"],
                                additonal_query_params={"product": p})
 
@@ -432,14 +436,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # outside the range we are looking at
                 agg = CalculatedConsumption.objects.filter(
                     update_date__gte=since,
-                    supply_point__in=relevant_hsas,
+                    supply_point__in=relevant_children,
                 ).aggregate(Min('date'))
                 new_start = agg.get('date__min', None)
                 if new_start:
                     assert new_start <= end
                     for year, month in months_between(new_start, end):
                         window_date = datetime(year, month, 1)
-                        _aggregate(CalculatedConsumption, window_date, place, relevant_hsas,
+                        _aggregate(CalculatedConsumption, window_date, place, relevant_children,
                            fields=['calculated_consumption',
                                    'time_stocked_out',
                                    'time_with_data',
@@ -588,7 +592,8 @@ def update_user_profile_data():
         new_obj.save()
     return True
 
-def update_alerts(hsas, non_hsas):
+def update_alerts(hsas):
+    non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
     print "updating alerts"
 
     def _qs_to_int(queryset):
@@ -718,3 +723,22 @@ def update_historical_data():
             SupplyPointWarehouseRecord.objects.create(supply_point=sp,
                                                       create_date=datetime.utcnow())
 
+
+def proper_children(supply_point):
+    qs = SupplyPoint.objects.filter(active=True, supplied_by=supply_point)
+    if 'test' not in supply_point.name.lower():
+        assert qs.count() == qs.filter(type__code=proper_child_type(supply_point)).count()
+    return qs
+
+def proper_child_type(supply_point):
+    return {
+        'c': 'd',
+        'd': 'hf',
+        'hf': 'hsa',
+        'hsa': None,
+    }[supply_point.type.code]
+
+def aggregate_types_in_order():
+    yield 'hf', 'health facility'
+    yield 'd', 'district'
+    yield 'c', 'country'
