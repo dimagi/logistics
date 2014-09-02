@@ -1,10 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 
 from logistics.util import config
 from logistics.models import SupplyPoint, Product, LogisticsProfile
 
 from logistics_project.apps.malawi.models import Organization
+
 
 class OrganizationForm(forms.ModelForm):
     name = forms.CharField()
@@ -17,6 +18,7 @@ class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
         
+
 class LogisticsProfileForm(forms.ModelForm):
     supply_point = forms.ModelChoiceField(
         queryset=SupplyPoint.objects.filter(active=True,
@@ -49,9 +51,15 @@ class LogisticsProfileForm(forms.ModelForm):
 
     class Meta:
         model = LogisticsProfile
-        exclude = ('user', 'location','designation')
+        exclude = ('user', 'location', 'designation')
 
 
 class UploadFacilityFileForm(forms.Form):
     file  = forms.FileField()
 
+
+class ProductForm(forms.ModelForm):
+
+    class Meta:
+        model = Product
+        exclude = ('product_code', 'description', 'equivalents', 'is_active')

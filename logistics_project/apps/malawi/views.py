@@ -48,7 +48,7 @@ from logistics_project.apps.malawi.reports import ReportInstance, ReportDefiniti
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
-    UploadFacilityFileForm
+    UploadFacilityFileForm, ProductForm
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from logistics_project.apps.malawi.loader import load_locations,\
@@ -247,6 +247,21 @@ def products(request):
     }
     return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
+
+
+def add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            p = form.save()
+            messages.success(request, 'Product "{0}" was created.'.format(p.name))
+            return HttpResponseRedirect(reverse('malawi_products'))
+    else:
+        form = ProductForm()
+    return render_to_response("%s/add_product.html" % settings.MANAGEMENT_FOLDER,
+                              {'form': form},
+                              context_instance=RequestContext(request))
+
 
 def single_product(request, pk):
     p = get_object_or_404(Product, pk=pk)

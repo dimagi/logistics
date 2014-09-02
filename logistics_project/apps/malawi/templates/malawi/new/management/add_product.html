@@ -1,0 +1,11 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Add Product - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Create Product">
+    </form>
+</div>
+{% endblock %}
