@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from logistics.models import SupplyPoint
 from logistics.templatetags.logistics_report_tags import r_2_s_helper
@@ -15,6 +16,8 @@ def warehouse_product_availability_summary(location, date, width=900, height=300
         return r_2_s_helper("logistics/partials/product_availability_summary.html",
                              {"summary": summary})
     except ObjectDoesNotExist:
+        if settings.DEBUG:
+            raise
         return '<p class="error">Sorry, no data found for chart</p>'
 
 @register.filter
