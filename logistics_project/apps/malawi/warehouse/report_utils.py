@@ -39,21 +39,34 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
         self._supply_point = supply_point
         
         
-        products = Product.objects.all().order_by('sms_code')
+        products = Product.objects.filter(is_active=True).order_by('sms_code')
         data = []
         for p in products:
-            availability_data = ProductAvailabilityData.objects.get\
-                (supply_point=supply_point, date=date, product=p)
-            
-            data.append({"product": p,
-                         "total": availability_data.managed,
-                         "without_stock": availability_data.managed_and_without_stock,
-                         "under_stock": availability_data.managed_and_under_stock,
-                         "good_stock": availability_data.managed_and_good_stock,
-                         "over_stock": availability_data.managed_and_over_stock,
-                         "without_data": availability_data.managed_and_without_data})
+            try:
+                availability_data = ProductAvailabilityData.objects.get(
+                    supply_point=supply_point, date=date, product=p
+                )
+                data.append({
+                    "product": p,
+                    "total": availability_data.managed,
+                    "without_stock": availability_data.managed_and_without_stock,
+                    "under_stock": availability_data.managed_and_under_stock,
+                    "good_stock": availability_data.managed_and_good_stock,
+                    "over_stock": availability_data.managed_and_over_stock,
+                    "without_data": availability_data.managed_and_without_data
+                })
+            except ProductAvailabilityData.DoesNotExist:
+                data.append({
+                    'product': p,
+                    "total": 0,
+                    "without_stock": 0,
+                    "under_stock": 0,
+                    "good_stock": 0,
+                    "over_stock": 0,
+                    "without_data": 0
+                })
         self.data = data
-    
+
     @property
     def max_value(self):
         # since it's a percent
@@ -71,7 +84,6 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     _flot_data = None
     @property
     def flot_data(self):
-
         if self._flot_data is None:
             without_stock = []
             under_stock = []

@@ -126,15 +126,22 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
         }
         hsa_stockout_data = []
-        products = Product.objects.filter(type=selected_type) if selected_type else Product.objects.all()
+        active = Product.objects.filter(is_active=True)
+        products = active.objects.filter(type=selected_type) if selected_type else active
         for p in products:
             nums = []
             denoms = []
             for dt in dates:
-                pad = ProductAvailabilityData.objects.get(supply_point=sp, product=p, date=dt)
-                data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
-                nums.append(pad.managed_and_without_stock)
-                denoms.append(pad.managed)
+                try:
+                    pad = ProductAvailabilityData.objects.get(supply_point=sp, product=p, date=dt)
+                    data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
+                    nums.append(pad.managed_and_without_stock)
+                    denoms.append(pad.managed)
+                except ProductAvailabilityData.DoesNotExist:
+                    data[p][dt] = 0
+                    nums.append(0)
+                    denoms.append(0)
+
             hsa_stockout_data.append(['%s - num' % p.name] + nums)
             hsa_stockout_data.append(['%s - denom' % p.name] + denoms)
             hsa_stockout_data.append(['%s - pct' % p.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
