@@ -392,14 +392,20 @@ def get_stock_status_table_data(supply_point):
     _f0 = lambda val: "%.0f" % val if val else "no data"
     _f1 = lambda val: "%.1f" % val if val else "no data"
     def _status_row(sp, p):
-        consumption = CurrentConsumption.objects.get(supply_point=sp,
-                                                     product=p)
-        return [p.name, _f0(consumption.current_monthly_consumption), 
-                consumption.stock_on_hand, 
-                _f1(consumption.months_of_stock), 
-                consumption.stock_status]
+        try:
+            consumption = CurrentConsumption.objects.get(supply_point=sp,
+                                                         product=p)
+        except CurrentConsumption.DoesNotExist:
+            return [p.name] + ['no data'] * 4
+        return [
+            p.name,
+            _f0(consumption.current_monthly_consumption),
+            consumption.stock_on_hand,
+            _f1(consumption.months_of_stock),
+            consumption.stock_status
+        ]
     
-    return [_status_row(supply_point, p) for p in Product.objects.all()]
+    return [_status_row(supply_point, p) for p in Product.objects.filter(is_active=True)]
 
 def table_to_csv(table_data):
     response = HttpResponse(mimetype='text/csv')
