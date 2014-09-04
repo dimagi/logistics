@@ -47,11 +47,12 @@ class View(warehouse_view.DistrictOnlyView):
             "data": status_data,
         }
         
-        def _get_product_status_table(supply_points, products):
+        def _get_product_status_table(supply_points, product, date):
             ret = []
             for s in supply_points:
                 qs = ProductAvailabilityData.objects.filter(supply_point=s, 
-                                                            product__in=products)
+                                                            product=product,
+                                                            date=date)
                 values = qs.aggregate(Sum('managed_and_without_stock'),
                                       Sum('managed_and_under_stock'),
                                       Sum('managed_and_good_stock'),
@@ -72,7 +73,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
             
         if is_facility(sp):
-            products = Product.objects.all().order_by('sms_code')
+            products = Product.objects.filter(is_active=True).order_by('sms_code')
             hsa_table = {
                 "id": "hsa-table",
                 "is_datatable": True,
@@ -104,17 +105,22 @@ class View(warehouse_view.DistrictOnlyView):
         elif is_country(sp):
             location_table["location_type"] = "District"
             location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = _get_product_status_table\
-                (get_district_supply_points(request.user.is_superuser).order_by('name'),
-                 [selected_product])
+            location_table["data"] = _get_product_status_table(
+                get_district_supply_points(request.user.is_superuser).order_by('name'),
+                selected_product,
+                current_report_period(),
+            )
+
             
         else:
             assert is_district(sp)
             location_table["location_type"] = "Facility"
             location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = _get_product_status_table\
-                (facility_supply_points_below(sp.location).order_by('name'), 
-                 [selected_product])
+            location_table["data"] = _get_product_status_table(
+                facility_supply_points_below(sp.location).order_by('name'),
+                selected_product,
+                current_report_period(),
+            )
 
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
