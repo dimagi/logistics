@@ -804,5 +804,7 @@ class ReportView(object):
             try:
                 self._context.update(self.custom_context(request))
             except ObjectDoesNotExist:
+                if settings.DEBUG:
+                    raise
                 self._context['custom_context_failure'] = True
         return self._context
