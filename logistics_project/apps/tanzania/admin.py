@@ -52,7 +52,7 @@ class SupplyPointAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         self.exclude = []
-        if not obj.is_pilot:
+        if not obj or not obj.is_pilot:
             self.exclude = ['nearests_supply_points']
         return super(SupplyPointAdmin, self).get_form(request, obj, **kwargs)
 
