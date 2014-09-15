@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.contrib import admin
+from logistics.models import SupplyPoint
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     AdHocReport
 from rapidsms.contrib.locations.models import Location
@@ -38,3 +39,21 @@ except Exception:
     pass
 
 admin.site.register(Message, MessageAdmin)
+
+try:
+    admin.site.unregister(SupplyPoint)
+except Exception:
+    pass
+
+class SupplyPointAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "type")
+    list_filter = ('type', 'active', 'is_pilot')
+    model = SupplyPoint
+
+    def get_form(self, request, obj=None, **kwargs):
+        self.exclude = []
+        if not obj.is_pilot:
+            self.exclude = ['nearests_supply_points']
+        return super(SupplyPointAdmin, self).get_form(request, obj, **kwargs)
+
+admin.site.register(SupplyPoint, SupplyPointAdmin)
