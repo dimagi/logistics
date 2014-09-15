@@ -4,6 +4,7 @@ from django.db import models
 
 class TanzaniaSupplyPointExtension(models.Model):
     nearests_supply_points = models.ManyToManyField('self', related_name='nearests', symmetrical=False)
+    is_pilot = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
