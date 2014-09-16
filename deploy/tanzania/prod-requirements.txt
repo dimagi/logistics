@@ -38,3 +38,4 @@ wsgiref==0.1.2
 xlwt==0.7.5
 -e git+git://github.com/dimagi/rapidsms-threadless-router.git@f6eb7e95b6d1531a0d33f13cb4b5629a2bad79f7#egg=rapidsms_threadless_router-dev
 django-tastypie==0.9.14
+xlrd==0.9.3
