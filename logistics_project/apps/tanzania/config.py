@@ -238,7 +238,8 @@ class Messages(object):
     TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
     TEST_HANDLER_CONFIRM = "Sent"
 
-    TRANS_HANDLER_HELP = "Did you receive or transfer stock to another facility last month? Please reply either 'trans no' or 'trans yes'"
+    REMINDER_TRANS = "Did you receive or transfer stock to another facility last month? Please reply either 'trans no' or 'trans yes'"
+    TRANS_HELP = "You can respond 'trans yes' if you have received or transfered stock last month or 'trans no' if you have not"
 
     REMINDER_STOCKOUT = "You are stocked out of %(products_list)s. The following facilities are overstocked: %(overstocked_list)s"
 

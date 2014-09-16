@@ -208,6 +208,9 @@ def load_schedules():
             "second": (9, 0),
             "third": (9, 0)
         },
+        "logistics_project.apps.tanzania.reminders.stockout": {
+            "first": (8, 0),
+        },
         "logistics_project.apps.tanzania.reminders.stockonhandthankyou": {
             "first": (9, 0)
         },

@@ -59,15 +59,20 @@ class StockOnHandHandler(KeywordHandler, TaggingHandler):
                           'product_list': ' '.join(sorted([p.sms_code for p in missing_products]))}
                 self.respond(_(config.Messages.SOH_PARTIAL_CONFIRM), **kwargs)
             else:
-                self.respond(_(config.Messages.SOH_CONFIRM),
-                             reply_list=','.join(sorted(stock_report.reported_products())))
-            overstocked_msg = ""
-            products_msg = ""
-            for k, v in sp.facility_products_with_state().iteritems():
-                overstocked_msg += "%s: %s " % (k, v[0])
-                products_msg += "%s: %s " % (k, v[1])
+                if not sp.is_pilot:
+                    self.respond(_(config.Messages.SOH_CONFIRM),
+                                 reply_list=','.join(sorted(stock_report.reported_products())))
+                else:
+                    overstocked_msg = ""
+                    products_msg = ""
+                    for k, v in sp.overstocked_products().iteritems():
+                        overstocked_msg += "%s: %s " % (k, v[0])
+                        products_msg += "%s: %s " % (k, v[1])
+                    self.respond(_(config.Messages.SOH_OVERSTOCKED), overstocked_list=overstocked_msg,
+                                 products_list=products_msg)
+                    self.respond(_(config.Messages.REMINDER_TRANS))
 
-            self.respond(_(config.Messages.SOH_OVERSTOCKED), overstocked_list=overstocked_msg, products_list=products_msg)
+
             SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
                                              status_value=SupplyPointStatusValues.SUBMITTED,

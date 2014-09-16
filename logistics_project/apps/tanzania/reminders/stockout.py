@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 from dimagi.utils.dates import get_day_of_month
 from logistics.const import Reports
 from logistics_project.apps.tanzania.config import SupplyPointCodes
-from models import Contact
-from scheduler.decorators import day
+from rapidsms.models import Contact
+from logistics.util import config
+from django.utils.translation import ugettext_noop as _
+from scheduler.decorators import businessday
 
 
-#TODO move to utils
 def get_people(cutoff):
     # these go out every month to every active person at all facilities
     # who has reported this month
@@ -28,7 +29,18 @@ def last_yearmonth():
     return last_month.year, last_month.month
 
 
-@day(6)
-def sixth_day():
+@businessday(6)
+def first():
     people = get_people(get_cutoff(*last_yearmonth()))
-    #TODO
+    for person in people:
+        stocked_out = set(person.supply_point.stockout_products().keys())
+        if stocked_out:
+            overstocked_str = ""
+            for sp in person.supply_point.closest_supply_points.all():
+                overstocked = set(sp.overstocked_products().keys())
+                intersection = overstocked.intersection(stocked_out)
+                if intersection:
+                    overstocked_str += "%s (%s)" % (sp.name, ', '.join(intersection))
+            if overstocked_str:
+                print _(config.Messages.REMINDER_STOCKOUT) % {'products_list': ', '.join(stocked_out),
+                                                              'overstocked_list': overstocked_str}
