@@ -74,3 +74,12 @@ class SMSFacilityForm(forms.Form):
         label=_('Message'),
         widget=forms.Textarea,
     )
+
+
+class SupplyPointAdminForm(forms.ModelForm):
+    class Meta:
+        model = SupplyPoint
+
+    def __init__(self, *args, **kwargs):
+        super(SupplyPointAdminForm, self).__init__(*args, **kwargs)
+        self.fields['closest_supply_points'].queryset = self.fields['closest_supply_points'].queryset.exclude(id=self.instance.id)

@@ -3,8 +3,10 @@
 
 from django.contrib import admin
 from logistics.models import SupplyPoint
+from logistics_project.apps.tanzania.forms import SupplyPointAdminForm
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     AdHocReport
+from logistics_project.settings import MEDIA_URL
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 
@@ -48,12 +50,11 @@ except Exception:
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "type")
     list_filter = ('type', 'active', 'is_pilot')
-    model = SupplyPoint
+    form = SupplyPointAdminForm
 
-    def get_form(self, request, obj=None, **kwargs):
-        self.exclude = []
-        if not obj or not obj.is_pilot:
-            self.exclude = ['closest_supply_points']
-        return super(SupplyPointAdmin, self).get_form(request, obj, **kwargs)
+    class Media:
+        js = (
+            MEDIA_URL + 'tanzania/js/supplypoint_admin.js',
+        )
 
 admin.site.register(SupplyPoint, SupplyPointAdmin)
