@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from datetime import datetime, timedelta
+from django.test.utils import override_settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext_noop as _
@@ -68,8 +69,9 @@ class StockOnHandHandler(KeywordHandler, TaggingHandler):
                     for k, v in sp.overstocked_products().iteritems():
                         overstocked_msg += "%s: %s " % (k, v[0])
                         products_msg += "%s: %s " % (k, v[1])
-                    self.respond(_(config.Messages.SOH_OVERSTOCKED), overstocked_list=overstocked_msg,
-                                 products_list=products_msg)
+                    if overstocked_msg and products_msg:
+                        self.respond(_(config.Messages.SOH_OVERSTOCKED), overstocked_list=overstocked_msg,
+                                     products_list=products_msg)
                     self.respond(_(config.Messages.REMINDER_TRANS))
 
 
