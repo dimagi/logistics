@@ -12,7 +12,7 @@ class Command(BaseCommand):
             action='store_true',
             dest='test',
             default=False,
-            help='Delete poll instead of closing it'),
+            help="Just print out test information but don't actually migrate anything"),
         )
 
     def handle(self, *args, **options):
@@ -24,7 +24,8 @@ class Command(BaseCommand):
             for sheet in xls_file.sheets():
                 print "Updates for district - %s" % sheet.name
                 for cell in sheet._cell_values[1:]:
-                    if cell[1] and cell[3]: # skip facilities which didn't exist in ILS
+                    # only touch facilities which exist in ILS
+                    if cell[1] and cell[3]:
                         try:
                             sp = SupplyPoint.objects.filter(code=cell[1])[:1].get()
                             sp.code = cell[3]
@@ -39,10 +40,5 @@ class Command(BaseCommand):
                                 else:
                                     sp.location.save()
                                     sp.save()
-                                pass
                         except SupplyPoint.DoesNotExist:
-                            print("Problem with update facility: name - %s, code - %s" % (cell[0], cell[1]))
-                            pass
-
-
-
+                            print("Facility was not found in ILSGateway: name - %s, code - %s" % (cell[0], cell[1]))
