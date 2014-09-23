@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
+from django.contrib.auth.models import User
 from logistics.const import Reports
 
 from dimagi.utils import csv 
@@ -524,6 +525,8 @@ def global_stats(request):
         'stock_transactions': StockTransaction.objects.count(),
         'inbound_messages': Message.objects.filter(direction='I').count(),
         'outbound_messages': Message.objects.filter(direction='O').count(),
+        'products': Product.objects.count(),
+        'web_users': User.objects.count()
     }
     return render_to_response('logistics/global_stats.html', context,
                               context_instance=RequestContext(request))
