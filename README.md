@@ -57,18 +57,17 @@ LANGUAGES = (
 LANGUAGE_CODE = "en"
 ```
 
-Because the threadless router doesn't play nice with initiation of outbound messages in the tests you have
-to make one modification to the code to get the tests to pass. Comment out the following line in
-`logistics_project.apps.tanzania.reminders.send_message` so that it looks like the following:
+You should also disable south migrations by adding the following to localsettings:
 
 ```
-def send_message(contact, message, **kwargs):
-    # this hack sets the global router to threadless router.
-    # should maybe be cleaned up.
-    # router.router = Router()   # <---- this line commented out
-    contact.message(message, **kwargs)
+SOUTH_TESTS_MIGRATE = False
 ```
 
+Finally, only run the tests for the tanzania app, by running:
+
+```
+./manage.py test logistics_project.apps.tanzania
+```
 
 ## Supported Operating Systems
 
