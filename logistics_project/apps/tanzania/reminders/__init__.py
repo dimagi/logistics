@@ -8,6 +8,7 @@ Reminders can fire up to three times.
  - The text of all three reminders is the same for each category of reminder.
 
 """
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from datetime import datetime
 from threadless_router.router import Router
@@ -16,7 +17,8 @@ from rapidsms import router
 def send_message(contact, message, **kwargs):
     # this hack sets the global router to threadless router.
     # should maybe be cleaned up.
-    router.router = Router()
+    if not settings.UNIT_TESTING:
+        router.router = Router()
     contact.message(message, **kwargs)
 
 def send_reminders(contacts, message):

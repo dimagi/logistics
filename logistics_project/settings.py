@@ -163,6 +163,11 @@ TESTING_DATABASES= {
     }
 }
 
+try:
+    UNIT_TESTING = 'test' == sys.argv[1]
+except IndexError:
+    UNIT_TESTING = False
+
 DJANGO_LOG_FILE = "logistics.django.log"
 LOG_SIZE = 1000000
 LOG_LEVEL   = "DEBUG"
