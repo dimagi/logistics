@@ -1,12 +1,13 @@
 from logistics_project.apps.tanzania.reminders import stockonhand , delivery,\
     randr, stockonhandthankyou, supervision
-from logistics_project.apps.tanzania.tests.util import register_user
+from logistics_project.apps.tanzania.tests.util import register_user, add_products
 from logistics_project.apps.tanzania.tests.base import TanzaniaTestScriptBase
 from logistics_project.apps.tanzania.config import SupplyPointCodes
 from logistics.models import SupplyPoint, ProductReport, SupplyPointGroup
-from rapidsms.models import Contact
-from datetime import datetime 
+from datetime import datetime
 from logistics_project.apps.tanzania.models import DeliveryGroups, SupplyPointStatus, SupplyPointStatusTypes, SupplyPointStatusValues
+from rapidsms.models import Contact
+from logistics_project.apps.tanzania.reminders.stockout import get_people
 
 class TestStockOnHandReminders(TanzaniaTestScriptBase):
 
@@ -209,3 +210,21 @@ class TestSOHThankYou(TanzaniaTestScriptBase):
 
         self.assertEqual(1, len(list(stockonhandthankyou.get_people(now))))
         self.assertEqual(0, len(list(stockonhandthankyou.get_people(datetime.utcnow()))))
+
+
+class TestStockOut(TanzaniaTestScriptBase):
+
+    def setUp(self):
+        super(TestStockOut, self).setUp()
+        Contact.objects.all().delete()
+        self.contact = register_user(self, "778", "someone", loc_code="d10004", loc_name="VETA 4")
+        add_products(self.contact, ["id", "dp", "ip"])
+
+    def testReminderSet(self):
+        now = datetime.utcnow()
+        self.assertEqual(0, len(list(get_people(now))))
+        script = """
+            778 > Hmk Id 400 Dp 569 Ip 678
+        """
+        self.runScript(script)
+        self.assertEqual(1, len(list(get_people(now))))
