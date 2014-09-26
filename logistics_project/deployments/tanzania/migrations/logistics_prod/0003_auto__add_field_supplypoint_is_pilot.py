@@ -8,8 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing M2M table for field nearests_supply_points on 'SupplyPoint'
-        db.delete_table('logistics_supplypoint_nearests_supply_points')
+        # Adding field 'SupplyPoint.is_pilot'
+        db.add_column('logistics_supplypoint', 'is_pilot',
+                      self.gf('django.db.models.fields.BooleanField')(default=False),
+                      keep_default=False)
 
         # Adding M2M table for field closest_supply_points on 'SupplyPoint'
         db.create_table('logistics_supplypoint_closest_supply_points', (
@@ -21,13 +23,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Adding M2M table for field nearests_supply_points on 'SupplyPoint'
-        db.create_table('logistics_supplypoint_nearests_supply_points', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('from_supplypoint', models.ForeignKey(orm['logistics.supplypoint'], null=False)),
-            ('to_supplypoint', models.ForeignKey(orm['logistics.supplypoint'], null=False))
-        ))
-        db.create_unique('logistics_supplypoint_nearests_supply_points', ['from_supplypoint_id', 'to_supplypoint_id'])
+        # Deleting field 'SupplyPoint.is_pilot'
+        db.delete_column('logistics_supplypoint', 'is_pilot')
 
         # Removing M2M table for field closest_supply_points on 'SupplyPoint'
         db.delete_table('logistics_supplypoint_closest_supply_points')
