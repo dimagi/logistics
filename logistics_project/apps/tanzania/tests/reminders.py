@@ -217,7 +217,10 @@ class TestStockOut(TanzaniaTestScriptBase):
     def setUp(self):
         super(TestStockOut, self).setUp()
         Contact.objects.all().delete()
-        self.contact = register_user(self, "778", "someone", loc_code="d10004", loc_name="VETA 4")
+        self.contact = register_user(self, "778", "someone", loc_code="d10003", loc_name="VETA 3")
+        sp = SupplyPoint.objects.get(name="VETA 3")
+        sp.is_pilot = True
+        sp.save()
         add_products(self.contact, ["id", "dp", "ip"])
 
     def testReminderSet(self):

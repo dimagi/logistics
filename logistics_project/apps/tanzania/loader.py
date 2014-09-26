@@ -74,8 +74,8 @@ def load_locations(file):
     messages = []
     reader = csv.reader(file, delimiter=',', quotechar='"', dialect=csv.excel_tab)
     for row in reader:
-        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type, is_pilot = row[:10]
-        unmanaged = row[10] if len(row) > 10 else ''
+        name, is_active, msd_code, parent_name, parent_type, lat, lon, group, type = row[:9]
+        unmanaged = row[9] if len(row) > 9 else ''
 
         name = name.strip()
         if parent_name:
@@ -139,7 +139,6 @@ def load_locations(file):
         if group:
             group_obj = SupplyPointGroup.objects.get_or_create(code=group)[0]
             sp.groups = [group_obj]
-            sp.is_pilot = string_to_boolean(is_pilot)
             sp.save()
 
         count += 1

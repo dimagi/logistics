@@ -14,6 +14,9 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         ProductStock.objects.all().delete()
         ProductReport.objects.all().delete()
         SupplyPointStatus.objects.all().delete()
+        sp = SupplyPoint.objects.get(name="VETA 3")
+        sp.is_pilot = True
+        sp.save()
         
     def testStockOnHand(self):
         translation.activate("sw")
@@ -46,7 +49,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         For SLAB Pilot facility ILS should ask about transfer stock.
         '''
         translation.activate("sw")
-        contact = register_user(self, "778", "someone", loc_code="d10004", loc_name="VETA 4")
+        contact = register_user(self, "778", "someone", loc_code="d10003", loc_name="VETA 3")
         add_products(contact, ["id", "dp", "ip"])
         script = """
             778 > Hmk Id 400 Dp 569 Ip 678
@@ -60,7 +63,7 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         For SLAB Pilot facility ILS should ask about transfer stock.
         '''
         translation.activate("sw")
-        contact = register_user(self, "778", "someone", loc_code="d10004", loc_name="VETA 4")
+        contact = register_user(self, "778", "someone", loc_code="d10003", loc_name="VETA 3")
         add_products(contact, ["id", "dp", "ip"])
         script = """
             778 > Hmk Id 400 Dp 569 Ip 678
