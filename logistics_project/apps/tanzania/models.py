@@ -85,6 +85,7 @@ class SupplyPointStatusTypes(object):
     LOSS_ADJUSTMENT_FACILITY = "la_fac"
     DELINQUENT_DELIVERIES = "del_del"
     DELIVERY_FACILITY = "del_fac"
+    TRANS_FACILITY = "trans_fac"
     
     CHOICE_MAP = {
         DELIVERY_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Waiting Delivery Confirmation",
@@ -105,6 +106,11 @@ class SupplyPointStatusTypes(object):
                                SupplyPointStatusValues.NOT_RECEIVED: "Supervision Not Received"},
         LOSS_ADJUSTMENT_FACILITY: {SupplyPointStatusValues.REMINDER_SENT: "Lost/Adjusted Reminder sent to Facility"},
         DELINQUENT_DELIVERIES: {SupplyPointStatusValues.ALERT_SENT: "Delinquent deliveries summary sent to District"},
+        TRANS_FACILITY: {
+            SupplyPointStatusValues.SUBMITTED: "Transfer Stock Submitted",
+            SupplyPointStatusValues.NOT_SUBMITTED: "Transfer Stock Not Submitted",
+            SupplyPointStatusValues.REMINDER_SENT: "Transfer Reminder Sent"
+        }
     }
     
     @classmethod

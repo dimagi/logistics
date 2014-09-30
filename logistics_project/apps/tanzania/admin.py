@@ -2,8 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 from django.contrib import admin
+from logistics.models import SupplyPoint
+from logistics_project.apps.tanzania.forms import SupplyPointAdminForm
 from logistics_project.apps.tanzania.models import SupplyPointStatus,\
     AdHocReport
+from logistics_project.settings import MEDIA_URL
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.models import Message
 
@@ -38,3 +41,20 @@ except Exception:
     pass
 
 admin.site.register(Message, MessageAdmin)
+
+try:
+    admin.site.unregister(SupplyPoint)
+except Exception:
+    pass
+
+class SupplyPointAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "type")
+    list_filter = ('type', 'active', 'is_pilot')
+    form = SupplyPointAdminForm
+
+    class Media:
+        js = (
+            MEDIA_URL + 'tanzania/js/supplypoint_admin.js',
+        )
+
+admin.site.register(SupplyPoint, SupplyPointAdmin)

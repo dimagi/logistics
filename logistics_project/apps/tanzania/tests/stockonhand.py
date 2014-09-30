@@ -14,6 +14,9 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         ProductStock.objects.all().delete()
         ProductReport.objects.all().delete()
         SupplyPointStatus.objects.all().delete()
+        sp = SupplyPoint.objects.get(name="VETA 3")
+        sp.is_pilot = True
+        sp.save()
         
     def testStockOnHand(self):
         translation.activate("sw")
@@ -40,7 +43,51 @@ class TestStockOnHand(TanzaniaTestScriptBase):
         for ps in ProductStock.objects.all():
             self.assertEqual(contact.supply_point, ps.supply_point)
             self.assertTrue(0 != ps.quantity)
-        
+
+    def testStockOnHandPilotFacility(self):
+        '''
+        For SLAB Pilot facility ILS should ask about transfer stock.
+        '''
+        translation.activate("sw")
+        contact = register_user(self, "778", "someone", loc_code="d10003", loc_name="VETA 3")
+        add_products(contact, ["id", "dp", "ip"])
+        script = """
+            778 > Hmk Id 400 Dp 569 Ip 678
+            778 < %(reminder_trans)s
+        """ % {"reminder_trans": _(config.Messages.REMINDER_TRANS)}
+
+        self.runScript(script)
+
+    def testStockOnHandOverstockedFacility(self):
+        '''
+        For SLAB Pilot facility ILS should ask about transfer stock.
+        '''
+        translation.activate("sw")
+        contact = register_user(self, "778", "someone", loc_code="d10003", loc_name="VETA 3")
+        add_products(contact, ["id", "dp", "ip"])
+        script = """
+            778 > Hmk Id 400 Dp 569 Ip 678
+            778 < %(reminder_trans)s
+        """ % {"reminder_trans": _(config.Messages.REMINDER_TRANS)}
+        self.runScript(script)
+        for ps in ProductStock.objects.filter(supply_point=contact.supply_point):
+            ps.auto_monthly_consumption = 100
+            ps.save()
+        self.assertEqual(3, ProductReport.objects.count())
+        self.assertEqual(3, ProductStock.objects.count())
+
+        overstocked_products = contact.supply_point.overstocked_products()
+        self.assertIsNotNone(overstocked_products)
+        self.assertDictEqual({u'ip': (678, 600)}, overstocked_products)
+
+        keep_value = overstocked_products['ip'][1]
+
+        self.assertEqual(1, ProductStock.objects.filter(supply_point=contact.supply_point, product__sms_code='ip').count())
+        ip = ProductStock.objects.get(supply_point=contact.supply_point, product__sms_code='ip')
+        #Facility should keep for themselves 6 * auto_monthly_consumption
+        self.assertEqual(6 * ip.auto_monthly_consumption, keep_value)
+
+
     def testStockOnHandStockouts(self):
         translation.activate("sw")
         contact = register_user(self, "778", "someone")

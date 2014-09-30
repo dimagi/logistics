@@ -18,3 +18,4 @@ from .supervision import *
 from .translations import *
 from .util import *
 from .yes import *
+from .trans import *

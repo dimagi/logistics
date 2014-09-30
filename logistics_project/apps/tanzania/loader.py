@@ -116,7 +116,6 @@ def load_locations(file):
             l = Location(code=code)
         l.name = name
         l.type = loc_type
-
         try:
             l.is_active = string_to_boolean(is_active)
         except ValueError:
@@ -207,6 +206,9 @@ def load_schedules():
             "first": (9, 0),
             "second": (9, 0),
             "third": (9, 0)
+        },
+        "logistics_project.apps.tanzania.reminders.stockout": {
+            "first": (8, 0),
         },
         "logistics_project.apps.tanzania.reminders.stockonhandthankyou": {
             "first": (9, 0)

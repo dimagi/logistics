@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from datetime import datetime, timedelta
+from django.test.utils import override_settings
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from django.utils.translation import ugettext_noop as _
@@ -59,8 +60,20 @@ class StockOnHandHandler(KeywordHandler, TaggingHandler):
                           'product_list': ' '.join(sorted([p.sms_code for p in missing_products]))}
                 self.respond(_(config.Messages.SOH_PARTIAL_CONFIRM), **kwargs)
             else:
-                self.respond(_(config.Messages.SOH_CONFIRM),
-                             reply_list=','.join(sorted(stock_report.reported_products())))
+                if not sp.is_pilot:
+                    self.respond(_(config.Messages.SOH_CONFIRM),
+                                 reply_list=','.join(sorted(stock_report.reported_products())))
+                else:
+                    overstocked_msg = ""
+                    products_msg = ""
+                    for k, v in sp.overstocked_products().iteritems():
+                        overstocked_msg += "%s: %s " % (k, v[0])
+                        products_msg += "%s: %s " % (k, v[1])
+                    if overstocked_msg and products_msg:
+                        self.respond(_(config.Messages.SOH_OVERSTOCKED), overstocked_list=overstocked_msg,
+                                     products_list=products_msg)
+                    self.respond(_(config.Messages.REMINDER_TRANS))
+
 
             SupplyPointStatus.objects.create(supply_point=sp,
                                              status_type=SupplyPointStatusTypes.SOH_FACILITY,
@@ -71,3 +84,4 @@ class StockOnHandHandler(KeywordHandler, TaggingHandler):
                                              status_type=SupplyPointStatusTypes.LOSS_ADJUSTMENT_FACILITY,
                                              status_value=SupplyPointStatusValues.REMINDER_SENT,
                                              status_date=self.msg.timestamp)
+

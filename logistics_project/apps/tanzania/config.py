@@ -218,6 +218,7 @@ class Messages(object):
     SOH_CONFIRM = "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     SOH_ADJUSTMENTS_REMINDER = "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
     SOH_THANK_YOU = "Thank you for reporting your stock on hand this month"
+    SOH_OVERSTOCKED = "You are overstocked for %(overstocked_list)s that you can redistribute to other facilities. Keep %(products_list)s."
 
     # stock inquiry
     STOCK_INQUIRY_HELP_MESSAGE = "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
@@ -236,6 +237,11 @@ class Messages(object):
     TEST_HANDLER_HELP = "To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
     TEST_HANDLER_BAD_CODE = "Invalid msd code %(code)s"
     TEST_HANDLER_CONFIRM = "Sent"
+
+    REMINDER_TRANS = "Did you receive or transfer stock to another facility last month? Please reply either 'trans no' or 'trans yes'"
+    TRANS_HELP = "You can respond 'trans yes' if you have received or transfered stock last month or 'trans no' if you have not"
+
+    REMINDER_STOCKOUT = "You are stocked out of %(products_list)s. The following facilities are overstocked: %(overstocked_list)s"
 
     REGISTRATION_REQUIRED_MESSAGE = HELP_UNREGISTERED
 
