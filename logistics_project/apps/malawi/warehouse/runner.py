@@ -462,7 +462,7 @@ def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
     """
     # hack: remove test district users from national level
     if supply_point == get_country_sp():
-        base_supply_points = base_supply_points.exclude(supplied_by__supplied_by__code='99')
+        base_supply_points = base_supply_points.exclude(code='99')
 
     period_instance = modelclass.objects.get_or_create\
         (supply_point=supply_point, **additonal_query_params)[0]
