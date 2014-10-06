@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
+from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
@@ -33,19 +34,15 @@ class UserResource(ModelResource):
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active', 'is_superuser',
                   'last_login', 'date_joined']
         include_resource_uri = False
+        filtering = {
+            'date_joined': ('gte', )
+        }
 
 
 class WebUserResources(ModelResource):
     user = fields.ToOneField(UserResource, 'user', full=True)
     location = fields.IntegerField('location_id', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    def get_object_list(self, request):
-        objects = super(WebUserResources, self).get_object_list(request)
-        date = request.GET.get('date', None)
-        if not date:
-            return objects.all()
-        return objects.filter(user__date_joined__gt=date)
 
     def dehydrate(self, bundle):
         bundle.data['user'].data['location'] = bundle.data['location']
@@ -59,6 +56,9 @@ class WebUserResources(ModelResource):
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['location', 'supply_point']
+        filtering = {
+            'user': ALL_WITH_RELATIONS
+        }
 
 class PointResource(ModelResource):
     latitude = fields.CharField('latitude')
@@ -83,26 +83,13 @@ class LocationResources(ModelResource):
         queryset = Location.objects.all()
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
-        fields = ['id', 'name', 'parent_id', 'code', 'groups']
+        fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
         include_resource_uri = False
+        filtering = {
+            'date_updated': ('gte', ),
+            'type': ('exact', )
+        }
 
-    def get_object_list(self, request, **kwargs):
-        objects = super(LocationResources, self).get_object_list(request)
-        date = request.GET.get('date', None)
-        type = request.GET.get('loc_type', None)
-
-        kwargs = {}
-
-        if date:
-            kwargs['date_updated__gt'] = date
-
-        if type:
-            kwargs['type__slug'] = type
-
-        if kwargs:
-            return objects.filter(**kwargs)
-        else:
-            return objects.all()
 
     def dehydrate(self, bundle):
         try:
@@ -126,13 +113,6 @@ class SMSUserResources(ModelResource):
     supply_point = fields.IntegerField('supply_point_id', null=True)
     is_active = fields.CharField('is_active')
 
-    def get_object_list(self, request):
-        objects = super(SMSUserResources, self).get_object_list(request)
-        date = request.GET.get('date', None)
-        if not date:
-            return objects.all()
-        return objects.filter(date_updated__gt=date)
-
     def dehydrate(self, bundle):
         try:
             connection = Connection.objects.get(contact_id=bundle.data['id'])
@@ -147,4 +127,7 @@ class SMSUserResources(ModelResource):
         queryset = Contact.objects.all()
         include_resource_uri = False
         list_allowed_methods = ['get']
-        fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active']
+        fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active', 'date_updated']
+        filtering = {
+            'date_updated': ('gte', )
+        }
