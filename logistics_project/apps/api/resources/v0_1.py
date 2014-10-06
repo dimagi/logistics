@@ -4,9 +4,8 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.resources import ModelResource
 from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
-from logistics.models import Product, LogisticsProfile, SupplyPoint
+from logistics.models import Product, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
 from rapidsms.models import Contact, Connection
-
 
 
 class CustomResourceMeta(object):
@@ -23,6 +22,7 @@ class ProductResources(ModelResource):
         include_resource_uri = False
         fields = ['name', 'units', 'sms_code', 'description', 'is_active']
         list_allowed_methods = ['get']
+
 
 class UserResource(ModelResource):
     username = fields.CharField('username', null=True)
@@ -60,6 +60,7 @@ class WebUserResources(ModelResource):
         list_allowed_methods = ['get']
         fields = ['location', 'supply_point']
 
+
 class PointResource(ModelResource):
     latitude = fields.CharField('latitude')
     longitude = fields.CharField('longitude')
@@ -69,6 +70,7 @@ class PointResource(ModelResource):
         list_allowed_methods = ['get']
         fields = ['latitude', 'longitude']
         include_resource_uri = False
+
 
 class LocationResources(ModelResource):
     id = fields.IntegerField('id')
@@ -148,3 +150,44 @@ class SMSUserResources(ModelResource):
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active']
+
+
+class StockTransactionResources(ModelResource):
+
+    def dehydrate(self, bundle):
+        if bundle.obj.product_report:
+            bundle.data['report_type'] = bundle.obj.product_report.report_type
+        else:
+            bundle.data['report_type'] = None
+
+        bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['supply_point'] = bundle.obj.supply_point.id
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = StockTransaction.objects.all()
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        excludes = ['id', ]
+        filtering = {
+            "date": ('gte', ),
+        }
+        ordering = ['date']
+
+
+class ProductStockResources(ModelResource):
+
+    def dehydrate(self, bundle):
+        bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['supply_point'] = bundle.obj.supply_point.id
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = ProductStock.objects.all()
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        excludes = ['id', 'days_stocked_out', 'manual_monthly_consumption', 'use_auto_consumption']
+        filtering = {
+            "last_modified": ('gte', )
+        }
+
