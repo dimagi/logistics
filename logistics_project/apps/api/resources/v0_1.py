@@ -135,6 +135,7 @@ class SMSUserResources(ModelResource):
 
 
 class StockTransactionResources(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
 
     def dehydrate(self, bundle):
         if bundle.obj.product_report:
@@ -143,7 +144,6 @@ class StockTransactionResources(ModelResource):
             bundle.data['report_type'] = None
 
         bundle.data['product'] = bundle.obj.product.sms_code
-        bundle.data['supply_point'] = bundle.obj.supply_point.id
         return bundle
 
     class Meta(CustomResourceMeta):
@@ -153,15 +153,16 @@ class StockTransactionResources(ModelResource):
         excludes = ['id', ]
         filtering = {
             "date": ('gte', ),
+            "supply_point": ('exact', )
         }
         ordering = ['date']
 
 
 class ProductStockResources(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
 
     def dehydrate(self, bundle):
         bundle.data['product'] = bundle.obj.product.sms_code
-        bundle.data['supply_point'] = bundle.obj.supply_point.id
         return bundle
 
     class Meta(CustomResourceMeta):
@@ -170,7 +171,8 @@ class ProductStockResources(ModelResource):
         list_allowed_methods = ['get']
         excludes = ['id', 'days_stocked_out', 'manual_monthly_consumption', 'use_auto_consumption']
         filtering = {
-            "last_modified": ('gte', )
+            "last_modified": ('gte', ),
+            "supply_point": ('exact', )
         }
 
 
