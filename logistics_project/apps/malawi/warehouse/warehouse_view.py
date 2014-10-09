@@ -24,7 +24,7 @@ class MalawiWarehouseView(ReportView):
         base_context = super(MalawiWarehouseView, self).shared_context(request)
 
         country = get_country_sp()
-        products = Product.objects.all().order_by('sms_code')
+        products = Product.objects.filter(is_active=True).order_by('sms_code')
         date = current_report_period()
         
         # national stockout percentages by product
