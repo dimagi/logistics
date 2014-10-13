@@ -3,6 +3,9 @@ from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
+from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport
+from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, GroupSummary, ProductAvailabilityData, \
+    Alert, OrganizationTree
 from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
 from logistics.models import Product, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
@@ -176,3 +179,106 @@ class ProductStockResources(ModelResource):
         }
 
 
+class SupplyPointStatusResource(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = SupplyPointStatus.objects.all().order_by('status_date')
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        ordering = ['status_date']
+
+        filtering = {
+            "status_date": ('gte', ),
+            "supply_point": ('exact', )
+        }
+
+
+class DeliveryGroupReportResources(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    def dehydrate(self, bundle):
+        bundle.data['delivery_group'] = bundle.obj.delivery_group
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = DeliveryGroupReport.objects.all().order_by('report_date')
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+
+        filtering = {
+            "report_date": ('gte', ),
+            "supply_point": ('exact', )
+        }
+
+
+class OrganizationSummaryResource(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = OrganizationSummary.objects.all()
+        include_resource_uri = False
+        filtering = {
+            "supply_point": ('exact', ),
+            "update_date": ('gte', 'lte'),
+            "create_date": ('gte', 'lte'),
+            "date": ('gte', 'lte')
+        }
+
+
+class GroupSummaryResource(ModelResource):
+    org_summary = fields.ToOneField(OrganizationSummaryResource, 'org_summary', full=True, null=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = GroupSummary.objects.all()
+        include_resource_uri = False
+        filtering = {
+            'org_summary': ALL_WITH_RELATIONS
+        }
+
+
+class ProductAvailabilityDataResource(ModelResource):
+
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    def dehydrate(self, bundle):
+        bundle.data['product'] = bundle.obj.product.sms_code
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = ProductAvailabilityData.objects.all().order_by('update_date')
+        include_resource_uri = False
+        filtering = {
+            "supply_point": ('exact', ),
+            "update_date": ('gte', 'lte'),
+            "create_date": ('gte', 'lte'),
+            "date": ('gte', 'lte'),
+        }
+
+
+class AlertResources(ModelResource):
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = Alert.objects.all().order_by('update_date')
+        include_resource_uri = False
+        filtering = {
+            "supply_point": ('exact', ),
+            "update_date": ('gte', 'lte'),
+            "create_date": ('gte', 'lte'),
+            "date": ('gte', 'lte'),
+            "expires": ('gte', 'lte'),
+        }
+
+
+class OrganizationTreeResources(ModelResource):
+    below = fields.IntegerField('below_id', null=True)
+    above = fields.IntegerField('above_id', null=True)
+
+    class Meta(CustomResourceMeta):
+        include_resource_uri = False
+        queryset = OrganizationTree.objects.all()
+        filtering = {
+            "below": ('exact', ),
+            "above": ('exact', )
+        }
