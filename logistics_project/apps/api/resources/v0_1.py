@@ -197,6 +197,10 @@ class SupplyPointStatusResource(ModelResource):
 class DeliveryGroupReportResources(ModelResource):
     supply_point = fields.IntegerField('supply_point_id', null=True)
 
+    def dehydrate(self, bundle):
+        bundle.data['delivery_group'] = bundle.obj.delivery_group
+        return bundle
+
     class Meta(CustomResourceMeta):
         queryset = DeliveryGroupReport.objects.all().order_by('report_date')
         include_resource_uri = False
