@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # Django URLs
     (r'^admin/', include(admin.site.urls)),
     
+    (r'^api/', include('logistics_project.apps.api.urls')),
     # RapidSMS core URLs
     #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
