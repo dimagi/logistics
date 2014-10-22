@@ -47,6 +47,7 @@ BASE_APPS = [
     "logistics_project.apps.web_registration",
     "logistics",
     "logistics_project.apps.maps",
+    "logistics_project.apps.api",
     "email_reports",
 #    "logistics_project.apps.reports",
 #    "logistics_project.apps.groupmessaging",
@@ -213,6 +214,8 @@ LOGISTICS_USE_AUTO_CONSUMPTION = False
 LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT = 7
 LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE = 21
 LOGISTICS_APPROVAL_REQUIRED = False
+API_LIMIT_PER_PAGE = 0
+
 MAGIC_TOKEN = "changeme"
 
 MAP_DEFAULT_LATITUDE  = -10.49
