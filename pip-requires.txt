@@ -3,14 +3,14 @@ south>=0.7.2
 django-nose>=0.1
 djappsettings==0.1.0
 #djtables==0.1.1
-nose==0.11.4
+nose
 nose-exclude
 python-dateutil==1.5
 pytz==2010b
 virtualenv==1.4.5
 django-celery
 django-kombu
-django-registration
+django-registration==0.7
 couchdbkit==0.5.4
 supervisor
 twilio
@@ -18,8 +18,8 @@ johnny-cache
 python-memcached
 psycopg2
 gdata
-django-taggit
+django-taggit==0.9.2
 #mysql-python
-django-extensions
+django-extensions==0.6
 django-redis==3.3
 redis==2.8.0
