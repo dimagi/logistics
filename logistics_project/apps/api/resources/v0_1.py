@@ -72,9 +72,11 @@ class SMSUserResources(ModelResource):
             connection = Connection.objects.get(id=bundle.data['id'])
             bundle.data['backend'] = str(connection.backend)
             bundle.data['phone_numbers'] = [connection.identity]
+            bundle.data['to'] = connection.to if connection.to != None else ""
         except Connection.DoesNotExist:
             bundle.data['backend'] = ""
             bundle.data['phone_numbers'] = []
+            bundle.data['to'] = ""
         return bundle
 
     class Meta(CustomResourceMeta):
@@ -120,6 +122,8 @@ class LocationResources(ModelResource):
         try:
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
+            bundle.data['created_at'] = sp.created_at
+            bundle.data['supervised_by'] = sp.supervised_by_id
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
         bundle.data['latitude'] = ""
