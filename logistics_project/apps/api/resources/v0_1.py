@@ -3,7 +3,8 @@ from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
-from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport
+from dimagi.utils.dates import force_to_datetime
+from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport, DeliveryGroups
 from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, GroupSummary, ProductAvailabilityData, \
     Alert, OrganizationTree
 from rapidsms.contrib.locations.models import Point, Location
@@ -99,8 +100,33 @@ class LocationResources(ModelResource):
         try:
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
+            if int(bundle.request.GET.get('with_historical_groups', 0)) == 1:
+                summaries = GroupSummary.objects.filter(
+                    org_summary__supply_point=sp,
+                    total=1
+                ).only('org_summary__date', 'title', 'total')
+                groups = {}
+                for summary in summaries:
+                    date_string = str(summary.org_summary.date.date())
+                    if date_string not in groups:
+                        groups[date_string] = []
+
+                    if summary.title == 'rr_fac':
+                        groups[date_string].append(
+                            DeliveryGroups(summary.org_summary.date.month).current_submitting_group()
+                        )
+                    if summary.title == 'del_fac':
+                        groups[date_string].append(
+                            DeliveryGroups(summary.org_summary.date.month).current_delivering_group()
+                        )
+
+                for k, v in groups.iteritems():
+                    if not v:
+                        groups[k] = [DeliveryGroups(force_to_datetime(k).month).current_processing_group()]
+                bundle.data['historical_groups'] = groups
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
+            bundle.data['historical_groups'] = {}
         bundle.data['latitude'] = ""
         bundle.data['longitude'] = ""
         if bundle.data['points']:
