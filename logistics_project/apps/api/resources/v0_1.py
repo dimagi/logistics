@@ -106,6 +106,8 @@ class LocationResources(ModelResource):
     points = fields.ToOneField(PointResource, 'point', full=True, null=True)
     code = fields.CharField('code')
     groups = fields.ListField(null=True, default=[])
+    created_at = fields.CharField(null=True, default="")
+    supervised_by = fields.CharField(null=True, default="")
 
     class Meta(CustomResourceMeta):
         queryset = Location.objects.all()
@@ -126,6 +128,8 @@ class LocationResources(ModelResource):
             bundle.data['supervised_by'] = sp.supervised_by_id
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
+            bundle.data['created_at'] = ""
+            bundle.data['supervised_by'] = ""
         bundle.data['latitude'] = ""
         bundle.data['longitude'] = ""
         if bundle.data['points']:
@@ -145,4 +149,49 @@ class SupplyPointResources(ModelResource):
         queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
         include_resource_uri = False
-        fields = ['name', 'active', 'type', 'code', 'created_at', 'groups']
+        fields = ['id', 'name', 'active', 'type', 'code', 'created_at', 'groups']
+        filtering = {
+            'id': ('exact', )
+        }
+
+class ProductStockResources(ModelResource):
+    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
+
+    def dehydrate(self, bundle):
+        bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['supply_point'] = bundle.obj.supply_point.id
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = ProductStock.objects.all()
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        excludes = ['id', 'days_stocked_out', 'manual_monthly_consumption', 'use_auto_consumption']
+        filtering = {
+            "last_modified": ('gte', ),
+            "supply_point": ALL_WITH_RELATIONS
+        }
+
+class StockTransactionResources(ModelResource):
+    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
+
+    def dehydrate(self, bundle):
+        if bundle.obj.product_report:
+            bundle.data['report_type'] = bundle.obj.product_report.report_type
+        else:
+            bundle.data['report_type'] = None
+
+        bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['supply_point'] = bundle.obj.supply_point.id
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = StockTransaction.objects.all()
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        excludes = ['id', ]
+        filtering = {
+            "date": ('gte', ),
+            "supply_point": ('exact', )
+        }
+        ordering = ['date']
