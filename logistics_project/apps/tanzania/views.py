@@ -335,10 +335,12 @@ def convert_data_to_pie_chart(data, date):
 
 
 def prepare_processing_info(data):
-    numbers = {}
-    numbers['total'] = data[0] - (data[1].total + data[2].total)
-    numbers['complete'] = 0
-    return numbers 
+    total = data[0] - (data[1].total + data[2].total)
+    return {
+        'total': total if total >= 0 else 0,
+        'complete': 0
+    }
+
 
 def convert_product_data_to_stack_chart(data, chart_info):
     ret_json = {}
