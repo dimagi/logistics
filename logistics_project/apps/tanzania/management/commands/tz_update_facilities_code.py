@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from logistics.models import SupplyPoint
 import xlrd
@@ -16,29 +16,33 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        PATH = 'apps/tanzania/management/commands/resource'
+        if not args:
+            raise CommandError("You have to provide directories with facilities codes e.g. "
+                               "./manage.py tz_update_facilities_code part1")
 
-        for file_name in os.listdir(PATH):
-            print("Read %s" % file_name)
-            xls_file = xlrd.open_workbook(os.path.join(PATH, file_name))
-            for sheet in xls_file.sheets():
-                print "Updates for district - %s" % sheet.name
-                for cell in sheet._cell_values[1:]:
-                    # only touch facilities which exist in ILS
-                    if cell[1] and cell[3]:
-                        try:
-                            sp = SupplyPoint.objects.filter(code=cell[1])[:1].get()
-                            sp.code = cell[3]
-                            sp.location.code = cell[3]
+        PATH = 'apps/tanzania/management/commands/resource/'
+        for directory in args:
+            for file_name in os.listdir(PATH + directory):
+                print("Read %s" % file_name)
+                xls_file = xlrd.open_workbook(os.path.join(PATH + directory, file_name))
+                for sheet in xls_file.sheets():
+                    print "Updates for district - %s" % sheet.name
+                    for cell in sheet._cell_values[1:]:
+                        # only touch facilities which exist in ILS
+                        if cell[1] and cell[3]:
                             try:
-                                ex_sp = SupplyPoint.objects.filter(code=cell[3])[:1].get()
-                                if ex_sp.code != sp.code:
-                                    print "Conflict in facilities: old_code - %s, new_code -%s, supply point id to update - %s, Conflicted supply point id - %s" % (cell[1], cell[3], sp.id, ex_sp.id)
+                                sp = SupplyPoint.objects.filter(code=cell[1])[:1].get()
+                                sp.code = cell[3]
+                                sp.location.code = cell[3]
+                                try:
+                                    ex_sp = SupplyPoint.objects.filter(code=cell[3])[:1].get()
+                                    if ex_sp.code != sp.code:
+                                        print "Conflict in facilities: old_code - %s, new_code -%s, supply point id to update - %s, Conflicted supply point id - %s" % (cell[1], cell[3], sp.id, ex_sp.id)
+                                except SupplyPoint.DoesNotExist:
+                                    if options['test']:
+                                        print "Facility - DISTRICT_NAME: %s, ILS_CODE: %s, ILS_NAME %s, ELMIS_CODE: %s, ELMIS_NAME: %s - OK" % (sheet.name, cell[1], cell[0], cell[3], cell[2])
+                                    else:
+                                        sp.location.save()
+                                        sp.save()
                             except SupplyPoint.DoesNotExist:
-                                if options['test']:
-                                    print "Facility - DISTRICT_NAME: %s, ILS_CODE: %s, ILS_NAME %s, ELMIS_CODE: %s, ELMIS_NAME: %s - OK" % (sheet.name, cell[1], cell[0], cell[3], cell[2])
-                                else:
-                                    sp.location.save()
-                                    sp.save()
-                        except SupplyPoint.DoesNotExist:
-                            print("Facility was not found in ILSGateway: name - %s, code - %s" % (cell[0], cell[1]))
+                                print("Facility was not found in ILSGateway: name - %s, code - %s" % (cell[0], cell[1]))
