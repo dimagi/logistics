@@ -107,7 +107,7 @@ class LocationResources(ModelResource):
     code = fields.CharField('code')
     groups = fields.ListField(null=True, default=[])
     created_at = fields.CharField(null=True, default="")
-    supervised_by = fields.CharField(null=True, default="")
+    supervised_by = fields.IntegerField(null=True, default=None)
 
     class Meta(CustomResourceMeta):
         queryset = Location.objects.all()
@@ -129,7 +129,7 @@ class LocationResources(ModelResource):
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
             bundle.data['created_at'] = ""
-            bundle.data['supervised_by'] = ""
+            bundle.data['supervised_by'] = None
         bundle.data['latitude'] = ""
         bundle.data['longitude'] = ""
         if bundle.data['points']:
