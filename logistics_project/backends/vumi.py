@@ -15,6 +15,7 @@ class VumiBackend(BackendBase):
     A RapidSMS backend for Vumi.
 
     http://vumi-go.readthedocs.org/en/latest/http_api.html
+    Backport form: https://github.com/rapidsms/rapidsms/blob/develop/rapidsms/backends/vumi/outgoing.py
     """
     def configure(self, url, conversation_id, account_key, access_token, **kwargs):
         self.sendsms_url = url.format(conversation_id=conversation_id)
