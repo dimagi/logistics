@@ -23,6 +23,7 @@ south>=0.7.2
 supervisor  
 twilio  
 virtualenv==1.4.5
+requests==2.4.3
 
 ## Known working versions of un-pinned deps
 # django-celery==3.1.16

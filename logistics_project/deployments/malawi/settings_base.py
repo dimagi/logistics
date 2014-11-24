@@ -107,6 +107,14 @@ INSTALLED_BACKENDS = {
             'callback': 'http://cstock.dimagi.com/twilio/status-callback/', # optional callback URL
         }
     },
+    # vumi
+    "vumi": {
+        "ENGINE": "logistics_project.backends.vumi",
+        'url': "http://go.vumi.org/api/v1/go/http_api_nostream/{conversation_id}/messages.json",
+        'conversation_id': 'CHANGEME',
+        'account_key': 'CHANGEME',
+        'access_token': 'CHANGEME',
+    },
 }
 
 # for postgresql:
