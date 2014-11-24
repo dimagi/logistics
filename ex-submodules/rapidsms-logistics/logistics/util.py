@@ -2,6 +2,8 @@ from django.utils.importlib import import_module
 from rapidsms.conf import settings
 from re import findall
 from string import maketrans
+from rapidsms.messages.outgoing import OutgoingMessage
+from rapidsms.models import Connection, Backend
 
 if hasattr(settings,'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)
@@ -17,6 +19,38 @@ if hasattr(settings, "NUMERIC_LETTERS"):
     NUMERIC_LETTERS = settings.NUMERIC_LETTERS
 else:
     NUMERIC_LETTERS = ("lLO", "110")
+
+
+def vumi_backend():
+    if not hasattr(vumi_backend, '_backend'):
+        # TODO: get this name from settings
+        # TODO: don't fial if no backed with this name exists
+        vumi_backend._backend = Backend.objects.get(name='vumi')
+
+    return vumi_backend._backend
+
+
+def get_ussd_connection(default_connection):
+    vumi = vumi_backend()
+    if not vumi:
+        return default_connection
+
+    return Connection(
+        backend=vumi,
+        identity=default_connection.identity,
+        contact=default_connection.contact
+    )
+
+
+def ussd_msg_response(msg, template, **kwargs):
+    response = OutgoingMessage(
+        get_ussd_connection(msg.connection),
+        template,
+        **kwargs
+    )
+    msg.responses.append(response)
+    return msg
+
 
 def parse_report(val):
     """
