@@ -2,6 +2,7 @@ import copy
 import json
 import logging
 import urllib2
+import requests
 
 from rapidsms.backends.base import BackendBase
 
@@ -15,18 +16,10 @@ class VumiBackend(BackendBase):
 
     http://vumi-go.readthedocs.org/en/latest/http_api.html
     """
-    def configure(self, url, account_key, access_token, **kwargs):
-        self.sendsms_url = url
+    def configure(self, url, conversation_id, account_key, access_token, **kwargs):
+        self.sendsms_url = url.format(conversation_id=conversation_id)
         self.sendsms_user = account_key
         self.sendsms_pass = access_token
-        self.url_opener = self.prepare_url_opener()
-
-    def prepare_url_opener(self):
-        """Construct URL opener with auth."""
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, self.sendsms_url, self.sendsms_user, self.sendsms_pass)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        return urllib2.build_opener(handler)
 
     def prepare_request(self, text, identity):
         """Construct outbound data for requests.post."""
@@ -39,15 +32,16 @@ class VumiBackend(BackendBase):
         if self.sendsms_user and self.sendsms_pass:
             kwargs['auth'] = (self.sendsms_user, self.sendsms_pass)
         kwargs['data'] = json.dumps(payload)
-        return urllib2.Request(**kwargs)
+        return kwargs
 
     def send(self, message):
         identity = message.connection.identity
         text = message.text
 
         logger.debug('Sending message: %s' % text)
-        req = self.prepare_request(text, identity)
-        handle = self.url_opener.open(req)
-        resp = handle.read()
-        self.debug("vumi response: %s" % resp)
-        return True
+
+        kwargs = self.prepare_request(text, identity)
+        r = requests.put(**kwargs)
+        logger.debug('Vumi response: %s', r.text)
+        if r.status_code != requests.codes.ok:
+            r.raise_for_status()
