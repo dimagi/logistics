@@ -1,6 +1,7 @@
 from logistics.models import StockRequest, StockRequestStatus
-from logistics.util import config
+from logistics.util import config, ussd_msg_response
 from logistics_project.apps.malawi.util import get_supervisors
+from rapidsms.messages.outgoing import OutgoingMessage
 
 
 def send_transfer_responses(msg, stock_report, transfers, giver, to):
@@ -65,8 +66,12 @@ def send_soh_responses(msg, contact, stock_report, requests):
                                   products=orders,
                                   hsa_id=contact.supply_point.code)
 
-                msg.respond(config.Messages.SOH_ORDER_CONFIRM,
-                            products=" ".join(stock_report.reported_products()).strip())
+                ussd_msg_response(
+                    msg,
+                    config.Messages.SOH_ORDER_CONFIRM,
+                    products=" ".join(stock_report.reported_products()).strip()
+                )
+
 
 def send_emergency_responses(msg, contact, stock_report, requests):
     if stock_report.errors:
@@ -108,11 +113,12 @@ def send_emergency_responses(msg, contact, stock_report, requests):
                                        emergency_products=emergency_product_string,
                                        hsa_id=contact.supply_point.code)
         if supervisors.count() > 0:
-            msg.respond(config.Messages.EMERGENCY_SOH,
-                        products=" ".join(stock_report.reported_products()).strip())
+            ussd_msg_response(
+                msg,
+                config.Messages.EMERGENCY_SOH,
+                products=" ".join(stock_report.reported_products()).strip()
+            )
         else:
             # TODO: this message should probably be cleaned up
             msg.respond(config.Messages.NO_IN_CHARGE,
                         supply_point=contact.supply_point.supplied_by.name)
-    
-        

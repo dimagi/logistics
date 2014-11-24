@@ -7,7 +7,7 @@ from logistics.models import ProductReport, ProductReportType, SupplyPoint,\
     SupplyPointType, NagRecord, ContactRole, StockRequest, StockRequestStatus
 from rapidsms.contrib.messaging.utils import send_message
 from logistics.const import Reports
-from logistics.util import config
+from logistics.util import config, get_ussd_connection
 from logistics_project.apps.malawi.util import hsa_supply_points_below,\
     get_districts, get_district_supply_points, get_imci_coordinators,\
     get_district_pharmacists
@@ -108,7 +108,7 @@ def nag_hsas_soh(since, location=None):
              'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG}
             ]
     
-    send_nag_messages(warnings)
+    send_nag_messages(warnings, ussd=True)
 
 def nag_hsas_rec():
     """
@@ -171,10 +171,10 @@ def nag_hsas_rec():
              'flag_supervisor': True,
              'supervisor_message': config.Messages.HSA_RECEIPT_SUPERVISOR_NAG}
             ]
-    send_nag_messages(warnings)
+    send_nag_messages(warnings, ussd=True)
 
 
-def send_nag_messages(warnings):
+def send_nag_messages(warnings, ussd=False):
     for w in warnings:
         for hsa in w["hsas"]:
             
@@ -188,7 +188,8 @@ def send_nag_messages(warnings):
             try:
                 
                 contact = Contact.objects.get(supply_point=hsa, is_active=True)
-                send_message(contact.default_connection, w["message"] % {'hsa': contact.name, 'days': w['days']})
+                connection = get_ussd_connection(contact.default_connection)
+                send_message(connection, w["message"] % {'hsa': contact.name, 'days': w['days']})
                 NagRecord(supply_point=hsa, warning=w["number"],nag_type=w['code']).save()
             except Contact.DoesNotExist:
                 logging.error("Contact does not exist for HSA: %s" % hsa.name)
@@ -246,13 +247,13 @@ def _send_eo_notice(district):
     relevant_alert = Alert.objects.get(supply_point=district)
     msg = config.Messages.DISTRICT_NAG_EO % {"pct": relevant_alert.eo_without_resupply }
     for contact in _district_contacts(district):
-        send_message(contact.default_connection, msg)
+        send_message(get_ussd_connection(contact.default_connection), msg)
     
 def _send_so_notice(district):
     relevant_alert = Alert.objects.get(supply_point=district)
     msg = config.Messages.DISTRICT_NAG_SO % {"pct": relevant_alert.have_stockouts }
     for contact in _district_contacts(district):
-        send_message(contact.default_connection, msg)
+        send_message(get_ussd_connection(contact.default_connection), msg)
         
         
         
