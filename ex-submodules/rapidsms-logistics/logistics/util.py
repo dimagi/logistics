@@ -1,4 +1,5 @@
 from django.utils.importlib import import_module
+from django.conf import settings
 from rapidsms.conf import settings
 from re import findall
 from string import maketrans
@@ -21,24 +22,26 @@ else:
     NUMERIC_LETTERS = ("lLO", "110")
 
 
-def vumi_backend():
-    if not hasattr(vumi_backend, '_backend'):
-        # TODO: get this name from settings
-        # TODO: don't fial if no backed with this name exists
-        vumi_backend._backend = Backend.objects.get(name='vumi')
+def ussd_push_backend():
+    if not hasattr(ussd_push_backend, '_backend'):
+        backend_name = getattr(settings, 'USSD_PUSH_BACKEND', None)
+        if backend_name:
+            ussd_push_backend._backend = Backend.objects.get(name=backend_name)
+        else:
+            ussd_push_backend._backend = None
 
-    return vumi_backend._backend
+    return ussd_push_backend._backend
 
 
-def get_ussd_connection(default_connection):
-    vumi = vumi_backend()
-    if not vumi:
-        return default_connection
+def get_ussd_connection(fallback_connection):
+    backend = ussd_push_backend()
+    if not backend:
+        return fallback_connection
 
     return Connection(
-        backend=vumi,
-        identity=default_connection.identity,
-        contact=default_connection.contact
+        backend=backend,
+        identity=fallback_connection.identity,
+        contact=fallback_connection.contact
     )
 
 
