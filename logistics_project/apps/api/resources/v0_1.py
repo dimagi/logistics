@@ -4,7 +4,7 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from tastypie import fields
-from logistics.models import Product, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
+from logistics.models import Product, ProductType, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
 from rapidsms.models import Contact, Connection
 from rapidsms.contrib.locations.models import Point, Location
 
@@ -14,14 +14,27 @@ class CustomResourceMeta(object):
     default_format = 'application/json'
 
 
+class ProgramResource(ModelResource):
+    code = fields.CharField('code')
+    name = fields.CharField('name')
+
+    class Meta(CustomResourceMeta):
+        max_limit = None
+        queryset = ProductType.objects.all()
+        include_resource_uri = False
+        fields = ['code', 'name']
+        list_allowed_methods = ['get']
+
 class ProductResources(ModelResource):
+    program = fields.ToOneField(ProgramResource, 'type', full=True, null=True)
 
     class Meta(CustomResourceMeta):
         max_limit = None
         queryset = Product.objects.all()
         include_resource_uri = False
-        fields = ['name', 'units', 'sms_code', 'description', 'is_active']
+        fields = ['name', 'units', 'sms_code', 'description', 'is_active', 'program']
         list_allowed_methods = ['get']
+
 
 class UserResource(ModelResource):
     username = fields.CharField('username', null=True)
@@ -158,6 +171,8 @@ class ProductStockResources(ModelResource):
     supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
 
     def dehydrate(self, bundle):
+        bundle.data['use_auto_consumption'] = bundle.obj.use_auto_consumption
+        bundle.data['manual_monthly_consumption'] = bundle.obj.manual_monthly_consumption
         bundle.data['product'] = bundle.obj.product.sms_code
         bundle.data['supply_point'] = bundle.obj.supply_point.id
         return bundle
