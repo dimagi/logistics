@@ -108,7 +108,7 @@ def nag_hsas_soh(since, location=None):
              'supervisor_message': config.Messages.HSA_SUPERVISOR_NAG}
             ]
     
-    send_nag_messages(warnings, ussd=True)
+    send_nag_messages(warnings)
 
 def nag_hsas_rec():
     """
@@ -171,10 +171,10 @@ def nag_hsas_rec():
              'flag_supervisor': True,
              'supervisor_message': config.Messages.HSA_RECEIPT_SUPERVISOR_NAG}
             ]
-    send_nag_messages(warnings, ussd=True)
+    send_nag_messages(warnings)
 
 
-def send_nag_messages(warnings, ussd=False):
+def send_nag_messages(warnings):
     for w in warnings:
         for hsa in w["hsas"]:
             
