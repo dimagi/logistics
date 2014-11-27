@@ -1,7 +1,10 @@
 from django.utils.importlib import import_module
+from django.conf import settings
 from rapidsms.conf import settings
 from re import findall
 from string import maketrans
+from rapidsms.messages.outgoing import OutgoingMessage
+from rapidsms.models import Connection, Backend
 
 if hasattr(settings,'LOGISTICS_CONFIG'):
     config = import_module(settings.LOGISTICS_CONFIG)
@@ -17,6 +20,40 @@ if hasattr(settings, "NUMERIC_LETTERS"):
     NUMERIC_LETTERS = settings.NUMERIC_LETTERS
 else:
     NUMERIC_LETTERS = ("lLO", "110")
+
+
+def ussd_push_backend():
+    if not hasattr(ussd_push_backend, '_backend'):
+        backend_name = getattr(settings, 'USSD_PUSH_BACKEND', None)
+        if backend_name:
+            ussd_push_backend._backend = Backend.objects.get(name=backend_name)
+        else:
+            ussd_push_backend._backend = None
+
+    return ussd_push_backend._backend
+
+
+def get_ussd_connection(fallback_connection):
+    backend = ussd_push_backend()
+    if not backend:
+        return fallback_connection
+
+    return Connection(
+        backend=backend,
+        identity=fallback_connection.identity,
+        contact=fallback_connection.contact
+    )
+
+
+def ussd_msg_response(msg, template, **kwargs):
+    response = OutgoingMessage(
+        get_ussd_connection(msg.connection),
+        template,
+        **kwargs
+    )
+    msg.responses.append(response)
+    return msg
+
 
 def parse_report(val):
     """
