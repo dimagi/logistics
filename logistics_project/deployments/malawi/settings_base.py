@@ -117,6 +117,8 @@ INSTALLED_BACKENDS = {
     },
 }
 
+USSD_PUSH_BACKEND = None
+
 # for postgresql:
 DATABASES = {
     "default": {
