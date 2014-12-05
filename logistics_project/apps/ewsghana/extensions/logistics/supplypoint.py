@@ -1,14 +1,18 @@
 from __future__ import absolute_import
 from itertools import chain
 from django.db import models
-from django.db.models import Q
 from logistics.util import config
+
 
 class SupplyPoint(models.Model):
     supervised_by = models.ForeignKey("logistics.SupplyPoint", 
                                       related_name="supervising_facility", null=True, blank=True)
     primary_reporter = models.ForeignKey("rapidsms.Contact", null=True, 
                                          verbose_name='Primary Stock Reporter', blank=True)
+
+    def save(self, force_insert=False, force_update=False, using=None):
+        self.location.save()
+        super(SupplyPoint, self).save(force_insert, force_update, using)
 
     class Meta:
         abstract = True
