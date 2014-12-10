@@ -49,6 +49,7 @@ class UserResource(ModelResource):
             'date_joined': ('gte', )
         }
 
+
 class WebUserResources(ModelResource):
     user = fields.ToOneField(UserResource, 'user', full=True)
     location = fields.IntegerField('location_id', null=True)
@@ -64,13 +65,14 @@ class WebUserResources(ModelResource):
 
     class Meta(CustomResourceMeta):
         max_limit = None
-        queryset = LogisticsProfile.objects.all()
+        queryset = LogisticsProfile.objects.all().order_by('user__date_joined')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['location', 'supply_point', 'sms_notifications', 'organization']
         filtering = {
             'user': ALL_WITH_RELATIONS
         }
+
 
 class SMSUserResources(ModelResource):
     name = fields.CharField('name')
@@ -85,7 +87,7 @@ class SMSUserResources(ModelResource):
             connection = Connection.objects.get(id=bundle.data['id'])
             bundle.data['backend'] = str(connection.backend)
             bundle.data['phone_numbers'] = [connection.identity]
-            bundle.data['to'] = connection.to if connection.to != None else ""
+            bundle.data['to'] = connection.to if connection.to is not None else ""
         except Connection.DoesNotExist:
             bundle.data['backend'] = ""
             bundle.data['phone_numbers'] = []
@@ -100,6 +102,8 @@ class SMSUserResources(ModelResource):
         filtering = {
             'date_updated': ('gte', )
         }
+        ordering = ['date_updated']
+
 
 class PointResource(ModelResource):
     latitude = fields.CharField('latitude')
@@ -111,61 +115,53 @@ class PointResource(ModelResource):
         fields = ['latitude', 'longitude']
         include_resource_uri = False
 
-class LocationResources(ModelResource):
-    id = fields.IntegerField('id')
-    name = fields.CharField('name')
-    type = fields.CharField('type')
-    parent_id = fields.IntegerField('parent_id', null=True)
-    points = fields.ToOneField(PointResource, 'point', full=True, null=True)
-    code = fields.CharField('code')
+
+class SupplyPointResources(ModelResource):
+    supplied_by = fields.IntegerField('supplied_by_id', null=True)
+    supervised_by = fields.IntegerField('supervised_by_id', null=True)
+    primary_reporter = fields.IntegerField('primary_reporter_id', null=True)
     groups = fields.ListField(null=True, default=[])
-    created_at = fields.CharField(null=True, default="")
-    supervised_by = fields.IntegerField(null=True, default=None)
+    active = fields.BooleanField('active')
+    type = fields.CharField('type')
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.all()
+        queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
-        details_allowed_methods = ['get']
-        fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
         include_resource_uri = False
+        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups']
         filtering = {
-            'date_updated': ('gte', ),
-            'type': ('exact', )
+            'id': ('exact', ),
+            'active': ('exact', ),
+            'last_reported': ('isnull', )
         }
 
+
+class LocationResources(ModelResource):
+    supply_points = fields.ToManyField(
+        SupplyPointResources,
+        attribute=lambda bundle: SupplyPoint.objects.filter(location=bundle.obj, active=True), full=True, null=True
+    )
+    points = fields.ToOneField(PointResource, 'point', full=True, null=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = Location.objects.all().order_by('date_updated')
+        include_resource_uri = False
+        filtering = {
+            'type': ('exact', ),
+            'date_updated': ('gte', ),
+            'is_active': ('exact', )
+        }
+        ordering = ['date_updated']
+
     def dehydrate(self, bundle):
-        try:
-            sp = SupplyPoint.objects.get(pk=bundle.data['id'])
-            bundle.data['groups'] = list(sp.groups.all())
-            bundle.data['created_at'] = sp.created_at
-            bundle.data['supervised_by'] = sp.supervised_by_id
-        except SupplyPoint.DoesNotExist:
-            bundle.data['groups'] = []
-            bundle.data['created_at'] = ""
-            bundle.data['supervised_by'] = None
-        bundle.data['latitude'] = ""
         bundle.data['longitude'] = ""
+        bundle.data['latitude'] = ""
         if bundle.data['points']:
             bundle.data['latitude'] = bundle.data['points'].data['latitude']
             bundle.data['longitude'] = bundle.data['points'].data['longitude']
         del bundle.data['points']
         return bundle
 
-class SupplyPointResources(ModelResource):
-    location = fields.IntegerField('location_id', null=True)
-    supplied_by = fields.IntegerField('supplied_by_id', null=True)
-    supervised_by = fields.IntegerField('supervised_by_id', null=True)
-    primary_reporter = fields.IntegerField('primary_reporter_id', null=True)
-    groups = fields.ListField(null=True, default=[])
-
-    class Meta(CustomResourceMeta):
-        queryset = SupplyPoint.objects.all()
-        list_allowed_methods = ['get']
-        include_resource_uri = False
-        fields = ['id', 'name', 'active', 'type', 'code', 'created_at', 'groups']
-        filtering = {
-            'id': ('exact', )
-        }
 
 class ProductStockResources(ModelResource):
     supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
@@ -178,14 +174,15 @@ class ProductStockResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.all()
+        queryset = ProductStock.objects.all().order_by('last_modified')
         include_resource_uri = False
         list_allowed_methods = ['get']
-        excludes = ['id', 'days_stocked_out', 'manual_monthly_consumption', 'use_auto_consumption']
         filtering = {
             "last_modified": ('gte', ),
             "supply_point": ALL_WITH_RELATIONS
         }
+        ordering = ['last_modified']
+
 
 class StockTransactionResources(ModelResource):
     supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
@@ -201,7 +198,7 @@ class StockTransactionResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = StockTransaction.objects.all()
+        queryset = StockTransaction.objects.all().order_by('date')
         include_resource_uri = False
         list_allowed_methods = ['get']
         excludes = ['id', ]
