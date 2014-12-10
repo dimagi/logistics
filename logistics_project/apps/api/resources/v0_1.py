@@ -142,6 +142,7 @@ class LocationResources(ModelResource):
         attribute=lambda bundle: SupplyPoint.objects.filter(location=bundle.obj, active=True), full=True, null=True
     )
     points = fields.ToOneField(PointResource, 'point', full=True, null=True)
+    type = fields.CharField('type')
 
     class Meta(CustomResourceMeta):
         queryset = Location.objects.all().order_by('date_updated')
