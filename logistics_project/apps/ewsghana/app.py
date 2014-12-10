@@ -8,6 +8,10 @@ from logistics.models import Validator
 from logistics.template_app import App as LogisticsApp
 from logistics.util import config
 
+class DoNothingValidator(Validator):
+    def validate(self, supply_point, product_stock=None, product_received=None, consumption=None):
+        return
+
 class SohAndReceiptValidator(Validator):
     def validate(self, supply_point, product_stock=None, product_received=None, consumption=None):
         product_stock = {} if product_stock is None else product_stock
@@ -55,7 +59,7 @@ class App(LogisticsApp):
             message.text = self._clean_message(message.text)
             stock_report = ProductReportsHelper(message.logistics_contact.supply_point, 
                                                 Reports.SOH, message.logger_msg, 
-                                                validator=SohAndReceiptValidator())
+                                                validator=DoNothingValidator())
             stock_report.parse(message.text)
             try:
                 stock_report.validate()
