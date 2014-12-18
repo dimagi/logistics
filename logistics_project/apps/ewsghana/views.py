@@ -31,7 +31,7 @@ from registration.views import register as django_register
 from email_reports.views import email_reports as logistics_email_reports
 from email_reports.decorators import magic_token_required
 from logistics.decorators import place_in_request
-from logistics.models import Product, SupplyPoint, LogisticsProfile
+from logistics.models import Product, SupplyPoint, LogisticsProfile, ProductStock, StockTransaction
 from logistics.reports import ReportingBreakdown, TotalStockByLocation
 from logistics.tables import FacilityTable
 from logistics.view_decorators import geography_context
@@ -473,3 +473,55 @@ def stock_at_medical_stores(request, context=None):
     })
     return render_to_response("logistics/summary.html", context, context_instance=RequestContext(request))
 
+
+def global_stats(request):
+    active_sps = SupplyPoint.objects.filter(active=True)
+    hsa_type = getattr(config.SupplyPointCodes, 'HSA', 'nomatch')
+    country = Location.objects.filter(type__slug='country')
+    region = Location.objects.filter(type__slug='region')
+    district = Location.objects.filter(type__slug='district')
+    entities_reported_stock = active_sps.exclude(last_reported=None)
+    web_users = User.objects.filter(is_active=True)
+    clinic_type = getattr(config.SupplyPointCodes,'CLINIC', 'nomatch')
+    chps_type = getattr(config.SupplyPointCodes,'CHPS', 'nomatch')
+    district_hospital_type = getattr(config.SupplyPointCodes,'DISTRICT_HOSPITAL', 'nomatch')
+    health_center_type = getattr(config.SupplyPointCodes,'HEALTH_CENTER', 'nomatch')
+    hospital_type = getattr(config.SupplyPointCodes,'HOSPITAL', 'nomatch')
+    psychiatric_hospital_type = getattr(config.SupplyPointCodes,'PSYCHIATRIC_HOSPITAL', 'nomatch')
+    regional_medical_store_type = getattr(config.SupplyPointCodes,'REGIONAL_MEDICAL_STORE', 'nomatch')
+    regional_hospital_type = getattr(config.SupplyPointCodes,'REGIONAL_HOSPITAL', 'nomatch')
+    polyclinic_type = getattr(config.SupplyPointCodes,'POLYCLINIC', 'nomatch')
+    teaching_hospital_type = getattr(config.SupplyPointCodes,'TEACHING_HOSPITAL', 'nomatch')
+    central_medical_store_type = getattr(config.SupplyPointCodes,'CENTRAL_MEDICAL_STORE', 'nomatch')
+
+    context = {
+        'supply_points': active_sps.count(),
+        'country': country.count(),
+        'region': region.count(),
+        'district': district.count(),
+        'entites_reported_stock': entities_reported_stock.count(),
+        'clinic': active_sps.filter(type__code=clinic_type).count(),
+        'chps': active_sps.filter(type__code=chps_type).count(),
+        'district_hospital': active_sps.filter(type__code=district_hospital_type).count(),
+        'health_center': active_sps.filter(type__code=health_center_type).count(),
+        'hospital': active_sps.filter(type__code=hospital_type).count(),
+        'psychiatric_hospital': active_sps.filter(type__code=psychiatric_hospital_type).count(),
+        'regional_medical_store': active_sps.filter(type__code=regional_medical_store_type).count(),
+        'regional_hospital': active_sps.filter(type__code=regional_hospital_type).count(),
+        'polyclinic': active_sps.filter(type__code=polyclinic_type).count(),
+        'teaching_hospital': active_sps.filter(type__code=teaching_hospital_type).count(),
+        'central_medical_store': active_sps.filter(type__code=central_medical_store_type).count(),
+        'hsas': active_sps.filter(type__code=hsa_type).count(),
+        'contacts': Contact.objects.filter(is_active=True).count(),
+        'product_stocks': ProductStock.objects.filter(is_active=True).count(),
+        'stock_transactions': StockTransaction.objects.count(),
+        'inbound_messages': Message.objects.filter(direction='I').count(),
+        'outbound_messages': Message.objects.filter(direction='O').count(),
+        'products': Product.objects.count(),
+        'web_users': web_users.count(),
+        'web_users_admin': web_users.filter(is_superuser=True).count(),
+        'web_users_read_only': web_users.filter(is_superuser=False).count(),
+    }
+
+    return render_to_response('logistics/global_stats.html', context,
+                              context_instance=RequestContext(request))

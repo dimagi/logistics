@@ -1,0 +1,110 @@
+{% extends base_template %}
+{% block content %}
+<h2>Global stats</h2>
+<table>
+    <tr>
+        <th>Supply Points</th>
+        <td>{{ supply_points }}</td>
+    </tr>
+    <tr>
+        <th>Country</th>
+        <td>{{ country }}</td>
+    </tr>
+    <tr>
+        <th>Region</th>
+        <td>{{ region }}</td>
+    </tr>
+    <tr>
+        <th>District</th>
+        <td>{{ district }}</td>
+    </tr>
+    <tr>
+        <th>Entities that report stock</th>
+        <td>{{ entites_reported_stock }}</td>
+    </tr>
+    <tr>
+        <th>Clinic</th>
+        <td>{{ clinic }}</td>
+    </tr>
+    <tr>
+        <th>CHPS Facility</th>
+        <td>{{ chps }}</td>
+    </tr>
+    <tr>
+        <th>District Hospital</th>
+        <td>{{ district_hospital }}</td>
+    </tr>
+    <tr>
+        <th>Health Center</th>
+        <td>{{ health_center }}</td>
+    </tr>
+    <tr>
+        <th>Hospital</th>
+        <td>{{ hospital }}</td>
+    </tr>
+    <tr>
+        <th>Psychiatric Hospital</th>
+        <td>{{ psychiatric_hospital }}</td>
+    </tr>
+    <tr>
+        <th>Regional Medical Store</th>
+        <td>{{ regional_medical_store }}</td>
+    </tr>
+    <tr>
+        <th>Regional Hospital</th>
+        <td>{{ regional_hospital }}</td>
+    </tr>
+    <tr>
+        <th>Polyclinic</th>
+        <td>{{ polyclinic }}</td>
+    </tr>
+    <tr>
+        <th>Teaching Hospital</th>
+        <td>{{ teaching_hospital }}</td>
+    </tr>
+    <tr>
+        <th>Central Medical Store</th>
+        <td>{{ central_medical_store }}</td>
+    </tr>
+    <tr>
+        <th>CHWs</th>
+        <td>{{ hsas }}</td>
+    </tr>
+    <tr>
+        <th>Contacts</th>
+        <td>{{ contacts }}</td>
+    </tr>
+    <tr>
+        <th>Web Users</th>
+        <td>{{ web_users }}</td>
+    </tr>
+    <tr>
+        <th>Admin Web Users</th>
+        <td>{{ web_users_admin }}</td>
+    </tr>
+    <tr>
+        <th>Read Only Web Users</th>
+        <td>{{ web_users_read_only }}</td>
+    </tr>
+    <tr>
+        <th>Products</th>
+        <td>{{ products }}</td>
+    </tr>
+    <tr>
+        <th>Product stocks</th>
+        <td>{{ product_stocks }}</td>
+    </tr>
+    <tr>
+        <th>Stock transactions</th>
+        <td>{{ stock_transactions }}</td>
+    </tr>
+    <tr>
+        <th>Inbound messages</th>
+        <td>{{ inbound_messages }}</td>
+    </tr>
+    <tr>
+        <th>Outbound messages</th>
+        <td>{{ outbound_messages }}</td>
+    </tr>
+</table>
+{% endblock %}
