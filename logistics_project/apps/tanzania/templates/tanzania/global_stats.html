@@ -1,0 +1,70 @@
+{% extends base_template %}
+{% block content %}
+<h2>Global stats</h2>
+<table>
+    <tr>
+        <th>Supply Points</th>
+        <td>{{ supply_points }}</td>
+    </tr>
+    <tr>
+        <th>Country</th>
+        <td>{{ country }}</td>
+    </tr>
+    <tr>
+        <th>Region</th>
+        <td>{{ region }}</td>
+    </tr>
+    <tr>
+        <th>District</th>
+        <td>{{ district }}</td>
+    </tr>
+    <tr>
+        <th>Entities that report stock</th>
+        <td>{{ entities_reported_stock }}</td>
+    </tr>
+    <tr>
+        <th>Facilities</th>
+        <td>{{ facilities }}</td>
+    </tr>
+    <tr>
+        <th>CHWs</th>
+        <td>{{ hsas }}</td>
+    </tr>
+    <tr>
+        <th>Contacts</th>
+        <td>{{ contacts }}</td>
+    </tr>
+    <tr>
+        <th>Web Users</th>
+        <td>{{ web_users }}</td>
+    </tr>
+    <tr>
+        <th>Admin Web Users</th>
+        <td>{{ web_users_admin }}</td>
+    </tr>
+    <tr>
+        <th>Read Only Web Users</th>
+        <td>{{ web_users_read_only }}</td>
+    </tr>
+    <tr>
+        <th>Products</th>
+        <td>{{ products }}</td>
+    </tr>
+    <tr>
+        <th>Product stocks</th>
+        <td>{{ product_stocks }}</td>
+    </tr>
+    <tr>
+        <th>Stock transactions</th>
+        <td>{{ stock_transactions }}</td>
+    </tr>
+    <tr>
+        <th>Inbound messages</th>
+        <td>{{ inbound_messages }}</td>
+    </tr>
+    <tr>
+        <th>Outbound messages</th>
+        <td>{{ outbound_messages }}</td>
+    </tr>
+</table>
+{% endblock %}

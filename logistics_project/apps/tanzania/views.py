@@ -11,7 +11,9 @@ from logistics_project.apps.tanzania.tasks import send_reporting_group_list_sms,
     send_region_list_sms, send_district_list_sms
 from rapidsms.contrib.locations.models import Location
 from logistics.tables import FullMessageTable
+from logistics.models import ProductStock, StockTransaction
 from models import DeliveryGroups
+from logistics.util import config
 from logistics.views import MonthPager
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -19,6 +21,7 @@ from logistics_project.apps.tanzania.decorators import gdata_required, require_s
 import gdata.docs.client
 import gdata.gauth
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse
 from dimagi.utils.parsing import string_to_datetime
 from django.views.decorators.http import require_POST
@@ -28,6 +31,7 @@ from logistics_project.apps.tanzania.forms import AdHocReportForm,\
     UploadFacilityFileForm, SupervisionDocumentForm, SMSFacilityForm
 from logistics_project.apps.tanzania.models import AdHocReport, SupplyPointNote, SupplyPointStatusTypes, SupervisionDocument
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Contact
 from logistics_project.apps.tanzania.models import NoDataError
 import os
 from warehouse.models import ReportRun
@@ -757,3 +761,34 @@ def upload_facilities(request):
     return HttpResponseRedirect(reverse("training"))
 
 
+def global_stats(request):
+    active_sps = SupplyPoint.objects.filter(active=True)
+    hsa_type = getattr(config.SupplyPointCodes, 'HSA', 'nomatch')
+    facility_type = getattr(config.SupplyPointCodes,'FACILITY', 'nomatch')
+    country = Location.objects.filter(type__slug='moh')
+    region = Location.objects.filter(type__slug='region')
+    district = Location.objects.filter(type__slug='district')
+    entities_reported_stock = active_sps.exclude(last_reported=None)
+    web_users = User.objects.filter(is_active=True)
+
+    context = {
+        'supply_points': active_sps.count(),
+        'country': country.count(),
+        'region': region.count(),
+        'district': district.count(),
+        'entities_reported_stock': entities_reported_stock.count(),
+        'facilities': active_sps.filter(type__code=facility_type).count(),
+        'hsas': active_sps.filter(type__code=hsa_type).count(),
+        'contacts': Contact.objects.filter(is_active=True).count(),
+        'product_stocks': ProductStock.objects.filter(is_active=True).count(),
+        'stock_transactions': StockTransaction.objects.count(),
+        'inbound_messages': Message.objects.filter(direction='I').count(),
+        'outbound_messages': Message.objects.filter(direction='O').count(),
+        'products': Product.objects.count(),
+        'web_users': web_users.count(),
+        'web_users_admin': web_users.filter(is_superuser=True).count(),
+        'web_users_read_only': web_users.filter(is_superuser=False).count(),
+    }
+
+    return render_to_response('tanzania/global_stats.html', context,
+                              context_instance=RequestContext(request))
