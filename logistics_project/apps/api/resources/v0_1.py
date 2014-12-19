@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
@@ -36,14 +36,23 @@ class ProductResources(ModelResource):
         list_allowed_methods = ['get']
 
 
+class GroupResources(ModelResource):
+    class Meta(CustomResourceMeta):
+        max_limit = None
+        queryset = Group.objects.all()
+        include_resource_uri = False
+
+
 class UserResource(ModelResource):
     username = fields.CharField('username', null=True)
+    groups = fields.ToManyField(GroupResources, 'groups',
+                                full=True, null=True)
 
     class Meta(CustomResourceMeta):
         queryset = User.objects.all()
         list_allowed_methods = ['get']
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active', 'is_superuser',
-                  'last_login', 'date_joined']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active',
+                  'is_superuser', 'last_login', 'date_joined']
         include_resource_uri = False
         filtering = {
             'date_joined': ('gte', )
