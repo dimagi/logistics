@@ -25,6 +25,7 @@ class ProgramResource(ModelResource):
         fields = ['code', 'name']
         list_allowed_methods = ['get']
 
+
 class ProductResources(ModelResource):
     program = fields.ToOneField(ProgramResource, 'type', full=True, null=True)
 
@@ -59,27 +60,24 @@ class UserResource(ModelResource):
         }
 
 
-class WebUserResources(ModelResource):
-    user = fields.ToOneField(UserResource, 'user', full=True)
-    location = fields.IntegerField('location_id', null=True)
-    supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    def dehydrate(self, bundle):
-        bundle.data['user'].data['location'] = bundle.data['location']
-        bundle.data['user'].data['supply_point'] = bundle.data['supply_point']
-        bundle.data['user'].data['sms_notifications'] = bundle.data['sms_notifications']
-        bundle.data['user'].data['organization'] = bundle.data['organization']
-        bundle.data = bundle.data['user'].data
-        return bundle
+class SupplyPointResources(ModelResource):
+    supplied_by = fields.IntegerField('supplied_by_id', null=True)
+    supervised_by = fields.IntegerField('supervised_by_id', null=True)
+    primary_reporter = fields.IntegerField('primary_reporter_id', null=True)
+    groups = fields.ListField(null=True, default=[])
+    active = fields.BooleanField('active')
+    type = fields.CharField('type')
+    location_id = fields.IntegerField('location_id', null=True)
 
     class Meta(CustomResourceMeta):
-        max_limit = None
-        queryset = LogisticsProfile.objects.all().order_by('user__date_joined')
-        include_resource_uri = False
+        queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
-        fields = ['location', 'supply_point', 'sms_notifications', 'organization']
+        include_resource_uri = False
+        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups', 'location_id']
         filtering = {
-            'user': ALL_WITH_RELATIONS
+            'id': ('exact', ),
+            'active': ('exact', ),
+            'last_reported': ('isnull', )
         }
 
 
@@ -87,7 +85,7 @@ class SMSUserResources(ModelResource):
     name = fields.CharField('name')
     email = fields.CharField('email', null=True)
     role = fields.CharField('role', null=True)
-    supply_point = fields.IntegerField('supply_point_id', null=True)
+    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
     is_active = fields.CharField('is_active')
     family_name = fields.CharField('family_name')
 
@@ -114,6 +112,32 @@ class SMSUserResources(ModelResource):
         ordering = ['date_updated']
 
 
+class WebUserResources(ModelResource):
+    user = fields.ToOneField(UserResource, 'user', full=True)
+    location = fields.IntegerField('location_id', null=True)
+    supply_point = fields.IntegerField('supply_point_id', null=True)
+    contact = fields.ToOneField(SMSUserResources, 'contact', null=True, full=True)
+
+    def dehydrate(self, bundle):
+        bundle.data['user'].data['location'] = bundle.data['location']
+        bundle.data['user'].data['supply_point'] = bundle.data['supply_point']
+        bundle.data['user'].data['sms_notifications'] = bundle.data['sms_notifications']
+        bundle.data['user'].data['organization'] = bundle.data['organization']
+        bundle.data['user'].data['contact'] = bundle.data['contact']
+        bundle.data = bundle.data['user'].data
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        max_limit = None
+        queryset = LogisticsProfile.objects.all().order_by('user__date_joined')
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        fields = ['contact', 'location', 'supply_point', 'sms_notifications', 'organization']
+        filtering = {
+            'user': ALL_WITH_RELATIONS
+        }
+
+
 class PointResource(ModelResource):
     latitude = fields.CharField('latitude')
     longitude = fields.CharField('longitude')
@@ -123,26 +147,6 @@ class PointResource(ModelResource):
         list_allowed_methods = ['get']
         fields = ['latitude', 'longitude']
         include_resource_uri = False
-
-
-class SupplyPointResources(ModelResource):
-    supplied_by = fields.IntegerField('supplied_by_id', null=True)
-    supervised_by = fields.IntegerField('supervised_by_id', null=True)
-    primary_reporter = fields.IntegerField('primary_reporter_id', null=True)
-    groups = fields.ListField(null=True, default=[])
-    active = fields.BooleanField('active')
-    type = fields.CharField('type')
-
-    class Meta(CustomResourceMeta):
-        queryset = SupplyPoint.objects.all()
-        list_allowed_methods = ['get']
-        include_resource_uri = False
-        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups']
-        filtering = {
-            'id': ('exact', ),
-            'active': ('exact', ),
-            'last_reported': ('isnull', )
-        }
 
 
 class LocationResources(ModelResource):
