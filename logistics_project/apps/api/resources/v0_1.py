@@ -102,7 +102,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = Contact.objects.all()
+        queryset = Contact.objects.all().order_by('date_updated', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active', 'date_updated', 'family_name']
@@ -129,7 +129,7 @@ class WebUserResources(ModelResource):
 
     class Meta(CustomResourceMeta):
         max_limit = None
-        queryset = LogisticsProfile.objects.all().order_by('user__date_joined')
+        queryset = LogisticsProfile.objects.all().order_by('user__date_joined', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['contact', 'location', 'supply_point', 'sms_notifications', 'organization']
@@ -158,7 +158,7 @@ class LocationResources(ModelResource):
     type = fields.CharField('type')
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.all().order_by('date_updated')
+        queryset = Location.objects.all().order_by('date_updated', 'id')
         include_resource_uri = False
         filtering = {
             'type': ('exact', ),
@@ -188,7 +188,7 @@ class ProductStockResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.all().order_by('last_modified')
+        queryset = ProductStock.objects.all().order_by('last_modified', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         filtering = {
@@ -212,7 +212,7 @@ class StockTransactionResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = StockTransaction.objects.all().order_by('date')
+        queryset = StockTransaction.objects.all().order_by('date', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         excludes = ['id', ]
