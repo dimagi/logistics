@@ -48,7 +48,7 @@ from logistics_project.apps.malawi.reports import ReportInstance, ReportDefiniti
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
-    UploadFacilityFileForm, ProductForm
+    UploadFacilityFileForm, ProductForm, UserForm
 
 from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from logistics_project.apps.malawi.loader import load_locations,\
@@ -173,6 +173,7 @@ def permissions(request):
     return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
 
+
 def edit_permission(request, pk):
     prof = get_object_or_404(LogisticsProfile, pk=pk)
     if request.method == 'POST':
@@ -190,6 +191,26 @@ def edit_permission(request, pk):
 
     return render_to_response("%s/edit_permission.html" % settings.MANAGEMENT_FOLDER,
         context, context_instance=RequestContext(request))
+
+
+def create_account(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'User "{0}" was created. Set permissions here.'.format(user.username))
+            try:
+                prof = user.get_profile()
+            except ObjectDoesNotExist:
+                prof = LogisticsProfile.objects.create(user=user)
+
+            return HttpResponseRedirect(reverse('malawi_edit_permissions', args=[prof.pk]))
+    else:
+        form = UserForm()
+    return render_to_response("%s/add_user_account.html" % settings.MANAGEMENT_FOLDER,
+                              {'form': form},
+                              context_instance=RequestContext(request))
+
 
 def places(request):
     locs = Location.objects.filter(is_active=True)
@@ -218,6 +239,7 @@ def places(request):
     }
     return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER,
                 context, context_instance=RequestContext(request))
+
 
 def products(request):
     prds = Product.objects.filter(is_active=True)
@@ -269,6 +291,7 @@ def single_product(request, pk):
                               {'product': p},
                               context_instance=RequestContext(request))
 
+
 def deactivate_product_view(request, pk):
     p = get_object_or_404(Product, pk=pk)
     if request.method=="POST":
@@ -279,9 +302,9 @@ def deactivate_product_view(request, pk):
                               {'product': p},
                               context_instance=RequestContext(request))
 
+
 def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
-
 
 
 #@cache_page(60 * 15)

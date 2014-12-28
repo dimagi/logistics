@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 
 from logistics.util import config
 from logistics.models import SupplyPoint, Product, LogisticsProfile
@@ -55,7 +55,7 @@ class LogisticsProfileForm(forms.ModelForm):
 
 
 class UploadFacilityFileForm(forms.Form):
-    file  = forms.FileField()
+    file = forms.FileField()
 
 
 class ProductForm(forms.ModelForm):
@@ -63,3 +63,26 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         exclude = ('product_code', 'description', 'equivalents', 'is_active')
+
+
+class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+    repeat_password = forms.CharField(widget=forms.PasswordInput())
+
+    class Meta:
+        model = User
+        exclude = ('is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+                   'groups', 'user_permissions')
+
+    def clean(self):
+        ret = super(UserForm, self).clean()
+        if self.cleaned_data['password'] != self.cleaned_data['repeat_password']:
+            raise forms.ValidationError('Provided passwords do not match!')
+        return ret
+
+    def save(self, commit=True):
+        user = super(UserForm, self).save(commit=commit)
+        if commit:
+            user.set_password(self.cleaned_data['password'])
+            user.save()
+        return user

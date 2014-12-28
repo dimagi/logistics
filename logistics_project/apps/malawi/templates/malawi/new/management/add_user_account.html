@@ -1,0 +1,12 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Add Account - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h2>Create account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Create Account">
+    </form>
+</div>
+{% endblock %}
