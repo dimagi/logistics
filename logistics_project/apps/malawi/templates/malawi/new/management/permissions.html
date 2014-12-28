@@ -4,9 +4,9 @@
 
 <div class="module">
 	<h2>Users</h2>
-	{% with table as table %}
+    <a href="{% url malawi_new_account %}" class="action">New Account</a>
+    {% with table as table %}
 	{% include "malawi/new/partials/selector-table.html" %}
 	{% endwith %}
 </div>
-
 {% endblock %}
