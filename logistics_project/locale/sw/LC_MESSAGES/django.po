@@ -2,95 +2,416 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-13 00:32-0500\n"
+"POT-Creation-Date: 2015-01-09 17:18+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#placeholders
-msgid "Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
-msgstr "_Can only initiate product inquiry for a single facility via SMS - %(location_name)s is a %(location_type)s"
+#: localsettings.py:36
+#, fuzzy
+msgid ""
+"Sorry, I could not understand your message. Please contact your supervisor "
+"for help."
+msgstr ""
+"Samahani, sijaelewa ujumbe wako. Tafadhali tuma 'msaada' kwa maelezo zaidi"
 
-msgid "To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
-msgstr "_To test a reminder, send \"test [remindername] [msd code]\"; valid tests are soh, delivery, randr. Remember to setup your contact details!"
-#end placeholders
+#: apps/ewsghana/handlers/registration.py:33
+#, fuzzy, python-format
+msgid "Sorry, can't find the location with CODE %(code)s"
+msgstr "Samahani, Eneo lenye MSD CODE %(msd_code)s halipo"
 
-#stockout
-msgid "Please send in stockout reports in the form 'so <product>'"
-msgstr "Tafadhali tuma taarifa za hakuna katika mpangilio ufuatao, 'hakuna <kifaa>'"
+#: apps/ewsghana/handlers/registration.py:50
+#, python-format
+msgid ""
+"Congratulations %(contact_name)s, you have successfully been registered for "
+"the Early Warning System. Your facility is %(sdp_name)s"
+msgstr ""
 
-msgid "Thank you %(contact_name)s for reporting stockouts of %(product_names)s for %(facility_name)s."
-msgstr "Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_names)s vya %(facility_name)s."
-#end stockout
+#: apps/ewsghana/templates/ewsghana/base.html:52
+#: apps/malawi/templates/malawi/base.html:33
+#: apps/tanzania/templates/tanzania/base.html:49
+msgid "Return to the Dashboard"
+msgstr ""
 
-#district reports#
-msgid "R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not submit, %(not_responding)s/%(total)s did not reply"
-msgstr "Uwasilishaji wa R&R: %(submitted)s/%(total)s wamewasilisha R&R, %(not_submitted)s/%(total)s hawajawasilisha R&R, %(not_responding)s/%(total)s hawajajibu ujumbe"
-       
-msgid "SOH - %(submitted)s/%(total)s reported, %(not_responding)s/%(total)s did not reply"
-msgstr "Hesabu ya mkono: %(submitted)s/%(total)s wametoa taarifa ya hmk, %(not_responding)s/%(total)s hawajajibu ujumbe"
+#: apps/ewsghana/templates/ewsghana/base.html:68
+#: apps/malawi/templates/malawi/base.html:50
+#: apps/tanzania/templates/tanzania/base.html:68
+msgid "Log out"
+msgstr ""
 
-msgid "Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s did not receive, %(not_responding)s/%(total)s did not reply"
-msgstr "Upokeaji wa Shehena: %(received)s/%(total)s wamepokea shehena, %(not_received)s/%(total)s hawajapokea shehena, %(not_responding)s/%(total)s hawajajibu ujumbe"
-#end district reports#
+#: apps/ewsghana/templates/ewsghana/base.html:69
+#: apps/malawi/templates/malawi/base.html:51
+#: apps/tanzania/templates/tanzania/base.html:69
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:14
+msgid "Log in"
+msgstr ""
 
-msgid "%(district_name)s has submitted their R&R forms to MSD: %(group_a)s for Group A, %(group_b)s for Group B, %(group_c)s for Group C"
-msgstr "%(district_name)s imetuma R&R fomu kwenda MSD: %(group_a)s kwa ajili ya Kundi A, %(group_b)s kwa ajili ya Kundi B %(group_c)s kwa ajili ya Kundi C"
+#: apps/ewsghana/templates/ewsghana/help.html:11
+msgid "Documentation"
+msgstr ""
 
-msgid "District %(district_name)s has reported that they sent their R&R forms to MSD"
-msgstr "Wilaya %(district_name)s imetoa taarifa kuwa fomu za R&R zimewasilishwa MSD"
+#: apps/ewsghana/templates/ewsghana/single_facility.html:35
+msgid "Supplied By"
+msgstr ""
 
-msgid "Sent"
-msgstr "Ilitumwa"
+#: apps/ewsghana/templates/ewsghana/single_facility.html:36
+#, fuzzy
+msgid "Last Reported"
+msgstr "Imebadilishwa mara ya mwisho"
 
-msgid "Invalid msd code %(code)s"
-msgstr "Namba ya MSD sio sahihi %(code)s"
+#: apps/ewsghana/templates/ewsghana/single_facility.html:39
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:2
+msgid "Contacts"
+msgstr "Mawasiliano"
 
+#: apps/ewsghana/templates/ewsghana/single_facility.html:42
+#: apps/registration/forms.py:39
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:5
+msgid "Name"
+msgstr "Jina"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:43
+#: apps/registration/forms.py:38
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:6
+msgid "Role"
+msgstr "Cheo"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:44
+#: apps/registration/forms.py:40
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:7
+msgid "Phone"
+msgstr "Simu"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:45
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:8
+msgid "Email"
+msgstr "Barua pepe"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:46
+msgid "Gets Reminders"
+msgstr ""
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:47
+#, fuzzy
+msgid "Reports On"
+msgstr "Ripoti"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:53
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:15
+#, python-format
+msgid "%(role)s"
+msgstr ""
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:67
+#, fuzzy
+msgid "Inventory"
+msgstr "Onyesha idadi ya vifaa"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:70
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:10
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:33
+msgid "Product"
+msgstr "Kifaa"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:71
+msgid "Months of Stock"
+msgstr "Miezi ya kua na hakiba"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:80
+msgid "Add a contact"
+msgstr "Ongeza mawasiliano"
+
+#: apps/ewsghana/templates/ewsghana/single_facility.html:81
+msgid "Back to facility list view"
+msgstr ""
+
+#: apps/malawi/templates/malawi/dashboard.html:40
+#: apps/tanzania/templates/tanzania/alerts.html:14
+msgid "Alerts"
+msgstr "Kumbuka"
+
+#: apps/malawi/templates/malawi/single_facility.html:43
+msgid "Aggregate Stock Report"
+msgstr ""
+
+#: apps/maps/templates/maps/dashboard.html:87
+#, python-format
+msgid ""
+"\n"
+"                There are %(count)s supply points to display but only 100\n"
+"                can be displayed at a time. Please filter the location to\n"
+"                have better results.\n"
+"            "
+msgstr ""
+
+#: apps/registration/forms.py:41
+msgid "Enter the fully qualified number.<br/>Example: 0012121234567"
+msgstr ""
+
+#: apps/registration/forms.py:104
+msgid "Enter the fully qualified number.<br/>"
+msgstr ""
+
+#: apps/tanzania/alerts.py:32
+#, python-format
+msgid ""
+"%(count)d facilities have reported not submitting their R&R form as of today."
+msgstr ""
+"%(count)d vituo vimetoa taarifa kuwa havijatuma R&R fomu za vituo vyao kwa "
+"leo"
+
+#: apps/tanzania/alerts.py:53
+#, python-format
+msgid ""
+"%(count)d facilities did not respond to the SMS asking if they had submitted "
+"their R&R form."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
+
+#: apps/tanzania/alerts.py:67
+#, python-format
+msgid ""
+"%(count)d facilities have reported not receiving their deliveries as of "
+"today."
+msgstr "%(count)d vituo vimetoa taarifa leo kuwa havijapokea vifaa"
+
+#: apps/tanzania/alerts.py:81
+#, python-format
+msgid ""
+"%(count)d facilities did not respond to the SMS asking if they had received "
+"their delivery."
+msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimepokea vifaa"
+
+#: apps/tanzania/alerts.py:94
+#, python-format
+msgid ""
+"%(count)d facilities have not reported their stock levels for last month."
+msgstr "%(count)d vituo havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita"
+
+#: apps/tanzania/alerts.py:116
+#, python-format
+msgid "%(name)s is stocked out of %(product)s."
+msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s."
+
+#: apps/tanzania/alerts.py:133
+#, python-format
+msgid "%(name)s has no primary contact."
+msgstr "%(name)s hakuna mhusika mkuu kwa kituo cha afya."
+
+#: apps/tanzania/config.py:133 apps/tanzania/forms.py:42
+#: apps/tanzania/forms.py:69
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:12
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:10
+msgid "Facilities"
+msgstr "Vituo"
+
+#: apps/tanzania/config.py:136
+msgid ""
+"To register send reg <name> <msd code> or reg <name> at <district name>. "
+"Example:reg john patel d34002 or reg john patel : tandahimba"
+msgstr ""
+"Kujisajili tuma sajili <Jina> <namba ya MSD> au sajili <jina> kwa <jina la "
+"wilaya>. Mfano: sajili John Patel d34002 au sajili John Patel : tandahimba"
+
+#: apps/tanzania/config.py:137
+msgid ""
+"I didn't recognize your msd code.  To register, send register <name> <msd "
+"code>. example: register Peter Juma d34002"
+msgstr ""
+"msd code yako haitambuliki, Kujisajili, andika 'sajili<nafasi><jina "
+"lako><nafasi><msd code ya kituo chako>. Mfano 'sajili Peter Juma d34002'"
+
+#: apps/tanzania/config.py:138
+#, fuzzy, python-format
+msgid "Sorry, can't find the location with MSD CODE %(msd_code)s"
+msgstr "Samahani, Eneo lenye MSD CODE %(msd_code)s halipo"
+
+#: apps/tanzania/config.py:139
+#, python-format
+msgid "Sorry, can't find the location with the name %(name)s"
+msgstr "Samahani sioni jina linaloendana na eneo %(name)s"
+
+#: apps/tanzania/config.py:140
+#, python-format
+msgid ""
+"Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
+msgstr ""
+"Asante kwa kujisajili katika %(sdp_name)s, %(msd_code)s, %(contact_name)s"
+
+#: apps/tanzania/config.py:141
+#, python-format
+msgid "Thank you for registering at %(sdp_name)s, %(contact_name)s"
+msgstr "Asante kwa kujisajili katika %(sdp_name)s, %(contact_name)s"
+
+#: apps/tanzania/config.py:143
+msgid ""
+"Welcome to ILSGateway. Available commands are soh, delivered, not delivered, "
+"submitted, not submitted, language, sw, en, stop, supervision, la"
+msgstr ""
+"Karibu kwenye mfumo wa ILSGateway.maneno yaliyopo ya kuamrisha ni hmk, "
+"nimepokea, sijapokea, nimetuma, sijatuma, lugha sw, lugha en, acha, "
+"usimamizi, um"
+
+#: apps/tanzania/config.py:147
 msgid "To set your language, send LANGUAGE <CODE>"
 msgstr "Kubadilisha lugha, tuma LUGHA <KIFUPISHO>"
 
-msgid "Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
-msgstr "Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
+#: apps/tanzania/config.py:148
+msgid ""
+"You must JOIN or IDENTIFY yourself before you can set your language "
+"preference"
+msgstr "Lazima kujiunga kwanza kabla ya kuchagua lugha unayotaka"
 
-msgid "Sorry, invalid format.  The message should be in the format 'la <product> +-<amount> +-<product> +-<amount>..."
-msgstr "Kutuma taarifa za kupokea vifaa, jibu 'um <kifaa> +-<idadi> <kifaa> +-<idadi>...'"
+#: apps/tanzania/config.py:149
+#, python-format
+msgid "I will speak to you in %(language)s."
+msgstr "Nitaongea na wewe kwa %(language)s."
 
-msgid "Thank you. Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
-msgstr "Asante. Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi ndiyo' au 'usimamizi hapana'"
+#: apps/tanzania/config.py:150
+#, fuzzy, python-format
+msgid "Sorry, I don't speak \"%(language)s\"."
+msgstr "Samahani, sielewi \"[lugha]\""
 
-msgid "Have you received supervision this month? Please reply 'supervision yes' or 'supervision no'"
-msgstr "Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi ndiyo' au 'usimamizi hapana'"
-		
-msgid "Supervision reminders will come monthly, and you can respond 'supervision yes' if you have received supervision or 'supervision no' if you have not"
-msgstr "Ujumbe wa usimamizi hutumwa kila mwisho wa mwezi, tafadhali jibu 'usimamizi ndiyo' kama umefanyiwa usimamizi au 'usimamizi hapana' kama haujafanyiwa usimamizi."
-		
-msgid "You have reported that you have not yet received supervision this month."
+#: apps/tanzania/config.py:153
+msgid ""
+"You have requested to stop reminders to this number.  Send 'help' to this "
+"number for instructions on how to reactivate."
+msgstr ""
+"Umesitisha kukumbushwa kwenye hii namba. tafadhali tuma 'msaada' kupata "
+"maelekezo jinsi ya kujiunga tena"
+
+# end placeholders
+# stockout
+#: apps/tanzania/config.py:156
+msgid "Please send in stockout reports in the form 'so <product>'"
+msgstr ""
+"Tafadhali tuma taarifa za hakuna katika mpangilio ufuatao, 'hakuna <kifaa>'"
+
+#: apps/tanzania/config.py:157
+#, python-format
+msgid "Sorry, invalid product codes %(codes)s"
+msgstr "Samahani, vifupisho vya vifaa sio sahihi %(codes)s"
+
+#: apps/tanzania/config.py:158
+#, python-format
+msgid ""
+"Thank you %(contact_name)s for reporting stockouts of %(product_names)s for "
+"%(facility_name)s."
+msgstr ""
+"Asante %(contact_name)s kwa kutuma taarifa ya hakuna %(product_names)s vya "
+"%(facility_name)s."
+
+#: apps/tanzania/config.py:161 apps/tanzania/config.py:219
+msgid ""
+"Please send in your adjustments in the format 'la <product> +-<amount> +-"
+"<product> +-<amount>...'"
+msgstr ""
+"Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> "
+"+-<idadi> <kifaa> +-<idadi>'"
+
+#: apps/tanzania/config.py:162
+msgid ""
+"Sorry, invalid format.  The message should be in the format 'la <product> +-"
+"<amount> +-<product> +-<amount>..."
+msgstr ""
+"Kutuma taarifa za kupokea vifaa, jibu 'um <kifaa> +-<idadi> <kifaa> +-"
+"<idadi>...'"
+
+#: apps/tanzania/config.py:163
+msgid ""
+"Thank you. Have you received supervision this month? Please reply "
+"'supervision yes' or 'supervision no'"
+msgstr ""
+"Asante. Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi "
+"ndiyo' au 'usimamizi hapana'"
+
+#: apps/tanzania/config.py:166
+msgid ""
+"Supervision reminders will come monthly, and you can respond 'supervision "
+"yes' if you have received supervision or 'supervision no' if you have not"
+msgstr ""
+"Ujumbe wa usimamizi hutumwa kila mwisho wa mwezi, tafadhali jibu 'usimamizi "
+"ndiyo' kama umefanyiwa usimamizi au 'usimamizi hapana' kama haujafanyiwa "
+"usimamizi."
+
+#: apps/tanzania/config.py:167
+msgid ""
+"You have reported that you have not yet received supervision this month."
 msgstr "Umetoa taarifa kuwa haujafanyiwa usimazi kwa mwezi huu."
 
+#: apps/tanzania/config.py:168
 msgid "Thank you for reporting that you have received supervision this month."
 msgstr "Asante, umetoa taarifa kuwa 'usimamizi ndiyo'"
 
-msgid "Thank you for reporting your stock on hand this month"
-msgstr "Asante kwa kutoa taarifa za hesabu ya mkono kwa mwezi huu"
-
-msgid "To report an arrival, please send 'arrived <MSD code>'."
+#: apps/tanzania/config.py:169 apps/tanzania/config.py:207
+msgid ""
+"Have you received supervision this month? Please reply 'supervision yes' or "
+"'supervision no'"
 msgstr ""
+"Je umefanyiwa usimamizi kwa mwezi huu? Tafadhali jibu 'usimamizi ndiyo' au "
+"'usimamizi hapana'"
 
-msgid "Thank you for confirming your arrival at the health facility."
-msgstr "Asante kwa kuthibitisha kufika kwako katika Kituo cha Afya"
+#: apps/tanzania/config.py:172
+msgid ""
+"If you have submitted your R&R, respond \"submitted\".  If you have received "
+"your delivery, respond \"delivered\""
+msgstr ""
+"Kama umetuma R&R fomu yako jibu 'nimetuma', kama umepokea vifaa jibu "
+"'nimepokea'"
 
-msgid "Thank you for confirming your arrival at %(facility)s."
-msgstr "Asante kwa kuthibitisha kufika kwako katika %(facility)s"
+#: apps/tanzania/config.py:175
+msgid ""
+"If you haven't submitted your R&R, respond \"not submitted\". If you haven't "
+"received your delivery, respond \"not delivered\""
+msgstr ""
+"Kama haujatuma R&R fomu yako jibu \"sijatuma\", kama haujapokea vifaa jibu "
+"\"sijapokea\""
 
-msgid "help"
-msgstr "msaada"
+#: apps/tanzania/config.py:178
+msgid "You have reported that you haven't yet received your delivery."
+msgstr "Asante, Umetoa taarifa kuwa haujapokea vifaa bado"
 
-msgid "You are overstocked for %(overstocked_list)s that you can redistribute to other facilities. Keep %(products_list)s."
-msgstr "Una stock ya dawa nyingi kwa sasa %(overstocked_list)s unaweza kubaki na dawa: %(products_list)s"
+#: apps/tanzania/config.py:181 apps/tanzania/config.py:183
+#, python-format
+msgid ""
+"Thank you, you reported a delivery of %(reply_list)s. If incorrect, please "
+"resend."
+msgstr ""
+"Asante, umetoa taarifa kuwa umepokea %(reply_list)s. Kama sio sahihi, "
+"tafadhali tuma tena taarifa sahihi."
 
-msgid "You are stocked out of %(products_list)s. The following facilities are overstocked: %(overstocked_list)s"
-msgstr "Vituo ambavyo vina dawa nyingi kwa sasa ni: %(overstocked_list)s"
+#: apps/tanzania/config.py:182
+msgid ""
+"Sorry, invalid format.  The message should be in the format 'delivered "
+"product amount product amount'"
+msgstr ""
+"Samahani, Mpangilio sio sahihi. Ujumbe uwe katika mpangilio huu 'nimepokea "
+"<jina la vifaa> <idadi> <jina la kifaa> <idadi>...'"
 
-#: handlers/confirmdelivery.py:25 handlers/confirmdelivery.py:40
+#: apps/tanzania/config.py:184
+msgid ""
+"To record a delivery, respond with \"delivered product amount product "
+"amount...\""
+msgstr ""
+"Kutuma taarifa za kupokea vifaa, jibu  \"nimepokea<acha nafasi><jina la "
+"kifaa><acha nafasi><idadi ya kifaa><acha nafasi>...\""
+
+#: apps/tanzania/config.py:185 apps/tanzania/config.py:205
+msgid ""
+"Did you receive your delivery yet? Please reply 'delivered <product> "
+"<amount> <product> <amount>...'"
+msgstr ""
+"Je? Umekwishapokea vifaa ulivyoagiza robo mwaka huu, kama umepokea jibu "
+"'nimepokea <jina la vifaa> <idadi ya vifaa>...', kama haujapokea jibu "
+"'sijapokea'"
+
+#: apps/tanzania/config.py:186 apps/tanzania/config.py:206
+msgid ""
+"Did you receive your delivery yet? Please reply 'delivered' or 'not "
+"delivered'"
+msgstr ""
+"Je? Umekwishapokea vifaa ulivyoagiza robo mwaka huu, kama umepokea jibu "
+"'nimepokea', kama haujapokea jibu 'sijapokea'"
+
+#: apps/tanzania/config.py:187
 #, python-format
 msgid ""
 "Thank you %(contact_name)s for reporting your delivery for %(facility_name)s"
@@ -98,219 +419,902 @@ msgstr ""
 "Asante %(contact_name)s kwa kutuma taarifa ya kupokea vifaa vya "
 "%(facility_name)s"
 
-#: handlers/confirmdelivery.py:30
+#: apps/tanzania/config.py:188
+#, python-format
 msgid ""
-"To record a delivery, respond with \"delivered product amount product "
-"amount...\""
+"Facility deliveries for group %(group_name)s (out of %(group_total)d): "
+"%(not_responded_count)d haven't responded and %(not_received_count)d have "
+"reported not receiving. See ilsgateway.com"
 msgstr ""
-"Kutuma taarifa za kupokea vifaa, jibu  \"nimepokea<acha nafasi><jina la kifaa><acha nafasi><idadi ya kifaa><acha nafasi>...\""
- 
-#: handlers/confirmdelivery.py:44 handlers/confirmdelivery.py:57
+"Vituo vya kundi la upokeaji %(group_name)s (kati ya %(group_total)d): "
+"%(not_responded_count)d havijajibu na %(not_received_count)d vimetoa taarifa "
+"kua havijapokea vifaa. Tizama kwenye ilsgateway.com"
+
+#: apps/tanzania/config.py:189
+#, python-format
 msgid ""
-"Sorry, invalid format.  The message should be in the format 'delivered product amount product amount'"
-msgstr "Samahani, Mpangilio sio sahihi. Ujumbe uwe katika mpangilio huu 'nimepokea <jina la vifaa> <idadi> <jina la kifaa> <idadi>...'"
+"District %(district_name)s has reported that they sent their R&R forms to MSD"
+msgstr ""
+"Wilaya %(district_name)s imetoa taarifa kuwa fomu za R&R zimewasilishwa MSD"
 
-#: handlers/confirmdelivery.py:64
-#, python-format
-msgid "Sorry, invalid product codes %(codes)s"
-msgstr "Samahani, vifupisho vya vifaa sio sahihi %(codes)s"
+#: apps/tanzania/config.py:193
+msgid "You have reported that you haven't yet sent in your R&R."
+msgstr "Umetoa taarifa kuwa haujatuma R&R fomu zako."
 
-#: handlers/confirmdelivery.py:72 handlers/stockonhand.py:62
-#, python-format
-msgid "Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
-msgstr "Asante. Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
-
-msgid "Thank you, you reported a delivery of %(reply_list)s. If incorrect, please resend."
-msgstr "Asante, umetoa taarifa kuwa umepokea %(reply_list)s. Kama sio sahihi, tafadhali tuma tena taarifa sahihi."
-
-msgid "Thank you, you reported you have %(quantity)s %(product_name)s. If incorrect, please resend."
-msgstr "'Asante, umetoa taarifa ya kuwa na %(quantity)s %(product_name)s. Kama sio sahihi tafadhali tuma tena."
-
-#: handlers/confirmrandrsubmitted.py:17
-msgid "Please respond in the format \"submitted A <number of group A forms> B <number of group B forms> C <number of group C forms>.\""
-msgstr "Tafadhali, jibu kwa mpangilio huu 'nimetuma a <idadi ya R&R form za group a> b <idadi ya R&R form za group b> c <idadi ya R&R form za group c>'"
-
-#: handlers/confirmrandrsubmitted.py:24 handlers/confirmrandrsubmitted.py:79
+#: apps/tanzania/config.py:196
 #, python-format
 msgid ""
 "Thank you %(contact_name)s for submitting your R and R form for %(sdp_name)s"
 msgstr "Asante %(contact_name)s kwa kuwasilisha R & R fomu kwa %(sdp_name)s"
 
-#: handlers/confirmrandrsubmitted.py:36 handlers/confirmrandrsubmitted.py:49
-msgid "Sorry, invalid format.  The message should be in the format 'submitted A <quantity  of R&R forms for group A> B <quantity  of R&R forms for group B>...'"
-msgstr "Samahani, Mpangilio sio sahihi. Ujumbe uwe katika mpangilio huu 'nimetuma a <idadi ya R&R form za group a> b <idadi ya R&R form za group b>...'"
+#: apps/tanzania/config.py:197 apps/tanzania/config.py:203
+msgid ""
+"Have you sent in your R&R form yet for this quarter? Please reply \"submitted"
+"\" or \"not submitted\""
+msgstr ""
+"Je? Umetuma R&R fomu yako kwa kota hii? Tafadhal jibu \"nimetuma\" au "
+"\"sijatuma\""
 
-msgid "Sorry, invalid Delivery Group %(delivery_group_name)s. Please try again"
-msgstr "Samahani, kundi la upokeaji %(delivery_group_name)s sio sahihi. Tafadhali jaribu tena."
-	    
-#: handlers/confirmrandrsubmitted.py:60
-#, python-format
-msgid "You reported %(quantity)s forms submitted for group %(delivery_group_name)s, which is more than the number of facilities in group %(delivery_group_name)s. Please try again."
-msgstr "umetoa taarifa kuwa umetuma fomu %(quantity)s kwa kundi %(delivery_group_name)s, ambayo ni idadi kubwa kuliko idadi ya vituo vya afya vilivyoko katika kundi %(delivery_group_name)s. Tafadhali jaribu tena"
+#: apps/tanzania/config.py:198 apps/tanzania/config.py:204
+msgid ""
+"How many R&R forms have you submitted to MSD? Reply with 'submitted A "
+"<number of R&Rs submitted for group A> B <number of R&Rs submitted for group "
+"B>'"
+msgstr ""
+"Ni R&R fomu ngapi umetuma MSD mpaka sasa? tafadhali jibu 'nimetuma A <idadi "
+"ya R&R fomu za kundi a> B <idadi ya R&R fomu za kundi B>...'"
 
-#: handlers/confirmrandrsubmitted.py:66
+# end district reports#
+#: apps/tanzania/config.py:199
 #, python-format
 msgid ""
-"Thank you %(contact_name)s for reporting your R&R form submissions for "
-"%(sdp_name)s"
-msgstr "Ahsante %(contact_name)s kwa kutoa taarifa ya kutuma kwa R&R fomu ya %(sdp_name)s"
+"%(district_name)s has submitted their R&R forms to MSD: %(group_a)s for "
+"Group A, %(group_b)s for Group B, %(group_c)s for Group C"
+msgstr ""
+"%(district_name)s imetuma R&R fomu kwenda MSD: %(group_a)s kwa ajili ya "
+"Kundi A, %(group_b)s kwa ajili ya Kundi B %(group_c)s kwa ajili ya Kundi C"
 
-#: handlers/confirmrandrsubmitted.py:82
-msgid "Sorry, you need to register."
-msgstr "Samahani, Unatakiwa kujisajili kwanza"
-
-#: handlers/help.py:13
-msgid "Welcome to ILSGateway. Available commands are soh, delivered, not delivered, submitted, not submitted, language, sw, en, stop, supervision, la"
-msgstr "Karibu kwenye mfumo wa ILSGateway.maneno yaliyopo ya kuamrisha ni hmk, nimepokea, sijapokea, nimetuma, sijatuma, lugha sw, lugha en, acha, usimamizi, um"
-
-msgid "To register send reg <name> <msd code> or reg <name> at <district name>. Example:reg john patel d34002 or reg john patel : tandahimba"
-msgstr "Kujisajili tuma sajili <Jina> <namba ya MSD> au sajili <jina> kwa <jina la wilaya>. Mfano: sajili John Patel d34002 au sajili John Patel : tandahimba"
-
-#: handlers/not.py:18 handlers/not.py:33
-msgid ""
-"If you haven't submitted your R&R, respond \"not submitted\". If you haven't "
-"received your delivery, respond \"not delivered\""
-msgstr "Kama haujatuma R&R fomu yako jibu \"sijatuma\", kama haujapokea vifaa jibu \"sijapokea\""
-
-msgid "You must JOIN or IDENTIFY yourself before you can set your language preference"
-msgstr "Lazima kujiunga kwanza kabla ya kuchagua lugha unayotaka"
-
-#: handlers/not.py:22
-msgid "You have reported that you haven't yet received your delivery."
-msgstr "Asante, Umetoa taarifa kuwa haujapokea vifaa bado"
-	    
-#: handlers/not.py:28
-msgid "You have reported that you haven't yet sent in your R&R."
-msgstr "Umetoa taarifa kuwa haujatuma R&R fomu zako."
-		
-#: handlers/stockonhand.py:16 handlers/test_handler.py:25
 #
+#: apps/tanzania/config.py:202 apps/tanzania/config.py:215
 msgid ""
-"Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'"
+"Please send in your stock on hand information in the format 'soh <product> "
+"<amount> <product> <amount>...'"
 msgstr ""
-"Tafadhali tuma hesabu ya mkono ya vifaaa vilivyopo katika mpangilio huu 'hmk <jina la vifaa> <idadi> <jina la vifaa> <idadi>...'"
+"Tafadhali tuma hesabu ya mkono ya vifaaa vilivyopo katika mpangilio huu 'hmk "
+"<jina la vifaa> <idadi> <jina la vifaa> <idadi>...'"
 
-msgid "Please send in your stock on hand information in the format 'si <MSD product code> <amount>'"
+# end stockout
+# district reports#
+#: apps/tanzania/config.py:210
+#, python-format
+msgid ""
+"R&R - %(submitted)s/%(total)s submitted, %(not_submitted)s/%(total)s did not "
+"submit, %(not_responding)s/%(total)s did not reply"
 msgstr ""
-"Tafadhali tuma hesabu ya mkono ya bidhaa katika mpangilio huu '<namba ya bidha ya MSD><kiasi>'"
+"Uwasilishaji wa R&R: %(submitted)s/%(total)s wamewasilisha R&R, "
+"%(not_submitted)s/%(total)s hawajawasilisha R&R, %(not_responding)s/"
+"%(total)s hawajajibu ujumbe"
 
-msgid "How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  Please respond 'si %(msd_code)s <amount>'"
-msgstr "Kiasi gani cha %(product_name) (namba ya MSD %(msd_code)) ulichonacho?  Tafadhal jibu 'si %(msd_code)s <amount>'"
+#: apps/tanzania/config.py:211
+#, python-format
+msgid ""
+"SOH - %(submitted)s/%(total)s reported, %(not_responding)s/%(total)s did not "
+"reply"
+msgstr ""
+"Hesabu ya mkono: %(submitted)s/%(total)s wametoa taarifa ya hmk, "
+"%(not_responding)s/%(total)s hawajajibu ujumbe"
 
-#: handlers/stockonhand.py:21
-msgid "Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'"
-msgstr "Kutuma taarifa za kupokea vifaa, jibu 'hmk <jina la vifaa> <idadi ya vifaa>...'"
+#: apps/tanzania/config.py:212
+#, python-format
+msgid ""
+"Deliveries - %(received)s/%(total)s received, %(not_received)s/%(total)s did "
+"not receive, %(not_responding)s/%(total)s did not reply"
+msgstr ""
+"Upokeaji wa Shehena: %(received)s/%(total)s wamepokea shehena, "
+"%(not_received)s/%(total)s hawajapokea shehena, %(not_responding)s/%(total)s "
+"hawajajibu ujumbe"
 
-#: handlers/stockonhand.py:42
-msgid "Sorry, invalid product code %(product_code)s"
-msgstr "Samahani, kodi ya kifaa %(product_code)s sio sahihi"
+#: apps/tanzania/config.py:216
+msgid ""
+"Sorry, invalid format. The message should be in the format 'soh <product> "
+"<amount> <product> <amount>...'"
+msgstr ""
+"Kutuma taarifa za kupokea vifaa, jibu 'hmk <jina la vifaa> <idadi ya "
+"vifaa>...'"
 
-#: handlers/stockonhand.py:59
+#: apps/tanzania/config.py:217
 #, python-format
 msgid ""
 "Thank you %(contact_name)s for reporting your stock on hand for "
 "%(facility_name)s.  Still missing %(product_list)s."
 msgstr ""
-"Asante %(contact_name)s kwa kutuma taarifa za akiba ya vifaa vilivyopo vya %(facility_name)s, bado taarifa za %(product_list)s"
+"Asante %(contact_name)s kwa kutuma taarifa za akiba ya vifaa vilivyopo vya "
+"%(facility_name)s, bado taarifa za %(product_list)s"
 
-msgid "Thank you, you reported your losses/adjustments: %(reply_list)s. Still missing %(product_list)s."
-msgstr "Asante, umetoa taarifa kuwa marekebisho: %(reply_list)s, bado taarifa za %(product_list)s"
-
-#: handlers/test_handler.py:18
-msgid ""
-"To test a reminder, send \"test reminder [remindername]\"; valid tests are "
-"soh, delivery, randr. Remember to setup your contact details!"
-msgstr ""
-
-#: handlers/test_handler.py:34
-msgid ""
-"Have you sent in your R&R form yet for this quarter? Please reply \"submitted"
-"\" or \"not submitted\""
-msgstr ""
-"Je? Umetuma R&R fomu yako kwa kota hii? Tafadhal jibu \"nimetuma\" au \"sijatuma\""
-
-#: handlers/test_handler.py:47
-msgid "Did you receive your delivery yet? Please reply 'delivered <product> <amount> <product> <amount>...'"
-msgstr "Je? Umekwishapokea vifaa ulivyoagiza robo mwaka huu, kama umepokea jibu 'nimepokea <jina la vifaa> <idadi ya vifaa>...', kama haujapokea jibu 'sijapokea'"
-	    
-msgid "If you have received you R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\""
-msgstr ""
-
-msgid "Did you receive your delivery yet? Please reply 'delivered' or 'not delivered'"
-msgstr "Je? Umekwishapokea vifaa ulivyoagiza robo mwaka huu, kama umepokea jibu 'nimepokea', kama haujapokea jibu 'sijapokea'"
-		
-#: handlers/test_handler.py:54
+#: apps/tanzania/config.py:218
 #, python-format
 msgid ""
-"How many R&R forms have you submitted to MSD? Reply with 'submitted A <number of R&Rs submitted for group A> B <number of R&Rs submitted for group B>'"
+"Thank you. Reported products: %(reply_list)s. Please send in your "
+"adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
 msgstr ""
-"Ni R&R fomu ngapi umetuma MSD mpaka sasa? tafadhali jibu 'nimetuma A <idadi ya R&R fomu za kundi a> B <idadi ya R&R fomu za kundi B>...'"
+"Asante. Bidhaa: %(reply_list)s. Tafadhali tuma taarifa za marekebisho katika "
+"mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
 
-#: handlers/test_handler.py:62
+#: apps/tanzania/config.py:220
+msgid "Thank you for reporting your stock on hand this month"
+msgstr "Asante kwa kutoa taarifa za hesabu ya mkono kwa mwezi huu"
+
+#: apps/tanzania/config.py:221
+#, python-format
 msgid ""
-"Sorry I didn't understand. To test a reminder, send \"test reminder "
-"[remindername]\"; valid tests are soh, delivery, randr."
+"You are overstocked for %(overstocked_list)s that you can redistribute to "
+"other facilities. Keep %(products_list)s."
+msgstr ""
+"Una stock ya dawa nyingi kwa sasa %(overstocked_list)s unaweza kubaki na "
+"dawa: %(products_list)s"
+
+#: apps/tanzania/config.py:224
+msgid ""
+"Please send in your stock on hand information in the format 'si <MSD product "
+"code> <amount>'"
+msgstr ""
+"Tafadhali tuma hesabu ya mkono ya bidhaa katika mpangilio huu '<namba ya "
+"bidha ya MSD><kiasi>'"
+
+#: apps/tanzania/config.py:225
+#, python-format
+msgid ""
+"Thank you, you reported you have %(quantity)s %(product_name)s. If "
+"incorrect, please resend."
+msgstr ""
+"'Asante, umetoa taarifa ya kuwa na %(quantity)s %(product_name)s. Kama sio "
+"sahihi tafadhali tuma tena."
+
+#: apps/tanzania/config.py:226
+#, fuzzy, python-format
+msgid ""
+"How much %(product_name)s (msd_code %(msd_code)s) do you have in stock?  "
+"Please respond 'si %(msd_code)s <amount>'"
+msgstr ""
+"Kiasi gani cha %(product_name) (namba ya MSD %(msd_code)) ulichonacho?  "
+"Tafadhal jibu 'si %(msd_code)s <amount>'"
+
+# placeholders
+#: apps/tanzania/config.py:227 apps/tanzania/handlers/messageinitiator.py:88
+#, python-format
+msgid ""
+"Can only initiate product inquiry for a single facility via SMS - "
+"%(location_name)s is a %(location_type)s"
+msgstr ""
+"_Can only initiate product inquiry for a single facility via SMS - "
+"%(location_name)s is a %(location_type)s"
+
+#: apps/tanzania/config.py:230
+msgid "To report an arrival, please send 'arrived <MSD code>'."
 msgstr ""
 
-#: templates/change_language.html:17
-msgid "Current language"
-msgstr "Lugha inayotumika"
+#: apps/tanzania/config.py:231
+msgid "Thank you for confirming your arrival at the health facility."
+msgstr "Asante kwa kuthibitisha kufika kwako katika Kituo cha Afya"
 
-#: templates/change_language.html:17
+#: apps/tanzania/config.py:232
+#, python-format
+msgid "Thank you for confirming your arrival at %(facility)s."
+msgstr "Asante kwa kuthibitisha kufika kwako katika %(facility)s"
+
+#: apps/tanzania/config.py:234
+#, python-format
+msgid "Sorry, invalid product code %(product_code)s"
+msgstr "Samahani, kodi ya kifaa %(product_code)s sio sahihi"
+
+#: apps/tanzania/config.py:237
+msgid ""
+"To test a reminder, send \"test [remindername] [msd code]\"; valid tests are "
+"soh, delivery, randr. Remember to setup your contact details!"
+msgstr ""
+"_To test a reminder, send \"test [remindername] [msd code]\"; valid tests "
+"are soh, delivery, randr. Remember to setup your contact details!"
+
+#: apps/tanzania/config.py:238
+#, python-format
+msgid "Invalid msd code %(code)s"
+msgstr "Namba ya MSD sio sahihi %(code)s"
+
+#: apps/tanzania/config.py:239
+msgid "Sent"
+msgstr "Ilitumwa"
+
+#: apps/tanzania/config.py:241
+msgid ""
+"Did you receive or transfer stock to another facility last month? Please "
+"reply either 'trans no' or 'trans yes'"
+msgstr ""
+
+#: apps/tanzania/config.py:242
+#, fuzzy
+msgid ""
+"You can respond 'trans yes' if you have received or transfered stock last "
+"month or 'trans no' if you have not"
+msgstr ""
+"Ujumbe wa usimamizi hutumwa kila mwisho wa mwezi, tafadhali jibu 'usimamizi "
+"ndiyo' kama umefanyiwa usimamizi au 'usimamizi hapana' kama haujafanyiwa "
+"usimamizi."
+
+#: apps/tanzania/config.py:244
+#, fuzzy, python-format
+msgid ""
+"You are stocked out of %(products_list)s. The following facilities are "
+"overstocked: %(overstocked_list)s"
+msgstr "Vituo ambavyo vina dawa nyingi kwa sasa ni: %(overstocked_list)s"
+
+#: apps/tanzania/config.py:250
+#, python-format
+msgid "%(hsa)s is registered but is not associated with any products"
+msgstr ""
+
+#: apps/tanzania/config.py:251
+#, python-format
+msgid ""
+"No HSA supervisor or in-charge is registered for %(facility)s but there are "
+"HSAs registered there."
+msgstr ""
+
+#: apps/tanzania/forms.py:32
+msgid "Upload a file"
+msgstr ""
+
+#: apps/tanzania/forms.py:38
+msgid "Select a type"
+msgstr ""
+
+#: apps/tanzania/forms.py:39
+#, fuzzy
+msgid "Reporting groups"
+msgstr "Ripoti"
+
+#: apps/tanzania/forms.py:40 apps/tanzania/forms.py:52
+#, fuzzy
+msgid "Regions"
+msgstr "Usajili"
+
+#: apps/tanzania/forms.py:41 apps/tanzania/forms.py:58
+#, fuzzy
+msgid "Districts"
+msgstr "Muhtasari wa wilaya"
+
+#: apps/tanzania/forms.py:46
+msgid "Reporting group A"
+msgstr ""
+
+#: apps/tanzania/forms.py:47
+msgid "Reporting group B"
+msgstr ""
+
+#: apps/tanzania/forms.py:48
+msgid "Reporting group C"
+msgstr ""
+
+#: apps/tanzania/forms.py:64
+msgid "First select a district"
+msgstr ""
+
+#: apps/tanzania/forms.py:74
+#, fuzzy
+msgid "Message"
+msgstr "Historia ya ujumbe "
+
+#: apps/tanzania/reports.py:281
+#, fuzzy
+msgid "Submitted On Time"
+msgstr "Zimetuma"
+
+#: apps/tanzania/reports.py:287
+#, fuzzy
+msgid "Submitted Late"
+msgstr "Zimetuma"
+
+#: apps/tanzania/reports.py:293
+#, fuzzy
+msgid "Haven't Submitted"
+msgstr "Hawajatuma"
+
+#: apps/tanzania/reports.py:299 apps/tanzania/reports.py:327
+#, fuzzy
+msgid "Didn't Respond"
+msgstr "Hawajajibu"
+
+#: apps/tanzania/reports.py:306
+msgid "R&R Submission Summary"
+msgstr "Muhtasari wa R&R"
+
+#: apps/tanzania/reports.py:315
+#, fuzzy
+msgid "Delivery Received"
+msgstr "Wamepokea"
+
+#: apps/tanzania/reports.py:321
+msgid "Delivery Not Received"
+msgstr ""
+
+#: apps/tanzania/reports.py:334
+#, fuzzy
+msgid "Delivery Summary"
+msgstr "Hali ya upokeaji"
+
+#: apps/tanzania/reports.py:343
+msgid "Stock Report On Time"
+msgstr ""
+
+#: apps/tanzania/reports.py:349
+#, fuzzy
+msgid "Stock Report Late"
+msgstr "Hesabu ya Mkono"
+
+#: apps/tanzania/reports.py:355
+msgid "SOH Not Responding"
+msgstr ""
+
+#: apps/tanzania/reports.py:362
+#, fuzzy
+msgid "SOH Submission Summary"
+msgstr "Muhtasari wa R&R"
+
+#: apps/tanzania/reports.py:371
+#, fuzzy
+msgid "Supervision Received"
+msgstr "Usimamizi"
+
+#: apps/tanzania/reports.py:377
+#, fuzzy
+msgid "Supervision Not Received"
+msgstr "Usimamizi"
+
+#: apps/tanzania/reports.py:383
+msgid "Supervision Not Responding"
+msgstr ""
+
+#: apps/tanzania/reports.py:390
+#, fuzzy
+msgid "Supervision Summary"
+msgstr "Usimamizi"
+
+#: apps/tanzania/tables.py:142
+#, fuzzy
+msgid "Not reported"
+msgstr "Hakuna taarifa ya kupokea vifaa imekwisha tumwa"
+
+#: apps/tanzania/views.py:546
+#, python-format
+msgid "Language changed to %(lang)s"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/base.html:66
+#, fuzzy
+msgid "Change Password"
+msgstr "Chagua eneo"
+
+#: apps/tanzania/templates/tanzania/base.html:67
+msgid "Language"
+msgstr "Lugha"
+
+#: apps/tanzania/templates/tanzania/base.html:67
 msgid "change language"
 msgstr "Badilisha lugha"
 
-#: templates/facilities_detail.html:18
-msgid "Inventory History"
-msgstr "Historia ya..."
+#: apps/tanzania/templates/tanzania/change_language.html:5
+#, fuzzy
+msgid "Change your default language"
+msgstr "Badilisha lugha"
 
-#: templates/facilities_detail.html:20
-msgid "show months of stock"
-msgstr "Onyesha makadilio ya miezi ambayo kituo kitakua na vifaa"
+#: apps/tanzania/templates/tanzania/change_language.html:17
+msgid "Current language"
+msgstr "Lugha inayotumika"
 
-#: templates/facilities_detail.html:21
-msgid "show stock levels"
-msgstr "Onyesha idadi ya vifaa"
+#: apps/tanzania/templates/tanzania/dashboard.html:69
+msgid "Product Availability Summary"
+msgstr "Muhtasri wa upatikanaji vifaa"
 
-#: templates/facilities_detail.html:24
-msgid "Last SMS message received"
-msgstr "Ujumbe uliopokelewa wa mwisho"
+#: apps/tanzania/templates/tanzania/edit_adhoc_report.html:5
+msgid "Edit Ad Hoc Report"
+msgstr ""
 
-#: templates/facilities_detail.html:27
-msgid "by"
-msgstr "na"
+#: apps/tanzania/templates/tanzania/facilities_list.html:6
+#: apps/tanzania/templates/tanzania/partials/soh_table.html:8
+msgid "Current Stock Status"
+msgstr "Hali ya vifaa vilivyopo"
 
-#: templates/facilities_detail.html:29
-msgid "No inventory messages have been received"
-msgstr "Hakuna ujumbe wa hesabu ya mkono uliokwishapokelewa"
+#: apps/tanzania/templates/tanzania/facilities_ordering.html:7
+#: apps/tanzania/templates/tanzania/facilities_ordering.html:18
+#: apps/tanzania/templates/tanzania/partials/monitoring_reports/facilities_ordering.html:2
+msgid "Ordering Status"
+msgstr "Hali ya uagizaji"
 
-#: templates/facilities_detail.html:31
-msgid "See complete SMS message history"
-msgstr "Onyesha historia kamili ya ujumbe wa SMS"
-
-#: templates/facilities_detail.html:36
-msgid "Stock on Hand"
-msgstr "Hesabu ya Mkono"
-
-#: templates/facilities_detail.html:36
-msgid "Months of Stock"
-msgstr "Miezi ya kua na hakiba"
-
-#: templates/facilities_detail.html:40 templates/facilities_list.html:32
-msgid "no data"
-msgstr "Hakuna taarifa"
-
-#: templates/facilities_detail.html:46
+#: apps/tanzania/templates/tanzania/facility_details.html:15
 msgid "Group"
 msgstr "Kundi"
 
-#: templates/facilities_detail.html:48
+#: apps/tanzania/templates/tanzania/facility_details.html:16
 msgid "see on map"
 msgstr "Ona katika ramani"
 
-#: templates/facilities_detail.html:51
-msgid "Contacts"
-msgstr "Mawasiliano"
+#: apps/tanzania/templates/tanzania/facility_details.html:20
+msgid "Inventory History"
+msgstr "Historia ya..."
+
+#: apps/tanzania/templates/tanzania/facility_details.html:28
+msgid "R&amp;R History"
+msgstr "Historia ya R&R"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:30
+msgid "see all R&amp;R history"
+msgstr "Onyesha historia yote ya R&R"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:34
+msgid "Status"
+msgstr "Hali"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:34
+#, python-format
+msgid "%(status)s"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/facility_details.html:37
+msgid "Last updated on"
+msgstr "Imebadilishwa mara ya mwisho"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:41
+msgid "No delivery status reported"
+msgstr "Hakuna taarifa ya kupokea vifaa imekwisha tumwa"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:45
+msgid "Download most recent R&amp;R"
+msgstr "chukua R&R fomu ya karibuni kutoka kwenye mtandao"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:48
+msgid "Notes"
+msgstr "Maelezo"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:53
+#, fuzzy
+msgid "Recent messages"
+msgstr "Hakuna ujumbe"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:62
+msgid "Registration"
+msgstr "Usajili"
+
+#: apps/tanzania/templates/tanzania/facility_details.html:64
+msgid "see all users"
+msgstr "Ona watumiaji wote"
+
+#: apps/tanzania/templates/tanzania/reports-base.html:8
+#, fuzzy
+msgid "Report"
+msgstr "Ripoti"
+
+#: apps/tanzania/templates/tanzania/reports-base.html:57
+msgid "Export report to excel"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/reports.html:8
+msgid "Reports"
+msgstr "Ripoti"
+
+#: apps/tanzania/templates/tanzania/reports.html:42
+#, fuzzy
+msgid "R&amp;R Reporting History"
+msgstr "Historia ya R&R"
+
+#: apps/tanzania/templates/tanzania/reports.html:42
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:16
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:14
+#, python-format
+msgid "%(submitted)s of %(count)s"
+msgstr "%(submitted)s kati ya %(count)s"
+
+#: apps/tanzania/templates/tanzania/reports.html:42
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:16
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:14
+msgid "submitted"
+msgstr "Zimetuma"
+
+#: apps/tanzania/templates/tanzania/reports.html:42
+#, python-format
+msgid "%(on_time)s of %(submitted)s"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:66
+msgid "SMS Broadcast"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:68
+msgid "Filter facilities to send an SMS broadcast to all associated users."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:80
+msgid "Select groups"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:105
+msgid "Filter by district:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:108
+#, fuzzy
+msgid "Select facilities:"
+msgstr "Vituo"
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:116
+msgid "Characters"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_broadcast.html:121
+#, fuzzy
+msgid "Send messages"
+msgstr "Hakuna ujumbe"
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:3
+msgid "SMS Interaction Schedule"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:5
+msgid "SMS Interaction Timing Table"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:11
+msgid "Type of Reminder"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:14
+msgid "Target Site"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:17
+msgid "First reminder"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:20
+msgid "Second Reminder"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/sms_schedule.html:23
+msgid "Third reminder"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/supervision-docs.html:9
+#, fuzzy
+msgid "Supervision Documents"
+msgstr "Usimamizi"
+
+#: apps/tanzania/templates/tanzania/supervision-docs.html:23
+msgid "Are you sure want to delete this document"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/supervision-docs.html:24
+msgid "Delete"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/supervision-docs.html:31
+msgid "No documents."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/supervision-docs.html:43
+msgid "Upload"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/supervision.html:29
+msgid "Downloads"
+msgstr "Vitu vya kuchukua kutoka kwenye mtandao"
+
+#: apps/tanzania/templates/tanzania/training.html:33
+msgid "Training tools"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/training.html:40
+msgid "Data as of: "
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/training.html:42
+#: apps/tanzania/templates/tanzania/training.html:44
+msgid "Refresh Data"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/training.html:45
+msgid "Currently running: started at "
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:9
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:13
+msgid "Password change"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:15
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:21
+msgid "Old password"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:26
+msgid "New password"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:31
+msgid "Password (again)"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change.html:37
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:21
+msgid "Change my password"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change_done.html:3
+#: apps/tanzania/templates/tanzania/accounts/password_change_done.html:7
+msgid "Password change successful"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_change_done.html:9
+msgid "Your password was changed."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_done.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:4
+msgid "Home"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:6
+#: apps/tanzania/templates/tanzania/accounts/password_reset_done.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:4
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:6
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:10
+msgid "Password reset"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:6
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:10
+msgid "Password reset complete"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_complete.html:12
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:4
+msgid "Password reset confirmation"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:12
+msgid "Enter new password"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:14
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:18
+msgid "New password:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:20
+msgid "Confirm password:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:26
+msgid "Password reset unsuccessful"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_confirm.html:28
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_done.html:6
+#: apps/tanzania/templates/tanzania/accounts/password_reset_done.html:10
+msgid "Password reset successful"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_done.html:12
+msgid ""
+"We've e-mailed you instructions for setting your password to the e-mail "
+"address you submitted. You should be receiving it shortly."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:2
+msgid "You're receiving this e-mail because you requested a password reset"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:3
+#, python-format
+msgid "for your user account at %(site_name)s"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:5
+msgid "Please go to the following page and choose a new password:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:9
+msgid "Your username, in case you've forgotten:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:11
+#, fuzzy
+msgid "Thanks for using our site!"
+msgstr "Asante kwa kuutumia mfumo wa ILSGateway!"
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_email.html:13
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:12
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"instructions for setting a new one."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:16
+msgid "E-mail address:"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/accounts/password_reset_form.html:16
+msgid "Reset my password"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/partials/contact_table.html:9
+msgid "Primary"
+msgstr "Mhusika mkuu"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:5
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:3
+msgid "District Summary"
+msgstr "Muhtasari wa wilaya"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:15
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:13
+msgid "Submitting"
+msgstr "vituo vinatuma"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:19
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:17
+msgid "Processing"
+msgstr "Zinashughulikiwa"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:20
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:18
+#, python-format
+msgid "%(processed)s of %(count)s forms sent to MSD"
+msgstr "Fomu %(processed)s kati ya %(count)s zimetumwa MSD"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:23
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:21
+msgid "Deliveries"
+msgstr "Wamepokea"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:24
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:22
+#, python-format
+msgid "%(delivered)s of %(count)s"
+msgstr "%(delivered)s kati ya %(count)s"
+
+#: apps/tanzania/templates/tanzania/partials/district-summary.html:24
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:22
+msgid "delivered"
+msgstr "Wamepokea vifaa"
+
+#: apps/tanzania/templates/tanzania/partials/last_sms.html:3
+msgid "Last SMS message received"
+msgstr "Ujumbe uliopokelewa wa mwisho"
+
+#: apps/tanzania/templates/tanzania/partials/last_sms.html:7
+msgid "by"
+msgstr "na"
+
+#: apps/tanzania/templates/tanzania/partials/last_sms.html:9
+msgid "No inventory messages have been received"
+msgstr "Hakuna ujumbe wa hesabu ya mkono uliokwishapokelewa"
+
+#: apps/tanzania/templates/tanzania/partials/last_sms.html:11
+msgid "See complete SMS message history"
+msgstr "Onyesha historia kamili ya ujumbe wa SMS"
+
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:5
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:11
+msgid "Stock on Hand"
+msgstr "Hesabu ya Mkono"
+
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:5
+msgid "show months of stock"
+msgstr "Onyesha makadilio ya miezi ambayo kituo kitakua na vifaa"
+
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:18
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:41
+msgid "no data"
+msgstr "Hakuna taarifa"
+
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:28
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:34
+#, fuzzy
+msgid "Months of stock"
+msgstr "Miezi ya kua na hakiba"
+
+#: apps/tanzania/templates/tanzania/partials/product_inventory.html:28
+#, fuzzy
+msgid "show stock on hand"
+msgstr "Hesabu ya Mkono"
+
+#: apps/tanzania/templates/tanzania/partials/soh_table.html:12
+msgid "Show inventory"
+msgstr "Onyesha idadi ya vifaa"
+
+#: apps/tanzania/templates/tanzania/partials/soh_table.html:14
+msgid "Show months of stock"
+msgstr "Onyesha makadilio ya miezi ambayo kituo kitakua na vifaa"
+
+#: apps/tanzania/templates/tanzania/partials/supervision_table.html:3
+#, fuzzy
+msgid "Supervision History"
+msgstr "Usimamizi"
+
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:28
+msgid "Current Average Lead Time from Report to Delivery: "
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/reports/district_summary_dashboard.html:28
+msgid " days"
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/reports/no_data.html:5
+msgid "No data available for that report."
+msgstr ""
+
+#: apps/tanzania/templates/tanzania/reports/no_data.html:7
+msgid "Try going back a few months and looking for data there."
+msgstr ""
+
+#: apps/tanzania/templatetags/tz_tags.py:76
+msgid "Waiting for reply"
+msgstr ""
+
+#: apps/tanzania/templatetags/tz_tags.py:113
+msgid "Delivery Group"
+msgstr "kundi la upokeaji"
+
+#: apps/web_registration/forms.py:23
+msgid "password"
+msgstr ""
+
+#: apps/web_registration/forms.py:25
+msgid "password (again)"
+msgstr ""
+
+#: apps/web_registration/forms.py:57
+msgid "Please enter a username containing only letters and numbers."
+msgstr ""
+
+#: apps/web_registration/forms.py:67
+msgid "You must supply a password when creating a user"
+msgstr ""
+
+# manually added/left
+msgid "help"
+msgstr "msaada"
+
+msgid "show stock levels"
+msgstr "Onyesha idadi ya vifaa"
 
 msgid "contact"
 msgstr "mtumiaji"
@@ -324,146 +1328,41 @@ msgstr "Ndani"
 msgid "Out"
 msgstr "Nje"
 
-#: templates/facilities_detail.html:54 templates/facilities_list.html:19
-#: templates/facilities_ordering.html:15 templates/select_location.html:13
 msgid "name"
 msgstr "jina"
 
-msgid "Name"
-msgstr "Jina"
-
-#: templates/facilities_detail.html:55 templates/message_history.html:14
-#: templates/note_history.html:13
 msgid "role"
 msgstr "cheo"
 
-msgid "Role"
-msgstr "Cheo"
-
-#: templates/facilities_detail.html:56 templates/message_history.html:15
-#: templates/note_history.html:14
 msgid "phone"
 msgstr "simu"
-
-msgid "Phone"
-msgstr "Simu"
 
 msgid "Maps"
 msgstr "Ramani"
 
-#: templates/facilities_detail.html:57
-msgid "Email"
-msgstr "Barua pepe"
-
-#: templates/facilities_detail.html:58
 msgid "primary"
 msgstr "mhusika mkuu"
 
-msgid "Primary"
-msgstr "Mhusika mkuu"
-
-#: templates/facilities_detail.html:64 templates/message_history.html:23
-#: templates/note_history.html:22
-#, python-format
-msgid "%(role)s"
-msgstr ""
-
-#: templates/facilities_detail.html:74
-msgid "Add a contact"
-msgstr "Ongeza mawasiliano"
-
-#: templates/facilities_detail.html:79
-msgid "R&amp;R History"
-msgstr "Historia ya R&R"
-
-#: templates/facilities_detail.html:81
-msgid "see all R&amp;R history"
-msgstr "Onyesha historia yote ya R&R"
-
-#: templates/facilities_detail.html:85
-msgid "Status"
-msgstr "Hali"
-
-#: templates/facilities_detail.html:85 templates/facilities_ordering.html:27
-#: templates/facilities_ordering.html:28 templates/facilities_ordering.html:29
-#: templates/facilities_ordering.html:30
-#, python-format
-msgid "%(status)s"
-msgstr ""
-
-#: templates/facilities_detail.html:92
-msgid "No delivery status reported"
-msgstr "Hakuna taarifa ya kupokea vifaa imekwisha tumwa"
-
-#: templates/facilities_detail.html:96
-msgid "Download most recent R&amp;R"
-msgstr "chukua R&R fomu ya karibuni kutoka kwenye mtandao"
-
-#: templates/facilities_detail.html:101
 msgid "see all notes"
 msgstr "Onyesha maelezo yote "
 
-#: templates/facilities_detail.html:110
 msgid "Enter a note for this facility"
 msgstr "Ingiza maelezo kwa kituo hiki"
 
-#: templates/facilities_list.html:11
-msgid "Current Stock Status"
-msgstr "Hali ya vifaa vilivyopo"
-
-#: templates/facilities_list.html:13
-msgid "Show months of stock"
-msgstr "Onyesha makadilio ya miezi ambayo kituo kitakua na vifaa"
-
-#: templates/facilities_list.html:13
-msgid "Show inventory"
-msgstr "Onyesha idadi ya vifaa"
-
-#: templates/facilities_list.html:17 templates/facilities_ordering.html:13
 msgid "MSD Code"
 msgstr "kodi MSD"
 
-#: templates/facilities_list.html:18 templates/facilities_ordering.html:14
-msgid "Delivery Group"
-msgstr "kundi la upokeaji"
-
-#: templates/facilities_list.html:36
 msgid "insufficient data"
 msgstr "taarifa haijajitosheleza"
 
-#: templates/facilities_ordering.html:10
-msgid "Ordering Status"
-msgstr "Hali ya uagizaji"
-
-#: templates/facilities_ordering.html:16
 msgid "R&amp;R Status"
 msgstr "Hali ya R&R"
 
-#: templates/facilities_ordering.html:17 templates/facilities_ordering.html:19
-#: templates/message_history.html:16 templates/note_history.html:15
 msgid "date"
 msgstr "tarehe"
 
-#: templates/facilities_ordering.html:18
-msgid "Delivery Status"
-msgstr "Hali ya upokeaji"
-
-#: templates/ilsgateway_dashboard.html:68
 msgid "Welcome"
 msgstr "Karibu"
-
-#: templates/ilsgateway_dashboard.html:79
-msgid "Alerts"
-msgstr "Kumbuka"
-
-#: templates/ilsgateway_dashboard.html:81
-#: templates/ilsgateway_dashboard.html:82
-#: templates/ilsgateway_dashboard.html:83
-#: templates/ilsgateway_dashboard.html:84
-#: templates/ilsgateway_dashboard.html:85
-#: templates/ilsgateway_dashboard.html:123
-msgid "Facilities"
-msgstr "Vituo"
 
 msgid "Message Tester"
 msgstr "Ujumbe mtihani"
@@ -471,197 +1370,41 @@ msgstr "Ujumbe mtihani"
 msgid "Submission Status"
 msgstr "Kuwasilisha hali"
 
-#: templates/ilsgateway_dashboard.html:81
-msgid "%(count)d facilities have reported not submitting their R&R form as of today."
-msgstr "%(count)d vituo vimetoa taarifa kuwa havijatuma R&R fomu za vituo vyao kwa leo"
-		
-#: templates/ilsgateway_dashboard.html:82
-msgid "%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form."
-msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimetuma R&R fomu zao"
-		
-#: templates/ilsgateway_dashboard.html:83
-msgid "%(count)d facilities have not reported their stock levels for last month."
-msgstr "%(count)d vituo havijatoa taarifa ya akiba ya vifaa kwa mwezi uliopita"
-
-#: templates/ilsgateway_dashboard.html:84
-msgid "%(count)d facilities have reported not receiving their deliveries as of today."
-msgstr "%(count)d vituo vimetoa taarifa leo kuwa havijapokea vifaa"
-		
-msgid "Deliveries"
-msgstr "Wamepokea"
-
-#: templates/ilsgateway_dashboard.html:85
-msgid "%(count)d facilities did not respond to the SMS asking if they had received their delivery."
-msgstr "%(count)d vituo havijajibu ujumbe unaouliza kama vimepokea vifaa"
-		
-#: templates/ilsgateway_dashboard.html:87
-#, python-format
-msgid "%(name)s is stocked out of %(product)s."
-msgstr "Kituo cha afya %(name)s Kimeishiwa %(product)s."
-
-#: templates/ilsgateway_dashboard.html:90
-msgid "%(name)s has no primary contact."
-msgstr "%(name)s hakuna mhusika mkuu kwa kituo cha afya."
-
-#: templates/ilsgateway_dashboard.html:90
 msgid "Register someone now"
 msgstr "Sajili mtu sasa"
 
-#: templates/ilsgateway_dashboard.html:98
-msgid "R&R Submission Summary"
-msgstr "Muhtasari wa R&R"
-
-#: templates/ilsgateway_dashboard.html:100
-msgid "Reports"
-msgstr "Ripoti"
-
-#: templates/ilsgateway_dashboard.html:107
-msgid "Product Availability Summary"
-msgstr "Muhtasri wa upatikanaji vifaa"
-
-#: templates/ilsgateway_dashboard.html:116
-msgid "District Summary"
-msgstr "Muhtasari wa wilaya"
-
-#: templates/ilsgateway_dashboard.html:126
-msgid "Submitting"
-msgstr "vituo vinatuma"
-
-#: templates/ilsgateway_dashboard.html:127
-#, python-format
-msgid "%(submitted)s of %(count)s"
-msgstr "%(submitted)s kati ya %(count)s"
-
-#: templates/ilsgateway_dashboard.html:127
-msgid "submitted"
-msgstr "Zimetuma"
-
-#: templates/ilsgateway_dashboard.html:130
-msgid "Processing"
-msgstr "Zinashughulikiwa"
-
-#: templates/ilsgateway_dashboard.html:131
-#, python-format
-msgid "%(processed)s of %(count)s forms sent to MSD"
-msgstr "Fomu %(processed)s kati ya %(count)s zimetumwa MSD"
-
-#: templates/ilsgateway_dashboard.html:135
-#, python-format
-msgid "%(delivered)s of %(count)s"
-msgstr "%(delivered)s kati ya %(count)s"
-
-#: templates/ilsgateway_dashboard.html:135
-msgid "delivered"
-msgstr "Wamepokea vifaa"
-
-#: templates/message_history.html:4
 msgid "Message History"
 msgstr "Historia ya ujumbe "
 
-msgid "Message Log"
-msgstr "Historia ya ujumbe "
-
-
-#: templates/message_history.html:13 templates/note_history.html:12
 msgid "Sender"
 msgstr "Mtumaji"
 
-#: templates/message_history.html:17 templates/note_history.html:16
 msgid "text"
 msgstr "ujumbe mfupi"
 
-#: templates/message_history.html:32
-msgid "No messages"
-msgstr "Hakuna ujumbe"
-
-#: templates/note_history.html:31 templates/supervision.html:44
 msgid "No notes"
 msgstr "Hakuna maelezo"
 
-msgid "Notes"
-msgstr "Maelezo"
-
-#: templates/select_location.html:4
 msgid "Choose Service Delivery Point"
 msgstr "Chagua kituo cha kupokelea huduma"
 
 msgid "Service Delivery Point"
 msgstr "kituo cha kutolea huduma"
 
-#: templates/select_location.html:10
-msgid "Change Location"
-msgstr "Chagua eneo"
-
 msgid "Change"
 msgstr "Chagua"
 
-#: templates/supervision.html:4
-msgid "Supervision"
-msgstr "Usimamizi"
-
-#: templates/supervision.html:12
-msgid "Downloads"
-msgstr "Vitu vya kuchukua kutoka kwenye mtandao"
-
-msgid "If you have submitted your R&R, respond \"submitted\".  If you have received your delivery, respond \"delivered\""
-msgstr "Kama umetuma R&R fomu yako jibu 'nimetuma', kama umepokea vifaa jibu 'nimepokea'"
-
-#: templates/supervision.html:32
-#, python-format
 msgid "Notes for Facilities in %(name)s"
 msgstr "Maelekezo kwa vituo vya %(name)s"
-
-msgid "Change language"
-msgstr "Badilisha lugha"
 
 msgid "language"
 msgstr "lugha"
 
-msgid "Language"
-msgstr "Lugha"
-
-msgid "Sorry, I couldn't understand your message.  Try 'help' for assistance"
-msgstr "Samahani, sijaelewa ujumbe wako. Tafadhali tuma 'msaada' kwa maelezo zaidi"
-
-msgid "I didn't recognize your msd code.  To register, send register <name> <msd code>. example: register Peter Juma d34002"
-msgstr "msd code yako haitambuliki, Kujisajili, andika 'sajili<nafasi><jina lako><nafasi><msd code ya kituo chako>. Mfano 'sajili Peter Juma d34002'"
-
-msgid "Sorry, can't find the location with MSD CODE %(msd_code)s"
-msgstr "Samahani, Eneo lenye MSD CODE %(msd_code)s halipo"
-
-msgid "Sorry, can't find the location with the name %(name)s"
-msgstr "Samahani sioni jina linaloendana na eneo %(name)s"
-
-msgid ""
-"Thank you for registering at %(sdp_name)s, %(msd_code)s, %(contact_name)s"
-msgstr ""
-"Asante kwa kujisajili katika %(sdp_name)s, %(msd_code)s, %(contact_name)s"
-
-msgid ""
-"Thank you for registering at %(sdp_name)s, %(contact_name)s"
-msgstr ""
-"Asante kwa kujisajili katika %(sdp_name)s, %(contact_name)s"
-
-msgid "I will speak to you in %(language)s."
-msgstr "Nitaongea na wewe kwa %(language)s."
-
-msgid "Sorry, I don't speak \"%(language)s\"."
-msgstr "Samahani, sielewi \"[lugha]\""
-
 msgid "Dashboard"
 msgstr "Ubaoni"
 
-msgid "Registration"
-msgstr "Usajili"
-
 msgid "Map"
 msgstr "Ramani"
-
-msgid "Haven't submitted"
-msgstr "Hawajatuma"
-
-msgid "Didn't respond"
-msgstr "Hawajajibu"
 
 msgid "Stocked out"
 msgstr "kimeishiwa vifaa"
@@ -672,35 +1415,17 @@ msgstr "Hakijaishiwa vifaa"
 msgid "No stockout data"
 msgstr "Hakuna taarifa ya kuishiwa vifaa"
 
-msgid "You have requested to stop reminders to this number.  Send 'help' to this number for instructions on how to reactivate."
-msgstr "Umesitisha kukumbushwa kwenye hii namba. tafadhali tuma 'msaada' kupata maelekezo jinsi ya kujiunga tena"
-
-msgid "Facility deliveries for group %(group_name)s (out of %(group_total)d): %(not_responded_count)d haven't responded and %(not_received_count)d have reported not receiving. See ilsgateway.com"
-msgstr "Vituo vya kundi la upokeaji %(group_name)s (kati ya %(group_total)d): %(not_responded_count)d havijajibu na %(not_received_count)d vimetoa taarifa kua havijapokea vifaa. Tizama kwenye ilsgateway.com"
-
 msgid "Tanzania Ministry of Health<br /> and Social Welfare"
 msgstr "Wizara ya Afya na <br /> Ustawi wa Jamii"
 
-msgid "Product"
-msgstr "Kifaa"
-
 msgid "Please log in to ILSGateway"
 msgstr "Tafadhali ingia kwenye mfumo wa ILSGateway"
-
-msgid "Thank you for visiting ILSGateway!"
-msgstr "Asante kwa kuutumia mfumo wa ILSGateway!"
-
-msgid "see all users"
-msgstr "Ona watumiaji wote"
 
 msgid "service_delivery_point"
 msgstr "kituo cha kutolea huduma"
 
 msgid "Facility Detail"
 msgstr "Taarifa za kituo"
-
-msgid "Last updated on"
-msgstr "Imebadilishwa mara ya mwisho"
 
 msgid "Save Contact"
 msgstr "Hifadhi mawasiliano"
@@ -710,3 +1435,52 @@ msgstr "Ndio"
 
 msgid "No"
 msgstr "Hapana"
+
+
+#~ msgid ""
+#~ "Please respond in the format \"submitted A <number of group A forms> B "
+#~ "<number of group B forms> C <number of group C forms>.\""
+#~ msgstr ""
+#~ "Tafadhali, jibu kwa mpangilio huu 'nimetuma a <idadi ya R&R form za group "
+#~ "a> b <idadi ya R&R form za group b> c <idadi ya R&R form za group c>'"
+
+#~ msgid ""
+#~ "Sorry, invalid format.  The message should be in the format 'submitted A "
+#~ "<quantity  of R&R forms for group A> B <quantity  of R&R forms for group "
+#~ "B>...'"
+#~ msgstr ""
+#~ "Samahani, Mpangilio sio sahihi. Ujumbe uwe katika mpangilio huu 'nimetuma "
+#~ "a <idadi ya R&R form za group a> b <idadi ya R&R form za group b>...'"
+
+#~ msgid ""
+#~ "Sorry, invalid Delivery Group %(delivery_group_name)s. Please try again"
+#~ msgstr ""
+#~ "Samahani, kundi la upokeaji %(delivery_group_name)s sio sahihi. Tafadhali "
+#~ "jaribu tena."
+
+#~ msgid ""
+#~ "You reported %(quantity)s forms submitted for group %(delivery_group_name)"
+#~ "s, which is more than the number of facilities in group "
+#~ "%(delivery_group_name)s. Please try again."
+#~ msgstr ""
+#~ "umetoa taarifa kuwa umetuma fomu %(quantity)s kwa kundi "
+#~ "%(delivery_group_name)s, ambayo ni idadi kubwa kuliko idadi ya vituo vya "
+#~ "afya vilivyoko katika kundi %(delivery_group_name)s. Tafadhali jaribu tena"
+
+#~ msgid ""
+#~ "Thank you %(contact_name)s for reporting your R&R form submissions for "
+#~ "%(sdp_name)s"
+#~ msgstr ""
+#~ "Ahsante %(contact_name)s kwa kutoa taarifa ya kutuma kwa R&R fomu ya "
+#~ "%(sdp_name)s"
+
+#~ msgid "Sorry, you need to register."
+#~ msgstr "Samahani, Unatakiwa kujisajili kwanza"
+
+#~ msgid ""
+#~ "Thank you, you reported your losses/adjustments: %(reply_list)s. Still "
+#~ "missing %(product_list)s."
+#~ msgstr ""
+#~ "Asante, umetoa taarifa kuwa marekebisho: %(reply_list)s, bado taarifa za "
+#~ "%(product_list)s"
+

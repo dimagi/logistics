@@ -1,10 +1,8 @@
 from __future__ import absolute_import
 from django.core.urlresolvers import reverse
 from logistics_project.apps.tanzania.reports import SupplyPointStatusBreakdown
-from rapidsms.models import Contact
 from alerts import Alert
-from logistics.util import config
-from logistics.models import ProductStock, SupplyPoint
+from logistics.models import ProductStock
 from logistics.decorators import place_in_request, return_if_place_not_set
 from django.utils.translation import ugettext as _
 
@@ -31,7 +29,7 @@ class SupplyPointStatusAlert(Alert):
 class RandRNotSubmitted(SupplyPointStatusAlert):
     
     def _get_template(self):
-        return '%(count)d facilities have reported not submitting their R&R form as of today.'
+        return _('%(count)d facilities have reported not submitting their R&R form as of today.')
     
     def get_count(self):
         return len(self.bd.not_submitted)
@@ -52,7 +50,7 @@ def randr_not_submitted(request):
 class RandRNotResponded(SupplyPointStatusAlert):
     
     def _get_template(self):
-        return '%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form.'
+        return _('%(count)d facilities did not respond to the SMS asking if they had submitted their R&R form.')
     
     def get_count(self):
         return len(self.bd.submit_not_responding)
@@ -66,7 +64,7 @@ def randr_not_responded(request):
 class DeliveryNotReceived(SupplyPointStatusAlert):
     
     def _get_template(self):
-        return '%(count)d facilities have reported not receiving their deliveries as of today.'
+        return _('%(count)d facilities have reported not receiving their deliveries as of today.')
     
     def get_count(self):
         return len(self.bd.delivery_not_received)
@@ -80,7 +78,7 @@ def delivery_not_received(request):
 class DeliveryNotResponding(SupplyPointStatusAlert):
     
     def _get_template(self):
-        return '%(count)d facilities did not respond to the SMS asking if they had received their delivery.'
+        return _('%(count)d facilities did not respond to the SMS asking if they had received their delivery.')
     
     def get_count(self):
         return len(self.bd.delivery_reminder_sent)
@@ -93,7 +91,7 @@ def delivery_not_responding(request):
     
 class SOHNotResponding(SupplyPointStatusAlert):
     def _get_template(self):
-        return '%(count)d facilities have not reported their stock levels for last month.'
+        return _('%(count)d facilities have not reported their stock levels for last month.')
     
     def get_count(self):    
         return len(self.bd.soh_not_responding)
