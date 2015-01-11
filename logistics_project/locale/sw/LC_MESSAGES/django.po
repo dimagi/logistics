@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-09 17:18+0200\n"
+"POT-Creation-Date: 2015-01-12 00:12+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -532,13 +532,12 @@ msgstr ""
 "%(facility_name)s, bado taarifa za %(product_list)s"
 
 #: apps/tanzania/config.py:218
-#, python-format
 msgid ""
-"Thank you. Reported products: %(reply_list)s. Please send in your "
-"adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'"
+"Thank you. Please send in your adjustments in the format 'la <product> +-"
+"<amount> +-<product> +-<amount>...'"
 msgstr ""
-"Asante. Bidhaa: %(reply_list)s. Tafadhali tuma taarifa za marekebisho katika "
-"mpangilio ufuatao, 'um <kifaa> +-<idadi> <kifaa> +-<idadi>'"
+"Tafadhali tuma taarifa za marekebisho katika mpangilio ufuatao, 'um <kifaa> "
+"+-<idadi> <kifaa> +-<idadi>'"
 
 #: apps/tanzania/config.py:220
 msgid "Thank you for reporting your stock on hand this month"
@@ -1435,52 +1434,3 @@ msgstr "Ndio"
 
 msgid "No"
 msgstr "Hapana"
-
-
-#~ msgid ""
-#~ "Please respond in the format \"submitted A <number of group A forms> B "
-#~ "<number of group B forms> C <number of group C forms>.\""
-#~ msgstr ""
-#~ "Tafadhali, jibu kwa mpangilio huu 'nimetuma a <idadi ya R&R form za group "
-#~ "a> b <idadi ya R&R form za group b> c <idadi ya R&R form za group c>'"
-
-#~ msgid ""
-#~ "Sorry, invalid format.  The message should be in the format 'submitted A "
-#~ "<quantity  of R&R forms for group A> B <quantity  of R&R forms for group "
-#~ "B>...'"
-#~ msgstr ""
-#~ "Samahani, Mpangilio sio sahihi. Ujumbe uwe katika mpangilio huu 'nimetuma "
-#~ "a <idadi ya R&R form za group a> b <idadi ya R&R form za group b>...'"
-
-#~ msgid ""
-#~ "Sorry, invalid Delivery Group %(delivery_group_name)s. Please try again"
-#~ msgstr ""
-#~ "Samahani, kundi la upokeaji %(delivery_group_name)s sio sahihi. Tafadhali "
-#~ "jaribu tena."
-
-#~ msgid ""
-#~ "You reported %(quantity)s forms submitted for group %(delivery_group_name)"
-#~ "s, which is more than the number of facilities in group "
-#~ "%(delivery_group_name)s. Please try again."
-#~ msgstr ""
-#~ "umetoa taarifa kuwa umetuma fomu %(quantity)s kwa kundi "
-#~ "%(delivery_group_name)s, ambayo ni idadi kubwa kuliko idadi ya vituo vya "
-#~ "afya vilivyoko katika kundi %(delivery_group_name)s. Tafadhali jaribu tena"
-
-#~ msgid ""
-#~ "Thank you %(contact_name)s for reporting your R&R form submissions for "
-#~ "%(sdp_name)s"
-#~ msgstr ""
-#~ "Ahsante %(contact_name)s kwa kutoa taarifa ya kutuma kwa R&R fomu ya "
-#~ "%(sdp_name)s"
-
-#~ msgid "Sorry, you need to register."
-#~ msgstr "Samahani, Unatakiwa kujisajili kwanza"
-
-#~ msgid ""
-#~ "Thank you, you reported your losses/adjustments: %(reply_list)s. Still "
-#~ "missing %(product_list)s."
-#~ msgstr ""
-#~ "Asante, umetoa taarifa kuwa marekebisho: %(reply_list)s, bado taarifa za "
-#~ "%(product_list)s"
-

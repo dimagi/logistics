@@ -61,8 +61,7 @@ class StockOnHandHandler(KeywordHandler, TaggingHandler):
                 self.respond(_(config.Messages.SOH_PARTIAL_CONFIRM), **kwargs)
             else:
                 if not sp.is_pilot:
-                    self.respond(_(config.Messages.SOH_CONFIRM),
-                                 reply_list=','.join(sorted(stock_report.reported_products())))
+                    self.respond(_(config.Messages.SOH_CONFIRM))
                 else:
                     overstocked_msg = ""
                     products_msg = ""
