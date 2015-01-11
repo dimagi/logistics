@@ -215,7 +215,7 @@ class Messages(object):
     SOH_HELP_MESSAGE = _("Please send in your stock on hand information in the format 'soh <product> <amount> <product> <amount>...'")
     SOH_BAD_FORMAT = _("Sorry, invalid format. The message should be in the format 'soh <product> <amount> <product> <amount>...'")
     SOH_PARTIAL_CONFIRM = _('Thank you %(contact_name)s for reporting your stock on hand for %(facility_name)s.  Still missing %(product_list)s.')
-    SOH_CONFIRM = _("Thank you. Reported products: %(reply_list)s. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'")
+    SOH_CONFIRM = _("Thank you. Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'")
     SOH_ADJUSTMENTS_REMINDER = _("Please send in your adjustments in the format 'la <product> +-<amount> +-<product> +-<amount>...'")
     SOH_THANK_YOU = _("Thank you for reporting your stock on hand this month")
     SOH_OVERSTOCKED = _("You are overstocked for %(overstocked_list)s that you can redistribute to other facilities. Keep %(products_list)s.")
