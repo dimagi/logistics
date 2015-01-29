@@ -283,7 +283,7 @@ class DeliveryReport(TanzaniaReport):
 
     def summary_rows(self):
         data = self.bd.delivery_data
-        pct = lambda x, tot: '%.2f%%' % (float(x) / float(tot) * 100)
+        pct = lambda x, tot: '%.2f%%' % (float(x) / float(tot) * 100) if tot else '--'
         return [
             {'title': 'Total', 'count': data.total, 'pct': pct(data.total, data.total)},
             {'title': 'Received', 'count': data.del_received, 'pct': pct(data.del_received, data.total)},
@@ -296,7 +296,8 @@ class DeliveryReport(TanzaniaReport):
         self.context['summary_rows'] = self.summary_rows()
 
     def regional_report(self):
-        self.context['delivery_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['lead_time_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['summary_rows'] = self.summary_rows()
 
     def district_report(self):
         self.context["delivery_table"] = DeliveryStatusTable2(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
