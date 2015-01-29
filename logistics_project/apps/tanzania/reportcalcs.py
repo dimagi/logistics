@@ -281,11 +281,22 @@ class DeliveryReport(TanzaniaReport):
     name = "Delivery"
     slug = "delivery"
 
+    def summary_rows(self):
+        data = self.bd.delivery_data
+        pct = lambda x, tot: '%.2f%%' % (float(x) / float(tot) * 100)
+        return [
+            {'title': 'Total', 'count': data.total, 'pct': pct(data.total, data.total)},
+            {'title': 'Received', 'count': data.del_received, 'pct': pct(data.del_received, data.total)},
+            {'title': 'Not Received', 'count': data.del_not_received, 'pct': pct(data.del_not_received, data.total)},
+            {'title': "Didn't Respond", 'count': data.not_responding, 'pct': pct(data.not_responding, data.total)},
+        ]
+
     def national_report(self):
         self.context['lead_time_table'] = LeadTimeTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['summary_rows'] = self.summary_rows()
 
     def regional_report(self):
-        self.context['lead_time_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['delivery_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
         self.context["delivery_table"] = DeliveryStatusTable2(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
