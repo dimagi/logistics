@@ -16,7 +16,7 @@ from logistics.views import MonthPager
 from logistics_project.apps.tanzania.warehouse_reports import SupplyPointStatusBreakdown, national_aggregate, location_aggregates
 from logistics_project.apps.tanzania.tables import SupervisionTable, RandRReportingHistoryTable,\
     AggregateRandRTable, AggregateStockoutPercentColumn, AggregateSOHTable,\
-    AggregateSupervisionTable, AggregateDeliveryTable, DeliveryStatusTable2,\
+    AggregateSupervisionTable, LeadTimeTable, DeliveryStatusTable2,\
     UnrecognizedMessagesTable
 from logistics_project.apps.tanzania.models import NoDataError, DeliveryGroups
 
@@ -273,9 +273,6 @@ class SupervisionReport(TanzaniaReport):
     def regional_report(self):
         self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
-    # def district_report(self):
-    #     self.context['supervision_table'] = AggregateSupervisionTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
-
     def district_report(self):
         self.context["supervision_table"] = SupervisionTable(object_list=self.dg.total(), request=self.request,
                                             month=self.mp.month, year=self.mp.year, prefix="supervision")
@@ -285,16 +282,13 @@ class DeliveryReport(TanzaniaReport):
     slug = "delivery"
 
     def national_report(self):
-        self.context['delivery_table'] = AggregateDeliveryTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['delivery_table'] = LeadTimeTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def regional_report(self):
-        self.context['delivery_table'] = AggregateDeliveryTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['delivery_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
         self.context["delivery_table"] = DeliveryStatusTable2(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
-
-    # def district_report(self):
-    #     self.context["delivery_table"] = DeliveryStatusTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
 
 
 class UnrecognizedMessagesReport(TanzaniaReport):
