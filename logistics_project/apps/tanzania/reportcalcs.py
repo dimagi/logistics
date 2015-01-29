@@ -282,10 +282,10 @@ class DeliveryReport(TanzaniaReport):
     slug = "delivery"
 
     def national_report(self):
-        self.context['delivery_table'] = LeadTimeTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['lead_time_table'] = LeadTimeTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def regional_report(self):
-        self.context['delivery_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        self.context['lead_time_table'] = LeadTimeTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
 
     def district_report(self):
         self.context["delivery_table"] = DeliveryStatusTable2(object_list=self.dg.delivering().select_related(), request=self.request, month=self.mp.month, year=self.mp.year)
