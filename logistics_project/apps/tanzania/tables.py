@@ -413,12 +413,14 @@ class AggregateSupervisionTable(MonthTable):
     class Meta:
         per_page = 9999
 
-class AggregateDeliveryTable(MonthTable):
+
+class LeadTimeTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'delivery'))
     average_lead_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.avg_lead_time, name="Average Lead Time in Days", safe=True)
 
     class Meta:
         per_page = 9999
+
 
 class UnrecognizedMessagesTable(Table):
     code = Column(value=lambda cell:cell.object.contact.supply_point.code, name="MSD Code", sort_key_fn=lambda obj: obj.supply_point.code, titleized=False, css_class=_msd_class)

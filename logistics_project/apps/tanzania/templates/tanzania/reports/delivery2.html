@@ -10,10 +10,31 @@
             {% endwith %}{% endwith %}
     </div>
 
+    <div class="module">
+        <h2>Delivery data</h2>
+        <table width="100%">
+            <thead>
+            <tr>
+                <th>Category</th>
+                <th># Facilities</th>
+                <th>% of total</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in summary_rows %}
+            <tr>
+                <td>{{ row.title }}</td>
+                <td>{{ row.count }}</td>
+                <td>{{ row.pct }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+    </div>
 
     <div class="module">
         <h2>Lead Time History</h2>
-        {% with delivery_table as table %}
+        {% with lead_time_table as table %}
         <table width="100%">
     {% table_cols table %}
     {% table_head table %}
