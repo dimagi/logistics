@@ -105,7 +105,8 @@ class SMSUserResources(ModelResource):
         queryset = Contact.objects.all().order_by('date_updated', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
-        fields = ['id', 'name', 'email', 'role', 'supply_point', 'is_active', 'date_updated', 'family_name']
+        fields = ['id', 'language', 'name', 'email', 'role',
+                  'supply_point', 'is_active', 'date_updated', 'family_name']
         filtering = {
             'date_updated': ('gte', )
         }
