@@ -74,8 +74,8 @@ class SupplyPointResources(ModelResource):
             bundle: Product.objects.filter(
                 id__in=ProductStock.objects.filter(supply_point=bundle.obj,
                                                    is_active=True,
-                                                   product__is_active=True).values_list(*['product'], flat=True),
-                is_active=True), full=True, null=True)
+                                                   product__is_active=True).values_list(*['product'], flat=True)),
+        full=True, null=True)
 
     def dehydrate(self, bundle):
         products_obj = bundle.data['products']
