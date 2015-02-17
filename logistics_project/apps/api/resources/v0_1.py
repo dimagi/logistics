@@ -68,12 +68,30 @@ class SupplyPointResources(ModelResource):
     active = fields.BooleanField('active')
     type = fields.CharField('type')
     location_id = fields.IntegerField('location_id', null=True)
+    products = fields.ToManyField(
+        ProductResources,
+        attribute=lambda
+            bundle: Product.objects.filter(
+                id__in=ProductStock.objects.filter(supply_point=bundle.obj,
+                                                   is_active=True,
+                                                   product__is_active=True).values_list(*['product'], flat=True)),
+        full=True, null=True)
+
+    def dehydrate(self, bundle):
+        products_obj = bundle.data['products']
+        products = []
+        if products_obj:
+            for ps in products_obj:
+                products.append(ps.obj.sms_code)
+        bundle.data['products'] = products
+        return bundle
+
 
     class Meta(CustomResourceMeta):
         queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
         include_resource_uri = False
-        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups', 'location_id']
+        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups', 'location_id', 'products']
         filtering = {
             'id': ('exact', ),
             'active': ('exact', ),
@@ -189,7 +207,7 @@ class ProductStockResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.all().order_by('last_modified', 'id')
+        queryset = ProductStock.objects.filter(is_active=True).order_by('last_modified', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         filtering = {
