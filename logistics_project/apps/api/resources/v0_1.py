@@ -144,11 +144,11 @@ class SMSUserResources(ModelResource):
     is_active = fields.CharField('is_active')
 
     def dehydrate(self, bundle):
-        try:
-            connection = Connection.objects.get(contact_id=bundle.data['id'])
+        connection = bundle.obj.default_connection
+        if connection:
             bundle.data['backend'] = str(connection.backend)
             bundle.data['phone_numbers'] = [connection.identity]
-        except Connection.DoesNotExist:
+        else:
             bundle.data['backend'] = ""
             bundle.data['phone_numbers'] = []
         return bundle
