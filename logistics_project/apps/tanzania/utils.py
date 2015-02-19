@@ -1,4 +1,5 @@
 from datetime import datetime,timedelta, time
+import hashlib
 from django.db.models.aggregates import Max
 from django.db.models.query_utils import Q
 from logistics_project import settings
@@ -127,8 +128,10 @@ def calc_lead_time(supply_point, year=None, month=None):
     respond "delivered". Only include the last period for now
     """
     def _cache_key():
-            return (("log-lead-time-%(fac)s-%(month)s-%(year)s" % \
-                    {"fac": supply_point.code, "month": month, "year":year}).replace(" ", "-"))
+            return hashlib.md5(
+                "log-lead-time-%(fac)s-%(month)s-%(year)s" %
+                {"fac": supply_point.code, "month": month, "year": year}
+            ).hexdigest()
     key = _cache_key()
     if settings.LOGISTICS_USE_SPOT_CACHING:
         from_cache = cache.get(key)
@@ -163,8 +166,10 @@ def calc_lead_time(supply_point, year=None, month=None):
 
 def avg_past_lead_time(supply_point):
     def _cache_key():
-        return (("log-avg-past-lead-time-%(fac)s" %\
-                 {"fac": supply_point.code}).replace(" ", "-"))
+        return hashlib.md5(
+            "log-avg-past-lead-time-%(fac)s" %
+            {"fac": supply_point.code}
+        ).hexdigest()
     key = _cache_key()
     if settings.LOGISTICS_USE_SPOT_CACHING:
         from_cache = cache.get(key)
@@ -218,8 +223,10 @@ def last_stock_on_hand(facility):
 
 def last_stock_on_hand_before(facility, date):
     def _cache_key():
-        return (("log-last_stock_on_hand_before-%(fac)s-%(date)s" % \
-                {"fac": facility.code, "date": date}).replace(" ", "-"))
+        return hashlib.md5(
+            "log-last_stock_on_hand_before-%(fac)s-%(date)s" %
+            {"fac": facility.code, "date": date}
+        ).hexdigest()
     key = _cache_key()
     if settings.LOGISTICS_USE_SPOT_CACHING: 
         from_cache = cache.get(key)
@@ -246,9 +253,12 @@ def last_status_before(facility, date, type, value=None):
 
     return statuses[0] if statuses.exists() else None
 
+
 def soh_reported_on_time(supply_point, year, month):
-    key = "log_soh_reported_on_time-%(sp)s-%(year)s-%(month)s" % \
+    key = hashlib.md5(
+        "log_soh_reported_on_time-%(sp)s-%(year)s-%(month)s" %
         {"sp": supply_point.code, "year": year, "month": month}
+    ).hexdigest()
     if settings.LOGISTICS_USE_SPOT_CACHING:
         from_cache = cache.get(key)
         if from_cache: return from_cache
@@ -272,7 +282,6 @@ def soh_reported_on_time(supply_point, year, month):
 
 def randr_reported_on_time(supply_point, year, month):
     reminder_date = datetime.combine(get_business_day_of_month_before(year, month, 5), time())
-#    last_report = last_status_before(supply_point, get_business_day_of_month(year, month, -1), SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
     last_day_of_the_month = (datetime(year=year, month=month, day=1)+timedelta(days=32)).replace(day=1)-timedelta(seconds=1)
     last_report = last_status_before(supply_point, last_day_of_the_month, SupplyPointStatusTypes.R_AND_R_FACILITY, value=SupplyPointStatusValues.SUBMITTED)
     if last_report:
@@ -306,7 +315,7 @@ def submitted_to_msd(districts, month, year):
     return count
 
 def historical_response_rate(supply_point, type):
-    key = "hrr-%(sp)s-%(type)s" % {"sp": supply_point.pk, "type": type}
+    key = hashlib.md5("hrr-%(sp)s-%(type)s" % {"sp": supply_point.pk, "type": type}).hexdigest()
     if settings.LOGISTICS_USE_SPOT_CACHING:
         from_cache = cache.get(key)
         if from_cache: return from_cache
