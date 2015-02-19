@@ -108,12 +108,12 @@ class SMSUserResources(ModelResource):
     family_name = fields.CharField('family_name')
 
     def dehydrate(self, bundle):
-        try:
-            connection = Connection.objects.get(id=bundle.data['id'])
+        connection = bundle.obj.default_connection
+        if connection:
             bundle.data['backend'] = str(connection.backend)
             bundle.data['phone_numbers'] = [connection.identity]
             bundle.data['to'] = connection.to if connection.to is not None else ""
-        except Connection.DoesNotExist:
+        else:
             bundle.data['backend'] = ""
             bundle.data['phone_numbers'] = []
             bundle.data['to'] = ""
