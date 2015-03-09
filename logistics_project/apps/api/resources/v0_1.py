@@ -218,17 +218,18 @@ class ProductStockResources(ModelResource):
 
 
 class StockTransactionResources(ModelResource):
-    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
+    supply_point = fields.IntegerField('supply_point_id', null=True)
 
     def dehydrate(self, bundle):
-        if bundle.obj.product_report:
-            bundle.data['report_type'] = bundle.obj.product_report.report_type
-        else:
-            bundle.data['report_type'] = None
-
         bundle.data['product'] = bundle.obj.product.sms_code
-        bundle.data['supply_point'] = bundle.obj.supply_point.id
         return bundle
+
+    def apply_filters(self, request, applicable_filters):
+        if 'supply_point_id__exact' in applicable_filters:
+            value = applicable_filters['supply_point_id__exact']
+            del applicable_filters['supply_point_id__exact']
+            applicable_filters['supply_point__id'] = value
+        return super(StockTransactionResources, self).apply_filters(request, applicable_filters)
 
     class Meta(CustomResourceMeta):
         queryset = StockTransaction.objects.all().order_by('date', 'id')
