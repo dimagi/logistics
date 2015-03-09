@@ -167,11 +167,6 @@ class StockTransactionResources(ModelResource):
     supply_point = fields.IntegerField('supply_point_id', null=True)
 
     def dehydrate(self, bundle):
-        if bundle.obj.product_report:
-            bundle.data['report_type'] = bundle.obj.product_report.report_type
-        else:
-            bundle.data['report_type'] = None
-
         bundle.data['product'] = bundle.obj.product.sms_code
         return bundle
 
