@@ -11,6 +11,7 @@ class Migration(SchemaMigration):
         db.create_table('logistics_supplypoint_groups', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('supplypoint', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
+            ('supplypointgroup', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPointGroup'])),
         ))
 
     def backwards(self, orm):
