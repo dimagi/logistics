@@ -16,7 +16,6 @@ class Migration(SchemaMigration):
             ('status_date', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.utcnow)),
             ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
         ))
-        db.send_create_signal('tanzania', ['SupplyPointStatus'])
 
         # Adding model 'AdHocReport'
         db.create_table('tanzania_adhocreport', (
@@ -24,7 +23,6 @@ class Migration(SchemaMigration):
             ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
             ('recipients', self.gf('django.db.models.fields.TextField')()),
         ))
-        db.send_create_signal('tanzania', ['AdHocReport'])
 
         # Adding model 'SupplyPointNote'
         db.create_table('tanzania_supplypointnote', (
@@ -34,7 +32,6 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('text', self.gf('django.db.models.fields.TextField')()),
         ))
-        db.send_create_signal('tanzania', ['SupplyPointNote'])
 
         # Adding model 'DeliveryGroupReport'
         db.create_table('tanzania_deliverygroupreport', (
@@ -45,7 +42,6 @@ class Migration(SchemaMigration):
             ('message', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['messagelog.Message'])),
             ('delivery_group', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPointGroup'])),
         ))
-        db.send_create_signal('tanzania', ['DeliveryGroupReport'])
 
     def backwards(self, orm):
         # Deleting model 'SupplyPointStatus'
