@@ -43,7 +43,7 @@ class Command(LabelCommand):
                 if strict:
                     assert fac.supplied_by.name == parent
 
-                assert _clean(fac.name) == name, 'expected %s but was %s' % (fac.name, name)
+                assert _clean(fac.name) == _clean(name), 'expected %s but was %s' % (fac.name, name)
                 assert fac.location.parent == fac.supplied_by.location
                 if fac.type.code == 'facility':
                     assert new_parent.type.code == 'district'
