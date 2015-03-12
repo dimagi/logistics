@@ -48,7 +48,7 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     managed_and_emergency_stock = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
-        return '{0}:{1} ({2}) total: {3} managed: {4} with_stock: {5}, stockout: {6}'.format(
+        return u'{0}:{1} ({2}) total: {3} managed: {4} with_stock: {5}, stockout: {6}'.format(
             self.supply_point, self.product, self.date,
             self.total, self.managed, self.with_stock, self.without_stock
         )
