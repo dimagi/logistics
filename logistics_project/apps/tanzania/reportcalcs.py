@@ -84,10 +84,14 @@ class TanzaniaReport(object):
 
         self.bd = SupplyPointStatusBreakdown(location=self.location, year=self.mp.year, month=self.mp.month)
 
-        product_availability = ProductAvailabilityData.objects.filter(date__range=(mp.begin_date,mp.end_date), supply_point__code=org).order_by('product__sms_code')
+        product_availability = ProductAvailabilityData.objects.filter(
+            date__range=(mp.begin_date, mp.end_date),
+            supply_point=self.location.supplypoint_set.all().get(),
+        ).order_by('product__sms_code')
+
         product_dashboard = ProductAvailabilityDashboardChart()
         product_json, product_codes, bar_data = convert_product_data_to_sideways_chart(product_availability, product_dashboard)
-        
+
         self.context.update({
             
             "submitting_group": self.bd.submitting_group,
