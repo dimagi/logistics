@@ -7,7 +7,7 @@ from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 import re
 
 DISTRICT_PREFIXES = [
-    'd', 'dm',
+    'd', 'dm', 'dr',
     'ir',
     'm', 'mb', 'ms', 'mt', 'mz',
     'tb', 'tg',
