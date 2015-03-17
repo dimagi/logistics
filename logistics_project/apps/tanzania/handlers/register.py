@@ -63,7 +63,6 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
                     names.append(the_string)
 
             name = " ".join(names)
-            print msd_codes
             if len(msd_codes) != 1:
                 self.respond_error(_(config.Messages.REGISTER_HELP))
                 return True
