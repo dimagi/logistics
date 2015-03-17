@@ -6,7 +6,13 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 import re
 
-DISTRICT_PREFIXES = ['d', 'm', 'tb', 'tg', 'dm', 'mz', 'mt', 'mb', 'ir', 'tb', 'ms']
+DISTRICT_PREFIXES = [
+    'd', 'dm',
+    'ir',
+    'm', 'mb', 'ms', 'mt', 'mz',
+    'tb', 'tg',
+]
+
 
 class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
     """
@@ -57,7 +63,7 @@ class ILSRegistrationHandler(KeywordHandler,TaggingHandler):
                     names.append(the_string)
 
             name = " ".join(names)
-
+            print msd_codes
             if len(msd_codes) != 1:
                 self.respond_error(_(config.Messages.REGISTER_HELP))
                 return True
