@@ -4,6 +4,7 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource
 from dimagi.utils.dates import force_to_datetime
+from logistics.warehouse_models import SupplyPointWarehouseRecord
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport, DeliveryGroups
 from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, GroupSummary, ProductAvailabilityData, \
     Alert, OrganizationTree
@@ -303,3 +304,13 @@ class OrganizationTreeResources(ModelResource):
             "below": ('exact', ),
             "above": ('exact', )
         }
+
+
+class SPWarehouseRecordResource(ModelResource):
+    supply_point_id = fields.IntegerField('supply_point_id', null=True)
+    
+    class Meta(CustomResourceMeta):
+        include_resource_uri = False
+        fields = ['id', 'create_date', 'supply_point_id']
+        resource_name = 'supply_point_warehouse_records'
+        queryset = SupplyPointWarehouseRecord.objects.all()
