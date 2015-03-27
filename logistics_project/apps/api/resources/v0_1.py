@@ -86,7 +86,7 @@ class LocationResources(ModelResource):
     groups = fields.ListField(null=True, default=[])
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.all()
+        queryset = Location.objects.filter(supplypoint__active=True)
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
         fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
