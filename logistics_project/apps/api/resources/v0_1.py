@@ -101,6 +101,7 @@ class LocationResources(ModelResource):
         try:
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
+            bundle.data['created_at'] = sp.created_at
             if int(bundle.request.GET.get('with_historical_groups', 0)) == 1:
                 summaries = GroupSummary.objects.filter(
                     org_summary__supply_point=sp,
