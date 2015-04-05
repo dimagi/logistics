@@ -727,8 +727,12 @@ def update_historical_data():
 def proper_children(supply_point):
     qs = SupplyPoint.objects.filter(active=True, supplied_by=supply_point)
     if 'test' not in supply_point.name.lower():
-        assert qs.count() == qs.filter(type__code=proper_child_type(supply_point)).count()
+        assert qs.count() == qs.filter(type__code=proper_child_type(supply_point)).count(), \
+            '{0} ({1}) has the wrong number of children of the right type'.format(
+                supply_point.name, supply_point.pk
+            )
     return qs
+
 
 def proper_child_type(supply_point):
     return {
