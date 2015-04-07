@@ -51,12 +51,13 @@ class SupplyPointStatusBreakdown(object):
         else:
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
-
         # TODO: the list generation stuff is kinda ugly, for compatibility
         # with the old way of doing things
         if report_type == 'SOH' or not report_type:
-            self.soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
-                                            org_summary=self.org_summary)
+            self.soh_data = GroupSummary.objects.get(
+                title=SupplyPointStatusTypes.SOH_FACILITY,
+                org_summary=self.org_summary,
+            )
             self.soh_json = convert_data_to_pie_chart(self.soh_data, date)
 
             self.soh_submitted = [''] * self.soh_data.complete
@@ -183,7 +184,11 @@ class LocationAggregate(object):
         self.location = location
         facs = []
         if location:
-            facs = [s.below for s in OrganizationTree.objects.filter(above__code=location.code, is_facility=True)]
+            facs = [
+                s.below for s in OrganizationTree.objects.filter(
+                    above__code=location.code, is_facility=True
+                )
+            ]
         self.breakdown = SupplyPointStatusBreakdown(
             location=location, month=month, year=year, facilities=facs,
             report_type=report_type)
@@ -206,7 +211,8 @@ def national_aggregate(year=None, month=None, report_type=None):
 
 
 def location_aggregates(location, year=None, month=None, report_type=None):
-    return [LocationAggregate(location=l, month=month,
-                              year=year, report_type=report_type) \
-            for l in location.get_children() \
-            if SupplyPoint.objects.filter(location=l).count() > 0]
+    return [
+        LocationAggregate(location=l, month=month, year=year, report_type=report_type)
+        for l in location.get_children()
+        if SupplyPoint.objects.filter(location=l).count() > 0
+    ]

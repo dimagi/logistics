@@ -382,6 +382,7 @@ class NotesTable(Table):
         per_page = 5
         order_by = "-date"
 
+
 class AggregateRandRTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell: reports_link(cell, 'randr'))
     percent_on_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.percent_randr_on_time(), name="% Facilities Submitting R&R On Time", safe=True)
@@ -393,6 +394,7 @@ class AggregateRandRTable(MonthTable):
     class Meta:
         per_page = 9999
 
+
 class AggregateSOHTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'soh'))
     percent_on_time = Column(sortable=False, value=lambda cell: cell.object.breakdown.percent_soh_on_time(), name="% Facilities Submitting SOH On Time", safe=True)
@@ -403,6 +405,7 @@ class AggregateSOHTable(MonthTable):
     class Meta:
         per_page = 9999
     
+
 class AggregateSupervisionTable(MonthTable):
     name = Column(value=lambda cell: cell.object.name, sort_key_fn=lambda object: object.name, link=lambda cell:reports_link(cell, 'supervision'))
     percent_received = Column(sortable=False, value=lambda cell: cell.object.breakdown.percent_supervision_received(), name="% Supervision Received", safe=True)

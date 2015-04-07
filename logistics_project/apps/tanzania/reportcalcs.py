@@ -237,7 +237,12 @@ class SOHReport(TanzaniaReport):
         self.context['max_products'] = 6
     
     def national_report(self):
-        table = AggregateSOHTable(object_list=national_aggregate(month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        table = AggregateSOHTable(
+            object_list=national_aggregate(month=self.mp.month, year=self.mp.year),
+            request=self.request,
+            month=self.mp.month,
+            year=self.mp.year,
+        )
         products = Product.objects.all().order_by('sms_code')
         for p in products:
             pc = AggregateStockoutPercentColumn(p, self.mp.month, self.mp.year)
@@ -245,7 +250,12 @@ class SOHReport(TanzaniaReport):
         self.context['soh_table'] = table
 
     def regional_report(self):
-        table = AggregateSOHTable(object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year), request=self.request, month=self.mp.month, year=self.mp.year)
+        table = AggregateSOHTable(
+            object_list=location_aggregates(self.location, month=self.mp.month, year=self.mp.year),
+            request=self.request,
+            month=self.mp.month,
+            year=self.mp.year,
+        )
         products = Product.objects.all().order_by('sms_code')
         for p in products:
             pc = AggregateStockoutPercentColumn(p, self.mp.month, self.mp.year)
@@ -264,7 +274,6 @@ class SOHReport(TanzaniaReport):
             'district': True,
         })
         self.context['soh_table'] = tables[0]
-
 
 
 class SupervisionReport(TanzaniaReport):
