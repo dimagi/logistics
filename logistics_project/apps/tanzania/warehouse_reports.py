@@ -186,7 +186,7 @@ class LocationAggregate(object):
         if location:
             facs = [
                 s.below for s in OrganizationTree.objects.filter(
-                    above__code=location.code, is_facility=True
+                    above__code=location.code, below__active=True, is_facility=True
                 )
             ]
         self.breakdown = SupplyPointStatusBreakdown(
