@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rapidsms.contrib.locations.models import Location
 
-from logistics.models import SupplyPoint, ProductReport
+from logistics.models import SupplyPoint, ProductReport, StockTransaction
 from logistics_project.apps.tanzania.models import DeliveryGroups, \
     SupplyPointStatusTypes
 from logistics_project.apps.tanzania.models import NoDataError
@@ -51,12 +51,13 @@ class SupplyPointStatusBreakdown(object):
         else:
             self.avg_lead_time = "<span class='no_data'>None</span>"
 
-
         # TODO: the list generation stuff is kinda ugly, for compatibility
         # with the old way of doing things
         if report_type == 'SOH' or not report_type:
-            self.soh_data = GroupSummary.objects.get(title=SupplyPointStatusTypes.SOH_FACILITY,
-                                            org_summary=self.org_summary)
+            self.soh_data = GroupSummary.objects.get(
+                title=SupplyPointStatusTypes.SOH_FACILITY,
+                org_summary=self.org_summary,
+            )
             self.soh_json = convert_data_to_pie_chart(self.soh_data, date)
 
             self.soh_submitted = [''] * self.soh_data.complete
@@ -168,8 +169,14 @@ class SupplyPointStatusBreakdown(object):
 
     def percent_stockouts_in_month(self):
         if self.facilities:
-            return "%.1f%%" % (ProductReport.objects.filter(supply_point__in=self.facilities, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()\
-                                / len(self.facilities))
+            facilities_with_stockouts = StockTransaction.objects.filter(
+                supply_point__in=self.facilities,
+                ending_balance__lte=0,
+                date__month=self.report_month,
+                date__year=self.report_year,
+            ).order_by('supply_point').distinct('supply_point').count()
+            return "%.1f%%" % ((facilities_with_stockouts * 100.) / len(self.facilities))
+
         return "<span class='no_data'>None</span>"
 
     def percent_stocked_out(self, product, year, month):
@@ -183,7 +190,11 @@ class LocationAggregate(object):
         self.location = location
         facs = []
         if location:
-            facs = [s.below for s in OrganizationTree.objects.filter(above__code=location.code, is_facility=True)]
+            facs = [
+                s.below for s in OrganizationTree.objects.filter(
+                    above__code=location.code, below__active=True, is_facility=True
+                )
+            ]
         self.breakdown = SupplyPointStatusBreakdown(
             location=location, month=month, year=year, facilities=facs,
             report_type=report_type)
@@ -206,7 +217,8 @@ def national_aggregate(year=None, month=None, report_type=None):
 
 
 def location_aggregates(location, year=None, month=None, report_type=None):
-    return [LocationAggregate(location=l, month=month,
-                              year=year, report_type=report_type) \
-            for l in location.get_children() \
-            if SupplyPoint.objects.filter(location=l).count() > 0]
+    return [
+        LocationAggregate(location=l, month=month, year=year, report_type=report_type)
+        for l in location.get_children()
+        if SupplyPoint.objects.filter(location=l).count() > 0
+    ]
