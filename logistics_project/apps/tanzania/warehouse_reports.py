@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from rapidsms.contrib.locations.models import Location
 
-from logistics.models import SupplyPoint, ProductReport
+from logistics.models import SupplyPoint, ProductReport, StockTransaction
 from logistics_project.apps.tanzania.models import DeliveryGroups, \
     SupplyPointStatusTypes
 from logistics_project.apps.tanzania.models import NoDataError
@@ -169,8 +169,14 @@ class SupplyPointStatusBreakdown(object):
 
     def percent_stockouts_in_month(self):
         if self.facilities:
-            return "%.1f%%" % (ProductReport.objects.filter(supply_point__in=self.facilities, quantity__lte=0, report_date__month=self.report_month, report_date__year=self.report_year).count()\
-                                / len(self.facilities))
+            facilities_with_stockouts = StockTransaction.objects.filter(
+                supply_point__in=self.facilities,
+                ending_balance__lte=0,
+                date__month=self.report_month,
+                date__year=self.report_year,
+            ).order_by('supply_point').distinct('supply_point').count()
+            return "%.1f%%" % ((facilities_with_stockouts * 100.) / len(self.facilities))
+
         return "<span class='no_data'>None</span>"
 
     def percent_stocked_out(self, product, year, month):
