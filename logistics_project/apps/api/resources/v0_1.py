@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
+from tastypie.bundle import Bundle
 from tastypie.constants import ALL_WITH_RELATIONS
-from tastypie.resources import ModelResource
+from tastypie.paginator import Paginator
+from tastypie.resources import ModelResource, Resource
 from dimagi.utils.dates import force_to_datetime
 from logistics.warehouse_models import SupplyPointWarehouseRecord
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport, DeliveryGroups
@@ -77,6 +79,84 @@ class PointResource(ModelResource):
         include_resource_uri = False
 
 
+class Group(object):
+
+    def __init__(self, location_id=None, groups=None):
+        self.location_id = location_id
+        self.groups = groups
+
+
+class CustomPaginator(Paginator):
+
+    def get_slice(self, limit, offset):
+        return self.objects
+
+    def get_count(self):
+        return SupplyPoint.objects.filter(active=True).count()
+
+
+class GroupResources(Resource):
+
+    location_id = fields.IntegerField(attribute='location_id')
+    groups = fields.DictField(attribute='groups')
+
+    class Meta(CustomResourceMeta):
+        resource_name = 'groups'
+        list_allowed_methods = ['get']
+        object_class = Group
+        include_resource_uri = False
+        paginator_class = CustomPaginator
+
+    def detail_uri_kwargs(self, bundle_or_obj):
+        kwargs = {}
+
+        if isinstance(bundle_or_obj, Bundle):
+            kwargs['pk'] = bundle_or_obj.obj.supply_point
+        else:
+            kwargs['pk'] = bundle_or_obj.supply_point
+
+        return kwargs
+
+    def _get_object(self, supply_point):
+        summaries = GroupSummary.objects.filter(
+            org_summary__supply_point=supply_point,
+            total=1
+        ).only('org_summary__date', 'title', 'total')
+        groups = {}
+        for summary in summaries:
+            date_string = str(summary.org_summary.date.date())
+            if date_string not in groups:
+                groups[date_string] = []
+
+            if summary.title == 'rr_fac':
+                groups[date_string].append(
+                    DeliveryGroups(summary.org_summary.date.month).current_submitting_group()
+                )
+            if summary.title == 'del_fac':
+                groups[date_string].append(
+                    DeliveryGroups(summary.org_summary.date.month).current_delivering_group()
+                )
+
+        for k, v in groups.iteritems():
+            if not v:
+                groups[k] = [DeliveryGroups(force_to_datetime(k).month).current_processing_group()]
+        return Group(supply_point.location.id, groups)
+
+    def obj_get(self, bundle, **kwargs):
+        return self._get_object(SupplyPoint.objects.get(pk=kwargs['pk']))
+
+    def get_object_list(self, request):
+        group_list = []
+        limit = int(request.GET.get('limit', 1000))
+        offset = int(request.GET.get('offset', 0))
+        for supply_point in SupplyPoint.objects.filter(active=True).order_by('id')[offset:(offset + limit)]:
+            group_list.append(self._get_object(supply_point))
+        return group_list
+
+    def obj_get_list(self, bundle, **kwargs):
+        return self.get_object_list(bundle.request)
+
+
 class LocationResources(ModelResource):
     id = fields.IntegerField('id')
     name = fields.CharField('name')
@@ -102,30 +182,6 @@ class LocationResources(ModelResource):
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
             bundle.data['created_at'] = sp.created_at
-            if int(bundle.request.GET.get('with_historical_groups', 0)) == 1:
-                summaries = GroupSummary.objects.filter(
-                    org_summary__supply_point=sp,
-                    total=1
-                ).only('org_summary__date', 'title', 'total')
-                groups = {}
-                for summary in summaries:
-                    date_string = str(summary.org_summary.date.date())
-                    if date_string not in groups:
-                        groups[date_string] = []
-
-                    if summary.title == 'rr_fac':
-                        groups[date_string].append(
-                            DeliveryGroups(summary.org_summary.date.month).current_submitting_group()
-                        )
-                    if summary.title == 'del_fac':
-                        groups[date_string].append(
-                            DeliveryGroups(summary.org_summary.date.month).current_delivering_group()
-                        )
-
-                for k, v in groups.iteritems():
-                    if not v:
-                        groups[k] = [DeliveryGroups(force_to_datetime(k).month).current_processing_group()]
-                bundle.data['historical_groups'] = groups
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
             bundle.data['historical_groups'] = {}
@@ -170,6 +226,7 @@ class StockTransactionResources(ModelResource):
 
     def dehydrate(self, bundle):
         bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['report_type'] = bundle.obj.product_report.report_type
         return bundle
 
     class Meta(CustomResourceMeta):
