@@ -222,6 +222,7 @@ class StockTransactionResources(ModelResource):
 
     def dehydrate(self, bundle):
         bundle.data['product'] = bundle.obj.product.sms_code
+        bundle.data['report_type'] = bundle.obj.product_report.report_type
         return bundle
 
     def apply_filters(self, request, applicable_filters):
