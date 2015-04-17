@@ -100,7 +100,7 @@ INSTALLED_BACKENDS = {
         "PORT": 8002,
         "HOST": "50.56.82.64",
         "gateway_url" : "http://api.smsgh.com/v3/messages/send",
-        "params_outgoing": "From=%(from)s&To=%(phone_number)s&Content=%(message)s&ClientId=myclientid&ClientSecret=myclientsecret"
+        "params_outgoing": "From=%(from)s&To=%(phone_number)s&Content=%(message)s&ClientId=myclientid&ClientSecret=myclientsecret", 
         "params_incoming": "snr=%(phone_number)s&msg=%(message)s"
     },
     #"end2end": {
