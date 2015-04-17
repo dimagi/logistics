@@ -19,7 +19,8 @@ API_LIST = (
         v0_1.ProductAvailabilityDataResource,
         v0_1.AlertResources,
         v0_1.OrganizationTreeResources,
-        v0_1.SPWarehouseRecordResource
+        v0_1.SPWarehouseRecordResource,
+        v0_1.GroupResources
     )),
 )
 
