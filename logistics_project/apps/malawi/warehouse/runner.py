@@ -726,8 +726,13 @@ def update_historical_data():
 
 def proper_children(supply_point):
     qs = SupplyPoint.objects.filter(active=True, supplied_by=supply_point)
+    proper_child = proper_child_type(supply_point)
+    if proper_child == 'hsa':
+        # when the child type is HSAs also enforce that they should have an active
+        # contact set to match hsa_supply_points_below
+        qs = qs.filter(contact__is_active=True)
     if 'test' not in supply_point.name.lower():
-        assert qs.count() == qs.filter(type__code=proper_child_type(supply_point)).count(), \
+        assert qs.count() == qs.filter(type__code=proper_child).count(), \
             '{0} ({1}) has the wrong number of children of the right type'.format(
                 supply_point.name, supply_point.pk
             )
