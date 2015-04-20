@@ -48,6 +48,7 @@ class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "type")
     list_filter = ('type', 'active')
+    search_fields = ('code',)
     model = SupplyPoint
 
 class StockRequestAdmin(admin.ModelAdmin):
