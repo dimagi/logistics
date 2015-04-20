@@ -31,6 +31,7 @@ reports_slug_map = {
     'ad-hoc': ad_hoc,
 }
 
+
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
@@ -66,6 +67,7 @@ def get_report(request, slug=''):
                          "You've been redirected.")
         return home(request)
         
+
 @place_in_request()
 @datespan_default
 def home(request):

@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
 
+
 class ReportDefinition(object):
     """
     A configuration object to hold a report definition.
@@ -102,4 +103,3 @@ REPORT_SLUGS = ["em_late_reporting",
 REPORTS_CURRENT = ["hsas_with_stock"]
 
 REPORTS_LOCATION = ["order_messages"]
-    

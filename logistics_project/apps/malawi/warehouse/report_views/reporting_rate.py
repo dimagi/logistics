@@ -6,7 +6,6 @@ from django.utils.datastructures import SortedDict
 from dimagi.utils.dates import months_between
 
 from logistics.models import SupplyPoint
-from logistics.util import config
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     get_district_supply_points, facility_supply_points_below, fmt_pct,\
@@ -14,6 +13,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
+
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -30,7 +30,7 @@ class View(warehouse_view.DistrictOnlyView):
                                           request.datespan.enddate):
             dt = datetime(year, month, 1)
             months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt)
-        
+
         month_data = [[dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
                       for dt, rr in months.items()]
         
