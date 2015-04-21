@@ -12,7 +12,10 @@ API_LIST = (
         v0_1.LocationResources,
         v0_1.SupplyPointResources,
         v0_1.ProductStockResources,
-        v0_1.StockTransactionResources
+        v0_1.StockTransactionResources,
+        v0_1.DailyScheduledReportResources,
+        v0_1.WeeklyScheduledReportResources,
+        v0_1.MonthlyScheduledReportResources
     )),
 )
 
