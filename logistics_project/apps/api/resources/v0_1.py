@@ -7,6 +7,9 @@ from tastypie import fields
 from logistics.models import Product, ProductType, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
 from rapidsms.models import Contact, Connection
 from rapidsms.contrib.locations.models import Point, Location
+from email_reports.models import WeeklyReportSubscription, MonthlyReportSubscription, ReportSubscription, \
+    DailyReportSubscription
+
 
 class CustomResourceMeta(object):
     authorization = ReadOnlyAuthorization()
@@ -242,3 +245,54 @@ class StockTransactionResources(ModelResource):
             "supply_point": ('exact', )
         }
         ordering = ['date']
+
+
+class ToManyFieldForUsers(fields.ToManyField):
+    def dehydrate(self, bundle, for_list=True):
+        related_objects = super(ToManyFieldForUsers, self).dehydrate(bundle, for_list)
+        only_emails = []
+        if related_objects:
+            for ro in related_objects:
+                only_emails.append(ro.obj.email)
+        return only_emails
+
+
+class DailyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    report = fields.CharField('report__display_name')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+    view_args = fields.CharField('_view_args')
+
+    class Meta(CustomResourceMeta):
+        queryset = DailyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']
+
+
+class WeeklyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    day_of_week = fields.IntegerField('day_of_week')
+    report = fields.CharField('report__display_name')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+    view_args = fields.CharField('_view_args')
+
+    class Meta(CustomResourceMeta):
+        queryset = WeeklyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'day_of_week', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']
+
+
+class MonthlyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    day_of_month = fields.IntegerField('day_of_month')
+    report = fields.CharField('report__display_name')
+    view_args = fields.CharField('_view_args')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = MonthlyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'day_of_month', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']
