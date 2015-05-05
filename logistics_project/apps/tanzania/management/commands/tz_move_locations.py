@@ -12,12 +12,13 @@ class Command(LabelCommand):
     option_list = LabelCommand.option_list + (
         make_option('--dryrun', action='store_true', dest='dryrun', help='Dry run', default=False),
         make_option('--strict', action='store_true', dest='strict', help='Strict', default=False),
-
+        make_option('--byname', action='store_true', dest='byname', help='Find parent by name instead of converting name to code', default=False)
     )
 
     def handle(self, *args, **options):
         strict = options['strict']
         dryrun = options['dryrun']
+        byname = options['byname']
         parents = set()
         warehouse_start_date = default_start_date()
         warehouse_end_date = ReportRun.last_success().end
@@ -37,9 +38,13 @@ class Command(LabelCommand):
                     continue
 
                 name, active, code, parent, new_parent_name = row[:5]
-                new_parent_name = new_parent_name.replace(' - ', '-').replace(' ', '-')
                 fac = SupplyPoint.objects.get(code=code)
-                new_parent = SupplyPoint.objects.get(code__iexact=new_parent_name)
+                if not byname:
+                    new_parent_name = new_parent_name.replace(' - ', '-').replace(' ', '-')
+                    new_parent = SupplyPoint.objects.get(code__iexact=new_parent_name)
+                else:
+                    new_parent = SupplyPoint.objects.get(name__iexact=new_parent_name)
+
                 if strict:
                     assert fac.supplied_by.name == parent
 
