@@ -9,7 +9,7 @@
 {% else %}
     <select class="location_select" name="location_select">
 		{% for peer in location.peers %}
-		    <option value={{peer.code}}
+		    <option value="{{peer.code}}"
 			    {% ifequal peer.code location.code %}selected{% endifequal %}
 		    >{{ peer.name }}</option>
 		{% endfor %} 
