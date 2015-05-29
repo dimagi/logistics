@@ -240,7 +240,7 @@ class StockTransactionResources(ModelResource):
         list_allowed_methods = ['get']
         excludes = ['id', ]
         filtering = {
-            "date": ('gte', ),
+            "date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
         ordering = ['date']
