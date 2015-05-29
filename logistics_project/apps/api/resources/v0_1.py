@@ -53,7 +53,7 @@ class UserResource(ModelResource):
                                 full=True, null=True)
 
     class Meta(CustomResourceMeta):
-        queryset = User.objects.all()
+        queryset = User.objects.filter(is_active=True)
         list_allowed_methods = ['get']
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active',
                   'is_superuser', 'last_login', 'date_joined']
@@ -89,7 +89,6 @@ class SupplyPointResources(ModelResource):
         bundle.data['products'] = products
         return bundle
 
-
     class Meta(CustomResourceMeta):
         queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
@@ -123,7 +122,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = Contact.objects.all().order_by('date_updated', 'id')
+        queryset = Contact.objects.filter(is_active=True).order_by('date_updated', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role',
@@ -151,7 +150,7 @@ class WebUserResources(ModelResource):
 
     class Meta(CustomResourceMeta):
         max_limit = None
-        queryset = LogisticsProfile.objects.all().order_by('user__date_joined', 'id')
+        queryset = LogisticsProfile.objects.filter(user__is_active=True).order_by('user__date_joined', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['contact', 'location', 'supply_point', 'sms_notifications', 'organization']
@@ -241,7 +240,7 @@ class StockTransactionResources(ModelResource):
         list_allowed_methods = ['get']
         excludes = ['id', ]
         filtering = {
-            "date": ('gte', ),
+            "date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
         ordering = ['date']
