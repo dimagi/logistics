@@ -3,6 +3,7 @@ from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.util import config
 
+
 class RegistrationBaseHandler(RecordResponseHandler):
     supply_point = None
     contact_name = ""
@@ -24,12 +25,11 @@ class RegistrationBaseHandler(RecordResponseHandler):
             self.help()
         else:
             self.contact_name = " ".join(words[:-2])
-            self.extra =   words[-2]
+            self.extra = words[-2]
             code = words[-1]
             try:
-                self.supply_point = SupplyPoint.objects.get(code__iexact=code)
+                self.supply_point = SupplyPoint.objects.get(active=True, type__code='hf', code__iexact=code)
             except SupplyPoint.DoesNotExist:
-                self.respond(_(config.Messages.UNKNOWN_LOCATION), code=code )
+                self.respond(_(config.Messages.UNKNOWN_LOCATION), code=code)
 
         return self.responded
-        
