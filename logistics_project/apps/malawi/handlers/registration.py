@@ -26,9 +26,12 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         if self.handle_preconditions(text):
             return
 
+        if self.supply_point.type.code != 'hf':
+            self.respond("Sorry, you tried to register at %(name)s which is not a health facility. Please specify a valid health facility code.", name=self.supply_point.name)
+            return
+
         # default to HSA
         role = ContactRole.objects.get(code=config.Roles.HSA)
-
         try:
             hsa_id = format_id(self.supply_point.code, self.extra)
         except IdFormatException, e:

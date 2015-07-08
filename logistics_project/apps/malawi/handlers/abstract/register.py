@@ -28,7 +28,7 @@ class RegistrationBaseHandler(RecordResponseHandler):
             self.extra = words[-2]
             code = words[-1]
             try:
-                self.supply_point = SupplyPoint.objects.get(active=True, type__code='hf', code__iexact=code)
+                self.supply_point = SupplyPoint.objects.get(active=True, code__iexact=code)
             except SupplyPoint.DoesNotExist:
                 self.respond(_(config.Messages.UNKNOWN_LOCATION), code=code)
 
