@@ -79,6 +79,7 @@ class SupplyPointResources(ModelResource):
                                                    is_active=True,
                                                    product__is_active=True).values_list(*['product'], flat=True)),
         full=True, null=True)
+    incharges = fields.ListField(null=True, default=[])
 
     def dehydrate(self, bundle):
         products_obj = bundle.data['products']
@@ -87,13 +88,17 @@ class SupplyPointResources(ModelResource):
             for ps in products_obj:
                 products.append(ps.obj.sms_code)
         bundle.data['products'] = products
+        bundle.data['incharges'] = [incharge.pk for incharge in bundle.obj.incharges()]
         return bundle
 
     class Meta(CustomResourceMeta):
         queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
         include_resource_uri = False
-        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups', 'location_id', 'products']
+        fields = [
+            'id', 'name', 'active', 'type', 'code', 'last_reported',
+            'groups', 'location_id', 'products', 'incharges'
+        ]
         filtering = {
             'id': ('exact', ),
             'active': ('exact', ),
