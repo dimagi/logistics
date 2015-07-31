@@ -127,7 +127,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = Contact.objects.filter(is_active=True).order_by('date_updated', 'id')
+        queryset = Contact.objects.filter(is_active=True).order_by('id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role',
@@ -184,7 +184,7 @@ class LocationResources(ModelResource):
     type = fields.CharField('type')
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.all().order_by('date_updated', 'id')
+        queryset = Location.objects.all().order_by('id')
         include_resource_uri = False
         filtering = {
             'type': ('exact', ),
@@ -201,27 +201,6 @@ class LocationResources(ModelResource):
             bundle.data['longitude'] = bundle.data['points'].data['longitude']
         del bundle.data['points']
         return bundle
-
-
-class ProductStockResources(ModelResource):
-    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
-
-    def dehydrate(self, bundle):
-        bundle.data['use_auto_consumption'] = bundle.obj.use_auto_consumption
-        bundle.data['manual_monthly_consumption'] = bundle.obj.manual_monthly_consumption
-        bundle.data['product'] = bundle.obj.product.sms_code
-        bundle.data['supply_point'] = bundle.obj.supply_point.id
-        return bundle
-
-    class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.filter(is_active=True).order_by('last_modified', 'id')
-        include_resource_uri = False
-        list_allowed_methods = ['get']
-        filtering = {
-            "last_modified": ('gte', ),
-            "supply_point": ALL_WITH_RELATIONS
-        }
-        ordering = ['last_modified']
 
 
 class StockTransactionResources(ModelResource):
