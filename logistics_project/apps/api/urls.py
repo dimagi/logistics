@@ -11,15 +11,8 @@ API_LIST = (
         v0_1.LocationResources,
         v0_1.SMSUserResources,
         v0_1.StockTransactionResources,
-        v0_1.ProductStockResources,
         v0_1.SupplyPointStatusResource,
         v0_1.DeliveryGroupReportResources,
-        v0_1.OrganizationSummaryResource,
-        v0_1.GroupSummaryResource,
-        v0_1.ProductAvailabilityDataResource,
-        v0_1.AlertResources,
-        v0_1.OrganizationTreeResources,
-        v0_1.SPWarehouseRecordResource,
         v0_1.GroupResources
     )),
 )
