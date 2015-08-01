@@ -6,10 +6,8 @@ from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.paginator import Paginator
 from tastypie.resources import ModelResource, Resource
 from dimagi.utils.dates import force_to_datetime
-from logistics.warehouse_models import SupplyPointWarehouseRecord
 from logistics_project.apps.tanzania.models import SupplyPointStatus, DeliveryGroupReport, DeliveryGroups
-from logistics_project.apps.tanzania.reporting.models import OrganizationSummary, GroupSummary, ProductAvailabilityData, \
-    Alert, OrganizationTree
+from logistics_project.apps.tanzania.reporting.models import GroupSummary
 from rapidsms.contrib.locations.models import Point, Location
 from tastypie import fields
 from logistics.models import Product, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
@@ -59,7 +57,7 @@ class WebUserResources(ModelResource):
 
     class Meta(CustomResourceMeta):
         max_limit = None
-        queryset = LogisticsProfile.objects.all()
+        queryset = LogisticsProfile.objects.all().order_by('pk')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['location', 'supply_point']
@@ -167,7 +165,7 @@ class LocationResources(ModelResource):
     groups = fields.ListField(null=True, default=[])
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.filter(supplypoint__active=True)
+        queryset = Location.objects.filter(supplypoint__active=True).order_by('pk')
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
         fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
@@ -212,7 +210,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = Contact.objects.all()
+        queryset = Contact.objects.all().order_by('pk')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role', 'supply_point', 'is_active', 'date_updated']
@@ -235,28 +233,10 @@ class StockTransactionResources(ModelResource):
         list_allowed_methods = ['get']
         excludes = ['id', ]
         filtering = {
-            "date": ('gte', ),
+            "date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
         ordering = ['date']
-
-
-class ProductStockResources(ModelResource):
-    supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    def dehydrate(self, bundle):
-        bundle.data['product'] = bundle.obj.product.sms_code
-        return bundle
-
-    class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.all()
-        include_resource_uri = False
-        list_allowed_methods = ['get']
-        excludes = ['id', 'days_stocked_out', 'manual_monthly_consumption', 'use_auto_consumption']
-        filtering = {
-            "last_modified": ('gte', ),
-            "supply_point": ('exact', )
-        }
 
 
 class SupplyPointStatusResource(ModelResource):
@@ -269,7 +249,7 @@ class SupplyPointStatusResource(ModelResource):
         ordering = ['status_date']
 
         filtering = {
-            "status_date": ('gte', ),
+            "status_date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
 
@@ -287,88 +267,6 @@ class DeliveryGroupReportResources(ModelResource):
         list_allowed_methods = ['get']
 
         filtering = {
-            "report_date": ('gte', ),
+            "report_date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
-
-
-class OrganizationSummaryResource(ModelResource):
-    supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    class Meta(CustomResourceMeta):
-        queryset = OrganizationSummary.objects.all()
-        include_resource_uri = False
-        filtering = {
-            "supply_point": ('exact', ),
-            "update_date": ('gte', 'lte'),
-            "create_date": ('gte', 'lte'),
-            "date": ('gte', 'lte')
-        }
-
-
-class GroupSummaryResource(ModelResource):
-    org_summary = fields.ToOneField(OrganizationSummaryResource, 'org_summary', full=True, null=True)
-
-    class Meta(CustomResourceMeta):
-        queryset = GroupSummary.objects.all()
-        include_resource_uri = False
-        filtering = {
-            'org_summary': ALL_WITH_RELATIONS
-        }
-
-
-class ProductAvailabilityDataResource(ModelResource):
-
-    supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    def dehydrate(self, bundle):
-        bundle.data['product'] = bundle.obj.product.sms_code
-        return bundle
-
-    class Meta(CustomResourceMeta):
-        queryset = ProductAvailabilityData.objects.all().order_by('update_date')
-        include_resource_uri = False
-        filtering = {
-            "supply_point": ('exact', ),
-            "update_date": ('gte', 'lte'),
-            "create_date": ('gte', 'lte'),
-            "date": ('gte', 'lte'),
-        }
-
-
-class AlertResources(ModelResource):
-    supply_point = fields.IntegerField('supply_point_id', null=True)
-
-    class Meta(CustomResourceMeta):
-        queryset = Alert.objects.all().order_by('update_date')
-        include_resource_uri = False
-        filtering = {
-            "supply_point": ('exact', ),
-            "update_date": ('gte', 'lte'),
-            "create_date": ('gte', 'lte'),
-            "date": ('gte', 'lte'),
-            "expires": ('gte', 'lte'),
-        }
-
-
-class OrganizationTreeResources(ModelResource):
-    below = fields.IntegerField('below_id', null=True)
-    above = fields.IntegerField('above_id', null=True)
-
-    class Meta(CustomResourceMeta):
-        include_resource_uri = False
-        queryset = OrganizationTree.objects.all()
-        filtering = {
-            "below": ('exact', ),
-            "above": ('exact', )
-        }
-
-
-class SPWarehouseRecordResource(ModelResource):
-    supply_point_id = fields.IntegerField('supply_point_id', null=True)
-    
-    class Meta(CustomResourceMeta):
-        include_resource_uri = False
-        fields = ['id', 'create_date', 'supply_point_id']
-        resource_name = 'supply_point_warehouse_records'
-        queryset = SupplyPointWarehouseRecord.objects.all()
