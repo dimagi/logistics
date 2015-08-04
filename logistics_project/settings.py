@@ -227,14 +227,15 @@ RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
-'password/reset',
-'register',
-'logout',
-'activate',
-'help',
-'scmgr',
-'aggregate',
-'reporting'
+    'api',
+    'password/reset',
+    'register',
+    'logout',
+    'activate',
+    'help',
+    'scmgr',
+    'aggregate',
+    'reporting'
 ]
 
 # AUDITCARE CONFIG
