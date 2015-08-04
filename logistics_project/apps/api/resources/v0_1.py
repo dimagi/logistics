@@ -7,6 +7,9 @@ from tastypie import fields
 from logistics.models import Product, ProductType, LogisticsProfile, SupplyPoint, StockTransaction, ProductStock
 from rapidsms.models import Contact, Connection
 from rapidsms.contrib.locations.models import Point, Location
+from email_reports.models import WeeklyReportSubscription, MonthlyReportSubscription, ReportSubscription, \
+    DailyReportSubscription
+
 
 class CustomResourceMeta(object):
     authorization = ReadOnlyAuthorization()
@@ -50,7 +53,7 @@ class UserResource(ModelResource):
                                 full=True, null=True)
 
     class Meta(CustomResourceMeta):
-        queryset = User.objects.all()
+        queryset = User.objects.filter(is_active=True)
         list_allowed_methods = ['get']
         fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active',
                   'is_superuser', 'last_login', 'date_joined']
@@ -76,6 +79,7 @@ class SupplyPointResources(ModelResource):
                                                    is_active=True,
                                                    product__is_active=True).values_list(*['product'], flat=True)),
         full=True, null=True)
+    incharges = fields.ListField(null=True, default=[])
 
     def dehydrate(self, bundle):
         products_obj = bundle.data['products']
@@ -84,14 +88,17 @@ class SupplyPointResources(ModelResource):
             for ps in products_obj:
                 products.append(ps.obj.sms_code)
         bundle.data['products'] = products
+        bundle.data['incharges'] = [incharge.pk for incharge in bundle.obj.incharges()]
         return bundle
-
 
     class Meta(CustomResourceMeta):
         queryset = SupplyPoint.objects.all()
         list_allowed_methods = ['get']
         include_resource_uri = False
-        fields = ['id', 'name', 'active', 'type', 'code', 'last_reported', 'groups', 'location_id', 'products']
+        fields = [
+            'id', 'name', 'active', 'type', 'code', 'last_reported',
+            'groups', 'location_id', 'products', 'incharges'
+        ]
         filtering = {
             'id': ('exact', ),
             'active': ('exact', ),
@@ -120,7 +127,7 @@ class SMSUserResources(ModelResource):
         return bundle
 
     class Meta(CustomResourceMeta):
-        queryset = Contact.objects.all().order_by('date_updated', 'id')
+        queryset = Contact.objects.filter(is_active=True).order_by('id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role',
@@ -148,7 +155,7 @@ class WebUserResources(ModelResource):
 
     class Meta(CustomResourceMeta):
         max_limit = None
-        queryset = LogisticsProfile.objects.all().order_by('user__date_joined', 'id')
+        queryset = LogisticsProfile.objects.filter(user__is_active=True).order_by('user__date_joined', 'id')
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['contact', 'location', 'supply_point', 'sms_notifications', 'organization']
@@ -177,7 +184,7 @@ class LocationResources(ModelResource):
     type = fields.CharField('type')
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.all().order_by('date_updated', 'id')
+        queryset = Location.objects.all().order_by('id')
         include_resource_uri = False
         filtering = {
             'type': ('exact', ),
@@ -194,27 +201,6 @@ class LocationResources(ModelResource):
             bundle.data['longitude'] = bundle.data['points'].data['longitude']
         del bundle.data['points']
         return bundle
-
-
-class ProductStockResources(ModelResource):
-    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
-
-    def dehydrate(self, bundle):
-        bundle.data['use_auto_consumption'] = bundle.obj.use_auto_consumption
-        bundle.data['manual_monthly_consumption'] = bundle.obj.manual_monthly_consumption
-        bundle.data['product'] = bundle.obj.product.sms_code
-        bundle.data['supply_point'] = bundle.obj.supply_point.id
-        return bundle
-
-    class Meta(CustomResourceMeta):
-        queryset = ProductStock.objects.filter(is_active=True).order_by('last_modified', 'id')
-        include_resource_uri = False
-        list_allowed_methods = ['get']
-        filtering = {
-            "last_modified": ('gte', ),
-            "supply_point": ALL_WITH_RELATIONS
-        }
-        ordering = ['last_modified']
 
 
 class StockTransactionResources(ModelResource):
@@ -238,7 +224,58 @@ class StockTransactionResources(ModelResource):
         list_allowed_methods = ['get']
         excludes = ['id', ]
         filtering = {
-            "date": ('gte', ),
+            "date": ('gte', 'lte'),
             "supply_point": ('exact', )
         }
         ordering = ['date']
+
+
+class ToManyFieldForUsers(fields.ToManyField):
+    def dehydrate(self, bundle, for_list=True):
+        related_objects = super(ToManyFieldForUsers, self).dehydrate(bundle, for_list)
+        only_emails = []
+        if related_objects:
+            for ro in related_objects:
+                only_emails.append(ro.obj.email)
+        return only_emails
+
+
+class DailyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    report = fields.CharField('report__display_name')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+    view_args = fields.CharField('_view_args')
+
+    class Meta(CustomResourceMeta):
+        queryset = DailyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']
+
+
+class WeeklyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    day_of_week = fields.IntegerField('day_of_week')
+    report = fields.CharField('report__display_name')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+    view_args = fields.CharField('_view_args')
+
+    class Meta(CustomResourceMeta):
+        queryset = WeeklyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'day_of_week', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']
+
+
+class MonthlyScheduledReportResources(ModelResource):
+    hours = fields.IntegerField('hours')
+    day_of_month = fields.IntegerField('day_of_month')
+    report = fields.CharField('report__display_name')
+    view_args = fields.CharField('_view_args')
+    users = ToManyFieldForUsers(UserResource, 'users', null=True, full=True)
+
+    class Meta(CustomResourceMeta):
+        queryset = MonthlyReportSubscription.objects.all()
+        include_resource_uri = False
+        fields = ['hours', 'day_of_month', 'report', 'users', 'view_args']
+        list_allowed_methods = ['get']

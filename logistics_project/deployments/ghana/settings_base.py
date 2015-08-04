@@ -166,9 +166,6 @@ SMS_REGISTRATION_EDIT='ewsghana_registration_edit'
 MAP_DEFAULT_LATITUDE  = 6.55
 MAP_DEFAULT_LONGITUDE = -1.2166667
 
-NO_LOGIN_REQUIRED_FOR = ['api',
-                         ]
-
 LOGISTICS_ALERT_GENERATORS = [
     'logistics.alerts.non_reporting_facilities',
     'logistics.alerts.facilities_without_reporters',
