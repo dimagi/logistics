@@ -572,7 +572,6 @@ def update_user_profile_data():
         new_obj.facility_children = facility_supply_points_below(supply_point.location).count()
         new_obj.hsa_children = hsa_supply_points_below(supply_point.location).count()
 
-        new_obj.in_charge = get_in_charge(supply_point).count()
         new_obj.contacts = supply_point.active_contact_set.count()
 
         new_obj.contact_info = ''
