@@ -174,7 +174,6 @@ class UserProfileData(models.Model):
     hsa_children = models.PositiveIntegerField(default=0)
     contacts = models.PositiveIntegerField(default=0)
     products_managed = models.TextField()
-    last_message = models.ForeignKey('messagelog.Message', null=True)
 
     class Meta:
         app_label = "malawi"

@@ -574,13 +574,6 @@ def update_user_profile_data():
 
         new_obj.contacts = supply_point.active_contact_set.count()
 
-        if supply_point.type.code == "hsa":
-            if supply_point.active_contacts().count():
-                contact = supply_point.active_contacts()[0]
-                msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')
-                if msgs.count() > 0:
-                    new_obj.last_message = msgs[0]
-
         new_obj.products_managed = ''
         for product in supply_point.commodities_stocked():
             new_obj.products_managed += ' %s' % product.sms_code
