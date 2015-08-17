@@ -44,10 +44,6 @@ class View(warehouse_view.DistrictOnlyView):
 
         for hsa in hsas:
             try:
-                up = UserProfileData.objects.get(supply_point=hsa)
-            except ObjectDoesNotExist:
-                up = None    
-            try:
                 pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
             except IndexError:
                 pads = None
@@ -67,10 +63,12 @@ class View(warehouse_view.DistrictOnlyView):
                 )
             except IndexError:
                 last_message_date = ''
+
+            products_managed = ' '.join([p.sms_code for p in hsa.commodities_stocked()])
             table["data"].append({"url": get_hsa_url(hsa, sp.code),
                                   "data": [hsa.supplied_by.name, hsa.name,
                                            hsa.code, 
-                                           up.products_managed if up else ""] + 
+                                           products_managed] +
                                            pads_vals +
                                            [last_message_date]})
 
