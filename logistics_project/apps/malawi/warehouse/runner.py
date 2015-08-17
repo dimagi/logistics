@@ -20,7 +20,7 @@ from static.malawi.config import TimeTrackerTypes
 
 from logistics_project.apps.malawi.util import group_for_location, \
     hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
-    get_hsa_supervisors, get_in_charge, get_country_sp
+    get_in_charge, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
@@ -574,7 +574,6 @@ def update_user_profile_data():
         new_obj.hsa_children = hsa_supply_points_below(supply_point.location).count()
 
         new_obj.in_charge = get_in_charge(supply_point).count()
-        new_obj.hsa_supervisors = get_hsa_supervisors(supply_point).count()
         new_obj.supervisor_contacts = get_supervisors(supply_point).count()
         new_obj.contacts = supply_point.active_contact_set.count()
 

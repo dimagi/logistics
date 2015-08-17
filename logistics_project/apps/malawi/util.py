@@ -89,11 +89,6 @@ def get_supervisors(supply_point):
     return supply_point.active_contact_set.filter\
                 (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
 
-def get_hsa_supervisors(supply_point):
-    """
-    Get all hsa supervisors at a particular facility
-    """
-    return _contact_set(supply_point, config.Roles.HSA_SUPERVISOR)
 
 def get_in_charge(supply_point):
     """
