@@ -46,9 +46,10 @@ class View(warehouse_view.DistrictOnlyView):
         district_data = []
         for sp in get_district_supply_points():
             up = UserProfileData.objects.get_or_create(supply_point=sp)[0]
-            district_data.append({ "url": _get_url(up.supply_point), "data":
-                                  [sp.name, sp.code, up.facility_children, up.hsa_children] + \
-                                  _names_and_numbers(get_imci_coordinators(sp))})
+            district_data.append({
+                "url": _get_url(up.supply_point),
+                "data": [sp.name, sp.code, up.facility_children, up.hsa_children] +
+                        _names_and_numbers(get_imci_coordinators(sp))})
         
         district_table = {
             "id": "district_table",
@@ -63,9 +64,11 @@ class View(warehouse_view.DistrictOnlyView):
             facility_data = []
             for sp in facility_supply_points_below(district.location):
                 up = UserProfileData.objects.get(supply_point=sp)
-                facility_data.append({ "url": _get_url(up.supply_point), "data":
-                                      [sp.name, sp.code, _gps_coord(sp), up.hsa_children] + \
-                                      _names_and_numbers(get_in_charge(sp))})
+                facility_data.append({
+                    "url": _get_url(up.supply_point),
+                    "data": [sp.name, sp.code, _gps_coord(sp), up.hsa_children] +
+                            _names_and_numbers(get_in_charge(sp))
+                })
             facility_table = {
                 "id": "facility_table",
                 "is_datatable": True,
