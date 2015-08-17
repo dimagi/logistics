@@ -94,18 +94,18 @@ class MalawiWarehouseRunner(WarehouseRunner):
             hsas = hsas[:self.hsa_limit]
         
         count = len(hsas)
+        all_products = Product.objects.all()
         if not self.skip_hsas:
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_hsa_data(hsa, start, end)
+                self.update_hsa_data(hsa, start, end, all_products)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
                 
                 
         # rollup aggregates
-        all_products = Product.objects.all()
         if not self.skip_aggregates:
             for agg_type_code, agg_type_name in aggregate_types_in_order():
                 non_hsas = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
@@ -127,10 +127,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_hsa_data(self, hsa, start, end):
+    def update_hsa_data(self, hsa, start, end, all_products=None):
+        all_products = all_products or Product.objects.all()
         is_em_group = (group_for_location(hsa.location) == config.Groups.EM)
         products_managed = set([c.pk for c in hsa.commodities_stocked()])
-
 
         if not self.skip_current_consumption:
             update_current_consumption(hsa)
@@ -192,7 +192,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # per-month basis. if it is determined that we only
                 # need current information, the models can be cleaned
                 # up a bit
-                for p in Product.objects.all():
+                for p in all_products:
                     product_data, created = ProductAvailabilityData.objects.get_or_create\
                         (product=p, supply_point=hsa,
                          date=window_date)
@@ -309,7 +309,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     requested_on__lt=period_end,
                     supply_point=hsa
                 )
-                for p in Product.objects.all():
+                for p in all_products:
                     ord_req = OrderRequest.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
                     ord_req.total += requests_in_range.filter(product=p).count()
@@ -323,7 +323,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     received_on__lt=period_end,
                     supply_point=hsa,
                 ).exclude(Q(amount_requested=None) | Q(amount_received=None))
-                for p in Product.objects.all():
+                for p in all_products:
                     order_fulfill = OrderFulfillment.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
                     for r in requests_in_range.filter(product=p):
@@ -336,7 +336,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             def _update_historical_stock():
                 # set the historical stock values to the last report before
                 # the end of the period (even if it's not in the period)
-                for p in Product.objects.all():
+                for p in all_products:
                     hs = HistoricalStock.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
 
