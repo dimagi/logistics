@@ -19,9 +19,9 @@ from warehouse.models import ReportRun
 from static.malawi.config import TimeTrackerTypes
 
 from logistics_project.apps.malawi.util import group_for_location, \
-    hsa_supply_points_below, facility_supply_points_below, get_country_sp
+    hsa_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
-    ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
+    ProductAvailabilityData, ProductAvailabilityDataSummary, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
     CalculatedConsumption, CurrentConsumption, HistoricalStock
 from django.core.exceptions import ObjectDoesNotExist
@@ -564,22 +564,6 @@ def update_consumption_values(transactions):
                     
                     c.save()
 
-def update_user_profile_data():
-    print "updating user profile data"
-    for supply_point in SupplyPoint.objects.filter(active=True):
-        new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
-
-        new_obj.facility_children = facility_supply_points_below(supply_point.location).count()
-        new_obj.hsa_children = hsa_supply_points_below(supply_point.location).count()
-
-        new_obj.contacts = supply_point.active_contact_set.count()
-
-        new_obj.products_managed = ''
-        for product in supply_point.commodities_stocked():
-            new_obj.products_managed += ' %s' % product.sms_code
-
-        new_obj.save()
-    return True
 
 def update_alerts(hsas):
     non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')

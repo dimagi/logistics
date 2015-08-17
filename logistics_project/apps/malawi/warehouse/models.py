@@ -168,15 +168,6 @@ class OrderFulfillment(MalawiWarehouseModel):
         return pct(self.quantity_received, self.quantity_requested) \
             if self.quantity_requested else None
 
-class UserProfileData(models.Model):
-    supply_point = models.ForeignKey('logistics.SupplyPoint')
-    facility_children = models.PositiveIntegerField(default=0)
-    hsa_children = models.PositiveIntegerField(default=0)
-    contacts = models.PositiveIntegerField(default=0)
-    products_managed = models.TextField()
-
-    class Meta:
-        app_label = "malawi"
 
 class CalculatedConsumption(MalawiWarehouseModel):
     """

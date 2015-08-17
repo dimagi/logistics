@@ -56,12 +56,6 @@ class CurrentConsumptionAdmin(admin.ModelAdmin):
     list_filter = ('supply_point__type', 'product')
 
 
-class UserProfileAdmin(admin.ModelAdmin):
-    model = UserProfileData
-    list_display = ('supply_point',)
-    list_filter = ('supply_point__type',)
-
-
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
 admin.site.register(ProductAvailabilityDataSummary, ProductAvailabilityDataSummaryAdmin)
 admin.site.register(ReportingRate, ReportingRateAdmin)
@@ -70,4 +64,3 @@ admin.site.register(OrderRequest, OrderRequestAdmin)
 admin.site.register(OrderFulfillment)
 admin.site.register(CalculatedConsumption, CalculatedConsumptionAdmin)
 admin.site.register(CurrentConsumption, CurrentConsumptionAdmin)
-admin.site.register(UserProfileData, UserProfileAdmin)
