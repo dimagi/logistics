@@ -58,12 +58,21 @@ class View(warehouse_view.DistrictOnlyView):
                                                  pads.any_over_stock)] \
                         if pads else ["no data"] * 4
             
-            table["data"].append({"url": get_hsa_url(hsa, sp.code), 
+            contact = Contact.objects.get(supply_point=hsa, is_active=True)
+            try:
+                last_message_date = _date_fmt(
+                    Message.objects.filter(
+                        direction='I', contact=contact
+                    ).order_by('-date').values_list('date', flat=True)[0]
+                )
+            except IndexError:
+                last_message_date = ''
+            table["data"].append({"url": get_hsa_url(hsa, sp.code),
                                   "data": [hsa.supplied_by.name, hsa.name,
                                            hsa.code, 
                                            up.products_managed if up else ""] + 
                                            pads_vals +
-                                           [_date_fmt(up.last_message.date) if up and up.last_message else "" ]})
+                                           [last_message_date]})
 
         table["height"] = min(480, (hsas.count()+1)*30)
 
