@@ -174,7 +174,6 @@ class UserProfileData(models.Model):
     hsa_children = models.PositiveIntegerField(default=0)
     contacts = models.PositiveIntegerField(default=0)
     in_charge = models.PositiveIntegerField(default=0)
-    contact_info = models.CharField(max_length=50, null=True, blank=True)
     products_managed = models.TextField()
     last_message = models.ForeignKey('messagelog.Message', null=True)
 
