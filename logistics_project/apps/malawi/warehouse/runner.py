@@ -50,7 +50,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_lead_times = False
     skip_order_requests = False
     skip_order_fulfillment = False
-    skip_profile_data = False
     skip_alerts = False
     skip_consumption = False
     skip_current_consumption = False
@@ -121,10 +120,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
                     self.update_non_hsa_data(place, start, end, run_record.start_run,
                                              all_products=all_products)
-
-        # run user profile summary
-        if not self.skip_profile_data: 
-            update_user_profile_data()
 
         # run alerts
         if not self.skip_alerts:
