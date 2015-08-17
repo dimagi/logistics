@@ -172,7 +172,6 @@ class UserProfileData(models.Model):
     supply_point = models.ForeignKey('logistics.SupplyPoint')
     facility_children = models.PositiveIntegerField(default=0)
     hsa_children = models.PositiveIntegerField(default=0)
-    hsa_supervisors = models.PositiveIntegerField(default=0)
     contacts = models.PositiveIntegerField(default=0)
     supervisor_contacts = models.PositiveIntegerField(default=0)
     in_charge = models.PositiveIntegerField(default=0)
