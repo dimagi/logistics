@@ -103,8 +103,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
-                
-                
+
         # rollup aggregates
         if not self.skip_aggregates:
             for agg_type_code, agg_type_name in aggregate_types_in_order():
