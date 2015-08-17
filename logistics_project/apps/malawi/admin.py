@@ -55,6 +55,7 @@ class CurrentConsumptionAdmin(admin.ModelAdmin):
                     'current_daily_consumption', 'stock_on_hand')
     list_filter = ('supply_point__type', 'product')
 
+
 admin.site.register(ProductAvailabilityData, ProductAvailabilityDataAdmin)
 admin.site.register(ProductAvailabilityDataSummary, ProductAvailabilityDataSummaryAdmin)
 admin.site.register(ReportingRate, ReportingRateAdmin)

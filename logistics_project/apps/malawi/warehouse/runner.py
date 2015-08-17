@@ -19,10 +19,9 @@ from warehouse.models import ReportRun
 from static.malawi.config import TimeTrackerTypes
 
 from logistics_project.apps.malawi.util import group_for_location, \
-    hsa_supply_points_below, facility_supply_points_below, get_supervisors,\
-    get_hsa_supervisors, get_in_charge, get_country_sp
+    hsa_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
-    ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
+    ProductAvailabilityData, ProductAvailabilityDataSummary, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
     CalculatedConsumption, CurrentConsumption, HistoricalStock
 from django.core.exceptions import ObjectDoesNotExist
@@ -51,7 +50,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_lead_times = False
     skip_order_requests = False
     skip_order_fulfillment = False
-    skip_profile_data = False
     skip_alerts = False
     skip_consumption = False
     skip_current_consumption = False
@@ -96,18 +94,17 @@ class MalawiWarehouseRunner(WarehouseRunner):
             hsas = hsas[:self.hsa_limit]
         
         count = len(hsas)
+        all_products = Product.objects.all()
         if not self.skip_hsas:
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_hsa_data(hsa, start, end)
+                self.update_hsa_data(hsa, start, end, all_products)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
-                
-                
+
         # rollup aggregates
-        all_products = Product.objects.all()
         if not self.skip_aggregates:
             for agg_type_code, agg_type_name in aggregate_types_in_order():
                 non_hsas = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
@@ -123,20 +120,16 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     self.update_non_hsa_data(place, start, end, run_record.start_run,
                                              all_products=all_products)
 
-        # run user profile summary
-        if not self.skip_profile_data: 
-            update_user_profile_data()
-
         # run alerts
         if not self.skip_alerts:
             update_alerts(hsas)
 
         update_historical_data()
 
-    def update_hsa_data(self, hsa, start, end):
+    def update_hsa_data(self, hsa, start, end, all_products=None):
+        all_products = all_products or Product.objects.all()
         is_em_group = (group_for_location(hsa.location) == config.Groups.EM)
         products_managed = set([c.pk for c in hsa.commodities_stocked()])
-
 
         if not self.skip_current_consumption:
             update_current_consumption(hsa)
@@ -198,7 +191,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # per-month basis. if it is determined that we only
                 # need current information, the models can be cleaned
                 # up a bit
-                for p in Product.objects.all():
+                for p in all_products:
                     product_data, created = ProductAvailabilityData.objects.get_or_create\
                         (product=p, supply_point=hsa,
                          date=window_date)
@@ -315,7 +308,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     requested_on__lt=period_end,
                     supply_point=hsa
                 )
-                for p in Product.objects.all():
+                for p in all_products:
                     ord_req = OrderRequest.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
                     ord_req.total += requests_in_range.filter(product=p).count()
@@ -329,7 +322,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     received_on__lt=period_end,
                     supply_point=hsa,
                 ).exclude(Q(amount_requested=None) | Q(amount_received=None))
-                for p in Product.objects.all():
+                for p in all_products:
                     order_fulfill = OrderFulfillment.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
                     for r in requests_in_range.filter(product=p):
@@ -342,7 +335,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             def _update_historical_stock():
                 # set the historical stock values to the last report before
                 # the end of the period (even if it's not in the period)
-                for p in Product.objects.all():
+                for p in all_products:
                     hs = HistoricalStock.objects.get_or_create\
                         (supply_point=hsa, date=window_date, product=p)[0]
 
@@ -539,6 +532,10 @@ def update_consumption_values(transactions):
                     next_window_date = first_of_next_month(window_date)
                     start_date = max(window_date, start.date)
                     end_date = min(next_window_date, end.date)
+
+                    # the number of seconds in this window - should be either the interval
+                    # between transactions - or if that interval spans the border of a month
+                    # then the interval corresponding to the portion in this month.
                     secs_in_window = delta_secs(end_date-start_date)
                     proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) \
                         if secs_in_window else 0
@@ -561,36 +558,6 @@ def update_consumption_values(transactions):
                     
                     c.save()
 
-def update_user_profile_data():
-    print "updating user profile data"
-    for supply_point in SupplyPoint.objects.filter(active=True):
-        new_obj = UserProfileData.objects.get_or_create(supply_point=supply_point)[0]
-
-        new_obj.facility_children = facility_supply_points_below(supply_point.location).count()
-        new_obj.hsa_children = hsa_supply_points_below(supply_point.location).count()
-
-        new_obj.in_charge = get_in_charge(supply_point).count()
-        new_obj.hsa_supervisors = get_hsa_supervisors(supply_point).count()
-        new_obj.supervisor_contacts = get_supervisors(supply_point).count()
-        new_obj.contacts = supply_point.active_contact_set.count()
-
-        new_obj.contact_info = ''
-        if supply_point.type.code == "hsa":
-            if supply_point.active_contacts().count():
-                contact = supply_point.active_contacts()[0]
-                if contact.default_connection:
-                    new_obj.contact_info = contact.default_connection.identity
-                
-                msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')
-                if msgs.count() > 0:
-                    new_obj.last_message = msgs[0]
-
-        new_obj.products_managed = ''
-        for product in supply_point.commodities_stocked():
-            new_obj.products_managed += ' %s' % product.sms_code
-
-        new_obj.save()
-    return True
 
 def update_alerts(hsas):
     non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
@@ -681,6 +648,10 @@ def update_consumption(report_period):
         update_consumption_values(transactions)
 
 def update_consumption_times(since):
+    """
+    Update the consumption time_with_data values for any supply point / product pairings
+    where the supply point doesn't explicitly supply the product.
+    """
     # any consumption value that was touched potentially needs to have its
     # time_needing_data updated
     consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
@@ -689,7 +660,7 @@ def update_consumption_times(since):
     for i, c in enumerate(consumptions_to_update.iterator()):
         if i % 500 == 0:
             print '%s/%s consumptions updated' % (i, count)
-        # if they supply the product it is already set based on above
+        # if they supply the product it is already set in update_consumption, above
         if not c.supply_point.supplies(c.product):
             c.time_needing_data = c.time_with_data
             c.save()

@@ -4,14 +4,13 @@ from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, StockRequest, ProductStock
 
-from logistics_project.apps.malawi.warehouse.models import UserProfileData,\
-    ProductAvailabilityDataSummary, ReportingRate
+from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary, ReportingRate
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.util import get_default_supply_point, \
     hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 from rapidsms.models import Contact
-from django.core.exceptions import ObjectDoesNotExist
+
 
 class View(warehouse_view.DistrictOnlyView):
     
@@ -44,10 +43,6 @@ class View(warehouse_view.DistrictOnlyView):
 
         for hsa in hsas:
             try:
-                up = UserProfileData.objects.get(supply_point=hsa)
-            except ObjectDoesNotExist:
-                up = None    
-            try:
                 pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
             except IndexError:
                 pads = None
@@ -58,12 +53,23 @@ class View(warehouse_view.DistrictOnlyView):
                                                  pads.any_over_stock)] \
                         if pads else ["no data"] * 4
             
-            table["data"].append({"url": get_hsa_url(hsa, sp.code), 
+            contact = Contact.objects.get(supply_point=hsa, is_active=True)
+            try:
+                last_message_date = _date_fmt(
+                    Message.objects.filter(
+                        direction='I', contact=contact
+                    ).order_by('-date').values_list('date', flat=True)[0]
+                )
+            except IndexError:
+                last_message_date = ''
+
+            products_managed = ' '.join([p.sms_code for p in hsa.commodities_stocked()])
+            table["data"].append({"url": get_hsa_url(hsa, sp.code),
                                   "data": [hsa.supplied_by.name, hsa.name,
                                            hsa.code, 
-                                           up.products_managed if up else ""] + 
+                                           products_managed] +
                                            pads_vals +
-                                           [_date_fmt(up.last_message.date) if up and up.last_message else "" ]})
+                                           [last_message_date]})
 
         table["height"] = min(480, (hsas.count()+1)*30)
 

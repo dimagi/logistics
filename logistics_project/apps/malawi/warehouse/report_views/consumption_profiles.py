@@ -14,6 +14,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, hsa_supply_points_below, is_country, is_district,\
     is_facility
 
+
 def consumption_row(sp, p, datespan):
     relevant = CalculatedConsumption.objects.filter(supply_point=sp, product=p,
                                                     date__gte=datespan.startdate,
