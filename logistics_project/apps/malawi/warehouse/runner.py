@@ -574,13 +574,9 @@ def update_user_profile_data():
 
         new_obj.contacts = supply_point.active_contact_set.count()
 
-        new_obj.contact_info = ''
         if supply_point.type.code == "hsa":
             if supply_point.active_contacts().count():
                 contact = supply_point.active_contacts()[0]
-                if contact.default_connection:
-                    new_obj.contact_info = contact.default_connection.identity
-                
                 msgs = Message.objects.filter(direction='I', contact=contact).order_by('-date')
                 if msgs.count() > 0:
                     new_obj.last_message = msgs[0]
