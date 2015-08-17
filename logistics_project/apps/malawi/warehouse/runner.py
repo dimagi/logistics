@@ -539,6 +539,10 @@ def update_consumption_values(transactions):
                     next_window_date = first_of_next_month(window_date)
                     start_date = max(window_date, start.date)
                     end_date = min(next_window_date, end.date)
+
+                    # the number of seconds in this window - should be either the interval
+                    # between transactions - or if that interval spans the border of a month
+                    # then the interval corresponding to the portion in this month.
                     secs_in_window = delta_secs(end_date-start_date)
                     proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) \
                         if secs_in_window else 0
@@ -681,6 +685,10 @@ def update_consumption(report_period):
         update_consumption_values(transactions)
 
 def update_consumption_times(since):
+    """
+    Update the consumption time_with_data values for any supply point / product pairings
+    where the supply point doesn't explicitly supply the product.
+    """
     # any consumption value that was touched potentially needs to have its
     # time_needing_data updated
     consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
@@ -689,7 +697,7 @@ def update_consumption_times(since):
     for i, c in enumerate(consumptions_to_update.iterator()):
         if i % 500 == 0:
             print '%s/%s consumptions updated' % (i, count)
-        # if they supply the product it is already set based on above
+        # if they supply the product it is already set in update_consumption, above
         if not c.supply_point.supplies(c.product):
             c.time_needing_data = c.time_with_data
             c.save()
