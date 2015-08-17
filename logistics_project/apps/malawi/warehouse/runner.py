@@ -19,7 +19,7 @@ from warehouse.models import ReportRun
 from static.malawi.config import TimeTrackerTypes
 
 from logistics_project.apps.malawi.util import group_for_location, \
-    hsa_supply_points_below, facility_supply_points_below, get_in_charge, get_country_sp
+    hsa_supply_points_below, facility_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, UserProfileData, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
