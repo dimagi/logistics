@@ -61,10 +61,11 @@ class Command(LabelCommand):
                     print 'already set %s' % fac
                 else:
                     print '%s, %s --> %s' % (fac, fac.supplied_by, new_parent)
+                    supplied_by = fac.supplied_by
                     fac.supplied_by = new_parent
                     fac.location.parent = new_parent.location
                     fac.name = name
-                    parents.update((fac.supplied_by, new_parent))
+                    parents.update((supplied_by, new_parent))
                     if not dryrun:
                         fac.save()
                         fac.location.save()
