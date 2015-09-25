@@ -150,6 +150,8 @@ class WebUserResources(ModelResource):
         bundle.data['user'].data['sms_notifications'] = bundle.data['sms_notifications']
         bundle.data['user'].data['organization'] = bundle.data['organization']
         bundle.data['user'].data['contact'] = bundle.data['contact']
+        program = bundle.obj.program
+        bundle.data['user'].data['program'] = program.code if program else None
         bundle.data = bundle.data['user'].data
         return bundle
 
