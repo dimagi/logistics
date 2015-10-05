@@ -40,7 +40,7 @@ class Command(BaseCommand):
                     supply_point = SupplyPoint.objects.get(code=old_site_code_value)
                     try:
                         sp = SupplyPoint.objects.get(code=new_site_code_value)
-                        print u'Probably duplicated code {} ({})'.format(sp, new_site_code_value)
+                        print u'Probably duplicated code {0} ({1})'.format(sp, new_site_code_value)
                     except SupplyPoint.DoesNotExist:
                         if not options['test']:
                             supply_point.code = new_site_code_value
@@ -48,12 +48,12 @@ class Command(BaseCommand):
                             supply_point.location.save()
                             supply_point.save()
 
-                        print u'Updated supply point {} ({}). Changed site code to {}'.format(
+                        print u'Updated supply point {0} ({1}). Changed site code to {2}'.format(
                             supply_point.name, supply_point.code, new_site_code_value
                         )
                 except SupplyPoint.DoesNotExist:
                     try:
                         SupplyPoint.objects.get(code=new_site_code_value)
-                        print u'Supply point with site code {} already updated'.format(old_site_code_value)
+                        print u'Supply point with site code {0} already updated'.format(old_site_code_value)
                     except SupplyPoint.DoesNotExist:
-                        print u'Supply point with site code {} doesn\'t exist'.format(old_site_code_value)
+                        print u'Supply point with site code {0} doesn\'t exist'.format(old_site_code_value)
