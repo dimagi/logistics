@@ -122,8 +122,10 @@ class NewSMSUserResources(ModelResource):
         return objects
 
     def dehydrate(self, bundle):
+        default_connection = bundle.obj.default_connection
         connections = [
-            {'backend': connection.backend, 'phone_number': connection.identity}
+            {'backend': connection.backend, 'phone_number': connection.identity,
+             'default': default_connection == connection}
             for connection in Connection.objects.filter(contact=bundle.obj)
         ]
         bundle.data['phone_numbers'] = connections
