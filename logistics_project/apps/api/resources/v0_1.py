@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User, Group
+from django.db.models.aggregates import Count
 from tastypie.authentication import BasicAuthentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.constants import ALL_WITH_RELATIONS
@@ -104,6 +105,40 @@ class SupplyPointResources(ModelResource):
             'active': ('exact', ),
             'last_reported': ('isnull', )
         }
+
+
+class NewSMSUserResources(ModelResource):
+    name = fields.CharField('name')
+    email = fields.CharField('email', null=True)
+    role = fields.CharField('role', null=True)
+    supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
+    is_active = fields.CharField('is_active')
+    family_name = fields.CharField('family_name')
+
+    def get_object_list(self, request):
+        objects = super(NewSMSUserResources, self).get_object_list(request)
+        if bool(request.GET.get('with_more_than_one_number', False)):
+            return objects.annotate(connections_count=Count('connection')).filter(connections_count__gt=1)
+        return objects
+
+    def dehydrate(self, bundle):
+        connections = [
+            {'backend': connection.backend, 'phone_number': connection.identity}
+            for connection in Connection.objects.filter(contact=bundle.obj)
+        ]
+        bundle.data['phone_numbers'] = connections
+        return bundle
+
+    class Meta(CustomResourceMeta):
+        queryset = Contact.objects.filter(is_active=True).order_by('id')
+        include_resource_uri = False
+        list_allowed_methods = ['get']
+        fields = ['id', 'language', 'name', 'email', 'role',
+                  'supply_point', 'is_active', 'date_updated', 'family_name']
+        filtering = {
+            'date_updated': ('gte', )
+        }
+        ordering = ['date_updated']
 
 
 class SMSUserResources(ModelResource):
