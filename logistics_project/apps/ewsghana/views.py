@@ -525,3 +525,7 @@ def global_stats(request):
 
     return render_to_response('logistics/global_stats.html', context,
                               context_instance=RequestContext(request))
+
+
+def redirect_view(request):
+    return HttpResponseRedirect('http://commcarehq.org/a/ews-ghana/')

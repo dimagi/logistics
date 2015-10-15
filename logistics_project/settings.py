@@ -70,10 +70,10 @@ APPS = []          # if you want apps after the defaults
 # when reporting bugs. don't forget to turn this off in production.
 TEMPLATE_DEBUG = False
 
-
+LOGIN_URL = '/backdoor/accounts/login/'
 # after login (which is handled by django.contrib.auth), redirect to the
 # dashboard rather than 'accounts/profile' (the default).
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/backdoor/"
 
 
 # use django-nose to run tests. rapidsms contains lots of packages and
