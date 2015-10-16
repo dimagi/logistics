@@ -179,7 +179,7 @@ class WebUserResources(ModelResource):
     user = fields.ToOneField(UserResource, 'user', full=True)
     location = fields.IntegerField('location_id', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
-    contact = fields.ToOneField(SMSUserResources, 'contact', null=True, full=True)
+    contact = fields.ToOneField(NewSMSUserResources, 'contact', null=True, full=True)
 
     def dehydrate(self, bundle):
         bundle.data['user'].data['location'] = bundle.data['location']
