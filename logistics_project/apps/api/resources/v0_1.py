@@ -114,6 +114,7 @@ class NewSMSUserResources(ModelResource):
     supply_point = fields.ToOneField(SupplyPointResources, 'supply_point', full=True, null=True)
     is_active = fields.CharField('is_active')
     family_name = fields.CharField('family_name')
+    needs_reminders = fields.BooleanField('needs_reminders')
 
     def get_object_list(self, request):
         objects = super(NewSMSUserResources, self).get_object_list(request)
@@ -136,9 +137,10 @@ class NewSMSUserResources(ModelResource):
         include_resource_uri = False
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role',
-                  'supply_point', 'is_active', 'date_updated', 'family_name']
+                  'supply_point', 'is_active', 'date_updated', 'family_name', 'needs_reminders']
         filtering = {
-            'date_updated': ('gte', )
+            'date_updated': ('gte', ),
+            'needs_reminders': ('exact', )
         }
         ordering = ['date_updated']
 
