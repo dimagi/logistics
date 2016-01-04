@@ -36,8 +36,8 @@ class UserResource(ModelResource):
     class Meta(CustomResourceMeta):
         queryset = User.objects.all()
         list_allowed_methods = ['get']
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active', 'is_superuser',
-                  'last_login', 'date_joined']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password',
+                  'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined']
         include_resource_uri = False
         filtering = {
             'date_joined': ('gte', )
