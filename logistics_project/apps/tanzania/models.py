@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.db import models
 from datetime import datetime
-from logistics.models import SupplyPoint, SupplyPointGroup
+from django.db.models.signals import post_save
+from django.dispatch.dispatcher import receiver
+from logistics.models import SupplyPoint, SupplyPointGroup, LogisticsProfile
 from logistics_project.apps.tanzania.tasks import email_report
 from rapidsms.contrib.messagelog.models import Message
 
@@ -183,3 +185,11 @@ class SupervisionDocument(models.Model):
 
     def filename(self):
         return self.document.file.name.split('/')[-1]
+
+
+@receiver(post_save, sender=User)
+def user_post_save_handler(sender, instance, **kwargs):
+    try:
+        instance.get_profile().save()
+    except LogisticsProfile.DoesNotExist:
+        pass

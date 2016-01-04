@@ -36,8 +36,8 @@ class UserResource(ModelResource):
     class Meta(CustomResourceMeta):
         queryset = User.objects.all()
         list_allowed_methods = ['get']
-        fields = ['username', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_active', 'is_superuser',
-                  'last_login', 'date_joined']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password',
+                  'is_staff', 'is_active', 'is_superuser', 'last_login', 'date_joined']
         include_resource_uri = False
         filtering = {
             'date_joined': ('gte', )
@@ -48,10 +48,12 @@ class WebUserResources(ModelResource):
     user = fields.ToOneField(UserResource, 'user', full=True)
     location = fields.IntegerField('location_id', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
+    date_updated = fields.DateTimeField('date_updated', null=True)
 
     def dehydrate(self, bundle):
         bundle.data['user'].data['location'] = bundle.data['location']
         bundle.data['user'].data['supply_point'] = bundle.data['supply_point']
+        bundle.data['user'].data['date_updated'] = bundle.data['date_updated']
         bundle.data = bundle.data['user'].data
         return bundle
 
@@ -60,9 +62,10 @@ class WebUserResources(ModelResource):
         queryset = LogisticsProfile.objects.all().order_by('pk')
         include_resource_uri = False
         list_allowed_methods = ['get']
-        fields = ['location', 'supply_point']
+        fields = ['location', 'supply_point', 'date_updated']
         filtering = {
-            'user': ALL_WITH_RELATIONS
+            'user': ALL_WITH_RELATIONS,
+            'date_updated': ('gte', 'lte')
         }
 
 
