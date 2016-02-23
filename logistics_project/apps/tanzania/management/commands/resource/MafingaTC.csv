@@ -1,0 +1,12 @@
+Name,Active?,MSD Code,Parent Name, New Parent, Parent Type,Latitude,Longitude,Group,Type,Unmmanged Commodities
+Bumilayinga  Dispensary,TRUE,IR520315,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,id fs cp
+Changalawe  Dispensary,TRUE,IR520316,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,pp id fs ip
+Igombavanu  Dispensary,TRUE,IR520322,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,id fs
+Ihongole  Health Centre,TRUE,IR520328,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,pp zs id ip
+Itimbo  Dispensary,TRUE,IR520338,Mufindi,Mafinga TC,DISTRICT,-8.27207,35.4252,B,FACILITY,id ip
+JKT  Dispensary,TRUE,IR720008,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,zs
+Kikombomaduma Dispensary,TRUE,IR520553,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,id fs
+Matanana Dispensary,TRUE,IR520702,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,pc md fs cp id ip
+Misitu Dispensary,TRUE,IR520353,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,
+Mtula  Dispensary,TRUE,IR520358,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,pp id fs ip
+Rungemba  Dispensary,TRUE,IR520363,Mufindi,Mafinga TC,DISTRICT,,,B,FACILITY,fs
