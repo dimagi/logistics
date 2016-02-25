@@ -166,9 +166,10 @@ class LocationResources(ModelResource):
     points = fields.ToOneField(PointResource, 'point', full=True, null=True)
     code = fields.CharField('code')
     groups = fields.ListField(null=True, default=[])
+    is_active = fields.BooleanField('is_active')
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.filter(supplypoint__active=True).order_by('pk')
+        queryset = Location.objects.all().order_by('pk')
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
         fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
@@ -183,6 +184,7 @@ class LocationResources(ModelResource):
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
             bundle.data['created_at'] = sp.created_at
+            bundle.data['is_active'] = sp.active
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
             bundle.data['historical_groups'] = {}
@@ -200,7 +202,7 @@ class SMSUserResources(ModelResource):
     email = fields.CharField('email', null=True)
     role = fields.CharField('role', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
-    is_active = fields.CharField('is_active')
+    is_active = fields.BooleanField('is_active')
 
     def dehydrate(self, bundle):
         default_connection = bundle.obj.default_connection
