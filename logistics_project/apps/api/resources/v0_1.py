@@ -158,6 +158,15 @@ class GroupResources(Resource):
         return self.get_object_list(bundle.request)
 
 
+class SupplyPointResources(ModelResource):
+
+    class Meta(CustomResourceMeta):
+        queryset = SupplyPoint.objects.all().order_by('pk')
+        filtering = {
+            'active': ('exact', )
+        }
+
+
 class LocationResources(ModelResource):
     id = fields.IntegerField('id')
     name = fields.CharField('name')
@@ -166,16 +175,20 @@ class LocationResources(ModelResource):
     points = fields.ToOneField(PointResource, 'point', full=True, null=True)
     code = fields.CharField('code')
     groups = fields.ListField(null=True, default=[])
+    is_active = fields.BooleanField('is_active')
+    supplypoint = fields.ToOneField(SupplyPointResources, 'supplypoint', null=True)
 
     class Meta(CustomResourceMeta):
-        queryset = Location.objects.filter(supplypoint__active=True).order_by('pk')
+        queryset = Location.objects.all().order_by('pk')
         list_allowed_methods = ['get']
         details_allowed_methods = ['get']
         fields = ['id', 'name', 'parent_id', 'code', 'groups', 'date_updated']
         include_resource_uri = False
         filtering = {
             'date_updated': ('gte', ),
-            'type': ('exact', )
+            'type': ('exact', ),
+            'is_active': ('exact', ),
+            'supplypoint': ALL_WITH_RELATIONS
         }
 
     def dehydrate(self, bundle):
@@ -183,6 +196,7 @@ class LocationResources(ModelResource):
             sp = SupplyPoint.objects.get(pk=bundle.data['id'])
             bundle.data['groups'] = list(sp.groups.all())
             bundle.data['created_at'] = sp.created_at
+            bundle.data['is_active'] = sp.active
         except SupplyPoint.DoesNotExist:
             bundle.data['groups'] = []
             bundle.data['historical_groups'] = {}
@@ -200,7 +214,7 @@ class SMSUserResources(ModelResource):
     email = fields.CharField('email', null=True)
     role = fields.CharField('role', null=True)
     supply_point = fields.IntegerField('supply_point_id', null=True)
-    is_active = fields.CharField('is_active')
+    is_active = fields.BooleanField('is_active')
 
     def dehydrate(self, bundle):
         default_connection = bundle.obj.default_connection
@@ -218,7 +232,8 @@ class SMSUserResources(ModelResource):
         list_allowed_methods = ['get']
         fields = ['id', 'language', 'name', 'email', 'role', 'supply_point', 'is_active', 'date_updated']
         filtering = {
-            'date_updated': ('gte', )
+            'date_updated': ('gte', ),
+            'is_active': ('exact', )
         }
 
 
