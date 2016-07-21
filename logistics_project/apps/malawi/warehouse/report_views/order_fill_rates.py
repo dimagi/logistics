@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from logistics.util import config
 from logistics.models import Product, SupplyPoint, ProductType
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
@@ -31,10 +30,13 @@ class View(warehouse_view.DistrictOnlyView):
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         for p in products:
             for dt in dates:
-                of = OrderFulfillment.objects.get\
-                    (supply_point=sp, product=p, date=dt)
-                data[p][dt] = of.average_fill_rate
-            
+                try:
+                    of = OrderFulfillment.objects.get(supply_point=sp, product=p, date=dt)
+                    data[p][dt] = of.average_fill_rate
+                except OrderFulfillment.DoesNotExist:
+                    # don't fail hard if a few product/location/date combinations don't exist
+                    pass
+
         raw_graphdata = [
             {
                 'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
