@@ -1,6 +1,5 @@
 from collections import defaultdict
 
-from logistics.util import config
 from logistics.models import Product, SupplyPoint, ProductType
 
 from logistics_project.apps.malawi.util import get_default_supply_point,\
