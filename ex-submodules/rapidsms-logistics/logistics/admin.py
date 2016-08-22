@@ -16,7 +16,7 @@ class ResponsibilityAdmin(admin.ModelAdmin):
 
 class ProductAdmin(admin.ModelAdmin):
     model = Product
-    list_display = ('name', 'units', 'sms_code', 'description','product_code')
+    list_display = ('name', 'units', 'sms_code', 'description', 'product_code', 'type')
 
 class ProductTypeAdmin(admin.ModelAdmin):
     model = ProductType
