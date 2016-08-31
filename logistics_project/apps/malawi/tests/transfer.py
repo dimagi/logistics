@@ -1,11 +1,10 @@
 from __future__ import absolute_import
-from rapidsms.tests.scripted import TestScript
 from logistics.models import Product, ProductStock, \
-    StockRequest, SupplyPoint, StockRequestStatus, StockTransfer,\
-    StockTransferStatus
+    SupplyPoint, StockTransfer, StockTransferStatus
 from logistics.util import config
 from logistics_project.apps.malawi.tests.util import create_manager, create_hsa
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
+
 
 class TestTransfer(MalawiTestBase):
     
@@ -83,7 +82,6 @@ class TestTransfer(MalawiTestBase):
             self.assertEqual(StockTransferStatus.CONFIRMED, transfer.status)
             self.assertEqual(None, transfer.initiated_on)
             
-        
     def testTransferFromReceiptNoSupplyPoint(self):
         create_hsa(self, "16175551000", "wendy")
         a = """
