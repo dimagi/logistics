@@ -193,11 +193,7 @@ class TestScript (TransactionTestCase, LoggerMixin):
                 last_msg = txt
         finally:
             self.stopRouter()
-            try:
-                transaction.commit()
-            except Exception:
-                pass
-
+            transaction.commit()
 
     def runScript (self, script):
         self.runParsedScript(self.parseScript(script))
