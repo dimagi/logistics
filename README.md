@@ -1,22 +1,27 @@
-This is a RapidSMS project to reinforce existing logistics management systems through the use of text messaging. 
+This is a RapidSMS project to reinforce existing logistics management systems through the use of text messaging.
+
+This readme is specific to the cstock project.
+
+# Installation
 
 NON-PYTHON DEPENDENCIES
 * git
-* postgres
 * pip
 * couchdb
-* wkhtmltopdf (for pdf report functionality only)
 
 You can install all of the above by running:
-> sudo apt-get install git-core postgresql python-psycopg2 couchdb
+```
+> sudo apt-get install git-core couchdb
+```
 
-DB SETUP
-* Change authentication method from ident to MD5 in /etc/postgresql/8.4/main/pg_hba.conf 
-* Restart postgres
-* Set up a postgres user with the appropriate username and password
-* Create the DB
+## DB Setup
 
-SETUP
+Recommended database is MySQL.
+
+Install it as normal, create a database and update localsettings.py accordingly to connect.
+
+## Code installation
+
 * git clone git://github.com/dimagi/logistics.git
 * cd logistics
 * pip install -r pip-requires.txt
@@ -25,15 +30,29 @@ SETUP
 * cd logistics_project
 * cp localsettings.py.example localsettings.py
 * update relevant settings in settings.py or localsettings.py
-  * set 'DEBUG = True' to get static files to work
-  * most notably, use real email credentials
 * ./manage.py syncdb
 * ./manage.py migrate (see note below about troubleshooting migrations)
-* python import_facilities.py Facilities.csv
-* sudo /etc/init.d.couchdb start
-* ./manage.py celeryd &
-* ./manage.py runserver &
-* ./manage.py runrouter &
+* ./manage.py runserver
+
+### (Optional) Run celery and SMS router
+
+* ./manage.py celeryd
+* ./manage.py runrouter
+
+
+# Testing
+
+This project uses nose for testing. You can run individual tests using the following type of syntax:
+
+```
+./manage.py test logistics_project.apps.malawi.tests.transfer:TestTransfer
+```
+
+Note that running the entire test suite hangs on apparent database locking issues. You must run subsets of tests at a time.
+
+# Legacy information
+
+**Note that the reamainder of this README is likely out of date**
 
 
 SUPPORTED OPERATING SYSTEM
@@ -41,7 +60,7 @@ Ubuntu Lucid Lynx 10.0.4 LTS
 
 ## Troubleshooting install
 
-# South migration fails
+### South migration fails
 There is a circular dependency in the South migrations. This is the workaround:
 
  * open logistics_project/deployments/malawi/migrations/logistics/0001_initial.py
