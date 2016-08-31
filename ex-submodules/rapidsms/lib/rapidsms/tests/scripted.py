@@ -4,6 +4,7 @@
 
 import time
 import logging
+from django.db import transaction
 from rapidsms.router import router as globalrouter
 from harness import EchoApp
 import unittest, re, threading
@@ -192,6 +193,11 @@ class TestScript (TransactionTestCase, LoggerMixin):
                 last_msg = txt
         finally:
             self.stopRouter()
+            try:
+                transaction.commit()
+            except Exception:
+                pass
+
 
     def runScript (self, script):
         self.runParsedScript(self.parseScript(script))
