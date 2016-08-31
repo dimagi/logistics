@@ -678,7 +678,7 @@ class ProductStock(models.Model):
         unique_together = (('supply_point', 'product'),)
 
     def __unicode__(self):
-        return "%s-%s" % (self.supply_point.name, self.product.name)
+        return "%s-%s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
 
     def _manual_consumption(self):
         if self.manual_monthly_consumption is not None:
