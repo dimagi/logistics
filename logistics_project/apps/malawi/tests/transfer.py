@@ -100,5 +100,3 @@ class TestTransfer(MalawiTestBase):
             self.assertEqual(SupplyPoint.objects.get(code="261601"), transfer.receiver)
             self.assertEqual(StockTransferStatus.CONFIRMED, transfer.status)
             self.assertEqual(None, transfer.initiated_on)
-            
-        
