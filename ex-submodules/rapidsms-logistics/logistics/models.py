@@ -651,7 +651,7 @@ class LogisticsProfileBase(models.Model):
         abstract = True
 
     def __unicode__(self):
-        return "%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
+        return u"%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
 class LogisticsProfile(LogisticsProfileBase):
     __metaclass__ = ExtensibleModelBase
@@ -678,7 +678,7 @@ class ProductStock(models.Model):
         unique_together = (('supply_point', 'product'),)
 
     def __unicode__(self):
-        return "%s-%s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
+        return u"%s-%s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
 
     def _manual_consumption(self):
         if self.manual_monthly_consumption is not None:
@@ -1160,7 +1160,7 @@ class ProductReport(models.Model):
         verbose_name = "Product Report"
         
     def __unicode__(self):
-        return "%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
+        return u"%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
 
     # the following are for the benfit of excel export
     def contact(self):
@@ -1236,7 +1236,7 @@ class StockTransaction(models.Model):
         verbose_name = "Stock Transaction"
 
     def __unicode__(self):
-        return "%s - %s (%s->%s on %s)" % \
+        return u"%s - %s (%s->%s on %s)" % \
             (self.supply_point.name, self.product.name, self.beginning_balance, 
              self.ending_balance, self.date.date())
     
@@ -1711,4 +1711,3 @@ from .warehouse_models import *
 
 post_save.connect(post_save_product_report, sender=ProductReport)
 post_save.connect(post_save_stock_transaction, sender=StockTransaction)
-
