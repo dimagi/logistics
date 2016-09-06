@@ -42,7 +42,7 @@ from logistics_project.apps.malawi.exceptions import IdFormatException
 from logistics_project.apps.malawi.tables import MalawiContactTable, \
     HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable, ConsumptionDataTable
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, group_for_location, format_id, ConsumptionData, hsa_supply_points_below,\
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, ConsumptionData, hsa_supply_points_below,\
     deactivate_product
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
@@ -311,17 +311,15 @@ def help(request):
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    em_group = None
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-        em_group = (group_for_location(request.location) == config.Groups.EM)
-    # reporting info
 
+    # reporting info
     month = MonthPager(request)
 
-    if em_group:
-        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)#(group == config.Groups.EM))
+    if request.location:
+        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     else:
         if month.is_current_month:
             report = ReportingBreakdown(base_facilities)
@@ -450,32 +448,22 @@ def facilities(request):
 def facility(request, code, context={}):
     facility = get_object_or_404(SupplyPoint, code=code)
     assert(facility.type.code == config.SupplyPointCodes.FACILITY)
-    em = group_for_location(facility.location) == config.Groups.EM
     mp = MonthPager(request)
     context["location"] = facility.location
     facility.location.supervisors = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
     facility.location.in_charges = facility.contact_set.filter\
         (is_active=True, role__code=config.Roles.IN_CHARGE)
-    if em:
-        context["stockrequest_table"] = HSAStockRequestTable\
-            (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                         requested_on__gte=mp.datespan.computed_startdate,
-                                         requested_on__lte=mp.datespan.computed_enddate)\
-                                 .exclude(status=StockRequestStatus.CANCELED), request)
-    else:
-        context["stockrequest_table"] = HSAStockRequestTable\
-            (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                         requested_on__gte=request.datespan.computed_startdate,
-                                         requested_on__lte=request.datespan.computed_enddate)\
-                                 .exclude(status=StockRequestStatus.CANCELED), request)
-    context["em"] = em
+    context["stockrequest_table"] = HSAStockRequestTable\
+        (StockRequest.objects.filter(supply_point__supplied_by=facility,
+                                     requested_on__gte=mp.datespan.computed_startdate,
+                                     requested_on__lte=mp.datespan.computed_enddate)\
+                             .exclude(status=StockRequestStatus.CANCELED), request)
     context["trueval"] = True # We've been reduced to this. http://stackoverflow.com/questions/3259279/django-templates
     context["month_pager"] = mp
     
-    return render_to_response("malawi/single_facility.html",
+    return render_to_response("malawi/single_facility.html", context, context_instance=RequestContext(request))
 
-        context, context_instance=RequestContext(request))
     
 @permission_required_with_403("auth.admin_read")
 def monitoring(request):

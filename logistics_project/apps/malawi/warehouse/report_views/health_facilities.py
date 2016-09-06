@@ -1,7 +1,7 @@
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.util import get_default_supply_point,\
-    hsa_supply_points_below, fmt_pct, group_for_location
+    hsa_supply_points_below, fmt_pct
 from static.malawi import config
 from logistics_project.apps.malawi.warehouse.report_utils import previous_report_period,\
     get_lead_time_table_data, get_stock_status_table_data,\
@@ -100,7 +100,6 @@ class View(warehouse_view.DistrictOnlyView):
             }
             
             return {
-                "em": group_for_location(facility.location) == config.Groups.EM,
                 "facility": facility,
                 "pa_table": pa_table,
                 "rr_table": rr_table,
