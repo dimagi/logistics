@@ -31,12 +31,7 @@
 	<div class="breadcrumbs">
 	    {% breadcrumbs location %}
 	</div>
-    {% if em %}
         {% include "logistics/partials/month_pager.html" %}
-    {% else %}
-    	<h4>Change report dates:</h4>
-	    {% include "malawi/partials/selector_form.html" %}
-    {% endif %}
 </span>
 
     <div class="module">
@@ -59,29 +54,17 @@
         </p>
         </div>
         <div style="clear:right; padding-top:3em;">
-            {% if em %}
             {% reporting_breakdown location.get_children "hsa" month_pager.datespan trueval %}
-            {% else %}
-            {% reporting_breakdown location.get_children "hsa" request.datespan %}
-            {% endif %}
         </div>
         <div class="clear:both; toppadded">
         <h2>Product Availability Summary</h2>
             {% product_availability_summary location %}
         </div>
         <div style="clear:both;">
-            {% if em %}
             {% order_fill_stats location.get_children "hsa" month_pager.datespan %}
-            {% else %}
-            {% order_fill_stats location.get_children "hsa" request.datespan %}
-            {% endif %}
         </div>
         <div class="toppadded fullwidth">
-            {% if em %}
             <h2>Order Response Times ({{ month_pager.datespan }})</h2>
-            {% else %}
-            <h2>Order Response Times ({{ request.datespan }})</h2>
-            {% endif %}
             {{ stockrequest_table.as_html }}
         </div>
         <div class="toppadded">
