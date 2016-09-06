@@ -135,10 +135,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
         for year, month in months_between(start, end):
             report_period = ReportPeriod(hsa, datetime(year, month, 1), start, end)
 
-            # NOTE: the only reason the breakdowns below are functions
-            # is for future refactoring purposes, and the only reason
-            # they are declared here is because of the current heavy
-            # use of closures.
             if not self.skip_reporting_rates:
                 _update_reporting_rate(hsa, report_period, products_managed)
             if not self.skip_product_availability:
