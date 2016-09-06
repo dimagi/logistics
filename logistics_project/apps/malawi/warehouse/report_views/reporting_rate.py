@@ -92,10 +92,11 @@ class View(warehouse_view.DistrictOnlyView):
                 "is_datatable": False,
                 "is_downloadable": True,
                 "header": ["Facilities"] + shared_headers,
-                "data": _avg_report_rate_table_data\
-                    (facility_supply_points_below(sp.location).order_by('name'),
-                     request.datespan.startdate,
-                     request.datespan.enddate),
+                "data": _avg_report_rate_table_data(
+                    facility_supply_points_below(sp.location).order_by('name'),
+                    request.datespan.startdate,
+                    request.datespan.enddate
+                ),
                 "location_type": "facilities"
             }
 
@@ -129,7 +130,8 @@ class View(warehouse_view.DistrictOnlyView):
             "month_table": month_table,
             "location_table": location_table,
             "hsa_table": hsa_table,
-            "graphdata" : get_reporting_rates_chart(request.location,
-                                                    request.datespan.startdate,
-                                                    request.datespan.enddate)
+            # todo: pass is_facility though to get_reporting_rates_chart
+            "graphdata": get_reporting_rates_chart(request.location,
+                                                   request.datespan.startdate,
+                                                   request.datespan.enddate)
         }
