@@ -32,9 +32,20 @@ reports_slug_map = {
 }
 
 
+
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
+    return _get_report(request, slug, is_facility=False)
+
+
+@place_in_request()
+@datespan_default
+def get_facility_report(request, slug=''):
+    return _get_report(request, slug, is_facility=True)
+
+
+def _get_report(request, slug, is_facility):
     report = reports_slug_map[slug].View(slug)
     if not report.can_view(request):
         messages.warning(request,
@@ -66,11 +77,21 @@ def get_report(request, slug=''):
                          "It looks like there's no data for your filters. "
                          "You've been redirected.")
         return home(request)
-        
+
 
 @place_in_request()
 @datespan_default
 def home(request):
+    return _home(request, is_facility=False)
+
+
+@place_in_request()
+@datespan_default
+def facility_home(request):
+    return _home(request, is_facility=True)
+
+
+def _home(request, is_facility):
     try:
         report = reports_slug_map["dashboard"].View("dashboard")
         assert report.can_view(request)
@@ -78,5 +99,3 @@ def home(request):
     except Exception:
         return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
                                   {}, context_instance=RequestContext(request))
-    
-
