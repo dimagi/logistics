@@ -139,22 +139,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_order_fulfillment():
-                requests_in_range = StockRequest.objects.filter(
-                    received_on__gte=report_period.period_start,
-                    received_on__lt=report_period.period_end,
-                    supply_point=hsa,
-                ).exclude(Q(amount_requested=None) | Q(amount_received=None))
-                for p in all_products:
-                    order_fulfill = OrderFulfillment.objects.get_or_create\
-                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
-                    for r in requests_in_range.filter(product=p):
-                        order_fulfill.total += 1
-                        order_fulfill.quantity_requested += r.amount_requested
-                        order_fulfill.quantity_received += r.amount_received
-                    if requests_in_range.count():
-                        order_fulfill.save()
-
             def _update_historical_stock():
                 # set the historical stock values to the last report before
                 # the end of the period (even if it's not in the period)
@@ -182,7 +166,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_order_requests:
                 _update_order_requests(hsa, report_period, all_products)
             if not self.skip_order_fulfillment:
-                _update_order_fulfillment()
+                _update_order_fulfillment(hsa, report_period, all_products)
             if not self.skip_consumption:
                 update_consumption(report_period)
             if not self.skip_historical_stock:
@@ -726,3 +710,20 @@ def _update_order_requests(hsa, report_period, all_products):
         ord_req.total += requests_in_range.filter(product=p).count()
         ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
         ord_req.save()
+
+
+def _update_order_fulfillment(hsa, report_period, all_products):
+    requests_in_range = StockRequest.objects.filter(
+        received_on__gte=report_period.period_start,
+        received_on__lt=report_period.period_end,
+        supply_point=hsa,
+    ).exclude(Q(amount_requested=None) | Q(amount_received=None))
+    for p in all_products:
+        order_fulfill = OrderFulfillment.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        for r in requests_in_range.filter(product=p):
+            order_fulfill.total += 1
+            order_fulfill.quantity_requested += r.amount_requested
+            order_fulfill.quantity_received += r.amount_received
+        if requests_in_range.count():
+            order_fulfill.save()
