@@ -509,7 +509,6 @@ def monitoring_report(request, report_slug):
                                "location": location},
                               context_instance=RequestContext(request))
 
-def monitoring_report_ajax(): pass
 
 @permission_required("auth.admin_read")
 def status(request):
