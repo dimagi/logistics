@@ -143,49 +143,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_reporting_rate():
-                """
-                Process reports (on time versus late, versus at
-                all and completeness)
-                """
-                late_cutoff = report_period.window_date + \
-                    timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-
-                reports_in_range = ProductReport.objects.filter(
-                    supply_point=hsa,
-                    report_type__code=Reports.SOH,
-                    report_date__gte=report_period.period_start,
-                    report_date__lte=report_period.period_end,
-                )
-                period_rr = ReportingRate.objects.get_or_create(
-                    supply_point=hsa, date=report_period.window_date
-                )[0]
-                period_rr.total = 1
-                period_rr.reported = 1 if reports_in_range else period_rr.reported
-                # for the em group "on time" is meaningful, for the ept group
-                # they are always considered "on time"
-                if reports_in_range:
-                    first_report_date = reports_in_range.order_by('report_date')[0].report_date
-                    period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
-
-                if not period_rr.complete:
-                    # check for completeness (only if not already deemed complete)
-                    # unfortunately, we have to walk all avaialable
-                    # transactions in the period every month
-                    # in order to do this correctly.
-                    this_months_reports = ProductReport.objects.filter(
-                        supply_point=hsa,
-                        report_type__code=Reports.SOH,
-                        report_date__gte=report_period.window_date,
-                        report_date__lte=report_period.period_end,
-                    )
-
-                    found = set(this_months_reports.values_list("product", flat=True).distinct())
-                    period_rr.complete = 0 if found and (products_managed - found) else \
-                        (1 if found else 0)
-
-                period_rr.save()
-
             def _update_product_availability():
                 """
                 Compute ProductAvailabilityData
@@ -352,7 +309,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     hs.save()
 
             if not self.skip_reporting_rates:
-                _update_reporting_rate()
+                _update_reporting_rate(hsa, report_period, products_managed)
             if not self.skip_product_availability:
                 _update_product_availability()
             if not self.skip_lead_times:
@@ -725,3 +682,47 @@ def aggregate_types_in_order():
     yield 'hf', 'health facility'
     yield 'd', 'district'
     yield 'c', 'country'
+
+
+def _update_reporting_rate(hsa, report_period, products_managed):
+    """
+    Process reports (on time versus late, versus at
+    all and completeness)
+    """
+    late_cutoff = report_period.window_date + \
+        timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+
+    reports_in_range = ProductReport.objects.filter(
+        supply_point=hsa,
+        report_type__code=Reports.SOH,
+        report_date__gte=report_period.period_start,
+        report_date__lte=report_period.period_end,
+    )
+    period_rr = ReportingRate.objects.get_or_create(
+        supply_point=hsa, date=report_period.window_date
+    )[0]
+    period_rr.total = 1
+    period_rr.reported = 1 if reports_in_range else period_rr.reported
+    # for the em group "on time" is meaningful, for the ept group
+    # they are always considered "on time"
+    if reports_in_range:
+        first_report_date = reports_in_range.order_by('report_date')[0].report_date
+        period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
+
+    if not period_rr.complete:
+        # check for completeness (only if not already deemed complete)
+        # unfortunately, we have to walk all avaialable
+        # transactions in the period every month
+        # in order to do this correctly.
+        this_months_reports = ProductReport.objects.filter(
+            supply_point=hsa,
+            report_type__code=Reports.SOH,
+            report_date__gte=report_period.window_date,
+            report_date__lte=report_period.period_end,
+        )
+
+        found = set(this_months_reports.values_list("product", flat=True).distinct())
+        period_rr.complete = 0 if found and (products_managed - found) else \
+            (1 if found else 0)
+
+    period_rr.save()
