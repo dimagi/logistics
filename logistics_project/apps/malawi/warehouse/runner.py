@@ -139,19 +139,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_order_requests():
-                requests_in_range = StockRequest.objects.filter(\
-                    requested_on__gte=report_period.period_start,
-                    requested_on__lt=report_period.period_end,
-                    supply_point=hsa
-                )
-                for p in all_products:
-                    ord_req = OrderRequest.objects.get_or_create\
-                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
-                    ord_req.total += requests_in_range.filter(product=p).count()
-                    ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
-                    ord_req.save()
-
             def _update_order_fulfillment():
                 requests_in_range = StockRequest.objects.filter(
                     received_on__gte=report_period.period_start,
@@ -193,7 +180,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_lead_times:
                 _update_lead_times(hsa, report_period)
             if not self.skip_order_requests:
-                _update_order_requests()
+                _update_order_requests(hsa, report_period, all_products)
             if not self.skip_order_fulfillment:
                 _update_order_fulfillment()
             if not self.skip_consumption:
@@ -725,3 +712,17 @@ def _update_lead_times(hsa, report_period):
         rr_tt.time_in_seconds += lt
         rr_tt.total += 1
     rr_tt.save()
+
+
+def _update_order_requests(hsa, report_period, all_products):
+    requests_in_range = StockRequest.objects.filter(\
+        requested_on__gte=report_period.period_start,
+        requested_on__lt=report_period.period_end,
+        supply_point=hsa
+    )
+    for p in all_products:
+        ord_req = OrderRequest.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        ord_req.total += requests_in_range.filter(product=p).count()
+        ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
+        ord_req.save()
