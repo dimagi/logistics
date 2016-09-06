@@ -312,17 +312,15 @@ def help(request):
 def dashboard(request):
     
     base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    em_group = None
     if request.location:
         valid_facilities = get_facilities().filter(parent_id=request.location.pk)
         base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-        em_group = (group_for_location(request.location) == config.Groups.EM)
-    # reporting info
 
+    # reporting info
     month = MonthPager(request)
 
-    if em_group:
-        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)#(group == config.Groups.EM))
+    if request.location:
+        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
     else:
         if month.is_current_month:
             report = ReportingBreakdown(base_facilities)
