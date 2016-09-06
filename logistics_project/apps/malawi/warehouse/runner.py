@@ -18,8 +18,7 @@ from warehouse.models import ReportRun
 
 from static.malawi.config import TimeTrackerTypes
 
-from logistics_project.apps.malawi.util import group_for_location, \
-    hsa_supply_points_below, get_country_sp
+from logistics_project.apps.malawi.util import hsa_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
@@ -128,7 +127,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
     def update_hsa_data(self, hsa, start, end, all_products=None):
         all_products = all_products or Product.objects.all()
-        is_em_group = (group_for_location(hsa.location) == config.Groups.EM)
         products_managed = set([c.pk for c in hsa.commodities_stocked()])
 
         if not self.skip_current_consumption:
@@ -161,11 +159,9 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 period_rr.reported = 1 if reports_in_range else period_rr.reported
                 # for the em group "on time" is meaningful, for the ept group
                 # they are always considered "on time"
-                if reports_in_range and is_em_group:
+                if reports_in_range:
                     first_report_date = reports_in_range.order_by('report_date')[0].report_date
                     period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
-                else:
-                    period_rr.on_time = period_rr.on_time if is_em_group else period_rr.reported
 
                 if not period_rr.complete:
                     # check for completeness (only if not already deemed complete)
