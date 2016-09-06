@@ -535,39 +535,6 @@ def airtel_numbers(request):
     users.sort(cmp=_sort_date, reverse=True)
     return render_to_response("malawi/airtel.html", {'users':users}, context_instance=RequestContext(request))
 
-@csrf_exempt
-def scmgr_receiver(request):
-    if request.method != 'POST':
-        return HttpResponse("You must submit POST data to this url.")
-    data = request.POST.get('data', None)
-    result = json.loads(data)
-    processed = 0
-    for r in result:
-        try:
-            facility = SupplyPoint.objects.get(code=HEALTH_FACILITY_MAP[r[3]])
-            pc = PRODUCT_CODE_MAP[r[6]].lower()
-            product = Product.objects.get(sms_code=pc)
-            date = datetime(year=r[4][0],month=r[4][1], day=1)
-            if ProductReport.objects.filter(supply_point=facility, product=product, report_date=date).exists():
-                # Server sent us some data we already have.  This means they should stop sending it.
-                return HttpResponse('cStock SCMgr data fully updated.')
-            quantity = r[0]
-            is_stocked_out = r[2]
-            if not quantity and not is_stocked_out:
-                # If stock quantity is 0, but stockout not indicated, this line wasn't filled in.
-                continue
-            facility.report_stock(product, quantity, date=date)
-            logging.info("SCMgr: Processed stock report %s %s %s %s" % (facility,product,quantity,date))
-            processed += 1
-        except (KeyError, SupplyPoint.DoesNotExist, Product.DoesNotExist) as e:
-            # Server sent us some data we don't care about.  Keep on truckin'.
-            continue
-    if result:
-        ret = "Processed %d entries." % processed
-        return HttpResponse(ret, status=201) # Keep sending us stuff if you have more to send.
-    else:
-        ret = "Got no data -- ending update."
-        return HttpResponse(ret)
 
 def verify_ajax(request):
     field = request.GET.get('field', None)
