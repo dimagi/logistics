@@ -38,6 +38,7 @@ class ReportPeriod(object):
         self.period_start = max(window_date, start)
         self.period_end = min(self.next_window_date, end)
 
+
 class MalawiWarehouseRunner(WarehouseRunner):
     """
     Malawi's implementation of the warehouse runner. 
@@ -152,11 +153,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 """
                 late_cutoff = window_date + timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
 
-                reports_in_range = ProductReport.objects.filter\
-                    (supply_point=hsa, report_type__code=Reports.SOH,
-                     report_date__gte=period_start, report_date__lte=period_end)
-                period_rr = ReportingRate.objects.get_or_create\
-                    (supply_point=hsa, date=window_date)[0]
+                reports_in_range = ProductReport.objects.filter(
+                    supply_point=hsa,
+                    report_type__code=Reports.SOH,
+                    report_date__gte=period_start,
+                    report_date__lte=period_end,
+                )
+                period_rr = ReportingRate.objects.get_or_create(supply_point=hsa, date=window_date)[0]
                 period_rr.total = 1
                 period_rr.reported = 1 if reports_in_range else period_rr.reported
                 # for the em group "on time" is meaningful, for the ept group
@@ -173,8 +176,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     # transactions in the period every month
                     # in order to do this correctly.
                     this_months_reports = ProductReport.objects.filter(
-                        supply_point=hsa, report_type__code=Reports.SOH,
-                        report_date__gte=window_date, report_date__lte=period_end
+                        supply_point=hsa,
+                        report_type__code=Reports.SOH,
+                        report_date__gte=window_date,
+                        report_date__lte=period_end,
                     )
 
                     found = set(this_months_reports.values_list("product", flat=True).distinct())
