@@ -133,11 +133,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             update_current_consumption(hsa)
 
         for year, month in months_between(start, end):
-            window_date = datetime(year, month, 1)
-            report_period = ReportPeriod(hsa, window_date, start, end)
-            next_window_date = first_of_next_month(window_date)
-            period_start = max(window_date, start)
-            period_end = min(next_window_date, end)
+            report_period = ReportPeriod(hsa, datetime(year, month, 1), start, end)
 
             # NOTE: the only reason the breakdowns below are functions
             # is for future refactoring purposes, and the only reason
