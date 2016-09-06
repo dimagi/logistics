@@ -8,14 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        db.create_table('logistics_supplypoint_groups', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('supplypoint', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
-            ('supplypointgroup', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPointGroup'])),
-        ))
+        pass
 
     def backwards(self, orm):
-        db.delete_table('logistics_supplypoint_groups')
+        pass
 
     models = {
         'auth.group': {

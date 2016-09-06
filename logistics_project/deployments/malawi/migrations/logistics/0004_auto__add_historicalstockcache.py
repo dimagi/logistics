@@ -8,20 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'HistoricalStockCache'
-        db.create_table('logistics_historicalstockcache', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'])),
-            ('product', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.Product'], null=True)),
-            ('year', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('month', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('stock', self.gf('django.db.models.fields.IntegerField')(null=True)),
-        ))
-        db.send_create_signal('logistics', ['HistoricalStockCache'])
+        pass
 
     def backwards(self, orm):
-        # Deleting model 'HistoricalStockCache'
-        db.delete_table('logistics_historicalstockcache')
+        pass
 
     models = {
         'auth.group': {
