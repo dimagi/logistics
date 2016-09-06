@@ -90,6 +90,7 @@ class ReportingRate(MalawiWarehouseModel):
     """
     # Dashboard: Reporting Rates
     # Reporting Rates: all
+    is_facility = models.BooleanField(default=False)
     total = models.PositiveIntegerField(default=0)
     reported = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
