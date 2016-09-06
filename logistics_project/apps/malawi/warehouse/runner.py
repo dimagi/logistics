@@ -154,7 +154,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 for p in all_products:
                     product_data, created = ProductAvailabilityData.objects.get_or_create\
                         (product=p, supply_point=hsa,
-                         date=window_date)
+                         date=report_period.window_date)
 
                     if created:
                         # initally assume we have no data on anything
@@ -162,8 +162,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
                     transactions = StockTransaction.objects.filter(
                         supply_point=hsa, product=p,
-                        date__gte=period_start,
-                        date__lt=period_end).order_by('-date')
+                        date__gte=report_period.period_start,
+                        date__lt=report_period.period_end).order_by('-date')
                     product_data.total = 1
                     product_data.managed = 1 if hsa.supplies(p) else 0
                     if transactions:
@@ -206,13 +206,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # update the summary data
                 product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
                     (supply_point=hsa,
-                     date=window_date)[0]
+                     date=report_period.window_date)[0]
                 product_summary.total = 1
 
                 if hsa.commodities_stocked():
                     product_summary.any_managed = 1
                     agg_results = ProductAvailabilityData.objects.filter(
-                        supply_point=hsa, date=window_date,
+                        supply_point=hsa, date=report_period.window_date,
                         managed=1
                     ).aggregate(
                         *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
@@ -234,12 +234,12 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # NOTE: the existing code currently also removes
                 # status 'canceled'. Is this necessary?
                 requests_in_range = StockRequest.objects.filter(\
-                    responded_on__gte=period_start,
-                    responded_on__lt=period_end,
+                    responded_on__gte=report_period.period_start,
+                    responded_on__lt=report_period.period_end,
                     supply_point=hsa
                 ).exclude(requested_on=None)
                 or_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=window_date,
+                    (supply_point=hsa, date=report_period.window_date,
                      type=TimeTrackerTypes.ORD_READY)[0]
                 for r in requests_in_range:
                     lt = delta_secs(r.responded_on - r.requested_on)
@@ -249,12 +249,12 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
                 # ready-receieved
                 requests_in_range = StockRequest.objects.filter(\
-                    received_on__gte=period_start,
-                    received_on__lt=period_end,
+                    received_on__gte=report_period.period_start,
+                    received_on__lt=report_period.period_end,
                     supply_point=hsa
                 ).exclude(responded_on=None)
                 rr_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=window_date,
+                    (supply_point=hsa, date=report_period.window_date,
                      type=TimeTrackerTypes.READY_REC)[0]
                 for r in requests_in_range:
                     lt = delta_secs(r.received_on - r.responded_on)
@@ -264,27 +264,26 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
             def _update_order_requests():
                 requests_in_range = StockRequest.objects.filter(\
-                    requested_on__gte=period_start,
-                    requested_on__lt=period_end,
+                    requested_on__gte=report_period.period_start,
+                    requested_on__lt=report_period.period_end,
                     supply_point=hsa
                 )
                 for p in all_products:
                     ord_req = OrderRequest.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
+                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
                     ord_req.total += requests_in_range.filter(product=p).count()
-                    ord_req.emergency += requests_in_range.filter\
-                        (product=p, is_emergency=True).count()
+                    ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
                     ord_req.save()
 
             def _update_order_fulfillment():
                 requests_in_range = StockRequest.objects.filter(
-                    received_on__gte=period_start,
-                    received_on__lt=period_end,
+                    received_on__gte=report_period.period_start,
+                    received_on__lt=report_period.period_end,
                     supply_point=hsa,
                 ).exclude(Q(amount_requested=None) | Q(amount_received=None))
                 for p in all_products:
                     order_fulfill = OrderFulfillment.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
+                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
                     for r in requests_in_range.filter(product=p):
                         order_fulfill.total += 1
                         order_fulfill.quantity_requested += r.amount_requested
@@ -297,11 +296,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 # the end of the period (even if it's not in the period)
                 for p in all_products:
                     hs = HistoricalStock.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
+                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
 
-                    transactions = StockTransaction.objects.filter\
-                        (supply_point=hsa, product=p,
-                         date__lt=period_end).order_by('-date')
+                    transactions = StockTransaction.objects.filter(
+                        supply_point=hsa,
+                        product=p,
+                        date__lt=report_period.period_end,
+                    ).order_by('-date')
 
                     hs.total = 1
                     if transactions.count():
