@@ -9,7 +9,6 @@ from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product, StockRequest, StockRequestStatus
-from logistics.util import config
 from logistics.const import Reports
 from logistics.warehouse_models import SupplyPointWarehouseRecord
 
