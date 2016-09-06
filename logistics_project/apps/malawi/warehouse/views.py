@@ -46,6 +46,7 @@ def get_facility_report(request, slug=''):
 
 
 def _get_report(request, slug, is_facility):
+    request.is_facility = is_facility
     report = reports_slug_map[slug].View(slug)
     if not report.can_view(request):
         messages.warning(request,
@@ -92,6 +93,7 @@ def facility_home(request):
 
 
 def _home(request, is_facility):
+    request.is_facility = is_facility
     try:
         report = reports_slug_map["dashboard"].View("dashboard")
         assert report.can_view(request)
