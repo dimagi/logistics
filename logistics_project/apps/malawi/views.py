@@ -50,7 +50,6 @@ from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
     UploadFacilityFileForm, ProductForm, UserForm
 
-from static.malawi.scmgr_const import PRODUCT_CODE_MAP, HEALTH_FACILITY_MAP
 from logistics_project.apps.malawi.loader import load_locations,\
     get_facility_export
 from django.views.decorators.http import require_POST
