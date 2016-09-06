@@ -148,15 +148,18 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 Process reports (on time versus late, versus at
                 all and completeness)
                 """
-                late_cutoff = window_date + timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+                late_cutoff = report_period.window_date + \
+                    timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
 
                 reports_in_range = ProductReport.objects.filter(
                     supply_point=hsa,
                     report_type__code=Reports.SOH,
-                    report_date__gte=period_start,
-                    report_date__lte=period_end,
+                    report_date__gte=report_period.period_start,
+                    report_date__lte=report_period.period_end,
                 )
-                period_rr = ReportingRate.objects.get_or_create(supply_point=hsa, date=window_date)[0]
+                period_rr = ReportingRate.objects.get_or_create(
+                    supply_point=hsa, date=report_period.window_date
+                )[0]
                 period_rr.total = 1
                 period_rr.reported = 1 if reports_in_range else period_rr.reported
                 # for the em group "on time" is meaningful, for the ept group
@@ -173,8 +176,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
                     this_months_reports = ProductReport.objects.filter(
                         supply_point=hsa,
                         report_type__code=Reports.SOH,
-                        report_date__gte=window_date,
-                        report_date__lte=period_end,
+                        report_date__gte=report_period.window_date,
+                        report_date__lte=report_period.period_end,
                     )
 
                     found = set(this_months_reports.values_list("product", flat=True).distinct())
