@@ -139,24 +139,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_historical_stock():
-                # set the historical stock values to the last report before
-                # the end of the period (even if it's not in the period)
-                for p in all_products:
-                    hs = HistoricalStock.objects.get_or_create\
-                        (supply_point=hsa, date=report_period.window_date, product=p)[0]
-
-                    transactions = StockTransaction.objects.filter(
-                        supply_point=hsa,
-                        product=p,
-                        date__lt=report_period.period_end,
-                    ).order_by('-date')
-
-                    hs.total = 1
-                    if transactions.count():
-                        hs.stock = transactions[0].ending_balance
-                    hs.save()
-
             if not self.skip_reporting_rates:
                 _update_reporting_rate(hsa, report_period, products_managed)
             if not self.skip_product_availability:
@@ -170,7 +152,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_consumption:
                 update_consumption(report_period)
             if not self.skip_historical_stock:
-                _update_historical_stock()
+                _update_historical_stock(hsa, report_period, all_products)
 
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
 
@@ -727,3 +709,22 @@ def _update_order_fulfillment(hsa, report_period, all_products):
             order_fulfill.quantity_received += r.amount_received
         if requests_in_range.count():
             order_fulfill.save()
+
+
+def _update_historical_stock(hsa, report_period, all_products):
+    # set the historical stock values to the last report before
+    # the end of the period (even if it's not in the period)
+    for p in all_products:
+        hs = HistoricalStock.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+
+        transactions = StockTransaction.objects.filter(
+            supply_point=hsa,
+            product=p,
+            date__lt=report_period.period_end,
+        ).order_by('-date')
+
+        hs.total = 1
+        if transactions.count():
+            hs.stock = transactions[0].ending_balance
+        hs.save()
