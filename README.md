@@ -35,6 +35,9 @@ Install it as normal, create a database and update localsettings.py accordingly 
 * ./manage.py createsuperuser
 * ./manage.py runserver
 
+### For local development, load initial data
+* ./manage.py malawi_init_dev
+
 ### (Optional) Run celery and SMS router
 
 * ./manage.py celeryd
