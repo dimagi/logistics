@@ -30,8 +30,9 @@ Install it as normal, create a database and update localsettings.py accordingly 
 * cd logistics_project
 * cp localsettings.py.example localsettings.py
 * update relevant settings in settings.py or localsettings.py
-* ./manage.py syncdb
-* ./manage.py migrate (see note below about troubleshooting migrations)
+* ./manage.py syncdb --noinput
+* ./manage.py migrate
+* ./manage.py createsuperuser
 * ./manage.py runserver
 
 ### (Optional) Run celery and SMS router
