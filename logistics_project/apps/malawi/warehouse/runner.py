@@ -139,91 +139,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_product_availability():
-                """
-                Compute ProductAvailabilityData
-                """
-                # NOTE: this currently calculates everything on a
-                # per-month basis. if it is determined that we only
-                # need current information, the models can be cleaned
-                # up a bit
-                for p in all_products:
-                    product_data, created = ProductAvailabilityData.objects.get_or_create\
-                        (product=p, supply_point=hsa,
-                         date=report_period.window_date)
-
-                    if created:
-                        # initally assume we have no data on anything
-                        product_data.without_data = 1
-
-                    transactions = StockTransaction.objects.filter(
-                        supply_point=hsa, product=p,
-                        date__gte=report_period.period_start,
-                        date__lt=report_period.period_end).order_by('-date')
-                    product_data.total = 1
-                    product_data.managed = 1 if hsa.supplies(p) else 0
-                    if transactions:
-                        trans = transactions[0]
-                        product_stock = ProductStock.objects.get(
-                            product=trans.product, supply_point=hsa
-                        )
-
-                        product_data.without_data = 0
-                        if trans.ending_balance <= 0:
-                            product_data.without_stock = 1
-                            product_data.with_stock = 0
-                            product_data.under_stock = 0
-                            product_data.over_stock = 0
-                        else:
-                            product_data.without_stock = 0
-                            product_data.with_stock = 1
-                            if product_stock.emergency_reorder_level and \
-                                 trans.ending_balance <= product_stock.emergency_reorder_level:
-                                product_data.emergency_stock = 1
-                            if product_stock.reorder_level and \
-                                 trans.ending_balance <= product_stock.reorder_level:
-                                product_data.under_stock = 1
-                                product_data.over_stock = 0
-                            elif product_stock.maximum_level and \
-                                 trans.ending_balance > product_stock.maximum_level:
-                                product_data.under_stock = 0
-                                product_data.over_stock = 1
-                            else:
-                                product_data.under_stock = 0
-                                product_data.over_stock = 0
-
-                        product_data.good_stock = product_data.with_stock - \
-                            (product_data.under_stock + product_data.over_stock)
-                        assert product_data.good_stock in (0, 1)
-
-                    product_data.set_managed_attributes()
-                    product_data.save()
-
-                # update the summary data
-                product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
-                    (supply_point=hsa,
-                     date=report_period.window_date)[0]
-                product_summary.total = 1
-
-                if hsa.commodities_stocked():
-                    product_summary.any_managed = 1
-                    agg_results = ProductAvailabilityData.objects.filter(
-                        supply_point=hsa, date=report_period.window_date,
-                        managed=1
-                    ).aggregate(
-                        *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
-                    )
-                    for c in ProductAvailabilityData.STOCK_CATEGORIES:
-                        setattr(product_summary, "any_%s" % c,
-                                agg_results["managed_and_%s__max" % c])
-                        assert getattr(product_summary, "any_%s" % c) <= 1
-                else:
-                    product_summary.any_managed = 0
-                    for c in ProductAvailabilityData.STOCK_CATEGORIES:
-                        setattr(product_summary, "any_%s" % c, 0)
-
-                product_summary.save()
-
             def _update_lead_times():
                 # ord-ready
 
@@ -308,7 +223,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_reporting_rates:
                 _update_reporting_rate(hsa, report_period, products_managed)
             if not self.skip_product_availability:
-                _update_product_availability()
+                _update_product_availability(hsa, report_period, all_products)
             if not self.skip_lead_times:
                 _update_lead_times()
             if not self.skip_order_requests:
@@ -723,3 +638,89 @@ def _update_reporting_rate(hsa, report_period, products_managed):
             (1 if found else 0)
 
     period_rr.save()
+
+
+def _update_product_availability(hsa, report_period, all_products):
+    """
+    Compute ProductAvailabilityData
+    """
+    # NOTE: this currently calculates everything on a
+    # per-month basis. if it is determined that we only
+    # need current information, the models can be cleaned
+    # up a bit
+    for p in all_products:
+        product_data, created = ProductAvailabilityData.objects.get_or_create\
+            (product=p, supply_point=hsa,
+             date=report_period.window_date)
+
+        if created:
+            # initally assume we have no data on anything
+            product_data.without_data = 1
+
+        transactions = StockTransaction.objects.filter(
+            supply_point=hsa, product=p,
+            date__gte=report_period.period_start,
+            date__lt=report_period.period_end).order_by('-date')
+        product_data.total = 1
+        product_data.managed = 1 if hsa.supplies(p) else 0
+        if transactions:
+            trans = transactions[0]
+            product_stock = ProductStock.objects.get(
+                product=trans.product, supply_point=hsa
+            )
+
+            product_data.without_data = 0
+            if trans.ending_balance <= 0:
+                product_data.without_stock = 1
+                product_data.with_stock = 0
+                product_data.under_stock = 0
+                product_data.over_stock = 0
+            else:
+                product_data.without_stock = 0
+                product_data.with_stock = 1
+                if product_stock.emergency_reorder_level and \
+                     trans.ending_balance <= product_stock.emergency_reorder_level:
+                    product_data.emergency_stock = 1
+                if product_stock.reorder_level and \
+                     trans.ending_balance <= product_stock.reorder_level:
+                    product_data.under_stock = 1
+                    product_data.over_stock = 0
+                elif product_stock.maximum_level and \
+                     trans.ending_balance > product_stock.maximum_level:
+                    product_data.under_stock = 0
+                    product_data.over_stock = 1
+                else:
+                    product_data.under_stock = 0
+                    product_data.over_stock = 0
+
+            product_data.good_stock = product_data.with_stock - \
+                (product_data.under_stock + product_data.over_stock)
+            assert product_data.good_stock in (0, 1)
+
+        product_data.set_managed_attributes()
+        product_data.save()
+
+    # update the summary data
+    product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
+        (supply_point=hsa,
+         date=report_period.window_date)[0]
+    product_summary.total = 1
+
+    if hsa.commodities_stocked():
+        product_summary.any_managed = 1
+        agg_results = ProductAvailabilityData.objects.filter(
+            supply_point=hsa, date=report_period.window_date,
+            managed=1
+        ).aggregate(
+            *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
+        )
+        for c in ProductAvailabilityData.STOCK_CATEGORIES:
+            setattr(product_summary, "any_%s" % c,
+                    agg_results["managed_and_%s__max" % c])
+            assert getattr(product_summary, "any_%s" % c) <= 1
+    else:
+        product_summary.any_managed = 0
+        for c in ProductAvailabilityData.STOCK_CATEGORIES:
+            setattr(product_summary, "any_%s" % c, 0)
+
+    product_summary.save()
