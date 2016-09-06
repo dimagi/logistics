@@ -233,7 +233,6 @@ NO_LOGIN_REQUIRED_FOR = [
 'logout',
 'activate',
 'help',
-'scmgr'
 ]
 
 # AUDITCARE CONFIG
