@@ -106,7 +106,8 @@ class Product(models.Model):
             stock.is_active = True
             stock.save()
 
-class ProductType(models.Model):
+
+class ProductTypeBase(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
@@ -115,7 +116,13 @@ class ProductType(models.Model):
         return self.name
 
     class Meta:
+        abstract = True
         verbose_name = "Product Type"
+
+
+class ProductType(ProductTypeBase):
+    __metaclass__ = ExtensibleModelBase
+
 
 class SupplyPointType(models.Model):
     """
