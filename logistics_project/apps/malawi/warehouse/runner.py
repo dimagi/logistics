@@ -139,40 +139,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
             # is for future refactoring purposes, and the only reason
             # they are declared here is because of the current heavy
             # use of closures.
-            def _update_lead_times():
-                # ord-ready
-
-                # NOTE: the existing code currently also removes
-                # status 'canceled'. Is this necessary?
-                requests_in_range = StockRequest.objects.filter(\
-                    responded_on__gte=report_period.period_start,
-                    responded_on__lt=report_period.period_end,
-                    supply_point=hsa
-                ).exclude(requested_on=None)
-                or_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=report_period.window_date,
-                     type=TimeTrackerTypes.ORD_READY)[0]
-                for r in requests_in_range:
-                    lt = delta_secs(r.responded_on - r.requested_on)
-                    or_tt.time_in_seconds += lt
-                    or_tt.total += 1
-                or_tt.save()
-
-                # ready-receieved
-                requests_in_range = StockRequest.objects.filter(\
-                    received_on__gte=report_period.period_start,
-                    received_on__lt=report_period.period_end,
-                    supply_point=hsa
-                ).exclude(responded_on=None)
-                rr_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=report_period.window_date,
-                     type=TimeTrackerTypes.READY_REC)[0]
-                for r in requests_in_range:
-                    lt = delta_secs(r.received_on - r.responded_on)
-                    rr_tt.time_in_seconds += lt
-                    rr_tt.total += 1
-                rr_tt.save()
-
             def _update_order_requests():
                 requests_in_range = StockRequest.objects.filter(\
                     requested_on__gte=report_period.period_start,
@@ -225,7 +191,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_product_availability:
                 _update_product_availability(hsa, report_period, all_products)
             if not self.skip_lead_times:
-                _update_lead_times()
+                _update_lead_times(hsa, report_period)
             if not self.skip_order_requests:
                 _update_order_requests()
             if not self.skip_order_fulfillment:
@@ -724,3 +690,38 @@ def _update_product_availability(hsa, report_period, all_products):
             setattr(product_summary, "any_%s" % c, 0)
 
     product_summary.save()
+
+
+def _update_lead_times(hsa, report_period):
+    # ord-ready
+
+    # NOTE: the existing code currently also removes
+    # status 'canceled'. Is this necessary?
+    requests_in_range = StockRequest.objects.filter(\
+        responded_on__gte=report_period.period_start,
+        responded_on__lt=report_period.period_end,
+        supply_point=hsa
+    ).exclude(requested_on=None)
+    or_tt = TimeTracker.objects.get_or_create\
+        (supply_point=hsa, date=report_period.window_date,
+         type=TimeTrackerTypes.ORD_READY)[0]
+    for r in requests_in_range:
+        lt = delta_secs(r.responded_on - r.requested_on)
+        or_tt.time_in_seconds += lt
+        or_tt.total += 1
+    or_tt.save()
+
+    # ready-receieved
+    requests_in_range = StockRequest.objects.filter(\
+        received_on__gte=report_period.period_start,
+        received_on__lt=report_period.period_end,
+        supply_point=hsa
+    ).exclude(responded_on=None)
+    rr_tt = TimeTracker.objects.get_or_create\
+        (supply_point=hsa, date=report_period.window_date,
+         type=TimeTrackerTypes.READY_REC)[0]
+    for r in requests_in_range:
+        lt = delta_secs(r.received_on - r.responded_on)
+        rr_tt.time_in_seconds += lt
+        rr_tt.total += 1
+    rr_tt.save()
