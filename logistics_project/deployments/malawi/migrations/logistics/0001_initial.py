@@ -87,19 +87,13 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('logistics', ['SupplyPointGroup'])
 
-        # Adding model 'LogisticsProfileBase'
-        db.create_table('logistics_logisticsprofilebase', (
+        # Adding model 'LogisticsProfile'
+        db.create_table('logistics_logisticsprofile', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True)),
             ('designation', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
             ('location', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['locations.Location'], null=True, blank=True)),
             ('supply_point', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['logistics.SupplyPoint'], null=True, blank=True)),
-        ))
-        db.send_create_signal('logistics', ['LogisticsProfileBase'])
-
-        # Adding model 'LogisticsProfile'
-        db.create_table('logistics_logisticsprofile', (
-            ('logisticsprofilebase_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['logistics.LogisticsProfileBase'], unique=True, primary_key=True)),
         ))
         db.send_create_signal('logistics', ['LogisticsProfile'])
 
@@ -276,9 +270,6 @@ class Migration(SchemaMigration):
         # Deleting model 'SupplyPointGroup'
         db.delete_table('logistics_supplypointgroup')
 
-        # Deleting model 'LogisticsProfileBase'
-        db.delete_table('logistics_logisticsprofilebase')
-
         # Deleting model 'LogisticsProfile'
         db.delete_table('logistics_logisticsprofile')
 
@@ -401,11 +392,7 @@ class Migration(SchemaMigration):
             'year': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'logistics.logisticsprofile': {
-            'Meta': {'object_name': 'LogisticsProfile', '_ormbases': ['logistics.LogisticsProfileBase']},
-            'logisticsprofilebase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['logistics.LogisticsProfileBase']", 'unique': 'True', 'primary_key': 'True'})
-        },
-        'logistics.logisticsprofilebase': {
-            'Meta': {'object_name': 'LogisticsProfileBase'},
+            'Meta': {'object_name': 'LogisticsProfile'},
             'designation': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),

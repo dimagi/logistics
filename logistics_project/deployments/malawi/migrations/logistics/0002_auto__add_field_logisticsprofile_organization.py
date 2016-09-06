@@ -100,15 +100,11 @@ class Migration(SchemaMigration):
             'year': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'logistics.logisticsprofile': {
-            'Meta': {'object_name': 'LogisticsProfile', '_ormbases': ['logistics.LogisticsProfileBase']},
-            'logisticsprofilebase_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['logistics.LogisticsProfileBase']", 'unique': 'True', 'primary_key': 'True'}),
-            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['malawi.Organization']", 'null': 'True', 'blank': 'True'})
-        },
-        'logistics.logisticsprofilebase': {
-            'Meta': {'object_name': 'LogisticsProfileBase'},
+            'Meta': {'object_name': 'LogisticsProfile'},
             'designation': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'location': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['locations.Location']", 'null': 'True', 'blank': 'True'}),
+            'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['malawi.Organization']", 'null': 'True', 'blank': 'True'}),
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'unique': 'True'})
         },
