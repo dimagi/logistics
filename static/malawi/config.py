@@ -259,6 +259,25 @@ class Messages(object):
                 "'help codes' for a list of commodity codes; " + \
                 "'help start' or 'help stop' to start and stop reminders."
 
+    # "rm" keyword
+    # Responses to Facility user reporting the refrigerator malfunction
+    FRIDGE_FACILITY_NO_GAS = "Thank you. The district will be informed that your refrigerator is out of gas."
+    FRIDGE_FACILITY_POWER_FAILURE = "Thank you. The district will be informed that your refrigerator has a power failure."
+    FRIDGE_FACILITY_BREAKDOWN = "Thank you. The district will be informed that your refrigerator is not working."
+
+    # Message to the District user notifying of the refrigerator malfunction
+    FRIDGE_DISTRICT_NO_GAS = "%(facility)s has refrigerator malfunction due to no gas."
+    FRIDGE_DISTRICT_POWER_FAILURE = "%(facility)s has refrigerator malfunction due to power failure."
+    FRIDGE_DISTRICT_BREAKDOWN = "%(facility)s has refrigerator malfunction due to breakdown."
+
+    FRIDGE_HELP = "To report a refrigerator malfunction, please send 'rm [reason code]'"
+    FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
+        "1:no gas, 2:power failure, 3:breakdown.")
+
+    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
+        "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
+
+
 class Alerts(object):
     
     HSA_NO_PRODUCTS = "%(hsa)s is registered but is not associated with any products"
