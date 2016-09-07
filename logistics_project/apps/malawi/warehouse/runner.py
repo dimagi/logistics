@@ -9,7 +9,6 @@ from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product, StockRequest, StockRequestStatus
-from logistics.util import config
 from logistics.const import Reports
 from logistics.warehouse_models import SupplyPointWarehouseRecord
 
@@ -134,235 +133,22 @@ class MalawiWarehouseRunner(WarehouseRunner):
             update_current_consumption(hsa)
 
         for year, month in months_between(start, end):
-            window_date = datetime(year, month, 1)
-            report_period = ReportPeriod(hsa, window_date, start, end)
-            next_window_date = first_of_next_month(window_date)
-            period_start = max(window_date, start)
-            period_end = min(next_window_date, end)
-
-            # NOTE: the only reason the breakdowns below are functions
-            # is for future refactoring purposes, and the only reason
-            # they are declared here is because of the current heavy
-            # use of closures.
-            def _update_reporting_rate():
-                """
-                Process reports (on time versus late, versus at
-                all and completeness)
-                """
-                late_cutoff = window_date + timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-
-                reports_in_range = ProductReport.objects.filter(
-                    supply_point=hsa,
-                    report_type__code=Reports.SOH,
-                    report_date__gte=period_start,
-                    report_date__lte=period_end,
-                )
-                period_rr = ReportingRate.objects.get_or_create(supply_point=hsa, date=window_date)[0]
-                period_rr.total = 1
-                period_rr.reported = 1 if reports_in_range else period_rr.reported
-                # for the em group "on time" is meaningful, for the ept group
-                # they are always considered "on time"
-                if reports_in_range:
-                    first_report_date = reports_in_range.order_by('report_date')[0].report_date
-                    period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
-
-                if not period_rr.complete:
-                    # check for completeness (only if not already deemed complete)
-                    # unfortunately, we have to walk all avaialable
-                    # transactions in the period every month
-                    # in order to do this correctly.
-                    this_months_reports = ProductReport.objects.filter(
-                        supply_point=hsa,
-                        report_type__code=Reports.SOH,
-                        report_date__gte=window_date,
-                        report_date__lte=period_end,
-                    )
-
-                    found = set(this_months_reports.values_list("product", flat=True).distinct())
-                    period_rr.complete = 0 if found and (products_managed - found) else \
-                        (1 if found else 0)
-
-                period_rr.save()
-
-            def _update_product_availability():
-                """
-                Compute ProductAvailabilityData
-                """
-                # NOTE: this currently calculates everything on a
-                # per-month basis. if it is determined that we only
-                # need current information, the models can be cleaned
-                # up a bit
-                for p in all_products:
-                    product_data, created = ProductAvailabilityData.objects.get_or_create\
-                        (product=p, supply_point=hsa,
-                         date=window_date)
-
-                    if created:
-                        # initally assume we have no data on anything
-                        product_data.without_data = 1
-
-                    transactions = StockTransaction.objects.filter(
-                        supply_point=hsa, product=p,
-                        date__gte=period_start,
-                        date__lt=period_end).order_by('-date')
-                    product_data.total = 1
-                    product_data.managed = 1 if hsa.supplies(p) else 0
-                    if transactions:
-                        trans = transactions[0]
-                        product_stock = ProductStock.objects.get(
-                            product=trans.product, supply_point=hsa
-                        )
-
-                        product_data.without_data = 0
-                        if trans.ending_balance <= 0:
-                            product_data.without_stock = 1
-                            product_data.with_stock = 0
-                            product_data.under_stock = 0
-                            product_data.over_stock = 0
-                        else:
-                            product_data.without_stock = 0
-                            product_data.with_stock = 1
-                            if product_stock.emergency_reorder_level and \
-                                 trans.ending_balance <= product_stock.emergency_reorder_level:
-                                product_data.emergency_stock = 1
-                            if product_stock.reorder_level and \
-                                 trans.ending_balance <= product_stock.reorder_level:
-                                product_data.under_stock = 1
-                                product_data.over_stock = 0
-                            elif product_stock.maximum_level and \
-                                 trans.ending_balance > product_stock.maximum_level:
-                                product_data.under_stock = 0
-                                product_data.over_stock = 1
-                            else:
-                                product_data.under_stock = 0
-                                product_data.over_stock = 0
-
-                        product_data.good_stock = product_data.with_stock - \
-                            (product_data.under_stock + product_data.over_stock)
-                        assert product_data.good_stock in (0, 1)
-
-                    product_data.set_managed_attributes()
-                    product_data.save()
-
-                # update the summary data
-                product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
-                    (supply_point=hsa,
-                     date=window_date)[0]
-                product_summary.total = 1
-
-                if hsa.commodities_stocked():
-                    product_summary.any_managed = 1
-                    agg_results = ProductAvailabilityData.objects.filter(
-                        supply_point=hsa, date=window_date,
-                        managed=1
-                    ).aggregate(
-                        *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
-                    )
-                    for c in ProductAvailabilityData.STOCK_CATEGORIES:
-                        setattr(product_summary, "any_%s" % c,
-                                agg_results["managed_and_%s__max" % c])
-                        assert getattr(product_summary, "any_%s" % c) <= 1
-                else:
-                    product_summary.any_managed = 0
-                    for c in ProductAvailabilityData.STOCK_CATEGORIES:
-                        setattr(product_summary, "any_%s" % c, 0)
-
-                product_summary.save()
-
-            def _update_lead_times():
-                # ord-ready
-
-                # NOTE: the existing code currently also removes
-                # status 'canceled'. Is this necessary?
-                requests_in_range = StockRequest.objects.filter(\
-                    responded_on__gte=period_start,
-                    responded_on__lt=period_end,
-                    supply_point=hsa
-                ).exclude(requested_on=None)
-                or_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=window_date,
-                     type=TimeTrackerTypes.ORD_READY)[0]
-                for r in requests_in_range:
-                    lt = delta_secs(r.responded_on - r.requested_on)
-                    or_tt.time_in_seconds += lt
-                    or_tt.total += 1
-                or_tt.save()
-
-                # ready-receieved
-                requests_in_range = StockRequest.objects.filter(\
-                    received_on__gte=period_start,
-                    received_on__lt=period_end,
-                    supply_point=hsa
-                ).exclude(responded_on=None)
-                rr_tt = TimeTracker.objects.get_or_create\
-                    (supply_point=hsa, date=window_date,
-                     type=TimeTrackerTypes.READY_REC)[0]
-                for r in requests_in_range:
-                    lt = delta_secs(r.received_on - r.responded_on)
-                    rr_tt.time_in_seconds += lt
-                    rr_tt.total += 1
-                rr_tt.save()
-
-            def _update_order_requests():
-                requests_in_range = StockRequest.objects.filter(\
-                    requested_on__gte=period_start,
-                    requested_on__lt=period_end,
-                    supply_point=hsa
-                )
-                for p in all_products:
-                    ord_req = OrderRequest.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
-                    ord_req.total += requests_in_range.filter(product=p).count()
-                    ord_req.emergency += requests_in_range.filter\
-                        (product=p, is_emergency=True).count()
-                    ord_req.save()
-
-            def _update_order_fulfillment():
-                requests_in_range = StockRequest.objects.filter(
-                    received_on__gte=period_start,
-                    received_on__lt=period_end,
-                    supply_point=hsa,
-                ).exclude(Q(amount_requested=None) | Q(amount_received=None))
-                for p in all_products:
-                    order_fulfill = OrderFulfillment.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
-                    for r in requests_in_range.filter(product=p):
-                        order_fulfill.total += 1
-                        order_fulfill.quantity_requested += r.amount_requested
-                        order_fulfill.quantity_received += r.amount_received
-                    if requests_in_range.count():
-                        order_fulfill.save()
-
-            def _update_historical_stock():
-                # set the historical stock values to the last report before
-                # the end of the period (even if it's not in the period)
-                for p in all_products:
-                    hs = HistoricalStock.objects.get_or_create\
-                        (supply_point=hsa, date=window_date, product=p)[0]
-
-                    transactions = StockTransaction.objects.filter\
-                        (supply_point=hsa, product=p,
-                         date__lt=period_end).order_by('-date')
-
-                    hs.total = 1
-                    if transactions.count():
-                        hs.stock = transactions[0].ending_balance
-                    hs.save()
+            report_period = ReportPeriod(hsa, datetime(year, month, 1), start, end)
 
             if not self.skip_reporting_rates:
-                _update_reporting_rate()
+                _update_reporting_rate(hsa, report_period, products_managed)
             if not self.skip_product_availability:
-                _update_product_availability()
+                _update_product_availability(hsa, report_period, all_products)
             if not self.skip_lead_times:
-                _update_lead_times()
+                _update_lead_times(hsa, report_period)
             if not self.skip_order_requests:
-                _update_order_requests()
+                _update_order_requests(hsa, report_period, all_products)
             if not self.skip_order_fulfillment:
-                _update_order_fulfillment()
+                _update_order_fulfillment(hsa, report_period, all_products)
             if not self.skip_consumption:
                 update_consumption(report_period)
             if not self.skip_historical_stock:
-                _update_historical_stock()
+                _update_historical_stock(hsa, report_period, all_products)
 
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
 
@@ -723,3 +509,218 @@ def aggregate_types_in_order():
     yield 'hf', 'health facility'
     yield 'd', 'district'
     yield 'c', 'country'
+
+
+def _update_reporting_rate(hsa, report_period, products_managed):
+    """
+    Process reports (on time versus late, versus at
+    all and completeness)
+    """
+    late_cutoff = report_period.window_date + \
+        timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
+
+    reports_in_range = ProductReport.objects.filter(
+        supply_point=hsa,
+        report_type__code=Reports.SOH,
+        report_date__gte=report_period.period_start,
+        report_date__lte=report_period.period_end,
+    )
+    period_rr = ReportingRate.objects.get_or_create(
+        supply_point=hsa, date=report_period.window_date
+    )[0]
+    period_rr.total = 1
+    period_rr.reported = 1 if reports_in_range else period_rr.reported
+    # for the em group "on time" is meaningful, for the ept group
+    # they are always considered "on time"
+    if reports_in_range:
+        first_report_date = reports_in_range.order_by('report_date')[0].report_date
+        period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
+
+    if not period_rr.complete:
+        # check for completeness (only if not already deemed complete)
+        # unfortunately, we have to walk all avaialable
+        # transactions in the period every month
+        # in order to do this correctly.
+        this_months_reports = ProductReport.objects.filter(
+            supply_point=hsa,
+            report_type__code=Reports.SOH,
+            report_date__gte=report_period.window_date,
+            report_date__lte=report_period.period_end,
+        )
+
+        found = set(this_months_reports.values_list("product", flat=True).distinct())
+        period_rr.complete = 0 if found and (products_managed - found) else \
+            (1 if found else 0)
+
+    period_rr.save()
+
+
+def _update_product_availability(hsa, report_period, all_products):
+    """
+    Compute ProductAvailabilityData
+    """
+    # NOTE: this currently calculates everything on a
+    # per-month basis. if it is determined that we only
+    # need current information, the models can be cleaned
+    # up a bit
+    for p in all_products:
+        product_data, created = ProductAvailabilityData.objects.get_or_create\
+            (product=p, supply_point=hsa,
+             date=report_period.window_date)
+
+        if created:
+            # initally assume we have no data on anything
+            product_data.without_data = 1
+
+        transactions = StockTransaction.objects.filter(
+            supply_point=hsa, product=p,
+            date__gte=report_period.period_start,
+            date__lt=report_period.period_end).order_by('-date')
+        product_data.total = 1
+        product_data.managed = 1 if hsa.supplies(p) else 0
+        if transactions:
+            trans = transactions[0]
+            product_stock = ProductStock.objects.get(
+                product=trans.product, supply_point=hsa
+            )
+
+            product_data.without_data = 0
+            if trans.ending_balance <= 0:
+                product_data.without_stock = 1
+                product_data.with_stock = 0
+                product_data.under_stock = 0
+                product_data.over_stock = 0
+            else:
+                product_data.without_stock = 0
+                product_data.with_stock = 1
+                if product_stock.emergency_reorder_level and \
+                     trans.ending_balance <= product_stock.emergency_reorder_level:
+                    product_data.emergency_stock = 1
+                if product_stock.reorder_level and \
+                     trans.ending_balance <= product_stock.reorder_level:
+                    product_data.under_stock = 1
+                    product_data.over_stock = 0
+                elif product_stock.maximum_level and \
+                     trans.ending_balance > product_stock.maximum_level:
+                    product_data.under_stock = 0
+                    product_data.over_stock = 1
+                else:
+                    product_data.under_stock = 0
+                    product_data.over_stock = 0
+
+            product_data.good_stock = product_data.with_stock - \
+                (product_data.under_stock + product_data.over_stock)
+            assert product_data.good_stock in (0, 1)
+
+        product_data.set_managed_attributes()
+        product_data.save()
+
+    # update the summary data
+    product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
+        (supply_point=hsa,
+         date=report_period.window_date)[0]
+    product_summary.total = 1
+
+    if hsa.commodities_stocked():
+        product_summary.any_managed = 1
+        agg_results = ProductAvailabilityData.objects.filter(
+            supply_point=hsa, date=report_period.window_date,
+            managed=1
+        ).aggregate(
+            *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
+        )
+        for c in ProductAvailabilityData.STOCK_CATEGORIES:
+            setattr(product_summary, "any_%s" % c,
+                    agg_results["managed_and_%s__max" % c])
+            assert getattr(product_summary, "any_%s" % c) <= 1
+    else:
+        product_summary.any_managed = 0
+        for c in ProductAvailabilityData.STOCK_CATEGORIES:
+            setattr(product_summary, "any_%s" % c, 0)
+
+    product_summary.save()
+
+
+def _update_lead_times(hsa, report_period):
+    # ord-ready
+
+    # NOTE: the existing code currently also removes
+    # status 'canceled'. Is this necessary?
+    requests_in_range = StockRequest.objects.filter(\
+        responded_on__gte=report_period.period_start,
+        responded_on__lt=report_period.period_end,
+        supply_point=hsa
+    ).exclude(requested_on=None)
+    or_tt = TimeTracker.objects.get_or_create\
+        (supply_point=hsa, date=report_period.window_date,
+         type=TimeTrackerTypes.ORD_READY)[0]
+    for r in requests_in_range:
+        lt = delta_secs(r.responded_on - r.requested_on)
+        or_tt.time_in_seconds += lt
+        or_tt.total += 1
+    or_tt.save()
+
+    # ready-receieved
+    requests_in_range = StockRequest.objects.filter(\
+        received_on__gte=report_period.period_start,
+        received_on__lt=report_period.period_end,
+        supply_point=hsa
+    ).exclude(responded_on=None)
+    rr_tt = TimeTracker.objects.get_or_create\
+        (supply_point=hsa, date=report_period.window_date,
+         type=TimeTrackerTypes.READY_REC)[0]
+    for r in requests_in_range:
+        lt = delta_secs(r.received_on - r.responded_on)
+        rr_tt.time_in_seconds += lt
+        rr_tt.total += 1
+    rr_tt.save()
+
+
+def _update_order_requests(hsa, report_period, all_products):
+    requests_in_range = StockRequest.objects.filter(\
+        requested_on__gte=report_period.period_start,
+        requested_on__lt=report_period.period_end,
+        supply_point=hsa
+    )
+    for p in all_products:
+        ord_req = OrderRequest.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        ord_req.total += requests_in_range.filter(product=p).count()
+        ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
+        ord_req.save()
+
+
+def _update_order_fulfillment(hsa, report_period, all_products):
+    requests_in_range = StockRequest.objects.filter(
+        received_on__gte=report_period.period_start,
+        received_on__lt=report_period.period_end,
+        supply_point=hsa,
+    ).exclude(Q(amount_requested=None) | Q(amount_received=None))
+    for p in all_products:
+        order_fulfill = OrderFulfillment.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        for r in requests_in_range.filter(product=p):
+            order_fulfill.total += 1
+            order_fulfill.quantity_requested += r.amount_requested
+            order_fulfill.quantity_received += r.amount_received
+        if requests_in_range.count():
+            order_fulfill.save()
+
+
+def _update_historical_stock(hsa, report_period, all_products):
+    # set the historical stock values to the last report before
+    # the end of the period (even if it's not in the period)
+    for p in all_products:
+        hs = HistoricalStock.objects.get_or_create\
+            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+
+        transactions = StockTransaction.objects.filter(
+            supply_point=hsa,
+            product=p,
+            date__lt=report_period.period_end,
+        ).order_by('-date')
+
+        hs.total = 1
+        if transactions.count():
+            hs.stock = transactions[0].ending_balance
+        hs.save()
