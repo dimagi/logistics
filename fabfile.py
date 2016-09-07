@@ -229,6 +229,7 @@ def deploy():
         run('git clone git://github.com/dimagi/logistics.git')
     else:
         with cd(env.code_dir):
+            run('git remote prune origin')
             run('git fetch')
             run('git checkout %(branch)s' % {"branch": env.branch})
             run('git pull %(repo)s %(branch)s' % {"repo": env.remote, "branch": env.branch})
