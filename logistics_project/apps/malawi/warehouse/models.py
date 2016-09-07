@@ -5,11 +5,13 @@ from static.malawi.config import TimeTrackerTypes
 from datetime import datetime
 from dimagi.utils.dates import first_of_next_month, delta_secs
 
+
 class MalawiWarehouseModel(ReportingModel):
     
     class Meta:
         abstract = True
         app_label = "malawi"
+
 
 class ProductAvailabilityData(MalawiWarehouseModel):
     """
@@ -53,7 +55,6 @@ class ProductAvailabilityData(MalawiWarehouseModel):
             self.total, self.managed, self.with_stock, self.without_stock
         )
 
-
     def set_managed_attributes(self):
         if self.managed:
             for f in ProductAvailabilityData.STOCK_CATEGORIES:
@@ -62,6 +63,7 @@ class ProductAvailabilityData(MalawiWarehouseModel):
             for f in ProductAvailabilityData.STOCK_CATEGORIES:
                 setattr(self, 'managed_and_%s' % f, 0)                
                             
+
 class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     """
     Aggregates the product availability up to the supply point level,
@@ -80,6 +82,7 @@ class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     any_good_stock = models.PositiveIntegerField(default=0)
     any_without_data = models.PositiveIntegerField(default=0)
     any_emergency_stock = models.PositiveIntegerField(default=0)
+
 
 class ReportingRate(MalawiWarehouseModel):
     """
@@ -125,6 +128,7 @@ class ReportingRate(MalawiWarehouseModel):
 TIME_TRACKER_TYPES = ((TimeTrackerTypes.ORD_READY, 'order - ready'),
                       (TimeTrackerTypes.READY_REC, 'ready - received'))            
 
+
 class TimeTracker(MalawiWarehouseModel):
     """
     For keeping track of a time between two events. Currently used for 
@@ -142,6 +146,7 @@ class TimeTracker(MalawiWarehouseModel):
             return float(self.time_in_seconds) / float(self.total * 60 * 60 * 24)
         return None
 
+
 class OrderRequest(MalawiWarehouseModel):
     """
     Each time an order is made, used to count both regular and emergency
@@ -151,7 +156,8 @@ class OrderRequest(MalawiWarehouseModel):
     product = models.ForeignKey('logistics.Product')
     total = models.PositiveIntegerField(default=0)
     emergency = models.PositiveIntegerField(default=0)
-    
+
+
 class OrderFulfillment(MalawiWarehouseModel):
     """
     Each time an order is fulfilled, add up the amount requested and

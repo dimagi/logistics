@@ -3,10 +3,15 @@
 
 from django.conf.urls.defaults import *
 
-reportpatterns = patterns('logistics_project.apps.malawi.warehouse.views', 
+
+reportpatterns = patterns('logistics_project.apps.malawi.warehouse.views',
     url(r'^r/home/$', 'home', name='malawi_dashboard'),
-    url(r'^r/(?P<slug>[\w\s-]+)/$','get_report', name=''),
+    url(r'^r/(?P<slug>[\w\s-]+)/$', 'get_report', name=''),
+    url(r'^f/home/$', 'facility_home', name='malawi_facility_dashboard'),
+    url(r'^f/(?P<slug>[\w\s-]+)/$', 'get_facility_report', name=''),
 )
+
+
 urlpatterns = patterns('',
 
     url(r'^management/$',

@@ -1,5 +1,6 @@
 from datetime import datetime
 from collections import defaultdict
+from django.contrib import messages
 
 from django.utils.datastructures import SortedDict
 
@@ -18,6 +19,9 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
+        if request.is_facility:
+            messages.success(request, "You are viewing a facility report!")
+
         shared_headers = ["% Reporting", "% On time Rep", "% Late Rep", "% Not Reported", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         
@@ -31,9 +35,11 @@ class View(warehouse_view.DistrictOnlyView):
             dt = datetime(year, month, 1)
             months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt)
 
-        month_data = [[dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs] \
-                      for dt, rr in months.items()]
-        
+        month_data = [
+            [dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs]
+            for dt, rr in months.items()
+        ]
+
         month_table = {
             "id": "month-table",
             "is_datatable": False,
@@ -59,11 +65,12 @@ class View(warehouse_view.DistrictOnlyView):
                     
                 datamap[sp] = spdata
                         
-            return [[sp.name] + [fmt_pct(data[k], data['reported'] if k == 'complete' else data['total']) \
-                                 for k in shared_slugs] \
-                    for sp, data in datamap.items()]
-        
-        
+            return [
+                [sp.name] +
+                [fmt_pct(data[k], data['reported'] if k == 'complete' else data['total']) for k in shared_slugs]
+                for sp, data in datamap.items()
+            ]
+
         location_table = None
         if is_country(sp):
             # district breakdown
@@ -115,10 +122,10 @@ class View(warehouse_view.DistrictOnlyView):
                 hsa_table["data"].append([hsa.name, total, non_rep, on_time, late, complete])
 
         return {
-                "month_table": month_table,
-                "location_table": location_table,
-                "hsa_table": hsa_table,
-                "graphdata" : get_reporting_rates_chart(request.location, 
-                                                        request.datespan.startdate, 
-                                                        request.datespan.enddate)
+            "month_table": month_table,
+            "location_table": location_table,
+            "hsa_table": hsa_table,
+            "graphdata" : get_reporting_rates_chart(request.location,
+                                                    request.datespan.startdate,
+                                                    request.datespan.enddate)
         }
