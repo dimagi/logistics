@@ -1,29 +1,16 @@
 from datetime import datetime
 from logistics.models import ContactRole
+from logistics_project.apps.malawi.handlers.abstract.base import FacilityUserHandler
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics.util import config
-from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 
 
-class RefrigeratorMalfunctionHandler(KeywordHandler):
+class RefrigeratorMalfunctionHandler(FacilityUserHandler):
     keyword = "rm"
 
     def help(self):
         self.handle("")
-
-    def validate_contact(self):
-        """
-        Checks if the contact who sent this message can use the keyword
-        and returns that contact's supply point if so.
-        """
-        contact = getattr(self.msg,'logistics_contact', None)
-        if contact and contact.is_active:
-            supply_point = contact.supply_point
-            if supply_point and supply_point.type.code == config.SupplyPointCodes.FACILITY:
-                return supply_point
-
-        return None
 
     def is_text_valid(self, words):
         if len(words) == 0:

@@ -277,6 +277,13 @@ class Messages(object):
     FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
         "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
 
+    FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your facility."
+
+    FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM = ("Please reply with 'rc' to confirm you have collected your EPI "
+        "products from %(facility)s")
+
+    FRIDGE_CONFIRM_PRODUCTS_COLLECTED = "Please reply with 'rc' to confirm you have collected your EPI products"
+
 
 class Alerts(object):
     
