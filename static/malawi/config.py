@@ -284,6 +284,13 @@ class Messages(object):
 
     FRIDGE_CONFIRM_PRODUCTS_COLLECTED = "Please reply with 'rc' to confirm you have collected your EPI products"
 
+    FRIDGE_NOT_REPORTED_FIXED = ("Your refrigerator has not been reported as fixed yet. If it has been "
+        "fixed, please respond with 'rf'")
+
+    FRIDGE_ALREADY_CONFIRMED_COLLECTED = "You have already confirmed that you have collected your EPI products."
+
+    FRIDGE_CONFIRMATION_RESPONSE = "Thank you for confirming that you have collected your EPI products."
+
 
 class Alerts(object):
     

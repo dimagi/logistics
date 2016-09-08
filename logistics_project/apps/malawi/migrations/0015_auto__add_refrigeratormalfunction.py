@@ -17,6 +17,7 @@ class Migration(SchemaMigration):
             ('responded_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('sent_to', self.gf('django.db.models.fields.related.ForeignKey')(related_name='+', null=True, to=orm['logistics.SupplyPoint'])),
             ('resolved_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
+            ('products_collected_confirmation_received_on', self.gf('django.db.models.fields.DateTimeField')(null=True)),
         ))
         db.send_create_signal('malawi', ['RefrigeratorMalfunction'])
 
@@ -233,6 +234,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'RefrigeratorMalfunction'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'malfunction_reason': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
+            'products_collected_confirmation_received_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'reported_on': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'resolved_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'responded_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),

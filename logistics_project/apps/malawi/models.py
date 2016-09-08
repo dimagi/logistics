@@ -38,11 +38,16 @@ class RefrigeratorMalfunction(models.Model):
     # Timestamp when the district user responded
     responded_on = models.DateTimeField(null=True)
 
-    # Facility where the district user referred the facility user to
+    # Facility where the district user referred the facility user to send their products while the
+    # refrigerator was broken
     sent_to = models.ForeignKey('logistics.SupplyPoint', null=True, db_index=True, related_name='+')
 
-    # Timestamp when the refrigerator was fixed. This is null while broken, not null when fixed.
+    # Timestamp when the refrigerator was reported fixed. This is null while broken, not null when fixed.
     resolved_on = models.DateTimeField(null=True)
+
+    # This is set to the timestamp that the facility user confirms they have collected the products which
+    # were sent to the 'sent_to' facility
+    products_collected_confirmation_received_on = models.DateTimeField(null=True)
 
     @classmethod
     def get_open_malfunction(cls, supply_point):
@@ -61,6 +66,15 @@ class RefrigeratorMalfunction(models.Model):
             reported_on=datetime.utcnow(),
             malfunction_reason=malfunction_reason,
         )
+
+    @classmethod
+    def get_last_reported_malfunction(cls, supply_point):
+        result = list(cls.objects.filter(supply_point=supply_point).order_by('-reported_on')[0:1])
+        if len(result) == 1:
+            return result[0]
+
+        return None
+
 
 from .warehouse.models import *
 from .signals import *
