@@ -133,5 +133,6 @@ class View(warehouse_view.DistrictOnlyView):
             # todo: pass is_facility though to get_reporting_rates_chart
             "graphdata": get_reporting_rates_chart(request.location,
                                                    request.datespan.startdate,
-                                                   request.datespan.enddate)
+                                                   request.datespan.enddate,
+                                                   is_facility=request.is_facility)
         }
