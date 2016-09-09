@@ -539,6 +539,7 @@ def _update_reporting_rate(supply_point, report_period, products_managed, is_fac
     period_rr = ReportingRate.objects.get_or_create(
         supply_point=supply_point,
         date=report_period.window_date,
+        is_facility=is_facility
     )[0]
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
