@@ -524,8 +524,7 @@ def aggregate_types_in_order():
 
 def _update_reporting_rate(supply_point, report_period, products_managed, is_facility):
     """
-    Process reports (on time versus late, versus at
-    all and completeness)
+    Process reports (on time versus late, versus at all and completeness)
     """
     late_cutoff = report_period.window_date + \
         timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
