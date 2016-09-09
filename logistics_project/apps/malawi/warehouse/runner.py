@@ -98,7 +98,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_hsa_data(hsa, start, end, all_products)
+                self.update_base_level_data(hsa, start, end, all_products)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
@@ -125,7 +125,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_hsa_data(self, hsa, start, end, all_products=None):
+    def update_base_level_data(self, hsa, start, end, all_products=None):
         all_products = all_products or Product.objects.all()
         products_managed = set([c.pk for c in hsa.commodities_stocked()])
 
