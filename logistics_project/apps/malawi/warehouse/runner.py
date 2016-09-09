@@ -15,7 +15,7 @@ from logistics.warehouse_models import SupplyPointWarehouseRecord
 from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
 
-from static.malawi.config import TimeTrackerTypes
+from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 
 from logistics_project.apps.malawi.util import hsa_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
@@ -87,8 +87,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if start < first_activity:
             start = first_activity
         
-        # first populate all the warehouse tables for all facilities
-        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        # first populate all the warehouse tables for all hsas
+        hsas = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.HSA).order_by('id')
         if self.hsa_limit:
             hsas = hsas[:self.hsa_limit]
         
