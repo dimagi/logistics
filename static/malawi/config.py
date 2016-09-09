@@ -38,6 +38,8 @@ class Operations(object):
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
     APPROVE_USER = "approve_user"
+    REPORT_FRIDGE_MALFUNCTION = 'report_fridge_malfunction'
+
 
 class SupplyPointCodes(object):
     """
@@ -92,6 +94,8 @@ def has_permissions_to(contact, operation):
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
     if operation == Operations.APPROVE_USER:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
+    if operation == Operations.REPORT_FRIDGE_MALFUNCTION:
+        return contact.role in ContactRole.objects.filter(code=Roles.IN_CHARGE)
     # TODO, fill this in more
     return True
 
@@ -259,7 +263,6 @@ class Messages(object):
                 "'help codes' for a list of commodity codes; " + \
                 "'help start' or 'help stop' to start and stop reminders."
 
-    # "rm" keyword
     # Responses to Facility user reporting the refrigerator malfunction
     FRIDGE_FACILITY_NO_GAS = "Thank you. The district will be informed that your refrigerator is out of gas."
     FRIDGE_FACILITY_POWER_FAILURE = "Thank you. The district will be informed that your refrigerator has a power failure."
@@ -277,7 +280,7 @@ class Messages(object):
     FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
         "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
 
-    FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your facility."
+    FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your health center."
 
     FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM = ("Please reply with 'rc' to confirm you have collected your EPI "
         "products from %(facility)s")
@@ -290,6 +293,9 @@ class Messages(object):
     FRIDGE_ALREADY_CONFIRMED_COLLECTED = "You have already confirmed that you have collected your EPI products."
 
     FRIDGE_CONFIRMATION_RESPONSE = "Thank you for confirming that you have collected your EPI products."
+
+    ERROR_NO_FACILITY_ASSOCIATION = ("Your request cannot be processed because you are not associated with a "
+        "health center. For help, please contact your supervisor.")
 
 
 class Alerts(object):

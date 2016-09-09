@@ -1,28 +1,31 @@
 from datetime import datetime
-from logistics_project.apps.malawi.handlers.abstract.base import FacilityUserHandler
+from logistics.decorators import logistics_contact_and_permission_required
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
+from logistics_project.decorators import require_facility
 from logistics.util import config
+from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 
 
-class RefrigeratorFixedHandler(FacilityUserHandler):
+class RefrigeratorFixedHandler(KeywordHandler):
     keyword = "rf"
 
     def help(self):
         self.handle("")
 
+    @logistics_contact_and_permission_required(config.Operations.REPORT_FRIDGE_MALFUNCTION)
+    @require_facility
     def handle(self, text):
-        supply_point = self.validate_contact()
-        if supply_point:
-            malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)
-            if not malfunction:
-                self.respond(config.Messages.FRIDGE_NOT_REPORTED_BROKEN)
-                return
+        supply_point = self.msg.logistics_contact.supply_point
+        malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)
+        if not malfunction:
+            self.respond(config.Messages.FRIDGE_NOT_REPORTED_BROKEN)
+            return
 
-            malfunction.resolved_on = datetime.utcnow()
-            malfunction.save()
+        malfunction.resolved_on = datetime.utcnow()
+        malfunction.save()
 
-            if malfunction.sent_to:
-                self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM,
-                    facility=malfunction.sent_to.code)
-            else:
-                self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED)
+        if malfunction.sent_to:
+            self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM,
+                facility=malfunction.sent_to.code)
+        else:
+            self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED)

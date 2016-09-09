@@ -1,12 +1,14 @@
 from datetime import datetime
+from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
-from logistics_project.apps.malawi.handlers.abstract.base import FacilityUserHandler
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
+from logistics_project.decorators import require_facility
 from logistics.util import config
+from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 
 
-class RefrigeratorMalfunctionHandler(FacilityUserHandler):
+class RefrigeratorMalfunctionHandler(KeywordHandler):
     keyword = "rm"
 
     def help(self):
@@ -61,13 +63,14 @@ class RefrigeratorMalfunctionHandler(FacilityUserHandler):
 
         return False
 
+    @logistics_contact_and_permission_required(config.Operations.REPORT_FRIDGE_MALFUNCTION)
+    @require_facility
     def handle(self, text):
-        supply_point = self.validate_contact()
-        if supply_point:
-            words = text.split()
-            if self.is_text_valid(words):
-                reason = words[0]
-                if not self.malfunction_exists(supply_point):
-                    RefrigeratorMalfunction.new_malfunction(supply_point, reason)
-                    self.respond_to_facility_user(reason)
-                    self.notify_district_users(supply_point, reason)
+        supply_point = self.msg.logistics_contact.supply_point
+        words = text.split()
+        if self.is_text_valid(words):
+            reason = words[0]
+            if not self.malfunction_exists(supply_point):
+                RefrigeratorMalfunction.new_malfunction(supply_point, reason)
+                self.respond_to_facility_user(reason)
+                self.notify_district_users(supply_point, reason)
