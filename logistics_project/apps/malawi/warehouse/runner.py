@@ -134,33 +134,33 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_base_level_data(self, hsa, start, end, all_products=None, is_facility=False):
+    def update_base_level_data(self, supply_point, start, end, all_products=None, is_facility=False):
         if is_facility:
             return  # todo: facilities not yet supported
 
         all_products = all_products or Product.objects.all()
-        products_managed = set([c.pk for c in hsa.commodities_stocked()])
+        products_managed = set([c.pk for c in supply_point.commodities_stocked()])
 
         if not self.skip_current_consumption:
-            update_current_consumption(hsa)
+            update_current_consumption(supply_point)
 
         for year, month in months_between(start, end):
-            report_period = ReportPeriod(hsa, datetime(year, month, 1), start, end)
+            report_period = ReportPeriod(supply_point, datetime(year, month, 1), start, end)
 
             if not self.skip_reporting_rates:
-                _update_reporting_rate(hsa, report_period, products_managed)
+                _update_reporting_rate(supply_point, report_period, products_managed)
             if not self.skip_product_availability:
-                _update_product_availability(hsa, report_period, all_products)
+                _update_product_availability(supply_point, report_period, all_products)
             if not self.skip_lead_times:
-                _update_lead_times(hsa, report_period)
+                _update_lead_times(supply_point, report_period)
             if not self.skip_order_requests:
-                _update_order_requests(hsa, report_period, all_products)
+                _update_order_requests(supply_point, report_period, all_products)
             if not self.skip_order_fulfillment:
-                _update_order_fulfillment(hsa, report_period, all_products)
+                _update_order_fulfillment(supply_point, report_period, all_products)
             if not self.skip_consumption:
                 update_consumption(report_period)
             if not self.skip_historical_stock:
-                _update_historical_stock(hsa, report_period, all_products)
+                _update_historical_stock(supply_point, report_period, all_products)
 
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
 
