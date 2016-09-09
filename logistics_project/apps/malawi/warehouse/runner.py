@@ -243,13 +243,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
-               additonal_query_params={}):
+               additonal_query_params=None):
     """
     Aggregate an instance of modelclass, by summing up all of the fields for
     any matching models found in the same date range in the base_supply_points.
     
     Returns the updated reporting model class.
     """
+    additonal_query_params = additonal_query_params or {}
     # hack: remove test district users from national level
     if supply_point == get_country_sp():
         base_supply_points = base_supply_points.exclude(code='99')
@@ -264,14 +265,16 @@ def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
     period_instance.save()
     return period_instance
 
+
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
-               additonal_query_params={}):
+               additonal_query_params=None):
     """
     Aggregate an instance of modelclass, by summing up all of the fields for
     any matching models found in the same date range in the base_supply_points.
     
     Returns the updated reporting model class.
     """
+    additonal_query_params = additonal_query_params or {}
     additonal_query_params["date"] = window_date
     return _aggregate_raw(modelclass, supply_point, base_supply_points, fields, 
                           additonal_query_params)
