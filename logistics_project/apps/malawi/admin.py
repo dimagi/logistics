@@ -18,8 +18,9 @@ admin.site.register(Organization)
 # warehouse admin
 class ReportingRateAdmin(admin.ModelAdmin):
     model = ReportingRate
-    list_display = ('supply_point', 'date', 'total', 'reported', 'on_time', 'complete')
-    list_filter = ('supply_point__type', 'date', 'supply_point')
+    list_display = ('supply_point', 'date', 'is_facility', 'total', 'reported', 'on_time', 'complete')
+    list_filter = ('supply_point__type', 'date', 'is_facility', 'supply_point')
+
 
 class ProductAvailabilityDataAdmin(admin.ModelAdmin):
     model = ProductAvailabilityData
