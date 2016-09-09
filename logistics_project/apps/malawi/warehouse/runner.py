@@ -521,7 +521,7 @@ def aggregate_types_in_order():
     yield 'c', 'country'
 
 
-def _update_reporting_rate(hsa, report_period, products_managed, is_facility):
+def _update_reporting_rate(supply_point, report_period, products_managed, is_facility):
     """
     Process reports (on time versus late, versus at
     all and completeness)
@@ -531,13 +531,14 @@ def _update_reporting_rate(hsa, report_period, products_managed, is_facility):
 
     reports_in_range = ProductReport.objects.filter(
         product__type__is_facility=is_facility,
-        supply_point=hsa,
+        supply_point=supply_point,
         report_type__code=Reports.SOH,
         report_date__gte=report_period.period_start,
         report_date__lte=report_period.period_end,
     )
     period_rr = ReportingRate.objects.get_or_create(
-        supply_point=hsa, date=report_period.window_date
+        supply_point=supply_point,
+        date=report_period.window_date,
     )[0]
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
@@ -553,7 +554,7 @@ def _update_reporting_rate(hsa, report_period, products_managed, is_facility):
         # transactions in the period every month
         # in order to do this correctly.
         this_months_reports = ProductReport.objects.filter(
-            supply_point=hsa,
+            supply_point=supply_point,
             report_type__code=Reports.SOH,
             report_date__gte=report_period.window_date,
             report_date__lte=report_period.period_end,
