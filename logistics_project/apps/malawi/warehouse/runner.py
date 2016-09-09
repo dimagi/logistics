@@ -100,6 +100,15 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
                 self.update_base_level_data(hsa, start, end, all_products)
 
+        if settings.ENABLE_FACILITY_WORKFLOWS:
+            print 'processing facility data'
+            facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
+            if self.facility_limit:
+                facilities = facilities[:self.facility_limit]
+            for i, facility in enumerate(facilities):
+                print "processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count)
+                self.update_base_level_data(facility, start, end, all_products, is_facility=True)
+
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
 
@@ -125,7 +134,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_base_level_data(self, hsa, start, end, all_products=None):
+    def update_base_level_data(self, hsa, start, end, all_products=None, is_facility=False):
+        if is_facility:
+            return  # todo: facilities not yet supported
+
         all_products = all_products or Product.objects.all()
         products_managed = set([c.pk for c in hsa.commodities_stocked()])
 
