@@ -515,6 +515,7 @@ def proper_child_type(supply_point):
         'hsa': None,
     }[supply_point.type.code]
 
+
 def aggregate_types_in_order():
     yield 'hf', 'health facility'
     yield 'd', 'district'
@@ -539,12 +540,10 @@ def _update_reporting_rate(supply_point, report_period, products_managed, is_fac
     period_rr = ReportingRate.objects.get_or_create(
         supply_point=supply_point,
         date=report_period.window_date,
-        is_facility=is_facility
+        is_facility=is_facility,
     )[0]
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
-    # for the em group "on time" is meaningful, for the ept group
-    # they are always considered "on time"
     if reports_in_range:
         first_report_date = reports_in_range.order_by('report_date')[0].report_date
         period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
