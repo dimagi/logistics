@@ -175,7 +175,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
             window_date = datetime(year, month, 1)
             if not self.skip_reporting_rates:
                 _aggregate(ReportingRate, window_date, place, relevant_children,
-                           fields=['total', 'reported', 'on_time', 'complete'])
+                           fields=['total', 'reported', 'on_time', 'complete'],
+                           additonal_query_params={'is_facility': False})
+                if settings.ENABLE_FACILITY_WORKFLOWS:
+                    _aggregate(ReportingRate, window_date, place, relevant_children,
+                           fields=['total', 'reported', 'on_time', 'complete'],
+                           additonal_query_params={'is_facility': True})
+
             if not self.skip_product_availability:
                 for p in all_products:
                     _aggregate(ProductAvailabilityData, window_date, place, relevant_children,
