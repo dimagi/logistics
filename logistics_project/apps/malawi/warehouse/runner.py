@@ -135,31 +135,29 @@ class MalawiWarehouseRunner(WarehouseRunner):
         update_historical_data()
 
     def update_base_level_data(self, supply_point, start, end, all_products=None, is_facility=False):
-        if is_facility:
-            return  # todo: facilities not yet supported
 
         all_products = all_products or Product.objects.all()
         products_managed = set([c.pk for c in supply_point.commodities_stocked()])
 
-        if not self.skip_current_consumption:
+        if not self.skip_current_consumption and not is_facility:
             update_current_consumption(supply_point)
 
         for year, month in months_between(start, end):
             report_period = ReportPeriod(supply_point, datetime(year, month, 1), start, end)
 
             if not self.skip_reporting_rates:
-                _update_reporting_rate(supply_point, report_period, products_managed)
-            if not self.skip_product_availability:
+                _update_reporting_rate(supply_point, report_period, products_managed, is_facility)
+            if not self.skip_product_availability and not is_facility:
                 _update_product_availability(supply_point, report_period, all_products)
-            if not self.skip_lead_times:
+            if not self.skip_lead_times and not is_facility:
                 _update_lead_times(supply_point, report_period)
-            if not self.skip_order_requests:
+            if not self.skip_order_requests and not is_facility:
                 _update_order_requests(supply_point, report_period, all_products)
-            if not self.skip_order_fulfillment:
+            if not self.skip_order_fulfillment and not is_facility:
                 _update_order_fulfillment(supply_point, report_period, all_products)
-            if not self.skip_consumption:
+            if not self.skip_consumption and not is_facility:
                 update_consumption(report_period)
-            if not self.skip_historical_stock:
+            if not self.skip_historical_stock and not is_facility:
                 _update_historical_stock(supply_point, report_period, all_products)
 
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
@@ -523,7 +521,7 @@ def aggregate_types_in_order():
     yield 'c', 'country'
 
 
-def _update_reporting_rate(hsa, report_period, products_managed):
+def _update_reporting_rate(hsa, report_period, products_managed, is_facility):
     """
     Process reports (on time versus late, versus at
     all and completeness)
@@ -532,6 +530,7 @@ def _update_reporting_rate(hsa, report_period, products_managed):
         timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
 
     reports_in_range = ProductReport.objects.filter(
+        product__type__is_facility=is_facility,
         supply_point=hsa,
         report_type__code=Reports.SOH,
         report_date__gte=report_period.period_start,
