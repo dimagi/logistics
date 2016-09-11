@@ -35,3 +35,20 @@ def require_facility(f):
 
         self.respond(config.Messages.ERROR_NO_FACILITY_ASSOCIATION)
     return inner
+
+
+def require_district(f):
+    """
+    Meant to decorate the handle() method of an SMS handler.
+    Checks to make sure that the contact's supply point is a district.
+    Assumes that self.msg.logistics_contact exists.
+    """
+    def inner(self, *args, **kwargs):
+        if (
+            self.msg.logistics_contact.supply_point and
+            self.msg.logistics_contact.supply_point.type.code == config.SupplyPointCodes.DISTRICT
+        ):
+            return f(self, *args, **kwargs)
+
+        self.respond(config.Messages.ERROR_NO_DISTRICT_ASSOCIATION)
+    return inner
