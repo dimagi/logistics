@@ -266,15 +266,15 @@ class Messages(object):
                 "'help codes' for a list of commodity codes; " + \
                 "'help start' or 'help stop' to start and stop reminders."
 
-    # Responses to Facility user reporting the refrigerator malfunction
-    FRIDGE_FACILITY_NO_GAS = "Thank you. The district will be informed that your refrigerator is out of gas."
-    FRIDGE_FACILITY_POWER_FAILURE = "Thank you. The district will be informed that your refrigerator has a power failure."
-    FRIDGE_FACILITY_BREAKDOWN = "Thank you. The district will be informed that your refrigerator is not working."
+    FRIDGE_BROKEN_NO_GAS = "no gas"
+    FRIDGE_BROKEN_POWER_FAILURE = "power failure"
+    FRIDGE_BROKEN_BREAKDOWN = "breakdown"
 
-    # Message to the District user notifying of the refrigerator malfunction
-    FRIDGE_DISTRICT_NO_GAS = "%(facility)s has refrigerator malfunction due to no gas."
-    FRIDGE_DISTRICT_POWER_FAILURE = "%(facility)s has refrigerator malfunction due to power failure."
-    FRIDGE_DISTRICT_BREAKDOWN = "%(facility)s has refrigerator malfunction due to breakdown."
+    FRIDGE_BROKEN_RESPONSE = ("Thank you. The district will be informed that your refrigerator is not working due "
+        "to: %(reason)s")
+
+    FRIDGE_BROKEN_NOTIFICATION = ("%(facility)s has a refrigerator malfunction due to: %(reason)s. Respond with "
+        "'transfer %(facility)s [to facility] to advise the transfer of EPI products.")
 
     FRIDGE_HELP = "To report a refrigerator malfunction, please send 'rm [reason code]'"
     FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
@@ -308,6 +308,9 @@ class Messages(object):
 
     FACILITY_NOT_FOUND = ("Health center code '%(facility)s' is not valid. Please check the health center code "
         "and try again." )
+
+    FACILITY_MUST_BE_DIFFERENT = ("You cannot choose the same health center as both the source and destination. "
+        "Please try again.")
 
     FRIDGE_NOT_REPORTED_BROKEN_FOR_FACILITY = ("There is no open refrigerator malfunction reported at "
         "health center '%(facility)s'.")

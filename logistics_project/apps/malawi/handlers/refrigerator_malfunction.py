@@ -3,6 +3,7 @@ from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics_project.decorators import require_facility
+from logistics_project.util import translate
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
@@ -25,14 +26,19 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
         return True
 
-    def respond_to_facility_user(self, reason):
-        message = {
-            RefrigeratorMalfunction.REASON_NO_GAS: config.Messages.FRIDGE_FACILITY_NO_GAS,
-            RefrigeratorMalfunction.REASON_POWER_FAILURE: config.Messages.FRIDGE_FACILITY_POWER_FAILURE,
-            RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN: config.Messages.FRIDGE_FACILITY_BREAKDOWN,
+    def get_reason_desc(self, reason):
+        return {
+            RefrigeratorMalfunction.REASON_NO_GAS: config.Messages.FRIDGE_BROKEN_NO_GAS,
+            RefrigeratorMalfunction.REASON_POWER_FAILURE: config.Messages.FRIDGE_BROKEN_POWER_FAILURE,
+            RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN: config.Messages.FRIDGE_BROKEN_BREAKDOWN,
         }.get(reason)
 
-        self.respond(message)
+    def respond_to_facility_user(self, reason):
+        reason_desc = self.get_reason_desc(reason)
+        self.respond(
+            config.Messages.FRIDGE_BROKEN_RESPONSE,
+            reason=self.msg.logistics_contact.translate(reason_desc)
+        )
 
     def notify_district_users(self, supply_point, reason):
         recipients = Contact.objects.filter(
@@ -41,14 +47,14 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             role=ContactRole.objects.get(code=config.Roles.DISTRICT_SUPERVISOR)
         )
 
-        message = {
-            RefrigeratorMalfunction.REASON_NO_GAS: config.Messages.FRIDGE_DISTRICT_NO_GAS,
-            RefrigeratorMalfunction.REASON_POWER_FAILURE: config.Messages.FRIDGE_DISTRICT_POWER_FAILURE,
-            RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN: config.Messages.FRIDGE_DISTRICT_BREAKDOWN,
-        }.get(reason)
+        reason_desc = self.get_reason_desc(reason)
 
         for recipient in recipients:
-            recipient.message(message)
+            recipient.message(
+                config.Messages.FRIDGE_BROKEN_NOTIFICATION,
+                reason=recipient.translate(reason_desc),
+                facility=supply_point.code
+            )
 
     def malfunction_exists(self, supply_point):
         malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)

@@ -1,6 +1,9 @@
 from __future__ import absolute_import
 from django.db import models
 from django.db.models.fields.related import ForeignKey
+from django.utils.translation.trans_real import translation
+from rapidsms.conf import settings as rapidsms_settings
+
 
 class MalawiContactExtension(models.Model):
     
@@ -45,3 +48,14 @@ class MalawiContactExtension(models.Model):
                 return ""
         else:
             return ""
+
+    def translate(self, message):
+        """
+        In newer versions of Django, this is accomplished using the
+        django.utils.translation.override context manager.
+
+        We could write our own context manager, but this process mirrors
+        the one used in rapidsms.messages.outgoing.
+        """
+        language = self.language or rapidsms_settings.LANGUAGE_CODE
+        return translation(language).gettext(message)
