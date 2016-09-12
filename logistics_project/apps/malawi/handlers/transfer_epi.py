@@ -64,6 +64,10 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             if to_facility is None:
                 return
 
+            if from_facility == to_facility:
+                self.respond(config.Messages.FACILITY_MUST_BE_DIFFERENT)
+                return
+
             malfunction = RefrigeratorMalfunction.get_open_malfunction(from_facility)
             if not malfunction:
                 self.respond(config.Messages.FRIDGE_NOT_REPORTED_BROKEN_FOR_FACILITY, facility=from_facility.code)
