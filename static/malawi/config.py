@@ -276,7 +276,9 @@ class Messages(object):
     FRIDGE_BROKEN_NOTIFICATION = ("%(facility)s has a refrigerator malfunction due to: %(reason)s. Respond with "
         "'transfer %(facility)s [to facility] to advise the transfer of EPI products.")
 
-    FRIDGE_HELP = "To report a refrigerator malfunction, please send 'rm [reason code]'"
+    FRIDGE_HELP = ("To report a refrigerator malfunction, please send 'rm [reason code]'. Reason code should be "
+        "1:no gas, 2:power failure, 3:breakdown.")
+
     FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
         "1:no gas, 2:power failure, 3:breakdown.")
 
