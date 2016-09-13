@@ -3,7 +3,6 @@ from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics_project.decorators import require_facility
-from logistics_project.util import translate
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
