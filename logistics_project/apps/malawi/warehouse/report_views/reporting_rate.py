@@ -33,7 +33,7 @@ class View(warehouse_view.DistrictOnlyView):
         for year, month in months_between(request.datespan.startdate, 
                                           request.datespan.enddate):
             dt = datetime(year, month, 1)
-            months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt)
+            months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt, is_facility=request.is_facility)
 
         month_data = [
             [dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs]
@@ -56,7 +56,8 @@ class View(warehouse_view.DistrictOnlyView):
                                                   enddate):
                     try:
                         rr = ReportingRate.objects.get(supply_point=sp,
-                                                       date=datetime(year, month, 1))
+                                                       date=datetime(year, month, 1),
+                                                       is_facility=request.is_facility)
                         spdata['total'] += rr.total
                         for k in shared_slugs:
                             spdata[k] += getattr(rr, k)
@@ -91,10 +92,11 @@ class View(warehouse_view.DistrictOnlyView):
                 "is_datatable": False,
                 "is_downloadable": True,
                 "header": ["Facilities"] + shared_headers,
-                "data": _avg_report_rate_table_data\
-                    (facility_supply_points_below(sp.location).order_by('name'),
-                     request.datespan.startdate,
-                     request.datespan.enddate),
+                "data": _avg_report_rate_table_data(
+                    facility_supply_points_below(sp.location).order_by('name'),
+                    request.datespan.startdate,
+                    request.datespan.enddate
+                ),
                 "location_type": "facilities"
             }
 
@@ -110,8 +112,11 @@ class View(warehouse_view.DistrictOnlyView):
 
             hsas = hsa_supply_points_below(sp.location)
             for hsa in hsas:
-                rr = ReportingRate.objects.filter(supply_point=hsa,
-                    date__range=(request.datespan.startdate, request.datespan.enddate))
+                rr = ReportingRate.objects.filter(
+                    supply_point=hsa,
+                    date__range=(request.datespan.startdate, request.datespan.enddate),
+                    is_facility=request.is_facility,
+                )
                 total = non_rep = on_time = late = complete = 0
                 for r in rr:
                     total += r.total
@@ -125,7 +130,9 @@ class View(warehouse_view.DistrictOnlyView):
             "month_table": month_table,
             "location_table": location_table,
             "hsa_table": hsa_table,
-            "graphdata" : get_reporting_rates_chart(request.location,
-                                                    request.datespan.startdate,
-                                                    request.datespan.enddate)
+            # todo: pass is_facility though to get_reporting_rates_chart
+            "graphdata": get_reporting_rates_chart(request.location,
+                                                   request.datespan.startdate,
+                                                   request.datespan.enddate,
+                                                   is_facility=request.is_facility)
         }

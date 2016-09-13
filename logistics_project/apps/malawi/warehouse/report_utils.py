@@ -180,7 +180,8 @@ def _reporting_rate_chart_defaults():
         "yaxistitle": "% reported"
     }
     
-def get_reporting_rates_chart(location, start, end):
+
+def get_reporting_rates_chart(location, start, end, is_facility=False):
     """
     Reporting rates chart for a single facility, over a time period.
     """
@@ -191,7 +192,7 @@ def get_reporting_rates_chart(location, start, end):
     for year, month in months_between(start, end):
         dt = datetime(year, month, 1)
         dates.append(dt)
-        rr = ReportingRate.objects.get(supply_point=sp, date=dt)
+        rr = ReportingRate.objects.get(supply_point=sp, date=dt, is_facility=is_facility)
         data["on time"][dt] = pct(rr.on_time, rr.total)
         data["late"][dt] = pct(rr.reported - rr.on_time, rr.total)
         data["not reported"][dt] = pct(rr.total - rr.reported, rr.total)

@@ -229,3 +229,4 @@ SOUTH_MIGRATION_MODULES = {
 
 # data warehouse config
 WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'
+ENABLE_FACILITY_WORKFLOWS = False

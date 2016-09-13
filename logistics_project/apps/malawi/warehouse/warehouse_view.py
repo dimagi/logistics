@@ -44,7 +44,9 @@ class MalawiWarehouseView(ReportView):
 
         pct_reported = '?'
         try:
-            current_rr = ReportingRate.objects.get(date=date, supply_point=country)
+            current_rr = ReportingRate.objects.get(
+                date=date, supply_point=country, is_facility=request.is_facility,
+            )
             pct_reported = current_rr.pct_reported
         except ReportingRate.DoesNotExist:
             pass

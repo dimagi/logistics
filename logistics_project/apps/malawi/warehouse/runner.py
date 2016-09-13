@@ -15,7 +15,7 @@ from logistics.warehouse_models import SupplyPointWarehouseRecord
 from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
 
-from static.malawi.config import TimeTrackerTypes
+from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 
 from logistics_project.apps.malawi.util import hsa_supply_points_below, get_country_sp
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
@@ -87,8 +87,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
         if start < first_activity:
             start = first_activity
         
-        # first populate all the warehouse tables for all facilities
-        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        # first populate all the warehouse tables for all hsas
+        hsas = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.HSA).order_by('id')
         if self.hsa_limit:
             hsas = hsas[:self.hsa_limit]
         
@@ -98,7 +98,16 @@ class MalawiWarehouseRunner(WarehouseRunner):
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_hsa_data(hsa, start, end, all_products)
+                self.update_base_level_data(hsa, start, end, all_products)
+
+        if settings.ENABLE_FACILITY_WORKFLOWS:
+            print 'processing facility data'
+            facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
+            if self.facility_limit:
+                facilities = facilities[:self.facility_limit]
+            for i, facility in enumerate(facilities):
+                print "processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count)
+                self.update_base_level_data(facility, start, end, all_products, is_facility=True)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
@@ -125,30 +134,31 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_hsa_data(self, hsa, start, end, all_products=None):
-        all_products = all_products or Product.objects.all()
-        products_managed = set([c.pk for c in hsa.commodities_stocked()])
+    def update_base_level_data(self, supply_point, start, end, all_products=None, is_facility=False):
 
-        if not self.skip_current_consumption:
-            update_current_consumption(hsa)
+        all_products = all_products or Product.objects.all()
+        products_managed = set([c.pk for c in supply_point.commodities_stocked()])
+
+        if not self.skip_current_consumption and not is_facility:
+            update_current_consumption(supply_point)
 
         for year, month in months_between(start, end):
-            report_period = ReportPeriod(hsa, datetime(year, month, 1), start, end)
+            report_period = ReportPeriod(supply_point, datetime(year, month, 1), start, end)
 
             if not self.skip_reporting_rates:
-                _update_reporting_rate(hsa, report_period, products_managed)
-            if not self.skip_product_availability:
-                _update_product_availability(hsa, report_period, all_products)
-            if not self.skip_lead_times:
-                _update_lead_times(hsa, report_period)
-            if not self.skip_order_requests:
-                _update_order_requests(hsa, report_period, all_products)
-            if not self.skip_order_fulfillment:
-                _update_order_fulfillment(hsa, report_period, all_products)
-            if not self.skip_consumption:
+                _update_reporting_rate(supply_point, report_period, products_managed, is_facility)
+            if not self.skip_product_availability and not is_facility:
+                _update_product_availability(supply_point, report_period, all_products)
+            if not self.skip_lead_times and not is_facility:
+                _update_lead_times(supply_point, report_period)
+            if not self.skip_order_requests and not is_facility:
+                _update_order_requests(supply_point, report_period, all_products)
+            if not self.skip_order_fulfillment and not is_facility:
+                _update_order_fulfillment(supply_point, report_period, all_products)
+            if not self.skip_consumption and not is_facility:
                 update_consumption(report_period)
-            if not self.skip_historical_stock:
-                _update_historical_stock(hsa, report_period, all_products)
+            if not self.skip_historical_stock and not is_facility:
+                _update_historical_stock(supply_point, report_period, all_products)
 
     def update_non_hsa_data(self, place, start, end, since, all_products=None):
 
@@ -165,7 +175,13 @@ class MalawiWarehouseRunner(WarehouseRunner):
             window_date = datetime(year, month, 1)
             if not self.skip_reporting_rates:
                 _aggregate(ReportingRate, window_date, place, relevant_children,
-                           fields=['total', 'reported', 'on_time', 'complete'])
+                           fields=['total', 'reported', 'on_time', 'complete'],
+                           additonal_query_params={'is_facility': False})
+                if settings.ENABLE_FACILITY_WORKFLOWS:
+                    _aggregate(ReportingRate, window_date, place, relevant_children,
+                           fields=['total', 'reported', 'on_time', 'complete'],
+                           additonal_query_params={'is_facility': True})
+
             if not self.skip_product_availability:
                 for p in all_products:
                     _aggregate(ProductAvailabilityData, window_date, place, relevant_children,
@@ -233,13 +249,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
-               additonal_query_params={}):
+               additonal_query_params=None):
     """
     Aggregate an instance of modelclass, by summing up all of the fields for
     any matching models found in the same date range in the base_supply_points.
     
     Returns the updated reporting model class.
     """
+    additonal_query_params = additonal_query_params or {}
     # hack: remove test district users from national level
     if supply_point == get_country_sp():
         base_supply_points = base_supply_points.exclude(code='99')
@@ -254,14 +271,16 @@ def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
     period_instance.save()
     return period_instance
 
+
 def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields,
-               additonal_query_params={}):
+               additonal_query_params=None):
     """
     Aggregate an instance of modelclass, by summing up all of the fields for
     any matching models found in the same date range in the base_supply_points.
     
     Returns the updated reporting model class.
     """
+    additonal_query_params = additonal_query_params or {}
     additonal_query_params["date"] = window_date
     return _aggregate_raw(modelclass, supply_point, base_supply_points, fields, 
                           additonal_query_params)
@@ -505,33 +524,34 @@ def proper_child_type(supply_point):
         'hsa': None,
     }[supply_point.type.code]
 
+
 def aggregate_types_in_order():
     yield 'hf', 'health facility'
     yield 'd', 'district'
     yield 'c', 'country'
 
 
-def _update_reporting_rate(hsa, report_period, products_managed):
+def _update_reporting_rate(supply_point, report_period, products_managed, is_facility):
     """
-    Process reports (on time versus late, versus at
-    all and completeness)
+    Process reports (on time versus late, versus at all and completeness)
     """
     late_cutoff = report_period.window_date + \
         timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
 
     reports_in_range = ProductReport.objects.filter(
-        supply_point=hsa,
+        product__type__is_facility=is_facility,
+        supply_point=supply_point,
         report_type__code=Reports.SOH,
         report_date__gte=report_period.period_start,
         report_date__lte=report_period.period_end,
     )
     period_rr = ReportingRate.objects.get_or_create(
-        supply_point=hsa, date=report_period.window_date
+        supply_point=supply_point,
+        date=report_period.window_date,
+        is_facility=is_facility,
     )[0]
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
-    # for the em group "on time" is meaningful, for the ept group
-    # they are always considered "on time"
     if reports_in_range:
         first_report_date = reports_in_range.order_by('report_date')[0].report_date
         period_rr.on_time = first_report_date <= late_cutoff or period_rr.on_time
@@ -542,7 +562,7 @@ def _update_reporting_rate(hsa, report_period, products_managed):
         # transactions in the period every month
         # in order to do this correctly.
         this_months_reports = ProductReport.objects.filter(
-            supply_point=hsa,
+            supply_point=supply_point,
             report_type__code=Reports.SOH,
             report_date__gte=report_period.window_date,
             report_date__lte=report_period.period_end,
