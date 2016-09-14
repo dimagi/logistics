@@ -1,5 +1,4 @@
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from logistics.util import config
 
 
 class RecordResponseHandler(KeywordHandler):
