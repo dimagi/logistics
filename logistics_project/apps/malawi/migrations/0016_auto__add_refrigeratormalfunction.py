@@ -82,6 +82,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'ProductType'},
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_facility': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'logistics.supplypoint': {
@@ -247,6 +248,7 @@ class Migration(SchemaMigration):
             'create_date': ('django.db.models.fields.DateTimeField', [], {}),
             'date': ('django.db.models.fields.DateTimeField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_facility': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'on_time': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'reported': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),
