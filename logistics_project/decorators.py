@@ -1,5 +1,7 @@
 from django.http import HttpResponseForbidden
 from django.conf import settings
+from logistics.util import config
+
 
 def magic_token_required():
     """
@@ -16,3 +18,37 @@ def magic_token_required():
             return HttpResponseForbidden("You have to be logged in or have the magic token to do that!")
         return require_magic_token
     return wrapper
+
+
+def require_facility(f):
+    """
+    Meant to decorate the handle() method of an SMS handler.
+    Checks to make sure that the contact's supply point is a facility.
+    Assumes that self.msg.logistics_contact exists.
+    """
+    def inner(self, *args, **kwargs):
+        if (
+            self.msg.logistics_contact.supply_point and
+            self.msg.logistics_contact.supply_point.type.code == config.SupplyPointCodes.FACILITY
+        ):
+            return f(self, *args, **kwargs)
+
+        self.respond(config.Messages.ERROR_NO_FACILITY_ASSOCIATION)
+    return inner
+
+
+def require_district(f):
+    """
+    Meant to decorate the handle() method of an SMS handler.
+    Checks to make sure that the contact's supply point is a district.
+    Assumes that self.msg.logistics_contact exists.
+    """
+    def inner(self, *args, **kwargs):
+        if (
+            self.msg.logistics_contact.supply_point and
+            self.msg.logistics_contact.supply_point.type.code == config.SupplyPointCodes.DISTRICT
+        ):
+            return f(self, *args, **kwargs)
+
+        self.respond(config.Messages.ERROR_NO_DISTRICT_ASSOCIATION)
+    return inner

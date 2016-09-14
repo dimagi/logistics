@@ -38,6 +38,9 @@ class Operations(object):
     ADD_USER = "add_user"
     REMOVE_USER = "remove_user"
     APPROVE_USER = "approve_user"
+    REPORT_FRIDGE_MALFUNCTION = 'report_fridge_malfunction'
+    ADVISE_FACILITY_TRANSFER = 'advise_facility_transfer'
+
 
 class SupplyPointCodes(object):
     """
@@ -92,6 +95,10 @@ def has_permissions_to(contact, operation):
         return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
     if operation == Operations.APPROVE_USER:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
+    if operation == Operations.REPORT_FRIDGE_MALFUNCTION:
+        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+    if operation == Operations.ADVISE_FACILITY_TRANSFER:
+        return contact.role == ContactRole.objects.get(code=Roles.DISTRICT_SUPERVISOR)
     # TODO, fill this in more
     return True
 
@@ -258,6 +265,66 @@ class Messages(object):
     HELP_TEXT = "Text 'help stock' for help on the format of stock reports; " + \
                 "'help codes' for a list of commodity codes; " + \
                 "'help start' or 'help stop' to start and stop reminders."
+
+    FRIDGE_BROKEN_NO_GAS = "no gas"
+    FRIDGE_BROKEN_POWER_FAILURE = "power failure"
+    FRIDGE_BROKEN_BREAKDOWN = "breakdown"
+
+    FRIDGE_BROKEN_RESPONSE = ("Thank you. The district will be informed that your refrigerator is not working due "
+        "to: %(reason)s")
+
+    FRIDGE_BROKEN_NOTIFICATION = ("%(facility)s has a refrigerator malfunction due to: %(reason)s. Respond with "
+        "'transfer %(facility)s [to facility] to advise the transfer of EPI products.")
+
+    FRIDGE_HELP = ("To report a refrigerator malfunction, please send 'rm [reason code]'. Reason code should be "
+        "1:no gas, 2:power failure, 3:breakdown.")
+
+    FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
+        "1:no gas, 2:power failure, 3:breakdown.")
+
+    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
+        "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
+
+    FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your health center."
+
+    FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM = ("Please reply with 'rc' to confirm you have collected your EPI "
+        "products from %(facility)s")
+
+    FRIDGE_CONFIRM_PRODUCTS_COLLECTED = "Please reply with 'rc' to confirm you have collected your EPI products"
+
+    FRIDGE_NOT_REPORTED_FIXED = ("Your refrigerator has not been reported as fixed yet. If it has been "
+        "fixed, please respond with 'rf'")
+
+    FRIDGE_ALREADY_CONFIRMED_COLLECTED = "You have already confirmed that you have collected your EPI products."
+
+    FRIDGE_CONFIRMATION_RESPONSE = "Thank you for confirming that you have collected your EPI products."
+
+    ERROR_NO_FACILITY_ASSOCIATION = ("Your request cannot be processed because you are not associated with a "
+        "health center. For help, please contact your supervisor.")
+
+    ERROR_NO_DISTRICT_ASSOCIATION = ("Your request cannot be processed because you are not associated with a "
+        "district. For help, please contact your supervisor.")
+
+    FACILITY_TRANSFER_HELP = ("To advise a health center to transfer its EPI products to another health center, "
+        "send 'transfer [health center from] [health center to]'")
+
+    FACILITY_NOT_FOUND = ("Health center code '%(facility)s' is not valid. Please check the health center code "
+        "and try again." )
+
+    FACILITY_MUST_BE_DIFFERENT = ("You cannot choose the same health center as both the source and destination. "
+        "Please try again.")
+
+    FRIDGE_NOT_REPORTED_BROKEN_FOR_FACILITY = ("There is no open refrigerator malfunction reported at "
+        "health center '%(facility)s'.")
+
+    FRIDGE_REPORTED_BROKEN_FOR_FACILITY = ("There is an open refrigerator malfunction reported at "
+        "health center '%(facility)s'. Please choose a different destination health center and try again.")
+
+    TRANSFER_MESSAGE_TO_FACILITY = ("Please take your EPI stock to %(facility)s until your refrigerator is "
+        "working again. Please notify cStock when it is working again by sending: 'rf'.")
+
+    TRANSFER_RESPONSE_TO_DISTRICT = "Thank you, %(facility)s has been notified of the advised transfer."
+
 
 class Alerts(object):
     

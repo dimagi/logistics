@@ -27,7 +27,7 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616", products=N
 
 def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
 
-    if not role in  ['dp', 'im']:
+    if role not in config.Roles.DISTRICT_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s

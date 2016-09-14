@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 
 
@@ -12,6 +13,68 @@ class Organization(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class RefrigeratorMalfunction(models.Model):
+    REASON_NO_GAS = '1'
+    REASON_POWER_FAILURE = '2'
+    REASON_FRIDGE_BREAKDOWN = '3'
+
+    REASONS = (
+        REASON_NO_GAS,
+        REASON_POWER_FAILURE,
+        REASON_FRIDGE_BREAKDOWN,
+    )
+
+    # A reference to the facility with the malfunction
+    supply_point = models.ForeignKey('logistics.SupplyPoint', db_index=True, related_name='+')
+
+    # Timestamp when the facility user reported the malfunction
+    reported_on = models.DateTimeField(db_index=True)
+
+    # Takes the value of one of the REASON_* constants above
+    malfunction_reason = models.CharField(max_length=1)
+
+    # Timestamp when the district user responded
+    responded_on = models.DateTimeField(null=True)
+
+    # Facility where the district user referred the facility user to send their products while the
+    # refrigerator was broken
+    sent_to = models.ForeignKey('logistics.SupplyPoint', null=True, db_index=True, related_name='+')
+
+    # Timestamp when the refrigerator was reported fixed. This is null while broken, not null when fixed.
+    resolved_on = models.DateTimeField(null=True)
+
+    # This is set to the timestamp that the facility user confirms they have collected the products which
+    # were sent to the 'sent_to' facility
+    products_collected_confirmation_received_on = models.DateTimeField(null=True)
+
+    @classmethod
+    def get_open_malfunction(cls, supply_point):
+        try:
+            return cls.objects.get(
+                supply_point=supply_point,
+                resolved_on__isnull=True
+            )
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def new_malfunction(cls, supply_point, malfunction_reason):
+        cls.objects.create(
+            supply_point=supply_point,
+            reported_on=datetime.utcnow(),
+            malfunction_reason=malfunction_reason,
+        )
+
+    @classmethod
+    def get_last_reported_malfunction(cls, supply_point):
+        result = list(cls.objects.filter(supply_point=supply_point).order_by('-reported_on')[0:1])
+        if len(result) == 1:
+            return result[0]
+
+        return None
+
 
 from .warehouse.models import *
 from .signals import *
