@@ -14,8 +14,8 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
 
 class MalawiWarehouseView(ReportView):
     
-    show_report_nav = True # override to hide
-    
+    show_report_nav = True  # override to hide
+
     @property
     def template_name(self):
         return "%s/%s.html" % (settings.REPORT_FOLDER, self.slug)
@@ -44,7 +44,9 @@ class MalawiWarehouseView(ReportView):
 
         pct_reported = '?'
         try:
-            current_rr = ReportingRate.objects.get(date=date, supply_point=country)
+            current_rr = ReportingRate.objects.get(
+                date=date, supply_point=country, is_facility=request.is_facility,
+            )
             pct_reported = current_rr.pct_reported
         except ReportingRate.DoesNotExist:
             pass
@@ -78,6 +80,7 @@ class MalawiWarehouseView(ReportView):
         })
         return base_context
 
+
 class DashboardView(MalawiWarehouseView):
     """
     Reports that are only available to people whose location is set to 
@@ -96,6 +99,7 @@ class DashboardView(MalawiWarehouseView):
         view_level = get_view_level(request.user)
         base_context["national_view_level"] = view_level
         return base_context
+
 
 class DistrictOnlyView(MalawiWarehouseView):
     """

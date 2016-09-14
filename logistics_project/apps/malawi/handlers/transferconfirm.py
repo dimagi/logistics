@@ -37,4 +37,3 @@ class TransferConfirmHandler(KeywordHandler):
             self.respond(config.Messages.CONFIRM_RESPONSE, 
                          receiver=self.msg.logistics_contact.name,
                          products=", ".join([p.sms_format() for p in pending]))
-            

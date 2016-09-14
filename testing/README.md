@@ -77,4 +77,3 @@ tests to login to the site and hit the reports. For creating scripts we recommen
 You can use a tool like [Neustar Web Performance](http://www.neustar.biz/enterprise/web-performance/what-is-load-testing)
 to turn this into a load test. For details on how to do this (which require creating an account) please see the
 Neustar web page.
-

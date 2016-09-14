@@ -122,11 +122,6 @@ def get_ept_districts():
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY, is_active=True)
 
-def group_for_location(location):
-    ''' This is specific for the Malawi case, separating HSAs into groups by district.'''
-    # todo: we've changed it such that all locations are EM
-    # this function and all code that branches on it should be cleaned up
-    return config.Groups.EM
 
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
