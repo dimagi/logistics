@@ -45,10 +45,6 @@ class RefrigeratorMalfunction(models.Model):
     # Timestamp when the refrigerator was reported fixed. This is null while broken, not null when fixed.
     resolved_on = models.DateTimeField(null=True)
 
-    # This is set to the timestamp that the facility user confirms they have collected the products which
-    # were sent to the 'sent_to' facility
-    products_collected_confirmation_received_on = models.DateTimeField(null=True)
-
     @classmethod
     def get_open_malfunction(cls, supply_point):
         try:

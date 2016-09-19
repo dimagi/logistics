@@ -287,17 +287,8 @@ class Messages(object):
 
     FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your health center."
 
-    FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM = ("Please reply with 'rc' to confirm you have collected your EPI "
-        "products from %(facility)s")
-
-    FRIDGE_CONFIRM_PRODUCTS_COLLECTED = "Please reply with 'rc' to confirm you have collected your EPI products"
-
-    FRIDGE_NOT_REPORTED_FIXED = ("Your refrigerator has not been reported as fixed yet. If it has been "
-        "fixed, please respond with 'rf'")
-
-    FRIDGE_ALREADY_CONFIRMED_COLLECTED = "You have already confirmed that you have collected your EPI products."
-
-    FRIDGE_CONFIRMATION_RESPONSE = "Thank you for confirming that you have collected your EPI products."
+    FRIDGE_FIXED_RESPONSE = ("Thank you for confirming your fridge is fixed. Don't forget to pick up your EPI "
+        "products.")
 
     ERROR_NO_FACILITY_ASSOCIATION = ("Your request cannot be processed because you are not associated with a "
         "health center. For help, please contact your supervisor.")

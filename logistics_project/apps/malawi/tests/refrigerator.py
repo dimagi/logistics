@@ -36,7 +36,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is None)
         self.assertTrue(malfunction.sent_to is None)
         self.assertTrue(malfunction.resolved_on is None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
 
         self.runScript(
             """5550002 > transfer 2616 2601
@@ -57,13 +56,12 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is not None)
         self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
         self.assertTrue(malfunction.resolved_on is None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
 
         self.runScript(
             """5550001 > rf
                5550001 < %(facility_response)s
             """ % {
-                'facility_response': config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM % {'facility': '2601'},
+                'facility_response': config.Messages.FRIDGE_FIXED_RESPONSE,
             }
         )
 
@@ -77,27 +75,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is not None)
         self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
         self.assertTrue(malfunction.resolved_on is not None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
-
-        self.runScript(
-            """5550001 > rc
-               5550001 < %(facility_response)s
-            """ % {
-                'facility_response': config.Messages.FRIDGE_CONFIRMATION_RESPONSE,
-            }
-        )
-
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
-        self.assertTrue(RefrigeratorMalfunction.get_open_malfunction(facility) is None)
-        malfunction = RefrigeratorMalfunction.get_last_reported_malfunction(facility)
-        self.assertTrue(malfunction is not None)
-        self.assertEqual(malfunction.supply_point, facility)
-        self.assertTrue(malfunction.reported_on is not None)
-        self.assertEqual(malfunction.malfunction_reason, RefrigeratorMalfunction.REASON_NO_GAS)
-        self.assertTrue(malfunction.responded_on is not None)
-        self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
-        self.assertTrue(malfunction.resolved_on is not None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is not None)
 
     def testRmValidation(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
@@ -175,7 +152,7 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         )
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
 
-    def testRfRcValidation(self):
+    def testRfValidation(self):
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
 
         self.runScript(
@@ -186,30 +163,13 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
             }
         )
 
+        # Test that we still accept rf even though transfer was never received
         self.runScript(
             """5550001 > rm 3
                5550001 > rf
                5550001 < %(response)s
             """ % {
-                'response': config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED,
-            }
-        )
-
-        self.runScript(
-            """5550001 > rc
-               5550001 > rc
-               5550001 < %(response)s
-            """ % {
-                'response': config.Messages.FRIDGE_ALREADY_CONFIRMED_COLLECTED,
-            }
-        )
-
-        self.runScript(
-            """5550001 > rm 1
-               5550001 > rc
-               5550001 < %(response)s
-            """ % {
-                'response': config.Messages.FRIDGE_NOT_REPORTED_FIXED,
+                'response': config.Messages.FRIDGE_FIXED_RESPONSE,
             }
         )
 
