@@ -13,17 +13,23 @@ class Roles(object):
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
+    # The EPI Focal Person; this contact belongs to a Facility
+    EPI_FOCAL = "ef"
+    # The EPI Coordinator; this contact belongs to a District
+    EPI_COORDINATOR = "ec"
     ALL_ROLES = {
         HSA: "hsa",
         HSA_SUPERVISOR: "hsa supervisor",
         IN_CHARGE: "in charge",
         DISTRICT_SUPERVISOR: "district supervisor",
         DISTRICT_PHARMACIST: "district pharmacist",
-        IMCI_COORDINATOR: "imci coordinator"
+        IMCI_COORDINATOR: "imci coordinator",
+        EPI_FOCAL: "epi focal person",
+        EPI_COORDINATOR: "epi coordinator",
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
-    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR]
-    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
+    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
+    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, EPI_COORDINATOR]
     SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
 
 class Operations(object):
