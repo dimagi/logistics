@@ -102,9 +102,9 @@ def has_permissions_to(contact, operation):
     if operation == Operations.APPROVE_USER:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     if operation == Operations.REPORT_FRIDGE_MALFUNCTION:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role.code in Roles.FACILITY_ONLY
     if operation == Operations.ADVISE_FACILITY_TRANSFER:
-        return contact.role == ContactRole.objects.get(code=Roles.DISTRICT_SUPERVISOR)
+        return contact.role.code in Roles.DISTRICT_ONLY
     # TODO, fill this in more
     return True
 

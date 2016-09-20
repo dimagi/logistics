@@ -90,7 +90,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
 
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
         create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
-        create_manager(self, "5550003", "hsa supervisor", role=config.Roles.HSA_SUPERVISOR, facility_code='2616')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, facility_code='2616')
 
         in_charge2 = Contact.objects.get(connection__identity='5550004')
@@ -100,15 +99,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.runScript(
             """5550002 > rm 1
                5550002 < %(response)s
-            """ % {
-                'response': config.Messages.UNSUPPORTED_OPERATION,
-            }
-        )
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
-
-        self.runScript(
-            """5550003 > rm 1
-               5550003 < %(response)s
             """ % {
                 'response': config.Messages.UNSUPPORTED_OPERATION,
             }
@@ -182,6 +172,14 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         ds2 = Contact.objects.get(connection__identity='5550003')
         ds2.supply_point = None
         ds2.save()
+
+        self.runScript(
+            """5550001 > transfer 2616 2601
+               5550001 < %(response)s
+            """ % {
+                'response': config.Messages.UNSUPPORTED_OPERATION,
+            }
+        )
 
         self.runScript(
             """5550003 > transfer 2616 2601
