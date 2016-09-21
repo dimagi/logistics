@@ -214,17 +214,16 @@ def get_reporting_rates_chart(location, start, end, is_facility=False):
     })
     return report_chart
 
-def get_multiple_reporting_rates_chart(supply_points, date):
+def get_multiple_reporting_rates_chart(supply_points, date, is_facility=False):
     """
     Reporting rates chart for multiple facilities, for a single 
     month.
     """
     report_chart = _reporting_rate_chart_defaults()
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-    rrs = ReportingRate.objects.filter(supply_point__in=supply_points, date=date)
+    rrs = ReportingRate.objects.filter(supply_point__in=supply_points, date=date, is_facility=is_facility)
     for rr in rrs:
         sp = rr.supply_point
-        rr = ReportingRate.objects.get(supply_point=sp, date=date)
         data["on time"][sp] = pct(rr.on_time, rr.total)
         data["late"][sp] = pct(rr.reported - rr.on_time, rr.total)
         data["not reported"][sp] = pct(rr.total - rr.reported, rr.total)
