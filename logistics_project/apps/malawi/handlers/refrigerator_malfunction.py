@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
@@ -60,10 +61,10 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)
 
         if malfunction:
-            days_since_report = (datetime.utcnow() - malfunction.reported_on).days
+            date_str = pytz.timezone('Africa/Blantyre').localize(malfunction.reported_on).strftime('%d %b')
             self.respond(
                 config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED,
-                days=days_since_report
+                date=date_str
             )
             return True
 

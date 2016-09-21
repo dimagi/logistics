@@ -289,7 +289,7 @@ class Messages(object):
     FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
         "1:no gas, 2:power failure, 3:breakdown, 4:other.")
 
-    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
+    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction on %(date)s. "
         "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
 
     FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your health center."
