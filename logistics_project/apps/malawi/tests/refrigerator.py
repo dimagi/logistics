@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from datetime import datetime
 from logistics.util import config
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
@@ -12,7 +13,7 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
     def testBasicWorkflow(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
         create_manager(self, "5550001", "facility user", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district user", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
+        create_manager(self, "5550002", "district user", role=config.Roles.EPI_COORDINATOR, facility_code='26')
         facility = SupplyPoint.objects.get(code='2616')
 
         self.runScript(
@@ -132,15 +133,19 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         )
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
 
+        self.runScript("5550001 > rm 2")
+        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
+        malfunction = RefrigeratorMalfunction.objects.all()[0]
+        malfunction.reported_on = datetime(2016, 9, 21)
+        malfunction.save()
+
         self.runScript(
             """5550001 > rm 2
-               5550001 > rm 2
                5550001 < %(response)s
             """ % {
-                'response': config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED % {'days': '0'},
+                'response': config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED % {'date': '21 Sep'},
             }
         )
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
 
     def testRfValidation(self):
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
