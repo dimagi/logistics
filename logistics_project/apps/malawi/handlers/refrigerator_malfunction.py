@@ -30,6 +30,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             RefrigeratorMalfunction.REASON_NO_GAS: config.Messages.FRIDGE_BROKEN_NO_GAS,
             RefrigeratorMalfunction.REASON_POWER_FAILURE: config.Messages.FRIDGE_BROKEN_POWER_FAILURE,
             RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN: config.Messages.FRIDGE_BROKEN_BREAKDOWN,
+            RefrigeratorMalfunction.REASON_OTHER: config.Messages.FRIDGE_BROKEN_OTHER,
         }.get(reason)
 
     def respond_to_facility_user(self, reason):

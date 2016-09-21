@@ -19,11 +19,13 @@ class RefrigeratorMalfunction(models.Model):
     REASON_NO_GAS = '1'
     REASON_POWER_FAILURE = '2'
     REASON_FRIDGE_BREAKDOWN = '3'
+    REASON_OTHER = '4'
 
     REASONS = (
         REASON_NO_GAS,
         REASON_POWER_FAILURE,
         REASON_FRIDGE_BREAKDOWN,
+        REASON_OTHER,
     )
 
     # A reference to the facility with the malfunction

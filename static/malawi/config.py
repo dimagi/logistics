@@ -275,6 +275,7 @@ class Messages(object):
     FRIDGE_BROKEN_NO_GAS = "no gas"
     FRIDGE_BROKEN_POWER_FAILURE = "power failure"
     FRIDGE_BROKEN_BREAKDOWN = "breakdown"
+    FRIDGE_BROKEN_OTHER = "other"
 
     FRIDGE_BROKEN_RESPONSE = ("Thank you. The district will be informed that your refrigerator is not working due "
         "to: %(reason)s")
@@ -283,10 +284,10 @@ class Messages(object):
         "'transfer %(facility)s [to facility] to advise the transfer of EPI products.")
 
     FRIDGE_HELP = ("To report a refrigerator malfunction, please send 'rm [reason code]'. Reason code should be "
-        "1:no gas, 2:power failure, 3:breakdown.")
+        "1:no gas, 2:power failure, 3:breakdown, 4:other.")
 
     FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
-        "1:no gas, 2:power failure, 3:breakdown.")
+        "1:no gas, 2:power failure, 3:breakdown, 4:other.")
 
     FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
         "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
