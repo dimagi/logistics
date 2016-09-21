@@ -21,7 +21,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
         return True
 
-    def get_facility(self, code, district_supply_point):
+    def get_facility(self, code, district_supply_point, perform_location_parent_check=True):
         try:
             facility = SupplyPoint.objects.get(code=code)
         except SupplyPoint.DoesNotExist:
@@ -29,8 +29,8 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
         if (
             facility is None or
-            not facility.active
-            or facility.location.parent != district_supply_point.location
+            not facility.active or
+            (perform_location_parent_check and facility.location.parent != district_supply_point.location)
         ):
             self.respond(config.Messages.FACILITY_NOT_FOUND, facility=code)
             return None
@@ -60,7 +60,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             if from_facility is None:
                 return
 
-            to_facility = self.get_facility(words[1], district_supply_point)
+            to_facility = self.get_facility(words[1], district_supply_point, perform_location_parent_check=False)
             if to_facility is None:
                 return
 
