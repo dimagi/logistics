@@ -29,6 +29,9 @@ class RefrigeratorMalfunction(models.Model):
     # A reference to the facility with the malfunction
     supply_point = models.ForeignKey('logistics.SupplyPoint', db_index=True, related_name='+')
 
+    # Contact who reported the malfunction
+    reported_by = models.ForeignKey('rapidsms.Contact', related_name='+')
+
     # Timestamp when the facility user reported the malfunction
     reported_on = models.DateTimeField(db_index=True)
 
@@ -56,10 +59,11 @@ class RefrigeratorMalfunction(models.Model):
             return None
 
     @classmethod
-    def new_malfunction(cls, supply_point, malfunction_reason):
+    def new_malfunction(cls, supply_point, malfunction_reason, reported_by):
         cls.objects.create(
             supply_point=supply_point,
             reported_on=datetime.utcnow(),
+            reported_by=reported_by,
             malfunction_reason=malfunction_reason,
         )
 

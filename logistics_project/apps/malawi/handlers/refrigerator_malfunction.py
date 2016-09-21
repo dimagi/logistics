@@ -76,6 +76,6 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         if self.is_text_valid(words):
             reason = words[0]
             if not self.malfunction_exists(supply_point):
-                RefrigeratorMalfunction.new_malfunction(supply_point, reason)
+                RefrigeratorMalfunction.new_malfunction(supply_point, reason, self.msg.logistics_contact)
                 self.respond_to_facility_user(reason)
                 self.notify_district_users(supply_point, reason)

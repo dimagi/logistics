@@ -40,15 +40,8 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
     def respond_to_district_user(self, from_facility):
         self.respond(config.Messages.TRANSFER_RESPONSE_TO_DISTRICT, facility=from_facility.code)
 
-    def notify_facility_users(self, from_facility, to_facility):
-        recipients = Contact.objects.filter(
-            is_active=True,
-            supply_point=from_facility,
-            role=ContactRole.objects.get(code=config.Roles.IN_CHARGE)
-        )
-
-        for recipient in recipients:
-            recipient.message(config.Messages.TRANSFER_MESSAGE_TO_FACILITY, facility=to_facility.code)
+    def notify_facility_users(self, malfunction, to_facility):
+        malfunction.reported_by.message(config.Messages.TRANSFER_MESSAGE_TO_FACILITY, facility=to_facility.code)
 
     @logistics_contact_and_permission_required(config.Operations.ADVISE_FACILITY_TRANSFER)
     @require_district
@@ -81,5 +74,5 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             malfunction.responded_on = datetime.utcnow()
             malfunction.save()
 
-            self.notify_facility_users(from_facility, to_facility)
+            self.notify_facility_users(malfunction, to_facility)
             self.respond_to_district_user(from_facility)
