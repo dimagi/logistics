@@ -316,7 +316,7 @@ class Messages(object):
         "health center '%(facility)s'.")
 
     FRIDGE_REPORTED_BROKEN_FOR_FACILITY = ("There is an open refrigerator malfunction reported at "
-        "health center '%(facility)s'. Please choose a different destination health center and try again.")
+        "health center '%(facility)s'. Please choose another or contact '%(facility)s' to report it fixed.")
 
     TRANSFER_MESSAGE_TO_FACILITY = ("Please take your EPI stock to %(facility)s until your refrigerator is "
         "working again. Please notify cStock when it is working again by sending: 'rf'.")
