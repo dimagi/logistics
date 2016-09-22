@@ -112,6 +112,13 @@ class MalawiWarehouseView(ReportView):
             "window_date": current_report_period(),
             "is_facility": request.is_facility,
         })
+
+        if request.is_facility:
+            base_context['report_list'] = [
+                {'name': name, 'slug': slug}
+                for name, slug in settings.EPI_REPORT_LIST.iteritems()
+            ]
+
         return base_context
 
 
