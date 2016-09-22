@@ -55,6 +55,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     skip_historical_stock = False
     consumption_test_mode = False
     hsa_limit = 0
+    facility_limit = 0
     agg_limit_per_type = 0
 
     def cleanup(self, start, end):
