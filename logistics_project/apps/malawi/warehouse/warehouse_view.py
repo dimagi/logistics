@@ -1,4 +1,6 @@
+from dimagi.utils.dates import DateSpan
 from django.conf import settings
+from django.contrib import messages
 from django.utils.datastructures import SortedDict
 
 from logistics.models import Product, SupplyPoint
@@ -15,6 +17,27 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
 class MalawiWarehouseView(ReportView):
     
     show_report_nav = True  # override to hide
+
+    # If overridden to True, implement get_min_start_date() and the start date
+    # for the report will automatically update if the default range or the
+    # user-selected range is too wide.
+    automatically_adjust_datespan = False
+
+    def get_min_start_date(self, request):
+        """
+        Should return the minimum start date that should be used with this report.
+        """
+        raise NotImplementedError()
+
+    def update_datespan(self, request):
+        min_date = self.get_min_start_date(request)
+        if min_date and min_date > request.datespan.startdate:
+            startdate = min_date
+            enddate = request.datespan.enddate
+            if enddate < startdate:
+                enddate = startdate
+            request.datespan = DateSpan(startdate, enddate, request.datespan.format)
+            messages.warning(request, "The date range has been automatically adjusted because it was too wide.")
 
     @property
     def template_name(self):

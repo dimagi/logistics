@@ -54,6 +54,8 @@ def _get_report(request, slug, is_facility):
                          "You've been redirected home.")
         return home(request)
     try:
+        if getattr(report, 'automatically_adjust_datespan', False):
+            report.update_datespan(request)
         # bit of a hack: for csv expect two these two magic params 
         # and pull the data from the context
         if string_to_boolean(request.GET.get("export_csv", "false")):
