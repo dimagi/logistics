@@ -19,15 +19,20 @@ class RefrigeratorMalfunction(models.Model):
     REASON_NO_GAS = '1'
     REASON_POWER_FAILURE = '2'
     REASON_FRIDGE_BREAKDOWN = '3'
+    REASON_OTHER = '4'
 
     REASONS = (
         REASON_NO_GAS,
         REASON_POWER_FAILURE,
         REASON_FRIDGE_BREAKDOWN,
+        REASON_OTHER,
     )
 
     # A reference to the facility with the malfunction
     supply_point = models.ForeignKey('logistics.SupplyPoint', db_index=True, related_name='+')
+
+    # Contact who reported the malfunction
+    reported_by = models.ForeignKey('rapidsms.Contact', related_name='+')
 
     # Timestamp when the facility user reported the malfunction
     reported_on = models.DateTimeField(db_index=True)
@@ -45,10 +50,6 @@ class RefrigeratorMalfunction(models.Model):
     # Timestamp when the refrigerator was reported fixed. This is null while broken, not null when fixed.
     resolved_on = models.DateTimeField(null=True)
 
-    # This is set to the timestamp that the facility user confirms they have collected the products which
-    # were sent to the 'sent_to' facility
-    products_collected_confirmation_received_on = models.DateTimeField(null=True)
-
     @classmethod
     def get_open_malfunction(cls, supply_point):
         try:
@@ -60,10 +61,11 @@ class RefrigeratorMalfunction(models.Model):
             return None
 
     @classmethod
-    def new_malfunction(cls, supply_point, malfunction_reason):
+    def new_malfunction(cls, supply_point, malfunction_reason, reported_by):
         cls.objects.create(
             supply_point=supply_point,
             reported_on=datetime.utcnow(),
+            reported_by=reported_by,
             malfunction_reason=malfunction_reason,
         )
 

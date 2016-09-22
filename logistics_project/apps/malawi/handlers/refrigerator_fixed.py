@@ -24,8 +24,4 @@ class RefrigeratorFixedHandler(KeywordHandler):
         malfunction.resolved_on = datetime.utcnow()
         malfunction.save()
 
-        if malfunction.sent_to:
-            self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM,
-                facility=malfunction.sent_to.code)
-        else:
-            self.respond(config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED)
+        self.respond(config.Messages.FRIDGE_FIXED_RESPONSE)

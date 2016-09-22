@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from datetime import datetime
 from logistics.util import config
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
@@ -12,7 +13,7 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
     def testBasicWorkflow(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
         create_manager(self, "5550001", "facility user", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district user", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
+        create_manager(self, "5550002", "district user", role=config.Roles.EPI_COORDINATOR, facility_code='26')
         facility = SupplyPoint.objects.get(code='2616')
 
         self.runScript(
@@ -36,7 +37,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is None)
         self.assertTrue(malfunction.sent_to is None)
         self.assertTrue(malfunction.resolved_on is None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
 
         self.runScript(
             """5550002 > transfer 2616 2601
@@ -57,13 +57,12 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is not None)
         self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
         self.assertTrue(malfunction.resolved_on is None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
 
         self.runScript(
             """5550001 > rf
                5550001 < %(facility_response)s
             """ % {
-                'facility_response': config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM % {'facility': '2601'},
+                'facility_response': config.Messages.FRIDGE_FIXED_RESPONSE,
             }
         )
 
@@ -77,27 +76,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertTrue(malfunction.responded_on is not None)
         self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
         self.assertTrue(malfunction.resolved_on is not None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is None)
-
-        self.runScript(
-            """5550001 > rc
-               5550001 < %(facility_response)s
-            """ % {
-                'facility_response': config.Messages.FRIDGE_CONFIRMATION_RESPONSE,
-            }
-        )
-
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
-        self.assertTrue(RefrigeratorMalfunction.get_open_malfunction(facility) is None)
-        malfunction = RefrigeratorMalfunction.get_last_reported_malfunction(facility)
-        self.assertTrue(malfunction is not None)
-        self.assertEqual(malfunction.supply_point, facility)
-        self.assertTrue(malfunction.reported_on is not None)
-        self.assertEqual(malfunction.malfunction_reason, RefrigeratorMalfunction.REASON_NO_GAS)
-        self.assertTrue(malfunction.responded_on is not None)
-        self.assertEqual(malfunction.sent_to, SupplyPoint.objects.get(code='2601'))
-        self.assertTrue(malfunction.resolved_on is not None)
-        self.assertTrue(malfunction.products_collected_confirmation_received_on is not None)
 
     def testRmValidation(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
@@ -113,7 +91,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
 
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
         create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
-        create_manager(self, "5550003", "hsa supervisor", role=config.Roles.HSA_SUPERVISOR, facility_code='2616')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, facility_code='2616')
 
         in_charge2 = Contact.objects.get(connection__identity='5550004')
@@ -123,15 +100,6 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.runScript(
             """5550002 > rm 1
                5550002 < %(response)s
-            """ % {
-                'response': config.Messages.UNSUPPORTED_OPERATION,
-            }
-        )
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
-
-        self.runScript(
-            """5550003 > rm 1
-               5550003 < %(response)s
             """ % {
                 'response': config.Messages.UNSUPPORTED_OPERATION,
             }
@@ -165,17 +133,21 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         )
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
 
+        self.runScript("5550001 > rm 2")
+        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
+        malfunction = RefrigeratorMalfunction.objects.all()[0]
+        malfunction.reported_on = datetime(2016, 9, 21)
+        malfunction.save()
+
         self.runScript(
             """5550001 > rm 2
-               5550001 > rm 2
                5550001 < %(response)s
             """ % {
-                'response': config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED % {'days': '0'},
+                'response': config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED % {'date': '21 Sep'},
             }
         )
-        self.assertEqual(RefrigeratorMalfunction.objects.count(), 1)
 
-    def testRfRcValidation(self):
+    def testRfValidation(self):
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
 
         self.runScript(
@@ -186,30 +158,13 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
             }
         )
 
+        # Test that we still accept rf even though transfer was never received
         self.runScript(
             """5550001 > rm 3
                5550001 > rf
                5550001 < %(response)s
             """ % {
-                'response': config.Messages.FRIDGE_CONFIRM_PRODUCTS_COLLECTED,
-            }
-        )
-
-        self.runScript(
-            """5550001 > rc
-               5550001 > rc
-               5550001 < %(response)s
-            """ % {
-                'response': config.Messages.FRIDGE_ALREADY_CONFIRMED_COLLECTED,
-            }
-        )
-
-        self.runScript(
-            """5550001 > rm 1
-               5550001 > rc
-               5550001 < %(response)s
-            """ % {
-                'response': config.Messages.FRIDGE_NOT_REPORTED_FIXED,
+                'response': config.Messages.FRIDGE_FIXED_RESPONSE,
             }
         )
 
@@ -222,6 +177,14 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         ds2 = Contact.objects.get(connection__identity='5550003')
         ds2.supply_point = None
         ds2.save()
+
+        self.runScript(
+            """5550001 > transfer 2616 2601
+               5550001 < %(response)s
+            """ % {
+                'response': config.Messages.UNSUPPORTED_OPERATION,
+            }
+        )
 
         self.runScript(
             """5550003 > transfer 2616 2601

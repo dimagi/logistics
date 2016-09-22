@@ -21,7 +21,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
         return True
 
-    def get_facility(self, code, district_supply_point):
+    def get_facility(self, code, district_supply_point, perform_location_parent_check=True):
         try:
             facility = SupplyPoint.objects.get(code=code)
         except SupplyPoint.DoesNotExist:
@@ -29,26 +29,26 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
         if (
             facility is None or
-            not facility.active
-            or facility.location.parent != district_supply_point.location
+            not facility.active or
+            (perform_location_parent_check and facility.location.parent != district_supply_point.location)
         ):
             self.respond(config.Messages.FACILITY_NOT_FOUND, facility=code)
             return None
 
         return facility
 
-    def respond_to_district_user(self, from_facility):
-        self.respond(config.Messages.TRANSFER_RESPONSE_TO_DISTRICT, facility=from_facility.code)
-
-    def notify_facility_users(self, from_facility, to_facility):
+    def respond_to_district_users(self, from_facility):
         recipients = Contact.objects.filter(
             is_active=True,
-            supply_point=from_facility,
-            role=ContactRole.objects.get(code=config.Roles.IN_CHARGE)
+            supply_point=self.msg.logistics_contact.supply_point,
+            role__code__in=[config.Roles.DISTRICT_PHARMACIST, config.Roles.EPI_COORDINATOR]
         )
 
         for recipient in recipients:
-            recipient.message(config.Messages.TRANSFER_MESSAGE_TO_FACILITY, facility=to_facility.code)
+            recipient.message(config.Messages.TRANSFER_RESPONSE_TO_DISTRICT, facility=from_facility.code)
+
+    def notify_facility_users(self, malfunction, to_facility):
+        malfunction.reported_by.message(config.Messages.TRANSFER_MESSAGE_TO_FACILITY, facility=to_facility.code)
 
     @logistics_contact_and_permission_required(config.Operations.ADVISE_FACILITY_TRANSFER)
     @require_district
@@ -60,7 +60,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             if from_facility is None:
                 return
 
-            to_facility = self.get_facility(words[1], district_supply_point)
+            to_facility = self.get_facility(words[1], district_supply_point, perform_location_parent_check=False)
             if to_facility is None:
                 return
 
@@ -81,5 +81,5 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             malfunction.responded_on = datetime.utcnow()
             malfunction.save()
 
-            self.notify_facility_users(from_facility, to_facility)
-            self.respond_to_district_user(from_facility)
+            self.notify_facility_users(malfunction, to_facility)
+            self.respond_to_district_users(from_facility)

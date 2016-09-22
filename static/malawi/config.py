@@ -13,17 +13,23 @@ class Roles(object):
     DISTRICT_SUPERVISOR = "ds"
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
+    # The EPI Focal Person; this contact belongs to a Facility
+    EPI_FOCAL = "ef"
+    # The EPI Coordinator; this contact belongs to a District
+    EPI_COORDINATOR = "ec"
     ALL_ROLES = {
         HSA: "hsa",
         HSA_SUPERVISOR: "hsa supervisor",
         IN_CHARGE: "in charge",
         DISTRICT_SUPERVISOR: "district supervisor",
         DISTRICT_PHARMACIST: "district pharmacist",
-        IMCI_COORDINATOR: "imci coordinator"
+        IMCI_COORDINATOR: "imci coordinator",
+        EPI_FOCAL: "epi focal person",
+        EPI_COORDINATOR: "epi coordinator",
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
-    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR]
-    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR]
+    FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
+    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, EPI_COORDINATOR]
     SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
 
 class Operations(object):
@@ -96,9 +102,9 @@ def has_permissions_to(contact, operation):
     if operation == Operations.APPROVE_USER:
         return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
     if operation == Operations.REPORT_FRIDGE_MALFUNCTION:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role.code in Roles.FACILITY_ONLY
     if operation == Operations.ADVISE_FACILITY_TRANSFER:
-        return contact.role == ContactRole.objects.get(code=Roles.DISTRICT_SUPERVISOR)
+        return contact.role.code in Roles.DISTRICT_ONLY
     # TODO, fill this in more
     return True
 
@@ -269,6 +275,7 @@ class Messages(object):
     FRIDGE_BROKEN_NO_GAS = "no gas"
     FRIDGE_BROKEN_POWER_FAILURE = "power failure"
     FRIDGE_BROKEN_BREAKDOWN = "breakdown"
+    FRIDGE_BROKEN_OTHER = "other"
 
     FRIDGE_BROKEN_RESPONSE = ("Thank you. The district will be informed that your refrigerator is not working due "
         "to: %(reason)s")
@@ -277,27 +284,18 @@ class Messages(object):
         "'transfer %(facility)s [to facility] to advise the transfer of EPI products.")
 
     FRIDGE_HELP = ("To report a refrigerator malfunction, please send 'rm [reason code]'. Reason code should be "
-        "1:no gas, 2:power failure, 3:breakdown.")
+        "1:no gas, 2:power failure, 3:breakdown, 4:other.")
 
     FRIDGE_HELP_REASON = ("'%(code)s' is not a valid reason code. Refrigerator malfunction reason code should be "
-        "1:no gas, 2:power failure, 3:breakdown.")
+        "1:no gas, 2:power failure, 3:breakdown, 4:other.")
 
-    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction %(days)s days ago. "
+    FRIDGE_MALFUNCTION_ALREADY_REPORTED = ("You already reported a refrigerator malfunction on %(date)s. "
         "If that malfunction has been fixed, please reply with 'rf', and then report the new malfunction with 'rm'")
 
     FRIDGE_NOT_REPORTED_BROKEN = "There is no open refrigerator malfunction reported at your health center."
 
-    FRIDGE_CONFIRM_PRODUCTS_COLLECTED_FROM = ("Please reply with 'rc' to confirm you have collected your EPI "
-        "products from %(facility)s")
-
-    FRIDGE_CONFIRM_PRODUCTS_COLLECTED = "Please reply with 'rc' to confirm you have collected your EPI products"
-
-    FRIDGE_NOT_REPORTED_FIXED = ("Your refrigerator has not been reported as fixed yet. If it has been "
-        "fixed, please respond with 'rf'")
-
-    FRIDGE_ALREADY_CONFIRMED_COLLECTED = "You have already confirmed that you have collected your EPI products."
-
-    FRIDGE_CONFIRMATION_RESPONSE = "Thank you for confirming that you have collected your EPI products."
+    FRIDGE_FIXED_RESPONSE = ("Thank you for confirming your fridge is fixed. Don't forget to pick up your EPI "
+        "products.")
 
     ERROR_NO_FACILITY_ASSOCIATION = ("Your request cannot be processed because you are not associated with a "
         "health center. For help, please contact your supervisor.")
@@ -318,7 +316,7 @@ class Messages(object):
         "health center '%(facility)s'.")
 
     FRIDGE_REPORTED_BROKEN_FOR_FACILITY = ("There is an open refrigerator malfunction reported at "
-        "health center '%(facility)s'. Please choose a different destination health center and try again.")
+        "health center '%(facility)s'. Please choose another or contact '%(facility)s' to report it fixed.")
 
     TRANSFER_MESSAGE_TO_FACILITY = ("Please take your EPI stock to %(facility)s until your refrigerator is "
         "working again. Please notify cStock when it is working again by sending: 'rf'.")

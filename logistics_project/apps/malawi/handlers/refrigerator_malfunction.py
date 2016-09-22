@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
@@ -30,6 +31,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
             RefrigeratorMalfunction.REASON_NO_GAS: config.Messages.FRIDGE_BROKEN_NO_GAS,
             RefrigeratorMalfunction.REASON_POWER_FAILURE: config.Messages.FRIDGE_BROKEN_POWER_FAILURE,
             RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN: config.Messages.FRIDGE_BROKEN_BREAKDOWN,
+            RefrigeratorMalfunction.REASON_OTHER: config.Messages.FRIDGE_BROKEN_OTHER,
         }.get(reason)
 
     def respond_to_facility_user(self, reason):
@@ -43,7 +45,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         recipients = Contact.objects.filter(
             is_active=True,
             supply_point__location=supply_point.location.parent,
-            role=ContactRole.objects.get(code=config.Roles.DISTRICT_SUPERVISOR)
+            role__code__in=[config.Roles.DISTRICT_PHARMACIST, config.Roles.EPI_COORDINATOR]
         )
 
         reason_desc = self.get_reason_desc(reason)
@@ -59,10 +61,10 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)
 
         if malfunction:
-            days_since_report = (datetime.utcnow() - malfunction.reported_on).days
+            date_str = pytz.timezone('Africa/Blantyre').localize(malfunction.reported_on).strftime('%d %b')
             self.respond(
                 config.Messages.FRIDGE_MALFUNCTION_ALREADY_REPORTED,
-                days=days_since_report
+                date=date_str
             )
             return True
 
@@ -76,6 +78,6 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         if self.is_text_valid(words):
             reason = words[0]
             if not self.malfunction_exists(supply_point):
-                RefrigeratorMalfunction.new_malfunction(supply_point, reason)
+                RefrigeratorMalfunction.new_malfunction(supply_point, reason, self.msg.logistics_contact)
                 self.respond_to_facility_user(reason)
                 self.notify_district_users(supply_point, reason)
