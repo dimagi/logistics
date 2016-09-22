@@ -1,6 +1,7 @@
 from datetime import datetime
 from collections import defaultdict
 from django.contrib import messages
+from django.db.models import Min
 
 from django.utils.datastructures import SortedDict
 
@@ -17,6 +18,12 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 
 
 class View(warehouse_view.DistrictOnlyView):
+
+    automatically_adjust_datespan = True
+
+    def get_min_start_date(self, request):
+        result = ReportingRate.objects.filter(is_facility=request.is_facility).aggregate(min_date=Min('date'))
+        return result['min_date']
 
     def custom_context(self, request):
         if request.is_facility:
