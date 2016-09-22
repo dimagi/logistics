@@ -26,6 +26,8 @@ class MalawiWarehouseView(ReportView):
     def get_min_start_date(self, request):
         """
         Should return the minimum start date that should be used with this report.
+        Only needs to be implemented when automatically_adjust_datespan is
+        overridden to be True.
         """
         raise NotImplementedError()
 
@@ -37,7 +39,10 @@ class MalawiWarehouseView(ReportView):
             if enddate < startdate:
                 enddate = startdate
             request.datespan = DateSpan(startdate, enddate, request.datespan.format)
-            messages.warning(request, "The date range has been automatically adjusted because it was too wide.")
+            messages.warning(
+                request,
+                "The date range has been automatically adjusted to fit the oldest available data."
+            )
 
     @property
     def template_name(self):
