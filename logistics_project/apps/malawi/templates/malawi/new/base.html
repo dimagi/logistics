@@ -49,14 +49,20 @@
                 <tr><th colspan="2">Number Registered</th></tr>
                 <tr><th>Districts</th><td>{{ district_count }}</td></tr>
                 <tr><th>H facilities</th><td>{{ facility_count }}</td></tr>
+                {% if not is_facility %}
                 <tr><th>HSAs</th><td>{{ hsas }}</td></tr>
+                {% endif %}
             </table>
             <table>
                 <tr><th>Reporting Rate</th><td>{{ reporting_rate }}</td></tr>
             </table>
             <table>
                 <tr><th colspan="3">National Stock Out Rate</th></tr>
-                <tr><th>Product</th><th>HSAs</th><th>% SO</th></tr>
+                <tr>
+                    <th>Product</th>
+                    <th>{% if is_facility %}Facilities{% else %}HSAs{% endif %}</th>
+                    <th>% SO</th>
+                </tr>
                 {% for product, pct in product_stockout_pcts.items %}                
                     <tr class="{% cycle 'odd' 'even' %}"><td>{{ product.sms_code }}</td>
                         <td>{{ pct.1 }}</td>
