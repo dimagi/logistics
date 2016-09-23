@@ -88,7 +88,7 @@ class View(warehouse_view.DistrictOnlyView):
             [p.sms_code for p in products]
         )
 
-        if is_facility:
+        if not is_facility:
             supply_points = hsa_supply_points_below(reporting_supply_point.location)
         else:
             supply_points = facility_supply_points_below(reporting_supply_point.location)
