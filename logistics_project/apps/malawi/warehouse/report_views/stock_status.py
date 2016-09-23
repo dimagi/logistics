@@ -17,12 +17,12 @@ class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):        
         typecode = request.GET.get("product-type")
-        selected_type = get_object_or_404(ProductType, code=typecode) \
+        selected_type = get_object_or_404(ProductType, code=typecode, is_facility=request.is_facility) \
             if typecode else None
         
         pcode = request.GET.get("product")
-        selected_product = get_object_or_404(Product, sms_code=pcode) \
-            if pcode else Product.objects.all()[0]
+        selected_product = get_object_or_404(Product, sms_code=pcode, is_facility=request.is_facility) \
+            if pcode else Product.objects.filter(type__is_facility=request.is_facility)[0]
         
         
         sp = SupplyPoint.objects.get(location=request.location) \
@@ -38,7 +38,7 @@ class View(warehouse_view.DistrictOnlyView):
         new_headings = ["Product", "AMC (last 60 days)",
                         "TOTAL SOH (day of report)", "MOS (current period)",
                         "Stock Status"]
-        status_data = get_stock_status_table_data(sp)
+        status_data = get_stock_status_table_data(sp, is_facility=request.is_facility)
         status_table = {
             "id": "product-table",
             "is_datatable": False,
@@ -73,7 +73,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
             
         if is_facility(sp):
-            products = Product.objects.filter(is_active=True).order_by('sms_code')
+            products = Product.objects.filter(is_active=True, type__is_facility=request.is_facility).order_by('sms_code')
             hsa_table = {
                 "id": "hsa-table",
                 "is_datatable": True,
@@ -132,7 +132,7 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
         }
         hsa_stockout_data = []
-        active = Product.objects.filter(is_active=True)
+        active = Product.objects.filter(is_active=True, type__is_facility=request.is_facility)
         products = active.objects.filter(type=selected_type) if selected_type else active
         for p in products:
             nums = []
@@ -169,7 +169,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
 
         return {
-            'product_types': ProductType.objects.all(),
+            'product_types': ProductType.objects.filter(is_facility=request.is_facility),
             'window_date': current_report_period(),
             'selected_type': selected_type,
             'selected_product': selected_product,
@@ -178,6 +178,7 @@ class View(warehouse_view.DistrictOnlyView):
             'hsa_stockouts': hsa_stockouts,
             'hsa_table': hsa_table,
             'graphdata': graph_chart,
+            'is_facility': request.is_facility,
         }
 
 

@@ -10,7 +10,7 @@
 
 <div class="module">
     <h2>Current stock status by product</h2>
-    {% warehouse_product_availability_summary location window_date default_chart_width %} 
+    {% warehouse_product_availability_summary location window_date default_chart_width 300 is_facility %}
 	{% with product_table as table %}
 	{% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
