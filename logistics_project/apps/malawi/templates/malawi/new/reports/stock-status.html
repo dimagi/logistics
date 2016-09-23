@@ -2,7 +2,9 @@
 {% load malawi_warehouse_tags %}
 {% block report_content %}
 <form method="get" class="selector">
+    {% with is_facility as exclude_facilities %}
     {% include "malawi/partials/location_selector.html" %}
+    {% endwith %}
     <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
     <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
     <input type="submit" value="Go!" />
