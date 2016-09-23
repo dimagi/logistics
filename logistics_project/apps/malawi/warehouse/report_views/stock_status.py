@@ -15,30 +15,59 @@ from django.shortcuts import get_object_or_404
 
 class View(warehouse_view.DistrictOnlyView):
 
-    def custom_context(self, request):        
+    def _get_product_status_table(self, supply_points, product, date):
+        ret = []
+        for s in supply_points:
+            qs = ProductAvailabilityData.objects.filter(supply_point=s, product=product, date=date)
+            values = qs.aggregate(Sum('managed_and_without_stock'),
+                                  Sum('managed_and_under_stock'),
+                                  Sum('managed_and_good_stock'),
+                                  Sum('managed_and_over_stock'),
+                                  Sum('managed_and_without_data'),
+                                  Sum('managed'))
+            ret.append([
+                 s.name,
+                 fmt_pct(values["managed_and_without_stock__sum"] or 0, values["managed__sum"] or 0),
+                 fmt_pct(values["managed_and_under_stock__sum"] or 0, values["managed__sum"] or 0),
+                 fmt_pct(values["managed_and_good_stock__sum"] or 0, values["managed__sum"] or 0),
+                 fmt_pct(values["managed_and_over_stock__sum"] or 0, values["managed__sum"] or 0),
+                 fmt_pct(values["managed_and_without_data__sum"] or 0, values["managed__sum"] or 0),
+            ])
+        return ret
+
+    def get_selected_product_type(self, request):
         typecode = request.GET.get("product-type")
-        selected_type = get_object_or_404(ProductType, code=typecode, is_facility=request.is_facility) \
-            if typecode else None
-        
+        if typecode:
+            return get_object_or_404(ProductType, code=typecode, is_facility=request.is_facility)
+
+        return None
+
+    def get_selected_product(self, request):
         pcode = request.GET.get("product")
-        selected_product = get_object_or_404(Product, sms_code=pcode, is_facility=request.is_facility) \
-            if pcode else Product.objects.filter(type__is_facility=request.is_facility)[0]
-        
-        
-        sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_default_supply_point(request.user)
-        
+        if pcode:
+            return get_object_or_404(Product, sms_code=pcode, type__is_facility=request.is_facility)
+
+        return Product.objects.filter(type__is_facility=request.is_facility)[0]
+
+    def get_reporting_supply_point(self, request):
+        if request.location:
+            return SupplyPoint.objects.get(location=request.location)
+
+        return get_default_supply_point(request.user)
+
+    def custom_context(self, request):
+        selected_type = self.get_selected_product_type(request)
+        selected_product = self.get_selected_product(request)
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
         headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
                     "% HSA Overstocked", "% HSA Not Reported"]
-        ordered_slugs = ["without_stock", "under_stock", 
-                         "good_stock", "over_stock",
-                         "without_data"]
         
         # data by product
         new_headings = ["Product", "AMC (last 60 days)",
                         "TOTAL SOH (day of report)", "MOS (current period)",
                         "Stock Status"]
-        status_data = get_stock_status_table_data(sp, is_facility=request.is_facility)
+        status_data = get_stock_status_table_data(reporting_supply_point, is_facility=request.is_facility)
         status_table = {
             "id": "product-table",
             "is_datatable": False,
@@ -46,24 +75,6 @@ class View(warehouse_view.DistrictOnlyView):
             "header": new_headings,
             "data": status_data,
         }
-        
-        def _get_product_status_table(supply_points, product, date):
-            ret = []
-            for s in supply_points:
-                qs = ProductAvailabilityData.objects.filter(supply_point=s, 
-                                                            product=product,
-                                                            date=date)
-                values = qs.aggregate(Sum('managed_and_without_stock'),
-                                      Sum('managed_and_under_stock'),
-                                      Sum('managed_and_good_stock'),
-                                      Sum('managed_and_over_stock'),
-                                      Sum('managed_and_without_data'),
-                                      Sum('managed'))
-                ret.append([s.name] + \
-                           [fmt_pct(values["managed_and_%s__sum" % k] or 0, 
-                                    values["managed__sum"] or 0) \
-                            for k in ordered_slugs])
-            return ret
             
         hsa_table = None
         location_table = {
@@ -72,7 +83,7 @@ class View(warehouse_view.DistrictOnlyView):
             "is_downloadable": True,
         }
             
-        if is_facility(sp):
+        if is_facility(reporting_supply_point):
             products = Product.objects.filter(is_active=True, type__is_facility=request.is_facility).order_by('sms_code')
             hsa_table = {
                 "id": "hsa-table",
@@ -86,7 +97,7 @@ class View(warehouse_view.DistrictOnlyView):
                 [p.sms_code for p in products]
             
             # this chart takes a long time to load
-            hsas = hsa_supply_points_below(sp.location)
+            hsas = hsa_supply_points_below(reporting_supply_point.location)
             for hsa in hsas:
                 temp = [hsa.name]
                 for product in products:
@@ -102,10 +113,10 @@ class View(warehouse_view.DistrictOnlyView):
                 hsa_table["data"].append(temp)
 
             location_table = {} # don't show the location table for HSA's only
-        elif is_country(sp):
+        elif is_country(reporting_supply_point):
             location_table["location_type"] = "District"
             location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = _get_product_status_table(
+            location_table["data"] = self._get_product_status_table(
                 get_district_supply_points(request.user.is_superuser).order_by('name'),
                 selected_product,
                 current_report_period(),
@@ -113,11 +124,11 @@ class View(warehouse_view.DistrictOnlyView):
 
             
         else:
-            assert is_district(sp)
+            assert is_district(reporting_supply_point)
             location_table["location_type"] = "Facility"
             location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = _get_product_status_table(
-                facility_supply_points_below(sp.location).order_by('name'),
+            location_table["data"] = self._get_product_status_table(
+                facility_supply_points_below(reporting_supply_point.location).order_by('name'),
                 selected_product,
                 current_report_period(),
             )
@@ -139,7 +150,7 @@ class View(warehouse_view.DistrictOnlyView):
             denoms = []
             for dt in dates:
                 try:
-                    pad = ProductAvailabilityData.objects.get(supply_point=sp, product=p, date=dt)
+                    pad = ProductAvailabilityData.objects.get(supply_point=reporting_supply_point, product=p, date=dt)
                     data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
                     nums.append(pad.managed_and_without_stock)
                     denoms.append(pad.managed)
@@ -180,5 +191,3 @@ class View(warehouse_view.DistrictOnlyView):
             'graphdata': graph_chart,
             'is_facility': request.is_facility,
         }
-
-
