@@ -156,7 +156,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
         stockout_data = []
         active = Product.objects.filter(is_active=True, type__is_facility=is_facility)
-        products = active.objects.filter(type=selected_type) if selected_type else active
+        products = active.filter(type=selected_type) if selected_type else active
 
         for p in products:
             nums = []
