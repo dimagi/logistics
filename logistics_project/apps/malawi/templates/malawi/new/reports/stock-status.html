@@ -24,15 +24,15 @@
 </div>
 
 
-{% if location_table %}
+{% if stock_status_across_location_table %}
 <div class="module">
     <form method="get" class="selector">
         {% include "malawi/new/partials/product-selector.html" %}
         <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
         <input type="submit" value="Go!" />
     </form>
-    <h2>Current stock status across {{ location_table.location_type|lower }}</h2>
-	{% with location_table as table %}
+    <h2>Current stock status across {{ stock_status_across_location_table.location_type|lower }}</h2>
+	{% with stock_status_across_location_table as table %}
     {% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
@@ -54,10 +54,10 @@
     {% endwith %}
 </div>
 
-{% if hsa_table %}
+{% if months_of_stock_table %}
     <div class="module">
         <h2>HSA months of stock by product</h2>
-        {% with hsa_table as table %}
+        {% with months_of_stock_table as table %}
             {% include "malawi/new/partials/generic-table.html" %}
         {% endwith %}
     </div>

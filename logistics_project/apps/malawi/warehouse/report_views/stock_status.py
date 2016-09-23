@@ -13,6 +13,7 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
 from django.db.models.aggregates import Sum
 from django.shortcuts import get_object_or_404
 
+
 class View(warehouse_view.DistrictOnlyView):
 
     def _get_product_status_table(self, supply_points, product, date):
@@ -72,70 +73,97 @@ class View(warehouse_view.DistrictOnlyView):
             "data": status_data,
         }
 
-    def custom_context(self, request):
-        selected_type = self.get_selected_product_type(request)
-        selected_product = self.get_selected_product(request)
-        reporting_supply_point = self.get_reporting_supply_point(request)
+    def get_months_of_stock_table(self, reporting_supply_point, is_facility):
+        products = Product.objects.filter(is_active=True, type__is_facility=request.is_facility).order_by('sms_code')
+        table = {
+            "id": "months-of-stock-table",
+            "is_datatable": True,
+            "is_downloadable": True,
+            "data": [],
+            "location_type": "Facility" if is_facility else "HSA"
+        }
 
-        headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
-                    "% HSA Overstocked", "% HSA Not Reported"]
+        table["header"] = (
+            [table["location_type"]] +
+            [p.sms_code for p in products]
+        )
 
-        hsa_table = None
-        location_table = {
+        if is_facility:
+            supply_points = hsa_supply_points_below(reporting_supply_point.location)
+        else:
+            supply_points = facility_supply_points_below(reporting_supply_point.location)
+
+        for supply_point in supply_points:
+            temp = [supply_point.name]
+            for product in products:
+                ps = ProductStock.objects.filter(supply_point=supply_point, product=product)
+                if ps.count():
+                    mr = ps[0].months_remaining
+                    if mr:
+                        temp.append('%.1f' % mr)
+                    else:
+                        temp.append('-')
+                else:
+                    temp.append('-')
+            table["data"].append(temp)
+
+        return table
+
+    def get_stock_status_across_location_table(self, request, reporting_supply_point, selected_product, is_facility):
+        table = {
             "id": "location-table",
             "is_datatable": True,
             "is_downloadable": True,
         }
-            
-        if is_facility(reporting_supply_point):
-            products = Product.objects.filter(is_active=True, type__is_facility=request.is_facility).order_by('sms_code')
-            hsa_table = {
-                "id": "hsa-table",
-                "is_datatable": True,
-                "is_downloadable": True,
-                "data": [],
-                "location_type": "HSA"
-            }
-            
-            hsa_table["header"] = [hsa_table["location_type"]] + \
-                [p.sms_code for p in products]
-            
-            # this chart takes a long time to load
-            hsas = hsa_supply_points_below(reporting_supply_point.location)
-            for hsa in hsas:
-                temp = [hsa.name]
-                for product in products:
-                    ps = ProductStock.objects.filter(supply_point=hsa, product=product)
-                    if ps.count():
-                        mr = ps[0].months_remaining
-                        if mr:
-                            temp.append('%.1f' % mr)
-                        else:
-                            temp.append('-')
-                    else:
-                        temp.append('-')
-                hsa_table["data"].append(temp)
+        reporter = 'Facility' if is_facility else 'HSA'
+        headings = [(header % reporter) for header in [
+            "%% %s Stocked Out",
+            "%% %s Under",
+            "%% %s Adequate",
+            "%% %s Overstocked",
+            "%% %s Not Reported",
+        ]]
 
-            location_table = {} # don't show the location table for HSA's only
+        if is_district(reporting_supply_point):
+            table["location_type"] = "Facility"
+            table["header"] = [table["location_type"]] + headings
+            table["data"] = self._get_product_status_table(
+                facility_supply_points_below(reporting_supply_point.location).order_by('name'),
+                selected_product,
+                current_report_period(),
+            )
         elif is_country(reporting_supply_point):
-            location_table["location_type"] = "District"
-            location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = self._get_product_status_table(
+            table["location_type"] = "District"
+            table["header"] = [table["location_type"]] + headings
+            table["data"] = self._get_product_status_table(
                 get_district_supply_points(request.user.is_superuser).order_by('name'),
                 selected_product,
                 current_report_period(),
             )
 
-            
+        return table
+
+    def custom_context(self, request):
+        selected_type = self.get_selected_product_type(request)
+        selected_product = self.get_selected_product(request)
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
+        months_of_stock_table = None
+        stock_status_across_location_table = None
+
+        if (
+            (is_facility(reporting_supply_point) and not request.is_facility) or
+            (is_district(reporting_supply_point) and request.is_facility)
+        ):
+            months_of_stock_table = self.get_months_of_stock_table(reporting_supply_point, request.is_facility)
         else:
-            assert is_district(reporting_supply_point)
-            location_table["location_type"] = "Facility"
-            location_table["header"] = [location_table["location_type"]] + headings
-            location_table["data"] = self._get_product_status_table(
-                facility_supply_points_below(reporting_supply_point.location).order_by('name'),
-                selected_product,
-                current_report_period(),
-            )
+            if is_district(reporting_supply_point) or is_country(reporting_supply_point):
+                stock_status_across_location_table = self.get_stock_status_across_location_table(
+                    request,
+                    reporting_supply_point,
+                    selected_product,
+                    request.is_facility
+                )
 
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(request.datespan.startdate, 
@@ -189,9 +217,9 @@ class View(warehouse_view.DistrictOnlyView):
             'selected_type': selected_type,
             'selected_product': selected_product,
             'status_table': self.get_stock_status_by_product_table(reporting_supply_point, request.is_facility),
-            'location_table': location_table,
+            'stock_status_across_location_table': stock_status_across_location_table,
             'hsa_stockouts': hsa_stockouts,
-            'hsa_table': hsa_table,
+            'months_of_stock_table': months_of_stock_table,
             'graphdata': graph_chart,
             'is_facility': request.is_facility,
         }
