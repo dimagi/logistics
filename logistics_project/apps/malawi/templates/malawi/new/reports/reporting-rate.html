@@ -1,7 +1,9 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
+{% with is_facility as exclude_facilities %}
 {% include "malawi/partials/selector_form.html" %}
+{% endwith %}
 
 <div class="module">
     <h2>Average reporting rate by month</h2>
