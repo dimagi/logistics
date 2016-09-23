@@ -55,6 +55,23 @@ class View(warehouse_view.DistrictOnlyView):
 
         return get_default_supply_point(request.user)
 
+    def get_stock_status_by_product_table(self, reporting_supply_point, is_facility):
+        headings = [
+            "Product",
+            "AMC (last 60 days)",
+            "TOTAL SOH (day of report)",
+            "MOS (current period)",
+            "Stock Status",
+        ]
+        status_data = get_stock_status_table_data(reporting_supply_point, is_facility=is_facility)
+        return {
+            "id": "product-table",
+            "is_datatable": False,
+            "is_downloadable": True,
+            "header": headings,
+            "data": status_data,
+        }
+
     def custom_context(self, request):
         selected_type = self.get_selected_product_type(request)
         selected_product = self.get_selected_product(request)
@@ -62,20 +79,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         headings = ["% HSA Stocked Out", "% HSA Under", "% HSA Adequate", 
                     "% HSA Overstocked", "% HSA Not Reported"]
-        
-        # data by product
-        new_headings = ["Product", "AMC (last 60 days)",
-                        "TOTAL SOH (day of report)", "MOS (current period)",
-                        "Stock Status"]
-        status_data = get_stock_status_table_data(reporting_supply_point, is_facility=request.is_facility)
-        status_table = {
-            "id": "product-table",
-            "is_datatable": False,
-            "is_downloadable": True,
-            "header": new_headings,
-            "data": status_data,
-        }
-            
+
         hsa_table = None
         location_table = {
             "id": "location-table",
@@ -184,7 +188,7 @@ class View(warehouse_view.DistrictOnlyView):
             'window_date': current_report_period(),
             'selected_type': selected_type,
             'selected_product': selected_product,
-            'status_table': status_table,
+            'status_table': self.get_stock_status_by_product_table(reporting_supply_point, request.is_facility),
             'location_table': location_table,
             'hsa_stockouts': hsa_stockouts,
             'hsa_table': hsa_table,
