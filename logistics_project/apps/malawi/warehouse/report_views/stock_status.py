@@ -74,7 +74,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
 
     def get_months_of_stock_table(self, reporting_supply_point, is_facility):
-        products = Product.objects.filter(is_active=True, type__is_facility=request.is_facility).order_by('sms_code')
+        products = Product.objects.filter(is_active=True, type__is_facility=is_facility).order_by('sms_code')
         table = {
             "id": "months-of-stock-table",
             "is_datatable": True,
@@ -209,14 +209,14 @@ class View(warehouse_view.DistrictOnlyView):
             (is_district(reporting_supply_point) and request.is_facility)
         ):
             months_of_stock_table = self.get_months_of_stock_table(reporting_supply_point, request.is_facility)
-        else:
-            if is_district(reporting_supply_point) or is_country(reporting_supply_point):
-                stock_status_across_location_table = self.get_stock_status_across_location_table(
-                    request,
-                    reporting_supply_point,
-                    selected_product,
-                    request.is_facility
-                )
+
+        if is_district(reporting_supply_point) or is_country(reporting_supply_point):
+            stock_status_across_location_table = self.get_stock_status_across_location_table(
+                request,
+                reporting_supply_point,
+                selected_product,
+                request.is_facility
+            )
 
         stockout_table, stockout_graph = self.get_stockout_report(request, reporting_supply_point,
             selected_type, request.is_facility)
