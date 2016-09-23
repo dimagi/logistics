@@ -143,6 +143,59 @@ class View(warehouse_view.DistrictOnlyView):
 
         return table
 
+    def get_stockout_report(self, request, reporting_supply_point, selected_type, is_facility):
+        data = defaultdict(lambda: defaultdict(lambda: 0)) 
+        dates = get_datelist(
+            request.datespan.startdate,
+            request.datespan.enddate
+        )
+
+        table = {
+            "id": "stockout-table",
+            "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
+        }
+        stockout_data = []
+        active = Product.objects.filter(is_active=True, type__is_facility=is_facility)
+        products = active.objects.filter(type=selected_type) if selected_type else active
+
+        for p in products:
+            nums = []
+            denoms = []
+            for dt in dates:
+                try:
+                    pad = ProductAvailabilityData.objects.get(supply_point=reporting_supply_point, product=p, date=dt)
+                    data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
+                    nums.append(pad.managed_and_without_stock)
+                    denoms.append(pad.managed)
+                except ProductAvailabilityData.DoesNotExist:
+                    data[p][dt] = 0
+                    nums.append(0)
+                    denoms.append(0)
+
+            stockout_data.append(['%s - num' % p.name] + nums)
+            stockout_data.append(['%s - denom' % p.name] + denoms)
+            stockout_data.append(['%s - pct' % p.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
+
+        table['data'] = stockout_data
+
+        graph_data = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
+                       'label': p.sms_code, 'lines': {"show": True}, 
+                       "bars": {"show": False}} \
+                       for p in products]
+
+        graph = {
+            "div": "product-stockouts-chart",
+            "legenddiv": "product-stockouts-chart-legend",
+            "legendcols": 10,
+            "yaxistitle": "% SO",
+            "height": "350px",
+            "width": "100%",
+            "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
+            "data": json.dumps(graph_data),
+        }
+
+        return table, graph
+
     def custom_context(self, request):
         selected_type = self.get_selected_product_type(request)
         selected_product = self.get_selected_product(request)
@@ -165,51 +218,8 @@ class View(warehouse_view.DistrictOnlyView):
                     request.is_facility
                 )
 
-        data = defaultdict(lambda: defaultdict(lambda: 0)) 
-        dates = get_datelist(request.datespan.startdate, 
-                             request.datespan.enddate)
-        
-        # product line chart 
-        hsa_stockouts = {
-            "id": "hsa-stockouts",
-            "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
-        }
-        hsa_stockout_data = []
-        active = Product.objects.filter(is_active=True, type__is_facility=request.is_facility)
-        products = active.objects.filter(type=selected_type) if selected_type else active
-        for p in products:
-            nums = []
-            denoms = []
-            for dt in dates:
-                try:
-                    pad = ProductAvailabilityData.objects.get(supply_point=reporting_supply_point, product=p, date=dt)
-                    data[p][dt] = pct(pad.managed_and_without_stock, pad.managed)
-                    nums.append(pad.managed_and_without_stock)
-                    denoms.append(pad.managed)
-                except ProductAvailabilityData.DoesNotExist:
-                    data[p][dt] = 0
-                    nums.append(0)
-                    denoms.append(0)
-
-            hsa_stockout_data.append(['%s - num' % p.name] + nums)
-            hsa_stockout_data.append(['%s - denom' % p.name] + denoms)
-            hsa_stockout_data.append(['%s - pct' % p.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
-
-        hsa_stockouts['data'] = hsa_stockout_data
-        graph_data = [{'data': [[i + 1, data[p][dt]] for i, dt in enumerate(dates)],
-                       'label': p.sms_code, 'lines': {"show": True}, 
-                       "bars": {"show": False}} \
-                       for p in products]
-        graph_chart = {
-            "div": "product-stockouts-chart",
-            "legenddiv": "product-stockouts-chart-legend",
-            "legendcols": 10,
-            "yaxistitle": "% SO",
-            "height": "350px",
-            "width": "100%", # "300px",
-            "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
-            "data": json.dumps(graph_data),
-        }
+        stockout_table, stockout_graph = self.get_stockout_report(request, reporting_supply_point,
+            selected_type, request.is_facility)
 
         return {
             'product_types': ProductType.objects.filter(is_facility=request.is_facility),
@@ -218,8 +228,8 @@ class View(warehouse_view.DistrictOnlyView):
             'selected_product': selected_product,
             'status_table': self.get_stock_status_by_product_table(reporting_supply_point, request.is_facility),
             'stock_status_across_location_table': stock_status_across_location_table,
-            'hsa_stockouts': hsa_stockouts,
+            'stockout_table': stockout_table,
             'months_of_stock_table': months_of_stock_table,
-            'graphdata': graph_chart,
+            'stockout_graph': stockout_graph,
             'is_facility': request.is_facility,
         }
