@@ -228,8 +228,8 @@ class View(warehouse_view.DistrictOnlyView):
             'selected_product': selected_product,
             'status_table': self.get_stock_status_by_product_table(reporting_supply_point, request.is_facility),
             'stock_status_across_location_table': stock_status_across_location_table,
+            # This apparently isn't used in the template but is needed in get_report() when export_csv=True
             'stockout_table': stockout_table,
             'months_of_stock_table': months_of_stock_table,
             'stockout_graph': stockout_graph,
-            'is_facility': request.is_facility,
         }
