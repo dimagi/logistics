@@ -196,6 +196,12 @@ class View(warehouse_view.DistrictOnlyView):
 
         return table, graph
 
+    def is_viewing_base_level_data(self, request, reporting_supply_point):
+        return (
+            (is_facility(reporting_supply_point) and not request.is_facility) or
+            (is_district(reporting_supply_point) and request.is_facility)
+        )
+
     def custom_context(self, request):
         selected_type = self.get_selected_product_type(request)
         selected_product = self.get_selected_product(request)
@@ -204,10 +210,7 @@ class View(warehouse_view.DistrictOnlyView):
         months_of_stock_table = None
         stock_status_across_location_table = None
 
-        if (
-            (is_facility(reporting_supply_point) and not request.is_facility) or
-            (is_district(reporting_supply_point) and request.is_facility)
-        ):
+        if self.is_viewing_base_level_data(request, reporting_supply_point):
             months_of_stock_table = self.get_months_of_stock_table(reporting_supply_point, request.is_facility)
 
         if is_district(reporting_supply_point) or is_country(reporting_supply_point):
