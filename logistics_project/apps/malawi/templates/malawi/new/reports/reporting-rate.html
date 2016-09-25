@@ -1,7 +1,7 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
-{% with is_facility as exclude_facilities %}
+{% with base_level_is_facility as exclude_facilities %}
 {% include "malawi/partials/selector_form.html" %}
 {% endwith %}
 

@@ -54,7 +54,7 @@ class MalawiWarehouseView(ReportView):
         country = get_country_sp()
         products = Product.objects.filter(
             is_active=True,
-            type__is_facility=request.is_facility
+            type__base_level=request.base_level
         ).order_by('sms_code')
         date = current_report_period()
         
@@ -76,7 +76,7 @@ class MalawiWarehouseView(ReportView):
         pct_reported = '?'
         try:
             current_rr = ReportingRate.objects.get(
-                date=date, supply_point=country, is_facility=request.is_facility,
+                date=date, supply_point=country, base_level=request.base_level,
             )
             pct_reported = current_rr.pct_reported
         except ReportingRate.DoesNotExist:
@@ -85,7 +85,7 @@ class MalawiWarehouseView(ReportView):
         default_sp = get_default_supply_point(request.user)
         visible_facilities = get_visible_facilities(request.user).order_by('parent_id')
         visible_hsas = []
-        if not request.is_facility:
+        if request.base_level_is_hsa:
             visible_hsas = get_visible_hsas(request.user)
 
         querystring = '?'
@@ -110,10 +110,14 @@ class MalawiWarehouseView(ReportView):
             "querystring": querystring,
             "show_report_nav": self.show_report_nav,
             "window_date": current_report_period(),
-            "is_facility": request.is_facility,
+            "base_level": request.base_level,
+            "base_level_is_hsa": request.base_level_is_hsa,
+            "base_level_is_facility": request.base_level_is_facility,
+            "base_level_description": config.BaseLevel.get_base_level_description(request.base_level),
+            "base_level_plural_description": config.BaseLevel.get_base_level_description(request.base_level, plural=True),
         })
 
-        if request.is_facility:
+        if request.base_level_is_facility:
             base_context['report_list'] = [
                 {'name': name, 'slug': slug}
                 for name, slug in settings.EPI_REPORT_LIST.iteritems()

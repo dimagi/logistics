@@ -22,7 +22,7 @@ class View(warehouse_view.DistrictOnlyView):
     automatically_adjust_datespan = True
 
     def get_min_start_date(self, request):
-        result = ReportingRate.objects.filter(is_facility=request.is_facility).aggregate(min_date=Min('date'))
+        result = ReportingRate.objects.filter(base_level=request.base_level).aggregate(min_date=Min('date'))
         return result['min_date']
 
     def custom_context(self, request):
@@ -37,7 +37,7 @@ class View(warehouse_view.DistrictOnlyView):
         for year, month in months_between(request.datespan.startdate, 
                                           request.datespan.enddate):
             dt = datetime(year, month, 1)
-            months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt, is_facility=request.is_facility)
+            months[dt] = ReportingRate.objects.get(supply_point=sp, date=dt, base_level=request.base_level)
 
         month_data = [
             [dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs]
@@ -61,7 +61,7 @@ class View(warehouse_view.DistrictOnlyView):
                     try:
                         rr = ReportingRate.objects.get(supply_point=sp,
                                                        date=datetime(year, month, 1),
-                                                       is_facility=request.is_facility)
+                                                       base_level=request.base_level)
                         spdata['total'] += rr.total
                         for k in shared_slugs:
                             spdata[k] += getattr(rr, k)
@@ -119,7 +119,7 @@ class View(warehouse_view.DistrictOnlyView):
                 rr = ReportingRate.objects.filter(
                     supply_point=hsa,
                     date__range=(request.datespan.startdate, request.datespan.enddate),
-                    is_facility=request.is_facility,
+                    base_level=request.base_level,
                 )
                 total = non_rep = on_time = late = complete = 0
                 for r in rr:
@@ -134,9 +134,8 @@ class View(warehouse_view.DistrictOnlyView):
             "month_table": month_table,
             "location_table": location_table,
             "hsa_table": hsa_table,
-            # todo: pass is_facility though to get_reporting_rates_chart
             "graphdata": get_reporting_rates_chart(request.location,
                                                    request.datespan.startdate,
                                                    request.datespan.enddate,
-                                                   is_facility=request.is_facility)
+                                                   base_level=request.base_level)
         }

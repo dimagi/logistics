@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
-
+from logistics.util import config
 from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
     is_country, is_district, is_facility, hsa_supply_points_below,\
     facility_supply_points_below, get_district_supply_points
@@ -39,16 +39,16 @@ class View(warehouse_view.DistrictOnlyView):
     def get_selected_product_type(self, request):
         typecode = request.GET.get("product-type")
         if typecode:
-            return get_object_or_404(ProductType, code=typecode, is_facility=request.is_facility)
+            return get_object_or_404(ProductType, code=typecode, base_level=request.base_level)
 
         return None
 
     def get_selected_product(self, request):
         pcode = request.GET.get("product")
         if pcode:
-            return get_object_or_404(Product, sms_code=pcode, type__is_facility=request.is_facility)
+            return get_object_or_404(Product, sms_code=pcode, type__base_level=request.base_level)
 
-        return Product.objects.filter(type__is_facility=request.is_facility)[0]
+        return Product.objects.filter(type__base_level=request.base_level)[0]
 
     def get_reporting_supply_point(self, request):
         if request.location:
@@ -56,7 +56,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         return get_default_supply_point(request.user)
 
-    def get_stock_status_by_product_table(self, reporting_supply_point, is_facility):
+    def get_stock_status_by_product_table(self, request, reporting_supply_point):
         headings = [
             "Product",
             "AMC (last 60 days)",
@@ -64,7 +64,7 @@ class View(warehouse_view.DistrictOnlyView):
             "MOS (current period)",
             "Stock Status",
         ]
-        status_data = get_stock_status_table_data(reporting_supply_point, is_facility=is_facility)
+        status_data = get_stock_status_table_data(reporting_supply_point, base_level=request.base_level)
         return {
             "id": "product-table",
             "is_datatable": False,
@@ -73,14 +73,14 @@ class View(warehouse_view.DistrictOnlyView):
             "data": status_data,
         }
 
-    def get_months_of_stock_table(self, reporting_supply_point, is_facility):
-        products = Product.objects.filter(is_active=True, type__is_facility=is_facility).order_by('sms_code')
+    def get_months_of_stock_table(self, request, reporting_supply_point):
+        products = Product.objects.filter(is_active=True, type__base_level=request.base_level).order_by('sms_code')
         table = {
             "id": "months-of-stock-table",
             "is_datatable": True,
             "is_downloadable": True,
             "data": [],
-            "location_type": "Facility" if is_facility else "HSA"
+            "location_type": config.BaseLevel.get_base_level_description(request.base_level),
         }
 
         table["header"] = (
@@ -88,10 +88,12 @@ class View(warehouse_view.DistrictOnlyView):
             [p.sms_code for p in products]
         )
 
-        if not is_facility:
+        if request.base_level_is_hsa:
             supply_points = hsa_supply_points_below(reporting_supply_point.location)
-        else:
+        elif request.base_level_is_facility:
             supply_points = facility_supply_points_below(reporting_supply_point.location)
+        else:
+            raise config.BaseLevel.InvalidBaseLevelException(request.base_level)
 
         for supply_point in supply_points:
             temp = [supply_point.name]
@@ -109,13 +111,13 @@ class View(warehouse_view.DistrictOnlyView):
 
         return table
 
-    def get_stock_status_across_location_table(self, request, reporting_supply_point, selected_product, is_facility):
+    def get_stock_status_across_location_table(self, request, reporting_supply_point, selected_product):
         table = {
             "id": "location-table",
             "is_datatable": True,
             "is_downloadable": True,
         }
-        reporter = 'Facility' if is_facility else 'HSA'
+        reporter = config.BaseLevel.get_base_level_description(request.base_level)
         headings = [(header % reporter) for header in [
             "%% %s Stocked Out",
             "%% %s Under",
@@ -143,7 +145,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         return table
 
-    def get_stockout_report(self, request, reporting_supply_point, selected_type, is_facility):
+    def get_stockout_report(self, request, reporting_supply_point, selected_type):
         data = defaultdict(lambda: defaultdict(lambda: 0)) 
         dates = get_datelist(
             request.datespan.startdate,
@@ -155,7 +157,7 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ['Product'] + [dt.strftime("%b %Y") for dt in dates],
         }
         stockout_data = []
-        active = Product.objects.filter(is_active=True, type__is_facility=is_facility)
+        active = Product.objects.filter(is_active=True, type__base_level=request.base_level)
         products = active.filter(type=selected_type) if selected_type else active
 
         for p in products:
@@ -198,8 +200,8 @@ class View(warehouse_view.DistrictOnlyView):
 
     def is_viewing_base_level_data(self, request, reporting_supply_point):
         return (
-            (is_facility(reporting_supply_point) and not request.is_facility) or
-            (is_district(reporting_supply_point) and request.is_facility)
+            (is_facility(reporting_supply_point) and request.base_level_is_hsa) or
+            (is_district(reporting_supply_point) and request.base_level_is_facility)
         )
 
     def custom_context(self, request):
@@ -211,25 +213,24 @@ class View(warehouse_view.DistrictOnlyView):
         stock_status_across_location_table = None
 
         if self.is_viewing_base_level_data(request, reporting_supply_point):
-            months_of_stock_table = self.get_months_of_stock_table(reporting_supply_point, request.is_facility)
+            months_of_stock_table = self.get_months_of_stock_table(request, reporting_supply_point)
 
         if is_district(reporting_supply_point) or is_country(reporting_supply_point):
             stock_status_across_location_table = self.get_stock_status_across_location_table(
                 request,
                 reporting_supply_point,
-                selected_product,
-                request.is_facility
+                selected_product
             )
 
         stockout_table, stockout_graph = self.get_stockout_report(request, reporting_supply_point,
-            selected_type, request.is_facility)
+            selected_type)
 
         return {
-            'product_types': ProductType.objects.filter(is_facility=request.is_facility),
+            'product_types': ProductType.objects.filter(base_level=request.base_level),
             'window_date': current_report_period(),
             'selected_type': selected_type,
             'selected_product': selected_product,
-            'status_table': self.get_stock_status_by_product_table(reporting_supply_point, request.is_facility),
+            'status_table': self.get_stock_status_by_product_table(request, reporting_supply_point),
             'stock_status_across_location_table': stock_status_across_location_table,
             # This apparently isn't used in the template but is needed in get_report() when export_csv=True
             'stockout_table': stockout_table,
