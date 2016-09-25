@@ -136,8 +136,8 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=config.BaselLevel.HSA):
-        base_level_is_hsa = (base_level == config.BaselLevel.HSA)
+    def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=config.BaseLevel.HSA):
+        base_level_is_hsa = (base_level == config.BaseLevel.HSA)
 
         all_products = all_products or Product.objects.all()
         products_managed = set([c.pk for c in supply_point.commodities_stocked()])
@@ -179,11 +179,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_reporting_rates:
                 _aggregate(ReportingRate, window_date, place, relevant_children,
                            fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': config.BaselLevel.HSA})
+                           additonal_query_params={'base_level': config.BaseLevel.HSA})
                 if settings.ENABLE_FACILITY_WORKFLOWS:
                     _aggregate(ReportingRate, window_date, place, relevant_children,
                            fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': config.BaselLevel.FACILITY})
+                           additonal_query_params={'base_level': config.BaseLevel.FACILITY})
 
             if not self.skip_product_availability:
                 for p in all_products:
