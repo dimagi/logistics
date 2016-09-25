@@ -26,9 +26,6 @@ class View(warehouse_view.DistrictOnlyView):
         return result['min_date']
 
     def custom_context(self, request):
-        if request.is_facility:
-            messages.success(request, "You are viewing a facility report!")
-
         shared_headers = ["% Reporting", "% On time Rep", "% Late Rep", "% Not Reported", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
         

@@ -28,7 +28,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     This version also includes new categories under and over stock and is
     by percentage instead of by absolute number.
     """
-    def __init__(self, supply_point, date, width=900, height=300):
+    def __init__(self, supply_point, date, width=900, height=300, is_facility=False):
         """
         Override the ProductAvailabilitySummary object to work off 
         the warehouse tables.
@@ -37,9 +37,10 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
         self._height = height
         self._date = date
         self._supply_point = supply_point
+        self._is_facility = is_facility
         
         
-        products = Product.objects.filter(is_active=True).order_by('sms_code')
+        products = Product.objects.filter(is_active=True, type__is_facility=is_facility).order_by('sms_code')
         data = []
         for p in products:
             try:
@@ -75,7 +76,10 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     @property
     def yaxistitle(self):
         # TODO - can customize this if necessary
-        return "% of HSAs"
+        if self._is_facility:
+            return "% of Facilities"
+        else:
+            return "% of HSAs"
         
     @property
     def legend_cols(self):
@@ -399,7 +403,7 @@ def get_lead_time_table_data(supply_points, startdate, enddate):
     return f_data
 
 
-def get_stock_status_table_data(supply_point):
+def get_stock_status_table_data(supply_point, is_facility=False):
     
     _f0 = lambda val: "%.0f" % val if val else "no data"
     _f1 = lambda val: "%.1f" % val if val else "no data"
@@ -417,7 +421,10 @@ def get_stock_status_table_data(supply_point):
             consumption.stock_status
         ]
     
-    return [_status_row(supply_point, p) for p in Product.objects.filter(is_active=True)]
+    return [
+        _status_row(supply_point, p)
+        for p in Product.objects.filter(is_active=True, type__is_facility=is_facility)
+    ]
 
 def table_to_csv(table_data):
     response = HttpResponse(mimetype='text/csv')

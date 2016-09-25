@@ -183,6 +183,7 @@ STATIC_URL = "/static"
 
 # reports
 REPORT_URL = "/malawi/r"
+EPI_REPORT_URL = "/malawi/f"
 
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"

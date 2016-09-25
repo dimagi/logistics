@@ -64,6 +64,13 @@ REPORT_LIST = SortedDict([
     ("Emergency Orders", "emergency-orders"),
 ])
 
+EPI_REPORT_LIST = SortedDict([
+    ("Reporting Rate", "reporting-rate"),
+    ("Stock Status", "stock-status"),
+    ("Consumption Profiles", "consumption-profiles"),
+    ("Re-supply Qts Required", "re-supply-qts-required"),
+])
+
 REPORT_FOLDER = "malawi/new/reports"
 MANAGEMENT_FOLDER = "malawi/new/management"
 

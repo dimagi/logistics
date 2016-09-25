@@ -52,7 +52,10 @@ class MalawiWarehouseView(ReportView):
         base_context = super(MalawiWarehouseView, self).shared_context(request)
 
         country = get_country_sp()
-        products = Product.objects.filter(is_active=True).order_by('sms_code')
+        products = Product.objects.filter(
+            is_active=True,
+            type__is_facility=request.is_facility
+        ).order_by('sms_code')
         date = current_report_period()
         
         # national stockout percentages by product
@@ -81,7 +84,9 @@ class MalawiWarehouseView(ReportView):
 
         default_sp = get_default_supply_point(request.user)
         visible_facilities = get_visible_facilities(request.user).order_by('parent_id')
-        visible_hsas = get_visible_hsas(request.user)
+        visible_hsas = []
+        if not request.is_facility:
+            visible_hsas = get_visible_hsas(request.user)
 
         querystring = '?'
         for key in request.GET.keys():
@@ -105,7 +110,15 @@ class MalawiWarehouseView(ReportView):
             "querystring": querystring,
             "show_report_nav": self.show_report_nav,
             "window_date": current_report_period(),
+            "is_facility": request.is_facility,
         })
+
+        if request.is_facility:
+            base_context['report_list'] = [
+                {'name': name, 'slug': slug}
+                for name, slug in settings.EPI_REPORT_LIST.iteritems()
+            ]
+
         return base_context
 
 

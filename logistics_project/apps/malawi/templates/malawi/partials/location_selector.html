@@ -9,6 +9,7 @@
         <option value="{{ district.code }}" {% if district.pk == location.pk %}selected{% endif %}>{{ district.name }} District ({{ district.code }})</option>
         {% endfor %}
     </optgroup>
+    {% if not exclude_facilities %}
     {% for facility in facilities %}
         {% ifchanged facility.parent.id %}
             {% if not forloop.first %}</optgroup>{% endif %}
@@ -17,4 +18,5 @@
         <option value="{{ facility.code }}" {% if facility.pk == location.pk %}selected{% endif %}>{{ facility.name }} ({{ facility.code }})</option>
         {% if forloop.last %}</optgroup>{% endif %}
     {% endfor %}
+    {% endif %}
 </select>

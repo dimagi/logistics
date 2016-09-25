@@ -2,7 +2,9 @@
 {% load malawi_warehouse_tags %}
 {% block report_content %}
 <form method="get" class="selector">
+    {% with is_facility as exclude_facilities %}
     {% include "malawi/partials/location_selector.html" %}
+    {% endwith %}
     <input type="hidden" id="_start" name="from" value="{{ request.datespan.startdate|date:'F' }} {{ request.datespan.startdate|date:'Y' }}" />
     <input type="hidden" id="_end" name="to" value="{{ request.datespan.enddate|date:'F' }} {{ request.datespan.enddate|date:'Y' }}" />
     <input type="submit" value="Go!" />
@@ -10,10 +12,7 @@
 
 <div class="module">
     <h2>Current stock status by product</h2>
-    {% warehouse_product_availability_summary location window_date default_chart_width %} 
-	{% with product_table as table %}
-	{% include "malawi/new/partials/generic-table.html" %}
-	{% endwith %}
+    {% warehouse_product_availability_summary location window_date default_chart_width 300 is_facility %}
 </div>
 
 <div class="module">
@@ -24,15 +23,15 @@
 </div>
 
 
-{% if location_table %}
+{% if stock_status_across_location_table %}
 <div class="module">
     <form method="get" class="selector">
         {% include "malawi/new/partials/product-selector.html" %}
         <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
         <input type="submit" value="Go!" />
     </form>
-    <h2>Current stock status across {{ location_table.location_type|lower }}</h2>
-	{% with location_table as table %}
+    <h2>Current stock status across {{ stock_status_across_location_table.location_type|lower }}</h2>
+	{% with stock_status_across_location_table as table %}
     {% include "malawi/new/partials/generic-table.html" %}
 	{% endwith %}
 </div>
@@ -45,19 +44,19 @@
         <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
         <input type="submit" value="Go!" />
 	</form>
-    <h2>% HSA stockouts by product</h2>
-    <a href="{{ request.get_full_path }}{% if request.GET %}&{% else %}?{% endif %}export_csv=true&table=hsa-stockouts">
+    <h2>% {% if is_facility %}Facility{% else %}HSA{% endif %} stockouts by product</h2>
+    <a href="{{ request.get_full_path }}{% if request.GET %}&{% else %}?{% endif %}export_csv=true&table=stockout-table">
         <img src="/static/malawi/images/download-csv-icon.gif" id="download-{{ table.id }}" class="download-csv" />
     </a>
-    {% with graphdata as graphdata %}
+    {% with stockout_graph as graphdata %}
         {% include "malawi/new/partials/generic-line-chart.html" %}
     {% endwith %}
 </div>
 
-{% if hsa_table %}
+{% if months_of_stock_table %}
     <div class="module">
-        <h2>HSA months of stock by product</h2>
-        {% with hsa_table as table %}
+        <h2>{% if is_facility %}Facility{% else %}HSA{% endif %} months of stock by product</h2>
+        {% with months_of_stock_table as table %}
             {% include "malawi/new/partials/generic-table.html" %}
         {% endwith %}
     </div>
