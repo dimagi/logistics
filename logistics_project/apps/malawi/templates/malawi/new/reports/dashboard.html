@@ -3,7 +3,7 @@
 {% block report_content %}
 
 <form method="get" id="selector">
-	{% include "malawi/partials/location_selector.html" %}
+	{% include "malawi/partials/location_selector.html" with exclude_facilities=base_level_is_facility %}
     <input type="submit" value="Go!" />
 </form>
 
