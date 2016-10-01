@@ -6,6 +6,7 @@ from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
 
 from logistics.models import SupplyPoint, Product
+from logistics.util import config
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
@@ -60,15 +61,34 @@ def consumption_row(sp, p, datespan):
 
 class View(warehouse_view.DistrictOnlyView):
 
+    def get_consumption_profile_table_headers(self, request):
+        base_level_description_plural = config.BaseLevel.get_base_level_description(request.base_level, plural=True)
+        return [
+            "Product",
+            "Total Actual Consumption for selected period",
+            "# stockout days for all %s" % base_level_description_plural,
+            "Total consumption adjusted for stockouts",
+            "Data coverage (% of period)",
+            "Total consumption (adjusted  for stockouts and data coverage)",
+            "AMC for all %s" % base_level_description_plural,
+        ]
+
+    def get_consumption_profile_table(self, request, supply_point, extra_table_params=None):
+        extra_table_params = extra_table_params or {}
+        table = {
+            "is_datatable": False,
+            "is_downloadable": True,
+            "header": self.get_consumption_profile_table_headers(request),
+            "data": [
+                consumption_row(supply_point, p, request.datespan)
+                for p in Product.objects.filter(type__base_level=request.base_level)
+            ],
+        }
+        table.update(extra_table_params)
+        return table
+
     def custom_context(self, request):
         reporting_supply_point = self.get_reporting_supply_point(request)
-
-        table_headers = ["Product", "Total Actual Consumption for selected period",
-                         "# stockout days for all HSAs", 
-                         "Total consumption adjusted for stockouts", 
-                         "Data coverage (% of period)", 
-                         "Total consumption (adjusted  for stockouts and data coverage)", 
-                         "AMC for all HSAs"]
         
         hsa_list = selected_hsa = hsa_table = None
         
@@ -83,23 +103,17 @@ class View(warehouse_view.DistrictOnlyView):
             hsa_id = request.GET.get("hsa", "")
             if hsa_id:
                 selected_hsa = SupplyPoint.objects.get(code=hsa_id) 
-                hsa_table = {
-                    "id": "hsa-consumption-profiles",
-                    "is_datatable": False,
-                    "is_downloadable": True,
-                    "header": table_headers,
-                    "data": [consumption_row(selected_hsa, p, request.datespan) for p in Product.objects.all()]
-                }
-            
-        
-        l_table = {
-            "id": "location-consumption-profiles",
-            "location_type": type,
-            "is_datatable": False,
-            "is_downloadable": True,
-            "header": table_headers,
-            "data": [consumption_row(reporting_supply_point, p, request.datespan) for p in Product.objects.all()]
-        }
+                hsa_table = self.get_consumption_profile_table(
+                    request,
+                    selected_hsa,
+                    {"id": "hsa-consumption-profiles"}
+                )
+
+        reporting_location_consumption_profile_table = self.get_consumption_profile_table(
+            request,
+            reporting_supply_point,
+            {"id": "location-consumption-profiles", "location_type": type}
+        )
             
         p_code = request.REQUEST.get("product", "")
         
@@ -107,7 +121,7 @@ class View(warehouse_view.DistrictOnlyView):
         amc_table, line_chart = get_consumption_chart(reporting_supply_point, p, request.datespan.startdate,
                                                       request.datespan.enddate)
         return {
-            "location_table": l_table,
+            "location_table": reporting_location_consumption_profile_table,
             "hsa_table": hsa_table,
             "hsa_list": hsa_list,
             "selected_hsa": selected_hsa,
