@@ -32,6 +32,38 @@ class Roles(object):
     DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, EPI_COORDINATOR]
     SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
 
+
+class BaseLevel(object):
+    """
+    Defined here are the available base levels of reporting. A base level is
+    the location level at which the data was initially reported. For example,
+    when an HSA reports its stock on hand, the base level is HSA. When a facility
+    reports its stock on hand, the base level is FACILITY.
+
+    This is used to keep HSA-reported data and Facility-reported data separate
+    for reporting. For more info, see the usage of the base_level name globally,
+    which is defined on the needed reporting models as well as on the request
+    object for report views.
+
+    These constants are defined as one-character constants to help reduce space usage
+    in the database.
+    """
+    class InvalidBaseLevelException(Exception):
+        pass
+
+    HSA = 'h'
+    FACILITY = 'f'
+
+    @staticmethod
+    def get_base_level_description(base_level, plural=False):
+        if base_level == BaseLevel.HSA:
+            return "HSAs" if plural else "HSA"
+        elif base_level == BaseLevel.FACILITY:
+            return "Facilities" if plural else "Facility"
+        else:
+            raise BaseLevel.InvalidBaseLevelException(base_level)
+
+
 class Operations(object):
     FILL_ORDER = "fill"
     MAKE_TRANSFER = "transfer"

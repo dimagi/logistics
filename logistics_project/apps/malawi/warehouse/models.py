@@ -1,7 +1,7 @@
 from django.db import models
 from logistics.warehouse_models import ReportingModel, BaseReportingModel
 from logistics_project.apps.malawi.util import fmt_pct, pct, hsas_below
-from static.malawi.config import TimeTrackerTypes
+from static.malawi.config import TimeTrackerTypes, BaseLevel
 from datetime import datetime
 from dimagi.utils.dates import first_of_next_month, delta_secs
 
@@ -90,11 +90,11 @@ class ReportingRate(MalawiWarehouseModel):
     """
     # Dashboard: Reporting Rates
     # Reporting Rates: all
-    is_facility = models.BooleanField(default=False)
     total = models.PositiveIntegerField(default=0)
     reported = models.PositiveIntegerField(default=0)
     on_time = models.PositiveIntegerField(default=0)
     complete = models.PositiveIntegerField(default=0)
+    base_level = models.CharField(max_length=1, default=BaseLevel.HSA)
     
     @property
     def late(self): 

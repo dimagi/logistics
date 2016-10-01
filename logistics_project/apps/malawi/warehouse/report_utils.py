@@ -9,7 +9,7 @@ from dimagi.utils.decorators.datespan import datespan_in_request
 
 from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
-
+from logistics.util import config
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData,\
     ReportingRate, CalculatedConsumption, HistoricalStock, TimeTracker,\
     CurrentConsumption
@@ -28,7 +28,7 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     This version also includes new categories under and over stock and is
     by percentage instead of by absolute number.
     """
-    def __init__(self, supply_point, date, width=900, height=300, is_facility=False):
+    def __init__(self, supply_point, date, width=900, height=300, base_level=config.BaseLevel.HSA):
         """
         Override the ProductAvailabilitySummary object to work off 
         the warehouse tables.
@@ -37,10 +37,9 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
         self._height = height
         self._date = date
         self._supply_point = supply_point
-        self._is_facility = is_facility
-        
-        
-        products = Product.objects.filter(is_active=True, type__is_facility=is_facility).order_by('sms_code')
+        self._base_level = base_level
+
+        products = Product.objects.filter(is_active=True, type__base_level=base_level).order_by('sms_code')
         data = []
         for p in products:
             try:
@@ -76,11 +75,8 @@ class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):
     @property
     def yaxistitle(self):
         # TODO - can customize this if necessary
-        if self._is_facility:
-            return "% of Facilities"
-        else:
-            return "% of HSAs"
-        
+        return "%% of %s" % config.BaseLevel.get_base_level_description(self._base_level, plural=True)
+
     @property
     def legend_cols(self):
         return 5
@@ -185,7 +181,7 @@ def _reporting_rate_chart_defaults():
     }
     
 
-def get_reporting_rates_chart(location, start, end, is_facility=False):
+def get_reporting_rates_chart(location, start, end, base_level=config.BaseLevel.HSA):
     """
     Reporting rates chart for a single facility, over a time period.
     """
@@ -196,7 +192,7 @@ def get_reporting_rates_chart(location, start, end, is_facility=False):
     for year, month in months_between(start, end):
         dt = datetime(year, month, 1)
         dates.append(dt)
-        rr = ReportingRate.objects.get(supply_point=sp, date=dt, is_facility=is_facility)
+        rr = ReportingRate.objects.get(supply_point=sp, date=dt, base_level=base_level)
         data["on time"][dt] = pct(rr.on_time, rr.total)
         data["late"][dt] = pct(rr.reported - rr.on_time, rr.total)
         data["not reported"][dt] = pct(rr.total - rr.reported, rr.total)
@@ -218,14 +214,14 @@ def get_reporting_rates_chart(location, start, end, is_facility=False):
     })
     return report_chart
 
-def get_multiple_reporting_rates_chart(supply_points, date, is_facility=False):
+def get_multiple_reporting_rates_chart(supply_points, date, base_level=config.BaseLevel.HSA):
     """
     Reporting rates chart for multiple facilities, for a single 
     month.
     """
     report_chart = _reporting_rate_chart_defaults()
     data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-    rrs = ReportingRate.objects.filter(supply_point__in=supply_points, date=date, is_facility=is_facility)
+    rrs = ReportingRate.objects.filter(supply_point__in=supply_points, date=date, base_level=base_level)
     for rr in rrs:
         sp = rr.supply_point
         data["on time"][sp] = pct(rr.on_time, rr.total)
@@ -403,7 +399,7 @@ def get_lead_time_table_data(supply_points, startdate, enddate):
     return f_data
 
 
-def get_stock_status_table_data(supply_point, is_facility=False):
+def get_stock_status_table_data(supply_point, base_level=config.BaseLevel.HSA):
     
     _f0 = lambda val: "%.0f" % val if val else "no data"
     _f1 = lambda val: "%.1f" % val if val else "no data"
@@ -423,7 +419,7 @@ def get_stock_status_table_data(supply_point, is_facility=False):
     
     return [
         _status_row(supply_point, p)
-        for p in Product.objects.filter(is_active=True, type__is_facility=is_facility)
+        for p in Product.objects.filter(is_active=True, type__base_level=base_level)
     ]
 
 def table_to_csv(table_data):

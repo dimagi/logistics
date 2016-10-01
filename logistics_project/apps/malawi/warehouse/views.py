@@ -11,6 +11,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import datespan_defaul
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc
+from logistics.util import config
 from dimagi.utils.parsing import string_to_boolean
 import logging
 
@@ -36,17 +37,24 @@ reports_slug_map = {
 @place_in_request()
 @datespan_default
 def get_report(request, slug=''):
-    return _get_report(request, slug, is_facility=False)
+    return _get_report(request, slug, config.BaseLevel.HSA)
 
 
 @place_in_request()
 @datespan_default
 def get_facility_report(request, slug=''):
-    return _get_report(request, slug, is_facility=True)
+    return _get_report(request, slug, config.BaseLevel.FACILITY)
 
 
-def _get_report(request, slug, is_facility):
-    request.is_facility = is_facility
+def _set_base_level_info_on_request(request, base_level):
+    request.base_level = base_level
+    request.base_level_is_hsa = (base_level == config.BaseLevel.HSA)
+    request.base_level_is_facility = (base_level == config.BaseLevel.FACILITY)
+
+
+def _get_report(request, slug, base_level):
+    _set_base_level_info_on_request(request, base_level)
+
     report = reports_slug_map[slug].View(slug)
     if not report.can_view(request):
         messages.warning(request,
@@ -85,17 +93,17 @@ def _get_report(request, slug, is_facility):
 @place_in_request()
 @datespan_default
 def home(request):
-    return _home(request, is_facility=False)
+    return _home(request, config.BaseLevel.HSA)
 
 
 @place_in_request()
 @datespan_default
 def facility_home(request):
-    return _home(request, is_facility=True)
+    return _home(request, config.BaseLevel.FACILITY)
 
 
-def _home(request, is_facility):
-    request.is_facility = is_facility
+def _home(request, base_level):
+    _set_base_level_info_on_request(request, base_level)
     try:
         report = reports_slug_map["dashboard"].View("dashboard")
         assert report.can_view(request)

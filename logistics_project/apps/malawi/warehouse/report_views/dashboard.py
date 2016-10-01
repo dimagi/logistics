@@ -75,6 +75,6 @@ class View(warehouse_view.DashboardView):
             "graphdata": get_multiple_reporting_rates_chart(
                 child_sps,
                 window_date,
-                is_facility=request.is_facility
+                base_level=request.base_level
             ),
         }
