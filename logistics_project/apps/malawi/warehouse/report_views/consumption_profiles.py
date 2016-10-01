@@ -61,10 +61,8 @@ def consumption_row(sp, p, datespan):
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
-        
-        sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_default_supply_point(request.user)
-        
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
         table_headers = ["Product", "Total Actual Consumption for selected period",
                          "# stockout days for all HSAs", 
                          "Total consumption adjusted for stockouts", 
@@ -74,14 +72,14 @@ class View(warehouse_view.DistrictOnlyView):
         
         hsa_list = selected_hsa = hsa_table = None
         
-        if is_country(sp):
+        if is_country(reporting_supply_point):
             type = "national"
-        elif is_district(sp):
+        elif is_district(reporting_supply_point):
             type = "district"
         else:
-            assert is_facility(sp)
+            assert is_facility(reporting_supply_point)
             type = "facility"
-            hsa_list = hsa_supply_points_below(sp.location)
+            hsa_list = hsa_supply_points_below(reporting_supply_point.location)
             hsa_id = request.GET.get("hsa", "")
             if hsa_id:
                 selected_hsa = SupplyPoint.objects.get(code=hsa_id) 
@@ -100,13 +98,13 @@ class View(warehouse_view.DistrictOnlyView):
             "is_datatable": False,
             "is_downloadable": True,
             "header": table_headers,
-            "data": [consumption_row(sp, p, request.datespan) for p in Product.objects.all()]            
+            "data": [consumption_row(reporting_supply_point, p, request.datespan) for p in Product.objects.all()]
         }
             
         p_code = request.REQUEST.get("product", "")
         
         p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
-        amc_table, line_chart = get_consumption_chart(sp, p, request.datespan.startdate,
+        amc_table, line_chart = get_consumption_chart(reporting_supply_point, p, request.datespan.startdate,
                                                       request.datespan.enddate)
         return {
             "location_table": l_table,
