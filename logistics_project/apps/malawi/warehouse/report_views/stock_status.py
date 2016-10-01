@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 from logistics.util import config
-from logistics_project.apps.malawi.util import get_default_supply_point, fmt_pct, pct,\
+from logistics_project.apps.malawi.util import fmt_pct, pct,\
     is_country, is_district, is_facility, hsa_supply_points_below,\
     facility_supply_points_below, get_district_supply_points
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -49,12 +49,6 @@ class View(warehouse_view.DistrictOnlyView):
             return get_object_or_404(Product, sms_code=pcode, type__base_level=request.base_level)
 
         return Product.objects.filter(type__base_level=request.base_level)[0]
-
-    def get_reporting_supply_point(self, request):
-        if request.location:
-            return SupplyPoint.objects.get(location=request.location)
-
-        return get_default_supply_point(request.user)
 
     def get_stock_status_by_product_table(self, request, reporting_supply_point):
         headings = [

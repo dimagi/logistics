@@ -23,6 +23,16 @@ class MalawiWarehouseView(ReportView):
     # user-selected range is too wide.
     automatically_adjust_datespan = False
 
+    def get_reporting_supply_point(self, request):
+        """
+        This method assumes that it's being called from a view that uses the
+        @place_in_request decorator.
+        """
+        if request.location:
+            return SupplyPoint.objects.get(location=request.location)
+
+        return get_default_supply_point(request.user)
+
     def get_min_start_date(self, request):
         """
         Should return the minimum start date that should be used with this report.
