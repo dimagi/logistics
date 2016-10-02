@@ -62,6 +62,8 @@ def consumption_row(sp, p, datespan):
 
 class View(warehouse_view.DistrictOnlyView):
 
+    automatically_adjust_datespan = True
+
     def get_consumption_profile_table_headers(self, request):
         base_level_description_plural = config.BaseLevel.get_base_level_description(request.base_level, plural=True)
         return [

@@ -21,10 +21,6 @@ class View(warehouse_view.DistrictOnlyView):
 
     automatically_adjust_datespan = True
 
-    def get_min_start_date(self, request):
-        result = ReportingRate.objects.filter(base_level=request.base_level).aggregate(min_date=Min('date'))
-        return result['min_date']
-
     def custom_context(self, request):
         shared_headers = ["% Reporting", "% On time Rep", "% Late Rep", "% Not Reported", "% Complete"]
         shared_slugs = ["reported", "on_time", "late", "missing", "complete"]
