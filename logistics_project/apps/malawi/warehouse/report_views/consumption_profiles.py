@@ -13,7 +13,7 @@ from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from logistics_project.apps.malawi.warehouse.report_utils import get_consumption_chart
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, hsa_supply_points_below, is_country, is_district,\
-    is_facility
+    is_facility, facility_supply_points_below
 
 
 def consumption_row(sp, p, datespan):
@@ -109,13 +109,20 @@ class View(warehouse_view.DistrictOnlyView):
 
         return location_type
 
-    def custom_context(self, request):
-        reporting_supply_point = self.get_reporting_supply_point(request)
-        
-        base_level_sps = selected_base_level_sp = base_level_sp_table = None
-        
-        if is_facility(reporting_supply_point):
-            base_level_sps = hsa_supply_points_below(reporting_supply_point.location)
+    def get_base_level_sp_consumption_profile_table(self, request, reporting_supply_point):
+        base_level_sps = None
+        selected_base_level_sp = None
+        base_level_sp_table = None
+
+        if (
+            (is_facility(reporting_supply_point) and request.base_level_is_hsa) or
+            (is_district(reporting_supply_point) and request.base_level_is_facility)
+        ):
+            if request.base_level_is_hsa:
+                base_level_sps = hsa_supply_points_below(reporting_supply_point.location)
+            else:
+                base_level_sps = facility_supply_points_below(reporting_supply_point.location)
+
             selected_base_level_sp_code = request.GET.get("selected_base_level_sp_code", "")
             if selected_base_level_sp_code:
                 selected_base_level_sp = SupplyPoint.objects.get(code=selected_base_level_sp_code)
@@ -125,6 +132,11 @@ class View(warehouse_view.DistrictOnlyView):
                     {"id": "base-level-consumption-profiles"}
                 )
 
+        return base_level_sps, selected_base_level_sp, base_level_sp_table
+
+    def custom_context(self, request):
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
         reporting_location_consumption_profile_table = self.get_consumption_profile_table(
             request,
             reporting_supply_point,
@@ -133,6 +145,9 @@ class View(warehouse_view.DistrictOnlyView):
                 "location_type": self.get_reporting_location_type(request, reporting_supply_point),
             }
         )
+
+        base_level_sps, selected_base_level_sp, base_level_sp_table = \
+            self.get_base_level_sp_consumption_profile_table(request, reporting_supply_point)
 
         p_code = request.REQUEST.get("product", "")
         
