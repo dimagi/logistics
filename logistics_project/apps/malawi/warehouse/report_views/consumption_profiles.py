@@ -93,7 +93,7 @@ class View(warehouse_view.DistrictOnlyView):
                 location_type = "national"
             elif is_district(supply_point):
                 location_type = "district"
-            elif is_facility(reporting_supply_point):
+            elif is_facility(supply_point):
                 location_type = "facility"
             else:
                 raise config.BaseLevel.InvalidReportingSupplyPointException(supply_point.code)
@@ -112,17 +112,17 @@ class View(warehouse_view.DistrictOnlyView):
     def custom_context(self, request):
         reporting_supply_point = self.get_reporting_supply_point(request)
         
-        hsa_list = selected_hsa = hsa_table = None
+        base_level_sps = selected_base_level_sp = base_level_sp_table = None
         
         if is_facility(reporting_supply_point):
-            hsa_list = hsa_supply_points_below(reporting_supply_point.location)
-            hsa_id = request.GET.get("hsa", "")
-            if hsa_id:
-                selected_hsa = SupplyPoint.objects.get(code=hsa_id) 
-                hsa_table = self.get_consumption_profile_table(
+            base_level_sps = hsa_supply_points_below(reporting_supply_point.location)
+            selected_base_level_sp_code = request.GET.get("selected_base_level_sp_code", "")
+            if selected_base_level_sp_code:
+                selected_base_level_sp = SupplyPoint.objects.get(code=selected_base_level_sp_code)
+                base_level_sp_table = self.get_consumption_profile_table(
                     request,
-                    selected_hsa,
-                    {"id": "hsa-consumption-profiles"}
+                    selected_base_level_sp,
+                    {"id": "base-level-consumption-profiles"}
                 )
 
         reporting_location_consumption_profile_table = self.get_consumption_profile_table(
@@ -141,10 +141,11 @@ class View(warehouse_view.DistrictOnlyView):
                                                       request.datespan.enddate)
         return {
             "location_table": reporting_location_consumption_profile_table,
-            "hsa_table": hsa_table,
-            "hsa_list": hsa_list,
-            "selected_hsa": selected_hsa,
+            "base_level_sp_table": base_level_sp_table,
+            "base_level_sps": base_level_sps,
+            "selected_base_level_sp": selected_base_level_sp,
             "amc_mos_table": amc_table,
             "line_chart": line_chart,
-            "selected_product": p
+            "selected_product": p,
+            "base_level_description": config.BaseLevel.get_base_level_description(request.base_level),
         }
