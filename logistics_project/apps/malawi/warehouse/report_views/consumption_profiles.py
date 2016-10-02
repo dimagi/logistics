@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 
 from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
@@ -134,6 +135,13 @@ class View(warehouse_view.DistrictOnlyView):
 
         return base_level_sps, selected_base_level_sp, base_level_sp_table
 
+    def get_selected_product(self, request):
+        code = request.GET.get("product", "")
+        if code:
+            return get_object_or_404(Product, sms_code=code, type__base_level=request.base_level)
+
+        return Product.objects.filter(type__base_level=request.base_level)[0]
+
     def custom_context(self, request):
         reporting_supply_point = self.get_reporting_supply_point(request)
 
@@ -149,11 +157,14 @@ class View(warehouse_view.DistrictOnlyView):
         base_level_sps, selected_base_level_sp, base_level_sp_table = \
             self.get_base_level_sp_consumption_profile_table(request, reporting_supply_point)
 
-        p_code = request.REQUEST.get("product", "")
-        
-        p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
-        amc_table, line_chart = get_consumption_chart(reporting_supply_point, p, request.datespan.startdate,
-                                                      request.datespan.enddate)
+        selected_product = self.get_selected_product(request)
+        amc_table, line_chart = get_consumption_chart(
+            reporting_supply_point,
+            selected_product,
+            request.datespan.startdate,
+            request.datespan.enddate
+        )
+
         return {
             "location_table": reporting_location_consumption_profile_table,
             "base_level_sp_table": base_level_sp_table,
@@ -161,6 +172,6 @@ class View(warehouse_view.DistrictOnlyView):
             "selected_base_level_sp": selected_base_level_sp,
             "amc_mos_table": amc_table,
             "line_chart": line_chart,
-            "selected_product": p,
+            "selected_product": selected_product,
             "base_level_description": config.BaseLevel.get_base_level_description(request.base_level),
         }
