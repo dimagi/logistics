@@ -3,7 +3,7 @@
 
 <form method="get" class="selector">
     <fieldset>
-    {% include "malawi/partials/location_selector.html" %}
+    {% include "malawi/partials/location_selector.html" with exclude_facilities=request.base_level_is_facility %}
     {% include "malawi/new/partials/month-selector.html" %}
     </fieldset>
     <br>
