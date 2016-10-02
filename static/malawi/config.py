@@ -51,6 +51,9 @@ class BaseLevel(object):
     class InvalidBaseLevelException(Exception):
         pass
 
+    class InvalidReportingSupplyPointException(Exception):
+        pass
+
     HSA = 'h'
     FACILITY = 'f'
 

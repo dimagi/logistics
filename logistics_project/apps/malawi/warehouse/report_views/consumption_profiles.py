@@ -6,7 +6,7 @@ from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
 
 from logistics.models import SupplyPoint, Product
-from logistics.util import config
+from static.malawi import config
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
@@ -87,18 +87,34 @@ class View(warehouse_view.DistrictOnlyView):
         table.update(extra_table_params)
         return table
 
+    def get_reporting_location_type(self, request, supply_point):
+        if request.base_level_is_hsa:
+            if is_country(supply_point):
+                location_type = "national"
+            elif is_district(supply_point):
+                location_type = "district"
+            elif is_facility(reporting_supply_point):
+                location_type = "facility"
+            else:
+                raise config.BaseLevel.InvalidReportingSupplyPointException(supply_point.code)
+        elif request.base_level_is_facility:
+            if is_country(supply_point):
+                location_type = "national"
+            elif is_district(supply_point):
+                location_type = "district"
+            else:
+                raise config.BaseLevel.InvalidReportingSupplyPointException(supply_point.code)
+        else:
+            raise config.BaseLevel.InvalidBaseLevelException(supply_point.code)
+
+        return location_type
+
     def custom_context(self, request):
         reporting_supply_point = self.get_reporting_supply_point(request)
         
         hsa_list = selected_hsa = hsa_table = None
         
-        if is_country(reporting_supply_point):
-            type = "national"
-        elif is_district(reporting_supply_point):
-            type = "district"
-        else:
-            assert is_facility(reporting_supply_point)
-            type = "facility"
+        if is_facility(reporting_supply_point):
             hsa_list = hsa_supply_points_below(reporting_supply_point.location)
             hsa_id = request.GET.get("hsa", "")
             if hsa_id:
@@ -112,9 +128,12 @@ class View(warehouse_view.DistrictOnlyView):
         reporting_location_consumption_profile_table = self.get_consumption_profile_table(
             request,
             reporting_supply_point,
-            {"id": "location-consumption-profiles", "location_type": type}
+            {
+                "id": "location-consumption-profiles",
+                "location_type": self.get_reporting_location_type(request, reporting_supply_point),
+            }
         )
-            
+
         p_code = request.REQUEST.get("product", "")
         
         p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
