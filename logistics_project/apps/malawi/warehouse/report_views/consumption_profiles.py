@@ -38,8 +38,8 @@ def consumption_row(sp, p, datespan):
     avg_so_time = 0
     if relevant.count() > 0:
         if relevant[0].total:
-            num_hsas = relevant[0].total
-            avg_so_time = tot_so_time / num_hsas
+            num_supply_points = relevant[0].total
+            avg_so_time = tot_so_time / num_supply_points
 
     period_secs = delta_secs(end - datespan.startdate)
     assert period_secs >= avg_so_time
