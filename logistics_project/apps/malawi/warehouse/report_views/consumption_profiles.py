@@ -1,18 +1,20 @@
 from datetime import datetime
 
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 
 from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
 
 from logistics.models import SupplyPoint, Product
+from static.malawi import config
 
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from logistics_project.apps.malawi.warehouse.report_utils import get_consumption_chart
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     fmt_or_none, hsa_supply_points_below, is_country, is_district,\
-    is_facility
+    is_facility, facility_supply_points_below
 
 
 def consumption_row(sp, p, datespan):
@@ -36,8 +38,8 @@ def consumption_row(sp, p, datespan):
     avg_so_time = 0
     if relevant.count() > 0:
         if relevant[0].total:
-            num_hsas = relevant[0].total
-            avg_so_time = tot_so_time / num_hsas
+            num_supply_points = relevant[0].total
+            avg_so_time = tot_so_time / num_supply_points
 
     period_secs = delta_secs(end - datespan.startdate)
     assert period_secs >= avg_so_time
@@ -60,60 +62,118 @@ def consumption_row(sp, p, datespan):
 
 class View(warehouse_view.DistrictOnlyView):
 
-    def custom_context(self, request):
-        
-        sp = SupplyPoint.objects.get(location=request.location) \
-            if request.location else get_default_supply_point(request.user)
-        
-        table_headers = ["Product", "Total Actual Consumption for selected period",
-                         "# stockout days for all HSAs", 
-                         "Total consumption adjusted for stockouts", 
-                         "Data coverage (% of period)", 
-                         "Total consumption (adjusted  for stockouts and data coverage)", 
-                         "AMC for all HSAs"]
-        
-        hsa_list = selected_hsa = hsa_table = None
-        
-        if is_country(sp):
-            type = "national"
-        elif is_district(sp):
-            type = "district"
-        else:
-            assert is_facility(sp)
-            type = "facility"
-            hsa_list = hsa_supply_points_below(sp.location)
-            hsa_id = request.GET.get("hsa", "")
-            if hsa_id:
-                selected_hsa = SupplyPoint.objects.get(code=hsa_id) 
-                hsa_table = {
-                    "id": "hsa-consumption-profiles",
-                    "is_datatable": False,
-                    "is_downloadable": True,
-                    "header": table_headers,
-                    "data": [consumption_row(selected_hsa, p, request.datespan) for p in Product.objects.all()]
-                }
-            
-        
-        l_table = {
-            "id": "location-consumption-profiles",
-            "location_type": type,
+    automatically_adjust_datespan = True
+
+    def get_consumption_profile_table_headers(self, request):
+        base_level_description_plural = config.BaseLevel.get_base_level_description(request.base_level, plural=True)
+        return [
+            "Product",
+            "Total Actual Consumption for selected period",
+            "# stockout days for all %s" % base_level_description_plural,
+            "Total consumption adjusted for stockouts",
+            "Data coverage (% of period)",
+            "Total consumption (adjusted  for stockouts and data coverage)",
+            "AMC for all %s" % base_level_description_plural,
+        ]
+
+    def get_consumption_profile_table(self, request, supply_point, extra_table_params=None):
+        extra_table_params = extra_table_params or {}
+        table = {
             "is_datatable": False,
             "is_downloadable": True,
-            "header": table_headers,
-            "data": [consumption_row(sp, p, request.datespan) for p in Product.objects.all()]            
+            "header": self.get_consumption_profile_table_headers(request),
+            "data": [
+                consumption_row(supply_point, p, request.datespan)
+                for p in Product.objects.filter(type__base_level=request.base_level)
+            ],
         }
-            
-        p_code = request.REQUEST.get("product", "")
-        
-        p = Product.objects.get(sms_code=p_code) if p_code else Product.objects.all()[0]
-        amc_table, line_chart = get_consumption_chart(sp, p, request.datespan.startdate,
-                                                      request.datespan.enddate)
+        table.update(extra_table_params)
+        return table
+
+    def get_reporting_location_type(self, request, supply_point):
+        if request.base_level_is_hsa:
+            if is_country(supply_point):
+                location_type = "national"
+            elif is_district(supply_point):
+                location_type = "district"
+            elif is_facility(supply_point):
+                location_type = "facility"
+            else:
+                raise config.BaseLevel.InvalidReportingSupplyPointException(supply_point.code)
+        elif request.base_level_is_facility:
+            if is_country(supply_point):
+                location_type = "national"
+            elif is_district(supply_point):
+                location_type = "district"
+            else:
+                raise config.BaseLevel.InvalidReportingSupplyPointException(supply_point.code)
+        else:
+            raise config.BaseLevel.InvalidBaseLevelException(supply_point.code)
+
+        return location_type
+
+    def get_base_level_sp_consumption_profile_table(self, request, reporting_supply_point):
+        base_level_sps = None
+        selected_base_level_sp = None
+        base_level_sp_table = None
+
+        if (
+            (is_facility(reporting_supply_point) and request.base_level_is_hsa) or
+            (is_district(reporting_supply_point) and request.base_level_is_facility)
+        ):
+            if request.base_level_is_hsa:
+                base_level_sps = hsa_supply_points_below(reporting_supply_point.location)
+            else:
+                base_level_sps = facility_supply_points_below(reporting_supply_point.location)
+
+            selected_base_level_sp_code = request.GET.get("selected_base_level_sp_code", "")
+            if selected_base_level_sp_code:
+                selected_base_level_sp = SupplyPoint.objects.get(code=selected_base_level_sp_code)
+                base_level_sp_table = self.get_consumption_profile_table(
+                    request,
+                    selected_base_level_sp,
+                    {"id": "base-level-consumption-profiles"}
+                )
+
+        return base_level_sps, selected_base_level_sp, base_level_sp_table
+
+    def get_selected_product(self, request):
+        code = request.GET.get("product", "")
+        if code:
+            return get_object_or_404(Product, sms_code=code, type__base_level=request.base_level)
+
+        return Product.objects.filter(type__base_level=request.base_level)[0]
+
+    def custom_context(self, request):
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
+        reporting_location_consumption_profile_table = self.get_consumption_profile_table(
+            request,
+            reporting_supply_point,
+            {
+                "id": "location-consumption-profiles",
+                "location_type": self.get_reporting_location_type(request, reporting_supply_point),
+            }
+        )
+
+        base_level_sps, selected_base_level_sp, base_level_sp_table = \
+            self.get_base_level_sp_consumption_profile_table(request, reporting_supply_point)
+
+        selected_product = self.get_selected_product(request)
+        amc_table, line_chart = get_consumption_chart(
+            reporting_supply_point,
+            selected_product,
+            request.datespan.startdate,
+            request.datespan.enddate
+        )
+
         return {
-            "location_table": l_table,
-            "hsa_table": hsa_table,
-            "hsa_list": hsa_list,
-            "selected_hsa": selected_hsa,
+            "location_table": reporting_location_consumption_profile_table,
+            "base_level_sp_table": base_level_sp_table,
+            "base_level_sps": base_level_sps,
+            "selected_base_level_sp": selected_base_level_sp,
             "amc_mos_table": amc_table,
             "line_chart": line_chart,
-            "selected_product": p
+            "selected_product": selected_product,
+            "base_level_description": config.BaseLevel.get_base_level_description(request.base_level),
         }

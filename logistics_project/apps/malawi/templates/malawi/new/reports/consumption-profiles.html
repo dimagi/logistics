@@ -3,15 +3,15 @@
 
 <form method="get" class="selector">
     <fieldset>
-    {% include "malawi/partials/location_selector.html" %}
+    {% include "malawi/partials/location_selector.html" with exclude_facilities=request.base_level_is_facility %}
     {% include "malawi/new/partials/month-selector.html" %}
     </fieldset>
     <br>
-    {% if hsa_list %}
-	    <label for="hsa">HSA: </label> 
-	    <select name="hsa" id="hsa">
-	    {% for hsa in hsa_list %}
-	        <option value="{{ hsa.code }}" {% if hsa.pk == selected_hsa.pk %}selected{% endif %}>{{ hsa.name }}</option>
+    {% if base_level_sps %}
+	    <label for="selected_base_level_sp_code">{{ base_level_description }}: </label>
+	    <select name="selected_base_level_sp_code" id="selected_base_level_sp_code">
+	    {% for supply_point in base_level_sps %}
+	        <option value="{{ supply_point.code }}" {% if supply_point.pk == selected_base_level_sp.pk %}selected{% endif %}>{{ supply_point.name }}</option>
 	    {% endfor %}
     </select>
     {% endif %}
@@ -28,10 +28,10 @@
 </div>
 {% endif %}
 
-{% if selected_hsa %}
+{% if selected_base_level_sp %}
 <div class="module">
-    <h2>HSA consumption profiles</h2>
-    {% with hsa_table as table %}
+    <h2>{{ base_level_description }} consumption profiles</h2>
+    {% with base_level_sp_table as table %}
     {% include "malawi/new/partials/generic-table.html" %}
     {% endwith %}
 </div>

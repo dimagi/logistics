@@ -1,3 +1,4 @@
+from datetime import datetime
 from dimagi.utils.dates import DateSpan
 from django.conf import settings
 from django.contrib import messages
@@ -18,18 +19,39 @@ class MalawiWarehouseView(ReportView):
     
     show_report_nav = True  # override to hide
 
-    # If overridden to True, implement get_min_start_date() and the start date
-    # for the report will automatically update if the default range or the
-    # user-selected range is too wide.
+    # If overridden to True, the value returned from get_min_start_date()
+    # will be used to set the start date in the report's datespan if the
+    # default range or the user-selected range is too wide.
     automatically_adjust_datespan = False
+
+    def get_reporting_supply_point(self, request):
+        """
+        This method assumes that it's being called from a view that uses the
+        @place_in_request decorator.
+        """
+        if request.location:
+            return SupplyPoint.objects.get(location=request.location)
+
+        return get_default_supply_point(request.user)
 
     def get_min_start_date(self, request):
         """
-        Should return the minimum start date that should be used with this report.
-        Only needs to be implemented when automatically_adjust_datespan is
+        This method is only called when automatically_adjust_datespan is
         overridden to be True.
+
+        This can be overriden and should return the minimum start date that
+        should be used with this report.
+
+        Note that running min() queries on a large table can be an expensive
+        operation, so looking up the values one time and hard-coding them can
+        be a suitable option.
         """
-        raise NotImplementedError()
+        if request.base_level_is_hsa:
+            return datetime(2011, 6, 1)
+        elif request.base_level_is_facility:
+            return datetime(2016, 10, 1)
+        else:
+            raise config.BaseLevel.InvalidBaseLevelException(request.base_level)
 
     def update_datespan(self, request):
         min_date = self.get_min_start_date(request)

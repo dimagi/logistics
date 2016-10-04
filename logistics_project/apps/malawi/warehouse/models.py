@@ -1,6 +1,7 @@
 from django.db import models
 from logistics.warehouse_models import ReportingModel, BaseReportingModel
-from logistics_project.apps.malawi.util import fmt_pct, pct, hsas_below
+from logistics_project.apps.malawi.util import (fmt_pct, pct, hsas_below,
+    facility_supply_points_below)
 from static.malawi.config import TimeTrackerTypes, BaseLevel
 from datetime import datetime
 from dimagi.utils.dates import first_of_next_month, delta_secs
@@ -210,7 +211,12 @@ class CalculatedConsumption(MalawiWarehouseModel):
                     product=self.product
                 ).total
             except ProductAvailabilityData.DoesNotExist:
-                self._total = hsas_below(self.supply_point.location).count()
+                if self.product.type.base_level == BaseLevel.HSA:
+                    self._total = hsas_below(self.supply_point.location).count()
+                elif self.product.type.base_level == BaseLevel.FACILITY:
+                    self._total = facility_supply_points_below(self.supply_point.location).count()
+                else:
+                    raise BaseLevel.InvalidBaseLevelException(self.product.type.base_level)
         return self._total
     
     @property
