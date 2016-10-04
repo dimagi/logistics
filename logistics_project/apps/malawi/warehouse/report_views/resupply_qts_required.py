@@ -5,6 +5,8 @@ from logistics_project.apps.malawi.util import get_default_supply_point,\
     facility_supply_points_below, is_district, is_country, is_facility,\
     hsa_supply_points_below, get_district_supply_points
 from collections import defaultdict
+from static.malawi.config import BaseLevel
+
 
 class View(warehouse_view.DistrictOnlyView):
 
@@ -34,11 +36,14 @@ class View(warehouse_view.DistrictOnlyView):
             table["header"] = ["Facility Name"]
             facilities = facility_supply_points_below(sp.location)
         else:
-            assert is_facility(sp)
-            table["header"] = ["HSA Name"]
-            facilities = hsa_supply_points_below(sp.location)
+            if request.base_level_is_hsa:
+                assert is_facility(sp)
+                table["header"] = ["HSA Name"]
+                facilities = hsa_supply_points_below(sp.location)
+            else:
+                raise BaseLevel.InvalidReportingSupplyPointException(sp.code)
 
-        products = Product.objects.order_by('sms_code')
+        products = Product.objects.filter(type__base_level=request.base_level).order_by('sms_code')
         for product in products:
             table["header"].append(product.name)
 
