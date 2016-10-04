@@ -1,7 +1,7 @@
 {% extends "malawi/new/base.html" %}
 {% block report_content %}
 
-{% include "malawi/new/partials/emergency-selector-form.html" %}
+{% include "malawi/new/partials/emergency-selector-form.html" with exclude_facilities=request.base_level_is_facility %}
 
 <div class="module">
 	<h2>All products (aggregated quantity required to ensure that HC can resupply)</h2>
