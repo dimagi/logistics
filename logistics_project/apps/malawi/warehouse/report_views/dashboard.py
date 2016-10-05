@@ -8,7 +8,35 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from django.core.exceptions import ObjectDoesNotExist
 
+
 class View(warehouse_view.DashboardView):
+
+    def get_alerts_table(self, request, reporting_supply_point):
+        if request.base_level_is_hsa:
+            alert_table = {
+                "id": "alert-table",
+                "is_datatable": False,
+                "is_downloadable": False,
+                "header": ["", "% HSAs"],
+                "data": [],
+            }
+
+            try:
+                alerts = Alert.objects.get(supply_point=reporting_supply_point)
+                alert_table["data"].append(["With EOs that HCs cannot resupply",
+                    fmt_pct(alerts.eo_without_resupply, alerts.eo_total)])
+                alert_table["data"].append(["Resupplied but remain below EO",
+                    fmt_pct(alerts.eo_with_resupply, alerts.eo_total)])
+                alert_table["data"].append(["With any pending orders",
+                    fmt_pct(alerts.products_requested, alerts.total_requests)])
+                alert_table["data"].append(["With any pending approved orders",
+                    fmt_pct(alerts.products_approved, alerts.total_requests)])
+            except ObjectDoesNotExist:
+                pass
+
+            return alert_table
+
+        return None
 
     def custom_context(self, request):
         window_date = current_report_period()
@@ -43,35 +71,10 @@ class View(warehouse_view.DashboardView):
         for d, vals in summary_data.iteritems():
             dsummary_table["data"].append([d.name, "%.1f%%" % vals["stockout_pct"]])
 
-
-        alert_table = {
-            "id": "alert-table",
-            "is_datatable": False,
-            "is_downloadable": False,
-            "header": ["", "% HSAs"],
-            "data": [],
-        }
-        
-        try:
-            alerts = Alert.objects.get(supply_point=sp)
-            alert_table["data"].append(["With EOs that HCs cannot resupply",\
-                fmt_pct(alerts.eo_without_resupply, alerts.eo_total)])
-            alert_table["data"].append(["Resupplied but remain below EO",\
-                fmt_pct(alerts.eo_with_resupply, alerts.eo_total)])
-            alert_table["data"].append(["With any pending orders",\
-                fmt_pct(alerts.products_requested, alerts.total_requests)])
-            alert_table["data"].append(["With any pending approved orders",\
-                fmt_pct(alerts.products_approved, alerts.total_requests)])
-
-
-
-        except ObjectDoesNotExist:
-            pass
-        
         return {
             "window_date": window_date,
             "dsummary_table": dsummary_table,
-            "alert_table": alert_table,
+            "alert_table": self.get_alerts_table(request, sp),
             "graphdata": get_multiple_reporting_rates_chart(
                 child_sps,
                 window_date,
