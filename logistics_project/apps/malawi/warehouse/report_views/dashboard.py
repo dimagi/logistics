@@ -40,11 +40,10 @@ class View(warehouse_view.DashboardView):
 
     def custom_context(self, request):
         window_date = current_report_period()
-        sp = SupplyPoint.objects.get(location=request.location)\
-            if request.location else get_default_supply_point(request.user)
+        reporting_supply_point = self.get_reporting_supply_point(request)
 
         # reporting rates + stockout summary
-        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=sp)
+        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point)
 
         # filter 'test district' out for non-superusers
         if not request.user.is_superuser:
@@ -60,7 +59,7 @@ class View(warehouse_view.DashboardView):
             stockout_pct = pct(avail_sum.any_without_stock,
                                avail_sum.any_managed) 
             summary_data[avail_sum.supply_point] = {"stockout_pct": stockout_pct}
-        
+
         dsummary_table = {
             "id": "reporting-rates-and-stockout-summary",
             "is_datatable": False,
@@ -74,7 +73,7 @@ class View(warehouse_view.DashboardView):
         return {
             "window_date": window_date,
             "dsummary_table": dsummary_table,
-            "alert_table": self.get_alerts_table(request, sp),
+            "alert_table": self.get_alerts_table(request, reporting_supply_point),
             "graphdata": get_multiple_reporting_rates_chart(
                 child_sps,
                 window_date,
