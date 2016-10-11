@@ -43,7 +43,8 @@ class View(warehouse_view.DistrictOnlyView):
 
         for hsa in hsas:
             try:
-                pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa).order_by('-date')[0]
+                pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa,
+                    base_level=request.base_level).order_by('-date')[0]
             except IndexError:
                 pads = None
             
