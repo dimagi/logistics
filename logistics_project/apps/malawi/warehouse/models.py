@@ -83,6 +83,7 @@ class ProductAvailabilityDataSummary(MalawiWarehouseModel):
     any_good_stock = models.PositiveIntegerField(default=0)
     any_without_data = models.PositiveIntegerField(default=0)
     any_emergency_stock = models.PositiveIntegerField(default=0)
+    base_level = models.CharField(max_length=1, default=BaseLevel.HSA)
 
 
 class ReportingRate(MalawiWarehouseModel):

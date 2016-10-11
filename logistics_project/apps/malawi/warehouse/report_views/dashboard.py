@@ -7,6 +7,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
     get_multiple_reporting_rates_chart, supply_point_type_display
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from django.core.exceptions import ObjectDoesNotExist
+from static.malawi.config import BaseLevel
 
 
 class View(warehouse_view.DashboardView):
@@ -43,18 +44,23 @@ class View(warehouse_view.DashboardView):
             else supply_point_type_display(child_sps[0].type)
 
         summary_data = SortedDict()
-        avail_sums = ProductAvailabilityDataSummary.objects.filter(supply_point__in=child_sps, 
-                                                                   date=window_date)
+        avail_sums = ProductAvailabilityDataSummary.objects.filter(
+            supply_point__in=child_sps,
+            date=window_date,
+            base_level=request.base_level
+        )
         for avail_sum in avail_sums:
             stockout_pct = pct(avail_sum.any_without_stock,
                                avail_sum.any_managed) 
             summary_data[avail_sum.supply_point] = {"stockout_pct": stockout_pct}
 
+        base_level_description = BaseLevel.get_base_level_description(request.base_level)
+
         table = {
-            "id": "reporting-rates-and-stockout-summary",
+            "id": "stockout-rates",
             "is_datatable": False,
             "is_downloadable": False,
-            "header": [child_sp_type, "% HSA with at least one stockout"],
+            "header": [child_sp_type, "%% %s with at least one stockout" % base_level_description],
             "data": [],
         }
         for d, vals in summary_data.iteritems():
