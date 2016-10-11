@@ -38,17 +38,7 @@ class View(warehouse_view.DashboardView):
 
         return None
 
-    def custom_context(self, request):
-        window_date = current_report_period()
-        reporting_supply_point = self.get_reporting_supply_point(request)
-
-        # reporting rates + stockout summary
-        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point)
-
-        # filter 'test district' out for non-superusers
-        if not request.user.is_superuser:
-            child_sps = remove_test_district(child_sps)
-
+    def get_stockout_rates_table(self, request, child_sps, window_date):
         child_sp_type = "Location" if not child_sps \
             else supply_point_type_display(child_sps[0].type)
 
@@ -60,7 +50,7 @@ class View(warehouse_view.DashboardView):
                                avail_sum.any_managed) 
             summary_data[avail_sum.supply_point] = {"stockout_pct": stockout_pct}
 
-        dsummary_table = {
+        table = {
             "id": "reporting-rates-and-stockout-summary",
             "is_datatable": False,
             "is_downloadable": False,
@@ -68,11 +58,24 @@ class View(warehouse_view.DashboardView):
             "data": [],
         }
         for d, vals in summary_data.iteritems():
-            dsummary_table["data"].append([d.name, "%.1f%%" % vals["stockout_pct"]])
+            table["data"].append([d.name, "%.1f%%" % vals["stockout_pct"]])
+
+        return table
+
+    def custom_context(self, request):
+        window_date = current_report_period()
+        reporting_supply_point = self.get_reporting_supply_point(request)
+
+        # reporting rates + stockout summary
+        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point)
+
+        # filter 'test district' out for non-superusers
+        if not request.user.is_superuser:
+            child_sps = remove_test_district(child_sps)
 
         return {
             "window_date": window_date,
-            "dsummary_table": dsummary_table,
+            "stockout_rates_table": self.get_stockout_rates_table(request, child_sps, window_date),
             "alert_table": self.get_alerts_table(request, reporting_supply_point),
             "graphdata": get_multiple_reporting_rates_chart(
                 child_sps,
