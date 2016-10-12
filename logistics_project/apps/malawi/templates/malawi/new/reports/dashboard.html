@@ -29,6 +29,11 @@
             <div class="module" id="fridge-malfunction-module">
                 <h2>Refrigerator Malfunctions</h2>
                 {% include "malawi/new/partials/generic-table.html" with table=district_fridge_summary_table %}
+                {% if facility_fridge_summary_table %}
+                    <br>
+                    <h2>Facilities with Fridge Malfunction</h2>
+                    {% include "malawi/new/partials/generic-table.html" with table=facility_fridge_summary_table %}
+                {% endif %}
             </div>
         {% endif %}
     </div>

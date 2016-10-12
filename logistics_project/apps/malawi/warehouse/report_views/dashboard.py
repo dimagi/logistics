@@ -85,10 +85,10 @@ class View(warehouse_view.DashboardView):
                 "is_downloadable": False,
                 "header": [
                     "District",
-                    "% of HFs with no gas for fridge",
-                    "% of HFs with fridge power failure",
-                    "% of HFs with fridge breakdown",
-                    "% of HFs with other fridge issue",
+                    "% HFs with Fridge - No Gas",
+                    "% HFs with Fridge - Power Failure",
+                    "% HFs with Fridge - Breakdown",
+                    "% HFs with Fridge - Other Issue",
                 ],
                 "data": [],
             }
@@ -122,6 +122,48 @@ class View(warehouse_view.DashboardView):
 
         return None
 
+    def get_facility_fridge_summary_table(self, request, reporting_supply_point, child_sps):
+        if not (
+            request.base_level_is_facility and
+            reporting_supply_point.type.code == SupplyPointCodes.DISTRICT
+        ):
+            return None
+
+        table = {
+            "id": "facility-fridge-summary",
+            "is_datatable": False,
+            "is_downloadable": False,
+            "header": [
+                "Facility",
+                "Fridge - No Gas",
+                "Fridge - Power Failure",
+                "Fridge - Breakdown",
+                "Fridge - Other Issue",
+            ],
+            "data": [],
+        }
+
+        malfunctions = RefrigeratorMalfunction.objects.select_related('supply_point').filter(
+            supply_point__in=child_sps,
+            resolved_on__isnull=True
+        )
+
+        malfunctions = list(malfunctions)
+
+        if not malfunctions:
+            return None
+
+        for malfunction in malfunctions:
+            table["data"].append([
+                malfunction.supply_point.name,
+                'x' if malfunction.malfunction_reason == RefrigeratorMalfunction.REASON_NO_GAS else '',
+                'x' if malfunction.malfunction_reason == RefrigeratorMalfunction.REASON_POWER_FAILURE else '',
+                'x' if malfunction.malfunction_reason == RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN else '',
+                'x' if malfunction.malfunction_reason == RefrigeratorMalfunction.REASON_OTHER else '',
+            ])
+
+        return table
+
     def custom_context(self, request):
         window_date = current_report_period()
         reporting_supply_point = self.get_reporting_supply_point(request)
@@ -143,6 +185,11 @@ class View(warehouse_view.DashboardView):
                 base_level=request.base_level
             ),
             "district_fridge_summary_table": self.get_district_fridge_summary_table(
+                request,
+                reporting_supply_point,
+                child_sps
+            ),
+            "facility_fridge_summary_table": self.get_facility_fridge_summary_table(
                 request,
                 reporting_supply_point,
                 child_sps

@@ -70,6 +70,10 @@ div.module h2 {
     z-index: 10000;
 }
 
+#fridge-malfunction-module table td {
+    text-align: center;
+}
+
 .report-content {
     border: 1px solid lightgray;
     float: left;
