@@ -1,5 +1,7 @@
+from collections import defaultdict
 from django.utils.datastructures import SortedDict
 from logistics.models import SupplyPoint
+from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics_project.apps.malawi.util import pct, fmt_pct, get_default_supply_point, remove_test_district
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
     Alert
@@ -7,7 +9,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import current_report_
     get_multiple_reporting_rates_chart, supply_point_type_display
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from django.core.exceptions import ObjectDoesNotExist
-from static.malawi.config import BaseLevel
+from static.malawi.config import BaseLevel, SupplyPointCodes
 
 
 class View(warehouse_view.DashboardView):
@@ -68,6 +70,58 @@ class View(warehouse_view.DashboardView):
 
         return table
 
+    def get_district_fridge_summary_table(self, request, reporting_supply_point, child_sps):
+        if request.base_level_is_facility:
+            if reporting_supply_point.type.code == SupplyPointCodes.COUNTRY:
+                districts = child_sps
+            elif reporting_supply_point.type.code == SupplyPointCodes.DISTRICT:
+                districts = [reporting_supply_point]
+            else:
+                raise BaseLevel.InvalidReportingSupplyPointException(reporting_supply_point.code)
+
+            table = {
+                "id": "district-fridge-summary",
+                "is_datatable": False,
+                "is_downloadable": False,
+                "header": [
+                    "District",
+                    "% of HFs with no gas for fridge",
+                    "% of HFs with fridge power failure",
+                    "% of HFs with fridge breakdown",
+                    "% of HFs with other fridge issue",
+                ],
+                "data": [],
+            }
+
+            for district in districts:
+                total_facilities = SupplyPoint.objects.filter(
+                    active=True,
+                    supplied_by=district
+                ).count()
+
+                malfunction_reasons = RefrigeratorMalfunction.objects.filter(
+                    supply_point__active=True,
+                    supply_point__supplied_by=district,
+                    resolved_on__isnull=True
+                ).values_list('malfunction_reason', flat=True)
+
+                reason_counts = defaultdict(lambda: 0)
+
+                for malfunction_reason in malfunction_reasons:
+                    reason_counts[malfunction_reason] += 1
+
+                table["data"].append([
+                    district.name,
+                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_NO_GAS], total_facilities),
+                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_POWER_FAILURE], total_facilities),
+                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN], total_facilities),
+                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_OTHER], total_facilities),
+                ])
+
+            return table
+
+        return None
+
     def custom_context(self, request):
         window_date = current_report_period()
         reporting_supply_point = self.get_reporting_supply_point(request)
@@ -87,5 +141,10 @@ class View(warehouse_view.DashboardView):
                 child_sps,
                 window_date,
                 base_level=request.base_level
+            ),
+            "district_fridge_summary_table": self.get_district_fridge_summary_table(
+                request,
+                reporting_supply_point,
+                child_sps
             ),
         }

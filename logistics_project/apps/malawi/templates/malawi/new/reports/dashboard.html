@@ -17,14 +17,20 @@
 		</div>
     </div>
     <div class="col-2">
-        <div class="module">
-            {% if request.base_level_is_hsa %}
+        {% if request.base_level_is_hsa %}
+            <div class="module">
                 <h2>Current alerts</h2>
                 {% with alert_table as table %}
                     {% include "malawi/new/partials/generic-table.html" %}
                 {% endwith %}
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
+        {% if request.base_level_is_facility %}
+            <div class="module" id="fridge-malfunction-module">
+                <h2>Refrigerator Malfunctions</h2>
+                {% include "malawi/new/partials/generic-table.html" with table=district_fridge_summary_table %}
+            </div>
+        {% endif %}
     </div>
 </div>
 
