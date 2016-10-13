@@ -71,56 +71,56 @@ class View(warehouse_view.DashboardView):
         return table
 
     def get_district_fridge_summary_table(self, request, reporting_supply_point, child_sps):
-        if request.base_level_is_facility:
-            if reporting_supply_point.type.code == SupplyPointCodes.COUNTRY:
-                districts = child_sps
-            elif reporting_supply_point.type.code == SupplyPointCodes.DISTRICT:
-                districts = [reporting_supply_point]
-            else:
-                raise BaseLevel.InvalidReportingSupplyPointException(reporting_supply_point.code)
+        if not request.base_level_is_facility:
+            return None
 
-            table = {
-                "id": "district-fridge-summary",
-                "is_datatable": False,
-                "is_downloadable": False,
-                "header": [
-                    "District",
-                    "% HFs with Fridge - No Gas",
-                    "% HFs with Fridge - Power Failure",
-                    "% HFs with Fridge - Breakdown",
-                    "% HFs with Fridge - Other Issue",
-                ],
-                "data": [],
-            }
+        if reporting_supply_point.type.code == SupplyPointCodes.COUNTRY:
+            districts = child_sps
+        elif reporting_supply_point.type.code == SupplyPointCodes.DISTRICT:
+            districts = [reporting_supply_point]
+        else:
+            raise BaseLevel.InvalidReportingSupplyPointException(reporting_supply_point.code)
 
-            for district in districts:
-                total_facilities = SupplyPoint.objects.filter(
-                    active=True,
-                    supplied_by=district
-                ).count()
+        table = {
+            "id": "district-fridge-summary",
+            "is_datatable": False,
+            "is_downloadable": False,
+            "header": [
+                "District",
+                "% HFs with Fridge - No Gas",
+                "% HFs with Fridge - Power Failure",
+                "% HFs with Fridge - Breakdown",
+                "% HFs with Fridge - Other Issue",
+            ],
+            "data": [],
+        }
 
-                malfunction_reasons = RefrigeratorMalfunction.objects.filter(
-                    supply_point__active=True,
-                    supply_point__supplied_by=district,
-                    resolved_on__isnull=True
-                ).values_list('malfunction_reason', flat=True)
+        for district in districts:
+            total_facilities = SupplyPoint.objects.filter(
+                active=True,
+                supplied_by=district
+            ).count()
 
-                reason_counts = defaultdict(lambda: 0)
+            malfunction_reasons = RefrigeratorMalfunction.objects.filter(
+                supply_point__active=True,
+                supply_point__supplied_by=district,
+                resolved_on__isnull=True
+            ).values_list('malfunction_reason', flat=True)
 
-                for malfunction_reason in malfunction_reasons:
-                    reason_counts[malfunction_reason] += 1
+            reason_counts = defaultdict(lambda: 0)
 
-                table["data"].append([
-                    district.name,
-                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_NO_GAS], total_facilities),
-                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_POWER_FAILURE], total_facilities),
-                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN], total_facilities),
-                    fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_OTHER], total_facilities),
-                ])
+            for malfunction_reason in malfunction_reasons:
+                reason_counts[malfunction_reason] += 1
 
-            return table
+            table["data"].append([
+                district.name,
+                fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_NO_GAS], total_facilities),
+                fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_POWER_FAILURE], total_facilities),
+                fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_FRIDGE_BREAKDOWN], total_facilities),
+                fmt_pct(reason_counts[RefrigeratorMalfunction.REASON_OTHER], total_facilities),
+            ])
 
-        return None
+        return table
 
     def get_facility_fridge_summary_table(self, request, reporting_supply_point, child_sps):
         if not (
