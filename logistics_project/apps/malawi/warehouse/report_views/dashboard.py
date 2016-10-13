@@ -1,4 +1,5 @@
 from collections import defaultdict
+from django.db.models import Count
 from django.utils.datastructures import SortedDict
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
@@ -105,12 +106,12 @@ class View(warehouse_view.DashboardView):
                 supply_point__active=True,
                 supply_point__supplied_by=district,
                 resolved_on__isnull=True
-            ).values_list('malfunction_reason', flat=True)
+            ).values('malfunction_reason').annotate(total=Count('malfunction_reason'))
 
             reason_counts = defaultdict(lambda: 0)
 
-            for malfunction_reason in malfunction_reasons:
-                reason_counts[malfunction_reason] += 1
+            for record in malfunction_reasons:
+                reason_counts[record['malfunction_reason']] = record['total']
 
             table["data"].append([
                 district.name,
