@@ -62,12 +62,16 @@ div.module h2 {
     padding: 0.3125em;
 }
 
-#stock-out-rates-module {
+#stock-out-rates-module, #fridge-malfunction-module {
     border-bottom: 1px solid #dddddd;
     margin-bottom: 1em;
     max-height: 350px;
     overflow: auto;
     z-index: 10000;
+}
+
+#fridge-malfunction-module table td {
+    text-align: center;
 }
 
 .report-content {
