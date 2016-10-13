@@ -51,7 +51,7 @@ class View(warehouse_view.DashboardView):
             supply_point__in=child_sps,
             date=window_date,
             base_level=request.base_level
-        )
+        ).order_by('supply_point__name')
         for avail_sum in avail_sums:
             stockout_pct = pct(avail_sum.any_without_stock,
                                avail_sum.any_managed) 
@@ -147,7 +147,7 @@ class View(warehouse_view.DashboardView):
         malfunctions = RefrigeratorMalfunction.objects.select_related('supply_point').filter(
             supply_point__in=child_sps,
             resolved_on__isnull=True
-        )
+        ).order_by('supply_point__name')
 
         malfunctions = list(malfunctions)
 
@@ -170,7 +170,7 @@ class View(warehouse_view.DashboardView):
         reporting_supply_point = self.get_reporting_supply_point(request)
 
         # reporting rates + stockout summary
-        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point)
+        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point).order_by('name')
 
         # filter 'test district' out for non-superusers
         if not request.user.is_superuser:
