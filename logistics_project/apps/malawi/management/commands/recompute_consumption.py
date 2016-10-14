@@ -9,6 +9,8 @@ from logistics_project.apps.malawi.warehouse.runner import ReportPeriod,\
     update_consumption, aggregate, update_consumption_times
 from logistics_project.apps.malawi.util import hsa_supply_points_below
 from optparse import make_option
+from static.malawi.config import BaseLevel
+
 
 class Command(LabelCommand):
     
@@ -71,7 +73,7 @@ def recompute(run_record, aggregate_only, hsa_code=None):
             for year, month in months_between(run_record.start, run_record.end):
                 window_date = datetime(year, month, 1)
                 report_period = ReportPeriod(hsa, window_date, run_record.start, run_record.end)
-                update_consumption(report_period)
+                update_consumption(report_period, BaseLevel.HSA)
 
     update_consumption_times(run_record.start_run)
 
