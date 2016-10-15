@@ -95,7 +95,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             hsas = hsas[:self.hsa_limit]
         
         count = len(hsas)
-        all_products = Product.objects.filter(type__code=BaseLevel.HSA)
+        all_products = Product.objects.filter(type__base_level=BaseLevel.HSA)
         if not self.skip_hsas:
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
@@ -104,7 +104,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         if settings.ENABLE_FACILITY_WORKFLOWS:
             print 'processing facility data'
-            all_products = Product.objects.filter(type__code=BaseLevel.FACILITY)
+            all_products = Product.objects.filter(type__base_level=BaseLevel.FACILITY)
             facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
             if self.facility_limit:
                 facilities = facilities[:self.facility_limit]
@@ -140,7 +140,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=BaseLevel.HSA):
         base_level_is_hsa = (base_level == BaseLevel.HSA)
 
-        all_products = all_products or Product.objects.filter(type__code=base_level)
+        all_products = all_products or Product.objects.filter(type__base_level=base_level)
         products_managed = get_managed_product_ids(supply_point, base_level)
 
         if not self.skip_current_consumption:
