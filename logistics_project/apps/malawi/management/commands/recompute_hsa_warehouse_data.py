@@ -46,4 +46,4 @@ class Command(LabelCommand):
         warehouse_runner.update_base_level_data(hsa, start, end)
         for parent in hsa.get_parents():
             print 'updating %s' % parent
-            warehouse_runner.update_non_hsa_data(parent, start, end, since=None)
+            warehouse_runner.update_aggregated_data(parent, start, end, since=None)

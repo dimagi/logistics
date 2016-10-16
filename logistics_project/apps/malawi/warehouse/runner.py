@@ -95,47 +95,62 @@ class MalawiWarehouseRunner(WarehouseRunner):
             hsas = hsas[:self.hsa_limit]
         
         count = len(hsas)
-        all_products = Product.objects.filter(type__base_level=BaseLevel.HSA)
         if not self.skip_hsas:
+            products = get_products(BaseLevel.HSA)
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_base_level_data(hsa, start, end, all_products)
+                self.update_base_level_data(hsa, start, end, products)
 
         if settings.ENABLE_FACILITY_WORKFLOWS:
             print 'processing facility data'
-            all_products = Product.objects.filter(type__base_level=BaseLevel.FACILITY)
+            products = get_products(BaseLevel.FACILITY)
             facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
             if self.facility_limit:
                 facilities = facilities[:self.facility_limit]
             for i, facility in enumerate(facilities):
                 print "processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count)
-                self.update_base_level_data(facility, start, end, all_products, base_level=BaseLevel.FACILITY)
+                self.update_base_level_data(facility, start, end, products, base_level=BaseLevel.FACILITY)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
 
         # rollup aggregates
         if not self.skip_aggregates:
-            for agg_type_code, agg_type_name in aggregate_types_in_order():
-                non_hsas = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
-                print 'processing non-hsas of type {0}'.format(agg_type_name)
-                if self.agg_limit_per_type:
-                    non_hsas = non_hsas[:self.agg_limit_per_type]
-
-                non_hsa_count = non_hsas.count()
-                for i, place in enumerate(non_hsas):
-                    print "processing %s %s (%s) (%s/%s)" % (agg_type_name, place.name,
-                                                             str(place.id), i, non_hsa_count)
-
-                    self.update_non_hsa_data(place, start, end, run_record.start_run,
-                                             all_products=all_products)
+            self.aggregate_data(BaselLevel.HSA)
 
         # run alerts
         if not self.skip_alerts:
             update_alerts(hsas)
 
         update_historical_data()
+
+    def aggregate_data(self, base_level):
+        products = get_products(base_level)
+        for agg_type_code, agg_type_name in aggregate_types_in_order(base_level):
+            supply_points = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
+            print 'aggregating data at level %s for base level %s' % (agg_type_name, base_level)
+            if self.agg_limit_per_type:
+                supply_points = supply_points[:self.agg_limit_per_type]
+
+            supply_points_count = supply_points.count()
+            for i, supply_point in enumerate(supply_points):
+                print "processing %s %s (%s) (%s/%s)" % (
+                    agg_type_name,
+                    supply_point.name,
+                    supply_point.id,
+                    i,
+                    supply_points_count
+                )
+
+                self.update_aggregated_data(
+                    place,
+                    start,
+                    end,
+                    run_record.start_run,
+                    all_products=products,
+                    base_level=base_level
+                )
 
     def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=BaseLevel.HSA):
         base_level_is_hsa = (base_level == BaseLevel.HSA)
@@ -164,7 +179,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_historical_stock:
                 _update_historical_stock(supply_point, report_period, all_products)
 
-    def update_non_hsa_data(self, place, start, end, since, all_products=None):
+    def update_aggregated_data(self, place, start, end, since, all_products=None, base_level=BaseLevel.HSA):
 
         all_products = all_products or Product.objects.all()
         relevant_children = proper_children(place)
@@ -250,6 +265,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
                                    'time_needing_data'],
                            additonal_query_params={"product": p},
                         )
+
+
+def get_products(base_level):
+    return Product.objects.filter(type__base_level=base_level)
 
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
@@ -533,10 +552,11 @@ def proper_child_type(supply_point):
     }[supply_point.type.code]
 
 
-def aggregate_types_in_order():
-    yield 'hf', 'health facility'
-    yield 'd', 'district'
-    yield 'c', 'country'
+def aggregate_types_in_order(base_level):
+    if base_level == BaseLevel.HSA:
+        yield SupplyPointCodes.FACILITY, 'health facility'
+    yield SupplyPointCodes.DISTRICT, 'district'
+    yield SupplyPointCodes.COUNTRY, 'country'
 
 
 def _update_reporting_rate(supply_point, report_period, products_managed, base_level):
