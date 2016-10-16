@@ -117,7 +117,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         # rollup aggregates
         if not self.skip_aggregates:
-            self.aggregate_data(BaselLevel.HSA)
+            self.aggregate_data(start, end, run_record, BaselLevel.HSA)
+
+            if settings.ENABLE_FACILITY_WORKFLOWS:
+                self.aggregate_data(start, end, run_record, BaselLevel.FACILITY)
 
         # run alerts
         if not self.skip_alerts:
@@ -125,7 +128,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def aggregate_data(self, base_level):
+    def aggregate_data(self, start, end, run_record, base_level):
         products = get_products(base_level)
         for agg_type_code, agg_type_name in aggregate_types_in_order(base_level):
             supply_points = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
@@ -144,7 +147,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 )
 
                 self.update_aggregated_data(
-                    place,
+                    supply_point,
                     start,
                     end,
                     run_record.start_run,
@@ -154,7 +157,6 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
     def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=BaseLevel.HSA):
         base_level_is_hsa = (base_level == BaseLevel.HSA)
-
         all_products = all_products or Product.objects.filter(type__base_level=base_level)
         products_managed = get_managed_product_ids(supply_point, base_level)
 
@@ -179,59 +181,59 @@ class MalawiWarehouseRunner(WarehouseRunner):
             if not self.skip_historical_stock:
                 _update_historical_stock(supply_point, report_period, all_products)
 
-    def update_aggregated_data(self, place, start, end, since, all_products=None, base_level=BaseLevel.HSA):
-
-        all_products = all_products or Product.objects.all()
-        relevant_children = proper_children(place)
+    def update_aggregated_data(self, supply_point, start, end, since, all_products=None, base_level=BaseLevel.HSA):
+        base_level_is_hsa = (base_level == BaseLevel.HSA)
+        all_products = all_products or get_products(base_level)
+        relevant_children = proper_children(supply_point)
 
         if not self.skip_current_consumption:
             for p in all_products:
-                _aggregate_raw(CurrentConsumption, place, relevant_children,
+                _aggregate_raw(CurrentConsumption, supply_point, relevant_children,
                                fields=["total", "current_daily_consumption", "stock_on_hand"],
                                additonal_query_params={"product": p})
 
         for year, month in months_between(start, end):
             window_date = datetime(year, month, 1)
             if not self.skip_reporting_rates:
-                _aggregate(ReportingRate, window_date, place, relevant_children,
+                _aggregate(ReportingRate, window_date, supply_point, relevant_children,
                            fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': BaseLevel.HSA})
-                if settings.ENABLE_FACILITY_WORKFLOWS:
-                    _aggregate(ReportingRate, window_date, place, relevant_children,
-                           fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': BaseLevel.FACILITY})
+                           additonal_query_params={'base_level': base_level})
 
             if not self.skip_product_availability:
                 for p in all_products:
-                    _aggregate(ProductAvailabilityData, window_date, place, relevant_children,
+                    _aggregate(ProductAvailabilityData, window_date, supply_point, relevant_children,
                                fields=['total', 'managed'] + \
                                     ProductAvailabilityData.STOCK_CATEGORIES + \
                                     ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
                                additonal_query_params={"product": p})
-                _aggregate(ProductAvailabilityDataSummary, window_date, place,
+
+                _aggregate(ProductAvailabilityDataSummary, window_date, supply_point,
                            relevant_children, fields=['total', 'any_managed'] + \
-                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
-            if not self.skip_lead_times:
+                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
+                           additonal_query_params={'base_level': base_level})
+
+            if not self.skip_lead_times and base_level_is_hsa:
                 for code, name in TIME_TRACKER_TYPES:
-                    _aggregate(TimeTracker, window_date, place, relevant_children,
+                    _aggregate(TimeTracker, window_date, supply_point, relevant_children,
                                fields=['total', 'time_in_seconds'],
                                additonal_query_params={"type": code})
-            if not self.skip_order_requests:
+
+            if not self.skip_order_requests and base_level_is_hsa:
                 for p in all_products:
-                    _aggregate(OrderRequest, window_date, place, relevant_children,
+                    _aggregate(OrderRequest, window_date, supply_point, relevant_children,
                                fields=['total', 'emergency'],
                                additonal_query_params={"product": p})
-            if not self.skip_order_fulfillment:
-                for p in all_products:
 
-                    _aggregate(OrderFulfillment, window_date, place, relevant_children,
+            if not self.skip_order_fulfillment and base_level_is_hsa:
+                for p in all_products:
+                    _aggregate(OrderFulfillment, window_date, supply_point, relevant_children,
                            fields=['total', 'quantity_requested', 'quantity_received'],
                            additonal_query_params={"product": p})
 
             if not self.skip_consumption and self.consumption_test_mode:
                 for p in all_products:
                     # NOTE: this is not correct, but is for testing / iteration
-                    _aggregate(CalculatedConsumption, window_date, place, relevant_children,
+                    _aggregate(CalculatedConsumption, window_date, supply_point, relevant_children,
                                fields=['calculated_consumption',
                                        'time_stocked_out',
                                        'time_with_data',
@@ -240,7 +242,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
             if not self.skip_historical_stock:
                 for p in all_products:
-                    _aggregate(HistoricalStock, window_date, place, relevant_children,
+                    _aggregate(HistoricalStock, window_date, supply_point, relevant_children,
                                fields=["total", "stock"],
                                additonal_query_params={"product": p})
 
@@ -252,13 +254,14 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 agg = CalculatedConsumption.objects.filter(
                     update_date__gte=since,
                     supply_point__in=relevant_children,
+                    product=p
                 ).aggregate(Min('date'))
                 new_start = agg.get('date__min', None)
                 if new_start:
                     assert new_start <= end
                     for year, month in months_between(new_start, end):
                         window_date = datetime(year, month, 1)
-                        _aggregate(CalculatedConsumption, window_date, place, relevant_children,
+                        _aggregate(CalculatedConsumption, window_date, supply_point, relevant_children,
                            fields=['calculated_consumption',
                                    'time_stocked_out',
                                    'time_with_data',
