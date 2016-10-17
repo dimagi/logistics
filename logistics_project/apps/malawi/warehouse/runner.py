@@ -441,20 +441,14 @@ def update_alerts(hsas):
         )
     return True
 
-def _init_warehouse_model(cls, supply_point, date):
-    if hasattr(cls, 'product'):
-        _init_with_product(cls, supply_point, date)
-    else:
-        _init_default(cls, supply_point, date)
 
-def _init_default(cls, supply_point, date):
-    return cls.objects.get_or_create(supply_point=supply_point, date=date)[1]
+def _init_with_base_level(cls, supply_point, date, base_level):
+    cls.objects.get_or_create(supply_point=supply_point, date=date, base_level=base_level)
 
-def _init_with_product(cls, supply_point, date):
-    ret = False
-    for p in Product.objects.all():
-        ret = cls.objects.get_or_create(supply_point=supply_point, date=date, product=p) or ret
-    return ret
+
+def _init_with_product(cls, supply_point, date, base_level):
+    for p in get_products(base_level):
+        cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
 
 
 def update_consumption(report_period, base_level, products_managed=None):
@@ -501,34 +495,57 @@ def update_consumption_times(since):
             c.time_needing_data = c.time_with_data
             c.save()
 
+
 def update_historical_data():
     """
     If we don't have a record of this supply point being updated, run
     through all historical data and just fill in with zeros.
     """
-    start_date = ReportingRate.objects.order_by('date')[0].date
-    warehouse_classes = [
+    hsa_level_start_date = ReportingRate.objects.filter(base_level=BaseLevel.HSA).order_by('date')[0].date
+    if settings.ENABLE_FACILITY_WORKFLOWS:
+        facility_level_start_date = ReportingRate.objects.filter(base_level=BaseLevel.FACILITY).order_by('date')[0].date
+
+    # These models are used by both base levels and have a product attribute
+    warehouse_classes_with_product = [
         ProductAvailabilityData,
-        ProductAvailabilityDataSummary,
-        ReportingRate,
-        OrderRequest,
-        OrderFulfillment,
         CalculatedConsumption,
         HistoricalStock,
     ]
+
+    # These models are used by both base levels and have a base_level attribute
+    warehouse_classes_with_base_level = [
+        ProductAvailabilityDataSummary,
+        ReportingRate,
+    ]
+
+    # These models are used by only the HSA base level and have a product attribute
+    hsa_only_warehouse_classes_with_product = [
+        OrderRequest,
+        OrderFulfillment,
+    ]
+
     print 'updating historical data'
-    for sp in SupplyPoint.objects.all():
-        try:
-            SupplyPointWarehouseRecord.objects.get(supply_point=sp)
-        except ObjectDoesNotExist:
-            # we didn't have a record so go through and historically update
-            # anything we maybe haven't touched
-            for year, month in months_between(start_date, sp.created_at):
+    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True):
+        for year, month in months_between(hsa_level_start_date, sp.created_at):
+            window_date = datetime(year, month, 1)
+
+            for cls in (warehouse_classes_with_product + hsa_only_warehouse_classes_with_product):
+                _init_with_product(cls, sp, window_date, BaseLevel.HSA)
+
+            for cls in warehouse_classes_with_base_level:
+                _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
+
+        if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
+            for year, month in months_between(facility_level_start_date, sp.created_at):
                 window_date = datetime(year, month, 1)
-                for cls in warehouse_classes:
-                    _init_warehouse_model(cls, sp, window_date)
-            SupplyPointWarehouseRecord.objects.create(supply_point=sp,
-                                                      create_date=datetime.utcnow())
+
+                for cls in warehouse_classes_with_product:
+                    _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
+
+                for cls in warehouse_classes_with_base_level:
+                    _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
+
+        SupplyPointWarehouseRecord.objects.create(supply_point=sp, create_date=datetime.utcnow())
 
 
 def proper_children(supply_point):
