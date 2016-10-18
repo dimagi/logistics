@@ -501,9 +501,6 @@ def update_historical_data():
     If we don't have a record of this supply point being updated, run
     through all historical data and just fill in with zeros.
     """
-    hsa_level_start_date = ReportingRate.objects.filter(base_level=BaseLevel.HSA).order_by('date')[0].date
-    if settings.ENABLE_FACILITY_WORKFLOWS:
-        facility_level_start_date = ReportingRate.objects.filter(base_level=BaseLevel.FACILITY).order_by('date')[0].date
 
     # These models are used by both base levels and have a product attribute
     warehouse_classes_with_product = [
@@ -526,7 +523,7 @@ def update_historical_data():
 
     print 'updating historical data'
     for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True):
-        for year, month in months_between(hsa_level_start_date, sp.created_at):
+        for year, month in months_between(BaseLevel.HSA_WAREHOUSE_START_DATE, sp.created_at):
             window_date = datetime(year, month, 1)
 
             for cls in (warehouse_classes_with_product + hsa_only_warehouse_classes_with_product):
@@ -536,7 +533,7 @@ def update_historical_data():
                 _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
 
         if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
-            for year, month in months_between(facility_level_start_date, sp.created_at):
+            for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
                 window_date = datetime(year, month, 1)
 
                 for cls in warehouse_classes_with_product:

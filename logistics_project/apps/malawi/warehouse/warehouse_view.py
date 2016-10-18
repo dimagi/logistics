@@ -1,4 +1,3 @@
-from datetime import datetime
 from dimagi.utils.dates import DateSpan
 from django.conf import settings
 from django.contrib import messages
@@ -47,9 +46,9 @@ class MalawiWarehouseView(ReportView):
         be a suitable option.
         """
         if request.base_level_is_hsa:
-            return datetime(2011, 6, 1)
+            return config.BaseLevel.HSA_WAREHOUSE_START_DATE
         elif request.base_level_is_facility:
-            return datetime(2016, 10, 1)
+            return config.BaseLevel.FACILITY_WAREHOUSE_START_DATE
         else:
             raise config.BaseLevel.InvalidBaseLevelException(request.base_level)
 
