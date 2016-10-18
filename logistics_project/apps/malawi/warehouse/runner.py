@@ -117,10 +117,10 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         # rollup aggregates
         if not self.skip_aggregates:
-            self.aggregate_data(start, end, run_record, BaselLevel.HSA)
+            self.aggregate_data(start, end, run_record, BaseLevel.HSA)
 
             if settings.ENABLE_FACILITY_WORKFLOWS:
-                self.aggregate_data(start, end, run_record, BaselLevel.FACILITY)
+                self.aggregate_data(start, end, run_record, BaseLevel.FACILITY)
 
         # run alerts
         if not self.skip_alerts:
@@ -157,7 +157,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
     def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=BaseLevel.HSA):
         base_level_is_hsa = (base_level == BaseLevel.HSA)
-        all_products = all_products or Product.objects.filter(type__base_level=base_level)
+        all_products = all_products or get_products(base_level)
         products_managed = get_managed_product_ids(supply_point, base_level)
 
         if not self.skip_current_consumption:
@@ -317,7 +317,7 @@ def update_current_consumption(supply_point, base_level):
     """
     Update the actual consumption data
     """
-    for p in Product.objects.filter(type__base_level=base_level):
+    for p in get_products(base_level):
         
         consumption = CurrentConsumption.objects.get_or_create\
             (supply_point=supply_point, product=p)[0]
@@ -455,7 +455,7 @@ def update_consumption(report_period, base_level, products_managed=None):
     if products_managed is None:
         products_managed = get_managed_product_ids(report_period.supply_point, base_level)
 
-    for p in Product.objects.filter(type__base_level=base_level):
+    for p in get_products(base_level):
         c = CalculatedConsumption.objects.get_or_create(
             supply_point=report_period.supply_point,
             date=report_period.window_date,
