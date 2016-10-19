@@ -1,4 +1,4 @@
-
+from datetime import datetime
 
 
 HSA = "hsa"
@@ -56,6 +56,9 @@ class BaseLevel(object):
 
     HSA = 'h'
     FACILITY = 'f'
+
+    HSA_WAREHOUSE_START_DATE = datetime(2011, 6, 1)
+    FACILITY_WAREHOUSE_START_DATE = datetime(2016, 10, 1)
 
     @staticmethod
     def get_base_level_description(base_level, plural=False):

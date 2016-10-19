@@ -10,15 +10,15 @@ from rapidsms.contrib.messagelog.models import Message
 from logistics.models import SupplyPoint, ProductReport, StockTransaction,\
     ProductStock, Product, StockRequest, StockRequestStatus
 from logistics.const import Reports
-from logistics.util import config
 from logistics.warehouse_models import SupplyPointWarehouseRecord
 
 from warehouse.runner import WarehouseRunner
 from warehouse.models import ReportRun
 
-from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
+from static.malawi.config import TimeTrackerTypes, SupplyPointCodes, BaseLevel
 
-from logistics_project.apps.malawi.util import hsa_supply_points_below, get_country_sp
+from logistics_project.apps.malawi.util import (hsa_supply_points_below, get_country_sp,
+    get_managed_product_ids)
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
@@ -95,40 +95,32 @@ class MalawiWarehouseRunner(WarehouseRunner):
             hsas = hsas[:self.hsa_limit]
         
         count = len(hsas)
-        all_products = Product.objects.all()
         if not self.skip_hsas:
+            products = get_products(BaseLevel.HSA)
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
                 print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
-                self.update_base_level_data(hsa, start, end, all_products)
+                self.update_base_level_data(hsa, start, end, products)
 
         if settings.ENABLE_FACILITY_WORKFLOWS:
             print 'processing facility data'
+            products = get_products(BaseLevel.FACILITY)
             facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
             if self.facility_limit:
                 facilities = facilities[:self.facility_limit]
             for i, facility in enumerate(facilities):
                 print "processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count)
-                self.update_base_level_data(facility, start, end, all_products, base_level=config.BaseLevel.FACILITY)
+                self.update_base_level_data(facility, start, end, products, base_level=BaseLevel.FACILITY)
 
         if not self.skip_consumption:
             update_consumption_times(run_record.start_run)
 
         # rollup aggregates
         if not self.skip_aggregates:
-            for agg_type_code, agg_type_name in aggregate_types_in_order():
-                non_hsas = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
-                print 'processing non-hsas of type {0}'.format(agg_type_name)
-                if self.agg_limit_per_type:
-                    non_hsas = non_hsas[:self.agg_limit_per_type]
+            self.aggregate_data(start, end, run_record, BaseLevel.HSA)
 
-                non_hsa_count = non_hsas.count()
-                for i, place in enumerate(non_hsas):
-                    print "processing %s %s (%s) (%s/%s)" % (agg_type_name, place.name,
-                                                             str(place.id), i, non_hsa_count)
-
-                    self.update_non_hsa_data(place, start, end, run_record.start_run,
-                                             all_products=all_products)
+            if settings.ENABLE_FACILITY_WORKFLOWS:
+                self.aggregate_data(start, end, run_record, BaseLevel.FACILITY)
 
         # run alerts
         if not self.skip_alerts:
@@ -136,86 +128,112 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
         update_historical_data()
 
-    def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=config.BaseLevel.HSA):
-        base_level_is_hsa = (base_level == config.BaseLevel.HSA)
+    def aggregate_data(self, start, end, run_record, base_level):
+        products = get_products(base_level)
+        for agg_type_code, agg_type_name in aggregate_types_in_order(base_level):
+            supply_points = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
+            print 'aggregating data at level %s for base level %s' % (agg_type_name, base_level)
+            if self.agg_limit_per_type:
+                supply_points = supply_points[:self.agg_limit_per_type]
 
-        all_products = all_products or Product.objects.all()
-        products_managed = set([c.pk for c in supply_point.commodities_stocked()])
+            supply_points_count = supply_points.count()
+            for i, supply_point in enumerate(supply_points):
+                print "processing %s %s (%s) (%s/%s)" % (
+                    agg_type_name,
+                    supply_point.name,
+                    supply_point.id,
+                    i,
+                    supply_points_count
+                )
 
-        if not self.skip_current_consumption and base_level_is_hsa:
-            update_current_consumption(supply_point)
+                self.update_aggregated_data(
+                    supply_point,
+                    start,
+                    end,
+                    run_record.start_run,
+                    all_products=products,
+                    base_level=base_level
+                )
+
+    def update_base_level_data(self, supply_point, start, end, all_products=None, base_level=BaseLevel.HSA):
+        base_level_is_hsa = (base_level == BaseLevel.HSA)
+        all_products = all_products or get_products(base_level)
+        products_managed = get_managed_product_ids(supply_point, base_level)
+
+        if not self.skip_current_consumption:
+            update_current_consumption(supply_point, base_level)
 
         for year, month in months_between(start, end):
             report_period = ReportPeriod(supply_point, datetime(year, month, 1), start, end)
 
             if not self.skip_reporting_rates:
                 _update_reporting_rate(supply_point, report_period, products_managed, base_level)
-            if not self.skip_product_availability and base_level_is_hsa:
-                _update_product_availability(supply_point, report_period, all_products)
+            if not self.skip_product_availability:
+                _update_product_availability(supply_point, report_period, all_products, products_managed, base_level)
             if not self.skip_lead_times and base_level_is_hsa:
                 _update_lead_times(supply_point, report_period)
             if not self.skip_order_requests and base_level_is_hsa:
                 _update_order_requests(supply_point, report_period, all_products)
             if not self.skip_order_fulfillment and base_level_is_hsa:
                 _update_order_fulfillment(supply_point, report_period, all_products)
-            if not self.skip_consumption and base_level_is_hsa:
-                update_consumption(report_period)
-            if not self.skip_historical_stock and base_level_is_hsa:
+            if not self.skip_consumption:
+                update_consumption(report_period, base_level, products_managed=products_managed)
+            if not self.skip_historical_stock:
                 _update_historical_stock(supply_point, report_period, all_products)
 
-    def update_non_hsa_data(self, place, start, end, since, all_products=None):
-
-        all_products = all_products or Product.objects.all()
-        relevant_children = proper_children(place)
+    def update_aggregated_data(self, supply_point, start, end, since, all_products=None, base_level=BaseLevel.HSA):
+        base_level_is_hsa = (base_level == BaseLevel.HSA)
+        all_products = all_products or get_products(base_level)
+        relevant_children = proper_children(supply_point)
 
         if not self.skip_current_consumption:
             for p in all_products:
-                _aggregate_raw(CurrentConsumption, place, relevant_children,
+                _aggregate_raw(CurrentConsumption, supply_point, relevant_children,
                                fields=["total", "current_daily_consumption", "stock_on_hand"],
                                additonal_query_params={"product": p})
 
         for year, month in months_between(start, end):
             window_date = datetime(year, month, 1)
             if not self.skip_reporting_rates:
-                _aggregate(ReportingRate, window_date, place, relevant_children,
+                _aggregate(ReportingRate, window_date, supply_point, relevant_children,
                            fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': config.BaseLevel.HSA})
-                if settings.ENABLE_FACILITY_WORKFLOWS:
-                    _aggregate(ReportingRate, window_date, place, relevant_children,
-                           fields=['total', 'reported', 'on_time', 'complete'],
-                           additonal_query_params={'base_level': config.BaseLevel.FACILITY})
+                           additonal_query_params={'base_level': base_level})
 
             if not self.skip_product_availability:
                 for p in all_products:
-                    _aggregate(ProductAvailabilityData, window_date, place, relevant_children,
+                    _aggregate(ProductAvailabilityData, window_date, supply_point, relevant_children,
                                fields=['total', 'managed'] + \
                                     ProductAvailabilityData.STOCK_CATEGORIES + \
                                     ["managed_and_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
                                additonal_query_params={"product": p})
-                _aggregate(ProductAvailabilityDataSummary, window_date, place,
+
+                _aggregate(ProductAvailabilityDataSummary, window_date, supply_point,
                            relevant_children, fields=['total', 'any_managed'] + \
-                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES])
-            if not self.skip_lead_times:
+                           ["any_%s" % c for c in ProductAvailabilityData.STOCK_CATEGORIES],
+                           additonal_query_params={'base_level': base_level})
+
+            if not self.skip_lead_times and base_level_is_hsa:
                 for code, name in TIME_TRACKER_TYPES:
-                    _aggregate(TimeTracker, window_date, place, relevant_children,
+                    _aggregate(TimeTracker, window_date, supply_point, relevant_children,
                                fields=['total', 'time_in_seconds'],
                                additonal_query_params={"type": code})
-            if not self.skip_order_requests:
+
+            if not self.skip_order_requests and base_level_is_hsa:
                 for p in all_products:
-                    _aggregate(OrderRequest, window_date, place, relevant_children,
+                    _aggregate(OrderRequest, window_date, supply_point, relevant_children,
                                fields=['total', 'emergency'],
                                additonal_query_params={"product": p})
-            if not self.skip_order_fulfillment:
-                for p in all_products:
 
-                    _aggregate(OrderFulfillment, window_date, place, relevant_children,
+            if not self.skip_order_fulfillment and base_level_is_hsa:
+                for p in all_products:
+                    _aggregate(OrderFulfillment, window_date, supply_point, relevant_children,
                            fields=['total', 'quantity_requested', 'quantity_received'],
                            additonal_query_params={"product": p})
 
             if not self.skip_consumption and self.consumption_test_mode:
                 for p in all_products:
                     # NOTE: this is not correct, but is for testing / iteration
-                    _aggregate(CalculatedConsumption, window_date, place, relevant_children,
+                    _aggregate(CalculatedConsumption, window_date, supply_point, relevant_children,
                                fields=['calculated_consumption',
                                        'time_stocked_out',
                                        'time_with_data',
@@ -224,7 +242,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
 
             if not self.skip_historical_stock:
                 for p in all_products:
-                    _aggregate(HistoricalStock, window_date, place, relevant_children,
+                    _aggregate(HistoricalStock, window_date, supply_point, relevant_children,
                                fields=["total", "stock"],
                                additonal_query_params={"product": p})
 
@@ -236,19 +254,24 @@ class MalawiWarehouseRunner(WarehouseRunner):
                 agg = CalculatedConsumption.objects.filter(
                     update_date__gte=since,
                     supply_point__in=relevant_children,
+                    product=p
                 ).aggregate(Min('date'))
                 new_start = agg.get('date__min', None)
                 if new_start:
                     assert new_start <= end
                     for year, month in months_between(new_start, end):
                         window_date = datetime(year, month, 1)
-                        _aggregate(CalculatedConsumption, window_date, place, relevant_children,
+                        _aggregate(CalculatedConsumption, window_date, supply_point, relevant_children,
                            fields=['calculated_consumption',
                                    'time_stocked_out',
                                    'time_with_data',
                                    'time_needing_data'],
                            additonal_query_params={"product": p},
                         )
+
+
+def get_products(base_level):
+    return Product.objects.filter(type__base_level=base_level)
 
 
 def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
@@ -290,17 +313,17 @@ def _aggregate(modelclass, window_date, supply_point, base_supply_points, fields
 
 aggregate = _aggregate
 
-def update_current_consumption(hsa):
+def update_current_consumption(supply_point, base_level):
     """
     Update the actual consumption data
     """
-    for p in Product.objects.all():
+    for p in get_products(base_level):
         
         consumption = CurrentConsumption.objects.get_or_create\
-            (supply_point=hsa, product=p)[0]
+            (supply_point=supply_point, product=p)[0]
         consumption.total = 1
         try:
-            ps = ProductStock.objects.get(supply_point=hsa,
+            ps = ProductStock.objects.get(supply_point=supply_point,
                                           product=p)
             consumption.current_daily_consumption = ps.daily_consumption or 0
             consumption.stock_on_hand = ps.quantity or 0
@@ -418,24 +441,21 @@ def update_alerts(hsas):
         )
     return True
 
-def _init_warehouse_model(cls, supply_point, date):
-    if hasattr(cls, 'product'):
-        _init_with_product(cls, supply_point, date)
-    else:
-        _init_default(cls, supply_point, date)
 
-def _init_default(cls, supply_point, date):
-    return cls.objects.get_or_create(supply_point=supply_point, date=date)[1]
-
-def _init_with_product(cls, supply_point, date):
-    ret = False
-    for p in Product.objects.all():
-        ret = cls.objects.get_or_create(supply_point=supply_point, date=date, product=p) or ret
-    return ret
+def _init_with_base_level(cls, supply_point, date, base_level):
+    cls.objects.get_or_create(supply_point=supply_point, date=date, base_level=base_level)
 
 
-def update_consumption(report_period):
-    for p in Product.objects.all():
+def _init_with_product(cls, supply_point, date, base_level):
+    for p in get_products(base_level):
+        cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
+
+
+def update_consumption(report_period, base_level, products_managed=None):
+    if products_managed is None:
+        products_managed = get_managed_product_ids(report_period.supply_point, base_level)
+
+    for p in get_products(base_level):
         c = CalculatedConsumption.objects.get_or_create(
             supply_point=report_period.supply_point,
             date=report_period.window_date,
@@ -444,7 +464,7 @@ def update_consumption(report_period):
 
         start_time = max(report_period.supply_point.created_at,
                          report_period.window_date)
-        if start_time < report_period.period_end and report_period.supply_point.supplies(p):
+        if start_time < report_period.period_end and p.pk in products_managed:
             assert start_time.year == report_period.window_date.year
             assert start_time.month == report_period.window_date.month
             c.time_needing_data = delta_secs(report_period.period_end - start_time)
@@ -455,6 +475,7 @@ def update_consumption(report_period):
             date__lt=report_period.period_end
         ).order_by('date')
         update_consumption_values(transactions)
+
 
 def update_consumption_times(since):
     """
@@ -474,34 +495,54 @@ def update_consumption_times(since):
             c.time_needing_data = c.time_with_data
             c.save()
 
+
 def update_historical_data():
     """
     If we don't have a record of this supply point being updated, run
     through all historical data and just fill in with zeros.
     """
-    start_date = ReportingRate.objects.order_by('date')[0].date
-    warehouse_classes = [
+
+    # These models are used by both base levels and have a product attribute
+    warehouse_classes_with_product = [
         ProductAvailabilityData,
-        ProductAvailabilityDataSummary,
-        ReportingRate,
-        OrderRequest,
-        OrderFulfillment,
         CalculatedConsumption,
         HistoricalStock,
     ]
+
+    # These models are used by both base levels and have a base_level attribute
+    warehouse_classes_with_base_level = [
+        ProductAvailabilityDataSummary,
+        ReportingRate,
+    ]
+
+    # These models are used by only the HSA base level and have a product attribute
+    hsa_only_warehouse_classes_with_product = [
+        OrderRequest,
+        OrderFulfillment,
+    ]
+
     print 'updating historical data'
-    for sp in SupplyPoint.objects.all():
-        try:
-            SupplyPointWarehouseRecord.objects.get(supply_point=sp)
-        except ObjectDoesNotExist:
-            # we didn't have a record so go through and historically update
-            # anything we maybe haven't touched
-            for year, month in months_between(start_date, sp.created_at):
+    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True):
+        for year, month in months_between(BaseLevel.HSA_WAREHOUSE_START_DATE, sp.created_at):
+            window_date = datetime(year, month, 1)
+
+            for cls in (warehouse_classes_with_product + hsa_only_warehouse_classes_with_product):
+                _init_with_product(cls, sp, window_date, BaseLevel.HSA)
+
+            for cls in warehouse_classes_with_base_level:
+                _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
+
+        if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
+            for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
                 window_date = datetime(year, month, 1)
-                for cls in warehouse_classes:
-                    _init_warehouse_model(cls, sp, window_date)
-            SupplyPointWarehouseRecord.objects.create(supply_point=sp,
-                                                      create_date=datetime.utcnow())
+
+                for cls in warehouse_classes_with_product:
+                    _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
+
+                for cls in warehouse_classes_with_base_level:
+                    _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
+
+        SupplyPointWarehouseRecord.objects.create(supply_point=sp, create_date=datetime.utcnow())
 
 
 def proper_children(supply_point):
@@ -528,10 +569,11 @@ def proper_child_type(supply_point):
     }[supply_point.type.code]
 
 
-def aggregate_types_in_order():
-    yield 'hf', 'health facility'
-    yield 'd', 'district'
-    yield 'c', 'country'
+def aggregate_types_in_order(base_level):
+    if base_level == BaseLevel.HSA:
+        yield SupplyPointCodes.FACILITY, 'health facility'
+    yield SupplyPointCodes.DISTRICT, 'district'
+    yield SupplyPointCodes.COUNTRY, 'country'
 
 
 def _update_reporting_rate(supply_point, report_period, products_managed, base_level):
@@ -541,8 +583,12 @@ def _update_reporting_rate(supply_point, report_period, products_managed, base_l
     late_cutoff = report_period.window_date + \
         timedelta(days=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
 
+    # Filtering on base_level is not necessary for ProductReport because the supply_point
+    # should tell what the base_level is (base_level will be HSA if the supply_point
+    # is an hsa, and base_level will be FACILITY if the supply_point is a facility).
+    # So since this is already a big query, it's better to not include the filter
+    # for performance.
     reports_in_range = ProductReport.objects.filter(
-        product__type__base_level=base_level,
         supply_point=supply_point,
         report_type__code=Reports.SOH,
         report_date__gte=report_period.period_start,
@@ -578,7 +624,7 @@ def _update_reporting_rate(supply_point, report_period, products_managed, base_l
     period_rr.save()
 
 
-def _update_product_availability(hsa, report_period, all_products):
+def _update_product_availability(supply_point, report_period, all_products, products_managed, base_level):
     """
     Compute ProductAvailabilityData
     """
@@ -588,7 +634,7 @@ def _update_product_availability(hsa, report_period, all_products):
     # up a bit
     for p in all_products:
         product_data, created = ProductAvailabilityData.objects.get_or_create\
-            (product=p, supply_point=hsa,
+            (product=p, supply_point=supply_point,
              date=report_period.window_date)
 
         if created:
@@ -596,15 +642,15 @@ def _update_product_availability(hsa, report_period, all_products):
             product_data.without_data = 1
 
         transactions = StockTransaction.objects.filter(
-            supply_point=hsa, product=p,
+            supply_point=supply_point, product=p,
             date__gte=report_period.period_start,
             date__lt=report_period.period_end).order_by('-date')
         product_data.total = 1
-        product_data.managed = 1 if hsa.supplies(p) else 0
+        product_data.managed = 1 if p.pk in products_managed else 0
         if transactions:
             trans = transactions[0]
             product_stock = ProductStock.objects.get(
-                product=trans.product, supply_point=hsa
+                product=trans.product, supply_point=supply_point
             )
 
             product_data.without_data = 0
@@ -640,15 +686,18 @@ def _update_product_availability(hsa, report_period, all_products):
 
     # update the summary data
     product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
-        (supply_point=hsa,
-         date=report_period.window_date)[0]
+        (supply_point=supply_point,
+         date=report_period.window_date,
+         base_level=base_level)[0]
     product_summary.total = 1
 
-    if hsa.commodities_stocked():
+    if products_managed:
         product_summary.any_managed = 1
         agg_results = ProductAvailabilityData.objects.filter(
-            supply_point=hsa, date=report_period.window_date,
-            managed=1
+            supply_point=supply_point,
+            date=report_period.window_date,
+            managed=1,
+            product__type__base_level=base_level
         ).aggregate(
             *[Max("managed_and_%s" % c) for c in ProductAvailabilityData.STOCK_CATEGORIES]
         )
@@ -730,15 +779,15 @@ def _update_order_fulfillment(hsa, report_period, all_products):
             order_fulfill.save()
 
 
-def _update_historical_stock(hsa, report_period, all_products):
+def _update_historical_stock(supply_point, report_period, all_products):
     # set the historical stock values to the last report before
     # the end of the period (even if it's not in the period)
     for p in all_products:
         hs = HistoricalStock.objects.get_or_create\
-            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+            (supply_point=supply_point, date=report_period.window_date, product=p)[0]
 
         transactions = StockTransaction.objects.filter(
-            supply_point=hsa,
+            supply_point=supply_point,
             product=p,
             date__lt=report_period.period_end,
         ).order_by('-date')

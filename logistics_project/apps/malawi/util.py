@@ -284,3 +284,16 @@ class ConsumptionData(object):
     def average_months_of_stock(self):
         mos = filter(lambda x: x is not None, [p.months_remaining for p in self.ps])
         return sum(mos)/len(mos) if len(mos) else None
+
+
+def get_managed_product_ids(supply_point, base_level):
+    # Note that we .order_by('id') here because default ordering for Product objects
+    # is by name, so if we didn't include this, django also tries to select name in the
+    # raw query which is unnecessary
+    return set(
+        supply_point.commodities_stocked()
+        .filter(type__base_level=base_level)
+        .values_list('id', flat=True)
+        .distinct()
+        .order_by('id')
+    )
