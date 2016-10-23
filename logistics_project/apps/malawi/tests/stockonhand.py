@@ -194,7 +194,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             16175551001 < %(super)s
         """ % {
             "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "zi la"},
-            "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"hsa": "wendy"}
+            "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"supply_point": "wendy"}
         }
         self.runScript(a)
         self.assertEqual(0, StockRequest.objects.count())
@@ -340,9 +340,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551001 < %(supervisor)s
            16175551004 < %(supervisor)s
-        """ % {"confirm": config.Messages.SOH_ORDER_STOCKOUT_CONFIRM % \
+        """ % {"confirm": config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM % \
                     {"contact": "wendy", "products": "zi la"},
-               "supervisor": config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS % \
+               "supervisor": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % \
                     {"hsa": "wendy", "products": "co 430, zi 200, la 360",
                      "stockedout_products": "zi la",
                      "hsa_id": "261601"}}

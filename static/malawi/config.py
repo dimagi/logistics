@@ -30,7 +30,8 @@ class Roles(object):
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
     FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
     DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, EPI_COORDINATOR]
-    SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
+    HSA_SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
+    FACILITY_SUPERVISOR_ROLES = [DISTRICT_PHARMACIST, EPI_COORDINATOR]
 
 
 class BaseLevel(object):
@@ -52,6 +53,9 @@ class BaseLevel(object):
         pass
 
     class InvalidReportingSupplyPointException(Exception):
+        pass
+
+    class InvalidSupervisorLevelException(Exception):
         pass
 
     HSA = 'h'
@@ -119,7 +123,7 @@ def has_permissions_to(contact, operation):
     if not contact.is_active:
         return False
     if operation == Operations.REPORT_STOCK:
-        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+        return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation == Operations.REPORT_RECEIPT:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
@@ -186,11 +190,15 @@ class Messages(object):
     
     # "soh" keyword (report stock on hand)
     SOH_HELP_MESSAGE = "To report stock on hand, send SOH [space] [product code] [space] [amount]"
-    SUPERVISOR_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
-    SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(hsa)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
-    SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS = "%(hsa)s needs products: %(products)s. Some products are stocked out: %(stockedout_products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
-    SOH_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready."
-    SOH_ORDER_STOCKOUT_CONFIRM = "We have received your report of stock out of %(products)s and the health center has been notified. You will be notified when your products are available."
+    SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION = "%(hsa)s needs the following products: %(products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
+    SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION = "%(supply_point)s needs the following products: %(products)s. Respond 'ready %(supply_point_code)s' when products are sent for delivery."
+    SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO = "%(supply_point)s has submitted a stock report, but there is nothing to be filled. You do not need to do anything."
+    SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS = "%(hsa)s needs products: %(products)s. Some products are stocked out: %(stockedout_products)s. Respond 'ready %(hsa_id)s' when products are ready for pick up."
+    SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS = "%(supply_point)s needs products: %(products)s. Some products are stocked out: %(stockedout_products)s. Respond 'ready %(supply_point_code)s' when products are ready to be delivered."
+    SOH_HSA_LEVEL_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The health center has been notified and you will receive a message when products are ready."
+    SOH_FACILITY_LEVEL_ORDER_CONFIRM = "Thank you, you reported stock for %(products)s. The district has been notified and you will receive a message when products are sent for delivery."
+    SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM = "We have received your report of stock out of %(products)s and the health center has been notified. You will be notified when your products are available."
+    SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM = "We have received your report of stock out of %(products)s and the district has been notified. You will be notified when your products are sent for delivery."
     SOH_ORDER_CONFIRM_NOTHING_TO_DO = "Thank you %(contact)s, you reported stock for %(products)s. Right now you do not need any products resupplied."
     
     # "rec" keyword (receipts)
@@ -286,7 +294,7 @@ class Messages(object):
     UNKNOWN_ROLE = "Sorry, I don't understand the role %(role)s. Valid roles are %(valid_roles)s"
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
-    NO_IN_CHARGE = "There is no HSA Supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
+    NO_IN_CHARGE = "There is no supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     TOO_MUCH_STOCK = 'Your %(keyword)s amount is too much and the message has been rejected. please resend your %(keyword)s message.'
     
     # messages originally in logistics.models.py

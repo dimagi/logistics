@@ -81,13 +81,29 @@ def hsa_supply_points_below(location):
 def _contact_set(supply_point, role):
     return supply_point.active_contact_set.filter\
                 (is_active=True, role__code=role)
-    
+
+
 def get_supervisors(supply_point):
     """
-    Get all supervisors at a particular facility
+    Retrieves the Contact objects for all contacts at the supply point that have
+    supervisor roles.
+
+    If supply_point is a facility, it returns all contacts at that facility who have
+    roles that supervise HSAs.
+
+    If supply_point is a district, it returns all contacts at that district who have
+    roles that supervise facilities.
+
+    Otherwise, an exception is raised.
     """
-    return supply_point.active_contact_set.filter\
-                (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
+    if supply_point.type_id == config.SupplyPointCodes.FACILITY:
+        role_codes = config.Roles.HSA_SUPERVISOR_ROLES
+    elif supply_point.type_id == config.SupplyPointCodes.DISTRICT:
+        role_codes = config.Roles.FACILITY_SUPERVISOR_ROLES
+    else:
+        raise config.BaseLevel.InvalidSupervisorLevelException(supply_point.type_id)
+
+    return supply_point.active_contact_set.filter(role__code__in=role_codes)
 
 
 def get_in_charge(supply_point):

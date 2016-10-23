@@ -19,56 +19,78 @@ def send_transfer_responses(msg, stock_report, transfers, giver, to):
                    giver=giver.name,
                    products=stock_report.all())
     
-def _respond_empty(msg, contact, stock_report, supervisors):
+def _respond_empty(msg, contact, stock_report, supervisors, supply_point_name):
     for super in supervisors:
         super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
-                      hsa=contact.name)
+                      supply_point=supply_point_name)
     msg.respond(config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO,
                 products=" ".join(stock_report.reported_products()).strip(),
-                contact=contact.name)
+                contact=supply_point_name)
 
-def send_soh_responses(msg, contact, stock_report, requests):
+def send_soh_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
+        base_level_is_hsa = (base_level == config.BaseLevel.HSA)
+        supply_point_name = contact.name if base_level_is_hsa else contact.supply_point.name
         supervisors = get_supervisors(contact.supply_point.supplied_by)
-        
+
         if not requests:
-            _respond_empty(msg, contact, stock_report, supervisors)
+            _respond_empty(msg, contact, stock_report, supervisors, supply_point_name)
         else:
             if supervisors.count() == 0:
                 msg.respond(config.Messages.NO_IN_CHARGE,
                             supply_point=contact.supply_point.supplied_by.name)
                 return
 
-            
             orders = ", ".join(req.sms_format() for req in \
                                StockRequest.objects.filter\
                                     (supply_point=stock_report.supply_point,
                                      status=StockRequestStatus.REQUESTED))
-                
+
             if stock_report.stockouts():
                 stocked_out = stock_report.stockouts()
                 for super in supervisors:
-                    super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS,
-                                  hsa=contact.name,
-                                  products=orders,
-                                  stockedout_products=stocked_out,
-                                  hsa_id=contact.supply_point.code)
-                msg.respond(config.Messages.SOH_ORDER_STOCKOUT_CONFIRM,
-                            products=stocked_out)
+                    if base_level_is_hsa:
+                        super.message(config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS,
+                                      hsa=supply_point_name,
+                                      products=orders,
+                                      stockedout_products=stocked_out,
+                                      hsa_id=contact.supply_point.code)
+                    else:
+                        super.message(config.Messages.SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS,
+                                      supply_point=supply_point_name,
+                                      products=orders,
+                                      stockedout_products=stocked_out,
+                                      supply_point_code=contact.supply_point.code)
+
+                if base_level_is_hsa:
+                    msg.respond(config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM, products=stocked_out)
+                else:
+                    msg.respond(config.Messages.SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM, products=stocked_out)
 
             else:
                 for super in supervisors:
-                    super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION,
-                                  hsa=contact.name,
-                                  products=orders,
-                                  hsa_id=contact.supply_point.code)
+                    if base_level_is_hsa:
+                        super.message(config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION,
+                                      hsa=supply_point_name,
+                                      products=orders,
+                                      hsa_id=contact.supply_point.code)
+                    else:
+                        super.message(config.Messages.SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION,
+                                      supply_point=supply_point_name,
+                                      products=orders,
+                                      supply_point_code=contact.supply_point.code)
+
+                if base_level_is_hsa:
+                    response_message = config.Messages.SOH_HSA_LEVEL_ORDER_CONFIRM
+                else:
+                    response_message = config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM
 
                 ussd_msg_response(
                     msg,
-                    config.Messages.SOH_ORDER_CONFIRM,
+                    response_message,
                     products=" ".join(stock_report.reported_products()).strip()
                 )
 

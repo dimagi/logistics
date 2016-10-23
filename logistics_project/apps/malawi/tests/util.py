@@ -68,7 +68,7 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
             manager_msgs.append("""
                 %(phone)s < %(confirm)s
             """ % {"phone": manager.default_connection.identity,
-                   "confirm": config.Messages.SUPERVISOR_SOH_NOTIFICATION % \
+                   "confirm": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION % \
                     {"hsa": hsa.name,
                      "products": products_back,
                      "hsa_id": hsa.supply_point.code}})
@@ -78,6 +78,6 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
            %(manager_msgs)s
         """ % {"phone": hsa.default_connection.identity, 
                "products": product_string, 
-               "confirm": config.Messages.SOH_ORDER_CONFIRM % {"products": product_list},
+               "confirm": config.Messages.SOH_HSA_LEVEL_ORDER_CONFIRM % {"products": product_list},
                "manager_msgs": "".join(manager_msgs)}
     test_class.runScript(a)
