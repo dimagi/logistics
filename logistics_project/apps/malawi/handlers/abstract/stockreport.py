@@ -3,10 +3,13 @@ from django.db import transaction
 from logistics.exceptions import TooMuchStockError
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
+from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics.models import StockRequest
 from logistics.decorators import logistics_contact_and_permission_required, managed_products_required
 from logistics.shortcuts import create_stock_report
-from logistics_project.apps.malawi.validators import check_max_levels_malawi
+from logistics_project.apps.malawi.validators import (check_max_levels_malawi, get_base_level_validator,
+    combine_validators, require_working_refrigerator)
+from logistics_project.decorators import validate_base_level
 from rapidsms.contrib.messagelog.models import Message
 
 
@@ -23,6 +26,7 @@ class StockReportBaseHandler(RecordResponseHandler):
     @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.REPORT_STOCK)
     @managed_products_required()
+    @validate_base_level([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def handle(self, text):
         """
         Check some preconditions, based on shared assumptions of these handlers.
@@ -44,12 +48,21 @@ class StockReportBaseHandler(RecordResponseHandler):
                                           text__iexact=self.msg.raw_text,
                                           date__gt=cutoff)
             validation_function = check_max_levels_malawi if msgs.count() <= 1 else None
+
+            validators = [
+                get_base_level_validator(self.base_level)
+            ]
+            if self.base_level == config.BaseLevel.FACILITY:
+                validators.append(require_working_refrigerator)
+            if validation_function:
+                validators.append(validation_function)
+
             stock_report = create_stock_report(
                 self.get_report_type(),
                 self.contact.supply_point,
                 text,
                 self.msg.logger_msg,
-                additional_validation=validation_function,
+                additional_validation=combine_validators(validators),
             )
             self.requests = StockRequest.create_from_report(stock_report, self.contact)
             self.send_responses(stock_report)
@@ -60,3 +73,7 @@ class StockReportBaseHandler(RecordResponseHandler):
                 'prod': e.product,
                 'max': e.max,
             })
+        except BaseLevel.InvalidProductBaseLevelException as e2:
+            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e2.product_code)
+        except RefrigeratorMalfunction.RefrigeratorNotWorkingException:
+            self.respond(config.Messages.FRIDGE_BROKEN)

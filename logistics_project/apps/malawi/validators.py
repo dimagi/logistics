@@ -1,6 +1,8 @@
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
+from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from rapidsms.conf import settings
+from static.malawi.config import BaseLevel
 
 
 def check_max_levels_malawi(stock_report):
@@ -47,3 +49,39 @@ def check_max_levels_malawi(stock_report):
                     raise TooMuchStockError(product=product, amount=stock, max=max)
             except ProductStock.DoesNotExist:
                 pass
+
+
+def _require_products_base_level(stock_report, base_level):
+    for product_code in stock_report.product_stock:
+        product = stock_report.get_product(product_code)
+        if product.type.base_level != base_level:
+            raise BaseLevel.InvalidProductBaseLevelException(product_code)
+
+
+def require_hsa_level_products(stock_report):
+    _require_products_base_level(stock_report, BaseLevel.HSA)
+
+
+def require_facility_level_products(stock_report):
+    _require_products_base_level(stock_report, BaseLevel.FACILITY)
+
+
+def require_working_refrigerator(stock_report):
+    if RefrigeratorMalfunction.get_open_malfunction(stock_report.supply_point):
+        raise RefrigeratorMalfunction.RefrigeratorNotWorkingException()
+
+
+def get_base_level_validator(base_level):
+    if base_level == BaseLevel.HSA:
+        return require_hsa_level_products
+    elif base_level == BaseLevel.FACILITY:
+        return require_facility_level_products
+    else:
+        raise BaseLevel.InvalidBaseLevelException(base_level)
+
+
+def combine_validators(validators):
+    def final_validator(stock_report):
+        for validator in validators:
+            validator(stock_report):
+    return final_validator

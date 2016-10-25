@@ -58,6 +58,11 @@ class BaseLevel(object):
     class InvalidSupervisorLevelException(Exception):
         pass
 
+    class InvalidProductBaseLevelException(Exception):
+        def __init__(self, product_code, *args, **kwargs):
+            super(InvalidProductBaseLevelException, self).__init__(*args, **kwargs)
+            self.product_code = product_code
+
     HSA = 'h'
     FACILITY = 'f'
 
@@ -368,6 +373,12 @@ class Messages(object):
         "working again. Please notify cStock when it is working again by sending: 'rf'.")
 
     TRANSFER_RESPONSE_TO_DISTRICT = "Thank you, %(facility)s has been notified of the advised transfer."
+
+    INVALID_PRODUCT_BASE_LEVEL = ("Your request could not be processed because %(product_code)s is not a valid "
+        "product. Please try again.")
+
+    FRIDGE_BROKEN = ("Our system shows your refrigerator is not working. If it has been fixed, please respond "
+        "with 'rf' and then try your request again.")
 
 
 class Alerts(object):
