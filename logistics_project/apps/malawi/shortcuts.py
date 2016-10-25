@@ -95,11 +95,13 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                 )
 
 
-def send_emergency_responses(msg, contact, stock_report, requests):
+def send_emergency_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
+        base_level_is_hsa = (base_level == config.BaseLevel.HSA)
+        supply_point_name = contact.name if base_level_is_hsa else contact.supply_point.name
         supervisors = get_supervisors(contact.supply_point.supplied_by)
         stockouts = [req for req in requests if req.balance == 0]
         emergency_products = [req for req in requests if req.is_emergency == True]
@@ -113,31 +115,31 @@ def send_emergency_responses(msg, contact, stock_report, requests):
             if stockouts:
                 if normal_products:
                     supervisor.message(config.Messages.EMERGENCY_STOCKOUT,
-                                       hsa=contact.name,
+                                       supply_point=supply_point_name,
                                        stockouts=stockout_string,
                                        normal_products=", ".join(req.sms_format() for req in normal_products),
-                                       hsa_id=contact.supply_point.code)
+                                       supply_point_code=contact.supply_point.code)
                 else:
                     supervisor.message(config.Messages.EMERGENCY_STOCKOUT_NO_ADDITIONAL,
-                                       hsa=contact.name,
+                                       supply_point=supply_point_name,
                                        stockouts=stockout_string,
-                                       hsa_id=contact.supply_point.code)
+                                       supply_point_code=contact.supply_point.code)
             else:
                 if normal_products:
                     supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION,
-                                       hsa=contact.name,
+                                       supply_point=supply_point_name,
                                        emergency_products=emergency_product_string,
                                        normal_products=", ".join(req.sms_format() for req in normal_products),
-                                       hsa_id=contact.supply_point.code)
+                                       supply_point_code=contact.supply_point.code)
                 else:
                     supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL,
-                                       hsa=contact.name,
+                                       supply_point=supply_point_name,
                                        emergency_products=emergency_product_string,
-                                       hsa_id=contact.supply_point.code)
+                                       supply_point_code=contact.supply_point.code)
         if supervisors.count() > 0:
             ussd_msg_response(
                 msg,
-                config.Messages.EMERGENCY_SOH,
+                config.Messages.HSA_LEVEL_EMERGENCY_SOH if base_level_is_hsa else config.Messages.FACILITY_LEVEL_EMERGENCY_SOH,
                 products=" ".join(stock_report.reported_products()).strip()
             )
         else:

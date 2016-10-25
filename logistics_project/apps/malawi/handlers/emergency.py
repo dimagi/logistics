@@ -19,4 +19,5 @@ class EmergencyReportHandler(StockReportBaseHandler):
         return Reports.EMERGENCY_SOH
       
     def send_responses(self, stock_report):
-        send_emergency_responses(self.msg, self.msg.logistics_contact, stock_report, self.requests)
+        send_emergency_responses(self.msg, self.msg.logistics_contact, stock_report, self.requests,
+            base_level=self.base_level)

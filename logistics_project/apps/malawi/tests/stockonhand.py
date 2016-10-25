@@ -250,7 +250,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
            16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -292,7 +292,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
            16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
 
@@ -302,7 +302,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
            16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
 
@@ -329,7 +329,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0 co 10
            16175551000 < %(confirm)s
            16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "co zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co zi la"}}
 
         self.runScript(a)
 

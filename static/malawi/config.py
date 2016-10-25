@@ -223,11 +223,12 @@ class Messages(object):
     
     # "eo" keyword (emergency orders)
     EMERGENCY_HELP = "To report an emergency, send 'eo [space] [product code] [space] [amount]'"
-    EMERGENCY_SOH = "We have received your emergency order for %(products)s and the health center has been notified. You will be notified when your products are available to pick up."
-    EMERGENCY_STOCKOUT = "%(hsa)s is stocked out of and needs: %(stockouts)s, and additionally: %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
-    EMERGENCY_STOCKOUT_NO_ADDITIONAL = "%(hsa)s is stocked out of and needs: %(stockouts)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
-    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(hsa)s needs emergency products %(emergency_products)s, also %(normal_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
-    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(hsa)s needs emergency products: %(emergency_products)s. Respond 'ready %(hsa_id)s' or 'os %(hsa_id)s'"
+    HSA_LEVEL_EMERGENCY_SOH = "We have received your emergency order for %(products)s and the health center has been notified. You will be notified when your products are available to pick up."
+    FACILITY_LEVEL_EMERGENCY_SOH = "We have received your emergency order for %(products)s and the district has been notified. You will be notified when your products are sent for delivery."
+    EMERGENCY_STOCKOUT = "%(supply_point)s is stocked out of and needs: %(stockouts)s, and additionally: %(normal_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
+    EMERGENCY_STOCKOUT_NO_ADDITIONAL = "%(supply_point)s is stocked out of and needs: %(stockouts)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
+    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(supply_point)s needs emergency products %(emergency_products)s, also %(normal_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
+    SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(supply_point)s needs emergency products: %(emergency_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
 
     HF_UNABLE_RESTOCK_EO = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the District office to resolve this issue."
     HSA_UNABLE_RESTOCK_EO = "Dear %(hsa)s, the Health Center is not able to resupply %(products)s. The HSA Supervisor will work with the District to resolve this issue."
