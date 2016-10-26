@@ -83,5 +83,5 @@ def get_base_level_validator(base_level):
 def combine_validators(validators):
     def final_validator(stock_report):
         for validator in validators:
-            validator(stock_report):
+            validator(stock_report)
     return final_validator

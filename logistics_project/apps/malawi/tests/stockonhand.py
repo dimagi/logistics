@@ -46,8 +46,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
 
 
@@ -146,8 +146,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
@@ -166,8 +166,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())

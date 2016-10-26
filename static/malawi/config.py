@@ -134,7 +134,7 @@ def has_permissions_to(contact, operation):
     if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.FILL_ORDER:
-        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
+        return contact.role.code in (Roles.HSA_SUPERVISOR_ROLES + Roles.FACILITY_SUPERVISOR_ROLES)
     if operation == Operations.MAKE_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.CONFIRM_TRANSFER:
@@ -211,9 +211,11 @@ class Messages(object):
     RECEIPT_FROM_CONFIRM = 'Thank you, you reported receipts for %(products)s from %(supplier)s.'
     
     # "Ready" keyword 
-    ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
-    APPROVAL_RESPONSE = "Thank you for confirming order for %(hsa)s."
-    APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. If you have already collected your products please send a receipt."
+    HSA_LEVEL_ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
+    FACILITY_LEVEL_ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [facility id], for example: 'ready 100101'"
+    APPROVAL_RESPONSE = "Thank you for confirming order for %(supply_point)s."
+    HSA_LEVEL_APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. If you have already collected your products please send a receipt."
+    FACILITY_LEVEL_APPROVAL_NOTICE = "Dear %(supply_point)s, your pending order will be delivered soon. If you have already received your products please send a receipt."
 
     # "OS" keyword
     STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
@@ -297,6 +299,7 @@ class Messages(object):
     REGISTRATION_REQUIRED_MESSAGE = "Sorry, you have to be registered with the system to do that. For help, please contact your supervisor"
     UNSUPPORTED_OPERATION = "Sorry, your current role does not allow you to do that. For help, please contact your supervisor"
     UNKNOWN_HSA = "Cannot find hsa with id %(hsa_id)s. Please double check the id and try again."
+    UNKNOWN_FACILITY = "Cannot find facility with id %(supply_point_code)s. Please double check the id and try again."
     UNKNOWN_ROLE = "Sorry, I don't understand the role %(role)s. Valid roles are %(valid_roles)s"
     NO_SUPPLY_POINT_MESSAGE = "You are not associated with a facility. Please contact your district IMCI Focal Person for assistance."
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."

@@ -43,6 +43,17 @@ def get_hsa(hsa_id):
         # this is weird, shouldn't be possible, but who knows.
         raise MultipleHSAException("More than one HSA found with id %s" % hsa_id)
 
+
+def get_facility(supply_point_code):
+    """
+    Attempts to get a Facility by code and returns None if unable to find it.
+    """
+    try:
+        sp = SupplyPoint.objects.get(active=True, code=supply_point_code, type_id=config.SupplyPointCodes.FACILITY)
+    except SupplyPoint.DoesNotExist:
+        return None
+
+
 def hsas_below(location):
     """
     Given an optional location, return all HSAs below that location.
