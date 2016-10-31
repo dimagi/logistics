@@ -17,6 +17,8 @@ class Roles(object):
     EPI_FOCAL = "ef"
     # The EPI Coordinator; this contact belongs to a District
     EPI_COORDINATOR = "ec"
+    # The EPI officer at the Zone level
+    ZONAL_EPI_OFFICER = "zo"
     ALL_ROLES = {
         HSA: "hsa",
         HSA_SUPERVISOR: "hsa supervisor",
@@ -26,6 +28,7 @@ class Roles(object):
         IMCI_COORDINATOR: "imci coordinator",
         EPI_FOCAL: "epi focal person",
         EPI_COORDINATOR: "epi coordinator",
+        ZONAL_EPI_OFFICER: "zonal epi officer",
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
     FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
@@ -218,7 +221,8 @@ class Messages(object):
     FACILITY_LEVEL_APPROVAL_NOTICE = "Dear %(supply_point)s, your pending order will be delivered soon. If you have already received your products please send a receipt."
 
     # "OS" keyword
-    STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
+    HSA_LEVEL_STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
+    FACILITY_LEVEL_STOCKOUT_HELP = "To report stockouts, type os [space] [facility id], for example: 'os 100101'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
     STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. The HSA supervisor will work with District to resolve this issue in a timely manner."
     SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s for at least these products: %(products)s. Work with the HSA Supervisor to resolve this issue."
@@ -232,14 +236,23 @@ class Messages(object):
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION = "%(supply_point)s needs emergency products %(emergency_products)s, also %(normal_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(supply_point)s needs emergency products: %(emergency_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
 
-    HF_UNABLE_RESTOCK_EO = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the District office to resolve this issue."
-    HSA_UNABLE_RESTOCK_EO = "Dear %(hsa)s, the Health Center is not able to resupply %(products)s. The HSA Supervisor will work with the District to resolve this issue."
-    DISTRICT_UNABLE_RESTOCK_EO = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to HSA EO. Work with the HSA Supervisor to resolve this issue."
-    HSA_UNABLE_RESTOCK_ANYTHING = "Dear %(hsa)s, the Health Center is unable to resupply any of the products you need. The HSA Supervisor will work with the District to resolve this issue."
-    DISTRICT_UNABLE_RESTOCK_STOCKOUT = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to HSA stockout. Please work with the HSA Supervisor to resolve this issue."
-    DISTRICT_UNABLE_RESTOCK_NORMAL = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Please work with the HSA Supervisor to resolve this issue."
-    HSA_UNABLE_RESTOCK_STOCKOUT = HSA_UNABLE_RESTOCK_EO
+    HSA_LEVEL_OS_EO_RESPONSE = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the District office to resolve this issue."
+    FACILITY_LEVEL_OS_EO_RESPONSE = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the Zone office to resolve this issue."
 
+    UNABLE_RESTOCK_EO_HSA_NOTIFICATION = "Dear %(hsa)s, the Health Center is not able to resupply %(products)s. The HSA Supervisor will work with the District to resolve this issue."
+    UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is not able to resupply %(products)s. The EPI Coordinator will work with the Zone to resolve this issue."
+
+    UNABLE_RESTOCK_EO_DISTRICT_ESCALATION = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to HSA EO. Work with the HSA Supervisor to resolve this issue."
+    UNABLE_RESTOCK_EO_ZONE_ESCALATION = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to Facility EO. Work with the EPI Coordinator to resolve this issue."
+
+    UNABLE_RESTOCK_HSA_NOTIFICATION = "Dear %(hsa)s, the Health Center is unable to resupply any of the products you need. The HSA Supervisor will work with the District to resolve this issue."
+    UNABLE_RESTOCK_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is unable to resupply any of the products you need. The EPI Coordinator will work with the Zone to resolve this issue."
+
+    UNABLE_RESTOCK_STOCKOUT_DISTRICT_ESCALATION = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to HSA stockout. Please work with the HSA Supervisor to resolve this issue."
+    UNABLE_RESTOCK_STOCKOUT_ZONE_ESCALATION = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to Facility stockout. Work with the EPI Coordinator to resolve this issue."
+
+    UNABLE_RESTOCK_NORMAL_DISTRICT_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Please work with the HSA Supervisor to resolve this issue."
+    UNABLE_RESTOCK_NORMAL_ZONE_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Work with the EPI Coordinator to resolve this issue."
 
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"

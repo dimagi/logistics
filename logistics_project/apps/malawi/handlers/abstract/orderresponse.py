@@ -28,7 +28,7 @@ class OrderResponseBaseHandler(RecordResponseHandler):
         words = text.split(" ")
         supply_point_code = words[0]
 
-        if self.base_level == config.BaseLevel.HSA:
+        if self.base_level_is_hsa:
             hsa = get_hsa(hsa_id)
             if not hsa:
                 self.respond(config.Messages.UNKNOWN_HSA, hsa_id=supply_point_code)

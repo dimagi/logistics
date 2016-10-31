@@ -20,7 +20,7 @@ class OrderReadyHandler(OrderResponseBaseHandler):
     @logistics_contact_and_permission_required(config.Operations.FILL_ORDER)
     @validate_base_level_from_supervisor([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def help(self):
-        if self.base_level == config.BaseLevel.HSA:
+        if self.base_level_is_hsa:
             self.respond(config.Messages.HSA_LEVEL_ORDERREADY_HELP_MESSAGE)
         else:
             self.respond(config.Messages.FACILITY_LEVEL_ORDERREADY_HELP_MESSAGE)
@@ -31,14 +31,14 @@ class OrderReadyHandler(OrderResponseBaseHandler):
         for req in pending_reqs:
             req.approve(self.msg.logistics_contact, now, req.amount_requested)
 
-        if self.base_level == config.BaseLevel.HSA:
+        if self.base_level_is_hsa:
             supply_point_name = self.contacts[0].name
         else:
             supply_point_name = self.supply_point.name
 
         self.respond(config.Messages.APPROVAL_RESPONSE, supply_point=supply_point_name)
         for contact in self.contacts:
-            if self.base_level == config.BaseLevel.HSA:
+            if self.base_level_is_hsa:
                 contact.message(config.Messages.HSA_LEVEL_APPROVAL_NOTICE, hsa=supply_point_name)
             else:
                 contact.message(config.Messages.FACILITY_LEVEL_APPROVAL_NOTICE, supply_point=supply_point_name)

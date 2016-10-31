@@ -224,10 +224,10 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551003 < %(district)s
            16175551002 < %(district)s
            16175551001 < %(confirm)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL  % \
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_HSA_NOTIFICATION % {"hsa": "wendy"},
+               "district": config.Messages.UNABLE_RESTOCK_NORMAL_DISTRICT_ESCALATION % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
 
 
@@ -279,11 +279,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_EO  % \
+               "district": config.Messages.UNABLE_RESTOCK_EO_DISTRICT_ESCALATION  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi"}}
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_EO_HSA_NOTIFICATION % {"hsa": "wendy", "products": "zi"}}
         self.runScript(a)
 
     def testEmergencyOrderNoProductsInEmergency(self):
@@ -316,11 +316,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT  % \
+               "district": config.Messages.UNABLE_RESTOCK_STOCKOUT_DISTRICT_ESCALATION  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi, la"}}
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_EO_HSA_NOTIFICATION % {"hsa": "wendy", "products": "zi, la"}}
         self.runScript(a)
 
     def testEmergencyOrderNoProductsNotInEmergencyWithAdditional(self):
