@@ -30,6 +30,19 @@ def check_max_levels_malawi(stock_report):
         "te": 100,
         "un": 100,
         "zi": 2000,
+        "bc": 15000,
+        "op": 27000,
+        "ip": 6000,
+        "pe": 21000,
+        "pn": 21000,
+        "ro": 15000,
+        "me": 18000,
+        "tv": 24000,
+        "sa": 10000,
+        "sb": 10000,
+        "sc": 10000,
+        "sd": 10000,
+        "sf": 1000,
     }
     MAX_REPORT_LEVEL_FACTOR = 3
     def _over_static_threshold(product_code, stock):
