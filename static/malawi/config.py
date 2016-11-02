@@ -133,7 +133,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.REPORT_STOCK:
         return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation == Operations.REPORT_RECEIPT:
-        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+        return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.FILL_ORDER:
