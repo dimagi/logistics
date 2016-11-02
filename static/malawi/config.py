@@ -139,7 +139,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.FILL_ORDER:
         return contact.role.code in (Roles.HSA_SUPERVISOR_ROLES + Roles.FACILITY_SUPERVISOR_ROLES)
     if operation == Operations.MAKE_TRANSFER:
-        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+        return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation == Operations.CONFIRM_TRANSFER:
         return contact.role == ContactRole.objects.get(code=Roles.HSA)
     if operation == Operations.REPORT_FOR_OTHERS:
@@ -215,14 +215,14 @@ class Messages(object):
     
     # "Ready" keyword 
     HSA_LEVEL_ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [hsa id], for example: 'ready 100101'"
-    FACILITY_LEVEL_ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [facility id], for example: 'ready 100101'"
+    FACILITY_LEVEL_ORDERREADY_HELP_MESSAGE = "To confirm an order, type ready [space] [facility id], for example: 'ready 0001'"
     APPROVAL_RESPONSE = "Thank you for confirming order for %(supply_point)s."
     HSA_LEVEL_APPROVAL_NOTICE = "Dear %(hsa)s, your pending order is ready for pick up. If you have already collected your products please send a receipt."
     FACILITY_LEVEL_APPROVAL_NOTICE = "Dear %(supply_point)s, your pending order will be delivered soon. If you have already received your products please send a receipt."
 
     # "OS" keyword
     HSA_LEVEL_STOCKOUT_HELP = "To report stockouts, type os [space] [hsa id], for example: 'os 100101'"
-    FACILITY_LEVEL_STOCKOUT_HELP = "To report stockouts, type os [space] [facility id], for example: 'os 100101'"
+    FACILITY_LEVEL_STOCKOUT_HELP = "To report stockouts, type os [space] [facility id], for example: 'os 0001'"
     STOCKOUT_RESPONSE = "Thank you %(reporter)s. You have reported stockouts for the following products: %(products)s. Please contact the district office to resolve this issue."
     STOCKOUT_NOTICE = "Dear %(hsa)s, your pending order is stocked out at the health centre. The HSA supervisor will work with District to resolve this issue in a timely manner."
     SUPERVISOR_STOCKOUT_NOTIFICATION = "%(contact)s has reported a stockout at %(supply_point)s for at least these products: %(products)s. Work with the HSA Supervisor to resolve this issue."
@@ -255,7 +255,8 @@ class Messages(object):
     UNABLE_RESTOCK_NORMAL_REGION_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Work with the EPI Coordinator to resolve this issue."
 
     # "Give" keyword (hsa to hsa transfers)
-    TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
+    HSA_LEVEL_TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
+    FACILITY_LEVEL_TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving facility id] [product code] [amount], for example: 'give 0001 bc 20'"
     TRANSFER_RESPONSE = "Thank you %(reporter)s. You have reported a transfer from %(giver)s to %(receiver)s of the following products: %(products)s"
     TRANSFER_CONFIRM = "Confirm receipt of %(products)s from %(giver)s? Please respond 'confirm'"
     

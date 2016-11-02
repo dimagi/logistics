@@ -82,6 +82,7 @@ def validate_base_level(allowed_base_levels):
                 self.respond(config.Messages.UNSUPPORTED_OPERATION)
             else:
                 self.base_level = base_level
+                self.base_level_is_hsa = (base_level == config.BaseLevel.HSA)
                 return f(self, *args, **kwargs)
         return inner
     return wrapper

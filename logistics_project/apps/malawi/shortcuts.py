@@ -4,21 +4,36 @@ from logistics_project.apps.malawi.util import get_supervisors
 from rapidsms.messages.outgoing import OutgoingMessage
 
 
-def send_transfer_responses(msg, stock_report, transfers, giver, to):
+def send_transfer_responses(msg, stock_report, giver, receiver_sp, receiver_contacts, base_level=config.BaseLevel.HSA):
     
     if stock_report.errors:
         # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
-        msg.respond(config.Messages.TRANSFER_RESPONSE, 
-                    reporter=msg.logistics_contact.name,
-                    giver=giver.name,
-                    receiver=to.name,
-                    products=stock_report.all())
-        to.message(config.Messages.TRANSFER_CONFIRM, 
-                   giver=giver.name,
-                   products=stock_report.all())
-    
+        if base_level == config.BaseLevel.HSA:
+            msg.respond(config.Messages.TRANSFER_RESPONSE,
+                        reporter=msg.logistics_contact.name,
+                        giver=giver.name,
+                        receiver=receiver_contacts[0].name,
+                        products=stock_report.all())
+        else:
+            msg.respond(config.Messages.TRANSFER_RESPONSE,
+                        reporter=msg.logistics_contact.name,
+                        giver=giver.supply_point.name,
+                        receiver=receiver_sp.name,
+                        products=stock_report.all())
+
+        for contact in receiver_contacts:
+            if base_level == config.BaseLevel.HSA:
+                contact.message(config.Messages.TRANSFER_CONFIRM,
+                                giver=giver.name,
+                                products=stock_report.all())
+            else:
+                contact.message(config.Messages.TRANSFER_CONFIRM,
+                                giver=giver.supply_point.name,
+                                products=stock_report.all())
+
+
 def _respond_empty(msg, contact, stock_report, supervisors, supply_point_name):
     for super in supervisors:
         super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
