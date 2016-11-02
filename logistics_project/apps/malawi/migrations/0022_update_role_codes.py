@@ -11,10 +11,9 @@ class Migration(DataMigration):
     def forwards(self, orm):
         ContactRole = orm['logistics.ContactRole']
 
-        for code in [config.Roles.ZONAL_EPI_OFFICER]:
-            obj, _ = ContactRole.objects.get_or_create(code=code)
-            obj.name = config.Roles.ALL_ROLES[code]
-            obj.save()
+        role, _ = ContactRole.objects.get_or_create(code=config.roles.REGIONAL_EPI_COORDINATOR)
+        role.name = config.Roles.ALL_ROLES[config.roles.REGIONAL_EPI_COORDINATOR]
+        role.save()
 
         try:
             role = ContactRole.objects.get(code='ef')

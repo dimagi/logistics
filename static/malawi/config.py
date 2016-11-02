@@ -17,8 +17,8 @@ class Roles(object):
     EPI_FOCAL = "he"
     # The District EPI Coordinator
     DISTRICT_EPI_COORDINATOR = "de"
-    # The EPI officer at the Zone level
-    ZONAL_EPI_OFFICER = "zo"
+    # The Regional EPI Coordinator
+    REGIONAL_EPI_COORDINATOR = "re"
     ALL_ROLES = {
         HSA: "hsa",
         HSA_SUPERVISOR: "hsa supervisor",
@@ -28,7 +28,7 @@ class Roles(object):
         IMCI_COORDINATOR: "imci coordinator",
         EPI_FOCAL: "hf epi focal person",
         DISTRICT_EPI_COORDINATOR: "district epi coordinator",
-        ZONAL_EPI_OFFICER: "zonal epi officer",
+        REGIONAL_EPI_COORDINATOR: "regional epi coordinator",
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
     FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
@@ -237,22 +237,22 @@ class Messages(object):
     SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL = "%(supply_point)s needs emergency products: %(emergency_products)s. Respond 'ready %(supply_point_code)s' or 'os %(supply_point_code)s'"
 
     HSA_LEVEL_OS_EO_RESPONSE = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the District office to resolve this issue."
-    FACILITY_LEVEL_OS_EO_RESPONSE = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the Zone office to resolve this issue."
+    FACILITY_LEVEL_OS_EO_RESPONSE = "Thank you. You have reported that you are not able to resupply %(products)s. Please contact the Regional office to resolve this issue."
 
     UNABLE_RESTOCK_EO_HSA_NOTIFICATION = "Dear %(hsa)s, the Health Center is not able to resupply %(products)s. The HSA Supervisor will work with the District to resolve this issue."
-    UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is not able to resupply %(products)s. The EPI Coordinator will work with the Zone to resolve this issue."
+    UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is not able to resupply %(products)s. The EPI Coordinator will work with the Region to resolve this issue."
 
     UNABLE_RESTOCK_EO_DISTRICT_ESCALATION = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to HSA EO. Work with the HSA Supervisor to resolve this issue."
-    UNABLE_RESTOCK_EO_ZONE_ESCALATION = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to Facility EO. Work with the EPI Coordinator to resolve this issue."
+    UNABLE_RESTOCK_EO_REGION_ESCALATION = "%(contact)s reports %(supply_point)s is unable to resupply %(products)s in response to Facility EO. Work with the EPI Coordinator to resolve this issue."
 
     UNABLE_RESTOCK_HSA_NOTIFICATION = "Dear %(hsa)s, the Health Center is unable to resupply any of the products you need. The HSA Supervisor will work with the District to resolve this issue."
-    UNABLE_RESTOCK_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is unable to resupply any of the products you need. The EPI Coordinator will work with the Zone to resolve this issue."
+    UNABLE_RESTOCK_FACILITY_NOTIFICATION = "Dear %(supply_point)s, the District is unable to resupply any of the products you need. The EPI Coordinator will work with the Region to resolve this issue."
 
     UNABLE_RESTOCK_STOCKOUT_DISTRICT_ESCALATION = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to HSA stockout. Please work with the HSA Supervisor to resolve this issue."
-    UNABLE_RESTOCK_STOCKOUT_ZONE_ESCALATION = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to Facility stockout. Work with the EPI Coordinator to resolve this issue."
+    UNABLE_RESTOCK_STOCKOUT_REGION_ESCALATION = "%(contact)s reports %(supply_point)s unable to resupply %(products)s in response to Facility stockout. Work with the EPI Coordinator to resolve this issue."
 
     UNABLE_RESTOCK_NORMAL_DISTRICT_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Please work with the HSA Supervisor to resolve this issue."
-    UNABLE_RESTOCK_NORMAL_ZONE_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Work with the EPI Coordinator to resolve this issue."
+    UNABLE_RESTOCK_NORMAL_REGION_ESCALATION = "%(contact)s has reported %(supply_point)s is unable to resupply any of the following %(products)s. Work with the EPI Coordinator to resolve this issue."
 
     # "Give" keyword (hsa to hsa transfers)
     TRANSFER_HELP_MESSAGE = "To report a stock transfer, type GIVE [receiving hsa id] [product code] [amount], for example: 'give 100101 zi 20'"
