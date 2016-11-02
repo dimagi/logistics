@@ -1,11 +1,9 @@
 from django.db import transaction
-from logistics.models import SupplyPoint
 from logistics.util import config
 from logistics.decorators import logistics_contact_and_permission_required
-from logistics_project.apps.malawi.util import get_hsa, get_facility
+from logistics_project.apps.malawi.util import get_supply_point_and_contacts
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics_project.decorators import validate_base_level_from_supervisor
-from rapidsms.models import Contact
 
 
 class OrderResponseBaseHandler(RecordResponseHandler):
@@ -27,26 +25,13 @@ class OrderResponseBaseHandler(RecordResponseHandler):
 
         words = text.split(" ")
         supply_point_code = words[0]
+        self.contacts, self.supply_point = get_supply_point_and_contacts(supply_point_code, self.base_level)
 
-        if self.base_level_is_hsa:
-            hsa = get_hsa(hsa_id)
-            if not hsa:
+        if not self.supply_point:
+            if self.base_level_is_hsa:
                 self.respond(config.Messages.UNKNOWN_HSA, hsa_id=supply_point_code)
-                return
-            self.supply_point = hsa.supply_point
-            self.contacts = [hsa]
-        else:
-            facility = get_facility(supply_point_code)
-            if not facility:
+            else:
                 self.respond(config.Messages.UNKNOWN_FACILITY, supply_point_code=supply_point_code)
-                return
-            self.supply_point = facility
-            self.contacts = list(
-                Contact.objects.filter(
-                    active=True,
-                    supply_point=facility,
-                    role__code__in=config.Roles.FACILITY_ONLY
-                )
-            )
+            return
 
         self.handle_custom(text)

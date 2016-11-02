@@ -324,3 +324,34 @@ def get_managed_product_ids(supply_point, base_level):
         .distinct()
         .order_by('id')
     )
+
+
+def get_supply_point_and_contacts(supply_point_code, base_level):
+    """
+    Given a supply point code, returns the list of contacts at that
+    supply point and the supply point as a (list, SupplyPoint) tuple.
+
+    If the supply point is not found, ([], None) is returned.
+    """
+    if base_level == config.BaseLevel.HSA:
+        hsa = get_hsa(supply_point_code)
+        if not hsa:
+            return ([], None)
+
+        return ([hsa], hsa.supply_point)
+    elif base_level == config.BaseLevel.FACILITY:
+        facility = get_facility(supply_point_code)
+        if not facility:
+            return ([], None)
+
+        contacts = list(
+            Contact.objects.filter(
+                active=True,
+                supply_point=facility,
+                role__code__in=config.Roles.FACILITY_ONLY
+            )
+        )
+
+        return (contacts, facility)
+    else:
+        raise config.BaseLevel.InvalidBaseLevelException(base_level)
