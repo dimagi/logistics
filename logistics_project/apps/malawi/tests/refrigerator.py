@@ -13,7 +13,7 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
     def testBasicWorkflow(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
         create_manager(self, "5550001", "facility user", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district user", role=config.Roles.EPI_COORDINATOR, facility_code='26')
+        create_manager(self, "5550002", "district user", role=config.Roles.DISTRICT_EPI_COORDINATOR, facility_code='26')
         facility = SupplyPoint.objects.get(code='2616')
 
         self.runScript(

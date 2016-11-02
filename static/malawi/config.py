@@ -14,9 +14,9 @@ class Roles(object):
     DISTRICT_PHARMACIST = "dp"
     IMCI_COORDINATOR = "im"
     # The EPI Focal Person; this contact belongs to a Facility
-    EPI_FOCAL = "ef"
-    # The EPI Coordinator; this contact belongs to a District
-    EPI_COORDINATOR = "ec"
+    EPI_FOCAL = "he"
+    # The District EPI Coordinator
+    DISTRICT_EPI_COORDINATOR = "de"
     # The EPI officer at the Zone level
     ZONAL_EPI_OFFICER = "zo"
     ALL_ROLES = {
@@ -26,15 +26,15 @@ class Roles(object):
         DISTRICT_SUPERVISOR: "district supervisor",
         DISTRICT_PHARMACIST: "district pharmacist",
         IMCI_COORDINATOR: "imci coordinator",
-        EPI_FOCAL: "epi focal person",
-        EPI_COORDINATOR: "epi coordinator",
+        EPI_FOCAL: "hf epi focal person",
+        DISTRICT_EPI_COORDINATOR: "district epi coordinator",
         ZONAL_EPI_OFFICER: "zonal epi officer",
     }
     UNIQUE = []#DISTRICT_SUPERVISOR, IMCI_COORDINATOR]
     FACILITY_ONLY = [IN_CHARGE, HSA_SUPERVISOR, EPI_FOCAL]
-    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, EPI_COORDINATOR]
+    DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, DISTRICT_EPI_COORDINATOR]
     HSA_SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
-    FACILITY_SUPERVISOR_ROLES = [DISTRICT_PHARMACIST, EPI_COORDINATOR]
+    FACILITY_SUPERVISOR_ROLES = [DISTRICT_PHARMACIST, DISTRICT_EPI_COORDINATOR]
 
 
 class BaseLevel(object):

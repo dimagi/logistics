@@ -41,7 +41,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         recipients = Contact.objects.filter(
             is_active=True,
             supply_point=self.msg.logistics_contact.supply_point,
-            role__code__in=[config.Roles.DISTRICT_PHARMACIST, config.Roles.EPI_COORDINATOR]
+            role__code__in=[config.Roles.DISTRICT_PHARMACIST, config.Roles.DISTRICT_EPI_COORDINATOR]
         )
 
         for recipient in recipients:

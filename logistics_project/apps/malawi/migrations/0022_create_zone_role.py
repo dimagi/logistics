@@ -9,10 +9,28 @@ from static.malawi import config
 class Migration(DataMigration):
 
     def forwards(self, orm):
+        ContactRole = orm['logistics.ContactRole']
+
         for code in [config.Roles.ZONAL_EPI_OFFICER]:
-            obj, _ = orm['logistics.ContactRole'].objects.get_or_create(code=code)
+            obj, _ = ContactRole.objects.get_or_create(code=code)
             obj.name = config.Roles.ALL_ROLES[code]
             obj.save()
+
+        try:
+            role = ContactRole.objects.get(code='ef')
+            role.code = config.Roles.EPI_FOCAL
+            role.name = config.Roles.ALL_ROLES[config.Roles.EPI_FOCAL]
+            role.save()
+        except ContactRole.DoesNotExist:
+            pass
+
+        try:
+            role = ContactRole.objects.get(code='ec')
+            role.code = config.Roles.DISTRICT_EPI_COORDINATOR
+            role.name = config.Roles.ALL_ROLES[config.Roles.DISTRICT_EPI_COORDINATOR]
+            role.save()
+        except ContactRole.DoesNotExist:
+            pass
 
     def backwards(self, orm):
         pass

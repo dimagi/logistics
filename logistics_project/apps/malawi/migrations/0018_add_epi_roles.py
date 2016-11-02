@@ -9,7 +9,7 @@ from logistics.util import config
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for code in [config.Roles.EPI_FOCAL, config.Roles.EPI_COORDINATOR]:
+        for code in [config.Roles.EPI_FOCAL, config.Roles.DISTRICT_EPI_COORDINATOR]:
             obj, _ = orm['logistics.ContactRole'].objects.get_or_create(code=code)
             obj.name = config.Roles.ALL_ROLES[code]
             obj.save()
