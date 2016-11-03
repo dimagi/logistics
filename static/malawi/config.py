@@ -70,7 +70,7 @@ class BaseLevel(object):
     FACILITY = 'f'
 
     HSA_WAREHOUSE_START_DATE = datetime(2011, 6, 1)
-    FACILITY_WAREHOUSE_START_DATE = datetime(2016, 10, 1)
+    FACILITY_WAREHOUSE_START_DATE = datetime(2016, 11, 1)
 
     @staticmethod
     def get_base_level_description(base_level, plural=False):
