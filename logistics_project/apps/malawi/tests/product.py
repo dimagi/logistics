@@ -4,15 +4,17 @@ from logistics.models import Product, SupplyPoint, ProductStock
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from django.conf import settings
+from static.malawi.config import BaseLevel, SupplyPointCodes
+
 
 class TestProductLevels(MalawiTestBase):
     
-    def testEmergencyLevels(self):
+    def testStaticLoader(self):
         csv_file = open(settings.STATIC_PRODUCTS, 'r')
         try:
             count = 0
-            expected_count = Product.objects.exclude(emergency_order_level=None).count()
-            static_sp = SupplyPoint.objects.all()[0]
+            # EPI Products aren't loaded through the static loader so exclude them here
+            expected_count = Product.objects.filter(emergency_order_level__isnull=False, type__base_level=BaseLevel.HSA).count()
             self.assertTrue(expected_count > 0) # make sure we wil check something
             for line in csv_file:
                 # leave out first line
@@ -24,15 +26,26 @@ class TestProductLevels(MalawiTestBase):
                     eo = int(eop_quant)
                     product = Product.objects.get(sms_code__iexact=code)
                     self.assertEqual(eo, product.emergency_order_level)
-                    ps = ProductStock.objects.create(supply_point=static_sp, product=product)
-                    self.assertEqual(ps.emergency_reorder_level, eo)
                     count = count + 1
                 except ValueError:
                     pass
             self.assertEqual(count, expected_count) # make sure we checked enough
         finally:
             csv_file.close()
-    
+
+    def testEmergencyLevels(self):
+        create_hsa(self, "5551111", "hsa")
+        hsa = SupplyPoint.objects.filter(type__code=SupplyPointCodes.HSA)[0]
+        for product in Product.objects.filter(type__base_level=BaseLevel.HSA):
+            ps = ProductStock.objects.create(supply_point=hsa, product=product)
+            self.assertEqual(ps.emergency_reorder_level, product.emergency_order_level)
+
+        facility = SupplyPoint.objects.filter(type__code=SupplyPointCodes.FACILITY)[0]
+        for product in Product.objects.filter(type__base_level=BaseLevel.FACILITY):
+            ps = ProductStock.objects.create(supply_point=facility, product=product)
+            self.assertEqual(ps.emergency_reorder_level, product.emergency_order_level)
+
+
 class TestAddRemoveProducts(MalawiTestBase):
     
     def testAddRemoveProduct(self):
