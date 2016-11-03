@@ -94,7 +94,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             )
             for contact in self.contacts:
                 if self.base_level_is_hsa:
-                    contact.message(config.Messages.UNABLE_RESTOCK_HSA_NOTIFICATION, hsa=self.hsa.name)
+                    contact.message(config.Messages.UNABLE_RESTOCK_HSA_NOTIFICATION, hsa=contact.name)
                 else:
                     contact.message(config.Messages.UNABLE_RESTOCK_FACILITY_NOTIFICATION, supply_point=self.supply_point.name)
 
