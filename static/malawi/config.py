@@ -141,7 +141,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.MAKE_TRANSFER:
         return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation == Operations.CONFIRM_TRANSFER:
-        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+        return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation == Operations.REPORT_FOR_OTHERS:
         return True
 #        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE, Roles.HSA_SUPERVISOR])
