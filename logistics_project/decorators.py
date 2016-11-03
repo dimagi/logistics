@@ -1,6 +1,7 @@
 from django.http import HttpResponseForbidden
 from django.conf import settings
 from logistics.util import config
+from logistics_project.apps.malawi.util import get_managed_products_for_contact
 
 
 def magic_token_required():
@@ -127,3 +128,22 @@ def validate_base_level_from_supervisor(allowed_base_levels):
                 return f(self, *args, **kwargs)
         return inner
     return wrapper
+
+
+def managed_products_required(f):
+    """
+    This decorator currently only works on an instance
+    of a handler object. It also assumes that
+    logistics_contact_required has already been run.
+
+    This decorator is similar to the one in logistics.decorators,
+    only for Malawi we have a different way of tracking the
+    managed products for facility-level contacts.
+    """
+    def inner(self, *args, **kwargs):
+        if get_managed_products_for_contact(self.msg.logistics_contact).count() == 0:
+            self.respond(config.Messages.NO_PRODUCTS_MANAGED)
+        else:
+            return f(self, *args, **kwargs)
+
+    return inner

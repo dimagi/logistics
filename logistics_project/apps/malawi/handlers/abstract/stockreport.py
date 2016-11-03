@@ -5,11 +5,11 @@ from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics.models import StockRequest
-from logistics.decorators import logistics_contact_and_permission_required, managed_products_required
+from logistics.decorators import logistics_contact_and_permission_required
 from logistics.shortcuts import create_stock_report
 from logistics_project.apps.malawi.validators import (check_max_levels_malawi, get_base_level_validator,
     combine_validators, require_working_refrigerator)
-from logistics_project.decorators import validate_base_level
+from logistics_project.decorators import validate_base_level, managed_products_required
 from rapidsms.contrib.messagelog.models import Message
 
 
@@ -25,7 +25,7 @@ class StockReportBaseHandler(RecordResponseHandler):
 
     @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.REPORT_STOCK)
-    @managed_products_required()
+    @managed_products_required
     @validate_base_level([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def handle(self, text):
         """

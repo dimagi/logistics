@@ -43,7 +43,7 @@ from logistics_project.apps.malawi.tables import MalawiContactTable, \
     HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable, ConsumptionDataTable
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, ConsumptionData, hsa_supply_points_below,\
-    deactivate_product
+    deactivate_product, get_managed_products_for_contact
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
@@ -130,7 +130,7 @@ def contacts(request):
             c.role.name if c.role else "", c.hsa_id,
             c.supply_point.name if c.supply_point else "",
             c.default_connection.identity if c.default_connection else "",
-            " ".join([com.sms_code for com in c.commodities.all()]),
+            " ".join([com.sms_code for com in get_managed_products_for_contact(c)]),
             c.organization.name if c.organization else ""]})
 
     table["height"] = min(480, (contacts.count()+1)*30)

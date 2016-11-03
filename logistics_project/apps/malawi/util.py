@@ -326,6 +326,13 @@ def get_managed_product_ids(supply_point, base_level):
     )
 
 
+def get_managed_products_for_contact(contact):
+    if contact.supply_point and contact.supply_point.type_id == config.SupplyPointCodes.FACILITY:
+        return contact.supply_point.commodities_stocked()
+    else:
+        return contact.commodities.all()
+
+
 def get_supply_point_and_contacts(supply_point_code, base_level):
     """
     Given a supply point code, returns the list of contacts at that
