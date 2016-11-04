@@ -459,7 +459,13 @@ class TestFacilityLevelStockOnHandMalawi(MalawiTestBase):
         self.runScript(a)
 
     def testMaxSupplyLevel(self):
-        self._setup_users()
+        ic, sh, he, dp, de, re = self._setup_users()
+        bc_resupply_level = self._expected_resupply_level("bc")
+        sa_resupply_level = self._expected_resupply_level("sa")
+        bc_resupply_amount = bc_resupply_level - 100
+        sa_resupply_amount = sa_resupply_level - 500
+        # The "too much stock" validation step requires ProductStock entries to exist
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         keyword_response_pairs = (
             ('soh', config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM % {"products": "sa bc"}),
