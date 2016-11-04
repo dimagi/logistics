@@ -3,19 +3,10 @@ from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, Prod
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.util import create_manager, report_facility_level_stock
 from logistics.util import config
-from logistics_project.apps.malawi.tests.base import MalawiTestBase
+from logistics_project.apps.malawi.tests.facility.base import MalawiFacilityLevelTestBase
 
 
-class TestFacilityLevelStockOnHandMalawi(MalawiTestBase):
-
-    def _setup_users(self):
-        ic = create_manager(self, "16175551000", "wendy", config.Roles.IN_CHARGE, "2616")
-        sh = create_manager(self, "16175551001", "sally", config.Roles.HSA_SUPERVISOR, "2616")
-        he = create_manager(self, "16175551002", "robert", config.Roles.EPI_FOCAL, "2616")
-        dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
-        de = create_manager(self, "16175551004", "peter", config.Roles.DISTRICT_EPI_COORDINATOR, "26")
-        re = create_manager(self, "16175551005", "sam", config.Roles.REGIONAL_EPI_COORDINATOR, "malawi")
-        return (ic, sh, he, dp, de, re)
+class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
     def _expected_resupply_level(self, product_code):
         return Product.objects.get(sms_code=product_code).average_monthly_consumption * 2
