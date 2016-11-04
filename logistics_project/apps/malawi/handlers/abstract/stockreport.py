@@ -73,7 +73,7 @@ class StockReportBaseHandler(RecordResponseHandler):
                 'prod': e.product,
                 'max': e.max,
             })
-        except BaseLevel.InvalidProductBaseLevelException as e2:
+        except config.BaseLevel.InvalidProductBaseLevelException as e2:
             self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e2.product_code)
         except RefrigeratorMalfunction.RefrigeratorNotWorkingException:
             self.respond(config.Messages.FRIDGE_BROKEN)

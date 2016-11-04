@@ -81,3 +81,39 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
                "confirm": config.Messages.SOH_HSA_LEVEL_ORDER_CONFIRM % {"products": product_list},
                "manager_msgs": "".join(manager_msgs)}
     test_class.runScript(a)
+
+
+def report_facility_level_stock(test_class, reporter, product_string, managers, resupply_amounts):
+    """
+    Reports stock in the facility-level workflow.
+    """
+    stock_report = ProductReportsHelper(reporter.supply_point, Reports.SOH)
+    stock_report.parse(product_string)
+    product_list = " ".join(stock_report.reported_products()).strip()
+
+    manager_msgs = []
+    if managers:
+        resupplies = []
+        for product_code in stock_report.product_stock.keys():
+            if product_code in resupply_amounts:
+                resupplies.append(product_code + " " + str(resupply_amounts[product_code]))
+        test_class.assertEqual(len(resupply_amounts), len(resupplies))
+
+        for manager in managers:
+            manager_msgs.append("""
+                %(phone)s < %(confirm)s
+            """ % {"phone": manager.default_connection.identity,
+                   "confirm": config.Messages.SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION % \
+                    {"supply_point": reporter.supply_point.name,
+                     "products": ", ".join(resupplies),
+                     "supply_point_code": reporter.supply_point.code}})
+
+    a = """
+           %(phone)s > soh %(products)s
+           %(phone)s < %(confirm)s
+           %(manager_msgs)s
+        """ % {"phone": reporter.default_connection.identity,
+               "products": product_string,
+               "confirm": config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM % {"products": product_list},
+               "manager_msgs": "".join(manager_msgs)}
+    test_class.runScript(a)

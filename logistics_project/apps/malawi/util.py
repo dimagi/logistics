@@ -49,7 +49,7 @@ def get_facility(supply_point_code):
     Attempts to get a Facility by code and returns None if unable to find it.
     """
     try:
-        sp = SupplyPoint.objects.get(active=True, code=supply_point_code, type__code=config.SupplyPointCodes.FACILITY)
+        return SupplyPoint.objects.get(active=True, code=supply_point_code, type__code=config.SupplyPointCodes.FACILITY)
     except SupplyPoint.DoesNotExist:
         return None
 
@@ -353,7 +353,7 @@ def get_supply_point_and_contacts(supply_point_code, base_level):
 
         contacts = list(
             Contact.objects.filter(
-                active=True,
+                is_active=True,
                 supply_point=facility,
                 role__code__in=config.Roles.FACILITY_ONLY
             )

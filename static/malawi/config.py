@@ -63,7 +63,7 @@ class BaseLevel(object):
 
     class InvalidProductBaseLevelException(Exception):
         def __init__(self, product_code, *args, **kwargs):
-            super(InvalidProductBaseLevelException, self).__init__(*args, **kwargs)
+            super(BaseLevel.InvalidProductBaseLevelException, self).__init__(*args, **kwargs)
             self.product_code = product_code
 
     HSA = 'h'
