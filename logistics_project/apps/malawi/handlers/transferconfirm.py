@@ -4,10 +4,12 @@ from logistics.models import ProductReportsHelper , StockTransfer
 from logistics.const import Reports
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.util import config
+from logistics_project.decorators import validate_base_level
+
 
 class TransferConfirmHandler(KeywordHandler):
     """
-    HSA --> HSA transfer confirmation
+    Confirmation of a "give" operation.
     """
 
     keyword = "confirm"
@@ -16,6 +18,7 @@ class TransferConfirmHandler(KeywordHandler):
         self.handle("")
 
     @logistics_contact_and_permission_required(config.Operations.CONFIRM_TRANSFER)
+    @validate_base_level([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def handle(self, text):
         pending = StockTransfer.pending_transfers().filter\
             (receiver=self.msg.logistics_contact.supply_point).all()
@@ -34,6 +37,12 @@ class TransferConfirmHandler(KeywordHandler):
             now = datetime.utcnow()
             for p in pending:
                 p.confirm(now)
+
+            if self.base_level_is_hsa:
+                receiver_name = self.msg.logistics_contact.name
+            else:
+                receiver_name = self.msg.logistics_contact.supply_point.name
+
             self.respond(config.Messages.CONFIRM_RESPONSE, 
-                         receiver=self.msg.logistics_contact.name,
+                         receiver=receiver_name,
                          products=", ".join([p.sms_format() for p in pending]))

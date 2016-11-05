@@ -43,20 +43,20 @@ class testContactsAndRoles(MalawiTestBase):
                 5551111 < %(bad_perms)s
                 5551111 > os 100100
                 5551111 < %(bad_perms)s
-                5551112 > soh la 200
-                5551112 < %(bad_perms)s
-                5551112 > eo la 200
-                5551112 < %(bad_perms)s
+                5551113 > soh la 200
+                5551113 < %(bad_perms)s
+                5551113 > eo la 200
+                5551113 < %(bad_perms)s
                 5551112 > add zi
                 5551112 < %(bad_perms)s
                 5551112 > remove zi
                 5551112 < %(bad_perms)s
-                5551112 > rec la 200
-                5551112 < %(bad_perms)s
-                5551112 > give 100101 la 200
-                5551112 < %(bad_perms)s
-                5551112 > confirm
-                5551112 < %(bad_perms)s
+                5551113 > rec la 200
+                5551113 < %(bad_perms)s
+                5551113 > give 100101 la 200
+                5551113 < %(bad_perms)s
+                5551113 > confirm
+                5551113 < %(bad_perms)s
             """ % {"bad_perms": config.Messages.UNSUPPORTED_OPERATION}
         self.runScript(a)
 

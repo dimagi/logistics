@@ -46,8 +46,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
 
 
@@ -146,8 +146,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
@@ -166,8 +166,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551001 < %(confirm)s
            16175551000 < %(hsa_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % \
-                    {"hsa": "wendy"},
-               "hsa_notice": config.Messages.APPROVAL_NOTICE % \
+                    {"supply_point": "wendy"},
+               "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
@@ -194,7 +194,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             16175551001 < %(super)s
         """ % {
             "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "zi la"},
-            "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"hsa": "wendy"}
+            "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"supply_point": "wendy"}
         }
         self.runScript(a)
         self.assertEqual(0, StockRequest.objects.count())
@@ -224,10 +224,10 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551003 < %(district)s
            16175551002 < %(district)s
            16175551001 < %(confirm)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_ANYTHING % {"hsa": "wendy"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_NORMAL  % \
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_HSA_NOTIFICATION % {"hsa": "wendy"},
+               "district": config.Messages.UNABLE_RESTOCK_NORMAL_DISTRICT_ESCALATION % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"}}
 
 
@@ -250,7 +250,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 10 la 300
            16175551000 < %(confirm)s
            16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -279,11 +279,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_EO  % \
+               "district": config.Messages.UNABLE_RESTOCK_EO_DISTRICT_ESCALATION  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi"}}
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_EO_HSA_NOTIFICATION % {"hsa": "wendy", "products": "zi"}}
         self.runScript(a)
 
     def testEmergencyOrderNoProductsInEmergency(self):
@@ -292,7 +292,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 400 la 200
            16175551000 < %(confirm)s
            16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
 
@@ -302,7 +302,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0
            16175551000 < %(confirm)s
            16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
 
         self.runScript(a)
 
@@ -316,11 +316,11 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551002 < %(district)s
            16175551003 < %(district)s
            16175551000 < %(hsa_notice)s
-        """ % {"confirm": config.Messages.HF_UNABLE_RESTOCK_EO %\
+        """ % {"confirm": config.Messages.HSA_LEVEL_OS_EO_RESPONSE %\
                     {"reporter": "sally", "products": "zi, la"},
-               "district": config.Messages.DISTRICT_UNABLE_RESTOCK_STOCKOUT  % \
+               "district": config.Messages.UNABLE_RESTOCK_STOCKOUT_DISTRICT_ESCALATION  % \
                     {"contact": "sally", "supply_point": "Ntaja", "products": "zi, la"},
-               "hsa_notice": config.Messages.HSA_UNABLE_RESTOCK_EO % {"hsa": "wendy", "products": "zi, la"}}
+               "hsa_notice": config.Messages.UNABLE_RESTOCK_EO_HSA_NOTIFICATION % {"hsa": "wendy", "products": "zi, la"}}
         self.runScript(a)
 
     def testEmergencyOrderNoProductsNotInEmergencyWithAdditional(self):
@@ -329,7 +329,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 > eo zi 0 la 0 co 10
            16175551000 < %(confirm)s
            16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.EMERGENCY_SOH % {"products": "co zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co zi la"}}
 
         self.runScript(a)
 
@@ -340,9 +340,9 @@ class TestStockOnHandMalawi(MalawiTestBase):
            16175551000 < %(confirm)s
            16175551001 < %(supervisor)s
            16175551004 < %(supervisor)s
-        """ % {"confirm": config.Messages.SOH_ORDER_STOCKOUT_CONFIRM % \
+        """ % {"confirm": config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM % \
                     {"contact": "wendy", "products": "zi la"},
-               "supervisor": config.Messages.SUPERVISOR_SOH_NOTIFICATION_WITH_STOCKOUTS % \
+               "supervisor": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % \
                     {"hsa": "wendy", "products": "co 430, zi 200, la 360",
                      "stockedout_products": "zi la",
                      "hsa_id": "261601"}}

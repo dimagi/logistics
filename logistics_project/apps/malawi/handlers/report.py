@@ -117,4 +117,4 @@ class ReportRegistrationHandler(KeywordHandler):
                                                remainder, 
                                                self.msg.logger_msg)
             transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
-            send_transfer_responses(self.msg, stock_report, transfers, self.hsa, hsa)
+            send_transfer_responses(self.msg, stock_report, self.hsa, hsa.supply_point, [hsa])

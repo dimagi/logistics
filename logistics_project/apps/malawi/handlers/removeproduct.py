@@ -3,6 +3,8 @@ from django.db import transaction
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.models import Product, ProductStock
 from logistics.util import config
+from logistics_project.decorators import validate_base_level
+
 
 class RemoveProductHandler(KeywordHandler):
     """
@@ -16,6 +18,7 @@ class RemoveProductHandler(KeywordHandler):
 
     @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.REMOVE_PRODUCT)
+    @validate_base_level([config.BaseLevel.HSA])
     def handle(self, text):
         words = text.split(" ")
         if not len(words):

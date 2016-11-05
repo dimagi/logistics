@@ -3,16 +3,33 @@ from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
-from logistics.util import config
+from static.malawi import config
 
 
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for code in [config.Roles.EPI_FOCAL, config.Roles.DISTRICT_EPI_COORDINATOR]:
-            obj, _ = orm['logistics.ContactRole'].objects.get_or_create(code=code)
-            obj.name = config.Roles.ALL_ROLES[code]
-            obj.save()
+        ContactRole = orm['logistics.ContactRole']
+
+        role, _ = ContactRole.objects.get_or_create(code=config.Roles.REGIONAL_EPI_COORDINATOR)
+        role.name = config.Roles.ALL_ROLES[config.Roles.REGIONAL_EPI_COORDINATOR]
+        role.save()
+
+        try:
+            role = ContactRole.objects.get(code='ef')
+            role.code = config.Roles.EPI_FOCAL
+            role.name = config.Roles.ALL_ROLES[config.Roles.EPI_FOCAL]
+            role.save()
+        except ContactRole.DoesNotExist:
+            pass
+
+        try:
+            role = ContactRole.objects.get(code='ec')
+            role.code = config.Roles.DISTRICT_EPI_COORDINATOR
+            role.name = config.Roles.ALL_ROLES[config.Roles.DISTRICT_EPI_COORDINATOR]
+            role.save()
+        except ContactRole.DoesNotExist:
+            pass
 
     def backwards(self, orm):
         pass
@@ -161,9 +178,9 @@ class Migration(DataMigration):
         },
         'logistics.producttype': {
             'Meta': {'object_name': 'ProductType'},
+            'base_level': ('django.db.models.fields.CharField', [], {'default': "'h'", 'max_length': '1'}),
             'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '10'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_facility': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'logistics.requisitionreport': {
@@ -368,6 +385,7 @@ class Migration(DataMigration):
             'any_with_stock': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'any_without_data': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'any_without_stock': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'base_level': ('django.db.models.fields.CharField', [], {'default': "'h'", 'max_length': '1'}),
             'create_date': ('django.db.models.fields.DateTimeField', [], {}),
             'date': ('django.db.models.fields.DateTimeField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -379,6 +397,7 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'RefrigeratorMalfunction'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'malfunction_reason': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
+            'reported_by': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'+'", 'to': "orm['rapidsms.Contact']"}),
             'reported_on': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'resolved_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'responded_on': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
@@ -387,11 +406,11 @@ class Migration(DataMigration):
         },
         'malawi.reportingrate': {
             'Meta': {'object_name': 'ReportingRate'},
+            'base_level': ('django.db.models.fields.CharField', [], {'default': "'h'", 'max_length': '1'}),
             'complete': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'create_date': ('django.db.models.fields.DateTimeField', [], {}),
             'date': ('django.db.models.fields.DateTimeField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_facility': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'on_time': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'reported': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'supply_point': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['logistics.SupplyPoint']"}),

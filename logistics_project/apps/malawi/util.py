@@ -43,6 +43,17 @@ def get_hsa(hsa_id):
         # this is weird, shouldn't be possible, but who knows.
         raise MultipleHSAException("More than one HSA found with id %s" % hsa_id)
 
+
+def get_facility(supply_point_code):
+    """
+    Attempts to get a Facility by code and returns None if unable to find it.
+    """
+    try:
+        return SupplyPoint.objects.get(active=True, code=supply_point_code, type__code=config.SupplyPointCodes.FACILITY)
+    except SupplyPoint.DoesNotExist:
+        return None
+
+
 def hsas_below(location):
     """
     Given an optional location, return all HSAs below that location.
@@ -81,13 +92,29 @@ def hsa_supply_points_below(location):
 def _contact_set(supply_point, role):
     return supply_point.active_contact_set.filter\
                 (is_active=True, role__code=role)
-    
+
+
 def get_supervisors(supply_point):
     """
-    Get all supervisors at a particular facility
+    Retrieves the Contact objects for all contacts at the supply point that have
+    supervisor roles.
+
+    If supply_point is a facility, it returns all contacts at that facility who have
+    roles that supervise HSAs.
+
+    If supply_point is a district, it returns all contacts at that district who have
+    roles that supervise facilities.
+
+    Otherwise, an exception is raised.
     """
-    return supply_point.active_contact_set.filter\
-                (is_active=True, role__code__in=config.Roles.SUPERVISOR_ROLES)
+    if supply_point.type_id == config.SupplyPointCodes.FACILITY:
+        role_codes = config.Roles.HSA_SUPERVISOR_ROLES
+    elif supply_point.type_id == config.SupplyPointCodes.DISTRICT:
+        role_codes = config.Roles.FACILITY_SUPERVISOR_ROLES
+    else:
+        raise config.BaseLevel.InvalidSupervisorLevelException(supply_point.type_id)
+
+    return supply_point.active_contact_set.filter(role__code__in=role_codes)
 
 
 def get_in_charge(supply_point):
@@ -297,3 +324,41 @@ def get_managed_product_ids(supply_point, base_level):
         .distinct()
         .order_by('id')
     )
+
+
+def get_managed_products_for_contact(contact):
+    if contact.supply_point and contact.supply_point.type_id == config.SupplyPointCodes.FACILITY:
+        return contact.supply_point.commodities_stocked()
+    else:
+        return contact.commodities.all()
+
+
+def get_supply_point_and_contacts(supply_point_code, base_level):
+    """
+    Given a supply point code, returns the list of contacts at that
+    supply point and the supply point as a (list, SupplyPoint) tuple.
+
+    If the supply point is not found, ([], None) is returned.
+    """
+    if base_level == config.BaseLevel.HSA:
+        hsa = get_hsa(supply_point_code)
+        if not hsa:
+            return ([], None)
+
+        return ([hsa], hsa.supply_point)
+    elif base_level == config.BaseLevel.FACILITY:
+        facility = get_facility(supply_point_code)
+        if not facility:
+            return ([], None)
+
+        contacts = list(
+            Contact.objects.filter(
+                is_active=True,
+                supply_point=facility,
+                role__code__in=config.Roles.FACILITY_ONLY
+            )
+        )
+
+        return (contacts, facility)
+    else:
+        raise config.BaseLevel.InvalidBaseLevelException(base_level)

@@ -28,6 +28,9 @@ class RefrigeratorMalfunction(models.Model):
         REASON_OTHER,
     )
 
+    class RefrigeratorNotWorkingException(Exception):
+        pass
+
     # A reference to the facility with the malfunction
     supply_point = models.ForeignKey('logistics.SupplyPoint', db_index=True, related_name='+')
 

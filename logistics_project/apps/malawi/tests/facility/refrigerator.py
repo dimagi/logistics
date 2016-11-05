@@ -4,16 +4,16 @@ from logistics.util import config
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics_project.apps.malawi.tests.util import create_manager
-from logistics_project.apps.malawi.tests.base import MalawiTestBase
+from logistics_project.apps.malawi.tests.facility.base import MalawiFacilityLevelTestBase
 from rapidsms.models import Contact
 
 
-class RefrigeratorMalfunctionTestCase(MalawiTestBase):
+class RefrigeratorMalfunctionTestCase(MalawiFacilityLevelTestBase):
 
     def testBasicWorkflow(self):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
         create_manager(self, "5550001", "facility user", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district user", role=config.Roles.EPI_COORDINATOR, facility_code='26')
+        create_manager(self, "5550002", "district user", role=config.Roles.DISTRICT_EPI_COORDINATOR, facility_code='26')
         facility = SupplyPoint.objects.get(code='2616')
 
         self.runScript(
@@ -90,7 +90,7 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
 
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
+        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_PHARMACIST, facility_code='26')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, facility_code='2616')
 
         in_charge2 = Contact.objects.get(connection__identity='5550004')
@@ -170,8 +170,8 @@ class RefrigeratorMalfunctionTestCase(MalawiTestBase):
 
     def testTransferValidation(self):
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, facility_code='2616')
-        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
-        create_manager(self, "5550003", "district supervisor 2", role=config.Roles.DISTRICT_SUPERVISOR, facility_code='26')
+        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_PHARMACIST, facility_code='26')
+        create_manager(self, "5550003", "district supervisor 2", role=config.Roles.DISTRICT_PHARMACIST, facility_code='26')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, facility_code='2601')
 
         ds2 = Contact.objects.get(connection__identity='5550003')

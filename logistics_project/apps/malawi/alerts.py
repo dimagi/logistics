@@ -10,7 +10,7 @@ from logistics.util import config
 from logistics.decorators import place_in_request
 from logistics_project.apps.malawi.nag import get_non_reporting_hsas
 from logistics_project.apps.malawi.util import get_facility_supply_points, hsas_below,\
-    hsa_supply_points_below, facility_supply_points_below
+    hsa_supply_points_below, facility_supply_points_below, get_managed_products_for_contact
 from logistics_project.apps.malawi.templatetags.malawi_tags import place_url
 
 class ProductStockAlert(Alert):
@@ -164,7 +164,7 @@ def hsas_no_supervision(request):
     hsas = SupplyPoint.objects.filter(active=True, type=SupplyPointType.objects.get(code="hsa"))
     facilities_with_hsas = hsas.values_list("supplied_by", flat=True).distinct()
     orphaned_facilities = base_facilitities.exclude\
-        (contact__role__code__in=config.Roles.SUPERVISOR_ROLES)
+        (contact__role__code__in=config.Roles.HSA_SUPERVISOR_ROLES)
     orphaned_facilities_with_hsas = orphaned_facilities.filter(pk__in=facilities_with_hsas)
     return [Alert(config.Alerts.FACILITY_NO_SUPERVISOR % {"facility": fac}, _facility_url(fac)) \
             for fac in orphaned_facilities_with_hsas]
@@ -173,7 +173,7 @@ def hsas_no_supervision(request):
 def hsas_no_products(request):
     hsas = hsas_below(request.location)
     return [Alert(config.Alerts.HSA_NO_PRODUCTS % {"hsa": hsa.name}, _hsa_url(hsa.supply_point)) \
-                  for hsa in hsas.all() if hsa.commodities.count() == 0]
+                  for hsa in hsas.all() if get_managed_products_for_contact(hsa).count() == 0]
     
 def _facility_url(supply_point):
     return reverse("malawi_facility", args=[supply_point.code])

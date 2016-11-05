@@ -3,6 +3,7 @@ from logistics.models import Product, ProductStock
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.db import transaction
+from logistics_project.decorators import validate_base_level
 
 
 class AddProductHandler(KeywordHandler):
@@ -14,10 +15,10 @@ class AddProductHandler(KeywordHandler):
 
     def help(self):
         self.respond(config.Messages.ADD_HELP_MESSAGE)
-        
-        
+
     @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.ADD_PRODUCT)
+    @validate_base_level([config.BaseLevel.HSA])
     def handle(self, text):
         words = text.split(" ")
         if not len(words):

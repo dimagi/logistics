@@ -6,6 +6,7 @@ import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from rapidsms.models import Contact
+from logistics_project.apps.malawi.util import get_managed_products_for_contact
 
 
 def contact_edit_link(cell):
@@ -21,7 +22,7 @@ def render_supply_point(cell):
         return cell.object.supply_point.name
 
 def list_commodities(cell):
-    commodities = cell.object.commodities.all()
+    commodities = get_managed_products_for_contact(cell.object)
     if commodities.count() == 0:
         return "None"
     return " ".join(commodities.order_by('name').values_list('sms_code', flat=True))
