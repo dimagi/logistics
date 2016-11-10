@@ -4,6 +4,15 @@ from logistics.util import config
 
 
 class MalawiSupplyPointExtension(models.Model):
+    """
+    This extension is used to override SupplyPoint.commodities_stocked(), since
+    for facility-level products, all products are always automatically considered
+    to be managed by the facility without the facility users needing to add them
+    manually as HSAs have to add their HSA-level products.
+
+    Since commodoties_stocked is referenced in core rapidsms-logistics code,
+    this is the easiest way to accomplish this with without changing the core code.
+    """
 
     class Meta:
         abstract = True
