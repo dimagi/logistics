@@ -40,15 +40,31 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 # to add it here, also, to expose it in the rapidsms ui.
 
 RAPIDSMS_TABS = [
-    ("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard", None, "/malawi/r/dashboard/"),
-    ("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs", None, "/malawi/r/hsas/"),
-    ("logistics_project.apps.malawi.warehouse.views.health_facilities", "Health Facilities", None, "/malawi/r/health-facilities/"),
-    ("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles", None, "/malawi/r/user-profiles/"),    
-    ("logistics_project.apps.malawi.views.monitoring",       "M & E", "auth.admin_read"),
-    ("rapidsms.contrib.messagelog.views.message_log", "Message Log", "auth.admin_read"),
-    ("rapidsms.contrib.httptester.views.generate_identity", "Message Tester", "is_superuser"),
-    ("rapidsms.contrib.messagelog.views.contacts", "Management", "is_superuser", "/malawi/management/"),
-    ("logistics_project.apps.malawi.views.help", "Help"),
+    (("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard"),
+     {"url": "/malawi/r/dashboard/"}),
+
+    (("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs"),
+     {"url": "/malawi/r/hsas/"}),
+
+    (("logistics_project.apps.malawi.warehouse.views.health_facilities", "Health Facilities"),
+     {"url": "/malawi/r/health-facilities/"}),
+
+    (("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles"),
+     {"url": "/malawi/r/user-profiles/"}),
+
+    (("logistics_project.apps.malawi.views.monitoring", "M & E"),
+     {"permission": "auth.admin_read"}),
+
+    (("rapidsms.contrib.messagelog.views.message_log", "Message Log"),
+     {"permission": "auth.admin_read"}),
+
+    (("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+     {"permission": "is_superuser"}),
+
+    (("rapidsms.contrib.messagelog.views.contacts", "Management"),
+     {"permission": "is_superuser", "url": "/malawi/management/"}),
+
+    (("logistics_project.apps.malawi.views.help", "Help"), {}),
 ]
 
 from django.utils.datastructures import SortedDict

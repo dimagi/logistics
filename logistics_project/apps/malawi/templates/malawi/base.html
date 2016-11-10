@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load region_tags %}
-{% load tabs_tags %}
+{% load malawi_tags %}
 {% load i18n %}
 <html>
 <head>
@@ -59,8 +59,7 @@
 			</div>
 			{% endblock %}
 
-			{% get_tabs as tabs %}
-
+			{% get_malawi_tabs as tabs %}
 			<ul id="tabs">{% for tab in tabs %}{% if tab.visible %}
 				<li class="app-{{ tab.caption_slug }}{% if tab.is_active %} active{% endif %}">
 					<a href="{{ tab.url }}"><span>{{ tab.caption }}</span></a>

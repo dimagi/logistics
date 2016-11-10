@@ -1,11 +1,18 @@
 from django import template
+from django.conf import settings
 from logistics.util import config
 from django.core.urlresolvers import reverse
 from apps.malawi.util import hsas_below
 from logistics.reports import ProductAvailabilitySummary
 from logistics.templatetags.logistics_report_tags import r_2_s_helper
+from rapidsms.templatetags.tabs_tags import Tab, TabsNode
 
 register = template.Library()
+
+
+class MalawiTab(Tab):
+    pass
+
 
 @register.simple_tag
 def place_url(location):
@@ -43,3 +50,37 @@ def product_availability_summary(location):
     return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
+
+@register.tag
+def get_malawi_tabs(parser, token):
+    """
+    Modeled after rapidsms.templatetags.tabs_tags.get_tabs, only this
+    version uses a different format for the RAPIDSMS_TABS setting and
+    instantiates MalawiTab objects.
+
+    Invoking this tag will instantiate all MalawiTab objects for the project
+    and put them into the template context with the variable name given
+    by context_varname.
+
+    Syntax:
+        {% get_malawi_tabs as [context_varname] %}
+
+    Example:
+        {% get_malawi_tabs as tabs %}
+
+    All tabs should be defined in settings.RAPIDSMS_TABS, which is a list
+    of (args, kwargs) tuples that get passed as args and kwargs to each
+    MalawiTab upon instantiation.
+    """
+
+    args = token.contents.split()
+
+    if len(args) != 3 or args[1] != "as":
+        raise template.TemplateSyntaxError("Usage: {% get_malawi_tabs as [context_varname] %}")
+
+    tabs = [
+        MalawiTab(*tab_args, **tab_kwargs)
+        for tab_args, tab_kwargs in settings.RAPIDSMS_TABS
+    ]
+
+    return TabsNode(tabs, args[2])
