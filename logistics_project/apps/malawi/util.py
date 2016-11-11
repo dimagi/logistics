@@ -1,10 +1,12 @@
 from rapidsms.models import Contact
-from logistics.models import SupplyPoint, ProductStock
+from logistics.models import SupplyPoint, ProductStock, LogisticsProfile
 from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
 from django.db.models.query_utils import Q
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def format_id(code, id):
     try:
@@ -362,3 +364,10 @@ def get_supply_point_and_contacts(supply_point_code, base_level):
         return (contacts, facility)
     else:
         raise config.BaseLevel.InvalidBaseLevelException(base_level)
+
+
+def get_or_create_user_profile(user):
+    try:
+        return user.get_profile()
+    except ObjectDoesNotExist:
+        return LogisticsProfile.objects.create(user=user)

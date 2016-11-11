@@ -43,7 +43,7 @@ from logistics_project.apps.malawi.tables import MalawiContactTable, \
     HSATable, StockRequestTable, \
     HSAStockRequestTable, DistrictTable, ConsumptionDataTable
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, ConsumptionData, hsa_supply_points_below,\
-    deactivate_product, get_managed_products_for_contact
+    deactivate_product, get_managed_products_for_contact, get_or_create_user_profile
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
 from logistics_project.apps.malawi.models import Organization
@@ -53,7 +53,6 @@ from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfi
 from logistics_project.apps.malawi.loader import load_locations,\
     get_facility_export
 from django.views.decorators.http import require_POST
-from django.core.exceptions import ObjectDoesNotExist
 from logistics_project.apps.outreach.models import OutreachMessage, OutreachQuota
 from django.db.models.query_utils import Q
 from rapidsms.contrib.messaging.utils import send_message
@@ -153,10 +152,7 @@ def permissions(request):
         "data": [],
     }
     for u in users:
-        try:
-            prof = u.get_profile()
-        except ObjectDoesNotExist:
-            prof = LogisticsProfile.objects.create(user=u)
+        prof = get_or_create_user_profile(u)
         table["data"].append({"url": reverse("malawi_edit_permissions", kwargs={'pk': prof.id}), 
             "data": [u.username, prof.supply_point,
                 prof.organization.name if prof.organization else "",
@@ -198,11 +194,7 @@ def create_account(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, 'User "{0}" was created. Set permissions here.'.format(user.username))
-            try:
-                prof = user.get_profile()
-            except ObjectDoesNotExist:
-                prof = LogisticsProfile.objects.create(user=user)
-
+            prof = get_or_create_user_profile(user)
             return HttpResponseRedirect(reverse('malawi_edit_permissions', args=[prof.pk]))
     else:
         form = UserForm()
