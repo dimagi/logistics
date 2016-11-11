@@ -2,16 +2,46 @@ from django import template
 from django.conf import settings
 from logistics.util import config
 from django.core.urlresolvers import reverse
-from apps.malawi.util import hsas_below
+from apps.malawi.util import hsas_below, get_or_create_user_profile
 from logistics.reports import ProductAvailabilitySummary
 from logistics.templatetags.logistics_report_tags import r_2_s_helper
 from rapidsms.templatetags.tabs_tags import Tab, TabsNode
+from static.malawi.config import BaseLevel
 
 register = template.Library()
 
 
 class MalawiTab(Tab):
-    pass
+
+    def __init__(self, view, caption, permission=None, url=None, applicable_base_levels=None):
+        """
+        The first four parameters are the same as in rapidsms.templatetags.tabs_tags.Tab.
+
+        applicable_base_levels should be a list of BaseLevel constants, representing all of
+        the dashboard levels that this tab applies to. For example, if this tab should
+        be seen when viewing the HSA Dashboard, then include BaseLevel.HSA, and if this
+        tab should be seen when viewing the Facility Dashboard, then include BaseLevel.FACILITY.
+
+        When applicable_base_levels is empty or None, the base level check is ignored
+        completely. Leave it blank for tabs that get displayed when the user is logged out,
+        for example.
+        """
+
+        super(MalawiTab, self).__init__(view, caption=caption, permission=permission, url=url)
+        self._applicable_base_levels = applicable_base_levels
+
+    def is_viewable_with_current_dashboard(self, user):
+        if not self._applicable_base_levels:
+            return True
+
+        if user.is_anonymous():
+            return False
+
+        profile = get_or_create_user_profile(user)
+        return profile.current_dashboard_base_level in self._applicable_base_levels
+
+    def has_permission(self, user):
+        return super(MalawiTab, self).has_permission(user) and self.is_viewable_with_current_dashboard(user)
 
 
 @register.simple_tag

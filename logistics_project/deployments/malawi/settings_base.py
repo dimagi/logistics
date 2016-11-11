@@ -35,34 +35,35 @@ CACHES = {
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
 
-# this rapidsms-specific setting defines which views are linked by the
-# tabbed navigation. when adding an app to INSTALLED_APPS, you may wish
-# to add it here, also, to expose it in the rapidsms ui.
+# See logistics_project.apps.malawi.templatetags.malawi_tags.get_malawi_tabs
 
 RAPIDSMS_TABS = [
-    (("logistics_project.apps.malawi.warehouse.views.dashboard", "Dashboard"),
-     {"url": "/malawi/r/dashboard/"}),
+    (("logistics_project.apps.malawi.warehouse.views.home", "Dashboard"),
+     {"url": "/malawi/r/dashboard/", "applicable_base_levels": ["h"]}),
+
+    (("logistics_project.apps.malawi.warehouse.views.facility_home", "Dashboard"),
+     {"url": "/malawi/f/dashboard/", "applicable_base_levels": ["f"]}),
 
     (("logistics_project.apps.malawi.warehouse.views.hsas", "HSAs"),
-     {"url": "/malawi/r/hsas/"}),
+     {"url": "/malawi/r/hsas/", "applicable_base_levels": ["h"]}),
 
     (("logistics_project.apps.malawi.warehouse.views.health_facilities", "Health Facilities"),
-     {"url": "/malawi/r/health-facilities/"}),
+     {"url": "/malawi/r/health-facilities/", "applicable_base_levels": ["h"]}),
 
     (("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles"),
-     {"url": "/malawi/r/user-profiles/"}),
+     {"url": "/malawi/r/user-profiles/", "applicable_base_levels": ["h"]}),
 
     (("logistics_project.apps.malawi.views.monitoring", "M & E"),
-     {"permission": "auth.admin_read"}),
+     {"permission": "auth.admin_read", "applicable_base_levels": ["h"]}),
 
     (("rapidsms.contrib.messagelog.views.message_log", "Message Log"),
-     {"permission": "auth.admin_read"}),
+     {"permission": "auth.admin_read", "applicable_base_levels": ["h", "f"]}),
 
     (("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
-     {"permission": "is_superuser"}),
+     {"permission": "is_superuser", "applicable_base_levels": ["h", "f"]}),
 
-    (("rapidsms.contrib.messagelog.views.contacts", "Management"),
-     {"permission": "is_superuser", "url": "/malawi/management/"}),
+    (("logistics_project.apps.malawi.views.organizations", "Management"),
+     {"permission": "is_superuser", "url": "/malawi/management/", "applicable_base_levels": ["h", "f"]}),
 
     (("logistics_project.apps.malawi.views.help", "Help"), {}),
 ]
