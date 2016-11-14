@@ -9,7 +9,7 @@ from logistics_project.apps.malawi.tests.base import MalawiTestBase
 class TestTransfer(MalawiTestBase):
     
     def testBadRoles(self):
-        create_manager(self, "16175551234", "cindy", "dp", facility_code="26")
+        create_manager(self, "16175551234", "cindy", "dp", supply_point_code="26")
         create_hsa(self, "16175551235", "alex", products="zi")
         a = """
            16175551234 > give 261601 zi 20 

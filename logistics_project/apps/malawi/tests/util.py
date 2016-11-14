@@ -25,24 +25,24 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616", products=N
         test_class.runScript(b)
     return Contact.objects.get(name=name)
 
-def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
+def create_manager(test_class, phone, name, role="ic", supply_point_code="2616"):
 
     if role in config.Roles.FACILITY_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s
-            """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
+            """ % {"phone": phone, "name": name, "role": role, "code": supply_point_code,
                    "confirm": config.Messages.REGISTRATION_CONFIRM % \
-                        {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
+                        {"sp_name": SupplyPoint.objects.get(code=supply_point_code).name,
                          "role": ContactRole.objects.get(code=role).name,
                          "contact_name": name}}
     elif role in config.Roles.DISTRICT_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s
-            """ % {"phone": phone, "name": name, "role": role, "code": facility_code,
+            """ % {"phone": phone, "name": name, "role": role, "code": supply_point_code,
                    "confirm": config.Messages.REGISTRATION_DISTRICT_CONFIRM % \
-                        {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
+                        {"sp_name": SupplyPoint.objects.get(code=supply_point_code).name,
                          "role": ContactRole.objects.get(code=role).name,
                          "contact_name": name}}
     elif role in config.Roles.COUNTRY_ONLY:
@@ -53,7 +53,7 @@ def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
                 "phone": phone,
                 "name": name,
                 "role": role,
-                "code": facility_code,
+                "code": supply_point_code,
                 "confirm": config.Messages.REGISTRATION_COUNTRY_CONFIRM % {"contact_name": name, "role": ContactRole.objects.get(code=role).name}
             }
     else:
