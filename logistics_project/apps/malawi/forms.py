@@ -20,6 +20,10 @@ class OrganizationForm(forms.ModelForm):
         
 
 class LogisticsProfileForm(forms.ModelForm):
+    DASHBOARD_HSA = 'hsa'
+    DASHBOARD_FACILITY = 'facility'
+    DASHBOARD_BOTH = 'both'
+
     supply_point = forms.ModelChoiceField(
         queryset=SupplyPoint.objects.filter(active=True,
             type__code=config.SupplyPointCodes.DISTRICT),
@@ -30,6 +34,7 @@ class LogisticsProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(LogisticsProfileForm, self).__init__(*args, **kwargs)
         self.fields['groups'] = self.get_group_field()
+        self.fields['dashboard_access'] = self.get_dashboard_access_field()
 
     def get_group_field(self):
         groups = forms.ModelMultipleChoiceField(
@@ -40,6 +45,42 @@ class LogisticsProfileForm(forms.ModelForm):
         )
         return groups
 
+    def get_dashboard_access_field(self):
+        if self.instance.can_view_hsa_level_data and self.instance.can_view_facility_level_data:
+            current_value = self.DASHBOARD_BOTH
+        elif self.instance.can_view_facility_level_data:
+            current_value = self.DASHBOARD_FACILITY
+        else:
+            current_value = self.DASHBOARD_HSA
+
+        return forms.ChoiceField(
+            required=True,
+            choices=(
+                (self.DASHBOARD_HSA, "HSA Only"),
+                (self.DASHBOARD_FACILITY, "Facility Only"),
+                (self.DASHBOARD_BOTH, "Both"),
+            ),
+            initial=current_value,
+            label='Dashboard Access'
+        )
+
+    def set_dashboard_access_properties(self, obj):
+        dashboard_access = self.cleaned_data.get('dashboard_access')
+        if dashboard_access == self.DASHBOARD_BOTH:
+            obj.can_view_hsa_level_data = True
+            obj.can_view_facility_level_data = True
+        elif dashboard_access == self.DASHBOARD_FACILITY:
+            obj.can_view_hsa_level_data = False
+            obj.can_view_facility_level_data = True
+        else:
+            obj.can_view_hsa_level_data = True
+            obj.can_view_facility_level_data = False
+
+        if obj.current_dashboard_base_level == config.BaseLevel.HSA and not obj.can_view_hsa_level_data:
+            obj.current_dashboard_base_level = config.BaseLevel.FACILITY
+        elif obj.current_dashboard_base_level == config.BaseLevel.FACILITY and not obj.can_view_facility_level_data:
+            obj.current_dashboard_base_level = config.BaseLevel.HSA
+
     def clean(data):
         user = data.instance.user
         for group in Group.objects.all():
@@ -49,9 +90,19 @@ class LogisticsProfileForm(forms.ModelForm):
             group.user_set.add(user)
         return data.cleaned_data
 
+    def save(self, commit=True):
+        obj = super(LogisticsProfileForm, self).save(commit=False)
+
+        self.set_dashboard_access_properties(obj)
+        if commit:
+            obj.save()
+
+        return obj
+
     class Meta:
         model = LogisticsProfile
-        exclude = ('user', 'location', 'designation')
+        exclude = ('user', 'location', 'designation', 'can_view_hsa_level_data',
+            'can_view_facility_level_data', 'current_dashboard_base_level')
 
 
 class UploadFacilityFileForm(forms.Form):

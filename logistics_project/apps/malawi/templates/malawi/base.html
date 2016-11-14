@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 {% load region_tags %}
-{% load tabs_tags %}
+{% load malawi_tags %}
 {% load i18n %}
 <html>
 <head>
@@ -39,6 +39,21 @@
 	<div id="wrapper">
 		{% region "top" %}
 		{% block header %}
+		{% if request.user.is_authenticated %}
+		    {% with profile=request.user.get_profile %}
+		        {% if profile.can_view_hsa_level_data and profile.can_view_facility_level_data %}
+		        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
+		            <p>
+		                {% if profile.current_dashboard_base_level == 'h' %}
+		                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=f">Switch to EPI View</a>
+		                {% else %}
+		                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=h">Switch to HSA View</a>
+		                {% endif %}
+		            </p>
+		        </div>
+		        {% endif %}
+		    {% endwith %}
+		{% endif %}
 		<div id="header" class="noprint">
 			<div id="branding">
 				<h1>
@@ -53,14 +68,13 @@
 			</div>
 
 			{% block auth %}
-			<div id="auth">{% if user.is_authenticated %}
-				<a href="{% url rapidsms-logout %}">{% trans "Log out" %} {{ user.username }}</a>{% else %}
+			<div id="auth">{% if request.user.is_authenticated %}
+				<a href="{% url rapidsms-logout %}">{% trans "Log out" %} {{ request.user.username }}</a>{% else %}
 				<a href="{% url rapidsms-login %}">{% trans "Log in" %}</a>{% endif %}
 			</div>
 			{% endblock %}
 
-			{% get_tabs as tabs %}
-
+			{% get_malawi_tabs as tabs %}
 			<ul id="tabs">{% for tab in tabs %}{% if tab.visible %}
 				<li class="app-{{ tab.caption_slug }}{% if tab.is_active %} active{% endif %}">
 					<a href="{{ tab.url }}"><span>{{ tab.caption }}</span></a>
