@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, Http404
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from django.contrib import messages
@@ -11,6 +13,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import datespan_defaul
 from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
     order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
     lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc
+from logistics_project.apps.malawi.util import get_or_create_user_profile
 from logistics.util import config
 from dimagi.utils.parsing import string_to_boolean
 import logging
@@ -88,6 +91,16 @@ def _get_report(request, slug, base_level):
                          "It looks like there's no data for your filters. "
                          "You've been redirected.")
         return home(request)
+
+
+def default_landing(request):
+    profile = get_or_create_user_profile(request.user)
+    if profile.current_dashboard_base_level == config.BaseLevel.HSA:
+        return HttpResponseRedirect(reverse('malawi_hsa_dashboard'))
+    elif profile.current_dashboard_base_level == config.BaseLevel.FACILITY:
+        return HttpResponseRedirect(reverse('malawi_facility_dashboard'))
+    else:
+        raise Http404()
 
 
 @place_in_request()

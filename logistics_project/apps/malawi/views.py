@@ -769,3 +769,18 @@ def telco_tracking(request):
     return render_to_response("malawi/new/management/telco-tracking.html",
                               {"results": results},
                               context_instance=RequestContext(request))
+
+
+def set_current_dashboard(request):
+    base_level = request.GET.get('base_level')
+    profile = get_or_create_user_profile(request.user)
+    if base_level == config.BaseLevel.HSA and profile.can_view_hsa_level_data:
+        profile.current_dashboard_base_level = config.BaseLevel.HSA
+        profile.save()
+    elif base_level == config.BaseLevel.FACILITY and profile.can_view_facility_level_data:
+        profile.current_dashboard_base_level = config.BaseLevel.FACILITY
+        profile.save()
+    else:
+        raise Http404()
+
+    return HttpResponseRedirect(reverse('malawi_dashboard'))
