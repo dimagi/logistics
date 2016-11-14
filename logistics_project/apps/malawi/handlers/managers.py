@@ -14,7 +14,17 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
      
     def help(self):
         self.respond(config.Messages.MANAGER_HELP)
-    
+
+    def valid_roles(self):
+        return config.Roles.FACILITY_ONLY + config.Roles.DISTRICT_ONLY + config.Roles.COUNTRY_ONLY
+
+    def respond_role_wrong_level(self, role):
+        self.respond(config.Messages.ROLE_WRONG_LEVEL, role=role.name, level=self.supply_point.location.type.name)
+
+    def respond_unknown_role(self, role_code):
+        valid_roles = " ".join(self.valid_roles())
+        self.respond(config.Messages.UNKNOWN_ROLE, role=role_code, valid_roles=valid_roles)
+
     def handle(self, text):
         if self.handle_preconditions(text):
             return
@@ -22,19 +32,29 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         try:
             role = ContactRole.objects.get(code__iexact=self.extra)
         except ContactRole.DoesNotExist:
-            self.respond(config.Messages.UNKNOWN_ROLE, role=self.extra,
-                         valid_roles=" ".join(ContactRole.objects.values_list\
-                                              ("code", flat=True).order_by("code")))
+            self.respond_unknown_role(self.extra)
             return
-        if self.supply_point.location.type.name != 'district' and role.code in config.Roles.DISTRICT_ONLY:
-            self.respond(config.Messages.ROLE_WRONG_LEVEL, role=ContactRole.objects.get(code=self.extra).name, level=self.supply_point.location.type.name)
+
+        if role.code not in self.valid_roles():
+            self.respond_unknown_role(role.code)
             return
-        if self.supply_point.location.type.name != 'facility' and role.code in config.Roles.FACILITY_ONLY:
-            self.respond(config.Messages.ROLE_WRONG_LEVEL, role=ContactRole.objects.get(code=self.extra).name, level=self.supply_point.location.type.name)
+
+        if self.supply_point.location.type.name != config.LocationCodes.COUNTRY and role.code in config.Roles.COUNTRY_ONLY:
+            self.respond_role_wrong_level(role)
             return
+
+        if self.supply_point.location.type.name != config.LocationCodes.DISTRICT and role.code in config.Roles.DISTRICT_ONLY:
+            self.respond_role_wrong_level(role)
+            return
+
+        if self.supply_point.location.type.name != config.LocationCodes.FACILITY and role.code in config.Roles.FACILITY_ONLY:
+            self.respond_role_wrong_level(role)
+            return
+
         if role.code in config.Roles.UNIQUE and Contact.objects.filter(role=role, supply_point=self.supply_point, is_active=True).exists():
             self.respond(config.Messages.ROLE_ALREADY_FILLED, role=ContactRole.objects.get(code=self.extra).name)
             return
+
         # overwrite the existing contact data if it was already there
         # we know at least they were not active since we checked above
         contact = self.msg.logistics_contact if hasattr(self.msg,'logistics_contact') else Contact()
@@ -46,7 +66,10 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         contact.save()
         self.msg.connection.contact = contact
         self.msg.connection.save()
-        if role.code in config.Roles.DISTRICT_ONLY:
+
+        if role.code in config.Roles.COUNTRY_ONLY:
+            self.respond(config.Messages.REGISTRATION_COUNTRY_CONFIRM, contact_name=contact.name, role=role.name)
+        elif role.code in config.Roles.DISTRICT_ONLY:
             self.respond(_(config.Messages.REGISTRATION_DISTRICT_CONFIRM), sp_name=self.supply_point.name,
                          contact_name=contact.name, role=contact.role.name)
         else:

@@ -36,7 +36,7 @@ class testContactsAndRoles(MalawiTestBase):
     def testRolesAndOperations(self):
         create_hsa(self, "5551111", "hsa")
         create_manager(self, "5551112", "charles") # in charge!
-        create_manager(self, "5551113", "pill pusher", "dp", facility_code="26")
+        create_manager(self, "5551113", "pill pusher", "dp", supply_point_code="26")
         
         a = """
                 5551111 > ready 100100

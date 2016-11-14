@@ -12,7 +12,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         return Product.objects.get(sms_code=product_code).average_monthly_consumption * 2
 
     def testNoInCharge(self):
-        create_manager(self, "16175551234", "stella", role=config.Roles.IN_CHARGE, facility_code="2616")
+        create_manager(self, "16175551234", "stella", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         a = """
            16175551234 > soh bc 10
            16175551234 < %(no_super)s
@@ -21,7 +21,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
     def testNoProductsAdded(self):
         Product.objects.filter(type__base_level=config.BaseLevel.FACILITY).delete()
-        hsa = create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, facility_code="2616")
+        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         a = """
            16175551000 > soh bc 10
            16175551000 < %(no_products)s
@@ -29,7 +29,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.runScript(a)
 
     def testReportingHSALevelProduct(self):
-        hsa = create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, facility_code="2616")
+        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         a = """
            16175551000 > soh bc 20 zi 10
            16175551000 < %(error)s

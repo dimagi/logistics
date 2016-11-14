@@ -197,3 +197,24 @@ class TestHSARegister(MalawiTestBase):
         if not failed:
             self.fail("Reporting stock should not have notified the supervisor")
         report_stock(self, hsa, "zi 10 la 15", [super], "zi 190, la 345")
+
+    def _run_manager_mismatch_test(self, role_code, supply_point_code):
+        role = ContactRole.objects.get(code=role_code)
+        supply_point = SupplyPoint.objects.get(code=supply_point_code)
+        a = """
+          9990000000001 > manage test %(role_code)s %(supply_point_code)s
+          9990000000001 < %(response)s
+        """ % {
+            'role_code': role_code,
+            'supply_point_code': supply_point_code,
+            'response': config.Messages.ROLE_WRONG_LEVEL % {'role': role.name, 'level': supply_point.location.type.name},
+        }
+        self.runScript(a)
+
+    def testMismatchedManagerRolesAndLocations(self):
+        self._run_manager_mismatch_test(config.Roles.IN_CHARGE, '26')
+        self._run_manager_mismatch_test(config.Roles.IN_CHARGE, 'malawi')
+        self._run_manager_mismatch_test(config.Roles.DISTRICT_PHARMACIST, '2616')
+        self._run_manager_mismatch_test(config.Roles.DISTRICT_PHARMACIST, 'malawi')
+        self._run_manager_mismatch_test(config.Roles.REGIONAL_EPI_COORDINATOR, '2616')
+        self._run_manager_mismatch_test(config.Roles.REGIONAL_EPI_COORDINATOR, '26')
