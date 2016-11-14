@@ -27,7 +27,7 @@ def create_hsa(test_class, phone, name, id="1", facility_code="2616", products=N
 
 def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
 
-    if role not in config.Roles.DISTRICT_ONLY:
+    if role in config.Roles.FACILITY_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s
@@ -36,7 +36,7 @@ def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
                         {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
                          "role": ContactRole.objects.get(code=role).name,
                          "contact_name": name}}
-    else:
+    elif role in config.Roles.DISTRICT_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s
@@ -45,6 +45,19 @@ def create_manager(test_class, phone, name, role="ic", facility_code="2616"):
                         {"sp_name": SupplyPoint.objects.get(code=facility_code).name,
                          "role": ContactRole.objects.get(code=role).name,
                          "contact_name": name}}
+    elif role in config.Roles.COUNTRY_ONLY:
+        a = """
+               %(phone)s > manage %(name)s %(role)s %(code)s
+               %(phone)s < %(confirm)s
+            """ % {
+                "phone": phone,
+                "name": name,
+                "role": role,
+                "code": facility_code,
+                "confirm": config.Messages.REGISTRATION_COUNTRY_CONFIRM % {"contact_name": name, "role": ContactRole.objects.get(code=role).name}
+            }
+    else:
+        raise config.Roles.InvalidRoleException(role)
 
     test_class.runScript(a)
     return Contact.objects.get(name=name)
