@@ -38,21 +38,20 @@
 <body>
 	<div id="wrapper">
 		{% region "top" %}
+		{% with profile=request.user.get_profile %}
 		{% block header %}
 		{% if request.user.is_authenticated %}
-		    {% with profile=request.user.get_profile %}
-		        {% if profile.can_view_hsa_level_data and profile.can_view_facility_level_data %}
-		        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
-		            <p>
-		                {% if profile.current_dashboard_base_level == 'h' %}
-		                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=f">Switch to EPI View</a>
-		                {% else %}
-		                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=h">Switch to HSA View</a>
-		                {% endif %}
-		            </p>
-		        </div>
-		        {% endif %}
-		    {% endwith %}
+	        {% if profile.can_view_hsa_level_data and profile.can_view_facility_level_data %}
+	        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
+	            <p>
+	                {% if profile.current_dashboard_base_level == 'h' %}
+	                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=f">Switch to EPI View</a>
+	                {% else %}
+	                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=h">Switch to HSA View</a>
+	                {% endif %}
+	            </p>
+	        </div>
+	        {% endif %}
 		{% endif %}
 		<div id="header" class="noprint">
 			<div id="branding">
@@ -62,6 +61,9 @@
                             <img src="{{ MEDIA_URL }}malawi/images/cstock-logo.png" alt="cStock" style="height: 60px; width: auto;">
 						</span>
 					</a>
+                       {% if profile.current_dashboard_base_level == 'f' %}
+                       <img src="/static/malawi/images/save_logo.png" style="float: right; padding-left: .5em;" />
+                       {% endif %}
                        <img src="{{ logo_right_url }}" alt="" id="logo_right" style="padding-left: .5em;">
                        <img src="{{ logo_left_url }}" alt="" id="logo_right">
 				</h1>
@@ -85,6 +87,7 @@
 			{% endblock %}
 		</div>
 		{% endblock %}
+		{% endwith %}
 
 		{% if messages %}
              <ul class="messages">
