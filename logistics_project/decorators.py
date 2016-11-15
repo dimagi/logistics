@@ -130,7 +130,7 @@ def validate_base_level_from_supervisor(allowed_base_levels):
     return wrapper
 
 
-def managed_products_required(f):
+def malawi_managed_products_required(f):
     """
     This decorator currently only works on an instance
     of a handler object. It also assumes that
