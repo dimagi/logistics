@@ -43,7 +43,7 @@
 		    {% with profile=request.user.get_profile %}
 		        {% if profile.can_view_hsa_level_data and profile.can_view_facility_level_data %}
 		        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
-		            <p>
+		            <p style="margin: 0px;">
 		                {% if profile.current_dashboard_base_level == 'h' %}
 		                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=f">Switch to EPI View</a>
 		                {% else %}
