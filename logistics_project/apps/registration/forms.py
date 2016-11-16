@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
 from logistics.models import SupplyPoint, ContactRole
-from static.malawi.config import Roles
+from static.malawi.config import Roles, SupplyPointCodes
 
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
@@ -165,12 +165,36 @@ class IntlSMSContactForm(ContactForm):
 class CommoditiesContactForm(IntlSMSContactForm):
     supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
                                           required=False,  
-                                          label='Facility')
+                                          label='Location')
 
     class Meta:
         model = Contact
         exclude = ("user", "language")
-    
+
+    def clean_supply_point(self):
+        supply_point = self.cleaned_data.get('supply_point')
+        if not supply_point:
+            return None
+
+        role = self.cleaned_data.get('role')
+        if not role:
+            return supply_point
+
+        if role.code == Roles.HSA and supply_point.type.code != SupplyPointCodes.HSA:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen an HSA role but a non-HSA location.")
+        elif role.code in Roles.FACILITY_ONLY and supply_point.type.code != SupplyPointCodes.FACILITY:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a facility role but a non-facility location.")
+        elif role.code in Roles.DISTRICT_ONLY and supply_point.type.code != SupplyPointCodes.DISTRICT:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a district role but a non-district location.")
+        elif role.code in Roles.COUNTRY_ONLY and supply_point.type.code != SupplyPointCodes.COUNTRY:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a country role but not the Malawi location.")
+
+        return supply_point
+
     @transaction.commit_on_success
     def save(self, commit=True):
         model = super(CommoditiesContactForm, self).save(commit=False)

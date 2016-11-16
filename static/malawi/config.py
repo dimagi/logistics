@@ -6,6 +6,9 @@ HSA = "hsa"
 class Roles(object):
     """
     Roles go here
+    When adding a new role, be sure to add it to the appropriate
+    buckets defined at the bottom of this class (i.e., FACILITY_ONLY,
+    or DISTRICT_ONLY, etc.)
     """
 
     class InvalidRoleException(Exception):
