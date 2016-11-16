@@ -7,7 +7,9 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ContactRole
+from static.malawi.config import Roles
+
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
 # widget is rendered at its default width -- which is too wide for our
@@ -36,6 +38,7 @@ class ContactForm(forms.ModelForm):
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
         self.fields['role'].label = _("Role")
+        self.fields['role'].choices = self.get_role_choices()
         self.fields['name'].label = _("Name")
         self.fields['phone'].label = _("Phone")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
@@ -44,6 +47,29 @@ class ContactForm(forms.ModelForm):
             if kwargs['instance']:
                 instance = kwargs['instance']
                 self.initial['phone'] = instance.phone
+
+    def get_role_choices(self):
+        role_choices = [('', '---------')]
+        facility_roles = []
+        district_roles = []
+        country_roles = []
+
+        for role in ContactRole.objects.all():
+            if role.code == Roles.HSA:
+                role_choices.append((role.pk, "HSA"))
+            elif role.code in Roles.FACILITY_ONLY:
+                facility_roles.append((role.pk, "Facility User - " + role.name))
+            elif role.code in Roles.DISTRICT_ONLY:
+                district_roles.append((role.pk, "District User - " + role.name))
+            elif role.code in Roles.COUNTRY_ONLY:
+                country_roles.append((role.pk, "Country User - " + role.name))
+            else:
+                role_choices.append((role.pk, role.name))
+
+        role_choices.extend(facility_roles)
+        role_choices.extend(district_roles)
+        role_choices.extend(country_roles)
+        return role_choices
 
     def clean_phone(self):
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
