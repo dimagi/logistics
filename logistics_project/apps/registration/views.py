@@ -14,8 +14,11 @@ from rapidsms.contrib.messaging.utils import send_message
 from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
+from logistics.models import ContactRole
 from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
+from static.malawi.config import Roles
 from .tables import ContactTable
+
 
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
@@ -100,6 +103,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             # so we remove it for now
             # "bulk_form": bulk_form,
             "contact": contact,
+            "hsa_role_id": ContactRole.objects.get(code=Roles.HSA).pk,
             "registration_view": reverse(registration_view)
         }, context_instance=RequestContext(req)
     )

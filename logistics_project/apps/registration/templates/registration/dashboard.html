@@ -6,6 +6,23 @@
 <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}registration/stylesheets/dashboard.css" />
 {% endblock %}
 
+{% block javascripts %}
+{{ block.super }}
+<script>
+    $(function() {
+        $("#id_role").change(function(event) {
+            var role = $("#id_role").val();
+            if(role == "{{ hsa_role_id }}" || role == "") {
+                $("#id_commodities").removeAttr("disabled");
+            } else {
+                $("#id_commodities").attr("disabled", "disabled");
+            }
+        });
+        $("#id_role").change();
+    });
+</script>
+{% endblock %}
+
 {% block left %}
 <div class="module">
 	<form action="/registration/search" method="post">
