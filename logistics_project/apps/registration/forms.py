@@ -7,8 +7,8 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
-from logistics.models import SupplyPoint, ContactRole
-from static.malawi.config import Roles, SupplyPointCodes
+from logistics.models import SupplyPoint, ContactRole, Product
+from static.malawi.config import Roles, SupplyPointCodes, BaseLevel
 
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
@@ -166,6 +166,15 @@ class CommoditiesContactForm(IntlSMSContactForm):
     supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
                                           required=False,  
                                           label='Location')
+
+    # Only expose HSA-level products in the managed commodity picker.
+    # Facility users automatically manage all Facility-level products.
+    # This input is disabled for all contacts except for HSAs in templates/registration/dashboard.html
+    commodities = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.filter(type__base_level=BaseLevel.HSA, is_active=True),
+        required=False,
+        help_text='User manages these commodities. Hold down "Control", or "Command" on a Mac, to select more than one.'
+    )
 
     class Meta:
         model = Contact
