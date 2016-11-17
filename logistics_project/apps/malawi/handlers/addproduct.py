@@ -23,16 +23,22 @@ class AddProductHandler(KeywordHandler):
         words = text.split(" ")
         if not len(words):
             return self.help()
+
         self.hsa = self.msg.logistics_contact.supply_point
+        products = []
         for code in words:
-            if not Product.objects.filter(sms_code__iexact=code).exists():
+            try:
+                products.append(Product.objects.get(sms_code__iexact=code))
+            except Product.DoesNotExist:
                 self.respond_error(config.Messages.UNKNOWN_CODE, product=code)
                 return
-        for f in [Product.objects.get(sms_code__iexact=code) for code in words]:
-                if not ProductStock.objects.filter(supply_point=self.hsa, product=f).exists():
-                    ProductStock(supply_point=self.hsa, product=f).save()
-                self.msg.logistics_contact.commodities.add(f)
-                self.hsa.activate_product(f)
+
+        for p in products:
+            if not ProductStock.objects.filter(supply_point=self.hsa, product=p).exists():
+                ProductStock(supply_point=self.hsa, product=p).save()
+            self.msg.logistics_contact.commodities.add(p)
+            self.hsa.activate_product(p)
+
         self.msg.logistics_contact.save()
         self.respond(config.Messages.ADD_SUCCESS_MESSAGE, products=" ".join\
                         (self.msg.logistics_contact.commodities.values_list\
