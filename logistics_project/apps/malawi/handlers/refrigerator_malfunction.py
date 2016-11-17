@@ -3,6 +3,7 @@ from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
+from logistics_project.apps.malawi.util import get_supervisors
 from logistics_project.decorators import require_facility
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
@@ -42,12 +43,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         )
 
     def notify_district_users(self, supply_point, reason):
-        recipients = Contact.objects.filter(
-            is_active=True,
-            supply_point__location=supply_point.location.parent,
-            role__code__in=[config.Roles.DISTRICT_PHARMACIST, config.Roles.DISTRICT_EPI_COORDINATOR]
-        )
-
+        recipients = get_supervisors(supply_point.supplied_by)
         reason_desc = self.get_reason_desc(reason)
 
         for recipient in recipients:

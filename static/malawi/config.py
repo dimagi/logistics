@@ -42,7 +42,10 @@ class Roles(object):
     DISTRICT_ONLY = [DISTRICT_SUPERVISOR, DISTRICT_PHARMACIST, IMCI_COORDINATOR, DISTRICT_EPI_COORDINATOR]
     COUNTRY_ONLY = [REGIONAL_EPI_COORDINATOR]
     HSA_SUPERVISOR_ROLES = [HSA_SUPERVISOR, IN_CHARGE]
-    FACILITY_SUPERVISOR_ROLES = [DISTRICT_PHARMACIST, DISTRICT_EPI_COORDINATOR]
+
+    # Only District users with these roles will get notifications in the EPI workflows and be able to
+    # act at the District level in EPI workflows.
+    FACILITY_SUPERVISOR_ROLES = [DISTRICT_EPI_COORDINATOR]
 
 
 class BaseLevel(object):

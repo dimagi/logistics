@@ -42,7 +42,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -58,8 +58,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(sa.quantity, 500)
 
         b = """
-           16175551003 > ready 2616
-           16175551003 < %(confirm)s
+           16175551004 > ready 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
@@ -73,7 +73,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
             self.assertEqual(req.status, StockRequestStatus.APPROVED)
             self.assertEqual(req.response_status, StockRequestStatus.APPROVED)
             self.assertTrue(req.is_pending())
-            self.assertEqual(req.responded_by, dp)
+            self.assertEqual(req.responded_by, de)
             self.assertEqual(req.amount_requested, req.amount_approved)
             self.assertTrue(req.responded_on >= req.requested_on)
 
@@ -123,7 +123,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         self.assertEqual(2, StockRequest.objects.count())
         c = """
@@ -153,12 +153,12 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         self.assertEqual(2, StockRequest.objects.count())
 
         new_sa_resupply_amount = sa_resupply_level - 600
-        report_facility_level_stock(self, ic, "sa 600", [dp, de], {"sa": new_sa_resupply_amount})
+        report_facility_level_stock(self, ic, "sa 600", [de], {"sa": new_sa_resupply_amount})
         self.assertEqual(3, StockRequest.objects.count())
 
         pending_sa = StockRequest.objects.get(product__sms_code='sa', status=StockRequestStatus.REQUESTED)
@@ -179,19 +179,19 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(2, StockRequest.objects.count())
 
         bc_resupply_amount = bc_resupply_level - 90
         sb_resupply_amount = sb_resupply_level - 600
-        report_facility_level_stock(self, ic, "bc 90 sb 600", [dp, de], {"bc": bc_resupply_amount, "sb": sb_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 90 sb 600", [de], {"bc": bc_resupply_amount, "sb": sb_resupply_amount})
         self.assertEqual(4, StockRequest.objects.count())
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
 
         b = """
-           16175551003 > ready 2616
-           16175551003 < %(confirm)s
+           16175551004 > ready 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
@@ -208,15 +208,15 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         bc = ProductStock.objects.get(product__sms_code="bc", supply_point=ic.supply_point)
         sa = ProductStock.objects.get(product__sms_code="sa", supply_point=ic.supply_point)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         b = """
-           16175551003 > ready 2616
-           16175551003 < %(confirm)s
+           16175551004 > ready 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
@@ -226,7 +226,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
 
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         c = """
@@ -251,7 +251,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
             16175551000 > soh bc %(bc_resupply_level)s sa %(sa_resupply_level)s
             16175551000 < %(response)s
-            16175551003 < %(super)s
             16175551004 < %(super)s
         """ % {
             "bc_resupply_level": bc_resupply_level,
@@ -268,11 +267,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         a = """
-           16175551003 > os 2616
-           16175551003 < %(confirm)s
+           16175551004 > os 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
@@ -280,7 +279,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_FACILITY_NOTIFICATION % {"supply_point": "Ntaja"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_NORMAL_REGION_ESCALATION %
-                    {"contact": dp.name, "supply_point": "Machinga", "products": "sa, bc"}}
+                    {"contact": de.name, "supply_point": "Machinga", "products": "sa, bc"}}
 
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -303,7 +302,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
            16175551000 > eo bc 5 sa 500
            16175551000 < %(confirm)s
-           16175551003 < %(district_notice)s
            16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
@@ -337,15 +335,15 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         # the difference here is that only emergency products are
         # reported/escalated
         a = """
-           16175551003 > os 2616
-           16175551003 < %(confirm)s
+           16175551004 > os 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
            16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "bc"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_EO_REGION_ESCALATION  %
-                    {"contact": "ruth", "supply_point": "Machinga", "products": "bc"},
+                    {"contact": "peter", "supply_point": "Machinga", "products": "bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION % {"supply_point": "Ntaja", "products": "bc"}}
         self.runScript(a)
 
@@ -357,7 +355,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
            16175551000 > eo bc %(bc_resupply_level)s sa 500
            16175551000 < %(confirm)s
-           16175551003 < %(district_notice)s
            16175551004 < %(district_notice)s
         """ % {
             "bc_resupply_level": bc_resupply_level,
@@ -378,7 +375,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
            16175551000 > eo bc 0 sa 0
            16175551000 < %(confirm)s
-           16175551003 < %(district_notice)s
            16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
@@ -395,15 +391,15 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         # the difference here is that only emergency products are
         # reported/escalated
         a = """
-           16175551003 > os 2616
-           16175551003 < %(confirm)s
+           16175551004 > os 2616
+           16175551004 < %(confirm)s
            16175551000 < %(facility_notice)s
            16175551001 < %(facility_notice)s
            16175551002 < %(facility_notice)s
            16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_STOCKOUT_REGION_ESCALATION  %
-                    {"contact": "ruth", "supply_point": "Machinga", "products": "sa, bc"},
+                    {"contact": "peter", "supply_point": "Machinga", "products": "sa, bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION % {"supply_point": "Ntaja", "products": "sa, bc"}}
         self.runScript(a)
 
@@ -415,7 +411,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
            16175551000 > eo bc 0 sa 0 sb 500
            16175551000 < %(confirm)s
-           16175551003 < %(district_notice)s
            16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sb sa bc"},
@@ -436,7 +431,6 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         a = """
            16175551000 > soh bc 0 sa 500 sb 0
            16175551000 < %(confirm)s
-           16175551003 < %(district_notice)s
            16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM % {"products": "sb bc"},
@@ -456,7 +450,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
         # The "too much stock" validation step requires ProductStock entries to exist
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         keyword_response_pairs = (
             ('soh', config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM % {"products": "sa bc"}),
@@ -497,11 +491,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         bc_resupply_amount = bc_resupply_level - 100
         sa_resupply_amount = sa_resupply_level - 500
 
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(2, ProductReport.objects.count())
 
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(4, ProductReport.objects.count())
 
-        report_facility_level_stock(self, ic, "bc 100 sa 500", [dp, de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
+        report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(6, ProductReport.objects.count())
