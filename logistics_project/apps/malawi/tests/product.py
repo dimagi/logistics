@@ -47,7 +47,16 @@ class TestProductLevels(MalawiTestBase):
 
 
 class TestAddRemoveProducts(MalawiTestBase):
-    
+
+    def assertProductStock(self, supply_point, product_code, is_active):
+        try:
+            ps = ProductStock.objects.get(supply_point=supply_point, product__sms_code=product_code)
+        except ProductStock.DoesNotExist:
+            ps = None
+
+        self.assertTrue(ps is not None)
+        self.assertEqual(ps.is_active, is_active)
+
     def testAddRemoveProduct(self):
 
         a = """
@@ -61,7 +70,6 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
         self.assertFalse(Product.objects.get(sms_code="zi") in hsa.commodities.all())
 
-
         a = """
            16175551234 > add quux
            16175551234 < Sorry, no product matches code quux.  Nothing done.
@@ -72,6 +80,7 @@ class TestAddRemoveProducts(MalawiTestBase):
 
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
         self.assertTrue(Product.objects.get(sms_code="zi") in hsa.commodities.all())
+        self.assertProductStock(hsa.supply_point, "zi", True)
 
         b = """
            16175551234 > add zi de dm
@@ -84,6 +93,9 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="de")))
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="dm")))
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="cm")))
+        self.assertProductStock(hsa.supply_point, "zi", True)
+        self.assertProductStock(hsa.supply_point, "de", True)
+        self.assertProductStock(hsa.supply_point, "dm", True)
 
         c = """
            16175551234 > remove cm
@@ -100,3 +112,6 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="de")))
         self.assertTrue(hsa.supply_point.supplies_product(Product.objects.get(sms_code="dm")))
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="cm")))
+        self.assertProductStock(hsa.supply_point, "de", False)
+        self.assertProductStock(hsa.supply_point, "dm", True)
+        self.assertProductStock(hsa.supply_point, "zi", True)
