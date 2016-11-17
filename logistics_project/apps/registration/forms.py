@@ -7,7 +7,9 @@ from django.contrib.sites.models import Site
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
-from logistics.models import SupplyPoint
+from logistics.models import SupplyPoint, ContactRole, Product
+from static.malawi.config import Roles, SupplyPointCodes, BaseLevel
+
 
 # the built-in FileField doesn't specify the 'size' attribute, so the
 # widget is rendered at its default width -- which is too wide for our
@@ -36,6 +38,7 @@ class ContactForm(forms.ModelForm):
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
         self.fields['role'].label = _("Role")
+        self.fields['role'].choices = self.get_role_choices()
         self.fields['name'].label = _("Name")
         self.fields['phone'].label = _("Phone")
         self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
@@ -44,6 +47,29 @@ class ContactForm(forms.ModelForm):
             if kwargs['instance']:
                 instance = kwargs['instance']
                 self.initial['phone'] = instance.phone
+
+    def get_role_choices(self):
+        role_choices = [('', '---------')]
+        facility_roles = []
+        district_roles = []
+        country_roles = []
+
+        for role in ContactRole.objects.all():
+            if role.code == Roles.HSA:
+                role_choices.append((role.pk, "HSA"))
+            elif role.code in Roles.FACILITY_ONLY:
+                facility_roles.append((role.pk, "Facility User - " + role.name))
+            elif role.code in Roles.DISTRICT_ONLY:
+                district_roles.append((role.pk, "District User - " + role.name))
+            elif role.code in Roles.COUNTRY_ONLY:
+                country_roles.append((role.pk, "Country User - " + role.name))
+            else:
+                role_choices.append((role.pk, role.name))
+
+        role_choices.extend(facility_roles)
+        role_choices.extend(district_roles)
+        role_choices.extend(country_roles)
+        return role_choices
 
     def clean_phone(self):
         self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
@@ -139,12 +165,45 @@ class IntlSMSContactForm(ContactForm):
 class CommoditiesContactForm(IntlSMSContactForm):
     supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
                                           required=False,  
-                                          label='Facility')
+                                          label='Location')
+
+    # Only expose HSA-level products in the managed commodity picker.
+    # Facility users automatically manage all Facility-level products.
+    # This input is disabled for all contacts except for HSAs in templates/registration/dashboard.html
+    commodities = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.filter(type__base_level=BaseLevel.HSA, is_active=True),
+        required=False,
+        help_text='User manages these commodities. Hold down "Control", or "Command" on a Mac, to select more than one.'
+    )
 
     class Meta:
         model = Contact
         exclude = ("user", "language")
-    
+
+    def clean_supply_point(self):
+        supply_point = self.cleaned_data.get('supply_point')
+        if not supply_point:
+            return None
+
+        role = self.cleaned_data.get('role')
+        if not role:
+            return supply_point
+
+        if role.code == Roles.HSA and supply_point.type.code != SupplyPointCodes.HSA:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen an HSA role but a non-HSA location.")
+        elif role.code in Roles.FACILITY_ONLY and supply_point.type.code != SupplyPointCodes.FACILITY:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a facility role but a non-facility location.")
+        elif role.code in Roles.DISTRICT_ONLY and supply_point.type.code != SupplyPointCodes.DISTRICT:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a district role but a non-district location.")
+        elif role.code in Roles.COUNTRY_ONLY and supply_point.type.code != SupplyPointCodes.COUNTRY:
+            raise forms.ValidationError("There is a mismatch between role and location. "
+                "You have chosen a country role but not the Malawi location.")
+
+        return supply_point
+
     @transaction.commit_on_success
     def save(self, commit=True):
         model = super(CommoditiesContactForm, self).save(commit=False)
