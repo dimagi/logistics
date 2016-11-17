@@ -28,7 +28,7 @@ class AddProductHandler(KeywordHandler):
         products = []
         for code in words:
             try:
-                products.append(Product.objects.get(sms_code__iexact=code))
+                products.append(Product.objects.get(sms_code__iexact=code, type__base_level=config.BaseLevel.HSA))
             except Product.DoesNotExist:
                 self.respond_error(config.Messages.UNKNOWN_CODE, product=code)
                 return

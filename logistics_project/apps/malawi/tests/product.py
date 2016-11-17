@@ -4,7 +4,7 @@ from logistics.models import Product, SupplyPoint, ProductStock
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from django.conf import settings
-from static.malawi.config import BaseLevel, SupplyPointCodes
+from static.malawi.config import BaseLevel, SupplyPointCodes, Messages
 
 
 class TestProductLevels(MalawiTestBase):
@@ -56,6 +56,19 @@ class TestAddRemoveProducts(MalawiTestBase):
 
         self.assertTrue(ps is not None)
         self.assertEqual(ps.is_active, is_active)
+
+    def testAddWrongLevelProduct(self):
+        hsa = create_hsa(self, "16175551234", "bob")
+        epi_product = Product.objects.filter(type__base_level=BaseLevel.FACILITY)[0]
+
+        a = """
+           16175551234 > add %(product_code)s
+           16175551234 < %(response)s
+        """ % {
+            "product_code": epi_product.sms_code,
+            "response": Messages.UNKNOWN_CODE % {"product": epi_product.sms_code}
+        }
+        self.runScript(a)
 
     def testAddRemoveProduct(self):
 
