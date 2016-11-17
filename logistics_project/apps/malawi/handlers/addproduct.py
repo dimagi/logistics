@@ -1,5 +1,5 @@
 from logistics.decorators import logistics_contact_and_permission_required
-from logistics.models import Product, ProductStock
+from logistics.models import Product
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from django.db import transaction
@@ -34,10 +34,8 @@ class AddProductHandler(KeywordHandler):
                 return
 
         for p in products:
-            if not ProductStock.objects.filter(supply_point=self.hsa, product=p).exists():
-                ProductStock(supply_point=self.hsa, product=p).save()
-            self.msg.logistics_contact.commodities.add(p)
             self.hsa.activate_product(p)
+            self.msg.logistics_contact.commodities.add(p)
 
         self.msg.logistics_contact.save()
         self.respond(config.Messages.ADD_SUCCESS_MESSAGE, products=" ".join\
