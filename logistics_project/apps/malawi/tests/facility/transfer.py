@@ -10,8 +10,8 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
     def testValidation(self):
         self._setup_users()
         a = """
-           16175551003 > give 2616 bc 20 
-           16175551003 < %(bad_role)s
+           16175551004 > give 2616 bc 20
+           16175551004 < %(bad_role)s
            16175551001 > give 26 bc 20
            16175551001 < %(not_found)s
         """ % {

@@ -90,7 +90,7 @@ class RefrigeratorMalfunctionTestCase(MalawiFacilityLevelTestBase):
         self.assertEqual(RefrigeratorMalfunction.objects.count(), 0)
 
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, supply_point_code='2616')
-        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_PHARMACIST, supply_point_code='26')
+        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_EPI_COORDINATOR, supply_point_code='26')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, supply_point_code='2616')
 
         in_charge2 = Contact.objects.get(connection__identity='5550004')
@@ -170,8 +170,8 @@ class RefrigeratorMalfunctionTestCase(MalawiFacilityLevelTestBase):
 
     def testTransferValidation(self):
         create_manager(self, "5550001", "facility in charge", role=config.Roles.IN_CHARGE, supply_point_code='2616')
-        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_PHARMACIST, supply_point_code='26')
-        create_manager(self, "5550003", "district supervisor 2", role=config.Roles.DISTRICT_PHARMACIST, supply_point_code='26')
+        create_manager(self, "5550002", "district supervisor", role=config.Roles.DISTRICT_EPI_COORDINATOR, supply_point_code='26')
+        create_manager(self, "5550003", "district supervisor 2", role=config.Roles.DISTRICT_EPI_COORDINATOR, supply_point_code='26')
         create_manager(self, "5550004", "facility in charge 2", role=config.Roles.IN_CHARGE, supply_point_code='2601')
 
         ds2 = Contact.objects.get(connection__identity='5550003')
