@@ -146,7 +146,7 @@ def has_permissions_to(contact, operation):
     if operation == Operations.REPORT_RECEIPT:
         return contact.role.code in ([Roles.HSA] + Roles.FACILITY_ONLY)
     if operation in [Operations.ADD_PRODUCT, Operations.REMOVE_PRODUCT]:
-        return contact.role == ContactRole.objects.get(code=Roles.HSA)
+        return contact.role.code == Roles.HSA
     if operation == Operations.FILL_ORDER:
         return contact.role.code in (Roles.HSA_SUPERVISOR_ROLES + Roles.FACILITY_SUPERVISOR_ROLES)
     if operation == Operations.MAKE_TRANSFER:
@@ -157,11 +157,11 @@ def has_permissions_to(contact, operation):
         return True
 #        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA, Roles.IN_CHARGE, Roles.HSA_SUPERVISOR])
     if operation == Operations.ADD_USER:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role.code == Roles.IN_CHARGE
     if operation == Operations.REMOVE_USER:
-        return contact.role == ContactRole.objects.get(code=Roles.IN_CHARGE)
+        return contact.role.code == Roles.IN_CHARGE
     if operation == Operations.APPROVE_USER:
-        return contact.role in ContactRole.objects.filter(code__in=[Roles.HSA_SUPERVISOR, Roles.IN_CHARGE])
+        return contact.role.code in [Roles.HSA_SUPERVISOR, Roles.IN_CHARGE]
     if operation == Operations.REPORT_FRIDGE_MALFUNCTION:
         return contact.role.code in Roles.FACILITY_ONLY
     if operation == Operations.ADVISE_FACILITY_TRANSFER:
