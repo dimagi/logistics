@@ -57,12 +57,14 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertTrue(ps is not None)
         self.assertEqual(ps.is_active, is_active)
 
-    def testAddWrongLevelProduct(self):
+    def testWrongProductBaseLevel(self):
         hsa = create_hsa(self, "16175551234", "bob")
         epi_product = Product.objects.filter(type__base_level=BaseLevel.FACILITY)[0]
 
         a = """
            16175551234 > add %(product_code)s
+           16175551234 < %(response)s
+           16175551234 > remove %(product_code)s
            16175551234 < %(response)s
         """ % {
             "product_code": epi_product.sms_code,
