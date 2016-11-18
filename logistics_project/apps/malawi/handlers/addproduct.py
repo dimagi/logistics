@@ -1,12 +1,9 @@
 from logistics.decorators import logistics_contact_and_permission_required
-from logistics.models import Product
 from logistics.util import config
-from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
-from django.db import transaction
-from logistics_project.decorators import validate_base_level
+from logistics_project.apps.malawi.handlers.abstract.products import BaseProductHandler
 
 
-class AddProductHandler(KeywordHandler):
+class AddProductHandler(BaseProductHandler):
     """
     Add a product to an HSA.
     """
@@ -16,23 +13,11 @@ class AddProductHandler(KeywordHandler):
     def help(self):
         self.respond(config.Messages.ADD_HELP_MESSAGE)
 
-    @transaction.commit_on_success
     @logistics_contact_and_permission_required(config.Operations.ADD_PRODUCT)
-    @validate_base_level([config.BaseLevel.HSA])
     def handle(self, text):
-        words = text.split(" ")
-        if not len(words):
-            return self.help()
+        return super(AddProductHandler, self).handle(text)
 
-        self.hsa = self.msg.logistics_contact.supply_point
-        products = []
-        for code in words:
-            try:
-                products.append(Product.objects.get(sms_code__iexact=code, type__base_level=config.BaseLevel.HSA))
-            except Product.DoesNotExist:
-                self.respond_error(config.Messages.UNKNOWN_CODE, product=code)
-                return
-
+    def handle_products(self, products):
         for p in products:
             self.hsa.activate_product(p)
             self.msg.logistics_contact.commodities.add(p)
