@@ -15,7 +15,49 @@ class TestReport(MalawiTestBase):
         """ % {"bad_hsa": config.Messages.UNKNOWN_HSA % {"hsa_id": 261601}}
         
         self.runScript(a)
-    
+
+    def testWrongLevelProduct(self):
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.FACILITY)[0].sms_code
+        create_hsa(self, "16175551000", "giver")
+        create_hsa(self, "16175551001", "receiver", "2")
+        create_hsa(self, "16175551002", "reporter", "3")
+
+        self.runScript(
+            """ 16175551002 > report 261601 give 261602 %(product_code)s 20
+                16175551002 < %(response)s
+            """ % {
+                "product_code": product_code,
+                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 soh %(product_code)s 20
+                16175551002 < %(response)s
+            """ % {
+                "product_code": product_code,
+                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 eo %(product_code)s 20
+                16175551002 < %(response)s
+            """ % {
+                "product_code": product_code,
+                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 rec %(product_code)s 20
+                16175551002 < %(response)s
+            """ % {
+                "product_code": product_code,
+                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+        )
+
     def testSohAndReceiptReporting(self):
         create_manager(self, "16175551234", "charles", role="ic")
         create_hsa(self, "16175551000", "joe")
