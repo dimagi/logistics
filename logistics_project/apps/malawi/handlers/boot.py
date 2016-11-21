@@ -29,14 +29,17 @@ class BootHandler(RecordResponseHandler):
             id = words[0]
 
         try:
-            sp = SupplyPoint.objects.get(code=id)
+            sp = SupplyPoint.objects.get(code=id, type__code=config.SupplyPointCodes.HSA)
         except SupplyPoint.DoesNotExist:
             self.respond(config.Messages.BOOT_ID_NOT_FOUND, id=id)
             return
+
         try:
             c = Contact.objects.get(supply_point = sp)
         except Contact.DoesNotExist:
             self.respond(config.Messages.BOOT_ID_NOT_FOUND, id=id)
+            return
+
         c.is_active = False
         c.save()
         if sp and sp.type == config.hsa_supply_point_type():
