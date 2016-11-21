@@ -8,6 +8,7 @@ from logistics_project.apps.malawi.handlers.abstract.register import Registratio
 from logistics.util import config
 from static.malawi.config import Operations
 
+
 class ApprovalHandler(RegistrationBaseHandler):
     """
     Registration for everyone else
@@ -24,9 +25,10 @@ class ApprovalHandler(RegistrationBaseHandler):
         contact = None
         try:
             contact = get_hsa(text)
-        except ContactRole.DoesNotExist, SupplyPoint.DoesNotExist:
+        except (ContactRole.DoesNotExist, SupplyPoint.DoesNotExist):
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=text)
             return
+
         if contact is None: #don't see how this could happen, but check anyway
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=text)
             return
@@ -36,4 +38,3 @@ class ApprovalHandler(RegistrationBaseHandler):
 
         contact.message(config.Messages.APPROVAL_HSA, hsa=contact.name)
         self.respond(config.Messages.APPROVAL_SUPERVISOR, hsa=contact.name)
-
