@@ -42,7 +42,7 @@ class RequireLoginMiddleware(object):
     page set by REQUIRE_LOGIN_PATH or /accounts/login/ by default.
     """
     def __init__(self):
-        self.require_login_path = getattr(settings, 'REQUIRE_LOGIN_PATH', '/accounts/login/')
+        self.require_login_path = getattr(settings, 'REQUIRE_LOGIN_PATH', '/backdoor/accounts/login/')
     
     def process_request(self, request):
         if request.path != self.require_login_path and \
