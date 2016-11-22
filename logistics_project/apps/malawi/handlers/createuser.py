@@ -31,9 +31,10 @@ class CreateUserHandler(RecordResponseHandler):
             self.extra =   words[-2]
             code = words[-1]
             try:
-                self.supply_point = SupplyPoint.objects.get(code__iexact=code)
+                self.supply_point = SupplyPoint.objects.get(code__iexact=code, type__code=config.SupplyPointCodes.FACILITY)
             except SupplyPoint.DoesNotExist:
                 self.respond(_(config.Messages.UNKNOWN_LOCATION), code=code )
+                return
 
         # default to HSA
         role = ContactRole.objects.get(code=config.Roles.HSA)

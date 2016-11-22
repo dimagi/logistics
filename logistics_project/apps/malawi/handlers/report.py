@@ -6,6 +6,7 @@ from logistics.const import Reports
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.util import config
 from logistics_project.apps.malawi.util import get_hsa
+from logistics_project.apps.malawi.validators import get_base_level_validator
 from logistics_project.apps.malawi.shortcuts import \
     send_emergency_responses, send_soh_responses, send_transfer_responses
 from logistics.shortcuts import create_stock_report
@@ -23,7 +24,9 @@ class ReportRegistrationHandler(KeywordHandler):
     
     @logistics_contact_and_permission_required(config.Operations.REPORT_FOR_OTHERS)
     def handle(self, text):
-    
+        # The report keyword can only be used to report for HSAs
+        self.base_level = config.BaseLevel.HSA
+
         words = text.split(" ")
         if len(words) < 2:
             return self.help()
@@ -49,10 +52,18 @@ class ReportRegistrationHandler(KeywordHandler):
                 self._process_give()
             
     def _process_soh(self):
-        stock_report = create_stock_report(Reports.SOH,  
-                                           self.hsa.supply_point,
-                                           self.report_data, 
-                                           self.msg.logger_msg)
+        try:
+            stock_report = create_stock_report(
+                Reports.SOH,
+                self.hsa.supply_point,
+                self.report_data,
+                self.msg.logger_msg,
+                additional_validation=get_base_level_validator(self.base_level)
+            )
+        except config.BaseLevel.InvalidProductBaseLevelException as e:
+            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+            return
+
         requests = StockRequest.create_from_report(stock_report, self.hsa)
         if stock_report.errors:
             # TODO: respond better.
@@ -68,10 +79,18 @@ class ReportRegistrationHandler(KeywordHandler):
                 send_soh_responses(self.msg, self.hsa, stock_report, requests)
                 
     def _process_emergency_soh(self):
-        stock_report = create_stock_report(Reports.EMERGENCY_SOH,  
-                                           self.hsa.supply_point,
-                                           self.report_data, 
-                                           self.msg.logger_msg)
+        try:
+            stock_report = create_stock_report(
+                Reports.EMERGENCY_SOH,
+                self.hsa.supply_point,
+                self.report_data,
+                self.msg.logger_msg,
+                additional_validation=get_base_level_validator(self.base_level)
+            )
+        except config.BaseLevel.InvalidProductBaseLevelException as e:
+            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+            return
+
         requests = StockRequest.create_from_report(stock_report, self.hsa)
         if stock_report.errors:
             # TODO: respond better.
@@ -87,10 +106,18 @@ class ReportRegistrationHandler(KeywordHandler):
                 send_emergency_responses(self.msg, self.hsa, stock_report, requests)
             
     def _process_rec(self):
-        stock_report = create_stock_report(Reports.REC,  
-                                           self.hsa.supply_point,
-                                           self.report_data, 
-                                           self.msg.logger_msg)
+        try:
+            stock_report = create_stock_report(
+                Reports.REC,
+                self.hsa.supply_point,
+                self.report_data,
+                self.msg.logger_msg,
+                additional_validation=get_base_level_validator(self.base_level)
+            )
+        except config.BaseLevel.InvalidProductBaseLevelException as e:
+            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+            return
+
         StockRequest.close_pending_from_receipt_report(stock_report, self.hsa)
         if stock_report.errors:
             # TODO: respond better.
@@ -112,9 +139,17 @@ class ReportRegistrationHandler(KeywordHandler):
         if hsa is None:
             self.respond(config.Messages.UNKNOWN_HSA, hsa_id=hsa_id)
         else:
-            stock_report = create_stock_report(Reports.GIVE,  
-                                               self.hsa.supply_point,
-                                               remainder, 
-                                               self.msg.logger_msg)
+            try:
+                stock_report = create_stock_report(
+                    Reports.GIVE,
+                    self.hsa.supply_point,
+                    remainder,
+                    self.msg.logger_msg,
+                    additional_validation=get_base_level_validator(self.base_level)
+                )
+            except config.BaseLevel.InvalidProductBaseLevelException as e:
+                self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+                return
+
             transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)
             send_transfer_responses(self.msg, stock_report, self.hsa, hsa.supply_point, [hsa])
