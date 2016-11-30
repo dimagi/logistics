@@ -30,11 +30,17 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
     def testReportingHSALevelProduct(self):
         create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
-        a = """
-           16175551000 > soh bc 20 zi 10
-           16175551000 < %(error)s
-           """ % {"error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": "zi"}}
-        self.runScript(a)
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
+        for keyword in ("soh", "eo"):
+            a = """
+                16175551000 > %(keyword)s %(product_code)s 20
+                16175551000 < %(error)s
+            """ % {
+                "keyword": keyword,
+                "product_code": product_code,
+                "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+            self.runScript(a)
 
     def testBasicSupplyFlow(self):
         ic, sh, he, dp, de, re = self._setup_users()
