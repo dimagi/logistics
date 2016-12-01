@@ -1,8 +1,9 @@
 from __future__ import absolute_import
-from logistics.models import ProductStock, SupplyPoint, ProductReport
+from logistics.models import ProductStock, SupplyPoint, ProductReport, Product
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from rapidsms.contrib.messagelog.models import Message
+from static.malawi import config
 
 
 class MalawiTestReceipts(MalawiTestBase):
@@ -53,3 +54,14 @@ class MalawiTestReceipts(MalawiTestBase):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(100, zi.quantity)
         self.assertEqual(200, la.quantity)
+
+    def testFacilityLevelProduct(self):
+        create_hsa(self, "16175551000", "wendy", products="co la lb zi")
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.FACILITY)[0].sms_code
+        self.runScript("""
+            16175551000 > rec %(product_code)s 20
+            16175551000 < %(error)s
+        """ % {
+            "product_code": product_code,
+            "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+        })
