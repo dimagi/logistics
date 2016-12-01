@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock, ProductReport
+from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock, ProductReport, Product
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.util import create_hsa, create_manager,\
     report_stock
@@ -402,3 +402,17 @@ class TestStockOnHandMalawi(MalawiTestBase):
         im = create_manager(self, "16175551002", "peter", config.Roles.IMCI_COORDINATOR, "26")
         dp = create_manager(self, "16175551003", "ruth", config.Roles.DISTRICT_PHARMACIST, "26")
         return (hsa, ic, sh, im, dp)
+
+    def testReportingFacilityLevelProduct(self):
+        hsa = create_hsa(self, "16175551000", "wendy", products="co la lb zi")
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.FACILITY)[0].sms_code
+        for keyword in ("soh", "eo"):
+            a = """
+                16175551000 > %(keyword)s %(product_code)s 20
+                16175551000 < %(error)s
+            """ % {
+                "keyword": keyword,
+                "product_code": product_code,
+                "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+            self.runScript(a)

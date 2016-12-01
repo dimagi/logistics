@@ -30,11 +30,17 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
     def testReportingHSALevelProduct(self):
         create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
-        a = """
-           16175551000 > soh bc 20 zi 10
-           16175551000 < %(error)s
-           """ % {"error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": "zi"}}
-        self.runScript(a)
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
+        for keyword in ("soh", "eo"):
+            a = """
+                16175551000 > %(keyword)s %(product_code)s 20
+                16175551000 < %(error)s
+            """ % {
+                "keyword": keyword,
+                "product_code": product_code,
+                "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            }
+            self.runScript(a)
 
     def testBasicSupplyFlow(self):
         ic, sh, he, dp, de, re = self._setup_users()
@@ -499,3 +505,49 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
         report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
         self.assertEqual(6, ProductReport.objects.count())
+
+    def assertProductStock(self, product_code, supply_point_code, quantity):
+        ps = ProductStock.objects.get(product__sms_code=product_code, supply_point__code=supply_point_code)
+        self.assertEqual(ps.quantity, quantity)
+
+    def testReportingDuringFridgeMalfunction(self):
+        ic, sh, he, dp, de, re = self._setup_users()
+        bc_resupply_level = self._expected_resupply_level("bc")
+        sa_resupply_level = self._expected_resupply_level("sa")
+
+        report_facility_level_stock(self, ic, "bc 50 sa 500", [de], {"bc": bc_resupply_level - 50, "sa": sa_resupply_level - 500})
+        self.assertProductStock("bc", "2616", 50)
+        self.assertProductStock("sa", "2616", 500)
+        self.assertEqual(2, ProductReport.objects.count())
+
+        self.runScript("""
+                16175551000 > rm 1
+                16175551000 < %(facility_response)s
+                16175551004 < %(district_response)s
+                16175551000 > soh bc 100 sa 400
+                16175551000 < %(error_response)s
+                16175551000 > eo bc 100 sa 400
+                16175551000 < %(error_response)s
+            """ % {
+                "facility_response": config.Messages.FRIDGE_BROKEN_RESPONSE % {'reason': config.Messages.FRIDGE_BROKEN_NO_GAS},
+                "district_response": config.Messages.FRIDGE_BROKEN_NOTIFICATION % {'reason': config.Messages.FRIDGE_BROKEN_NO_GAS, 'facility': '2616'},
+                "error_response": config.Messages.FRIDGE_BROKEN,
+            }
+        )
+
+        self.assertProductStock("bc", "2616", 50)
+        self.assertProductStock("sa", "2616", 500)
+        self.assertEqual(2, ProductReport.objects.count())
+
+        self.runScript("""
+                16175551000 > rf
+                16175551000 < %(facility_response)s
+            """ % {
+                "facility_response": config.Messages.FRIDGE_FIXED_RESPONSE,
+            }
+        )
+
+        report_facility_level_stock(self, ic, "bc 100 sa 400", [de], {"bc": bc_resupply_level - 100, "sa": sa_resupply_level - 400})
+        self.assertProductStock("bc", "2616", 100)
+        self.assertProductStock("sa", "2616", 400)
+        self.assertEqual(4, ProductReport.objects.count())
