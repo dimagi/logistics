@@ -11,6 +11,8 @@ from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, 
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.const import Reports
 from logistics.util import config, ussd_msg_response
+from logistics_project.apps.malawi.validators import get_base_level_validator
+from logistics_project.decorators import validate_base_level
 from rapidsms.conf import settings
 from rapidsms.contrib.messagelog.models import Message
 
@@ -26,6 +28,7 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         self.respond(_("Please send in information about your receipts in the format 'rec <product> <amount> <product> <amount>...'"))
 
     @logistics_contact_and_permission_required(config.Operations.REPORT_RECEIPT)
+    @validate_base_level([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def handle(self, text):
         dupes = Message.objects.filter(direction="I",
                                        connection=self.msg.connection,
@@ -51,6 +54,14 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point,
                                             Reports.REC, self.msg.logger_msg)
         stock_report.parse(text)
+
+        # Validate base level of products
+        try:
+            get_base_level_validator(self.base_level)(stock_report)
+        except config.BaseLevel.InvalidProductBaseLevelException as e:
+            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+            return
+
         # check max stock levels
         max_level_function = get_max_level_function()
         if max_level_function:
