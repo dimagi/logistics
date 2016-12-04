@@ -349,9 +349,9 @@ class Messages(object):
     NUMBER_OF_SUPPLY_POINTS = "Number of HSAs"
     
     # response to 'help'
-    HELP_TEXT = "Text 'help stock' for help on the format of stock reports; " + \
-                "'help codes' for a list of commodity codes; " + \
-                "'help start' or 'help stop' to start and stop reminders."
+    HELP_TEXT = ("Text 'help stock' for help on the format of stock reports; "
+                 "'help codes' for a list of product codes; "
+                 "'help [product code]' for a product's description")
 
     FRIDGE_BROKEN_NO_GAS = "no gas"
     FRIDGE_BROKEN_POWER_FAILURE = "power failure"
