@@ -10,7 +10,7 @@ from logistics_project.apps.malawi.util import get_em_districts, hsa_supply_poin
 from django.utils.datastructures import SortedDict
 from collections import defaultdict
 from logistics.charts import amc_plot
-from static.malawi.config import SupplyPointCodes
+from static.malawi.config import SupplyPointCodes, BaseLevel
 
 PRODUCT_CODES = ['co', 'or', 'zi', 'la', 'lb', 'dm', 'pa'] # Amox?
 
@@ -357,8 +357,9 @@ def amc_over_time(instance):
     """
     Average monthly consumption, plotted over time
     """
-    data, data_rows = amc_plot(SupplyPoint.objects.filter(active=True), instance.datespan)
-    products = Product.objects.all().order_by('sms_code')
+    products = Product.objects.filter(type__base_level=BaseLevel.HSA).order_by('sms_code')
+    supply_points = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.HSA)
+    data, data_rows = amc_plot(supply_points, instance.datespan, products=products)
     return _common_report(instance, {'chart_data': data,
                                      'data_rows': data_rows,
                                      'products': products,
