@@ -14,15 +14,17 @@ from django.db.models import Sum
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
+        product_types = list(ProductType.objects.filter(base_level=request.base_level))
+
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
         
         selected_type = None
-        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
+        if request.GET.get("product-type") in [ptype.code for ptype in product_types]:
             selected_type = ProductType.objects.get(code=request.GET["product-type"])
         
         products = Product.objects.filter(type=selected_type) if selected_type \
-            else Product.objects
+            else Product.objects.filter(type__base_level=request.base_level)
         products = products.order_by("sms_code")
         dates = get_datelist(request.datespan.startdate, 
                              request.datespan.enddate)
@@ -91,7 +93,7 @@ class View(warehouse_view.DistrictOnlyView):
             }
         
         return {
-            'product_types': ProductType.objects.all(),
+            'product_types': product_types,
             'selected_type': selected_type,
             'graphdata': graphdata,
             'monthly_table': monthly_table,

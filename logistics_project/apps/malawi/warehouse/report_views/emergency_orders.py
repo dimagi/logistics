@@ -15,8 +15,9 @@ from django.db.models.aggregates import Sum
 class View(warehouse_view.DistrictOnlyView):
 
     def custom_context(self, request):
+        product_types = list(ProductType.objects.filter(base_level=request.base_level))
         selected_type = None
-        if request.GET.get("product-type") in [ptype.code for ptype in ProductType.objects.all()]:
+        if request.GET.get("product-type") in [ptype.code for ptype in product_types]:
             selected_type = ProductType.objects.get(code=request.GET["product-type"])
 
         sp = SupplyPoint.objects.get(location=request.location) \
@@ -24,7 +25,7 @@ class View(warehouse_view.DistrictOnlyView):
         
         datelist = get_datelist(request.datespan.startdate, 
                                 request.datespan.enddate)
-        oreqs = dict([(date, OrderRequest.objects.filter(supply_point=sp, date=date)) \
+        oreqs = dict([(date, OrderRequest.objects.filter(supply_point=sp, date=date, product__type__base_level=request.base_level)) \
                       for date in datelist])
         
         date_headers = [date.strftime("%b-%Y") for date in datelist]
@@ -118,9 +119,10 @@ class View(warehouse_view.DistrictOnlyView):
             "header": ['Product'] + [dt.strftime("%b %Y") for dt in datelist],
         }
         hsa_emergencies_data = []
-        selected_products = Product.objects.all()
         if selected_type:
             selected_products = Product.objects.filter(type=selected_type)
+        else:
+            selected_products = Product.objects.filter(type__base_level=request.base_level)
         for prd in selected_products:
             count = 0
             temp = {
@@ -165,7 +167,7 @@ class View(warehouse_view.DistrictOnlyView):
             }
 
         return {
-            'product_types': ProductType.objects.all(),
+            'product_types': product_types,
             'selected_type': selected_type,
             'summary': summary,
             'eo_pct_table': eo_pct_table,
