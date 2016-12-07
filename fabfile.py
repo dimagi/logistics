@@ -70,10 +70,7 @@ def _malawi_shared():
     env.db_cleanup = False
     env.stop_start = True
     env.branch = "malawi-dev"
-    def malawi_extras():
-        run("python manage.py malawi_init")
-        run("python manage.py loaddata ../deploy/malawi/initial_data.json")
-    env.extras = malawi_extras
+
 
 def malawi():
     """
