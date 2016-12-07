@@ -34,9 +34,9 @@ def stocklevel_plot(transactions):
                                 order_by="date")
     return chart_data
         
-def amc_plot(sps, datespan):
+def amc_plot(sps, datespan, products=None):
     cols = {"date": ("datetime", "Date")}
-    products = Product.objects.all().order_by('sms_code')
+    products = products or Product.objects.all().order_by('sms_code')
     for p in products:
         if p.average_monthly_consumption:
             cols[p.sms_code] = ('number', p.sms_code)#, {'type': 'string', 'label': "title_"+s.sms_code}]
