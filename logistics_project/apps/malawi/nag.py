@@ -32,18 +32,19 @@ def get_non_reporting_hsas(since, report_code=Reports.SOH, location=None):
     hsas = set(hsa_supply_points_below(location))
     reporters = set(x.supply_point for x in \
                     ProductReport.objects.filter(report_type__code=report_code,
-                                                 report_date__range=[since,
-                                                                     datetime.utcnow()]))
+                                                 report_date__range=[since, datetime.utcnow()],
+                                                 supply_point__type__code=config.SupplyPointCodes.HSA))
     return hsas - reporters
 
-def get_stock_requests_pending_pickup(before=None):
-    reqs = StockRequest.objects.filter(status=StockRequestStatus.APPROVED)
+def get_hsa_stock_requests_pending_pickup(before=None):
+    reqs = StockRequest.objects.filter(status=StockRequestStatus.APPROVED,
+        supply_point__type__code=config.SupplyPointCodes.HSA)
     if before:
         reqs = reqs.filter(responded_on__lte=before)
     return reqs
     
 def get_hsas_pending_pickup(before=None):
-    return set([x.supply_point for x in get_stock_requests_pending_pickup(before)])
+    return set([x.supply_point for x in get_hsa_stock_requests_pending_pickup(before)])
                      
 def nag_hsas_soh(since, location=None):
     """
@@ -120,7 +121,7 @@ def nag_hsas_rec():
     # send the first nag WARNING_DAYS days after the order ready message
     def _get_hsas_ready_for_nag(warning_time, extra_filter_params={}):
         
-        reqs = get_stock_requests_pending_pickup(warning_time)
+        reqs = get_hsa_stock_requests_pending_pickup(warning_time)
 
         hsa_warnings = []
         for req in reqs:
@@ -129,9 +130,9 @@ def nag_hsas_rec():
                                         nag_type=Reports.REC,
                                         **extra_filter_params).count():
 
-                if not ProductReport.objects.filter(report_type__code=Reports.REC,
-                                                 report_date__range=[req.responded_on,
-                                                                     now]).exists():
+                if not ProductReport.objects.filter(supply_point=req.supply_point,
+                                                    report_type__code=Reports.REC,
+                                                    report_date__range=[req.responded_on, now]).exists():
                     hsa_warnings.append(req.supply_point)
         return set(hsa_warnings)
         
@@ -254,6 +255,3 @@ def _send_so_notice(district):
     msg = config.Messages.DISTRICT_NAG_SO % {"pct": relevant_alert.have_stockouts }
     for contact in _district_contacts(district):
         send_message(get_ussd_connection(contact.default_connection), msg)
-        
-        
-        
