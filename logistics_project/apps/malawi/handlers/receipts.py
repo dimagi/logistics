@@ -53,7 +53,7 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         # parse the report and save as normal receipt
         stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point,
                                             Reports.REC, self.msg.logger_msg)
-        stock_report.parse(text)
+        stock_report.newparse(text)
 
         # Validate base level of products
         try:
