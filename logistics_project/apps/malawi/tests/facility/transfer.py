@@ -131,3 +131,23 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
             self.assertEqual(transfer.receiver, ic.supply_point)
             self.assertEqual(transfer.status, StockTransferStatus.CONFIRMED)
             self.assertEqual(transfer.initiated_on, None)
+
+    def testHSALevelProduct(self):
+        ic1 = self._setup_users()[0]
+        product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
+        self.runScript("""
+            16175551000 > give 2601 %(product_code)s 20
+            16175551000 < %(error)s
+        """ % {
+            "product_code": product_code,
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+        })
+
+    def testNonExistentProduct(self):
+        ic1 = self._setup_users()[0]
+        self.runScript("""
+            16175551000 > give 2601 uvw 10 xyz 20
+            16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
+        })
