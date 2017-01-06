@@ -38,7 +38,19 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
             """ % {
                 "keyword": keyword,
                 "product_code": product_code,
-                "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+            }
+            self.runScript(a)
+
+    def testReportingNonExistentProduct(self):
+        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
+        for keyword in ("soh", "eo"):
+            a = """
+                16175551000 > %(keyword)s uvw 10 xyz 20
+                16175551000 < %(error)s
+            """ % {
+                "keyword": keyword,
+                "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
             }
             self.runScript(a)
 

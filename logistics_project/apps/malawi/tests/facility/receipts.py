@@ -68,5 +68,14 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
             16175551000 < %(error)s
         """ % {
             "product_code": product_code,
-            "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+        })
+
+    def testNonExistentProduct(self):
+        self._setup_users()
+        self.runScript("""
+            16175551000 > rec uvw 10 xyz 20
+            16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
         })

@@ -53,13 +53,13 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         # parse the report and save as normal receipt
         stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point,
                                             Reports.REC, self.msg.logger_msg)
-        stock_report.parse(text)
+        stock_report.newparse(text)
 
         # Validate base level of products
         try:
             get_base_level_validator(self.base_level)(stock_report)
-        except config.BaseLevel.InvalidProductBaseLevelException as e:
-            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+        except config.BaseLevel.InvalidProductsException as e:
+            self.respond(config.Messages.INVALID_PRODUCTS, product_codes=e.product_codes_str)
             return
 
         # check max stock levels

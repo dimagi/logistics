@@ -63,5 +63,14 @@ class MalawiTestReceipts(MalawiTestBase):
             16175551000 < %(error)s
         """ % {
             "product_code": product_code,
-            "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+        })
+
+    def testNonExistentProduct(self):
+        create_hsa(self, "16175551000", "wendy", products="co la lb zi")
+        self.runScript("""
+            16175551000 > rec uvw 10 xyz 20
+            16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
         })

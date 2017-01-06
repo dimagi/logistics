@@ -72,10 +72,19 @@ class BaseLevel(object):
     class InvalidSupervisorLevelException(Exception):
         pass
 
-    class InvalidProductBaseLevelException(Exception):
-        def __init__(self, product_code, *args, **kwargs):
-            super(BaseLevel.InvalidProductBaseLevelException, self).__init__(*args, **kwargs)
-            self.product_code = product_code
+    class InvalidProductsException(Exception):
+        """
+        Can be raised when product(s) don't exist or don't match the expected base level.
+        Expected to be passed a list of product codes that are invalid.
+        """
+        def __init__(self, product_codes, *args, **kwargs):
+            super(BaseLevel.InvalidProductsException, self).__init__(*args, **kwargs)
+            self.product_codes = product_codes
+            self.product_codes.sort()
+
+        @property
+        def product_codes_str(self):
+            return ",".join(self.product_codes)
 
     HSA = 'h'
     FACILITY = 'f'
@@ -404,8 +413,8 @@ class Messages(object):
 
     TRANSFER_RESPONSE_TO_DISTRICT = "Thank you, %(facility)s has been notified of the advised transfer."
 
-    INVALID_PRODUCT_BASE_LEVEL = ("Your request could not be processed because %(product_code)s is not a valid "
-        "product. Please try again.")
+    INVALID_PRODUCTS = ("The following products are not valid: %(product_codes)s. Please fix and send again. "
+        "Send 'help' for help with product codes.")
 
     FRIDGE_BROKEN = ("Our system shows your refrigerator is not working. If it has been fixed, please respond "
         "with 'rf' and then try your request again.")

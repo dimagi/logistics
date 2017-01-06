@@ -1,3 +1,4 @@
+from logistics.errors import UnknownCommodityCodeError
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
@@ -65,10 +66,18 @@ def check_max_levels_malawi(stock_report):
 
 
 def _require_products_base_level(stock_report, base_level):
+    invalid_products = []
     for product_code in stock_report.product_stock:
         product = stock_report.get_product(product_code)
         if product.type.base_level != base_level:
-            raise BaseLevel.InvalidProductBaseLevelException(product_code)
+            invalid_products.append(product_code)
+
+    for error in stock_report.errors:
+        if isinstance(error, UnknownCommodityCodeError):
+            invalid_products.append(error.product_code)
+
+    if invalid_products:
+        raise BaseLevel.InvalidProductsException(invalid_products)
 
 
 def require_hsa_level_products(stock_report):

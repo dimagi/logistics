@@ -60,8 +60,8 @@ class ReportRegistrationHandler(KeywordHandler):
                 self.msg.logger_msg,
                 additional_validation=get_base_level_validator(self.base_level)
             )
-        except config.BaseLevel.InvalidProductBaseLevelException as e:
-            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+        except config.BaseLevel.InvalidProductsException as e:
+            self.respond(config.Messages.INVALID_PRODUCTS, product_codes=e.product_codes_str)
             return
 
         requests = StockRequest.create_from_report(stock_report, self.hsa)
@@ -87,8 +87,8 @@ class ReportRegistrationHandler(KeywordHandler):
                 self.msg.logger_msg,
                 additional_validation=get_base_level_validator(self.base_level)
             )
-        except config.BaseLevel.InvalidProductBaseLevelException as e:
-            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+        except config.BaseLevel.InvalidProductsException as e:
+            self.respond(config.Messages.INVALID_PRODUCTS, product_codes=e.product_codes_str)
             return
 
         requests = StockRequest.create_from_report(stock_report, self.hsa)
@@ -114,8 +114,8 @@ class ReportRegistrationHandler(KeywordHandler):
                 self.msg.logger_msg,
                 additional_validation=get_base_level_validator(self.base_level)
             )
-        except config.BaseLevel.InvalidProductBaseLevelException as e:
-            self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+        except config.BaseLevel.InvalidProductsException as e:
+            self.respond(config.Messages.INVALID_PRODUCTS, product_codes=e.product_codes_str)
             return
 
         StockRequest.close_pending_from_receipt_report(stock_report, self.hsa)
@@ -147,8 +147,8 @@ class ReportRegistrationHandler(KeywordHandler):
                     self.msg.logger_msg,
                     additional_validation=get_base_level_validator(self.base_level)
                 )
-            except config.BaseLevel.InvalidProductBaseLevelException as e:
-                self.respond(config.Messages.INVALID_PRODUCT_BASE_LEVEL, product_code=e.product_code)
+            except config.BaseLevel.InvalidProductsException as e:
+                self.respond(config.Messages.INVALID_PRODUCTS, product_codes=e.product_codes_str)
                 return
 
             transfers = StockTransfer.create_from_transfer_report(stock_report, hsa.supply_point)

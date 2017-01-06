@@ -413,6 +413,18 @@ class TestStockOnHandMalawi(MalawiTestBase):
             """ % {
                 "keyword": keyword,
                 "product_code": product_code,
-                "error": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+            }
+            self.runScript(a)
+
+    def testReportingNonExistentProduct(self):
+        hsa = create_hsa(self, "16175551000", "wendy", products="co la lb zi")
+        for keyword in ("soh", "eo"):
+            a = """
+                16175551000 > %(keyword)s uvw 10 xyz 20
+                16175551000 < %(error)s
+            """ % {
+                "keyword": keyword,
+                "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
             }
             self.runScript(a)

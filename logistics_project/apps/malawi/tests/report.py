@@ -27,7 +27,7 @@ class TestReport(MalawiTestBase):
                 16175551002 < %(response)s
             """ % {
                 "product_code": product_code,
-                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
             }
         )
 
@@ -36,7 +36,7 @@ class TestReport(MalawiTestBase):
                 16175551002 < %(response)s
             """ % {
                 "product_code": product_code,
-                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
             }
         )
 
@@ -45,7 +45,7 @@ class TestReport(MalawiTestBase):
                 16175551002 < %(response)s
             """ % {
                 "product_code": product_code,
-                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
             }
         )
 
@@ -54,7 +54,44 @@ class TestReport(MalawiTestBase):
                 16175551002 < %(response)s
             """ % {
                 "product_code": product_code,
-                "response": config.Messages.INVALID_PRODUCT_BASE_LEVEL % {"product_code": product_code},
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
+            }
+        )
+
+    def testNonExistentProduct(self):
+        create_hsa(self, "16175551000", "giver")
+        create_hsa(self, "16175551001", "receiver", "2")
+        create_hsa(self, "16175551002", "reporter", "3")
+
+        self.runScript(
+            """ 16175551002 > report 261601 give 261602 uvw 10 xyz 20
+                16175551002 < %(response)s
+            """ % {
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 soh uvw 10 xyz 20
+                16175551002 < %(response)s
+            """ % {
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 eo uvw 10 xyz 20
+                16175551002 < %(response)s
+            """ % {
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
+            }
+        )
+
+        self.runScript(
+            """ 16175551002 > report 261601 rec uvw 10 xyz 20
+                16175551002 < %(response)s
+            """ % {
+                "response": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
             }
         )
 
