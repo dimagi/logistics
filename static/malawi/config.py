@@ -123,12 +123,14 @@ class SupplyPointCodes(object):
     These correspond to SupplyPointType.code
     """
     COUNTRY = "c"
+    ZONE = "z"
     DISTRICT = "d"
     FACILITY = "hf"
     HSA = "hsa"
     
     ALL = {
         COUNTRY: "country",
+        ZONE: "zone",
         DISTRICT: "district",
         FACILITY: "facility",
         HSA: "hsa"
@@ -139,6 +141,7 @@ class LocationCodes(object):
     These correspond to LocationType.code
     """
     COUNTRY = "country"
+    ZONE = "zone"
     DISTRICT = "district"
     FACILITY = "facility"
     HSA = "hsa"
