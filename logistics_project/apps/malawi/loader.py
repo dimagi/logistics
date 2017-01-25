@@ -15,30 +15,87 @@ import pytz
 from scheduler.models import EventSchedule
 from django.core.exceptions import ObjectDoesNotExist
 
+
 class LoaderException(Exception):
     pass
 
-def init_static_data(log_to_console=False, do_locations=False, do_products=True):
+
+def load_static_data_for_tests():
     """
-    Initialize any data that should be static here
+    Load static data to be used for tests. The static data loaded here
+    is not kept up to date with the latest database data but is sufficient
+    for running tests against.
     """
-    # These are annoyingly necessary to live in the DB, currently. 
-    # Really this should be app logic, I think.
     load_report_types()
     load_roles()
-    load_schedules()
-    loc_file = getattr(settings, "STATIC_LOCATIONS")
-    if do_locations and loc_file:
-        load_locations_from_path(loc_file, log_to_console=log_to_console)
-    product_file = getattr(settings, "STATIC_PRODUCTS")
-    if do_products and product_file:
-        load_products(product_file, log_to_console=log_to_console)
-    
-    
+    load_location_types()
+    load_base_locations()
+    load_locations_from_path(settings.STATIC_LOCATIONS)
+    load_products(settings.STATIC_PRODUCTS, log_to_console=False)
+
+
+def load_location_types():
+    for code, name in config.SupplyPointCodes.ALL.items():
+        SupplyPointType.objects.get_or_create(
+            code=code,
+            defaults={'name': name}
+        )
+
+    for code in [
+        config.LocationCodes.COUNTRY,
+        config.LocationCodes.ZONE,
+        config.LocationCodes.DISTRICT,
+        config.LocationCodes.FACILITY,
+        config.LocationCodes.HSA,
+    ]:
+        LocationType.objects.get_or_create(
+            slug=code,
+            defaults={'name': code}
+        )
+
+
+def load_base_locations():
+    country_location = Location.objects.create(
+        code=settings.COUNTRY,
+        name=settings.COUNTRY.title(),
+        type_id=config.LocationCodes.COUNTRY
+    )
+
+    country_supply_point = SupplyPoint.objects.create(
+        code=country_location.code,
+        name=country_location.name,
+        type_id=config.SupplyPointCodes.COUNTRY,
+        location=country_location
+    )
+
+    for code, name in (
+        ('no', 'Northern'),
+        ('ce', 'Central Eastern'),
+        ('cw', 'Central Western'),
+        ('se', 'South Eastern'),
+        ('sw', 'South Western'),
+    ):
+        zone_location = Location.objects.create(
+            code=code,
+            name=name,
+            type_id=config.LocationCodes.ZONE,
+            parent=country_location
+        )
+
+        SupplyPoint.objects.create(
+            code=zone_location.code,
+            name=zone_location.name,
+            type_id=config.SupplyPointCodes.ZONE,
+            location=zone_location,
+            supplied_by=country_supply_point
+        )
+
+
 def clear_locations():
     Location.objects.all().delete()
     LocationType.objects.all().delete()
-    
+
+
 def clear_products():
     Product.objects.all().delete()
     ProductType.objects.all().delete()
@@ -72,7 +129,8 @@ def load_schedules():
     so.hours = [_malawi_to_utc(9)]
     so.days_of_week = [3] # thursday
     so.save()
-    
+
+
 def load_products(file_path, log_to_console=True):
     if log_to_console: print "loading static products from %s" % file_path
     # give django some time to bootstrap itself
@@ -115,16 +173,13 @@ def load_products(file_path, log_to_console=True):
     finally:
         csv_file.close()
 
-def load_locations_from_path(path, log_to_console=True):
-    if log_to_console: print("Loading locations %s"  % (path))
+
+def load_locations_from_path(path):
     if not os.path.exists(path):
         raise LoaderException("Invalid file path: %s." % path)
 
     with open(path, 'r') as f:
-        msgs = load_locations(f)
-        if log_to_console and msgs:
-            for msg in msgs:
-                print msg
+        FacilityLoader(f).run()
 
 
 def get_facility_export(file_handle):
@@ -448,6 +503,7 @@ def load_locations(file):
         count += 1
 
     return ["Successfully processed %s locations." % count]
+
 
 def _clean(location_name):
     return location_name.lower().strip().replace(" ", "_")[:30]
