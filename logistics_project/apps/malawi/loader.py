@@ -126,19 +126,40 @@ def load_locations_from_path(path, log_to_console=True):
             for msg in msgs:
                 print msg
 
+
 def get_facility_export(file_handle):
     """
     Gets an export of all the facilities in the system as a csv.
     """
     writer = csv.writer(file_handle)
-    writer.writerow(['District CODE', 'District', 'CODE', 'Health Center'])
-    _par_attr = lambda sp, attr: getattr(sp.supplied_by, attr) if sp.supplied_by else ""
-    for sp in SupplyPoint.objects.filter(active=True, 
-                                         type__code=config.SupplyPointCodes.FACILITY).order_by("code"):
-        writer.writerow([_par_attr(sp, 'code'), 
-                         _par_attr(sp, 'name'), 
-                         sp.code, 
-                         sp.name])
+    writer.writerow([
+        'Zone Code',
+        'Zone Name',
+        'District Code',
+        'District Name',
+        'Facility Code',
+        'Facility Name',
+    ])
+
+    facilities = SupplyPoint.objects.filter(
+        active=True,
+        type__code=config.SupplyPointCodes.FACILITY
+    ).select_related(
+        'supplied_by',
+        'supplied_by__supplied_by'
+    ).order_by("code")
+
+    for facility in facilities:
+        district = facility.supplied_by
+        zone = district.supplied_by
+        writer.writerow([
+            zone.code,
+            zone.name,
+            district.code,
+            district.name,
+            facility.code,
+            facility.name
+        ])
 
 
 class FacilityLoaderValidationError(Exception):
@@ -197,7 +218,7 @@ class FacilityLoader(object):
         self.valid_zone_codes = list(
             SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.ZONE).values_list('code', flat=True)
         )
-        self.zone_district_map = {}
+        self.district_zone_map = {}
 
     def validate_column_data(self, line_num, value):
         data = [column.strip() for column in value.split(",")]
@@ -362,7 +383,7 @@ class FacilityLoader(object):
         a FacilityLoaderValidationError.
         """
         self.parse_data()
-        with transaction.atomic():
+        with transaction.commit_on_success():
             self.load_data()
 
         return len(self.data)
