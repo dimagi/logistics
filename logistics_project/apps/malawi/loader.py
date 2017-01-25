@@ -1,4 +1,6 @@
 import os
+import re
+from django.db import transaction
 from django.conf import settings
 from rapidsms.contrib.locations.models import LocationType, Location
 from logistics.models import SupplyPoint, SupplyPointType,\
@@ -137,7 +139,235 @@ def get_facility_export(file_handle):
                          _par_attr(sp, 'name'), 
                          sp.code, 
                          sp.name])
-    
+
+
+class FacilityLoaderValidationError(Exception):
+    validation_msg = None
+
+    def __init__(self, validation_msg):
+        super(FacilityLoaderValidationError, self).__init__(validation_msg)
+        self.validation_msg = validation_msg
+
+
+class FacilityLoader(object):
+    """
+    This utility allows you to create/edit districts and facilities in bulk.
+    To use it, pass in a file object and run it. Example:
+
+        with open('filename.csv', 'r') as f:
+            FacilityLoader(f).run()
+
+    ** Expected Format **
+    The file should be a csv file with 6 columns, in the order below:
+        zone code
+        zone name
+        district code
+        district name
+        facility code
+        facility name
+
+    Using a header is optional, but if a header is used, the columns should have
+    the names above.
+
+    ** Facility Usage **
+    Facilities are looked up by code. If the facility does not exist, it is
+    created. If the facility exists, all of its information is updated.
+
+    ** District Usage **
+    Districts are lookuped by code. If the district does not exist, it is
+    created. If the district exists, only its zone is updated.
+
+    ** Zone / HSA Usage **
+    Zones and HSAs cannot be created or updated with this utility.
+
+    ** Errors **
+    If an error occurs, a FacilityLoaderValidationError is raised describing the
+    error and the row that had the error. If any exception is raised, no changes
+    are applied to the database.
+    """
+
+    file_obj = None
+    data = None
+    valid_zone_codes = None
+    district_zone_map = None
+
+    def __init__(self, file_obj):
+        self.file_obj = file_obj
+        self.data = []
+        self.valid_zone_codes = list(
+            SupplyPoint.objects.filter(type__code=config.SupplyPointCodes.ZONE).values_list('code', flat=True)
+        )
+        self.zone_district_map = {}
+
+    def validate_column_data(self, line_num, value):
+        data = [column.strip() for column in value.split(",")]
+        if len(data) != 6:
+            raise FacilityLoaderValidationError("Error with row %s. Expected 6 columns of data." % line_num)
+
+        if any([not column for column in data]):
+            raise FacilityLoaderValidationError("Error with row %s. Expected a value for every column." % line_num)
+
+        return data
+
+    def validate_zone_code(self, line_num, value):
+        if value not in self.valid_zone_codes:
+            raise FacilityLoaderValidationError("Error with row %s. Expected zone code to be one of: %s"
+                % (line_num, ', '.join(self.valid_zone_codes)))
+
+        return value
+
+    def validate_district_code(self, line_num, value):
+        value = value.zfill(2)
+        if not re.match("^\d\d$", value):
+            raise FacilityLoaderValidationError("Error with row %s. Expected district code to consist of "
+                "at most 2 digits." % line_num)
+
+        return value
+
+    def validate_facility_code(self, line_num, value):
+        value = value.zfill(4)
+        if not re.match("^\d\d\d\d$", value):
+            raise FacilityLoaderValidationError("Error with row %s. Expected facility code to consist of "
+                "at most 4 digits." % line_num)
+
+        return value
+
+    def validate_district_zone_mapping(self, zone_code, district_code):
+        if district_code not in self.district_zone_map:
+            self.district_zone_map[district_code] = zone_code
+        else:
+            if self.district_zone_map[district_code] != zone_code:
+                raise FacilityLoaderValidationError("Error with row %s. The zone assigned to district %s "
+                    "differs across multiple rows. Please check zone for all rows with district %s."
+                    % (line_num, district_code, district_code))
+
+    def parse_data(self):
+        line_num = 1
+        for line in self.file_obj:
+            # Ignore headers
+            if line_num == 1 and "district code" in line.lower():
+                continue
+
+            column_data = self.validate_column_data(line_num, line)
+            zone_code, zone_name, district_code, district_name, facility_code, facility_name = column_data
+
+            zone_code = self.validate_zone_code(line_num, zone_code)
+            district_code = self.validate_district_code(line_num, district_code)
+            facility_code = self.validate_facility_code(line_num, facility_code)
+
+            self.validate_district_zone_mapping(zone_code, district_code)
+            self.data.append({
+                'line_num': line_num,
+                'zone_code': zone_code,
+                'zone_name': column_data[1],
+                'district_code': district_code,
+                'district_name': column_data[3],
+                'facility_code': facility_code,
+                'facility_name': column_data[5],
+            })
+
+            line_num += 1
+
+    def get_or_create_district_location(self, row, zone_location):
+        try:
+            district_location = Location.objects.get(code=row['district_code'])
+            if district_location.type_id != config.LocationCodes.DISTRICT:
+                raise FacilityLoaderValidationError("Error with row %s. District code %s does not reference "
+                    "a district." % (row['line_num'], row['district_code']))
+
+            if district_location.parent_id != zone_location.pk:
+                district_location.parent = zone_location
+                district_location.save()
+        except Location.DoesNotExist:
+            district_location = Location.objects.create(
+                code=row['district_code'],
+                name=row['district_name'],
+                type_id=config.LocationCodes.DISTRICT,
+                parent=zone_location
+            )
+
+        return district_location
+
+    def get_or_create_facility_location(self, row, district_location):
+        try:
+            facility_location = Location.objects.get(code=row['facility_code'])
+            if facility_location.type_id != config.LocationCodes.FACILITY:
+                raise FacilityLoaderValidationError("Error with row %s. Facility code %s does not reference "
+                    "a facility." % (row['line_num'], row['facility_code']))
+        except Location.DoesNotExist:
+            facility_location = Location(code=row['facility_code'])
+
+        facility_location.name = row['facility_name']
+        facility_location.type_id = config.LocationCodes.FACILITY
+        facility_location.parent = district_location
+        facility_location.save()
+        return facility_location
+
+    def get_or_create_district_supply_point(self, row, district_location, zone_supply_point):
+        try:
+            supply_point = SupplyPoint.objects.get(code=district_location.code)
+            if supply_point.type_id != config.SupplyPointCodes.DISTRICT:
+                raise FacilityLoaderValidationError("Error with row %s. District code %s does not reference "
+                    "a district." % (row['line_num'], district_location.code))
+
+            supply_point.name = district_location.name
+            supply_point.location = district_location
+            supply_point.supplied_by = zone_supply_point
+            supply_point.save()
+        except SupplyPoint.DoesNotExist:
+            supply_point = SupplyPoint.objects.create(
+                code=district_location.code,
+                type_id=config.SupplyPointCodes.DISTRICT,
+                name=district_location.name,
+                location=district_location,
+                supplied_by=zone_supply_point
+            )
+
+        return supply_point
+
+    def get_or_create_facility_supply_point(self, row, facility_location, district_supply_point):
+        try:
+            supply_point = SupplyPoint.objects.get(code=facility_location.code)
+            if supply_point.type_id != config.SupplyPointCodes.FACILITY:
+                raise FacilityLoaderValidationError("Error with row %s. Facility code %s does not reference "
+                    "a facility." % (row['line_num'], facility_location.code))
+
+            supply_point.name = facility_location.name
+            supply_point.location = facility_location
+            supply_point.supplied_by = district_supply_point
+            supply_point.save()
+        except SupplyPoint.DoesNotExist:
+            supply_point = SupplyPoint.objects.create(
+                code=facility_location.code,
+                type_id=config.SupplyPointCodes.FACILITY,
+                name=facility_location.name,
+                location=facility_location,
+                supplied_by=district_supply_point
+            )
+
+        return supply_point
+
+    def load_data(self):
+        for row in self.data:
+            zone_location = Location.objects.get(code=row['zone_code'])
+            zone_supply_point = SupplyPoint.objects.get(code=row['zone_code'])
+            district_location = self.get_or_create_district_location(row, zone_location)
+            facility_location = self.get_or_create_facility_location(row, district_location)
+            district_supply_point = self.get_or_create_district_supply_point(row, district_location, zone_supply_point)
+            self.get_or_create_facility_supply_point(row, facility_location, district_supply_point)
+
+    def run(self):
+        """
+        Returns the number of records processed on success, otherwise raises
+        a FacilityLoaderValidationError.
+        """
+        self.parse_data()
+        with transaction.atomic():
+            self.load_data()
+
+        return len(self.data)
+
+
 def load_locations(file):
     # create/load static types    
     country_type = LocationType.objects.get_or_create(slug=config.LocationCodes.COUNTRY, name=config.LocationCodes.COUNTRY)[0]
