@@ -52,7 +52,7 @@ class ContactForm(forms.ModelForm):
         role_choices = [('', '---------')]
         facility_roles = []
         district_roles = []
-        country_roles = []
+        zone_roles = []
 
         for role in ContactRole.objects.all():
             if role.code == Roles.HSA:
@@ -61,14 +61,14 @@ class ContactForm(forms.ModelForm):
                 facility_roles.append((role.pk, "Facility User - " + role.name))
             elif role.code in Roles.DISTRICT_ONLY:
                 district_roles.append((role.pk, "District User - " + role.name))
-            elif role.code in Roles.COUNTRY_ONLY:
-                country_roles.append((role.pk, "Country User - " + role.name))
+            elif role.code in Roles.ZONE_ONLY:
+                zone_roles.append((role.pk, "Zone User - " + role.name))
             else:
                 role_choices.append((role.pk, role.name))
 
         role_choices.extend(facility_roles)
         role_choices.extend(district_roles)
-        role_choices.extend(country_roles)
+        role_choices.extend(zone_roles)
         return role_choices
 
     def clean_phone(self):
@@ -198,9 +198,9 @@ class CommoditiesContactForm(IntlSMSContactForm):
         elif role.code in Roles.DISTRICT_ONLY and supply_point.type.code != SupplyPointCodes.DISTRICT:
             raise forms.ValidationError("There is a mismatch between role and location. "
                 "You have chosen a district role but a non-district location.")
-        elif role.code in Roles.COUNTRY_ONLY and supply_point.type.code != SupplyPointCodes.COUNTRY:
+        elif role.code in Roles.ZONE_ONLY and supply_point.type.code != SupplyPointCodes.ZONE:
             raise forms.ValidationError("There is a mismatch between role and location. "
-                "You have chosen a country role but not the Malawi location.")
+                "You have chosen a zone role but not a zone location.")
 
         return supply_point
 

@@ -45,7 +45,7 @@ def create_manager(test_class, phone, name, role="ic", supply_point_code="2616")
                         {"sp_name": SupplyPoint.objects.get(code=supply_point_code).name,
                          "role": ContactRole.objects.get(code=role).name,
                          "contact_name": name}}
-    elif role in config.Roles.COUNTRY_ONLY:
+    elif role in config.Roles.ZONE_ONLY:
         a = """
                %(phone)s > manage %(name)s %(role)s %(code)s
                %(phone)s < %(confirm)s
@@ -54,7 +54,11 @@ def create_manager(test_class, phone, name, role="ic", supply_point_code="2616")
                 "name": name,
                 "role": role,
                 "code": supply_point_code,
-                "confirm": config.Messages.REGISTRATION_COUNTRY_CONFIRM % {"contact_name": name, "role": ContactRole.objects.get(code=role).name}
+                "confirm": config.Messages.REGISTRATION_ZONE_CONFIRM % {
+                    "contact_name": name,
+                    "role": ContactRole.objects.get(code=role).name,
+                    "sp_name": SupplyPoint.objects.get(code=supply_point_code).name,
+                }
             }
     else:
         raise config.Roles.InvalidRoleException(role)
