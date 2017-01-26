@@ -11,11 +11,11 @@ from .models import Message
 class MessageTable(Table):
 
     # this is temporary, until i fix ModelTable!
-    contact = Column()
-    connection = Column()
-    direction = Column()
+    contact = Column(sortable=False)
+    connection = Column(sortable=False)
+    direction = Column(sortable=False)
     date = DateColumn(format="H:i d/m/Y")
-    text = Column(css_class="message")
+    text = Column(css_class="message", sortable=False)
     tags = Column(sortable = False, value = lambda cell: cell.object.get_tags_for_display())
 
     class Meta:
