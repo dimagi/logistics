@@ -65,15 +65,22 @@ def hsas_below(location):
     hsas = Contact.objects.filter(role__code="hsa", is_active=True, 
                                   supply_point__active=True) 
     if location:
-        # support up to 4 levels of parentage. this covers
-        # hsa-> facility-> district-> country, which is all we allow you to select
-        
-        hsas = hsas.filter(Q(supply_point__location=location) | \
-                           Q(supply_point__supplied_by__location=location) | \
-                           Q(supply_point__supplied_by__supplied_by__location=location) | \
-                           Q(supply_point__supplied_by__supplied_by__supplied_by__location=location))
+        if location.type_id == config.LocationCodes.HSA:
+            hsas = hsas.filter(supply_point__location=location)
+        elif location.type_id == config.LocationCodes.FACILITY:
+            hsas = hsas.filter(supply_point__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.DISTRICT:
+            hsas = hsas.filter(supply_point__supplied_by__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.ZONE:
+            hsas = hsas.filter(supply_point__supplied_by__supplied_by__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.COUNTRY:
+            hsas = hsas.filter(supply_point__supplied_by__supplied_by__supplied_by__supplied_by__location=location)
+        else:
+            raise config.UnknownLocationCodeException(location.type_id)
+
     return hsas
-    
+
+
 def hsa_supply_points_below(location):
     """
     Given an optional location, return all HSAs below that location.
@@ -82,12 +89,19 @@ def hsa_supply_points_below(location):
     """
     hsa_sps = SupplyPoint.objects.filter(type__code="hsa", active=True, contact__is_active=True)
     if location:
-        # support up to 4 levels of parentage. this covers
-        # hsa-> facility-> district-> country, which is all we allow you to select
-        hsa_sps = hsa_sps.filter(Q(location=location) | \
-                                 Q(supplied_by__location=location) | \
-                                 Q(supplied_by__supplied_by__location=location) | \
-                                 Q(supplied_by__supplied_by__supplied_by__location=location))
+        if location.type_id == config.LocationCodes.HSA:
+            hsa_sps = hsa_sps.filter(location=location)
+        elif location.type_id == config.LocationCodes.FACILITY:
+            hsa_sps = hsa_sps.filter(supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.DISTRICT:
+            hsa_sps = hsa_sps.filter(supplied_by__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.ZONE:
+            hsa_sps = hsa_sps.filter(supplied_by__supplied_by__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.COUNTRY:
+            hsa_sps = hsa_sps.filter(supplied_by__supplied_by__supplied_by__supplied_by__location=location)
+        else:
+            raise config.UnknownLocationCodeException(location.type_id)
+
     return hsa_sps
     
     

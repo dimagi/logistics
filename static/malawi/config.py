@@ -136,6 +136,11 @@ class SupplyPointCodes(object):
         HSA: "hsa"
     }
 
+
+class UnknownLocationCodeException(Exception):
+    pass
+
+
 class LocationCodes(object):
     """
     These correspond to LocationType.code

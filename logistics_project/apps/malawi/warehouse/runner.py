@@ -81,6 +81,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
             HistoricalStock.objects.filter(date__gte=start, date__lte=end).delete()
             
     def generate(self, run_record):
+        """
+        Note that no warehouse data is stored at the zone level throughout
+        the entire warehouse process since reporting on zone is not a
+        requirement.
+        """
         print "Malawi warehouse generate!"
 
         start = run_record.start
@@ -392,7 +397,12 @@ def update_consumption_values(transactions):
 
 
 def update_alerts(hsas):
-    non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
+    non_hsas = (
+        SupplyPoint.objects.filter(active=True)
+        .exclude(type__code=SupplyPointCodes.HSA)
+        .exclude(type__code=SupplyPointCodes.ZONE)
+        .order_by('id')
+    )
     print "updating alerts"
 
     def _qs_to_int(queryset):
@@ -522,7 +532,7 @@ def update_historical_data():
     ]
 
     print 'updating historical data'
-    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True):
+    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True).exclude(type__code=SupplyPointCodes.ZONE):
         for year, month in months_between(BaseLevel.HSA_WAREHOUSE_START_DATE, sp.created_at):
             window_date = datetime(year, month, 1)
 
@@ -546,7 +556,12 @@ def update_historical_data():
 
 
 def proper_children(supply_point):
-    qs = SupplyPoint.objects.filter(active=True, supplied_by=supply_point)
+    if supply_point.type_id == SupplyPointCodes.COUNTRY:
+        # Skip over zone
+        qs = SupplyPoint.objects.filter(active=True, supplied_by__supplied_by=supply_point)
+    else:
+        qs = SupplyPoint.objects.filter(active=True, supplied_by=supply_point)
+
     proper_child = proper_child_type(supply_point)
     if proper_child == 'hsa':
         # when the child type is HSAs also enforce that they should have an active
@@ -561,6 +576,7 @@ def proper_children(supply_point):
 
 
 def proper_child_type(supply_point):
+    # For the purposes of the warehouse runner, do not collect aggregated data at the zone level
     return {
         'c': 'd',
         'd': 'hf',
