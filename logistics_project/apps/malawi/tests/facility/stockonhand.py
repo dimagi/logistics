@@ -296,7 +296,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_FACILITY_NOTIFICATION % {"supply_point": "Ntaja"},
-               "regional_notice": config.Messages.UNABLE_RESTOCK_NORMAL_REGION_ESCALATION %
+               "regional_notice": config.Messages.UNABLE_RESTOCK_NORMAL_ZONE_ESCALATION %
                     {"contact": de.name, "supply_point": "Machinga", "products": "sa, bc"}}
 
         self.runScript(a)
@@ -360,7 +360,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            16175551002 < %(facility_notice)s
            16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "bc"},
-               "regional_notice": config.Messages.UNABLE_RESTOCK_EO_REGION_ESCALATION  %
+               "regional_notice": config.Messages.UNABLE_RESTOCK_EO_ZONE_ESCALATION  %
                     {"contact": "peter", "supply_point": "Machinga", "products": "bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION % {"supply_point": "Ntaja", "products": "bc"}}
         self.runScript(a)
@@ -416,7 +416,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            16175551002 < %(facility_notice)s
            16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
-               "regional_notice": config.Messages.UNABLE_RESTOCK_STOCKOUT_REGION_ESCALATION  %
+               "regional_notice": config.Messages.UNABLE_RESTOCK_STOCKOUT_ZONE_ESCALATION  %
                     {"contact": "peter", "supply_point": "Machinga", "products": "sa, bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_EO_FACILITY_NOTIFICATION % {"supply_point": "Ntaja", "products": "sa, bc"}}
         self.runScript(a)
