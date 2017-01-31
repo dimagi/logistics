@@ -6,6 +6,7 @@ from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.warehouse.models import TimeTracker, OrderRequest, OrderFulfillment
 from rapidsms.contrib.messagelog.models import Message
 from logistics_project.apps.malawi.warehouse.runner import MalawiWarehouseRunner
+from static.malawi.config import SupplyPointCodes
 
 
 class Command(LabelCommand):
@@ -45,5 +46,6 @@ class Command(LabelCommand):
         # update
         warehouse_runner.update_base_level_data(hsa, start, end)
         for parent in hsa.get_parents():
-            print 'updating %s' % parent
-            warehouse_runner.update_aggregated_data(parent, start, end, since=None)
+            if parent.type_id != SupplyPointCodes.ZONE:
+                print 'updating %s' % parent
+                warehouse_runner.update_aggregated_data(parent, start, end, since=None)

@@ -169,12 +169,19 @@ def get_facilities():
 def facility_supply_points_below(location):
     facs = get_facility_supply_points()
     if location:
-        # support up to 3 levels of parentage. this covers
-        # facility-> district--> country, which is all we allow you to select in this case
-        facs = facs.filter(Q(location=location) | \
-                           Q(supplied_by__location=location) | \
-                           Q(supplied_by__supplied_by__location=location))
+        if location.type_id == config.LocationCodes.FACILITY:
+            facs = facs.filter(location=location)
+        elif location.type_id == config.LocationCodes.DISTRICT:
+            facs = facs.filter(supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.ZONE:
+            facs = facs.filter(supplied_by__supplied_by__location=location)
+        elif location.type_id == config.LocationCodes.COUNTRY:
+            facs = facs.filter(supplied_by__supplied_by__supplied_by__location=location)
+        else:
+            raise config.UnknownLocationCodeException(location.type_id)
+
     return facs
+
 
 def get_district_supply_points(include_test=False):
     base = SupplyPoint.objects.filter(active=True,

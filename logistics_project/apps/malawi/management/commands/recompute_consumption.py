@@ -9,7 +9,7 @@ from logistics_project.apps.malawi.warehouse.runner import ReportPeriod,\
     update_consumption, aggregate, update_consumption_times
 from logistics_project.apps.malawi.util import hsa_supply_points_below
 from optparse import make_option
-from static.malawi.config import BaseLevel
+from static.malawi.config import BaseLevel, SupplyPointCodes
 
 
 class Command(LabelCommand):
@@ -79,7 +79,9 @@ def recompute(run_record, aggregate_only, hsa_code=None):
 
     # aggregates
     if not hsa_code:
-        non_hsas = SupplyPoint.objects.filter(active=True).exclude(type__code='hsa').order_by('id')
+        non_hsas = SupplyPoint.objects.filter(active=True).exclude(
+            type__code__in=[SupplyPointCodes.HSA, SupplyPointCodes.ZONE],
+        ).order_by('id')
         count = non_hsas.count()
     else:
         non_hsas, count = get_affected_parents(hsa_code)
@@ -112,6 +114,7 @@ def get_affected_parents(hsa_code):
     parent = hsa.supplied_by
     parents = []
     while parent:
-        parents.append(parent)
+        if parent.type_id != SupplyPointCodes.ZONE:
+            parents.append(parent)
         parent = parent.supplied_by
     return parents, len(parents)

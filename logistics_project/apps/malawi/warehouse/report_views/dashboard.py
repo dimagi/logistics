@@ -170,7 +170,11 @@ class View(warehouse_view.DashboardView):
         reporting_supply_point = self.get_reporting_supply_point(request)
 
         # reporting rates + stockout summary
-        child_sps = SupplyPoint.objects.filter(active=True, supplied_by=reporting_supply_point).order_by('name')
+        child_sps = SupplyPoint.objects.filter(active=True).order_by('name')
+        if reporting_supply_point.type_id == SupplyPointCodes.COUNTRY:
+            child_sps = child_sps.filter(supplied_by__supplied_by=reporting_supply_point)
+        else:
+            child_sps = child_sps.filter(supplied_by=reporting_supply_point)
 
         # filter 'test district' out for non-superusers
         if not request.user.is_superuser:
