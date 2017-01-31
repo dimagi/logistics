@@ -6,7 +6,6 @@ from rapidsms.contrib.locations.models import LocationType, Location
 from logistics.models import SupplyPoint, SupplyPointType,\
     ProductReportType, ContactRole, Product, ProductType
 from logistics.util import config
-from logistics.shortcuts import supply_point_from_location
 from logistics_project.loader.base import load_report_types, load_roles
 import csv
 from pytz import timezone
@@ -442,67 +441,6 @@ class FacilityLoader(object):
             self.load_data()
 
         return len(self.data)
-
-
-def load_locations(file):
-    # create/load static types    
-    country_type = LocationType.objects.get_or_create(slug=config.LocationCodes.COUNTRY, name=config.LocationCodes.COUNTRY)[0]
-    district_type = LocationType.objects.get_or_create(slug=config.LocationCodes.DISTRICT, name=config.LocationCodes.DISTRICT)[0]
-    facility_type = LocationType.objects.get_or_create(slug=config.LocationCodes.FACILITY, name=config.LocationCodes.FACILITY)[0]
-    hsa_type = LocationType.objects.get_or_create(slug=config.LocationCodes.HSA, name=config.LocationCodes.HSA)[0]
-    country = Location.objects.get_or_create(name=settings.COUNTRY[0].upper()+settings.COUNTRY[1:], type=country_type, code=settings.COUNTRY)[0]
-    
-    country_sp_type = SupplyPointType.objects.get_or_create(name="country", code=config.SupplyPointCodes.COUNTRY)[0]
-    country_sp = supply_point_from_location(country, type=country_sp_type)
-    district_sp_type = SupplyPointType.objects.get_or_create(name="district", code=config.SupplyPointCodes.DISTRICT)[0]
-    fac_sp_type = SupplyPointType.objects.get_or_create(name="health facility", code=config.SupplyPointCodes.FACILITY)[0]
-    # we don't use this anywhere in the loader, but make sure to create it
-    hsa_sp_type = SupplyPointType.objects.get_or_create(name="health surveillance assistant", code=config.SupplyPointCodes.HSA)[0]
-    
-    count = 0
-    for line in file:
-        #leave out first line
-        if "district code" in line.lower():
-            continue
-        district_code, district_name, facility_code, facility_name = \
-            [token.strip() for token in line.split(",")]
-        
-        #create/load district
-        def _pad_to(val, target_len):
-            if len(val) < target_len:
-                val = "%s%s" % ("0" * (target_len - len(val)), val)
-            assert len(val) == target_len
-            return val 
-        
-        district_code = _pad_to(district_code, 2)
-        facility_code = _pad_to(facility_code, 4)
-        
-        try:
-            district = Location.objects.get(code__iexact=district_code)
-        except Location.DoesNotExist:
-            district = Location.objects.create(name=district_name.strip(), type=district_type, 
-                                               code=district_code, parent=country)
-        # create/load district supply point info
-        dist_sp = supply_point_from_location(district, type=district_sp_type, parent=country_sp)
-        
-        #create/load location info
-        if not facility_code:
-            facility_code = "temp%s" % count
-        try:
-            fac_loc = Location.objects.get(code=facility_code)
-        except Location.DoesNotExist:
-            fac_loc = Location(code=facility_code)
-        fac_loc.name = facility_name.strip()
-        fac_loc.parent = district
-        fac_loc.type = facility_type
-        fac_loc.save()
-        
-        # create/load supply point info
-        fac_sp = supply_point_from_location(fac_loc, type=fac_sp_type, parent=dist_sp)
-        
-        count += 1
-
-    return ["Successfully processed %s locations." % count]
 
 
 def _clean(location_name):
