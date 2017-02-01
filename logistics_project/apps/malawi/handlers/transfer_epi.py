@@ -9,7 +9,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact
 
 
-class RefrigeratorMalfunctionHandler(KeywordHandler):
+class AdviseEPITransferHandler(KeywordHandler):
     keyword = "transfer"
 
     def help(self):
@@ -24,7 +24,7 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
 
     def get_facility(self, code, district_supply_point, perform_location_parent_check=True):
         try:
-            facility = SupplyPoint.objects.get(code=code)
+            facility = SupplyPoint.objects.get(code=code, type__code=config.SupplyPointCodes.FACILITY)
         except SupplyPoint.DoesNotExist:
             facility = None
 
