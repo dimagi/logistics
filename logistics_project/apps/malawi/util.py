@@ -230,34 +230,47 @@ def get_view_level(user):
             return 'national'
     return 'district'
 
+
 def get_visible_districts(user):
     """
     Given a user, what districts can they see
     """
     if get_view_level(user) == 'national':
-        return get_districts(user.is_superuser)
+        return list(get_districts(user.is_superuser))
 
-    prof = user.get_profile()
+    profile = user.get_profile()
     loc = None
     locations = []
-    # add managed districts for the organization
-    if prof and prof.organization:
-        locations = [d.location for d in prof.organization.managed_supply_points.all()]
-    # check user's assigned district
-    if prof and prof.supply_point and prof.supply_point.location:
-        loc = prof.supply_point.location
-    # in case location is set, but not supply_point
-    elif prof and prof.location:
-        loc = prof.location
-    if loc and loc.type.slug == config.LocationCodes.DISTRICT:
-        for l in Location.objects.filter(pk=loc.pk):
-            locations.append(l)
-    elif loc:
-        # support one level deep, assuming that this is national or nothing
-        for l in Location.objects.filter(parent_id=loc.id, is_active=True,\
-                type__slug=config.LocationCodes.DISTRICT):
-            locations.append(l)
-    return locations
+
+    if profile:
+        # Add visible districts based on the user's organization
+
+        if profile.organization:
+            # If the user belongs to an organization, include the districts
+            # managed by the organization.
+            # We only allow settings districts as managed_supply_points for an
+            # organization in the edit organization UI.
+            locations.extend([d.location for d in profile.organization.managed_supply_points.all()])
+
+        if profile.supply_point and profile.supply_point.location:
+            loc = profile.supply_point.location
+        elif profile.location:
+            loc = profile.location
+
+    if loc:
+        # Add visible districts based on the user's profile
+
+        if loc.type_id == config.LocationCodes.DISTRICT:
+            locations.append(loc)
+        elif loc.type_id == config.LocationCodes.ZONE:
+            for l in Location.objects.filter(parent_id=loc.id, is_active=True):
+                if l.code != '99' or user.is_superuser:
+                    locations.append(l)
+        elif loc.type_id == config.LocationCodes.COUNTRY:
+            return list(get_districts(user.is_superuser))
+
+    return list(set(locations))
+
 
 def get_visible_facilities(user):
     """
