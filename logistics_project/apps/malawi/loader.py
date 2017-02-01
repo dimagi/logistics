@@ -90,16 +90,6 @@ def load_base_locations():
         )
 
 
-def clear_locations():
-    Location.objects.all().delete()
-    LocationType.objects.all().delete()
-
-
-def clear_products():
-    Product.objects.all().delete()
-    ProductType.objects.all().delete()
-
-
 def load_schedules():
     malawi_tz = timezone("Africa/Blantyre") 
     def _malawi_to_utc(hours):
