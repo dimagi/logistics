@@ -609,10 +609,14 @@ def send_outreach(req):
 def export_amc_csv(request):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=amc.csv'
+    products = Product.objects.filter(type__base_level==config.BaseLevel.HSA).order_by('sms_code')
     writer = UnicodeWriter(response)
-    _, data_rows = amc_plot(SupplyPoint.objects.filter(active=True), request.datespan)
+    _, data_rows = amc_plot(
+        SupplyPoint.objects.filter(active=True, type__code=config.SupplyPointCodes.HSA),
+        request.datespan,
+        products=products
+    )
     datetimes = [datetime(m, y, 1) for m, y in request.datespan.months_iterator()]
-    products = Product.objects.order_by('sms_code')
     row = ['Year', 'Month']
     row.extend([p.sms_code for p in products])
     writer.writerow(row)
