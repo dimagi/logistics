@@ -297,7 +297,7 @@ class FacilityLoader(object):
 
         return value
 
-    def validate_district_zone_mapping(self, zone_code, district_code):
+    def validate_district_zone_mapping(self, line_num, zone_code, district_code):
         if district_code not in self.district_zone_map:
             self.district_zone_map[district_code] = zone_code
         else:
@@ -311,6 +311,7 @@ class FacilityLoader(object):
         for line in self.file_obj:
             # Ignore headers
             if line_num == 1 and "district code" in line.lower():
+                line_num += 1
                 continue
 
             column_data = self.validate_column_data(line_num, line)
@@ -320,7 +321,7 @@ class FacilityLoader(object):
             district_code = self.validate_district_code(line_num, district_code)
             facility_code = self.validate_facility_code(line_num, facility_code)
 
-            self.validate_district_zone_mapping(zone_code, district_code)
+            self.validate_district_zone_mapping(line_num, zone_code, district_code)
             self.data.append({
                 'line_num': line_num,
                 'zone_code': zone_code,
@@ -339,6 +340,10 @@ class FacilityLoader(object):
             if district_location.type_id != config.LocationCodes.DISTRICT:
                 raise FacilityLoaderValidationError("Error with row %s. District code %s does not reference "
                     "a district." % (row['line_num'], row['district_code']))
+
+            if not district_location.is_active:
+                raise FacilityLoaderValidationError("Error with row %s. District code %s references a "
+                    "deactivated district." % (row['line_num'], row['district_code']))
 
             if district_location.parent_id != zone_location.pk:
                 district_location.parent = zone_location
@@ -359,6 +364,10 @@ class FacilityLoader(object):
             if facility_location.type_id != config.LocationCodes.FACILITY:
                 raise FacilityLoaderValidationError("Error with row %s. Facility code %s does not reference "
                     "a facility." % (row['line_num'], row['facility_code']))
+
+            if not facility_location.is_active:
+                raise FacilityLoaderValidationError("Error with row %s. Facility code %s references a "
+                    "deactivated facility." % (row['line_num'], row['facility_code']))
         except Location.DoesNotExist:
             facility_location = Location(code=row['facility_code'])
 
@@ -374,6 +383,10 @@ class FacilityLoader(object):
             if supply_point.type_id != config.SupplyPointCodes.DISTRICT:
                 raise FacilityLoaderValidationError("Error with row %s. District code %s does not reference "
                     "a district." % (row['line_num'], district_location.code))
+
+            if not supply_point.active:
+                raise FacilityLoaderValidationError("Error with row %s. District code %s references a "
+                    "deactivated district." % (row['line_num'], district_location.code))
 
             supply_point.name = district_location.name
             supply_point.location = district_location
@@ -396,6 +409,10 @@ class FacilityLoader(object):
             if supply_point.type_id != config.SupplyPointCodes.FACILITY:
                 raise FacilityLoaderValidationError("Error with row %s. Facility code %s does not reference "
                     "a facility." % (row['line_num'], facility_location.code))
+
+            if not supply_point.active:
+                raise FacilityLoaderValidationError("Error with row %s. Facility code %s references a "
+                    "deactivated facility." % (row['line_num'], facility_location.code))
 
             supply_point.name = facility_location.name
             supply_point.location = facility_location
