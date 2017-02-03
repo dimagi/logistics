@@ -236,7 +236,7 @@ def get_visible_districts(user):
     Given a user, what districts can they see
     """
     if get_view_level(user) == 'national':
-        return list(get_districts(user.is_superuser))
+        return list(get_districts(user.is_superuser).order_by('code'))
 
     profile = user.get_profile()
     loc = None
@@ -267,9 +267,9 @@ def get_visible_districts(user):
                 if l.code != '99' or user.is_superuser:
                     locations.append(l)
         elif loc.type_id == config.LocationCodes.COUNTRY:
-            return list(get_districts(user.is_superuser))
+            return list(get_districts(user.is_superuser).order_by('code'))
 
-    return list(set(locations))
+    return sorted(list(set(locations)), key=lambda loc: loc.code)
 
 
 def get_visible_facilities(user):

@@ -1,8 +1,10 @@
+from django.contrib.auth.models import User
 from logistics.models import SupplyPoint
+from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.util import (hsas_below, hsa_supply_points_below,
-    facility_supply_points_below)
+    facility_supply_points_below, get_or_create_user_profile, get_visible_districts)
 from rapidsms.contrib.locations.models import Location
 from static.malawi.config import SupplyPointCodes
 
@@ -62,3 +64,59 @@ class TestMalawiUtils(MalawiTestBase):
             type__code=SupplyPointCodes.FACILITY
         ).values_list('code', flat=True)
         self.assert_facility_supply_points_below('malawi', list(all_facility_codes))
+
+    def assert_get_visible_districts(self, user, expected_codes):
+        expected_result = Location.objects.filter(code__in=expected_codes).order_by('code')
+        self.assertEqual(get_visible_districts(user), list(expected_result))
+
+    def test_get_visible_districts(self):
+        # By default the user has access to no districts
+        user = User.objects.create_user('joe', '', 'pass')
+        profile = get_or_create_user_profile(user)
+        self.assert_get_visible_districts(user, [])
+
+        profile.organization = Organization.objects.create(name='Org')
+        profile.save()
+        self.assert_get_visible_districts(user, [])
+
+        # Test adding districts to profile.organization
+        profile.organization.managed_supply_points.add(SupplyPoint.objects.get(code='03'))
+        profile.organization.managed_supply_points.add(SupplyPoint.objects.get(code='26'))
+        self.assert_get_visible_districts(user, ['03', '26'])
+
+        # Test setting profile.supply_point to a district
+        profile.supply_point = SupplyPoint.objects.get(code='15')
+        profile.save()
+        self.assert_get_visible_districts(user, ['03', '15', '26'])
+
+        profile.supply_point = SupplyPoint.objects.get(code='03')
+        profile.save()
+        self.assert_get_visible_districts(user, ['03', '26'])
+
+        profile.organization.managed_supply_points.clear()
+        self.assert_get_visible_districts(user, ['03'])
+
+        # Test setting profile.location to a district
+        profile.supply_point = None
+        profile.location = Location.objects.get(code='26')
+        profile.save()
+        self.assert_get_visible_districts(user, ['26'])
+
+        # Test setting profile.location to a zone
+        profile.location = Location.objects.get(code='no')
+        profile.save()
+        self.assert_get_visible_districts(user, ['03'])
+
+        # Test setting profile.location to the country
+        profile.location = Location.objects.get(code='malawi')
+        profile.save()
+        all_districts = SupplyPoint.objects.filter(type__code=SupplyPointCodes.DISTRICT).values_list('code', flat=True)
+        self.assert_get_visible_districts(user, all_districts.exclude(code='99'))
+
+        # Test superuser
+        profile.location = None
+        profile.save()
+        self.assert_get_visible_districts(user, [])
+        user.is_superuser = True
+        user.save()
+        self.assert_get_visible_districts(user, all_districts)
