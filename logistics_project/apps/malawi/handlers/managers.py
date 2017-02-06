@@ -16,7 +16,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         self.respond(config.Messages.MANAGER_HELP)
 
     def valid_roles(self):
-        return config.Roles.FACILITY_ONLY + config.Roles.DISTRICT_ONLY + config.Roles.COUNTRY_ONLY
+        return config.Roles.FACILITY_ONLY + config.Roles.DISTRICT_ONLY + config.Roles.ZONE_ONLY
 
     def respond_role_wrong_level(self, role):
         self.respond(config.Messages.ROLE_WRONG_LEVEL, role=role.name, level=self.supply_point.location.type.name)
@@ -39,7 +39,7 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
             self.respond_unknown_role(role.code)
             return
 
-        if self.supply_point.location.type.name != config.LocationCodes.COUNTRY and role.code in config.Roles.COUNTRY_ONLY:
+        if self.supply_point.location.type.name != config.LocationCodes.ZONE and role.code in config.Roles.ZONE_ONLY:
             self.respond_role_wrong_level(role)
             return
 
@@ -67,8 +67,9 @@ class ManagerRegistrationHandler(RegistrationBaseHandler):
         self.msg.connection.contact = contact
         self.msg.connection.save()
 
-        if role.code in config.Roles.COUNTRY_ONLY:
-            self.respond(config.Messages.REGISTRATION_COUNTRY_CONFIRM, contact_name=contact.name, role=role.name)
+        if role.code in config.Roles.ZONE_ONLY:
+            self.respond(config.Messages.REGISTRATION_ZONE_CONFIRM, sp_name=self.supply_point.name,
+                         contact_name=contact.name, role=contact.role.name)
         elif role.code in config.Roles.DISTRICT_ONLY:
             self.respond(_(config.Messages.REGISTRATION_DISTRICT_CONFIRM), sp_name=self.supply_point.name,
                          contact_name=contact.name, role=contact.role.name)

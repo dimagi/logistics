@@ -80,12 +80,12 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
             if stockouts.count() > 0:
                 _message_supervisors(
                     config.Messages.UNABLE_RESTOCK_STOCKOUT_DISTRICT_ESCALATION if self.base_level_is_hsa
-                    else config.Messages.UNABLE_RESTOCK_STOCKOUT_REGION_ESCALATION
+                    else config.Messages.UNABLE_RESTOCK_STOCKOUT_ZONE_ESCALATION
                 )
             else:
                 _message_supervisors(
                     config.Messages.UNABLE_RESTOCK_EO_DISTRICT_ESCALATION if self.base_level_is_hsa
-                    else config.Messages.UNABLE_RESTOCK_EO_REGION_ESCALATION
+                    else config.Messages.UNABLE_RESTOCK_EO_ZONE_ESCALATION
                 )
         else:
             self.respond(
@@ -100,7 +100,7 @@ class OrderStockoutHandler(OrderResponseBaseHandler):
 
             _message_supervisors(
                 config.Messages.UNABLE_RESTOCK_NORMAL_DISTRICT_ESCALATION if self.base_level_is_hsa
-                else config.Messages.UNABLE_RESTOCK_NORMAL_REGION_ESCALATION
+                else config.Messages.UNABLE_RESTOCK_NORMAL_ZONE_ESCALATION
             )
 
             

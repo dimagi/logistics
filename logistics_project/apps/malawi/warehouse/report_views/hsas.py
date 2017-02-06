@@ -10,6 +10,7 @@ from logistics_project.apps.malawi.util import get_default_supply_point, \
     hsa_supply_points_below, fmt_or_none
 from logistics_project.apps.malawi.warehouse.report_utils import get_hsa_url
 from rapidsms.models import Contact
+from static.malawi.config import SupplyPointCodes
 
 
 class View(warehouse_view.DistrictOnlyView):
@@ -19,7 +20,7 @@ class View(warehouse_view.DistrictOnlyView):
     def custom_context(self, request):
 
         if request.GET.get('hsa_code'):
-            hsa = SupplyPoint.objects.filter(code=request.GET.get('hsa_code'))
+            hsa = SupplyPoint.objects.filter(code=request.GET.get('hsa_code'), type__code=SupplyPointCodes.HSA)
             if hsa.count():
                 self.slug = 'single-hsa'
                 return self.single_hsa_context(request, hsa[0])

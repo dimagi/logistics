@@ -213,8 +213,11 @@ class TestHSARegister(MalawiTestBase):
 
     def testMismatchedManagerRolesAndLocations(self):
         self._run_manager_mismatch_test(config.Roles.IN_CHARGE, '26')
+        self._run_manager_mismatch_test(config.Roles.IN_CHARGE, 'se')
         self._run_manager_mismatch_test(config.Roles.IN_CHARGE, 'malawi')
         self._run_manager_mismatch_test(config.Roles.DISTRICT_PHARMACIST, '2616')
+        self._run_manager_mismatch_test(config.Roles.DISTRICT_PHARMACIST, 'se')
         self._run_manager_mismatch_test(config.Roles.DISTRICT_PHARMACIST, 'malawi')
         self._run_manager_mismatch_test(config.Roles.REGIONAL_EPI_COORDINATOR, '2616')
         self._run_manager_mismatch_test(config.Roles.REGIONAL_EPI_COORDINATOR, '26')
+        self._run_manager_mismatch_test(config.Roles.REGIONAL_EPI_COORDINATOR, 'malawi')

@@ -1,6 +1,6 @@
 from django.conf import settings
 from rapidsms.tests.scripted import TestScript
-from logistics_project.apps.malawi import loader
+from logistics_project.apps.malawi.loader import load_static_data_for_tests
 from logistics_project.apps.malawi.management.commands.create_epi_products import create_or_update_epi_products
 from rapidsms.contrib.messagelog.models import Message
 import csv
@@ -43,6 +43,6 @@ class MalawiTestBase(OutputtingTestScript):
     
     def setUp(self):
         super(MalawiTestBase, self).setUp()
-        loader.init_static_data(do_locations=True, do_products=True)
+        load_static_data_for_tests()
         create_or_update_epi_products()
         settings.LOGISTICS_APPROVAL_REQUIRED = False

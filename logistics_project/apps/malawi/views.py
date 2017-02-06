@@ -50,8 +50,8 @@ from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.forms import OrganizationForm, LogisticsProfileForm,\
     UploadFacilityFileForm, ProductForm, UserForm
 
-from logistics_project.apps.malawi.loader import load_locations,\
-    get_facility_export
+from logistics_project.apps.malawi.loader import (get_facility_export,
+    FacilityLoaderValidationError, FacilityLoader)
 from django.views.decorators.http import require_POST
 from logistics_project.apps.outreach.models import OutreachMessage, OutreachQuota
 from django.db.models.query_utils import Q
@@ -539,10 +539,11 @@ def upload_facilities(request):
     if form.is_valid():
         f = request.FILES['file']
         try: 
-            msgs = load_locations(f)
-            for m in msgs:
-                messages.info(request, m)
-        except Exception, e:
+            count = FacilityLoader(f).run()
+            messages.info(request, "Successfully processed %s rows." % count)
+        except FacilityLoaderValidationError as f:
+            messages.error(request, f.validation_msg)
+        except Exception as e:
             messages.error(request, "Something went wrong with that upload. " 
                            "Please double check the file format or "
                            "try downloading a new copy. Your error message "
@@ -608,10 +609,14 @@ def send_outreach(req):
 def export_amc_csv(request):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=amc.csv'
+    products = Product.objects.filter(type__base_level=config.BaseLevel.HSA).order_by('sms_code')
     writer = UnicodeWriter(response)
-    _, data_rows = amc_plot(SupplyPoint.objects.filter(active=True), request.datespan)
+    _, data_rows = amc_plot(
+        SupplyPoint.objects.filter(active=True, type__code=config.SupplyPointCodes.HSA),
+        request.datespan,
+        products=products
+    )
     datetimes = [datetime(m, y, 1) for m, y in request.datespan.months_iterator()]
-    products = Product.objects.order_by('sms_code')
     row = ['Year', 'Month']
     row.extend([p.sms_code for p in products])
     writer.writerow(row)
