@@ -7,9 +7,10 @@ from logistics.models import Product, SupplyPoint
 from logistics.reports import ReportView
 from logistics.util import config
 
-from logistics_project.apps.malawi.util import get_facilities, get_districts,\
-    get_country_sp, pct, get_default_supply_point, get_visible_districts,\
-    get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas
+from logistics_project.apps.malawi.util import (get_facilities, get_districts,
+    get_country_sp, pct, get_default_supply_point, get_visible_districts,
+    get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas,
+    get_facility_supply_points)
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 
@@ -104,24 +105,29 @@ class MalawiWarehouseView(ReportView):
             pass
 
         default_sp = get_default_supply_point(request.user)
+        districts = get_districts(request.user.is_superuser)
         visible_facilities = get_visible_facilities(request.user).order_by('parent_id')
         visible_hsas = []
+
         if request.base_level_is_hsa:
             visible_hsas = get_visible_hsas(request.user)
+            facility_count = get_facility_supply_points().count()
+        elif request.base_level_is_facility:
+            districts = districts.filter(code__in=settings.EPI_DISTRICT_CODES)
+            visible_facilities = visible_facilities.filter(supplypoint__supplied_by__code__in=settings.EPI_DISTRICT_CODES)
+            facility_count = get_facility_supply_points().filter(supplied_by__code__in=settings.EPI_DISTRICT_CODES).count()
 
         querystring = '?'
         for key in request.GET.keys():
             querystring += '%s=%s&' % (key, request.GET[key])
 
-        districts = get_districts(request.user.is_superuser)
         base_context.update({
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
             "districts": districts,
             "district_count": districts.count(),
             "facilities": visible_facilities,
-            "facility_count": SupplyPoint.objects.filter(active=True, 
-                                                         type__code=config.SupplyPointCodes.FACILITY).count(),
+            "facility_count": facility_count,
             "visible_hsas": visible_hsas,
             "hsas": SupplyPoint.objects.filter(active=True, type__code="hsa").count(),
             "reporting_rate": pct_reported,
@@ -183,6 +189,9 @@ class DistrictOnlyView(MalawiWarehouseView):
     def shared_context(self, request):
         base_context = super(DistrictOnlyView, self).shared_context(request)
         visible_districts = get_visible_districts(request.user)
+        if request.base_level_is_facility:
+            visible_districts = filter(lambda d: d.code in settings.EPI_DISTRICT_CODES, visible_districts)
+
         view_level = get_view_level(request.user)
         base_context["districts"] = visible_districts
         base_context["national_view_level"] = view_level == 'national'
