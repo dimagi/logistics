@@ -3,9 +3,10 @@ from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType, ProductStock
 from logistics.util import config
-from logistics_project.apps.malawi.util import fmt_pct, pct,\
-    is_country, is_district, is_facility, hsa_supply_points_below,\
-    facility_supply_points_below, get_district_supply_points
+from logistics_project.apps.malawi.util import (fmt_pct, pct,
+    is_country, is_district, is_facility, hsa_supply_points_below,
+    facility_supply_points_below, get_district_supply_points,
+    filter_district_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.report_utils import get_datelist,\
     get_stock_status_table_data, current_report_period
@@ -131,8 +132,11 @@ class View(warehouse_view.DistrictOnlyView):
         elif is_country(reporting_supply_point):
             table["location_type"] = "District"
             table["header"] = [table["location_type"]] + headings
+            districts = get_district_supply_points(request.user.is_superuser).order_by('name')
+            if request.base_level_is_facility:
+                districts = filter_district_queryset_for_epi(districts)
             table["data"] = self._get_product_status_table(
-                get_district_supply_points(request.user.is_superuser).order_by('name'),
+                districts,
                 selected_product,
                 current_report_period(),
             )
