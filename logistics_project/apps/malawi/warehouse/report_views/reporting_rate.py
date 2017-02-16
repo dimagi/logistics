@@ -9,9 +9,10 @@ from dimagi.utils.dates import months_between
 
 from logistics.models import SupplyPoint
 
-from logistics_project.apps.malawi.util import get_default_supply_point,\
-    get_district_supply_points, facility_supply_points_below, fmt_pct,\
-    hsa_supply_points_below, is_country, is_district, is_facility
+from logistics_project.apps.malawi.util import (get_default_supply_point,
+    get_district_supply_points, facility_supply_points_below, fmt_pct,
+    hsa_supply_points_below, is_country, is_district, is_facility,
+    filter_district_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import get_reporting_rates_chart
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -75,12 +76,15 @@ class View(warehouse_view.DistrictOnlyView):
         location_table = None
         if is_country(sp):
             # district breakdown
+            districts = get_district_supply_points(request.user.is_superuser).order_by('name')
+            if request.base_level_is_facility:
+                districts = filter_district_queryset_for_epi(districts)
             location_table = {
                 "id": "average-reporting-rate-districts",
                 "is_datatable": False,
                 "is_downloadable": True,
                 "header": ["Districts"] + shared_headers,
-                "data": _avg_report_rate_table_data(get_district_supply_points(request.user.is_superuser).order_by('name'),
+                "data": _avg_report_rate_table_data(districts,
                                                     request.datespan.startdate,
                                                     request.datespan.enddate),
                 "location_type": "districts"
