@@ -10,7 +10,7 @@ from logistics.util import config
 from logistics_project.apps.malawi.util import (get_facilities, get_districts,
     get_country_sp, pct, get_default_supply_point, get_visible_districts,
     get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas,
-    get_facility_supply_points)
+    get_facility_supply_points, filter_district_queryset_for_epi, filter_district_list_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 
@@ -113,7 +113,7 @@ class MalawiWarehouseView(ReportView):
             visible_hsas = get_visible_hsas(request.user)
             facility_count = get_facility_supply_points().count()
         elif request.base_level_is_facility:
-            districts = districts.filter(code__in=settings.EPI_DISTRICT_CODES)
+            districts = filter_district_queryset_for_epi(districts)
             visible_facilities = visible_facilities.filter(supplypoint__supplied_by__code__in=settings.EPI_DISTRICT_CODES)
             facility_count = get_facility_supply_points().filter(supplied_by__code__in=settings.EPI_DISTRICT_CODES).count()
 
@@ -190,7 +190,7 @@ class DistrictOnlyView(MalawiWarehouseView):
         base_context = super(DistrictOnlyView, self).shared_context(request)
         visible_districts = get_visible_districts(request.user)
         if request.base_level_is_facility:
-            visible_districts = filter(lambda d: d.code in settings.EPI_DISTRICT_CODES, visible_districts)
+            visible_districts = filter_district_list_for_epi(visible_districts)
 
         view_level = get_view_level(request.user)
         base_context["districts"] = visible_districts
