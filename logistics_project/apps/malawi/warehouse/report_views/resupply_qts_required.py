@@ -1,9 +1,10 @@
 from django.db.models import Q
 from logistics.models import StockRequest, Product, SupplyPoint
 from logistics_project.apps.malawi.warehouse import warehouse_view
-from logistics_project.apps.malawi.util import get_default_supply_point,\
-    facility_supply_points_below, is_district, is_country, is_facility,\
-    hsa_supply_points_below, get_district_supply_points
+from logistics_project.apps.malawi.util import (get_default_supply_point,
+    facility_supply_points_below, is_district, is_country, is_facility,
+    hsa_supply_points_below, get_district_supply_points,
+    filter_district_queryset_for_epi)
 from collections import defaultdict
 from static.malawi.config import BaseLevel
 
@@ -32,6 +33,8 @@ class View(warehouse_view.DistrictOnlyView):
         if is_country(sp):
             table["header"] = ["District Name"]
             facilities = get_district_supply_points(request.user.is_superuser)
+            if request.base_level_is_facility:
+                facilities = filter_district_queryset_for_epi(facilities)
         elif is_district(sp):
             table["header"] = ["Facility Name"]
             facilities = facility_supply_points_below(sp.location)
