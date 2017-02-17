@@ -18,7 +18,7 @@ from warehouse.models import ReportRun
 from static.malawi.config import TimeTrackerTypes, SupplyPointCodes, BaseLevel
 
 from logistics_project.apps.malawi.util import (hsa_supply_points_below, get_country_sp,
-    get_managed_product_ids)
+    get_managed_product_ids, filter_district_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ReportingRate,\
     ProductAvailabilityData, ProductAvailabilityDataSummary, \
     TIME_TRACKER_TYPES, TimeTracker, OrderRequest, OrderFulfillment, Alert,\
@@ -138,6 +138,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         for agg_type_code, agg_type_name in aggregate_types_in_order(base_level):
             supply_points = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
             print 'aggregating data at level %s for base level %s' % (agg_type_name, base_level)
+
             if self.agg_limit_per_type:
                 supply_points = supply_points[:self.agg_limit_per_type]
 
@@ -190,6 +191,11 @@ class MalawiWarehouseRunner(WarehouseRunner):
         base_level_is_hsa = (base_level == BaseLevel.HSA)
         all_products = all_products or get_products(base_level)
         relevant_children = proper_children(supply_point)
+
+        if base_level == BaseLevel.FACILITY and supply_point.type_id == SupplyPointCodes.COUNTRY:
+            # For EPI, only aggregate national data over participating districts.
+            # This makes a difference for models that track total counts, like ReportingRate.
+            relevant_children = filter_district_queryset_for_epi(relevant_children)
 
         if not self.skip_current_consumption:
             for p in all_products:
