@@ -10,7 +10,8 @@ from logistics.util import config
 from logistics_project.apps.malawi.util import (get_facilities, get_districts,
     get_country_sp, pct, get_default_supply_point, get_visible_districts,
     get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas,
-    get_facility_supply_points, filter_district_queryset_for_epi, filter_district_list_for_epi)
+    get_facility_supply_points, filter_district_queryset_for_epi, filter_district_list_for_epi,
+    filter_facility_supply_point_queryset_for_epi, filter_facility_location_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 
@@ -114,8 +115,8 @@ class MalawiWarehouseView(ReportView):
             facility_count = get_facility_supply_points().count()
         elif request.base_level_is_facility:
             districts = filter_district_queryset_for_epi(districts)
-            visible_facilities = visible_facilities.filter(supplypoint__supplied_by__code__in=settings.EPI_DISTRICT_CODES)
-            facility_count = get_facility_supply_points().filter(supplied_by__code__in=settings.EPI_DISTRICT_CODES).count()
+            visible_facilities = filter_facility_location_queryset_for_epi(visible_facilities)
+            facility_count = filter_facility_supply_point_queryset_for_epi(get_facility_supply_points()).count()
 
         querystring = '?'
         for key in request.GET.keys():
