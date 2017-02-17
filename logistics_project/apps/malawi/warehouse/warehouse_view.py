@@ -112,11 +112,15 @@ class MalawiWarehouseView(ReportView):
 
         if request.base_level_is_hsa:
             visible_hsas = get_visible_hsas(request.user)
-            facility_count = get_facility_supply_points().count()
+            all_districts = get_districts()
         elif request.base_level_is_facility:
             districts = filter_district_queryset_for_epi(districts)
             visible_facilities = filter_facility_location_queryset_for_epi(visible_facilities)
-            facility_count = filter_facility_supply_point_queryset_for_epi(get_facility_supply_points()).count()
+            all_districts = filter_district_queryset_for_epi(get_districts())
+
+        # Get counts for national view sidebar
+        district_count = all_districts.count()
+        facility_count = get_facilities().filter(parent_id__in=all_districts.values_list('id', flat=True)).count()
 
         querystring = '?'
         for key in request.GET.keys():
@@ -126,7 +130,7 @@ class MalawiWarehouseView(ReportView):
             "default_chart_width": 530 if settings.STYLE=='both' else 730,
             "country": country,
             "districts": districts,
-            "district_count": districts.count(),
+            "district_count": district_count,
             "facilities": visible_facilities,
             "facility_count": facility_count,
             "visible_hsas": visible_hsas,
