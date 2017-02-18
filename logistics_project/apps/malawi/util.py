@@ -405,3 +405,31 @@ def get_or_create_user_profile(user):
         return user.get_profile()
     except ObjectDoesNotExist:
         return LogisticsProfile.objects.create(user=user)
+
+
+def filter_district_queryset_for_epi(district_qs):
+    """
+    Works on a queryset of SupplyPoint districts or Location districts.
+    """
+    return district_qs.filter(code__in=settings.EPI_DISTRICT_CODES)
+
+
+def filter_district_list_for_epi(district_list):
+    """
+    Works on a list of SupplyPoint districts or Location districts.
+    """
+    return filter(lambda d: d.code in settings.EPI_DISTRICT_CODES, district_list)
+
+
+def filter_facility_supply_point_queryset_for_epi(facility_qs):
+    """
+    Works on a queryset of SupplyPoint facilities.
+    """
+    return facility_qs.filter(supplied_by__code__in=settings.EPI_DISTRICT_CODES)
+
+
+def filter_facility_location_queryset_for_epi(facility_qs):
+    """
+    Works on a queryset of Location facilities.
+    """
+    return facility_qs.filter(supplypoint__supplied_by__code__in=settings.EPI_DISTRICT_CODES)

@@ -185,6 +185,13 @@ STATIC_URL = "/static"
 REPORT_URL = "/malawi/r"
 EPI_REPORT_URL = "/malawi/f"
 
+# This is a list of all district codes currently participating in EPI workflows.
+# This list controls which districts are displayed in filters in reports as
+# well as which districts are considered for country-level aggregation in the
+# warehouse runner (which matters for some models, like reporting rates).
+# To change which districts participate in EPI, just update this list.
+EPI_DISTRICT_CODES = ['12', '13', '31', '37', '99']
+
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
 EMAIL_PASSWORD="changeme"

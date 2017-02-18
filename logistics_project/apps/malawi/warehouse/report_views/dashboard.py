@@ -3,7 +3,8 @@ from django.db.models import Count
 from django.utils.datastructures import SortedDict
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
-from logistics_project.apps.malawi.util import pct, fmt_pct, get_default_supply_point, remove_test_district
+from logistics_project.apps.malawi.util import (pct, fmt_pct, get_default_supply_point, remove_test_district,
+    filter_district_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDataSummary,\
     Alert
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period, \
@@ -173,6 +174,8 @@ class View(warehouse_view.DashboardView):
         child_sps = SupplyPoint.objects.filter(active=True).order_by('name')
         if reporting_supply_point.type_id == SupplyPointCodes.COUNTRY:
             child_sps = child_sps.filter(supplied_by__supplied_by=reporting_supply_point)
+            if request.base_level_is_facility:
+                child_sps = filter_district_queryset_for_epi(child_sps)
         else:
             child_sps = child_sps.filter(supplied_by=reporting_supply_point)
 
