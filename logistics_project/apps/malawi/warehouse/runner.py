@@ -497,15 +497,10 @@ def update_consumption_times(since):
     """
     Update the consumption time_with_data values for any supply point / product pairings
     where the supply point doesn't explicitly supply the product.
-    This function only works against base level data.
     """
     # any consumption value that was touched potentially needs to have its
     # time_needing_data updated
-    consumptions_to_update = CalculatedConsumption.objects.filter(
-        Q(product__type__base_level=BaseLevel.HSA, supply_point__type__code=SupplyPointCodes.HSA) |
-        Q(product__type__base_level=BaseLevel.FACILITY, supply_point__type__code=SupplyPointCodes.FACILITY),
-        update_date__gte=since
-    )
+    consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
     count = consumptions_to_update.count()
     print 'updating %s consumption objects' % count
     for i, c in enumerate(consumptions_to_update.iterator()):
