@@ -84,6 +84,9 @@ class BackendBase(object, LoggerMixin):
         # orm a chance to initialize. (avoids SETTINGS_MODULE errors.)
         from ..models import Connection
 
+        if not identity.startswith('+'):
+            identity = '%s%s' % ('+', identity)
+
         # ensure that a persistent connection instance exists for this
         # backend+identity pair. silently create one, if not.
         conn, created = Connection.objects.get_or_create(
