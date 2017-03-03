@@ -16,13 +16,13 @@ class TestApproval(MalawiTestBase):
 
     def testBasicApprovalWorkflow(self):
         a = """
-              8005551200 > manage manager sh 2616
-              8005551200 < %(manage)s
-              8005551212 > reg stella 1 2616
-              8005551212 < %(approval_waiting)s
-              8005551200 < %(approval_request)s
-              8005551212 > add zi co la
-              8005551212 < %(approval_required)s
+              +8005551200 > manage manager sh 2616
+              +8005551200 < %(manage)s
+              +8005551212 > reg stella 1 2616
+              +8005551212 < %(approval_waiting)s
+              +8005551200 < %(approval_request)s
+              +8005551212 > add zi co la
+              +8005551212 < %(approval_required)s
 
             """ % {'manage': config.Messages.REGISTRATION_CONFIRM % {'contact_name': 'manager',
                                                                      'sp_name': 'Ntaja',
@@ -39,11 +39,11 @@ class TestApproval(MalawiTestBase):
         self.assertFalse(c.is_approved)
 
         a = """
-              8005551200 > approve 261601
-              8005551200 < %(approval_supervisor)s
-              8005551212 < %(approval_hsa)s
-              8005551212 > add zi co la
-              8005551212 > Thank you, you now supply: co la zi
+              +8005551200 > approve 261601
+              +8005551200 < %(approval_supervisor)s
+              +8005551212 < %(approval_hsa)s
+              +8005551212 > add zi co la
+              +8005551212 > Thank you, you now supply: co la zi
             """ % {'approval_supervisor': config.Messages.APPROVAL_SUPERVISOR % {'hsa': 'stella'},
                    'approval_hsa': config.Messages.APPROVAL_HSA % {'hsa':'stella'}}
         self.runScript(a)
@@ -56,14 +56,14 @@ class TestApproval(MalawiTestBase):
         Supervisor has been defined for this facility.
         """
         a = """
-              8005551212 > reg
-              8005551212 < %(help_message)s
-              8005551212 > reg stella
-              8005551212 < %(help_message)s
-              8005551212 > reg stella 1 doesntexist
-              8005551212 < %(bad_loc)s
-              8005551212 > reg stella 1 2616
-              8005551212 < %(confirm)s
+              +8005551212 > reg
+              +8005551212 < %(help_message)s
+              +8005551212 > reg stella
+              +8005551212 < %(help_message)s
+              +8005551212 > reg stella 1 doesntexist
+              +8005551212 < %(bad_loc)s
+              +8005551212 > reg stella 1 2616
+              +8005551212 < %(confirm)s
             """ % {'register_message':config.Messages.REGISTER_MESSAGE, 'help_message':config.Messages.HSA_HELP,
                    'bad_loc': config.Messages.UNKNOWN_LOCATION % {"code": "doesntexist"},
                    "confirm": config.Messages.REGISTRATION_CONFIRM % {"sp_name": "Ntaja",
