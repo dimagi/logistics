@@ -14,6 +14,7 @@ class Command(BaseCommand):
 
     def log(self, text):
         self.log_file.write("%s: %s\n" % (datetime.utcnow(), text))
+        self.log_file.flush()
 
     def cleanup_old_migration(self):
         """
@@ -130,6 +131,7 @@ class Command(BaseCommand):
 
                     if connection_with_plus.contact_id == connection_without_plus.contact_id:
                         # If it's the same contact, just unassign the connection without the plus.
+                        self.log("Contacts are the same")
                         self.unassign_connection(connection_without_plus)
 
                     else:
