@@ -12,29 +12,29 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         return Product.objects.get(sms_code=product_code).average_monthly_consumption * 2
 
     def testNoInCharge(self):
-        create_manager(self, "16175551234", "stella", role=config.Roles.IN_CHARGE, supply_point_code="2616")
+        create_manager(self, "+16175551234", "stella", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         a = """
-           16175551234 > soh bc 10
-           16175551234 < %(no_super)s
+           +16175551234 > soh bc 10
+           +16175551234 < %(no_super)s
            """ % {"no_super": config.Messages.NO_IN_CHARGE % {"supply_point": "Machinga"}}
         self.runScript(a)
 
     def testNoProductsAdded(self):
         Product.objects.filter(type__base_level=config.BaseLevel.FACILITY).delete()
-        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
+        create_manager(self, "+16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         a = """
-           16175551000 > soh bc 10
-           16175551000 < %(no_products)s
+           +16175551000 > soh bc 10
+           +16175551000 < %(no_products)s
            """ % {"no_products": config.Messages.NO_PRODUCTS_MANAGED}
         self.runScript(a)
 
     def testReportingHSALevelProduct(self):
-        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
+        create_manager(self, "+16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
         for keyword in ("soh", "eo"):
             a = """
-                16175551000 > %(keyword)s %(product_code)s 20
-                16175551000 < %(error)s
+                +16175551000 > %(keyword)s %(product_code)s 20
+                +16175551000 < %(error)s
             """ % {
                 "keyword": keyword,
                 "product_code": product_code,
@@ -43,11 +43,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
             self.runScript(a)
 
     def testReportingNonExistentProduct(self):
-        create_manager(self, "16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
+        create_manager(self, "+16175551000", "wendy", role=config.Roles.IN_CHARGE, supply_point_code="2616")
         for keyword in ("soh", "eo"):
             a = """
-                16175551000 > %(keyword)s uvw 10 xyz 20
-                16175551000 < %(error)s
+                +16175551000 > %(keyword)s uvw 10 xyz 20
+                +16175551000 < %(error)s
             """ % {
                 "keyword": keyword,
                 "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
@@ -76,11 +76,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(sa.quantity, 500)
 
         b = """
-           16175551004 > ready 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
+           +16175551004 > ready 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % {"supply_point": "Ntaja"},
                "facility_notice": config.Messages.FACILITY_LEVEL_APPROVAL_NOTICE % {"supply_point": "Ntaja"}}
 
@@ -100,8 +100,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(ProductStock.objects.get(pk=sa.pk).quantity, 500)
 
         c = """
-           16175551000 > rec bc %(bc_resupply_amount)s sa %(sa_resupply_amount)s
-           16175551000 < %(confirm)s
+           +16175551000 > rec bc %(bc_resupply_amount)s sa %(sa_resupply_amount)s
+           +16175551000 < %(confirm)s
         """ % {
             "bc_resupply_amount": bc_resupply_amount,
             "sa_resupply_amount": sa_resupply_amount,
@@ -125,8 +125,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         # Second receipt should increase normally
 
         c = """
-           16175551000 > rec bc 200 sa 400
-           16175551000 < %(confirm)s
+           +16175551000 > rec bc 200 sa 400
+           +16175551000 < %(confirm)s
         """ % {
             "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
         }
@@ -145,8 +145,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
         self.assertEqual(2, StockRequest.objects.count())
         c = """
-           16175551000 > rec sa %(sa_resupply_amount)s
-           16175551000 < %(confirm)s
+           +16175551000 > rec sa %(sa_resupply_amount)s
+           +16175551000 < %(confirm)s
         """ % {
             "sa_resupply_amount": sa_resupply_amount,
             "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "sa"}
@@ -208,11 +208,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.CANCELED).count())
 
         b = """
-           16175551004 > ready 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
+           +16175551004 > ready 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % {"supply_point": "Ntaja"},
                "facility_notice": config.Messages.FACILITY_LEVEL_APPROVAL_NOTICE % {"supply_point": "Ntaja"}}
 
@@ -233,11 +233,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         b = """
-           16175551004 > ready 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
+           +16175551004 > ready 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
         """ % {"confirm": config.Messages.APPROVAL_RESPONSE % {"supply_point": "Ntaja"},
                "facility_notice": config.Messages.FACILITY_LEVEL_APPROVAL_NOTICE % {"supply_point": "Ntaja"}}
 
@@ -248,8 +248,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         c = """
-           16175551000 > rec bc %(bc_resupply_amount)s sa %(sa_resupply_amount)s
-           16175551000 < %(confirm)s
+           +16175551000 > rec bc %(bc_resupply_amount)s sa %(sa_resupply_amount)s
+           +16175551000 < %(confirm)s
         """ % {
             "bc_resupply_amount": bc_resupply_amount,
             "sa_resupply_amount": sa_resupply_amount,
@@ -267,9 +267,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
 
         a = """
-            16175551000 > soh bc %(bc_resupply_level)s sa %(sa_resupply_level)s
-            16175551000 < %(response)s
-            16175551004 < %(super)s
+            +16175551000 > soh bc %(bc_resupply_level)s sa %(sa_resupply_level)s
+            +16175551000 < %(response)s
+            +16175551004 < %(super)s
         """ % {
             "bc_resupply_level": bc_resupply_level,
             "sa_resupply_level": sa_resupply_level,
@@ -288,12 +288,12 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         a = """
-           16175551004 > os 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
-           16175551005 < %(regional_notice)s
+           +16175551004 > os 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
+           +16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
                "facility_notice": config.Messages.UNABLE_RESTOCK_FACILITY_NOTIFICATION % {"supply_point": "Ntaja"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_NORMAL_ZONE_ESCALATION %
@@ -318,9 +318,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         bc_resupply_amount = bc_resupply_level - 5
         sa_resupply_amount = sa_resupply_level - 500
         a = """
-           16175551000 > eo bc 5 sa 500
-           16175551000 < %(confirm)s
-           16175551004 < %(district_notice)s
+           +16175551000 > eo bc 5 sa 500
+           +16175551000 < %(confirm)s
+           +16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
             "district_notice": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % {
@@ -353,12 +353,12 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         # the difference here is that only emergency products are
         # reported/escalated
         a = """
-           16175551004 > os 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
-           16175551005 < %(regional_notice)s
+           +16175551004 > os 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
+           +16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "bc"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_EO_ZONE_ESCALATION  %
                     {"contact": "peter", "supply_point": "Machinga", "products": "bc"},
@@ -371,9 +371,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         sa_resupply_amount = sa_resupply_level - 500
         a = """
-           16175551000 > eo bc %(bc_resupply_level)s sa 500
-           16175551000 < %(confirm)s
-           16175551004 < %(district_notice)s
+           +16175551000 > eo bc %(bc_resupply_level)s sa 500
+           +16175551000 < %(confirm)s
+           +16175551004 < %(district_notice)s
         """ % {
             "bc_resupply_level": bc_resupply_level,
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
@@ -391,9 +391,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         bc_resupply_level = self._expected_resupply_level("bc")
         sa_resupply_level = self._expected_resupply_level("sa")
         a = """
-           16175551000 > eo bc 0 sa 0
-           16175551000 < %(confirm)s
-           16175551004 < %(district_notice)s
+           +16175551000 > eo bc 0 sa 0
+           +16175551000 < %(confirm)s
+           +16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
             "district_notice": config.Messages.EMERGENCY_STOCKOUT_NO_ADDITIONAL % {
@@ -409,12 +409,12 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         # the difference here is that only emergency products are
         # reported/escalated
         a = """
-           16175551004 > os 2616
-           16175551004 < %(confirm)s
-           16175551000 < %(facility_notice)s
-           16175551001 < %(facility_notice)s
-           16175551002 < %(facility_notice)s
-           16175551005 < %(regional_notice)s
+           +16175551004 > os 2616
+           +16175551004 < %(confirm)s
+           +16175551000 < %(facility_notice)s
+           +16175551001 < %(facility_notice)s
+           +16175551002 < %(facility_notice)s
+           +16175551005 < %(regional_notice)s
         """ % {"confirm": config.Messages.FACILITY_LEVEL_OS_EO_RESPONSE % {"products": "sa, bc"},
                "regional_notice": config.Messages.UNABLE_RESTOCK_STOCKOUT_ZONE_ESCALATION  %
                     {"contact": "peter", "supply_point": "Machinga", "products": "sa, bc"},
@@ -427,9 +427,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         sb_resupply_level = self._expected_resupply_level("sb")
         a = """
-           16175551000 > eo bc 0 sa 0 sb 500
-           16175551000 < %(confirm)s
-           16175551004 < %(district_notice)s
+           +16175551000 > eo bc 0 sa 0 sb 500
+           +16175551000 < %(confirm)s
+           +16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sb sa bc"},
             "district_notice": config.Messages.EMERGENCY_STOCKOUT % {
@@ -447,9 +447,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         sa_resupply_level = self._expected_resupply_level("sa")
         sb_resupply_level = self._expected_resupply_level("sb")
         a = """
-           16175551000 > soh bc 0 sa 500 sb 0
-           16175551000 < %(confirm)s
-           16175551004 < %(district_notice)s
+           +16175551000 > soh bc 0 sa 500 sb 0
+           +16175551000 < %(confirm)s
+           +16175551004 < %(district_notice)s
         """ % {
             "confirm": config.Messages.SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM % {"products": "sb bc"},
             "district_notice": config.Messages.SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % {
@@ -479,8 +479,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         for keyword, response in keyword_response_pairs:
             report_count = ProductReport.objects.count()
             a = """
-               16175551000 > %(keyword)s bc 100000000 sa 15
-               16175551000 < %(too_much)s
+               +16175551000 > %(keyword)s bc 100000000 sa 15
+               +16175551000 < %(too_much)s
             """ % {
                 'keyword': keyword,
                 "too_much": config.Messages.TOO_MUCH_STOCK % {'keyword': keyword},
@@ -490,8 +490,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
 
             # the second time it should go through
             a = """
-               16175551000 > %(keyword)s bc 100000000 sa 15
-               16175551000 < %(response)s
+               +16175551000 > %(keyword)s bc 100000000 sa 15
+               +16175551000 < %(response)s
             """ % {
                 'keyword': keyword,
                 'response': response,
@@ -533,13 +533,13 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(2, ProductReport.objects.count())
 
         self.runScript("""
-                16175551000 > rm 1
-                16175551000 < %(facility_response)s
-                16175551004 < %(district_response)s
-                16175551000 > soh bc 100 sa 400
-                16175551000 < %(error_response)s
-                16175551000 > eo bc 100 sa 400
-                16175551000 < %(error_response)s
+                +16175551000 > rm 1
+                +16175551000 < %(facility_response)s
+                +16175551004 < %(district_response)s
+                +16175551000 > soh bc 100 sa 400
+                +16175551000 < %(error_response)s
+                +16175551000 > eo bc 100 sa 400
+                +16175551000 < %(error_response)s
             """ % {
                 "facility_response": config.Messages.FRIDGE_BROKEN_RESPONSE % {'reason': config.Messages.FRIDGE_BROKEN_NO_GAS},
                 "district_response": config.Messages.FRIDGE_BROKEN_NOTIFICATION % {'reason': config.Messages.FRIDGE_BROKEN_NO_GAS, 'facility': '2616'},
@@ -552,8 +552,8 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         self.assertEqual(2, ProductReport.objects.count())
 
         self.runScript("""
-                16175551000 > rf
-                16175551000 < %(facility_response)s
+                +16175551000 > rf
+                +16175551000 < %(facility_response)s
             """ % {
                 "facility_response": config.Messages.FRIDGE_FIXED_RESPONSE,
             }

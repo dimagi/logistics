@@ -16,7 +16,7 @@ class TestMalawiUtils(MalawiTestBase):
         self.assertEqual(list(result), expected_list)
 
     def test_hsas_below(self):
-        hsa = create_hsa(self, '16175551000', 'joe', facility_code='2616')
+        hsa = create_hsa(self, '+16175551000', 'joe', facility_code='2616')
 
         # Locations that should have the HSA
         self.assert_hsas_below('261601', [hsa])
@@ -35,7 +35,7 @@ class TestMalawiUtils(MalawiTestBase):
         self.assertEqual(list(result), expected_list)
 
     def test_hsa_supply_points_below(self):
-        hsa = create_hsa(self, '16175551000', 'joe', facility_code='2616')
+        hsa = create_hsa(self, '+16175551000', 'joe', facility_code='2616')
 
         # Locations that should have the HSA
         self.assert_hsa_supply_points_below('261601', [hsa.supply_point])

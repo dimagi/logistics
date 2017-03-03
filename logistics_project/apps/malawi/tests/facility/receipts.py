@@ -14,8 +14,8 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
     def testReceiptsNormal(self):
         self._setup_users()
         self.runScript("""
-           16175551000 > rec bc 100 sa 2
-           16175551000 < %(response)s
+           +16175551000 > rec bc 100 sa 2
+           +16175551000 < %(response)s
         """ % {
             "response": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
         })
@@ -25,8 +25,8 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
         self.assertEqual(100, bc.quantity)
         self.assertEqual(2, sa.quantity)
         self.runScript("""
-           16175551000 > rec bc 100 sa 3
-           16175551000 < %(response)s
+           +16175551000 > rec bc 100 sa 3
+           +16175551000 < %(response)s
         """ % {
             "response": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
         })
@@ -39,8 +39,8 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
     def testReceiptsIgnoreDupes(self):
         self._setup_users()
         self.runScript("""
-           16175551000 > rec bc 100 sa 2
-           16175551000 < %(response)s
+           +16175551000 > rec bc 100 sa 2
+           +16175551000 < %(response)s
         """ % {
             "response": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
         })
@@ -51,7 +51,7 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
         self.assertEqual(2, sa.quantity)
         outbound_message_count = Message.objects.filter(direction='O').count()
 
-        self.runScript("16175551000 > rec bc 100 sa 2")
+        self.runScript("+16175551000 > rec bc 100 sa 2")
         # ensure no new outbound message was sent
         self.assertEqual(outbound_message_count, Message.objects.filter(direction='O').count())
         self.assertEqual(2, ProductReport.objects.count())
@@ -64,8 +64,8 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
         self._setup_users()
         product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
         self.runScript("""
-            16175551000 > rec %(product_code)s 20
-            16175551000 < %(error)s
+            +16175551000 > rec %(product_code)s 20
+            +16175551000 < %(error)s
         """ % {
             "product_code": product_code,
             "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
@@ -74,8 +74,8 @@ class MalawiTestFacilityReceipts(MalawiFacilityLevelTestBase):
     def testNonExistentProduct(self):
         self._setup_users()
         self.runScript("""
-            16175551000 > rec uvw 10 xyz 20
-            16175551000 < %(error)s
+            +16175551000 > rec uvw 10 xyz 20
+            +16175551000 < %(error)s
         """ % {
             "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
         })

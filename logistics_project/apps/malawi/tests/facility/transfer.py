@@ -10,10 +10,10 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
     def testValidation(self):
         self._setup_users()
         a = """
-           16175551004 > give 2616 bc 20
-           16175551004 < %(bad_role)s
-           16175551001 > give 26 bc 20
-           16175551001 < %(not_found)s
+           +16175551004 > give 2616 bc 20
+           +16175551004 < %(bad_role)s
+           +16175551001 > give 26 bc 20
+           +16175551001 < %(not_found)s
         """ % {
             "bad_role": config.Messages.UNSUPPORTED_OPERATION,
             "not_found": config.Messages.UNKNOWN_FACILITY % {"supply_point_code": "26"},
@@ -22,21 +22,21 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
 
     def testBasicTransfer(self):
         ic1 = self._setup_users()[0]
-        ic2a = create_manager(self, "16175552000", "alex", config.Roles.IN_CHARGE, "2601")
-        ic2b = create_manager(self, "16175552001", "bob", config.Roles.HSA_SUPERVISOR, "2601")
-        ic2c = create_manager(self, "16175552002", "charles", config.Roles.EPI_FOCAL, "2601")
+        ic2a = create_manager(self, "+16175552000", "alex", config.Roles.IN_CHARGE, "2601")
+        ic2b = create_manager(self, "+16175552001", "bob", config.Roles.HSA_SUPERVISOR, "2601")
+        ic2c = create_manager(self, "+16175552002", "charles", config.Roles.EPI_FOCAL, "2601")
 
         a = """
-           16175551000 > soh bc 600
-           16175551000 < %(response)s
+           +16175551000 > soh bc 600
+           +16175551000 < %(response)s
         """ % {
             "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "Ntaja", "products": "bc"},
         }
         self.runScript(a)
 
         a = """
-           16175552000 > soh bc 500
-           16175552000 < %(response)s
+           +16175552000 > soh bc 500
+           +16175552000 < %(response)s
         """ % {
             "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "Chamba", "products": "bc"},
         }
@@ -48,11 +48,11 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
         self.assertEqual(stock_to.quantity, 500)
 
         b = """
-           16175551000 > give 2601 bc 60
-           16175551000 < %(response)s
-           16175552000 < %(confirm)s
-           16175552001 < %(confirm)s
-           16175552002 < %(confirm)s
+           +16175551000 > give 2601 bc 60
+           +16175551000 < %(response)s
+           +16175552000 < %(confirm)s
+           +16175552001 < %(confirm)s
+           +16175552002 < %(confirm)s
         """ % {
             "response": config.Messages.TRANSFER_RESPONSE % {
                 "giver": "Ntaja",
@@ -77,8 +77,8 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
         self.assertEqual(st.receiver, ic2a.supply_point)
 
         c = """
-           16175552000 > confirm
-           16175552000 < %(response)s
+           +16175552000 > confirm
+           +16175552000 < %(response)s
         """ % {
             "response": config.Messages.CONFIRM_RESPONSE % {
                 "receiver": "Chamba",
@@ -94,11 +94,11 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
 
     def testTransferFromReceipt(self):
         ic1 = self._setup_users()[0]
-        ic2 = create_manager(self, "16175552000", "alex", config.Roles.IN_CHARGE, "2601")
+        ic2 = create_manager(self, "+16175552000", "alex", config.Roles.IN_CHARGE, "2601")
 
         a = """
-           16175552000 > rec bc 100 sa 250 from 2616
-           16175552000 < %(response)s
+           +16175552000 > rec bc 100 sa 250 from 2616
+           +16175552000 < %(response)s
         """ % {
             "response": config.Messages.RECEIPT_FROM_CONFIRM % {"supplier": "2616", "products": "sa bc"},
         }
@@ -116,8 +116,8 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
     def testTransferFromReceiptNoSupplyPoint(self):
         ic = self._setup_users()[0]
         a = """
-           16175551000 > rec bc 100 sa 250 from unknown
-           16175551000 < %(response)s
+           +16175551000 > rec bc 100 sa 250 from unknown
+           +16175551000 < %(response)s
         """ % {
             "response": config.Messages.RECEIPT_FROM_CONFIRM % {"supplier": "unknown", "products": "sa bc"},
         }
@@ -136,8 +136,8 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
         ic1 = self._setup_users()[0]
         product_code = Product.objects.filter(type__base_level=config.BaseLevel.HSA)[0].sms_code
         self.runScript("""
-            16175551000 > give 2601 %(product_code)s 20
-            16175551000 < %(error)s
+            +16175551000 > give 2601 %(product_code)s 20
+            +16175551000 < %(error)s
         """ % {
             "product_code": product_code,
             "error": config.Messages.INVALID_PRODUCTS % {"product_codes": product_code},
@@ -146,8 +146,8 @@ class TestFacilityLevelTransfer(MalawiFacilityLevelTestBase):
     def testNonExistentProduct(self):
         ic1 = self._setup_users()[0]
         self.runScript("""
-            16175551000 > give 2601 uvw 10 xyz 20
-            16175551000 < %(error)s
+            +16175551000 > give 2601 uvw 10 xyz 20
+            +16175551000 < %(error)s
         """ % {
             "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
         })

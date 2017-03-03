@@ -34,7 +34,7 @@ class TestProductLevels(MalawiTestBase):
             csv_file.close()
 
     def testEmergencyLevels(self):
-        create_hsa(self, "5551111", "hsa")
+        create_hsa(self, "+5551111", "hsa")
         hsa = SupplyPoint.objects.filter(type__code=SupplyPointCodes.HSA)[0]
         for product in Product.objects.filter(type__base_level=BaseLevel.HSA):
             ps = ProductStock.objects.create(supply_point=hsa, product=product)
@@ -58,14 +58,14 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertEqual(ps.is_active, is_active)
 
     def testWrongProductBaseLevel(self):
-        hsa = create_hsa(self, "16175551234", "bob")
+        hsa = create_hsa(self, "+16175551234", "bob")
         epi_product = Product.objects.filter(type__base_level=BaseLevel.FACILITY)[0]
 
         a = """
-           16175551234 > add %(product_code)s
-           16175551234 < %(response)s
-           16175551234 > remove %(product_code)s
-           16175551234 < %(response)s
+           +16175551234 > add %(product_code)s
+           +16175551234 < %(response)s
+           +16175551234 > remove %(product_code)s
+           +16175551234 < %(response)s
         """ % {
             "product_code": epi_product.sms_code,
             "response": Messages.UNKNOWN_CODE % {"product": epi_product.sms_code}
@@ -75,21 +75,21 @@ class TestAddRemoveProducts(MalawiTestBase):
     def testAddRemoveProduct(self):
 
         a = """
-           16175551234 > add zi
-           16175551234 < Sorry, you have to be registered with the system to do that. For help, please contact your supervisor
+           +16175551234 > add zi
+           +16175551234 < Sorry, you have to be registered with the system to do that. For help, please contact your supervisor
         """
         self.runScript(a)
 
-        hsa = create_hsa(self, "16175551234", "stella")
+        hsa = create_hsa(self, "+16175551234", "stella")
 
         self.assertFalse(hsa.supply_point.supplies_product(Product.objects.get(sms_code="zi")))
         self.assertFalse(Product.objects.get(sms_code="zi") in hsa.commodities.all())
 
         a = """
-           16175551234 > add quux
-           16175551234 < Sorry, no product matches code quux.  Nothing done.
-           16175551234 > add zi
-           16175551234 < Thank you, you now supply: zi
+           +16175551234 > add quux
+           +16175551234 < Sorry, no product matches code quux.  Nothing done.
+           +16175551234 > add zi
+           +16175551234 < Thank you, you now supply: zi
         """
         self.runScript(a)
 
@@ -98,8 +98,8 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertProductStock(hsa.supply_point, "zi", True)
 
         b = """
-           16175551234 > add zi de dm
-           16175551234 < Thank you, you now supply: de dm zi
+           +16175551234 > add zi de dm
+           +16175551234 < Thank you, you now supply: de dm zi
         """
         self.runScript(b)
 
@@ -113,10 +113,10 @@ class TestAddRemoveProducts(MalawiTestBase):
         self.assertProductStock(hsa.supply_point, "dm", True)
 
         c = """
-           16175551234 > remove cm
-           16175551234 < Done. You now supply: de dm zi
-           16175551234 > remove de
-           16175551234 < Done. You now supply: dm zi
+           +16175551234 > remove cm
+           +16175551234 < Done. You now supply: de dm zi
+           +16175551234 > remove de
+           +16175551234 < Done. You now supply: dm zi
            """
         self.runScript(c)
 
