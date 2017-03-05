@@ -11,6 +11,11 @@ def deactivate_hsa_location(sender, instance, created, **kwargs):
         if instance.supply_point:
             sp = instance.supply_point
             assert sp.type.code == SupplyPointCodes.HSA
+
+            # Don't deactivate the supply point if other active contacts belong to it
+            if sp.active_contact_set.count() > 0:
+                return
+
             if sp.active:
                 sp.active = False
                 sp.save()
