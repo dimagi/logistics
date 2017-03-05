@@ -20,22 +20,34 @@ class Command(BaseCommand):
         """
         Perform the same actions as if the contact had texted in "leave"
         """
-        self.log("Deactivating contact %s" % contact.pk)
-        contact.is_active = False
-        contact.save()
+        self.log("--- Processing contact %s ---" % contact.pk)
+        if contact.is_active:
+            self.log("Contact is active, deactivating...")
+            contact.is_active = False
+            contact.save()
+        else:
+            self.log("Contact is already deactivated, ignoring...")
+
         if contact.supply_point:
             self.log("Contact's supply point type is: %s" % contact.supply_point.type_id)
             if contact.supply_point.type_id == SupplyPointCodes.HSA:
                 supply_point = contact.supply_point
                 location = supply_point.location
                 self.log(
-                    "HSA detected, deactivating supply point %s and location %s" %
+                    "HSA detected, checking supply point %s and location %s" %
                     (supply_point.pk, location.pk)
                 )
-                supply_point.active = False
-                supply_point.save()
-                location.is_active = False
-                location.save()
+                if supply_point.active:
+                    if supply_point.active_contact_set.count() == 0:
+                        self.log("SupplyPoint is active with no active contacts, deactivating...")
+                        supply_point.active = False
+                        supply_point.save()
+                        location.is_active = False
+                        location.save()
+                    else:
+                        self.log("SupplyPoint is active with but has other active contacts, ignoring...")
+                else:
+                    self.log("SupplyPoint is already deactivated")
 
     def fix_contacts(self):
         for contact in self.get_queryset():
