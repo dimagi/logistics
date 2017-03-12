@@ -23,7 +23,6 @@ from .tables import ContactTable
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
-    connection = None
     bulk_form = None
     registration_view = 'registration'
     if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
@@ -32,7 +31,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
-        connection = Contact.default_connection
             
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
