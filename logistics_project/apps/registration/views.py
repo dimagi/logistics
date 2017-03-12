@@ -15,7 +15,7 @@ from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
 from logistics.models import ContactRole
-from logistics_project.apps.registration.forms import CommoditiesContactForm
+from logistics_project.apps.registration.forms import ContactForm
 from static.malawi.config import Roles
 from .tables import ContactTable
 
@@ -37,7 +37,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                 reverse(registration_view))
 
         else:
-            contact_form = CommoditiesContactForm(
+            contact_form = ContactForm(
                 instance=contact,
                 data=req.POST)
 
@@ -54,7 +54,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                     return HttpResponseRedirect(reverse(registration_view))
 
     else:
-        contact_form = CommoditiesContactForm(
+        contact_form = ContactForm(
             instance=contact)
 
     contacts_table = ContactTable(Contact.objects.all(), request=req)

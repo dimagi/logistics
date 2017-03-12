@@ -22,10 +22,22 @@ class SmallFileField(forms.FileField):
 class ContactForm(forms.ModelForm):
     name = forms.CharField()
     phone = forms.CharField()
+    supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
+                                          required=False,
+                                          label='Location')
+
+    # Only expose HSA-level products in the managed commodity picker.
+    # Facility users automatically manage all Facility-level products.
+    # This input is disabled for all contacts except for HSAs in templates/registration/dashboard.html
+    commodities = forms.ModelMultipleChoiceField(
+        queryset=Product.objects.filter(type__base_level=BaseLevel.HSA, is_active=True),
+        required=False,
+        help_text='User manages these commodities. Hold down "Control", or "Command" on a Mac, to select more than one.'
+    )
 
     class Meta:
         model = Contact
-        exclude = ("user", )
+        exclude = ('user', 'language')
 
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
@@ -33,7 +45,7 @@ class ContactForm(forms.ModelForm):
         self.fields['role'].choices = self.get_role_choices()
         self.fields['name'].label = _("Name")
         self.fields['phone'].label = _("Phone")
-        self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: 0012121234567")
+        self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: +265123456789")
 
         if kwargs.has_key('instance'):
             if kwargs['instance']:
@@ -84,13 +96,6 @@ class ContactForm(forms.ModelForm):
                 raise forms.ValidationError("Phone number already registered!")
         return self.cleaned_data['phone']
 
-    def _clean_phone_number(self, phone_number):
-        """
-        TODO: define the number cleaning function as appropriate for whatever country/gateway you're using
-
-        """
-        raise NotImplementedError()
-
     @transaction.commit_on_success
     def save(self, commit=True):
         model = super(ContactForm, self).save(commit=False)
@@ -114,15 +119,10 @@ class ContactForm(forms.ModelForm):
                     conn.contact = model
             conn.identity = self.cleaned_data['phone']
             conn.save()
-        return model
 
-class IntlSMSContactForm(ContactForm):
-    def __init__(self, **kwargs):
-        super(IntlSMSContactForm, self).__init__(**kwargs)
-        self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>" + \
-                                           "Example: %(i)s%(c)s2121234567" % \
-                                           {'i':settings.INTL_DIALLING_CODE,
-                                            'c':settings.COUNTRY_DIALLING_CODE})
+            model.default_connection = self.cleaned_data['phone']
+            self.save_m2m()
+        return model
 
     def _clean_phone_number(self, phone_number):
         """
@@ -154,24 +154,6 @@ class IntlSMSContactForm(ContactForm):
                                     "Example: %(intl)s2121234567" % \
                                     {'intl':idc})
 
-class CommoditiesContactForm(IntlSMSContactForm):
-    supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
-                                          required=False,  
-                                          label='Location')
-
-    # Only expose HSA-level products in the managed commodity picker.
-    # Facility users automatically manage all Facility-level products.
-    # This input is disabled for all contacts except for HSAs in templates/registration/dashboard.html
-    commodities = forms.ModelMultipleChoiceField(
-        queryset=Product.objects.filter(type__base_level=BaseLevel.HSA, is_active=True),
-        required=False,
-        help_text='User manages these commodities. Hold down "Control", or "Command" on a Mac, to select more than one.'
-    )
-
-    class Meta:
-        model = Contact
-        exclude = ("user", "language")
-
     def clean_supply_point(self):
         supply_point = self.cleaned_data.get('supply_point')
         if not supply_point:
@@ -195,12 +177,3 @@ class CommoditiesContactForm(IntlSMSContactForm):
                 "You have chosen a zone role but not a zone location.")
 
         return supply_point
-
-    @transaction.commit_on_success
-    def save(self, commit=True):
-        model = super(CommoditiesContactForm, self).save(commit=False)
-        if commit:
-            model.save()
-            model.default_connection = self.cleaned_data['phone']
-            self.save_m2m()
-        return model
