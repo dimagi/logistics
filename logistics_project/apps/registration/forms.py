@@ -19,14 +19,6 @@ class SmallFileField(forms.FileField):
         return { "size": 10 }
 
 
-class BulkRegistrationForm(forms.Form):
-    bulk = SmallFileField(
-        label="Upload CSV file",
-        required=False,
-        help_text="Upload a <em>plain text file</em> " +
-                  "containing a single contact per line, for example: <br/>" +
-                  "<em>firstname lastname, backend_name, identity</em>")
-
 class ContactForm(forms.ModelForm):
     name = forms.CharField()
     phone = forms.CharField()
