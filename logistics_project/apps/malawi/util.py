@@ -8,6 +8,17 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 
+def get_backend_name_for_phone_number(phone_number):
+    if phone_number.startswith('+2658'):
+        return config.TNM_BACKEND_NAME
+    elif phone_number.startswith('+2659'):
+        return config.AIRTEL_BACKEND_NAME
+    else:
+        raise config.UnableToSelectBackend(
+            "Unable to select backend for number starting with %s" % phone_number[:5]
+        )
+
+
 def format_id(code, id):
     try:
         id_num = int(id)

@@ -10,6 +10,10 @@ TNM_BACKEND_NAME = 'tnm-smpp'
 AIRTEL_BACKEND_NAME = 'airtel-smpp'
 
 
+class UnableToSelectBackend(Exception):
+    pass
+
+
 class Roles(object):
     """
     Roles go here
