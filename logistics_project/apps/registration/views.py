@@ -25,8 +25,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     bulk_form = None
     registration_view = 'registration'
-    if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
-        registration_view = settings.SMS_REGISTRATION_VIEW
 
     if pk is not None:
         contact = get_object_or_404(
