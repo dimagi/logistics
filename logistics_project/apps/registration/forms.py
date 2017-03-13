@@ -8,6 +8,7 @@ from django.db import transaction
 from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
 from logistics.models import SupplyPoint, ContactRole, Product
+from logistics_project.apps.malawi.util import get_backend_name_for_phone_number
 from static.malawi.config import Roles, SupplyPointCodes, BaseLevel
 
 
@@ -20,11 +21,15 @@ class SmallFileField(forms.FileField):
 
 
 class ContactForm(forms.ModelForm):
-    name = forms.CharField()
-    phone = forms.CharField()
-    supply_point = forms.ModelChoiceField(SupplyPoint.objects.all().order_by('name'),
-                                          required=False,
-                                          label='Location')
+    phone = forms.CharField(
+        help_text = "Enter 12-digit international number<br/>Example: +265123456789",
+    )
+
+    supply_point = forms.ModelChoiceField(
+        SupplyPoint.objects.all().order_by('name'),
+        required=False,
+        label='Location'
+    )
 
     # Only expose HSA-level products in the managed commodity picker.
     # Facility users automatically manage all Facility-level products.
@@ -41,16 +46,11 @@ class ContactForm(forms.ModelForm):
 
     def __init__(self, **kwargs):
         super(ContactForm, self).__init__(**kwargs)
-        self.fields['role'].label = _("Role")
         self.fields['role'].choices = self.get_role_choices()
-        self.fields['name'].label = _("Name")
-        self.fields['phone'].label = _("Phone")
-        self.fields['phone'].help_text = _("Enter the fully qualified number.<br/>Example: +265123456789")
 
-        if kwargs.has_key('instance'):
-            if kwargs['instance']:
-                instance = kwargs['instance']
-                self.initial['phone'] = instance.phone
+        instance = kwargs.get('instance')
+        if instance:
+            self.initial['phone'] = instance.phone
 
     def get_role_choices(self):
         role_choices = [('', '---------')]
@@ -75,84 +75,87 @@ class ContactForm(forms.ModelForm):
         role_choices.extend(zone_roles)
         return role_choices
 
+    def get_connection(self, phone_number, backend_name):
+        try:
+            return Connection.objects.get(identity=phone_number, backend__name=backend_name)
+        except Connection.DoesNotExist:
+            return None
+
+    def get_connection_for_contact(self, contact):
+        try:
+            return Connection.objects.get(contact=contact)
+        except Connection.DoesNotExist:
+            return None
+        except Connection.MultipleObjectsReturned:
+            # We only expect 1 Connection per Contact
+            raise
+
     def clean_phone(self):
-        self.cleaned_data['phone'] = self._clean_phone_number(self.cleaned_data['phone'])
-        if settings.DEFAULT_BACKEND:
-            backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
-        else:
-            backend = Backend.objects.all()[0]
-        dupes = Connection.objects.filter(identity=self.cleaned_data['phone'], 
-                                          backend=backend)
-        dupe_count = dupes.count()
-        if dupe_count > 1:
-            raise forms.ValidationError("Phone number already registered!")
-        if dupe_count == 1:
-            if dupes[0].contact is None:
-                # this is fine, it just means we have a dangling connection
-                # which we'll steal when we save
-                pass
-            # could be that we are editing an existing model
-            elif dupes[0].contact != self.instance:
-                raise forms.ValidationError("Phone number already registered!")
-        return self.cleaned_data['phone']
+        country_prefix = '+265'
+        error_message = "Enter 12-digit international number. Example: +265123456789"
+
+        phone_number = self.cleaned_data['phone'].strip()
+        if phone_number.startswith('0'):
+            phone_number = country_prefix + phone_number[1:]
+
+        if not phone_number.startswith('+'):
+            phone_number = '+' + phone_number
+
+        if not phone_number.startswith(country_prefix):
+            raise forms.ValidationError(error_message)
+
+        if len(phone_number) != 13:
+            raise forms.ValidationError(error_message)
+
+        backend_name = get_backend_name_for_phone_number(phone_number)
+        existing_connection = self.get_connection(phone_number, backend_name)
+
+        if (
+            existing_connection and
+            existing_connection.contact is not None
+            and existing_connection.contact != self.instance
+        ):
+            raise forms.ValidationError("Phone number is already registered to another contact.")
+
+        return phone_number
 
     @transaction.commit_on_success
-    def save(self, commit=True):
-        model = super(ContactForm, self).save(commit=False)
-        if commit:
-            model.save()
-            conn = model.default_connection
-            if not conn:
-                if settings.DEFAULT_BACKEND:
-                    backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
+    def save(self):
+        model = super(ContactForm, self).save(commit=True)
+
+        phone_number = self.cleaned_data['phone']
+        backend_name = get_backend_name_for_phone_number(phone_number)
+        connection = self.get_connection_for_contact(model)
+
+        connection_is_up_to_date = (
+            connection is not None and
+            connection.identity == phone_number and
+            connection.backend.name == backend_name
+        )
+
+        if not connection_is_up_to_date:
+            if connection:
+                # The phone number changed, so unassign the old connection, and create a new one.
+                # This preserves accuracy of the message log history.
+                connection.contact = None
+                connection.save()
+
+            existing_connection = self.get_connection(phone_number, backend_name)
+            if existing_connection:
+                if existing_connection.contact is None:
+                    existing_connection.contact = model
+                    existing_connection.save()
                 else:
-                    backend = Backend.objects.all()[0]
-                try:
-                    conn = Connection.objects.get(backend=backend, 
-                                                  identity=self.cleaned_data['phone'])
-                except Connection.DoesNotExist:
-                    # good, it doesn't exist already
-                    conn = Connection(backend=backend,
-                                      contact=model)
-                else: 
-                    # this connection already exists. just steal it. 
-                    conn.contact = model
-            conn.identity = self.cleaned_data['phone']
-            conn.save()
+                    # This should not happen based on our validation
+                    raise RuntimeError("Phone number is already in use")
+            else:
+                Connection.objects.create(
+                    contact=model,
+                    identity=phone_number,
+                    backend=Backend.objects.get(name=backend_name),
+                )
 
-            model.default_connection = self.cleaned_data['phone']
-            self.save_m2m()
         return model
-
-    def _clean_phone_number(self, phone_number):
-        """
-        * remove junk characters
-        * replaces optional domestic dialling code with intl dialling code
-        * prefix with international dialling code (specified in settings.py)
-        """
-        cleaned = phone_number.strip()
-        junk = [',', '-', ' ', '(', ')']
-        for mark in junk:
-            cleaned = cleaned.replace(mark, '')
-
-        # replace domestic with intl dialling code, if domestic code defined
-        idc = "%s%s" % (settings.INTL_DIALLING_CODE, settings.COUNTRY_DIALLING_CODE)
-        try:
-            ddc = str(settings.DOMESTIC_DIALLING_CODE)
-            if cleaned.startswith(ddc):
-                cleaned = "%s%s" % (idc, cleaned.lstrip(ddc))
-                return cleaned
-        except NameError:
-            # ddc not defined, no biggie
-            pass
-        if cleaned.isdigit():
-            return cleaned
-        if cleaned.startswith(idc):
-            return cleaned
-        raise forms.ValidationError("Poorly formatted phone number. " + \
-                                    "Please enter the fully qualified number." + \
-                                    "Example: %(intl)s2121234567" % \
-                                    {'intl':idc})
 
     def clean_supply_point(self):
         supply_point = self.cleaned_data.get('supply_point')
