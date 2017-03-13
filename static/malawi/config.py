@@ -8,6 +8,7 @@ HSA = "hsa"
 # these unless everything gets updated together.
 TNM_BACKEND_NAME = 'tnm-smpp'
 AIRTEL_BACKEND_NAME = 'airtel-smpp'
+TEST_BACKEND_NAME = 'message_tester'
 
 
 class UnableToSelectBackend(Exception):
