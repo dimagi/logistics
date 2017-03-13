@@ -15,7 +15,7 @@ from rapidsms.models import Connection
 from rapidsms.models import Backend
 from rapidsms.models import Contact
 from logistics.models import ContactRole
-from logistics_project.apps.registration.forms import CommoditiesContactForm, BulkRegistrationForm
+from logistics_project.apps.registration.forms import ContactForm
 from static.malawi.config import Roles
 from .tables import ContactTable
 
@@ -23,16 +23,12 @@ from .tables import ContactTable
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
-    connection = None
     bulk_form = None
     registration_view = 'registration'
-    if hasattr(settings, 'SMS_REGISTRATION_VIEW'):
-        registration_view = settings.SMS_REGISTRATION_VIEW
 
     if pk is not None:
         contact = get_object_or_404(
             Contact, pk=pk)
-        connection = Contact.default_connection
             
     if req.method == "POST":
         if req.POST["submit"] == "Delete Contact":
@@ -40,29 +36,8 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             return HttpResponseRedirect(
                 reverse(registration_view))
 
-        elif "bulk" in req.FILES:
-            # TODO use csv module
-            #reader = csv.reader(open(req.FILES["bulk"].read(), "rb"))
-            #for row in reader:
-            for line in req.FILES["bulk"]:
-                line_list = line.split(',')
-                name = line_list[0].strip()
-                backend_name = line_list[1].strip()
-                identity = line_list[2].strip()
-
-                contact = Contact(name=name)
-                contact.save()
-                # TODO deal with errors!
-                backend = Backend.objects.get(name=backend_name)
-
-                connection = Connection(backend=backend, identity=identity,\
-                    contact=contact)
-                connection.save()
-
-            return HttpResponseRedirect(
-                reverse(registration_view))
         else:
-            contact_form = CommoditiesContactForm(
+            contact_form = ContactForm(
                 instance=contact,
                 data=req.POST)
 
@@ -79,9 +54,8 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                     return HttpResponseRedirect(reverse(registration_view))
 
     else:
-        contact_form = CommoditiesContactForm(
+        contact_form = ContactForm(
             instance=contact)
-        bulk_form = BulkRegistrationForm()
 
     contacts_table = ContactTable(Contact.objects.all(), request=req)
     search_term = req.GET.get('search_term')
@@ -99,9 +73,6 @@ def registration(req, pk=None, template="registration/dashboard.html"):
         template, {
             "contacts_table": contacts_table,
             "contact_form": contact_form,
-            # no one is using or has tested the bulk form in logistics
-            # so we remove it for now
-            # "bulk_form": bulk_form,
             "contact": contact,
             "hsa_role_id": ContactRole.objects.get(code=Roles.HSA).pk,
             "registration_view": reverse(registration_view)

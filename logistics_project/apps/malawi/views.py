@@ -501,7 +501,7 @@ def status(request):
 
 @permission_required("auth.admin_read")
 def airtel_numbers(request):
-    airtelcontacts = Contact.objects.select_related().filter(connection__backend__name='airtel-smpp')
+    airtelcontacts = Contact.objects.select_related().filter(connection__backend__name=config.AIRTEL_BACKEND_NAME)
     users = []
     for a in airtelcontacts:
         d = {

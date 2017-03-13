@@ -4,9 +4,11 @@ from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.util import (hsas_below, hsa_supply_points_below,
-    facility_supply_points_below, get_or_create_user_profile, get_visible_districts)
+    facility_supply_points_below, get_or_create_user_profile, get_visible_districts,
+    get_backend_name_for_phone_number)
 from rapidsms.contrib.locations.models import Location
-from static.malawi.config import SupplyPointCodes
+from static.malawi.config import (SupplyPointCodes, UnableToSelectBackend,
+    TNM_BACKEND_NAME, AIRTEL_BACKEND_NAME)
 
 
 class TestMalawiUtils(MalawiTestBase):
@@ -120,3 +122,8 @@ class TestMalawiUtils(MalawiTestBase):
         user.is_superuser = True
         user.save()
         self.assert_get_visible_districts(user, all_districts)
+
+    def test_get_backend_name_for_phone_number(self):
+        self.assertEqual(get_backend_name_for_phone_number('+265800000000'), TNM_BACKEND_NAME)
+        self.assertEqual(get_backend_name_for_phone_number('+265900000000'), AIRTEL_BACKEND_NAME)
+        self.assertRaises(UnableToSelectBackend, get_backend_name_for_phone_number, '+265700000000')

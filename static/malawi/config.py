@@ -3,6 +3,18 @@ from datetime import datetime
 
 HSA = "hsa"
 
+# The backend names match what is defined in the database, which gets
+# populated from the backend configuration in localsettings. Don't change
+# these unless everything gets updated together.
+TNM_BACKEND_NAME = 'tnm-smpp'
+AIRTEL_BACKEND_NAME = 'airtel-smpp'
+TEST_BACKEND_NAME = 'message_tester'
+
+
+class UnableToSelectBackend(Exception):
+    pass
+
+
 class Roles(object):
     """
     Roles go here
