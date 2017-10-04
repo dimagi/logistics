@@ -96,7 +96,7 @@ class View(warehouse_view.DistrictOnlyView):
                 ps = ProductStock.objects.filter(supply_point=supply_point, product=product)
                 if ps.count():
                     mr = ps[0].months_remaining
-                    if mr:
+                    if mr is not None:
                         temp.append('%.1f' % mr)
                     else:
                         temp.append('-')
