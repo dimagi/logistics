@@ -230,6 +230,8 @@ def deploy():
             run('git fetch')
             run('git checkout %(branch)s' % {"branch": env.branch})
             run('git pull %(repo)s %(branch)s' % {"repo": env.remote, "branch": env.branch})
+            # cleanup pyc files
+            run("find . -name '*.pyc' -delete")
     if env.db_cleanup:
         if not console.confirm('Are you sure you want to wipe out the database?',
                                default=False):
