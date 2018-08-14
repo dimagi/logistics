@@ -1,11 +1,13 @@
 from django.contrib.auth.models import User
+from django.test import TestCase
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.util import (hsas_below, hsa_supply_points_below,
-    facility_supply_points_below, get_or_create_user_profile, get_visible_districts,
-    get_backend_name_for_phone_number)
+                                                facility_supply_points_below, get_or_create_user_profile,
+                                                get_visible_districts,
+                                                get_backend_name_for_phone_number, swallow_errors)
 from rapidsms.contrib.locations.models import Location
 from static.malawi.config import (SupplyPointCodes, UnableToSelectBackend,
     TNM_BACKEND_NAME, AIRTEL_BACKEND_NAME)
@@ -127,3 +129,20 @@ class TestMalawiUtils(MalawiTestBase):
         self.assertEqual(get_backend_name_for_phone_number('+265800000000'), TNM_BACKEND_NAME)
         self.assertEqual(get_backend_name_for_phone_number('+265900000000'), AIRTEL_BACKEND_NAME)
         self.assertRaises(UnableToSelectBackend, get_backend_name_for_phone_number, '+265700000000')
+
+
+class TestErrorSwallowing(TestCase):
+
+    def test_swallow(self):
+        class TestError(Exception): pass
+
+        def _fail_if_even(val):
+            if val % 2 == 0:
+                raise TestError('No even numbers allowed!')
+
+        x = []
+        for i in range(5):
+            with swallow_errors(TestError):
+                _fail_if_even(i)
+                x.append(i)
+        self.assertEqual([1, 3], x)

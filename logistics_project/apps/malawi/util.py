@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from rapidsms.models import Contact
 from logistics.models import SupplyPoint, ProductStock, LogisticsProfile
 from logistics.util import config
@@ -6,6 +8,16 @@ from rapidsms.contrib.locations.models import Location
 from django.db.models.query_utils import Q
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+
+from rapidsms.errors import MessageSendingError
+
+
+@contextmanager
+def swallow_errors(exc_type=MessageSendingError):
+    try:
+        yield
+    except exc_type:
+        pass
 
 
 def get_backend_name_for_phone_number(phone_number):
