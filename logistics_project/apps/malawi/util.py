@@ -5,7 +5,6 @@ from logistics.models import SupplyPoint, ProductStock, LogisticsProfile
 from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
-from django.db.models.query_utils import Q
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
