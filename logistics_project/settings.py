@@ -5,6 +5,11 @@
 #                          MAIN CONFIGURATION                          #
 # -------------------------------------------------------------------- #
 
+# legacy kombu hack: https://stackoverflow.com/a/39586528/8207
+import uuid
+uuid._uuid_generate_random = None
+
+
 VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
 STYLE = 'left' # formats the navigation: 'right' 'left' or 'both'
