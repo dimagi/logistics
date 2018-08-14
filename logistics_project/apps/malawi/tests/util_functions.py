@@ -9,6 +9,8 @@ from logistics_project.apps.malawi.util import (hsas_below, hsa_supply_points_be
                                                 get_visible_districts,
                                                 get_backend_name_for_phone_number, swallow_errors)
 from rapidsms.contrib.locations.models import Location
+
+from rapidsms.errors import MessageSendingError
 from static.malawi.config import (SupplyPointCodes, UnableToSelectBackend,
     TNM_BACKEND_NAME, AIRTEL_BACKEND_NAME)
 
@@ -136,13 +138,26 @@ class TestErrorSwallowing(TestCase):
     def test_swallow(self):
         class TestError(Exception): pass
 
-        def _fail_if_even(val):
+        def _fail_if_even(val, error_type):
             if val % 2 == 0:
-                raise TestError('No even numbers allowed!')
+                raise error_type('No even numbers allowed!')
 
         x = []
         for i in range(5):
             with swallow_errors(TestError):
-                _fail_if_even(i)
+                _fail_if_even(i, TestError)
                 x.append(i)
         self.assertEqual([1, 3], x)
+
+        # test default behavior
+        x = []
+        for i in range(5):
+            with swallow_errors():
+                _fail_if_even(i, MessageSendingError)
+                x.append(i)
+        self.assertEqual([1, 3], x)
+
+        # test wrong type
+        with self.assertRaises(TestError):
+            with swallow_errors():
+                _fail_if_even(i, TestError)
