@@ -2,7 +2,7 @@ from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole, SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
-from logistics_project.apps.malawi.util import get_supervisors
+from logistics_project.apps.malawi.util import get_supervisors, swallow_errors
 from logistics_project.decorators import require_district
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
@@ -41,7 +41,8 @@ class AdviseEPITransferHandler(KeywordHandler):
     def respond_to_district_users(self, from_facility):
         recipients = get_supervisors(self.msg.logistics_contact.supply_point)
         for recipient in recipients:
-            recipient.message(config.Messages.TRANSFER_RESPONSE_TO_DISTRICT, facility=from_facility.code)
+            with swallow_errors():
+                recipient.message(config.Messages.TRANSFER_RESPONSE_TO_DISTRICT, facility=from_facility.code)
 
     def notify_facility_users(self, malfunction, to_facility):
         malfunction.reported_by.message(config.Messages.TRANSFER_MESSAGE_TO_FACILITY, facility=to_facility.code)

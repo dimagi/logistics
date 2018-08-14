@@ -3,7 +3,7 @@ from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
-from logistics_project.apps.malawi.util import get_supervisors
+from logistics_project.apps.malawi.util import get_supervisors, swallow_errors
 from logistics_project.decorators import require_facility
 from logistics.util import config
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
@@ -47,11 +47,12 @@ class RefrigeratorMalfunctionHandler(KeywordHandler):
         reason_desc = self.get_reason_desc(reason)
 
         for recipient in recipients:
-            recipient.message(
-                config.Messages.FRIDGE_BROKEN_NOTIFICATION,
-                reason=recipient.translate(reason_desc),
-                facility=supply_point.code
-            )
+            with swallow_errors():
+                recipient.message(
+                    config.Messages.FRIDGE_BROKEN_NOTIFICATION,
+                    reason=recipient.translate(reason_desc),
+                    facility=supply_point.code
+                )
 
     def malfunction_exists(self, supply_point):
         malfunction = RefrigeratorMalfunction.get_open_malfunction(supply_point)
