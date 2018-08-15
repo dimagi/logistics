@@ -160,4 +160,4 @@ class TestErrorSwallowing(TestCase):
         # test wrong type
         with self.assertRaises(TestError):
             with swallow_errors():
-                _fail_if_even(i, TestError)
+                _fail_if_even(10, TestError)
