@@ -195,7 +195,7 @@ EPI_REPORT_URL = "/malawi/f"
 # well as which districts are considered for country-level aggregation in the
 # warehouse runner (which matters for some models, like reporting rates).
 # To change which districts participate in EPI, just update this list.
-EPI_DISTRICT_CODES = ['12', '13', '31', '37', '99']
+EPI_DISTRICT_CODES = ['12', '13', '29', '30', '31', '37', '99']
 
 # email settings used for sending out email reports
 EMAIL_LOGIN="name@dimagi.com"
