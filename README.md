@@ -51,6 +51,14 @@ The first command syncs the production schema (as of October 2018) and the secon
 You should be able to develop in parallel with production after that and use south / `./manage.py migrate` 
 for future DB schema changes.
 
+### Loading data
+
+To load some useful production data (locations, products, etc.) run:
+
+```
+./manage.py loaddata ../data/cstock-locations.json
+./manage.py loaddata ../data/cstock-logistics.json
+```
 
 ## Running the server
 
