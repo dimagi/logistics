@@ -42,7 +42,7 @@ the best way to get a local DB running is to start with the production schema.
 To do this, setup mysql as per above and then run the following commands:
 
 ```
-mysql -u root -p cstock < db_schema/cstock_schema_2018-10-17.sql
+mysql -u root -p cstock < data/cstock_schema_2018-10-17.sql
 cd logistics_project
 ./manage.py migrate --fake
 ```
