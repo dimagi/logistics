@@ -14,31 +14,55 @@ You can install all of the above by running:
 > sudo apt-get install git-core couchdb
 ```
 
+## Code installation
+
+The following sets up the code
+
+```
+git clone git://github.com/dimagi/logistics.git
+cd logistics
+pip install -r pip-requires.txt
+git submodule init
+git submodule update
+cd logistics_project
+cp localsettings.py.example localsettings.py
+update relevant settings in settings.py or localsettings.py
+```
+
+
 ## DB Setup
 
 Recommended database is MySQL.
 
-Install it as normal, create a database and update localsettings.py accordingly to connect.
+Install it as normal, create a database and update `localsettings.py` accordingly to connect.
 
-## Code installation
+Because this is a sad legacy project and the migration history is messed up,
+the best way to get a local DB running is to start with the production schema.
 
-* git clone git://github.com/dimagi/logistics.git
-* cd logistics
-* pip install -r pip-requires.txt
-* git submodule init
-* git submodule update
-* cd logistics_project
-* cp localsettings.py.example localsettings.py
-* update relevant settings in settings.py or localsettings.py
-* ./manage.py syncdb
-* ./manage.py migrate (see note below about troubleshooting migrations)
-* ./manage.py runserver
+To do this, setup mysql as per above and then run the following commands:
+
+```
+mysql -u root -p cstock < db_schema/cstock_schema_2018-10-17.sql
+cd logistics_project
+./manage.py migrate --fake
+```
+
+The first command syncs the production schema (as of October 2018) and the second fakes all migrations.
+You should be able to develop in parallel with production after that and use south / `./manage.py migrate` 
+for future DB schema changes.
+
+
+## Running the server
+
+`./manage.py runserver`
+
 
 ### (Optional) Run celery and SMS router
 
-* ./manage.py celeryd
-* ./manage.py runrouter
-
+```
+./manage.py celeryd
+./manage.py runrouter
+```
 
 # Testing
 
