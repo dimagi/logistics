@@ -90,54 +90,10 @@ def malawi_old():
     env.hosts = ['sc4ccm@50.56.116.170']
     _malawi_shared()
 
-def _tz_shared():
-    env.pathhack = True # sketchily, this must come before any join calls
-    env.config = 'tz'
-    env.db_type = "postgres"
-    env.db_name = "ilsgateway"
-    env.db_user = "postgres"
-    env.code_dir = _join(env.deploy_dir, 'logistics')
-    env.code_cleanup = False
-    env.db_cleanup = False
-    env.stop_start = True
-    env.branch = "tz-master"
-    def tz_extras():
-        run("python manage.py tz_update")
-        sudo("/etc/init.d/memcached restart")
-    env.extras = tz_extras
-
-def tz_staging():
-    """
-    TZ configuration (staging)
-    """
-    env.deploy_dir = '/home/dimagivm/src'
-    env.db_name = "logistics_project"
-    env.hosts = ['dimagivm@ilsstaging.dimagi.com']
-    _tz_shared()
-
-
-def tz_production():
-    """
-    TZ configuration (staging)
-    """
-    env.deploy_dir = '/home/dimagi/src'
-    env.db_name = "logistics_project"
-    env.hosts = ['ilsgateway@ilsgateway.com']
-    _tz_shared()
-    env.virtualenv_root = "/home/dimagi/src/logistics-env"
-
-
-def staging():
-    env.config = 'staging'
-    env.deploy_dir = '/home/ewsghana'
-    env.code_dir = _join(env.deploy_dir, 'logistics')
-    env.hosts = ['ewsghana@ewsghana.dyndns.org']
 
 def production():
-    env.config = 'production'
-    env.deploy_dir = '/home/ewsghana'
-    env.code_dir = _join(env.deploy_dir, 'logistics')
-    env.hosts = ['ewsghana@ewsghana.dyndns.org']
+    malawi()
+
 
 def _local_sudo(command, user=None):
     if user:
