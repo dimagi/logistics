@@ -1,0 +1,29 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Manage HSA - {{ block.super }}{% endblock %}
+{% block subcontent %}
+<div class="module">
+    <h1>{{ hsa.name }}</h1>
+    <table>
+        <tbody>
+        <tr>
+            <th>HSA ID</th>
+            <td>{{ hsa.code }}</td>
+        </tr>
+        <tr>
+            <th>Facility</th>
+            <td>{{ hsa.supplied_by.name }}</td>
+        </tr>
+        <tr>
+            <th>Phone Number(s)</th>
+            <td>{{ phone_numbers|safe }}</td>
+        </tr>
+
+        </tbody>
+    </table>
+    <hr>
+    <form method="post" action="{% url malawi_manage_deactivate_hsa hsa.pk %}">
+        {% csrf_token %}
+        <input type="submit" value="Deactivate">
+    </form>
+</div>
+{% endblock %}
