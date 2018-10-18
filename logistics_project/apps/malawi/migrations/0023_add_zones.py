@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ObjectDoesNotExist
 from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
@@ -81,11 +82,15 @@ class Migration(DataMigration):
         Location = orm['locations.Location']
         LocationType = orm['locations.LocationType']
 
-        self.location_content_type = ContentType.objects.get(app_label='locations', model='location')
-        self.zone_supply_point_type = self.get_or_create_zone_supply_point_type(orm)
-        self.zone_location_type = self.get_or_create_zone_location_type(orm)
-        self.country_location = Location.objects.get(type__slug=LocationCodes.COUNTRY)
-        self.country_supply_point = SupplyPoint.objects.get(type__code=SupplyPointCodes.COUNTRY)
+        try:
+            self.location_content_type = ContentType.objects.get(app_label='locations', model='location')
+            self.zone_supply_point_type = self.get_or_create_zone_supply_point_type(orm)
+            self.zone_location_type = self.get_or_create_zone_location_type(orm)
+            self.country_location = Location.objects.get(type__slug=LocationCodes.COUNTRY)
+            self.country_supply_point = SupplyPoint.objects.get(type__code=SupplyPointCodes.COUNTRY)
+        except ObjectDoesNotExist:
+            # ignore on initial load / if nothing found
+            return
 
         self.create_zone(orm, 'Northern', 'no', ['01', '02', '03', '04', '05', '06', '07'])
         self.create_zone(orm, 'Central Eastern', 'ce', ['10', '11', '12', '13', '14'])
