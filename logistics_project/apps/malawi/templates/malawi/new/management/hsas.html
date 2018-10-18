@@ -1,0 +1,13 @@
+{% extends "malawi/management_base.html" %}
+{% block title %}Places - {{ block.super }}{% endblock %}
+{% block subcontent %}
+
+<div class="module">
+    <h2>All HSAs</h2>
+    <!-- <a href="upload/">Update Locations</a><br> -->
+	{% with table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+
+{% endblock %}

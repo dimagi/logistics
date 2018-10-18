@@ -522,16 +522,84 @@ def verify_ajax(request):
         if SupplyPoint.objects.filter(type__code='hf', code=val).exists():
             return json.dump(True)
 
+
+def manage_hsas(request):
+    hsas = SupplyPoint.objects.filter(active=True, type__code=config.SupplyPointCodes.HSA).select_related(
+        'supplied_by'
+    )
+    table = {
+        "id": "loc-table",
+        "is_datatable": True,
+        "is_downloadable": False,
+        "header": ["Name", "Code", "Facility"],
+        "data": [],
+    }
+    for hsa in hsas:
+        table["data"].append([
+            '<a href="{0}" target="_blank">{1}</a>'.format(
+                reverse('malawi_manage_hsa', args=[hsa.pk]),
+                hsa.name,
+            ),
+            hsa.code,
+            hsa.supplied_by.name,
+        ])
+
+    table["height"] = min(480, (hsas.count()+1)*30)
+
+    context = {
+        "table": table,
+    }
+    return render_to_response("%s/hsas.html" % settings.MANAGEMENT_FOLDER,
+                context, context_instance=RequestContext(request))
+
+
+def manage_hsa(request, pk):
+    hsa = get_object_or_404(SupplyPoint, pk=pk)
+    phone_numbers = [c.default_connection.identity for c in hsa.contact_set.all()]
+    return render_to_response(
+        "%s/hsa.html" % settings.MANAGEMENT_FOLDER,
+        {
+            'hsa': hsa,
+            'phone_numbers': '<br>'.join(phone_numbers) if phone_numbers else '-',
+        },
+        context_instance=RequestContext(request)
+    )
+
+
+@require_POST
+def deactivate_hsa(request, pk):
+    hsa = get_object_or_404(SupplyPoint, pk=pk)
+    assert hsa.type == config.hsa_supply_point_type()
+    hsa.active = False
+    hsa.save()
+    hsa.location.is_active = False
+    hsa.location.save()
+    deactivated_numbers = []
+    for contact in hsa.contact_set.filter(is_active=True):
+        contact.is_active = False
+        deactivated_numbers.append(contact.default_connection.identity)
+        contact.save()
+
+    notice = "Successfully deactivated {0}".format(hsa)
+    if deactivated_numbers:
+        notice = '{0}{1}'.format(notice,
+                                 ' with the following phone number(s):{0}'.format(', '.join(deactivated_numbers)))
+    messages.success(request, notice)
+    return HttpResponseRedirect(reverse('malawi_manage_hsas'))
+
+
 def manage_facilities(request):
     form = UploadFacilityFileForm()
     return render_to_response("malawi/manage_facilities.html", 
         {'form': form}, context_instance=RequestContext(request))
+
 
 def download_facilities(request):
     response = HttpResponse()
     response['Content-Disposition'] = 'attachment; filename=cstock-facilities.csv'
     get_facility_export(response)
     return response
+
 
 @require_POST
 def upload_facilities(request):
