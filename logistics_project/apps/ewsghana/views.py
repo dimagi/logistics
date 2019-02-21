@@ -10,7 +10,6 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from logistics.views import message_log as rapidsms_message_log
 from dimagi.utils.decorators.datespan import datespan_in_request
-from auditcare.views import auditAll
 from registration.views import register as django_register
 from logistics.models import SupplyPoint
 from logistics.view_decorators import geography_context, location_context
@@ -31,10 +30,7 @@ def reporting(request, location_code=None, context={}, template="ewsghana/report
 def message_log(request, template="ewsghana/messagelog.html"):
     return rapidsms_message_log(request, template)
 
-def auditor(request, template="ewsghana/auditor.html"):
-    return auditAll(request, template)
-
-def register_web_user(request, pk=None, Form=AdminRegistersUserForm, 
+def register_web_user(request, pk=None, Form=AdminRegistersUserForm,
                    template='web_registration/admin_registration.html', 
                    success_url='admin_web_registration_complete'):
     # non-admin users only get to see the default 'create user' settings
