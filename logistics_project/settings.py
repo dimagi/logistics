@@ -112,7 +112,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.google_analytics",
-    "couchlog.context_processors.static_workaround"
+    # "couchlog.context_processors.static_workaround"
 ]
 
 
