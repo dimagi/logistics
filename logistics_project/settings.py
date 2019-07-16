@@ -246,6 +246,7 @@ NO_LOGIN_REQUIRED_FOR = [
 'logout',
 'activate',
 'help',
+'malawi/is-kannel-up'
 ]
 
 # AUDITCARE CONFIG
