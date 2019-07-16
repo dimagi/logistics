@@ -241,12 +241,12 @@ RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
 
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
-'password/reset',
-'register',
-'logout',
-'activate',
-'help',
-'malawi/is-kannel-up'
+    'password/reset',
+    'register',
+    'logout',
+    'activate',
+    'help',
+    'malawi/is-kannel-up'
 ]
 
 # AUDITCARE CONFIG
