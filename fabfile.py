@@ -78,7 +78,7 @@ def malawi():
     """
     env.deploy_dir = '/home/dimagi/src'
     env.db_name = "cstock"
-    env.hosts = ['dimagi@cstock.jsi.com']
+    env.hosts = ['dimagi@10.84.168.89']
     _malawi_shared()
     
 def malawi_old():
