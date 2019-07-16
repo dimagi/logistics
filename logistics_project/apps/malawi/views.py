@@ -491,13 +491,24 @@ def monitoring_report(request, report_slug):
 
 @permission_required("auth.admin_read")
 def status(request):
-    #TODO Put these settings in localsettings, probably
     f = urlopen(settings.KANNEL_URL)
     r = f.read()
     with open(settings.CELERY_HEARTBEAT_FILE) as f:
         r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
         
     return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
+
+
+def is_kannel_up(request):
+    try:
+        f = urlopen(settings.KANNEL_URL)
+        r = f.read()
+        if 'online' in r:
+            return HttpResponse('kannel is up', status=200)
+    except Exception:
+        pass
+    return HttpResponse('kannel is down', status=500)
+
 
 @permission_required("auth.admin_read")
 def airtel_numbers(request):
