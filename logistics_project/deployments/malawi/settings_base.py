@@ -4,8 +4,6 @@
 PRIORITY_APPS = []
 
 APPS = [
-    "auditcare",
-    "couchlog",
     "django.contrib.webdesign",
     "logistics_project.apps.malawi",
     "logistics_project.apps.outreach",
