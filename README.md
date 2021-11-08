@@ -4,35 +4,43 @@ This readme is specific to the cstock project.
 
 # Installation
 
+This project requires Python 2.7.
+It's recommended to set it up in a virtual environment.
+
+You'll also need `python-dev` to install requirements:
+
+```
+sudp apt install python2.7 python2.7-dev
+```
+
 NON-PYTHON DEPENDENCIES
 * git
 * pip
 * couchdb
 
 You can install all of the above by running:
+
 ```
 > sudo apt-get install git-core couchdb
 ```
 
 ## Code installation
 
-The following sets up the code
+Once you've done that you can run the following to set up the code:
 
 ```
 git clone git://github.com/dimagi/logistics.git
 cd logistics
 pip install -r pip-requires.txt
-git submodule init
-git submodule update
+git submodule update --init
 cd logistics_project
 cp localsettings.py.example localsettings.py
 update relevant settings in settings.py or localsettings.py
 ```
 
-
 ## DB Setup
 
-Recommended database is MySQL.
+The recommended database is MySQL, which is used in production.
 
 Install it as normal, create a database and update `localsettings.py` accordingly to connect.
 
