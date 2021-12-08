@@ -12,7 +12,6 @@ virtualenv==1.4.5
 django-celery
 django-kombu
 django-registration
-couchdbkit>=0.5.4
 supervisor
 twilio
 johnny-cache
