@@ -107,7 +107,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "logistics.context_processors.global_nav_mode",
     "logistics_project.apps.tanzania.context_processors.language_in_request",
     "logistics_project.apps.tanzania.context_processors.location_scope_hide_show",
-    "couchlog.context_processors.static_workaround"
 ]
 
 DJANGO_LOG_FILE = "logistics.django.log"
