@@ -3,7 +3,6 @@ from optparse import make_option
 
 from django.db import transaction
 from django.core.management.base import BaseCommand
-from rapidsms.models import Contact
 
 
 class DeactivateContactCommand(BaseCommand):
@@ -33,7 +32,7 @@ class DeactivateContactCommand(BaseCommand):
         Perform the same actions as if the contact had texted in "leave"
         The supply point and location are deactivated in logistics_project.apps.malawi.signals.deactivate_hsa_location
         """
-        self.log("--- Processing contact %s ---" % contact.pk)
+        self.log("--- Processing contact %s %s ---" % (contact.pk, contact))
         if contact.is_active:
             self.log("Contact is active, deactivating...")
             contact.is_active = False
