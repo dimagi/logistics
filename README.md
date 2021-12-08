@@ -34,8 +34,9 @@ pip install -r pip-requires.txt
 git submodule update --init
 cd logistics_project
 cp localsettings.py.example localsettings.py
-update relevant settings in settings.py or localsettings.py
 ```
+
+Then update the relevant settings in settings.py or localsettings.py.
 
 ## DB Setup
 
@@ -74,9 +75,12 @@ To load some useful production data (locations, products, etc.) run:
 
 ### (Optional) Run celery and SMS router
 
+The `runrouter` process is necessary for SMS-related functionality.
+Celery is required for scheduled SMS reminders as well as for background jobs that update the data warehouse.
+
 ```
-./manage.py celeryd
 ./manage.py runrouter
+./manage.py celeryd
 ```
 
 # Testing
