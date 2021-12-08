@@ -13,13 +13,6 @@ from logistics_project.deployments.malawi.settings_base import *
 # Use testing db config until Postgres auth on CI can be determined
 DATABASES['default'] = TESTING_DATABASES['default']
 
-# Remove need for auditcare/couchlog to remove the need to run CouchDB on CI
-if "auditcare" in APPS:
-    APPS.remove("auditcare")
-if "couchlog" in APPS:
-    APPS.remove("couchlog")
-if "auditcare.middleware.AuditMiddleware" in MIDDLEWARE_CLASSES:
-    MIDDLEWARE_CLASSES.remove('auditcare.middleware.AuditMiddleware')
 
 # Dummy cache will not work but local memory will for testing purposes
 # and CI does not need to run Memcache
