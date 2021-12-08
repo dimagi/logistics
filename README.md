@@ -92,3 +92,13 @@ This project uses nose for testing. You can run individual tests using the follo
 ```
 
 Note that running the entire test suite hangs on apparent database locking issues. You must run subsets of tests at a time.
+
+
+# Troubleshooting
+
+If the admin site does not work due to a template error, try running the following:
+
+```
+pip uninstall Django
+pip install Django==1.3 --no-cache-dir --no-binary Django
+```
