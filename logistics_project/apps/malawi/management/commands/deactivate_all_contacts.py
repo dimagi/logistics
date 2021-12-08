@@ -4,7 +4,7 @@ from rapidsms.models import Contact
 
 class Command(DeactivateContactCommand):
     help = "Deactivates all active contacts."
-    log_file_name = 'contact-deactivate-fix.txt'
+    log_file_name = 'contact-deactivate-all.txt'
 
     def get_queryset(self):
         return Contact.objects.filter(is_active=True)
