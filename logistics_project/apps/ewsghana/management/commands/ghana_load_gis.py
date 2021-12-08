@@ -2,8 +2,6 @@ import sys
 import csv
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from dimagi.utils.couch.database import get_db
-from logistics_project.apps.ewsghana import loader
 
 class Command(BaseCommand):
     help = "Load GIS data for ghana"
@@ -57,4 +55,3 @@ class Command(BaseCommand):
         print "Matched Locations: %s" % len(match)
         print "Unmatched Locations: %s" % len(no_match)
         print "Points created: %s" % points_created
-        

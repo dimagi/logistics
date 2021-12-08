@@ -2,7 +2,6 @@
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 APPS = [
-    "auditcare",
     "rapidsms.contrib.scheduler",
     "logistics_project.apps.ewsghana",
     "logistics_project.apps.smsgh",
@@ -14,7 +13,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
 )
 

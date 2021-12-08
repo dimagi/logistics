@@ -112,7 +112,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
     "logistics.context_processors.google_analytics",
-    "couchlog.context_processors.static_workaround"
 ]
 
 
@@ -210,11 +209,6 @@ EMAIL_HOST_USER='name@dimagi.com'
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 
-COUCH_SERVER_ROOT='127.0.0.1:5984'
-COUCH_USERNAME=''
-COUCH_PASSWORD=''
-COUCH_DATABASE_NAME='logistics'
-COUCHDB_APPS=['auditcare','couchlog']
 # This section should go at the BOTTOM of settings.py
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
@@ -237,8 +231,6 @@ MAP_DEFAULT_LONGITUDE = 39.35
 
 DEBUG=False
 
-RAPIDSMS_HANDLERS_EXCLUDE_APPS = ["couchlog"]
-
 # TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
     'password/reset',
@@ -248,16 +240,6 @@ NO_LOGIN_REQUIRED_FOR = [
     'help',
     'malawi/is-kannel-up'
 ]
-
-# AUDITCARE CONFIG
-# users can fail login 10 times, resulting in a 1 hour cooloff period
-AXES_LOGIN_FAILURE_LIMIT=100
-AXES_LOGIN_FAILURE_LIMIT=1
-AXES_LOCK_OUT_AT_FAILURE=False
-
-
-COUCHLOG_BLUEPRINT_HOME = "%s%s" % (MEDIA_URL, "logistics/stylesheets/blueprint/")
-COUCHLOG_DATATABLES_LOC = "%s%s" % (MEDIA_URL, "logistics/javascripts/jquery.dataTables.min.js")
 
 
 SOUTH_MIGRATION_MODULES = {
@@ -276,22 +258,3 @@ except ImportError:
     pass
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
-
-def get_server_url(server_root, username, password):
-    if username and password:
-        return "http://%(user)s:%(pass)s@%(server)s" % \
-            {"user": username,
-             "pass": password, "server": server_root } 
-    else:
-        return "http://%(server)s" % {"server": server_root }
-COUCH_SERVER = get_server_url(COUCH_SERVER_ROOT, COUCH_USERNAME, COUCH_PASSWORD)
-COUCH_DATABASE = "%(server)s/%(database)s" % {"server": COUCH_SERVER, "database": COUCH_DATABASE_NAME }
-
-COUCHDB_DATABASES = [(app_label, COUCH_DATABASE) for app_label in COUCHDB_APPS]
-
-# AUDITCARE CONFIG
-# users can fail login 10 times, resulting in a 1 hour cooloff period
-AXES_LOGIN_FAILURE_LIMIT=100
-AXES_LOGIN_FAILURE_LIMIT=1
-AXES_LOCK_OUT_AT_FAILURE=False
-AUDITCARE_LOG_ERRORS = False

@@ -16,12 +16,11 @@ sudp apt install python2.7 python2.7-dev
 NON-PYTHON DEPENDENCIES
 * git
 * pip
-* couchdb
 
 You can install all of the above by running:
 
 ```
-> sudo apt-get install git-core couchdb
+> sudo apt-get install git-core
 ```
 
 ## Code installation

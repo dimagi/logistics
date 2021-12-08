@@ -59,15 +59,6 @@ urlpatterns = patterns('',
 )
 
 
-if 'auditcare' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        (r'^', include('auditcare.urls')),
-    )
-
-if 'couchlog' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        (r'^couchlog/', include('couchlog.urls')),
-    )
 
 if settings.DEBUG:
     urlpatterns += patterns('',

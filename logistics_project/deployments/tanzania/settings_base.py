@@ -3,7 +3,7 @@
 import os
 LOGISTICS_CONFIG = 'logistics_project.apps.tanzania.config'
 
-PRIORITY_APPS = [ "auditcare","logistics_project.apps.migration" ]
+PRIORITY_APPS = [ "logistics_project.apps.migration" ]
     
                  
 APPS = [
@@ -79,7 +79,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'auditcare.middleware.AuditMiddleware',
     'logistics_project.apps.ewsghana.middleware.RequireLoginMiddleware',
     'django.middleware.locale.LocaleMiddleware', 
 )
@@ -108,7 +107,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "logistics.context_processors.global_nav_mode",
     "logistics_project.apps.tanzania.context_processors.language_in_request",
     "logistics_project.apps.tanzania.context_processors.location_scope_hide_show",
-    "couchlog.context_processors.static_workaround"
 ]
 
 DJANGO_LOG_FILE = "logistics.django.log"

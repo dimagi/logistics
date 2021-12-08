@@ -16,5 +16,4 @@ subversion
 mercurial
 build-essential
 git-core
-couchdb
-wkhtmltopdf 
+wkhtmltopdf
