@@ -10,12 +10,6 @@
 [submodule "submodules/tablib"]
 	path = submodules/tablib
 	url = git://github.com/dimagi/tablib.git
-[submodule "submodules/auditcare"]
-	path = submodules/auditcare
-	url = git://github.com/dimagi/auditcare.git
-[submodule "submodules/couchlog"]
-	path = submodules/couchlog
-	url = git://github.com/dimagi/couchlog.git
 [submodule "submodules/rapidsms-alerts"]
 	path = submodules/rapidsms-alerts
 	url = git://github.com/dimagi/rapidsms-alerts
