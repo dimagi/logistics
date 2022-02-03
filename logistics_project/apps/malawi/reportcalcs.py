@@ -2,9 +2,8 @@ from datetime import timedelta, datetime
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.template import TemplateDoesNotExist
-from logistics.models import ProductStock, StockRequest, Product
+from logistics.models import ProductStock, StockRequest, Product, SupplyPoint
 from logistics.reports import ReportingBreakdown, calc_percentage
-from logistics_project.apps.ewsghana.extensions.logistics.supplypoint import SupplyPoint
 from logistics_project.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts, facility_supply_points_below
 from django.utils.datastructures import SortedDict
