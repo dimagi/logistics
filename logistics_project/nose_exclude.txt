@@ -1,4 +1,3 @@
 apps/malawi
 apps/ewsghana
-apps/ilsgateway
-apps/tanzania
+

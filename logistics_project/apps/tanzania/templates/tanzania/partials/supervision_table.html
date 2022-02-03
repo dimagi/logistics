@@ -1,8 +1,0 @@
-{% load i18n %}
-
-<h2>{% trans 'Supervision History' %} &raquo;
-{#{% blocktrans with bd.submitted|length as submitted and dg.submitting|length as count %}#}
-{#{{ submitted }} of {{ count }}{% endblocktrans %} {% trans 'received supervision' %}#}
-{#({{ reporting_percentage|floatformat }}%)#}
-</h2>
-{{ supervision_table.as_html }}

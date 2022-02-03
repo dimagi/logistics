@@ -1,7 +1,0 @@
-
-<h3>Add Note:</h3>
-<form method='post' action='{% url tz_facility_details facility.id %}'>
-    {% csrf_token %}
-    <label for="note_text">Add Note:</label><input type="text" name="note_text" id="note_text" />
-    <input type="submit" value="Post" />
-</form>

@@ -1,8 +1,0 @@
-{% load tz_tags %}
-{% load i18n %}
-<div class="content">
-    <h3 class="popup_title">{{ sp.name }} {% if sp.type.name == "FACILITY" %}({{ sp.code }}){% endif %}</h3>
-    {% delivery_group sp %}
-    {% last_sms sp %}
-    {% product_inventory sp "inventory" %}
-</div>
