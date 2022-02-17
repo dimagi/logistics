@@ -26,11 +26,9 @@ urlpatterns = patterns('',
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
     # i guess having all of these is ok for now (?)    
-    (r'^ewsghana/', include('logistics_project.apps.ewsghana.urls.ewsghana')),
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
     (r'^maps/', include('logistics_project.apps.maps.urls')),
-    (r'^tz/', include('logistics_project.apps.tanzania.urls')),
-    
+
     (r'^group/', include('groupmessaging.urls')),
 
     # login/logout. this is order dependent
@@ -49,10 +47,8 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.urls')),
 
     # other app URLS
-    #(r'^', include('logistics_project.apps.web_registration.urls')), # stolen by ewsghana.urls
     (r'^registration/', include('logistics_project.apps.registration.urls')),
     (r'^logistics/', include('logistics.urls.logistics')),
-    #(r'^logistics/', include('logistics.urls.config')), # stolen by ewsghana
     (r'^reports/', include('email_reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^i18n/', include('django.conf.urls.i18n')),
