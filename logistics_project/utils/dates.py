@@ -1,9 +1,7 @@
 from datetime import date, datetime, timedelta, time
 from calendar import month_name
 import pytz
-from dimagi.utils.logging import log_exception
-from dimagi.utils.parsing import string_to_datetime
-from dimagi.utils.timezones import utils as tz_utils
+from .parsing import string_to_datetime
 from dateutil.rrule import *
 
 def force_to_date(val):
@@ -29,7 +27,6 @@ def safe_date_add(startdate, days, force_to_date_flag=True):
         if force_to_date_flag:  return force_to_date(val)
         else:                   return val 
     except OverflowError, e:
-        log_exception(e) 
         return None
 
 def months_between(start, end):
