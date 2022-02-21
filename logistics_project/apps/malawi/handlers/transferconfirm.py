@@ -30,7 +30,7 @@ class TransferConfirmHandler(KeywordHandler):
             # of the pending transfers, considering them as receipts
             stock_report = ProductReportsHelper(self.msg.logistics_contact.supply_point, 
                                                 Reports.REC)
-            stock_report.parse(" ".join([p.sms_format() for p in pending]))
+            stock_report.newparse(" ".join([p.sms_format() for p in pending]))
             stock_report.save()
             
             # close the pending transfers
