@@ -4,9 +4,6 @@
 [submodule "submodules/rapidsms-alerts"]
 	path = submodules/rapidsms-alerts
 	url = git://github.com/dimagi/rapidsms-alerts
-[submodule "submodules/email-reports"]
-	path = submodules/email-reports
-	url = git://github.com/dimagi/email-reports
 [submodule "submodules/django-scheduler"]
 	path = submodules/django-scheduler
 	url = git://github.com/dimagi/django-scheduler.git
