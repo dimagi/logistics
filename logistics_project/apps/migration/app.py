@@ -4,7 +4,7 @@
 
 from rapidsms.apps.base import AppBase
 from rapidsms.messages import IncomingMessage, OutgoingMessage
-from dimagi.utils.parsing import string_to_datetime
+from logistics_project.utils.parsing import string_to_datetime
 from datetime import datetime
 
 class App(AppBase):
