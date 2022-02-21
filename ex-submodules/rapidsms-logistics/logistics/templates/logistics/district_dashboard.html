@@ -1,0 +1,66 @@
+{% extends base_template %}
+
+{% load i18n %}
+{% load alerts_tags %}
+{% load logistics_report_tags %}
+
+{% block javascripts %}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
+    {{ block.super }}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
+{% endblock %} 
+
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}alerts/stylesheets/alerts.css" />
+{% endblock %}
+
+{% block imports %}
+    {% include "imports/jquery-ui.html" %}
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<span class="noprint">
+    <div class="topbar-right">
+        <a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+    </div>
+<div style="clear:both;">
+{% include "logistics/partials/selector_form.html" %}
+</div>
+</span>
+
+<div class="module noprint">
+    <h2>{% trans 'Alerts' %}</h2>
+    {% alerts request %}
+</div>
+<div class="two-columns toppadded">
+    <div class="col-1">
+        <div class="module"> 
+        <h2>{{ reporting_data.on_time_chart.title }}</h2>
+        {% with reporting_data.on_time_chart.data as chart_data %}{% with "on_time_chart" as chartdiv %}{% with "on_time_hover" as hoverdiv %}
+        {% include "logistics/partials/pie_reporting_generic.html" %}
+        {% endwith %}{% endwith %}{% endwith %}
+        </div>
+    </div>
+    <div class="col-2">
+        <div class="module">
+        <h2>{{ reporting_data.breakdown_chart.title }}</h2>
+        {% with reporting_data.breakdown_chart.data as chart_data %}{% with "breakdown_chart" as chartdiv %}{% with "breakdown_hover" as hoverdiv %}
+        {% include "logistics/partials/pie_reporting_generic.html" %}
+        {% endwith %}{% endwith %}{% endwith %}
+        </div>
+    </div>
+    <div class="clear-hack"></div>
+</div>
+	{% block product_data %}
+	<div class="module toppadded">
+		<h2>Product Availability Summary</h2>
+		{% product_availability_summary_by_facility location %}
+	</div>
+	{% endblock %}
+{% endblock %}

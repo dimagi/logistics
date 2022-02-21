@@ -1,0 +1,38 @@
+<h2>Filled Order Product Statistics{% if location %} for {{ location.name }}{% endif %}</h2>
+<div>
+<table width="100%">
+    <thead>
+        <tr>
+	        <th rowspan="2">Product</th>
+	        <th rowspan="2">Total requests received</th>
+	        <th rowspan="2">Total requests filled</th>
+            <th colspan="4">Filled order response</th>
+	        <th rowspan="2"># of emergency orders</th>
+	    </tr>
+	    <tr>
+	        <th>HC Stocked Out</th>
+	        <th>Partially Filled</th>
+	        <th>Completely Filled</th>
+	        <th>Over Filled</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for key, rowdata in data.items %}
+        <tr>
+            <td>{{ rowdata.product.name }}</td>
+            <td>{{ rowdata.total }}</td>
+            <td>{{ rowdata.filled }}</td>
+            <td>{{ rowdata.stocked_out }}</td>
+            <td>{{ rowdata.under_supplied }}</td>
+            <td>{{ rowdata.well_supplied }}</td>
+            <td>{{ rowdata.over_supplied }}</td>
+            <td>{{ rowdata.emergency|default:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="empty">No orders were filled during this time.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

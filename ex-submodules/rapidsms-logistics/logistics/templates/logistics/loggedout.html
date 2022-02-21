@@ -1,0 +1,14 @@
+{% extends "logistics/base-split-2.html" %}
+{% block title %}Goodbye{% endblock %}
+{% block stylesheets %}{{ block.super }}
+    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
+{% endblock %}
+{% block content %}
+
+<h1>Thanks for visiting {% if site_title %}{{ site_title }}{% else %}RapidSMS{% endif %}!</h1>
+
+<p>Please come again.</p>
+
+<a href="{% url rapidsms-login %}">Log in again</a>
+
+{% endblock %}

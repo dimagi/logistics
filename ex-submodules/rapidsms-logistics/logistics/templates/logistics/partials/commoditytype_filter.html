@@ -1,0 +1,34 @@
+{% if commoditytypes|length > 1 %}
+{% load i18n %}
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commoditytype']").click(function() {
+              $("#commoditytype_form").submit();
+        });
+    });
+    //--><!]]>
+</script>
+
+<form id="commoditytype_form" method="GET">
+    {%  csrf_token %}
+    <input class="product_list" type="radio" name="commoditytype" value="all" 
+        {% if not commoditytype_filter %}checked{% endif %}
+    >{% trans "All" %}<br>
+    {% for commoditytype in commoditytypes %}
+    <input class="product_list" type="radio" name="commoditytype" value="{{ commoditytype.code }}"
+        {% ifequal commoditytype_filter commoditytype.code %}checked{% endifequal %}
+    >{{ commoditytype.name }}<br>
+    {% endfor %}
+</form>
+{% endif %}
+
+<script type="text/javascript">
+    <!--//--><![CDATA[//><!--
+    $(document).ready(function(){
+        $(":radio[name='commoditytype']").click(function() {
+              $("#commoditytype_form").submit();
+        });
+    });
+    //--><!]]>
+</script>

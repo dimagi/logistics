@@ -1,0 +1,90 @@
+{% load i18n %}
+{% block javascripts %}
+    <script language="javascript">
+    $(document).ready(function() {
+        // Bar chart
+        bar_options = {                     
+           series: {
+             lines: { show: false, steps: false },
+             bars: { show: true, barWidth: 0.75, align: 'center', horizontal: true }
+           },
+           yaxis: {
+                  },
+           legend: {show: true, container: $("#{{ summary.legenddiv }}"), noColumns: 3},
+           xaxis: {max: {{ summary.max_value }},
+                   tickDecimals: 0 },
+           grid: {show: true,
+                  tickColor: 'gray',
+                  backgroundColor: '#FFFFFF',
+                  hoverable: false,
+                  autoHighlight:false}
+        };
+        var dmap = {{ summary.flot_data.dmap|safe }};
+        var products = {{ summary.flot_data.products|safe }};
+        var i = 1;
+        for (var p in products) {
+            d = products[p];
+            box = "<input type='checkbox' class='prod-selector'";
+            if (i < {{ max_products }}) {
+                $('.prod-'+d).show();
+                box = box + " checked=true ";
+            } else {
+                $('.prod-'+d).hide();
+            }
+
+            box = box + "id='"+d+"'> ["+d+"] "+dmap[d].name+"</input>\n<br />";
+            $('#product-selector').append(box);
+            i = i + 1;
+        }
+
+        var update_pas = function(){
+            var withstock = [];
+            var withoutstock = [];
+            var nodata = [];
+            var ticks = [];
+            var cur_data = {{ summary.flot_data.data|safe }};
+            var index = 1;
+            var checked_count = 0;
+            for (var p in products) {
+                d = products[p];
+                if ($('#product-selector #'+d)[0].checked) {
+                    $('.prod-'+d).fadeIn(1000);
+                    withstock.push([dmap[d].with_stock, index]);
+                    withoutstock.push([dmap[d].without_stock, index + 1]);
+                    nodata.push([dmap[d].without_data, index + 2]);
+                    ticks.push([index + 1, dmap[d].tick]);
+                    index = index + 4;
+                    checked_count = checked_count + 1;
+                } else {
+                    $('.prod-'+d).fadeOut('slow');
+                }
+            }
+
+            if (checked_count >= {{ max_products }}) {
+                for (var p in products) {
+                    d = products[p];
+                    if (!($('#product-selector #'+d)[0].checked)) {
+                        $('#product-selector #'+d).attr('disabled', true);
+                    }
+                }
+            } else {
+                $('#product-selector input').removeAttr("disabled");
+            }
+            cur_data[1].data = withstock;
+            cur_data[0].data = withoutstock;
+            cur_data[2].data = nodata;
+            bar_options.yaxis.ticks = ticks;
+            height = 10 * index + "px";
+            $("#{{ summary.div }}")[0].style.height = height;
+            $.plot($("#{{ summary.div }}"), cur_data, bar_options);
+        };
+        $('.prod-selector').change(update_pas);
+        update_pas();
+    });
+	</script>
+{% endblock %}
+
+
+<div id="{{ summary.legenddiv }}" style="width:100%"></div>
+<div id="{{ summary.div }}" style="width:{{ summary.width }}px; height:{{ summary.height }}px" ></div>
+<p style="text-align:center; width:{{ summary.width }}px;">Facilities</p>

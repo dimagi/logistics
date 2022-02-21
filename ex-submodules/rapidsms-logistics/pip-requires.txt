@@ -1,0 +1,16 @@
+couchdbkit>=0.5.4
+Django>=1.2.1
+celery==2.2.5
+django-celery==2.2.4
+django-kombu
+django-nose>=0.1
+django-registration==0.8 #later versions introduce breaking API changes
+djappsettings==0.1.0
+git+https://github.com/adammck/djtables.git#egg=djtables
+kombu
+nose
+nose-exclude
+python-dateutil==1.5
+pytz==2010b
+south>=0.7.2
+virtualenv
