@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.http import HttpRequest, HttpResponseBadRequest
-from dimagi.utils.dates import DateSpan
+from ..dates import DateSpan
+
 
 def datespan_in_request(from_param="from", to_param="to", 
                         format_string="%Y-%m-%d", default_days=30, 
