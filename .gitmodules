@@ -1,12 +1,6 @@
 [submodule "submodules/dimagi-utils"]
 	path = submodules/dimagi-utils
 	url = git://github.com/dimagi/dimagi-utils.git
-[submodule "submodules/django-tablib"]
-	path = submodules/django-tablib
-	url = git://github.com/dimagi/django-tablib.git
-[submodule "submodules/tablib"]
-	path = submodules/tablib
-	url = git://github.com/dimagi/tablib.git
 [submodule "submodules/rapidsms-alerts"]
 	path = submodules/rapidsms-alerts
 	url = git://github.com/dimagi/rapidsms-alerts
