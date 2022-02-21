@@ -18,9 +18,9 @@ from django.contrib.auth.models import User as auth_user
 from django.contrib.auth.models import Group as auth_group
 from django.db.models.aggregates import Count
 
-from dimagi.utils.csv import UnicodeWriter
+from logistics_project.utils.csv import UnicodeWriter
 from logistics_project.utils.dates import DateSpan, months_between, add_months
-from dimagi.utils.decorators.datespan import datespan_in_request
+from logistics_project.utils.decorators.datespan import datespan_in_request
 
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location

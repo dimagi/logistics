@@ -5,7 +5,7 @@ from collections import defaultdict
 from random import random
 
 from logistics_project.utils.dates import months_between, add_months, DateSpan
-from dimagi.utils.decorators.datespan import datespan_in_request
+from logistics_project.utils.decorators.datespan import datespan_in_request
 
 from logistics.reports import ProductAvailabilitySummary, Colors
 from logistics.models import Product, SupplyPoint
@@ -17,7 +17,7 @@ from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_pct
 from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
-from dimagi.utils.csv import UnicodeWriter
+from logistics_project.utils.csv import UnicodeWriter
 from logistics.config import HSA
 
 
