@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from rapidsms.conf import settings
 from logistics.const import Reports
-from dimagi.utils.dates import delta_secs
+from logistics_project.utils.dates import delta_secs
 
 class ConsumptionSettings(object):
     

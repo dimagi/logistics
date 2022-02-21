@@ -21,7 +21,7 @@ from rapidsms.conf import settings
 from rapidsms.models import Contact, ExtensibleModelBase
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
-from dimagi.utils.dates import get_day_of_month
+from logistics_project.utils.dates import get_day_of_month
 from logistics.signals import post_save_product_report, create_user_profile,\
     stockout_resolved, stockout_reported, post_save_stock_transaction
 from logistics.errors import *

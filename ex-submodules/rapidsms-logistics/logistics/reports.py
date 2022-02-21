@@ -8,7 +8,7 @@ from django.template.context import RequestContext
 from django.db.models import Q
 from django.utils.importlib import import_module
 from rapidsms.conf import settings
-from dimagi.utils.dates import DateSpan
+from logistics_project.utils.dates import DateSpan
 from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest, HistoricalStockCache
 from .tables import SOHReportingTable

@@ -3,7 +3,6 @@
 from django.contrib.auth.models import User
 from logistics.const import Reports
 
-from dimagi.utils import csv 
 import json
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -21,8 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.views import message_log as rapidsms_messagelog
-from dimagi.utils.dates import DateSpan
-from dimagi.utils.decorators.datespan import datespan_in_request
+from logistics_project.utils.dates import DateSpan
+from logistics_project.utils.decorators.datespan import datespan_in_request
 from logistics.charts import stocklevel_plot
 from logistics.decorators import place_in_request
 from logistics.models import ProductStock, \

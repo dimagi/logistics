@@ -1,4 +1,4 @@
-from dimagi.utils.modules import to_function
+from logistics_project.utils.modules import to_function
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
 from rapidsms.conf import settings
