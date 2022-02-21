@@ -1,4 +1,4 @@
-from dimagi.utils.dates import get_business_day_of_month,\
+from logistics_project.utils.dates import get_business_day_of_month,\
     get_business_day_of_month_after, get_business_day_of_month_before,\
     get_day_of_month
 from datetime import date
@@ -106,4 +106,3 @@ class TestBusinessDays(TestCase):
             get_business_day_of_month_before(2011, 10, 1)
             self.fail("previous call should have failed")
         except ValueError: pass
-        
