@@ -4,7 +4,7 @@ from logistics_project.apps.malawi.util import (fmt_pct, pct, hsas_below,
     facility_supply_points_below, filter_facility_supply_point_queryset_for_epi)
 from static.malawi.config import TimeTrackerTypes, BaseLevel, SupplyPointCodes
 from datetime import datetime
-from dimagi.utils.dates import first_of_next_month, delta_secs
+from logistics_project.utils.dates import first_of_next_month, delta_secs
 
 
 class MalawiWarehouseModel(ReportingModel):

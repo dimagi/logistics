@@ -1,4 +1,4 @@
-from dimagi.utils.dates import DateSpan
+from logistics_project.utils.dates import DateSpan
 from django.conf import settings
 from django.contrib import messages
 from django.utils.datastructures import SortedDict

@@ -1,6 +1,6 @@
 import csv
 from django.db.models import Sum
-from dimagi.utils.dates import months_between
+from logistics_project.utils.dates import months_between
 from datetime import datetime
 from django.core.management.base import LabelCommand
 from logistics.models import Product, SupplyPoint

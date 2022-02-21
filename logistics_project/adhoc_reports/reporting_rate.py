@@ -3,7 +3,7 @@ from apps.malawi.util import hsa_supply_points_below
 from logistics.models import *
 from calendar import month_name
 from django.db.models.expressions import F
-from dimagi.utils.dates import DateSpan
+from logistics_project.utils.dates import DateSpan
 from datetime import date, timedelta
 from logistics.reports import ReportingBreakdown
 

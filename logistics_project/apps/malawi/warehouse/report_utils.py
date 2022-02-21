@@ -4,7 +4,7 @@ from datetime import datetime
 from collections import defaultdict
 from random import random
 
-from dimagi.utils.dates import months_between, add_months, DateSpan
+from logistics_project.utils.dates import months_between, add_months, DateSpan
 from dimagi.utils.decorators.datespan import datespan_in_request
 
 from logistics.reports import ProductAvailabilitySummary, Colors

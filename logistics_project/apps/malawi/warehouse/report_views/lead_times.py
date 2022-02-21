@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.db.models import Sum
 
-from dimagi.utils.dates import months_between
+from logistics_project.utils.dates import months_between
 
 from logistics.util import config
 from logistics.models import SupplyPoint

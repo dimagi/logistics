@@ -5,7 +5,7 @@ from django.db.models import Min
 
 from django.utils.datastructures import SortedDict
 
-from dimagi.utils.dates import months_between
+from logistics_project.utils.dates import months_between
 
 from logistics.models import SupplyPoint
 

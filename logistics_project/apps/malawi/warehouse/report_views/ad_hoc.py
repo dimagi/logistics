@@ -2,7 +2,7 @@ from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint, ProductReport, Product
 from logistics_project.apps.malawi.util import get_default_supply_point,\
     hsa_supply_points_below
-from dimagi.utils.dates import first_of_next_month
+from logistics_project.utils.dates import first_of_next_month
 import itertools
 from logistics_project.apps.malawi.warehouse.report_views.consumption_profiles import consumption_row
 
