@@ -182,7 +182,7 @@ DEFAULT_BACKEND = 'message_tester'
 INTL_DIALLING_CODE = "+"
 DOMESTIC_DIALLING_CODE = 0
 STATIC_ROOT = "/static_root"
-STATIC_URL = "/static"
+STATIC_URL = "/static/"
 
 # reports
 REPORT_URL = "/malawi/r"
