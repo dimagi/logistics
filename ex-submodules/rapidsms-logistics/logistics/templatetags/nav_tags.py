@@ -1,7 +1,5 @@
 from django import template
 from django.conf import settings
-from logistics.util import config
-import logging
 from logistics_project.utils.modules import to_function
 
 register = template.Library()
