@@ -1,0 +1,12 @@
+<form method="get" id="selector">
+
+{% if request.select_location %}
+{% include "logistics/partials/location_selector.html" %}
+{% endif %}
+
+{% if request.datespan %}&nbsp;
+{% include "logistics/partials/date_selector.html" %}
+{% endif %}
+
+<input type="submit" value="Go!" />
+</form>

@@ -1,0 +1,5 @@
+{% load i18n %}
+{% for group in groups %}
+<h3>{{ group.title }}</h3>
+{{ group.table.as_html }}
+{% endfor %}

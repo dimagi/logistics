@@ -1,0 +1,12 @@
+{% if chart_data %}
+        <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+        <script type='text/javascript'>
+          google.load('visualization', '1', {'packages':['annotatedtimeline']});
+          google.setOnLoadCallback(drawChart);
+          function drawChart() {
+            {{ chart_data|safe }}
+            var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+            chart.draw(chart_data, {legendPosition:"newRow", displayRangeSelector:false, wmode:"transparent"});
+          }
+        </script>
+{% endif %}

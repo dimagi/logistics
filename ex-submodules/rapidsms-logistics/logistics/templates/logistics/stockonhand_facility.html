@@ -1,0 +1,64 @@
+{% extends "logistics/reports_base.html" %}
+
+{% load logistics_extras %}
+{% load logistics_report_tags %}
+{% load i18n %}
+
+{% block javascripts %}
+{{ block.super }}
+{% include "logistics/googlecharts/stock_chart_js.html" %}
+{% endblock %}
+
+{% block content %}
+    <div class="module">
+        <div class="topbar noprint">
+        {% include "logistics/partials/breadcrumbs.html" %}
+        {% include "logistics/partials/date_selector_form.html" %}
+        </div>
+        {% if not excel_export %}
+	        <!-- only room for one toprighttoolbar in this town... -->
+	        <div class="toolbar noprint">
+	        	<a style="cursor:pointer;" onclick="$.fn.printableview()">Print Report</a>
+	        </div>
+        {% endif %}
+        
+        <div id="main">
+        <h2 id="report-title">Stock for {{ facility.name }}</h2>
+
+        {% if facility.productstock_set.count %}
+            {% if excel_export %}
+				<div class="toolbar noprint">
+				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
+				</div>
+		    {% endif %}
+                <div id="report-content">
+
+                {% if chart_data %}
+                <div id="chart_div" class="noprint"></div>
+                {% endif %}
+                
+                {% stockonhand_table facility request.datespan %}
+                
+                <br/>
+                {% if request.user.is_superuser %}
+	                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+                {% else %}
+	                {% if request.user.get_profile %}
+		                {% ifequal request.user.get_profile.supply_point facility %}
+			                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+		                {% endifequal %}
+	                {% endif %}
+                {% endif %}
+                {% if last_reported %}
+                    <p>The last report received was at <strong>{{ last_reported|date:" h:i:s A o\n M d, Y" }}</strong>.</p>
+                {%  endif %}
+	            </div>
+            {% else %}<p></p>
+                <div class="error">
+                    <p>{{ facility.name }} has not been configured with the appropriate stock or submitted any stock on hand reports yet.</p>
+                    <p>Please contact the system administrator for help.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

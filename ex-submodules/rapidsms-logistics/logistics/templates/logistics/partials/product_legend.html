@@ -1,0 +1,10 @@
+<table class="legend-table">
+    <thead><tr>
+        <th>Product Code</th><th>Name</th>
+    </tr></thead>
+    <tbody>
+{% for product in products %}
+    <tr><td>{{ product.code }}</td><td>{{ product.name }}</td></tr>
+{% endfor %}
+    </tbody>
+</table>
