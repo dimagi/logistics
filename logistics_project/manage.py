@@ -7,7 +7,7 @@ from django.core.management import execute_manager
 filedir = os.path.dirname(__file__)
 sys.path.append(os.path.join(filedir))
 sys.path.append(os.path.join(filedir,'..'))
-sys.path.append(os.path.join(filedir,'..','rapidsms','lib'))
+sys.path.append(os.path.join(filedir,'..','ex-submodules', 'rapidsms', 'lib'))
 sys.path.append(os.path.join(filedir,'..','submodules','dimagi-utils'))
 sys.path.append(os.path.join(filedir,'..','submodules','django-tablib'))
 sys.path.append(os.path.join(filedir,'..','submodules','tablib'))

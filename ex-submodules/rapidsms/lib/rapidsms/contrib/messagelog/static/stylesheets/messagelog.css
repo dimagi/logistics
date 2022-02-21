@@ -1,0 +1,15 @@
+/* vim:set et ts=4 sw=4 */
+
+.messages table {
+    width: 100%;
+}
+
+    .messages th,
+    .messages td {
+         white-space: nowrap;
+    }
+
+    .messages col { width: auto; } 
+    .messages col:first-child { width: auto; } 
+    
+    .messages td.message { word-wrap:break-word; white-space: normal;}
