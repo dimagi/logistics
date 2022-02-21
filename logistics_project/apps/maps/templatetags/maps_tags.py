@@ -1,7 +1,7 @@
 from django import template
 from django.conf import settings
 from django.template.loader import render_to_string
-from dimagi.utils.modules import to_function
+from logistics_project.utils.modules import to_function
 
 register = template.Library()
 
@@ -39,4 +39,3 @@ def get_map_popup(supply_point, request):
                             {"sp": supply_point, 
                              "productstocks": supply_point.productstock_set.all().order_by('product__name')}
                             ).replace("\n", "")
-    
