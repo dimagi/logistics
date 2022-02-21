@@ -16,7 +16,7 @@ sys.path.append(os.path.join(filedir,'..','submodules','django-scheduler'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-alerts'))
 sys.path.append(os.path.join(filedir,'..','submodules','email-reports'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-dupe-checker'))
-sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-logistics'))
+sys.path.append(os.path.join(filedir,'..','ex-submodules','rapidsms-logistics'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-groupmessaging'))
 sys.path.append(os.path.join(filedir,'..','submodules','django-datawarehouse'))
 
