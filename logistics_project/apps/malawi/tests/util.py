@@ -75,7 +75,7 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
     Reports stock. 
     """
     stock_report = ProductReportsHelper(SupplyPoint(), Reports.SOH)
-    stock_report.parse(product_string)
+    stock_report.newparse(product_string)
     product_list = " ".join(stock_report.reported_products()).strip()
     manager_msgs = []
     if managers:
@@ -105,7 +105,7 @@ def report_facility_level_stock(test_class, reporter, product_string, managers, 
     Reports stock in the facility-level workflow.
     """
     stock_report = ProductReportsHelper(reporter.supply_point, Reports.SOH)
-    stock_report.parse(product_string)
+    stock_report.newparse(product_string)
     product_list = " ".join(stock_report.reported_products()).strip()
 
     manager_msgs = []
