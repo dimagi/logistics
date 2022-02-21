@@ -13,6 +13,3 @@
 [submodule "submodules/rapidsms-groupmessaging"]
 	path = submodules/rapidsms-groupmessaging
 	url = git://github.com/dimagi/rapidsms-groupmessaging.git
-[submodule "submodules/django-datawarehouse"]
-	path = submodules/django-datawarehouse
-	url = git://github.com/dimagi/django-datawarehouse.git
