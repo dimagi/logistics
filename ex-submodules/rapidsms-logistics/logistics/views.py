@@ -15,8 +15,6 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponse, Http40
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
-from django_tablib import ModelDataset
-from django_tablib.base import mimetype_map
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
@@ -299,45 +297,6 @@ def get_location_children(location, commodity_filter, commoditytype_filter, date
     children.extend(location.get_children())
     return _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan)
 
-@cache_page(60 * 15)
-def export_reporting(request, location_code=None):
-    if location_code is None:
-        location_code = settings.COUNTRY
-    location = get_object_or_404(Location, code=location_code)
-    queryset = ProductReport.objects.filter(supply_point__location__in=location.get_descendants(include_self=True))\
-      .select_related("supply_point__name", "supply_point__location__parent__name", 
-                      "supply_point__location__parent__parent__name", 
-                      "product__name", "report_type__name", "message__text").order_by('report_date')
-    response = HttpResponse(mimetype=mimetype_map.get(format, 'application/octet-stream'))
-    response['Content-Disposition'] = 'attachment; filename=reporting.xls'
-    writer = csv.UnicodeWriter(response)
-    writer.writerow(['ID', 'Location Grandparent', 'Location Parent', 'Facility', 
-                     'Commodity', 'Report Type', 
-                     'Quantity', 'Date',  'Message'])
-    for q in queryset:
-        parent = q.supply_point.location.parent.name if q.supply_point.location.parent else None
-        grandparent = q.supply_point.location.parent.parent.name if q.supply_point.location.parent.parent else None
-        message = q.message.text if q.message else None
-        writer.writerow([q.id, 
-                         grandparent, 
-                         parent, 
-                         q.supply_point.name, 
-                         q.product.name, q.report_type.name, 
-                         q.quantity, q.report_date, message])
-    return response    
-
-def export_stockonhand(request, facility_code, format='xls', filename='stockonhand'):
-    class ProductReportDataset(ModelDataset):
-        class Meta:
-            queryset = ProductReport.objects.filter(supply_point__code=facility_code).order_by('report_date')
-    dataset = getattr(ProductReportDataset(), format)
-    filename = '%s_%s.%s' % (filename, facility_code, format)
-    response = HttpResponse(
-        dataset,
-        mimetype=mimetype_map.get(format, 'application/octet-stream')
-        )
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    return response
 
 @permission_required('logistics.add_facility')
 @transaction.commit_on_success
