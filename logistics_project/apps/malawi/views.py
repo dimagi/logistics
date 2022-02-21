@@ -868,3 +868,7 @@ def set_current_dashboard(request):
         raise Http404()
 
     return HttpResponseRedirect(reverse('malawi_dashboard'))
+
+
+def raise_500(request):
+    raise Exception('This is a simulated error from cstock.')

@@ -133,6 +133,7 @@ urlpatterns = patterns('',
     url(r'^global_stats/$',
         "logistics.views.global_stats",
         name="global_stats"),
+    url(r'^500/?$', "logistics_project.apps.malawi.views.raise_500", name='raise_500'),
 
 ) + reportpatterns
 
