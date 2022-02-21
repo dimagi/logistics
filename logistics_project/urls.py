@@ -49,7 +49,6 @@ urlpatterns = patterns('',
     # other app URLS
     (r'^registration/', include('logistics_project.apps.registration.urls')),
     (r'^logistics/', include('logistics.urls.logistics')),
-    (r'^reports/', include('email_reports.urls')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^i18n/', include('django.conf.urls.i18n')),
 )
