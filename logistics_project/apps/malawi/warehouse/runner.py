@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.db.models import Sum, Min, Max, Q, F
 
-from dimagi.utils.dates import months_between, first_of_next_month, delta_secs
+from logistics_project.utils.dates import months_between, first_of_next_month, delta_secs
 
 from rapidsms.contrib.messagelog.models import Message
 

@@ -15,7 +15,7 @@ from logistics.tables import ShortMessageTable
 from logistics.reports import ReportingBreakdown,\
     ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
     HSASupplyPointRow, FacilitySupplyPointRow, DynamicProductAvailabilitySummaryByFacilitySP
-from dimagi.utils.dates import DateSpan, get_day_of_month
+from logistics_project.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
 from rapidsms.models import Contact

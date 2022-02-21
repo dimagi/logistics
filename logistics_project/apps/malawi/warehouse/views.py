@@ -15,7 +15,7 @@ from logistics_project.apps.malawi.warehouse.report_views import dashboard, emer
     lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc
 from logistics_project.apps.malawi.util import get_or_create_user_profile
 from logistics.util import config
-from dimagi.utils.parsing import string_to_boolean
+from logistics_project.utils.parsing import string_to_boolean
 import logging
 
 

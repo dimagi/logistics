@@ -1,5 +1,5 @@
 from datetime import datetime
-from dimagi.utils.dates import DateSpan, get_day_of_month
+from logistics_project.utils.dates import DateSpan, get_day_of_month
 from dateutil.relativedelta import relativedelta
 from django.core.cache import cache
 import gviz_api

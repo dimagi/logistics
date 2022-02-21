@@ -1,5 +1,5 @@
 from datetime import datetime
-from dimagi.utils.modules import to_function
+from logistics_project.utils.modules import to_function
 from django.conf import settings
 from warehouse.models import ReportRun
 from django.db import transaction
@@ -93,4 +93,3 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
         new_run.save()
         print "End time: %s" % datetime.now()
 
-    

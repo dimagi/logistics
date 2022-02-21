@@ -1,5 +1,5 @@
-from datetime import datetime, date
-from dimagi.utils.dates import get_business_day_of_month,\
+from datetime import datetime
+from logistics_project.utils.dates import get_business_day_of_month,\
     get_business_day_of_month_after, get_business_day_of_month_before,\
     get_day_of_month
 

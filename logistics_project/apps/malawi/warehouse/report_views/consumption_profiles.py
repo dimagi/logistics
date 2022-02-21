@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 
-from dimagi.utils.dates import first_of_next_month, delta_secs, months_between,\
+from logistics_project.utils.dates import first_of_next_month, delta_secs, months_between,\
     secs_to_days
 
 from logistics.models import SupplyPoint, Product

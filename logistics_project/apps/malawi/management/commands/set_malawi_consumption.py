@@ -4,7 +4,7 @@ from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from warehouse.models import ReportRun
 from logistics_project.apps.malawi.util import get_country_sp,\
     hsa_supply_points_below
-from dimagi.utils.dates import months_between
+from logistics_project.utils.dates import months_between
 from datetime import datetime
 from django.db.models.aggregates import Min
 from logistics_project.apps.malawi.warehouse.runner import _aggregate
@@ -40,4 +40,3 @@ class Command(BaseCommand):
                                'time_needing_data'],
                        additonal_query_params={"product": p})
             
-                    

@@ -4,7 +4,7 @@ from datetime import datetime
 from logistics.models import SupplyPoint, Product
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 from rapidsms.contrib.messagelog.models import Message
-from dimagi.utils.dates import months_between
+from logistics_project.utils.dates import months_between
 from logistics_project.apps.malawi.warehouse.runner import ReportPeriod,\
     update_consumption, aggregate, update_consumption_times
 from logistics_project.apps.malawi.util import hsa_supply_points_below

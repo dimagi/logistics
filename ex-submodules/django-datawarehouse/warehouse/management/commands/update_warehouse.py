@@ -1,6 +1,6 @@
 from django.core.management.base import LabelCommand
 from optparse import make_option
-from dimagi.utils.parsing import string_to_datetime
+from logistics_project.utils.parsing import string_to_datetime
 from warehouse import runner
 
 class Command(LabelCommand):
@@ -20,4 +20,3 @@ class Command(LabelCommand):
         end_date = None if len(args) < 2 else string_to_datetime(args[1]) 
         cleanup = options["cleanup"]
         return runner.update_warehouse(start_date, end_date, cleanup) 
-        

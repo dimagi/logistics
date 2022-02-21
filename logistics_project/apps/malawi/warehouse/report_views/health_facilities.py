@@ -8,7 +8,7 @@ from logistics_project.apps.malawi.warehouse.report_utils import previous_report
     WarehouseProductAvailabilitySummary
 from collections import defaultdict
 from logistics_project.apps.malawi.warehouse.models import ReportingRate
-from dimagi.utils.dates import DateSpan
+from logistics_project.utils.dates import DateSpan
 
 class View(warehouse_view.DistrictOnlyView):
 

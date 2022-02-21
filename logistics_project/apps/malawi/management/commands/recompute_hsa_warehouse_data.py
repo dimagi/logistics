@@ -1,6 +1,6 @@
 from optparse import make_option
 from django.core.management.base import LabelCommand
-from dimagi.utils.parsing import string_to_datetime
+from logistics_project.utils.parsing import string_to_datetime
 from warehouse.models import ReportRun
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.warehouse.models import TimeTracker, OrderRequest, OrderFulfillment

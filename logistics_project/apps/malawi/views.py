@@ -18,10 +18,9 @@ from django.contrib.auth.models import User as auth_user
 from django.contrib.auth.models import Group as auth_group
 from django.db.models.aggregates import Count
 
-from dimagi.utils.csv import UnicodeWriter
-from dimagi.utils.dates import DateSpan, months_between, add_months
-from dimagi.utils.django.permission_required import permission_required_with_403
-from dimagi.utils.decorators.datespan import datespan_in_request
+from logistics_project.utils.csv import UnicodeWriter
+from logistics_project.utils.dates import DateSpan, months_between, add_months
+from logistics_project.utils.decorators.datespan import datespan_in_request
 
 from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
@@ -457,13 +456,13 @@ def facility(request, code, context={}):
     return render_to_response("malawi/single_facility.html", context, context_instance=RequestContext(request))
 
     
-@permission_required_with_403("auth.admin_read")
+@permission_required("auth.admin_read")
 def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
     return render_to_response("malawi/monitoring_home.html", {"reports": reports},
                               context_instance=RequestContext(request))
 @cache_page(60 * 15)
-@permission_required_with_403("auth.admin_read")
+@permission_required("auth.admin_read")
 @datespan_default
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
