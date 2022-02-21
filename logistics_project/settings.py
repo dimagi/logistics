@@ -57,7 +57,6 @@ BASE_APPS = [
     "logistics_project.apps.maps",
 #    "logistics_project.apps.reports",
 #    "logistics_project.apps.groupmessaging",
-    #"django_cpserver", # pip install django-cpserver
     "registration",
     "groupmessaging",
     "taggit",
