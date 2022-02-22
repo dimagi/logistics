@@ -14,6 +14,8 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
 STYLE = 'left' # formats the navigation: 'right' 'left' or 'both'
 
+SECRET_KEY = 'please change me in production'
+
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
 BASE_APPS = [
@@ -103,7 +105,7 @@ SITE_ID = 1
 # these weird dependencies should be handled by their respective apps,
 # but they're not, so here they are. most of them are for django admin.
 TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.core.context_processors.auth",
+    "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
@@ -182,7 +184,7 @@ DEFAULT_BACKEND = 'message_tester'
 INTL_DIALLING_CODE = "+"
 DOMESTIC_DIALLING_CODE = 0
 STATIC_ROOT = "/static_root"
-STATIC_URL = "/static"
+STATIC_URL = "/static/"
 
 # reports
 REPORT_URL = "/malawi/r"

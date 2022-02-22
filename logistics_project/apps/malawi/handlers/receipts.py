@@ -37,6 +37,7 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
             dupe_ignore_threshold = datetime.utcnow() - timedelta(seconds=settings.LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN)
             ignore = dupes.filter(date__gte=dupe_ignore_threshold)
             if ignore.count() and ProductReport.objects.filter(message__in=dupes).count():
+                self.respond(_("Your receipt message was a duplicate and was discarded."))
                 return True
 
         # at the end of your receipt message you can write:

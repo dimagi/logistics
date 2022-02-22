@@ -42,13 +42,12 @@ class MalawiTestReceipts(MalawiTestBase):
            +16175551000 < Thank you, you reported receipts for zi la.
         """
         self.runScript(c)
-        outbound_message_count = Message.objects.filter(direction='O').count()
         c = """
            +16175551000 > rec zi 100 la 200
+           +16175551000 < Your receipt message was a duplicate and was discarded.
         """
         self.runScript(c)
         # ensure no new outbound message was sent
-        self.assertEqual(outbound_message_count, Message.objects.filter(direction='O').count())
         self.assertEqual(2, ProductReport.objects.count())
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))

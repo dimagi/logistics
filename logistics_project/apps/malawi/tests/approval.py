@@ -43,7 +43,7 @@ class TestApproval(MalawiTestBase):
               +8005551200 < %(approval_supervisor)s
               +8005551212 < %(approval_hsa)s
               +8005551212 > add zi co la
-              +8005551212 > Thank you, you now supply: co la zi
+              +8005551212 < Thank you, you now supply: co la zi
             """ % {'approval_supervisor': config.Messages.APPROVAL_SUPERVISOR % {'hsa': 'stella'},
                    'approval_hsa': config.Messages.APPROVAL_HSA % {'hsa':'stella'}}
         self.runScript(a)
@@ -73,5 +73,3 @@ class TestApproval(MalawiTestBase):
         loc = Location.objects.get(code="261601")
         sp = SupplyPoint.objects.get(code="261601")
         self.assertEqual(sp.location, loc)
-
-
