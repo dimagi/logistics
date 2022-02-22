@@ -14,6 +14,8 @@ VERSION = '0.2.1' # This doesn't do anything yet, but what the hey.
 
 STYLE = 'left' # formats the navigation: 'right' 'left' or 'both'
 
+SECRET_KEY = 'please change me in production'
+
 # to help you get started quickly, many django/rapidsms apps are enabled
 # by default. you may wish to remove some and/or add your own.
 BASE_APPS = [
