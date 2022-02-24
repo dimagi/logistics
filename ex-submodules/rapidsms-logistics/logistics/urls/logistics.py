@@ -1,9 +1,4 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 from django.conf.urls.defaults import *
-from django.views.generic.simple import redirect_to, direct_to_template
-from ..models import get_geography, ProductStock, ProductReport
 
 urlpatterns = patterns('',
     url(r'^no_ie_allowed/?$', 'logistics.views.no_ie_allowed', 
