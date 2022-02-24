@@ -21,7 +21,7 @@
         </tbody>
     </table>
     <hr>
-    <form method="post" action="{% url malawi_manage_deactivate_hsa hsa.pk %}">
+    <form method="post" action="{% url 'malawi_manage_deactivate_hsa' hsa.pk %}">
         {% csrf_token %}
         <input type="submit" value="Deactivate">
     </form>

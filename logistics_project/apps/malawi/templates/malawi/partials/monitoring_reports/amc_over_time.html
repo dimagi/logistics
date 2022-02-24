@@ -33,5 +33,5 @@
     </table>
 
     <div><p><i>The calculated values are the average monthly consumption across all HSAs over a three-month window ending in the month specified.</i></p></div>
-    <a href="{% url export_amc_csv %}?from={{ datespan.startdate|date:'Y-m-d' }}&to={{ datespan.enddate|date:'Y-m-d' }}">Export this table to CSV</a>
+    <a href="{% url 'export_amc_csv' %}?from={{ datespan.startdate|date:'Y-m-d' }}&to={{ datespan.enddate|date:'Y-m-d' }}">Export this table to CSV</a>
 {% endif %}

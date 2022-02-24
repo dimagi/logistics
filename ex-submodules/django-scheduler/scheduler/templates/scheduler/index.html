@@ -39,7 +39,7 @@
                 <td>{% if schedule.count %}{{ schedule.count }}{% else %}<span class="na">n/a</span>{% endif %}</td>
                 <td>{% if schedule.active %}True{% else %}False{% endif %}</td>
                 <td><form name="test_report" 
-                          action="{% url test_schedule schedule.pk %}" 
+                          action="{% url 'test_schedule' schedule.pk %}"
                           method="POST">
                         	  {% csrf_token %}
                               <a href="#" onclick="$(this).closest('form').submit()" class="button">Send</a>
@@ -79,4 +79,3 @@
 </div>
 
 {% endblock %}
-    

@@ -20,7 +20,7 @@
     <p>cStock provides real-time, actionable HSA logistics data for managers and stakeholders 
        to coordinate, plan, and identify solutions to better meet customer needs in a timely manner.</p>
 </div>
-<form id="login" method="post" action="{% url rapidsms-login %}">
+<form id="login" method="post" action="{% url 'rapidsms-login' %}">
 <table>
 <tr>
     <td>{{ form.username.label_tag }}</td>
@@ -34,10 +34,6 @@
 {% csrf_token %}
 <input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
-<p/>
-<div class="note">Forgot your password? <a href="{% url auth_password_reset %}">Reset it here</a></div>
-<p/>
-
 </form>
 {% endif %}
 {% endblock %}

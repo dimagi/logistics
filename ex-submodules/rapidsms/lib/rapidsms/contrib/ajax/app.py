@@ -5,10 +5,11 @@
 import cgi
 import urlparse
 import traceback
+from json import JSONEncoder
 from threading import Thread
 from SocketServer import ThreadingMixIn
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from django.utils.simplejson import JSONEncoder
+
 from django.db.models.query import QuerySet
 from rapidsms.apps.base import AppBase
 from rapidsms.conf import settings

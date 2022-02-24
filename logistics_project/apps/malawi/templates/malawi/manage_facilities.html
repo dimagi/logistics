@@ -19,12 +19,12 @@
     <h3>Manage Facilities</h3>
     <p>To update the list of facilities:</p>
     <ol>
-        <li>Download the <a href="{% url download_facilities %}">current facility list</a>.</li>
+        <li>Download the <a href="{% url 'download_facilities' %}">current facility list</a>.</li>
         <li>Edit the document as necessary. You can add new lines or edit existing lines. Make sure to preserve columns and format.</li>
         <li>If you want the upload to go faster, delete any rows you don't want to change.</li>        
         <li>When you're ready, upload the document here.</li>
     </ol>
-    <form id="fac-upload" action="{% url upload_facilities %}" method="post" enctype="multipart/form-data">
+    <form id="fac-upload" action="{% url 'upload_facilities' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_table }}
         <input type="submit" value="Update facilities"></input>

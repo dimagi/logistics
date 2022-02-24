@@ -1,4 +1,0 @@
-The main purpose of this app is to extend django_registration with a few
-for administrators who can create users and skip the activation step.
-
-I guess we could merge this back into django_registration later.

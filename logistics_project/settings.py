@@ -46,24 +46,17 @@ BASE_APPS = [
 
     
     # the rapidsms contrib apps.
-    #"rapidsms.contrib.default",
-    #"rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
     "rapidsms.contrib.messaging",
     "alerts",
     "logistics_project.apps.registration",
-    "logistics_project.apps.web_registration",
     "logistics",
     "logistics_project.apps.maps",
-#    "logistics_project.apps.reports",
-#    "logistics_project.apps.groupmessaging",
-    "registration",
     "groupmessaging",
     "taggit",
     "django_extensions",
-    # "logistics_project.apps.malawi.reporting"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
@@ -217,7 +210,6 @@ EMAIL_USE_TLS=True
 LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
-LOGISTICS_LOGIN_TEMPLATE = "logistics/login.html"
 LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
 LOGISTICS_PASSWORD_CHANGE_TEMPLATE = "logistics/password_reset_form.html"
 LOGISTICS_ALERT_GENERATORS = ['alerts.alerts.empty']

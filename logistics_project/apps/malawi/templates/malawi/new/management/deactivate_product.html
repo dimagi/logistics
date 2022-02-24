@@ -6,7 +6,7 @@
     Deactivating a product will remove it from all HSAs who manage it.
     This operation is NOT reverisble. Confirm you want to do this by
     clicking "deactivate" below, otherwise you can 
-    <a href="{% url malawi_single_product product.pk%}">go back</a>.
+    <a href="{% url 'malawi_single_product' product.pk%}">go back</a>.
     </p>
     <form method="post">
         {% csrf_token %}

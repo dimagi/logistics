@@ -12,7 +12,6 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     
     # RapidSMS core URLs
-    #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
     url(r'^/?$', 'logistics.views.landing_page',
         name="rapidsms-dashboard"),
@@ -33,7 +32,7 @@ urlpatterns = patterns('',
 
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
-        kwargs={"template_name": settings.LOGISTICS_LOGIN_TEMPLATE}, 
+        kwargs={"template_name": "malawi/login.html"},
         name='rapidsms-login'),
     url(r'^accounts/logout/$', django_logout, 
         kwargs={"template_name": settings.LOGISTICS_LOGOUT_TEMPLATE},
@@ -43,9 +42,6 @@ urlpatterns = patterns('',
                 "post_change_redirect": settings.LOGIN_REDIRECT_URL },
         name='rapidsms-password-change'),
     
-    # 3rd party django app URLs
-    (r'^accounts/', include('registration.urls')),
-
     # other app URLS
     (r'^registration/', include('logistics_project.apps.registration.urls')),
     (r'^logistics/', include('logistics.urls.logistics')),
