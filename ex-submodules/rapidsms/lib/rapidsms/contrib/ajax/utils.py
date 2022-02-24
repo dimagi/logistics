@@ -4,8 +4,8 @@
 
 import urllib
 import urllib2
-from copy import copy
-from django.utils.simplejson import JSONDecoder
+from json import JSONDecoder
+
 from rapidsms.conf import settings
 from . import exceptions
 

@@ -3,7 +3,8 @@ A field which can store a json object in the database.
 """
 
 from django.db import models
-from django.utils import simplejson as json
+import json
+
 
 class JSONField(models.TextField):
     """
