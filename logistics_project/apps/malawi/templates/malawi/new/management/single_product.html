@@ -29,7 +29,7 @@
         <dt>Category: </dt>
         <dd>{{ product.type.name }}</dd>
     </dl>
-    <form action="{% url malawi_deactivate_product product.pk %}" method="get">
+    <form action="{% url 'malawi_deactivate_product' product.pk %}" method="get">
         <input type="submit" value="Deactivate Product">
     </form>
 </div>
