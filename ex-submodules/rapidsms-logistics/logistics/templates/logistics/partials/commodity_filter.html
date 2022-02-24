@@ -29,7 +29,7 @@
         {% ifequal commodity_filter commodity.sms_code %}checked{% endifequal %}
     >{{ commodity.name }} 
     {% if location and facility_count > 0 %}
-        <a href="{% url by_product location.code %}?commodity={{commodity.sms_code}}">
+        <a href="{% url 'by_product' location.code %}?commodity={{commodity.sms_code}}">
             <img src="{{ MEDIA_URL }}logistics/images/magnifier.png"></img>
         </a>
     {% endif %}

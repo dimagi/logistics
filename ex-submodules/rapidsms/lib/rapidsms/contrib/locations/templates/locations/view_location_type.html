@@ -84,7 +84,7 @@
 		<tbody>{% if locations.object_list %}{% for location in locations.object_list %}
 			<tr>
 				<td class="number">{{ location.code }}</td>
-				<td><a href="{% url edit_location location_type_slug=location_type.slug location_pk=location.pk %}">{{ location.name }}</a></td>{% for objects in location.related_objects %}
+				<td><a href="{% url 'edit_location' location_type_slug=location_type.slug location_pk=location.pk %}">{{ location.name }}</a></td>{% for objects in location.related_objects %}
 				<td>{{ objects.count }}</td>{% endfor %}
 			</tr>{% endfor %}{% else %}
 			<tr class="no-data">
@@ -104,7 +104,7 @@
 		</tfoot>
 	</table>
 	<div class="toolbar">
-		<a href="{% url add_location location_type_slug=location_type.slug %}" class="add">Add a {{ location_type.singular }}</a>
+		<a href="{% url 'add_location' location_type_slug=location_type.slug %}" class="add">Add a {{ location_type.singular }}</a>
 	</div>
 </div>
 {% endblock %}

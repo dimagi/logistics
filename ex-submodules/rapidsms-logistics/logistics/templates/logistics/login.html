@@ -17,7 +17,7 @@
 
 <h1>Please log in to {% if site_title %}{{ site_title }}{% else %}RapidSMS{% endif %}</h1>
 
-<form method="post" action="{% url rapidsms-login %}">
+<form method="post" action="{% url 'rapidsms-login' %}">
 <table>
 <tr>
     <td>{{ form.username.label_tag }}</td>
@@ -32,7 +32,7 @@
 <input type="submit" value="login" />
 <input type="hidden" name="next" value="{{ next }}" />
 <p/>
-<div class="note">Forgot your password? <a href="{% url auth_password_reset %}">Reset it here</a></div>
+<div class="note">Forgot your password? <a href="{% url 'auth_password_reset' %}">Reset it here</a></div>
 <p/>
 
 </form>

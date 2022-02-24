@@ -28,7 +28,7 @@
         {% if facility.productstock_set.count %}
             {% if excel_export %}
 				<div class="toolbar noprint">
-				    <a href="{% url export_stock facility.code %}" class="add">Export to Excel</a>
+				    <a href="{% url 'export_stock' facility.code %}" class="add">Export to Excel</a>
 				</div>
 		    {% endif %}
                 <div id="report-content">
@@ -41,11 +41,11 @@
                 
                 <br/>
                 {% if request.user.is_superuser %}
-	                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+	                <a class="noprint" href="{% url 'input_stock' facility.code %}">INPUT STOCK for {{ facility.name }}</a>
                 {% else %}
 	                {% if request.user.get_profile %}
 		                {% ifequal request.user.get_profile.supply_point facility %}
-			                <a class="noprint" href="{% url input_stock facility.code %}">INPUT STOCK for {{ facility.name }}</a>
+			                <a class="noprint" href="{% url 'input_stock' facility.code %}">INPUT STOCK for {{ facility.name }}</a>
 		                {% endifequal %}
 	                {% endif %}
                 {% endif %}

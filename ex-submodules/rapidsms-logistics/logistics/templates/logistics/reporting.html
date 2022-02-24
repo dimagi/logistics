@@ -17,7 +17,7 @@
         <div id="main">
 			{% if excel_export %}
 			<div class="toolbar noprint">
-			    <a href="{% url export_reporting location.code %}" class="add">{% trans "Export to Excel" %}</a>
+			    <a href="{% url 'export_reporting' location.code %}" class="add">{% trans "Export to Excel" %}</a>
 			</div>
 			{% endif %}
             {% reporting_breakdown location.get_descendants_plus_self 0 request.datespan %}

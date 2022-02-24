@@ -10,7 +10,7 @@
             <h2>{{ selected_commodity.name }} Stock in {{ location.name }}</h2>
             <div class="right">
             	<strong>
-            	<a href="{% url aggregate location.code %}">
+            	<a href="{% url 'aggregate' location.code %}">
             		Return to Aggregate View
             		(view ALL commodities) </a>
             	</strong><p></p>
@@ -32,7 +32,7 @@
                     {% for stockonhand in stockonhands %}
 		                {% if stockonhand.is_active %}
                         <tr>
-                        <td><a href="{% url stockonhand_facility stockonhand.supply_point.code %}">
+                        <td><a href="{% url 'stockonhand_facility' stockonhand.supply_point.code %}">
                             {{ stockonhand.supply_point.name }}
                             </a>
                         </td>
