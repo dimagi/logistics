@@ -834,13 +834,15 @@ def telco_tracking(request):
 
     for year, month in months_between(request.datespan.computed_startdate,
                                       request.datespan.computed_enddate):
-        period_start = datetime(year,month,1)
-        endyear, endmonth = add_months(year,month,1)
-        period_end = datetime(endyear,endmonth,1)
-        tnm_msgs = Message.objects.filter(connection__backend__name__startswith='tnm',\
-                                          date__range=(period_start, period_end))
-        airtel_msgs = Message.objects.filter(connection__backend__name__startswith='airtel',\
-                                             date__range=(period_start, period_end))
+        period_start = datetime(year, month, 1)
+        endyear, endmonth = add_months(year, month, 1)
+        period_end = datetime(endyear, endmonth, 1)
+        tnm_msgs = Message.objects.filter(connection__backend__name='tnm-smpp',
+                                          date__gte=period_start,
+                                          date__lt=period_end)
+        airtel_msgs = Message.objects.filter(connection__backend__name='airtel-smpp',
+                                             date__gte=period_start,
+                                             date__lt=period_end)
         results.append((period_start.strftime("%B, %Y"),
                         tnm_msgs.filter(direction="I").count(),
                         tnm_msgs.filter(direction="O").count(),
