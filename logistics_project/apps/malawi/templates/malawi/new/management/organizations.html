@@ -4,7 +4,7 @@
 
 <div class="module">
     <h2>All Organizations</h2>
-	<a href="{% url malawi_new_organization %}" class="action">New Organization</a>
+	<a href="{% url 'malawi_new_organization' %}" class="action">New Organization</a>
 	{% with table as table %}
 	{% include "malawi/new/partials/selector-table.html" %}
 	{% endwith %}
