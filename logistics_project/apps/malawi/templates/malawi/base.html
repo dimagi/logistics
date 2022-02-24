@@ -45,9 +45,9 @@
 	        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
 	            <p style="margin: 0px;">
 	                {% if profile.current_dashboard_base_level == 'h' %}
-	                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=f">Switch to EPI View</a>
+	                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url 'set_current_dashboard' %}?base_level=f">Switch to EPI View</a>
 	                {% else %}
-	                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url set_current_dashboard %}?base_level=h">Switch to HSA View</a>
+	                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url 'set_current_dashboard' %}?base_level=h">Switch to HSA View</a>
 	                {% endif %}
 	            </p>
 	        </div>
@@ -56,7 +56,7 @@
 		<div id="header" class="noprint">
 			<div id="branding">
 				<h1>
-					<a title="{% trans "Return to the Dashboard" %}" href="{% url rapidsms-dashboard %}">
+					<a title="{% trans "Return to the Dashboard" %}" href="{% url 'rapidsms-dashboard' %}">
                         <span>
                             <img src="{{ MEDIA_URL }}malawi/images/cstock-logo.png" alt="cStock" style="height: 60px; width: auto;">
 						</span>
@@ -73,8 +73,8 @@
 
 			{% block auth %}
 			<div id="auth">{% if request.user.is_authenticated %}
-				<a href="{% url rapidsms-logout %}">{% trans "Log out" %} {{ request.user.username }}</a>{% else %}
-				<a href="{% url rapidsms-login %}">{% trans "Log in" %}</a>{% endif %}
+				<a href="{% url 'rapidsms-logout' %}">{% trans "Log out" %} {{ request.user.username }}</a>{% else %}
+				<a href="{% url 'rapidsms-login' %}">{% trans "Log in" %}</a>{% endif %}
 			</div>
 			{% endblock %}
 
