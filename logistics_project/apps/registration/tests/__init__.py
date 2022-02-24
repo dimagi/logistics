@@ -1,2 +1,1 @@
-from registration import *
-from contact import *
+from .contact import *
