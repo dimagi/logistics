@@ -42,9 +42,6 @@ urlpatterns = patterns('',
                 "post_change_redirect": settings.LOGIN_REDIRECT_URL },
         name='rapidsms-password-change'),
     
-    # 3rd party django app URLs
-    (r'^accounts/', include('registration.urls')),
-
     # other app URLS
     (r'^registration/', include('logistics_project.apps.registration.urls')),
     (r'^logistics/', include('logistics.urls.logistics')),

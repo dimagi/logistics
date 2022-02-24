@@ -46,8 +46,6 @@ BASE_APPS = [
 
     
     # the rapidsms contrib apps.
-    #"rapidsms.contrib.default",
-    #"rapidsms.contrib.export",
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
     "rapidsms.contrib.messagelog",
@@ -56,13 +54,9 @@ BASE_APPS = [
     "logistics_project.apps.registration",
     "logistics",
     "logistics_project.apps.maps",
-#    "logistics_project.apps.reports",
-#    "logistics_project.apps.groupmessaging",
-    "registration",
     "groupmessaging",
     "taggit",
     "django_extensions",
-    # "logistics_project.apps.malawi.reporting"
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
