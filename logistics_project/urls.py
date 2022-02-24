@@ -32,7 +32,7 @@ urlpatterns = patterns('',
 
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
-        kwargs={"template_name": settings.LOGISTICS_LOGIN_TEMPLATE}, 
+        kwargs={"template_name": "malawi/login.html"},
         name='rapidsms-login'),
     url(r'^accounts/logout/$', django_logout, 
         kwargs={"template_name": settings.LOGISTICS_LOGOUT_TEMPLATE},
