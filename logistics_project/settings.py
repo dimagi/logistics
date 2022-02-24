@@ -54,7 +54,6 @@ BASE_APPS = [
     "rapidsms.contrib.messaging",
     "alerts",
     "logistics_project.apps.registration",
-    "logistics_project.apps.web_registration",
     "logistics",
     "logistics_project.apps.maps",
 #    "logistics_project.apps.reports",

@@ -12,7 +12,6 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     
     # RapidSMS core URLs
-    #(r'^rapidsms/', include('rapidsms.urls.login_logout')), # stolen by web_registration
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
     url(r'^/?$', 'logistics.views.landing_page',
         name="rapidsms-dashboard"),
