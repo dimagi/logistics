@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
 urlpatterns = patterns('alerts.ajax',
     url(r'^ajax/addcomment/$', 'add_comment'),
