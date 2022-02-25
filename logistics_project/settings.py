@@ -56,7 +56,6 @@ BASE_APPS = [
     "logistics_project.apps.maps",
     "groupmessaging",
     "taggit",
-    "django_extensions",
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
