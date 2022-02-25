@@ -16,7 +16,7 @@ sys.path.append(os.path.join(filedir,'..','ex-submodules','rapidsms-logistics'))
 sys.path.append(os.path.join(filedir,'..','submodules','rapidsms-groupmessaging'))
 sys.path.append(os.path.join(filedir,'..','ex-submodules','django-datawarehouse'))
 
-sys.path.insert(0, os.path.join(filedir,'..','submodules','dimagi-djtables','lib'))
+sys.path.insert(0, os.path.join(filedir,'..','ex-submodules','djtables','lib'))
 
 if __name__ == "__main__":
     import settings
