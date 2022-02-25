@@ -78,12 +78,6 @@ TEMPLATE_DEBUG = False
 LOGIN_REDIRECT_URL = "/"
 
 
-# use django-nose to run tests. rapidsms contains lots of packages and
-# modules which django does not find automatically, and importing them
-# all manually is tiresome and error-prone.
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
-
-
 # for some reason this setting is blank in django's global_settings.py,
 # but it is needed for static assets to be linkable.
 MEDIA_URL = "/static/"
