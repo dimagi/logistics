@@ -1,0 +1,19 @@
+	
+#alertpane {
+    height:200px;
+    overflow:auto;	
+}
+ul.alerts {
+	list-style-type: none;
+    margin: 0em;
+    padding: 0em;
+}
+
+li.alert {
+	list-style-type: none;
+    padding: .5em;
+    margin: 1em;
+}
+
+.error, .notice, .warning, .success {padding:.8em;margin-bottom:1em;border:2px solid #ddd;}
+.error {background:#FBE3E4;color:#8a1f11;border-color:#FBC2C4;}
