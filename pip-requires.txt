@@ -23,6 +23,7 @@ virtualenv==1.4.5
 requests==2.4.3
 django-picklefield==0.1.9
 celery==2.2.6
+sentry-sdk==1.4.3
 
 ## Known working versions of un-pinned deps
 # django-celery==2.2.4
