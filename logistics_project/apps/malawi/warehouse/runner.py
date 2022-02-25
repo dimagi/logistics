@@ -517,7 +517,12 @@ def update_historical_data():
     If we don't have a record of this supply point being updated, run
     through all historical data and just fill in with zeros.
     """
+    print 'updating historical data'
+    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True).exclude(type__code=SupplyPointCodes.ZONE):
+        update_historical_data_for_supply_point(sp)
 
+
+def update_historical_data_for_supply_point(sp, start=None, end=None):
     # These models are used by both base levels and have a product attribute
     warehouse_classes_with_product = [
         ProductAvailabilityData,
@@ -537,28 +542,26 @@ def update_historical_data():
         OrderFulfillment,
     ]
 
-    print 'updating historical data'
-    for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True).exclude(type__code=SupplyPointCodes.ZONE):
-        for year, month in months_between(BaseLevel.HSA_WAREHOUSE_START_DATE, sp.created_at):
+    for year, month in months_between(start or BaseLevel.HSA_WAREHOUSE_START_DATE, end or sp.created_at):
+        window_date = datetime(year, month, 1)
+
+        for cls in (warehouse_classes_with_product + hsa_only_warehouse_classes_with_product):
+            _init_with_product(cls, sp, window_date, BaseLevel.HSA)
+
+        for cls in warehouse_classes_with_base_level:
+            _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
+
+    if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
+        for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
             window_date = datetime(year, month, 1)
 
-            for cls in (warehouse_classes_with_product + hsa_only_warehouse_classes_with_product):
-                _init_with_product(cls, sp, window_date, BaseLevel.HSA)
+            for cls in warehouse_classes_with_product:
+                _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
 
             for cls in warehouse_classes_with_base_level:
-                _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
+                _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
 
-        if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
-            for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
-                window_date = datetime(year, month, 1)
-
-                for cls in warehouse_classes_with_product:
-                    _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
-
-                for cls in warehouse_classes_with_base_level:
-                    _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
-
-        SupplyPointWarehouseRecord.objects.create(supply_point=sp, create_date=datetime.utcnow())
+    SupplyPointWarehouseRecord.objects.create(supply_point=sp, create_date=datetime.utcnow())
 
 
 def proper_children(supply_point):

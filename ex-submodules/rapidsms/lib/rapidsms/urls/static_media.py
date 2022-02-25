@@ -3,7 +3,7 @@
 
 
 import os
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from rapidsms.utils.modules import try_import
 from ..conf import settings
 

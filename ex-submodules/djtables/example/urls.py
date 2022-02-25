@@ -2,7 +2,7 @@
 # vim: et ts=4 sw=4
 
 
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 import myapp.views
 
 

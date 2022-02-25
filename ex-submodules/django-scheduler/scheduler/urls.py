@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 import os
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from . import views 
 
 urlpatterns = patterns('',

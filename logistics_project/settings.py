@@ -56,7 +56,6 @@ BASE_APPS = [
     "logistics_project.apps.maps",
     "groupmessaging",
     "taggit",
-    "django_extensions",
 ]
 
 PRIORITY_APPS = [] # if you want apps before the defaults
@@ -76,12 +75,6 @@ TEMPLATE_DEBUG = False
 # after login (which is handled by django.contrib.auth), redirect to the
 # dashboard rather than 'accounts/profile' (the default).
 LOGIN_REDIRECT_URL = "/"
-
-
-# use django-nose to run tests. rapidsms contains lots of packages and
-# modules which django does not find automatically, and importing them
-# all manually is tiresome and error-prone.
-TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
 
 # for some reason this setting is blank in django's global_settings.py,
