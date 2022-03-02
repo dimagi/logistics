@@ -161,44 +161,6 @@ def navigate(request):
         return HttpResponseRedirect(
             "%s?place=%s%s" % (destination, location_code, querystring))
 
-@csrf_exempt
-@cache_page(60 * 15)
-@geography_context
-@filter_context
-def dashboard(request, location_code=None, context={}, template="logistics/aggregate.html"):
-    if location_code is None:
-        location_code = settings.COUNTRY
-    location = get_object_or_404(Location, code=location_code)
-    # if the location has no children, and 1 supply point treat it like
-    # a stock on hand request. Otherwise treat it like an aggregate.
-    if location.get_children().count() == 0 and location.facilities().count() == 1:
-        facility = location.facilities()[0]
-        return stockonhand_facility(request, facility.code, context=context)
-    return aggregate(request, location_code, context=context)
-
-@csrf_exempt
-@cache_page(60 * 15)
-@geography_context
-@filter_context
-@datespan_in_request()
-def aggregate(request, location_code=None, context={}, template="logistics/aggregate.html"):
-    """
-    The aggregate view of all children within a geographical region
-    where 'children' can either be sub-regions
-    OR facilities if no sub-region exists
-    """
-    # default to the whole country
-    if location_code is None:
-        location_code = settings.COUNTRY
-    location = get_object_or_404(Location, code=location_code)
-    context['location'] = location
-    context['default_commodity'] = Product.objects.order_by('name')[0]
-    context['facility_count'] = location.child_facilities().count()
-    context['destination_url'] = 'aggregate'
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
-
 def _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan=None):
     rows = []
     for child in children:
