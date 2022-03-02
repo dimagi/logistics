@@ -52,7 +52,6 @@ BASE_APPS = [
     "alerts",
     "logistics_project.apps.registration",
     "logistics",
-    "logistics_project.apps.maps",
     "groupmessaging",
     "taggit",
 ]
