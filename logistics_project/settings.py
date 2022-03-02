@@ -156,9 +156,6 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-# todo: remove
-AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
-
 # celery
 CARROT_BACKEND = "django"
 CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
