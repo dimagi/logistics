@@ -112,24 +112,6 @@ def facilities_by_product(request, location_code, context={}, template="logistic
         template, context, context_instance=RequestContext(request)
     )
 
-@csrf_exempt
-@cache_page(60 * 15)
-@geography_context
-@filter_context
-@datespan_in_request(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
-def reporting(request, location_code=None, context={}, template="logistics/reporting.html", 
-              destination_url="reporting"):
-    """ which facilities have reported on time and which haven't """
-    if location_code is None:
-        location_code = settings.COUNTRY
-    if location_code == settings.COUNTRY:
-        context['excel_export'] = False
-    location = get_object_or_404(Location, code=location_code)
-    context['location'] = location
-    context['destination_url'] = destination_url
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
 
 @csrf_exempt
 @cache_page(60 * 15)
@@ -205,29 +187,6 @@ def get_facilities():
 
 def get_districts():
     return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
-
-@cache_page(60 * 15)
-@place_in_request()
-def district_dashboard(request, template="logistics/district_dashboard.html"):
-    districts = get_districts()
-    if request.location is None:
-        # pick a random location to start
-        location_code = settings.COUNTRY
-        request.location = get_object_or_404(Location, code=location_code)
-        facilities = SupplyPoint.objects.all()
-        #request.location = districts[0]
-    else:
-        facilities = request.location.all_child_facilities()
-    report = ReportingBreakdown(facilities, 
-                                DateSpan.since(settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT), 
-                                days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-    return render_to_response(template,
-                              {"reporting_data": report,
-                               "graph_width": 200,
-                               "graph_height": 200,
-                               "districts": districts.order_by("code"),
-                               "location": request.location},
-                              context_instance=RequestContext(request))
 
 @datespan_in_request()
 def message_log(request, context={}, template="messagelog/index.html"):
