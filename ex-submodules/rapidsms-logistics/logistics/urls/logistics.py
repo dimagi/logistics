@@ -3,9 +3,6 @@ from django.conf.urls import *
 urlpatterns = patterns('',
     url(r'^no_ie_allowed/?$', 'logistics.views.no_ie_allowed', 
         name="no_ie_allowed"),
-    url(r'^(?P<facility_code>[\w-]+)/input_stock$',
-        'logistics.views.input_stock',
-        name="input_stock"),
     # ok, so this isn't the most generic, but we don't yet know what the final dashboard will look like
     # so we'll use this as a placeholder until we do
     url(r'^dashboard/?$',

@@ -59,59 +59,6 @@ def landing_page(request):
     return dashboard(request)
 
 
-def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
-    # TODO: replace this with something that depends on the current user
-    # QUESTION: is it possible to make a dynamic form?
-    errors = ''
-    rms = get_object_or_404(SupplyPoint, code=facility_code)
-    productstocks = [p for p in rms.stocked_productstocks().order_by('product__name')]
-    if request.method == "POST":
-        # we need to use the helper/aggregator so that when we update
-        # the supervisor on resolved stockouts we can do it all in a
-        # single message
-        prh = ProductReportsHelper(rms, Reports.SOH)
-        for stock in productstocks:
-            try:
-                if stock.product.sms_code in request.POST:
-                    quantity = request.POST[stock.product.sms_code].strip()
-                    if quantity:
-                        if not quantity.isdigit():
-                            errors = ", ".join([errors, stock.product.name])
-                            continue
-                        prh.add_product_stock(stock.product.sms_code, quantity, save=False)
-                if "%s_receipt" % stock.product.sms_code in request.POST:
-                    receipt = request.POST["%s_receipt" % stock.product.sms_code].strip()
-                    if not receipt.isdigit():
-                        errors = ", ".join([errors, stock.product.name])
-                        continue
-                    if int(receipt) != 0:
-                        prh.add_product_receipt(stock.product.sms_code, receipt, save=False)
-                if "%s_consumption" % stock.product.sms_code in request.POST:
-                    consumption = request.POST["%s_consumption" % stock.product.sms_code].strip()
-                    if consumption:
-                        if not consumption.isdigit():
-                            errors = ", ".join([errors, stock.product.name])
-                            continue
-                        prh.add_product_consumption(stock.product, consumption)
-                if "%s_use_auto_consumption" % stock.product.sms_code in request.POST:
-                    rms.activate_auto_consumption(stock.product)
-                else:
-                    rms.deactivate_auto_consumption(stock.product)
-            except ValueError, e:
-                errors = errors + unicode(e)
-        if not errors:
-            prh.save()
-            return HttpResponseRedirect(reverse(stockonhand_facility, args=(rms.code,)))
-        errors = "Please enter all stock on hand and consumption as integers, for example:'100'. " + \
-                 "The following fields had problems: " + errors.strip(', ')
-    return render_to_response(
-        template, {
-                'errors': errors,
-                'rms': rms,
-                'productstocks': productstocks,
-                'date': datetime.now()
-            }, context_instance=RequestContext(request)
-    )
 
 class JSONDateEncoder(json.JSONEncoder):
     def default(self, obj):
