@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     
     # RapidSMS core URLs
     #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
-    url(r'^/?$', 'logistics.views.landing_page',
+    url(r'^/?$', 'logistics_project.apps.malawi.warehouse.views.default_landing',
         name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
@@ -44,7 +44,6 @@ urlpatterns = patterns('',
     
     # other app URLS
     (r'^registration/', include('logistics_project.apps.registration.urls')),
-    (r'^logistics/', include('logistics.urls.logistics')),
     (r'^scheduler/', include('rapidsms.contrib.scheduler.urls')),
     (r'^i18n/', include('django.conf.urls.i18n')),
 )
