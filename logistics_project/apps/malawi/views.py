@@ -297,38 +297,6 @@ def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
 
 
-#@cache_page(60 * 15)
-@place_in_request()
-def dashboard(request):
-    
-    base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    if request.location:
-        valid_facilities = get_facilities().filter(parent_id=request.location.pk)
-        base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-
-    # reporting info
-    month = MonthPager(request)
-
-    if request.location:
-        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-    else:
-        if month.is_current_month:
-            report = ReportingBreakdown(base_facilities)
-        else:
-            report = ReportingBreakdown(base_facilities, month.datespan)
-
-    return render_to_response("malawi/dashboard.html",
-                              {"reporting_data": report,
-                               "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
-                                                                                       role__code="hsa"), request=request),
-                               "graph_width": 200,
-                               "graph_height": 200,
-                               "month_pager": month,
-                               "districts": get_districts().order_by("code"),
-                               "location": request.location},
-                               
-                              context_instance=RequestContext(request))
-
 @cache_page(60 * 15)
 @place_in_request()
 @vary_on_cookie
