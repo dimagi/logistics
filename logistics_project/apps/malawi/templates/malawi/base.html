@@ -38,13 +38,12 @@
 <body>
 	<div id="wrapper">
 		{% region "top" %}
-		{% with profile=request.user.get_profile %}
 		{% block header %}
 		{% if request.user.is_authenticated %}
-	        {% if profile.can_view_hsa_level_data and profile.can_view_facility_level_data %}
+	        {% if logistics_user_profile.can_view_hsa_level_data and logistics_user_profile.can_view_facility_level_data %}
 	        <div style="background-color: #1085d8; font-size: 2em; color: black; text-align: right;">
 	            <p style="margin: 0px;">
-	                {% if profile.current_dashboard_base_level == 'h' %}
+	                {% if logistics_user_profile.current_dashboard_base_level == 'h' %}
 	                <span>Viewing HSA Data</span> | <a style="color: white;" href="{% url 'set_current_dashboard' %}?base_level=f">Switch to EPI View</a>
 	                {% else %}
 	                <span>Viewing EPI Data</span> | <a style="color: white;" href="{% url 'set_current_dashboard' %}?base_level=h">Switch to HSA View</a>
@@ -64,7 +63,7 @@
                     <span style="float: right;">
                         <img src="{{ logo_left_url }}" style="height: 60px;" />
                         <img src="{{ logo_right_url }}" style="height: 60px;" />
-                        {% if profile.current_dashboard_base_level == 'f' %}
+                        {% if logistics_user_profile.current_dashboard_base_level == 'f' %}
                         <img src="/static/malawi/images/save_logo.png" style="height: 60px;" />
                         {% endif %}
                     </span>
@@ -89,7 +88,6 @@
 			{% endblock %}
 		</div>
 		{% endblock %}
-		{% endwith %}
 
 		{% if messages %}
              <ul class="messages">

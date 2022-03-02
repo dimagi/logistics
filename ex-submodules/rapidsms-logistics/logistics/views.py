@@ -17,6 +17,8 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
+
+from logistics_project.apps.malawi.util import get_user_profile
 from rapidsms.conf import settings
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messagelog.views import message_log as rapidsms_messagelog
@@ -48,18 +50,14 @@ def landing_page(request):
     if settings.LOGISTICS_LANDING_PAGE_VIEW:
         return HttpResponseRedirect(reverse(settings.LOGISTICS_LANDING_PAGE_VIEW))
     
-    prof = None 
-    try:
-        if not request.user.is_anonymous():
-            prof = request.user.get_profile()
-    except LogisticsProfile.DoesNotExist:
-        pass
-    
+    prof = get_user_profile(request.user)
+
     if prof and prof.supply_point:
-        return stockonhand_facility(request, request.user.get_profile().supply_point.code)
+        return stockonhand_facility(request, prof.supply_point.code)
     elif prof and prof.location:
-        return aggregate(request, request.user.get_profile().location.code)
+        return aggregate(request, get_user_profile(request.user).location.code)
     return dashboard(request)
+
 
 def input_stock(request, facility_code, context={}, template="logistics/input_stock.html"):
     # TODO: replace this with something that depends on the current user

@@ -43,8 +43,8 @@
                 {% if request.user.is_superuser %}
 	                <a class="noprint" href="{% url 'input_stock' facility.code %}">INPUT STOCK for {{ facility.name }}</a>
                 {% else %}
-	                {% if request.user.get_profile %}
-		                {% ifequal request.user.get_profile.supply_point facility %}
+	                {% if logistics_user_profile %}
+		                {% ifequal logistics_user_profile.supply_point facility %}
 			                <a class="noprint" href="{% url 'input_stock' facility.code %}">INPUT STOCK for {{ facility.name }}</a>
 		                {% endifequal %}
 	                {% endif %}
