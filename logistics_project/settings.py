@@ -41,7 +41,6 @@ BASE_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     
-    "south",
     "django_nose",
 
     
@@ -226,11 +225,6 @@ NO_LOGIN_REQUIRED_FOR = [
     'help',
     'malawi/is-kannel-up'
 ]
-
-
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
-}
 
 try:
     import sys
