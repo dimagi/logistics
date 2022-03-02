@@ -69,22 +69,6 @@ class ReportingTable(Table):
     class Meta:
         order_by = '-last_reported'
 
-def _facility_link(cell):
-    return reverse(
-        'stockonhand_facility',
-        args=[cell.row.code])
-class SOHReportingTable(MonthTable):
-    name = Column(sortable=False, link=_facility_link)
-    last_reported = DateColumn(name="Last Stock Report Received",
-                               value=lambda cell: cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) \
-                                    if cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) else "never",
-                               format="M d, h:i A",
-                               sortable=False,
-                               css_class="tabledate")
-
-    class Meta:
-        order_by = '-last_reported'
-
 def _parent_or_nothing(location):
     if location is None or \
        location.tree_parent is None:
