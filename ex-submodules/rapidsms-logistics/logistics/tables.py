@@ -25,20 +25,6 @@ class MonthTable(Table):
 
         super(MonthTable, self).__init__(**kwargs)
 
-def _edit_facility_link(cell):
-    return reverse(
-        'facility_edit',
-        args=[cell.row.pk])
-def _location(cell):
-    return cell.object.display_location()
-class FacilityTable(Table):
-    name = Column(link=_edit_facility_link)
-    location = Column(value=_location)
-
-    class Meta:
-        order_by = 'location'
-        per_page = 30
-
 
 def _edit_commodity_link(cell):
     return reverse(
