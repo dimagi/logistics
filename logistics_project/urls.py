@@ -24,9 +24,7 @@ urlpatterns = patterns('',
     (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
     (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
-    # i guess having all of these is ok for now (?)    
     (r'^malawi/', include('logistics_project.apps.malawi.urls')),
-    (r'^maps/', include('logistics_project.apps.maps.urls')),
 
     (r'^group/', include('groupmessaging.urls')),
 
