@@ -79,29 +79,6 @@ def reporting_rates(locations, type=None, days=30):
     return "" # no data, no report
 
 
-@register.inclusion_tag("logistics/partials/reporting_breakdown.html", takes_context=True)
-def reporting_breakdown(context, locations, type=None, datespan=None, include_late=False):
-    # with a list of locations - display reporting
-    # rates associated with those locations
-    request = context['request']
-    if locations:
-        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
-        if type is not None and type:
-            base_points = base_points.filter(type__code=type)
-        if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, datespan, request=request, include_late=include_late,
-                                        days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-            context = {"report": report,
-                       "graph_width": 200,
-                       "graph_height": 200,
-                       "datespan": datespan,
-                       "table_class": "minor_table" }
-            return context_helper(context)
-                                     
-    return "" # no data, no report
-
-
-
 @register.simple_tag
 def order_response_stats(locations, type=None, days=30):
     """
