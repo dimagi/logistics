@@ -47,7 +47,7 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
             status_text = 'UNKNOWN STATUS CODE'
         status = '%s %s' % (response.status_code, status_text)
         response_headers = [(str(k), str(v)) for k, v in response.items()]
-        start_response(status, response_headers)
+        start_response(str(status), response_headers)
         return response
 
 
