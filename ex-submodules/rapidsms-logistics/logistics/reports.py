@@ -303,22 +303,6 @@ class ReportingBreakdown(object):
             self._breakdown_chart = PieChartData("Reporting Details (%s)" % self.datespan, graph_data)
         return self._breakdown_chart
         
-    def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(object_list=self.partial,
-                                                                  request=self._request,
-                                                                  prefix='inc-',
-            month=self.datespan.enddate.month,
-            year=self.datespan.enddate.year,
-            day=self.datespan.enddate.day)),
-                TableData("Complete Reports", SOHReportingTable(object_list=self.full,
-                                                                request=self._request,
-                                                                  prefix='comp-',
-                    month=self.datespan.enddate.month,
-                    year=self.datespan.enddate.year,
-                    day=self.datespan.enddate.day))
-                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
-                ]
-        
     _on_time_chart = None
     def on_time_chart(self):
         if self._on_time_chart is None:
