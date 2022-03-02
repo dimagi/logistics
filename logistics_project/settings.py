@@ -97,7 +97,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
-    "logistics.context_processors.google_analytics",
+    "logistics.context_processors.user_profile",
 ]
 
 
@@ -156,6 +156,7 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
+# todo: remove
 AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
 
 # celery
