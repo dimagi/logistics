@@ -169,6 +169,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open('tnm-phone-number-fix.txt', 'a') as log_file:
             self.log_file = log_file
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.fix_phone_numbers()
             self.log("%s TNM Connections remain without a plus that are tied to a contact" % self.get_queryset().count())

@@ -81,7 +81,7 @@ class Product(models.Model):
     def by_code(cls, code):
         return cls.objects.get(sms_code=code)
     
-    @transaction.commit_on_success
+    @transaction.atomic
     def deactivate(self):
         self.is_active = False
         self.save()
@@ -93,7 +93,7 @@ class Product(models.Model):
         for contact in contacts:
             contact.commodities.remove(self)
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def activate(self):
         """ 
         NOTE: this is not the full inverse of the activate() function
@@ -182,10 +182,6 @@ class DefaultMonthlyConsumption(models.Model):
     class Meta:
         unique_together = (("supply_point_type", "product"),)
 
-class ActiveSupplyPointManager(models.Manager):
-    def get_query_set(self):
-        return super(ActiveSupplyPointManager, self).get_query_set().filter(active=True)
-
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
     Somewhere that maintains and distributes products. 
@@ -206,7 +202,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
     
     objects = models.Manager()
-    active_objects = ActiveSupplyPointManager()
 
     class Meta:
         abstract = True
@@ -1288,13 +1283,6 @@ class StockTransaction(models.Model):
             return self.product.average_monthly_consumption
         return ps.monthly_consumption
 
-class RequisitionReport(models.Model):
-    supply_point = models.ForeignKey(SupplyPoint)
-    submitted = models.BooleanField()
-    report_date = models.DateTimeField(default=datetime.utcnow)
-    message = models.ForeignKey(message_class)
-
-    
 class NagRecord(models.Model):
     """
     A record of a Nag going out, so we don't send the same nag

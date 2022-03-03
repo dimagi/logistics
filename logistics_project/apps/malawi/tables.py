@@ -13,29 +13,10 @@ from logistics.models import StockRequestStatus
 from rapidsms.models import Contact
 
 
-class MalawiContactTable(Table):
-    name     = Column(link=contact_edit_link)
-    role = Column()
-    hsa_id = Column(value=lambda cell: cell.object.hsa_id,
-                    name="HSA Id",
-                    sortable=False)
-    supply_point = Column(value=lambda cell: cell.object.associated_supply_point_name,
-                          name="Supply Point",
-                          sortable=False)
-    phone = Column(value=lambda cell: cell.object.phone, 
-                   name="Phone Number",
-                   sortable=False)
-    commodities = Column(name="Responsible For These Commodities", 
-                         value=list_commodities,
-                         sortable=False)
-    organization = Column()
-    
-    class Meta:
-        order_by = 'supply_point__code'
-
 def _edit_org_link(cell):
     return reverse("malawi_edit_organization", args=[cell.row.pk])
     
+
 class OrganizationTable(Table):
     name     = Column(link=_edit_org_link)
     members  = Column(value=lambda cell: Contact.objects.filter(organization=cell.object).count(),
@@ -123,59 +104,3 @@ class StockRequestTable(Table):
     class Meta:
         order_by = '-requested_on'
 
-class HSAStockRequestTable(Table):
-    """
-    Same as above but includes a column for the HSA
-    """
-    # for some reason inheritance doesn't work with djtables
-    # so it's all copied here.
-    supply_point = Column()
-    product = Column()
-    is_emergency = EmergencyColumn()
-    balance = Column()
-    amount_requested = Column(value=lambda cell:cell.object.amount_requested,
-                              name="Amt. Requested")
-    amount_received = Column(value=lambda cell:cell.object.amount_received,
-                              name="Amt. Received")
-    requested_on = DateColumn(value=lambda cell:cell.object.requested_on,
-                              name="Date Requested")
-    responded_on = DateColumn(value=lambda cell:cell.object.responded_on,
-                              name="Date Responded")
-    received_on = DateColumn(value=lambda cell:cell.object.received_on,
-                              name="Date Received")
-    status = StatusColumn()
-    
-    class Meta:
-        order_by = '-requested_on'
-
-    
-class FacilityTable(Table):
-    
-    name = Column(link=lambda cell: reverse("malawi_facility", args=[cell.object.code]))
-    code = Column()
-    district = Column(value=lambda cell: cell.object.parent.name,
-                      sortable=False)
-    hsas = Column(name="Active HSAs", 
-                  value=lambda cell: len(cell.object.get_children()),
-                  sortable=False)
-    class Meta:
-        order_by = 'code'
-
-class DistrictTable(Table):
-    
-    name = Column(link=lambda cell: "%s?place=%s" % (reverse("malawi_facilities"), cell.object.code))
-    code = Column()
-    facilities = Column(name="Number of Facilities", 
-                  value=lambda cell: len(cell.object.get_children()),
-                  sortable=False)
-    
-    class Meta:
-        order_by = 'code'
-
-
-class ConsumptionDataTable(Table):
-    product = Column(value=lambda cell: cell.object.product.name, sortable=False)
-    total_consumption = Column(name="Total Monthly Consumption", value=lambda cell: cell.object.total_consumption, sortable=False)
-    average_consumption = Column(name="Average Monthly Consumption", value=lambda cell: cell.object.average_consumption, sortable=False)
-    total_stock = Column(name="Total Stock On Hand", value=lambda cell: cell.object.total_stock, sortable=False)
-    total_mos = Column(name="Average Months of Stock", value=lambda cell: ("%.2f" % cell.object.average_months_of_stock) if cell.object.average_months_of_stock else None, sortable=False)

@@ -23,7 +23,7 @@ class StockReportBaseHandler(RecordResponseHandler):
     def send_responses(self):
         raise NotImplemented("This method must be overridden")
 
-    @transaction.commit_on_success
+    @transaction.atomic
     @logistics_contact_and_permission_required(config.Operations.REPORT_STOCK)
     @malawi_managed_products_required
     @validate_base_level([config.BaseLevel.HSA, config.BaseLevel.FACILITY])

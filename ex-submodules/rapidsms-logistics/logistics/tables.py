@@ -25,20 +25,6 @@ class MonthTable(Table):
 
         super(MonthTable, self).__init__(**kwargs)
 
-def _edit_facility_link(cell):
-    return reverse(
-        'facility_edit',
-        args=[cell.row.pk])
-def _location(cell):
-    return cell.object.display_location()
-class FacilityTable(Table):
-    name = Column(link=_edit_facility_link)
-    location = Column(value=_location)
-
-    class Meta:
-        order_by = 'location'
-        per_page = 30
-
 
 def _edit_commodity_link(cell):
     return reverse(
@@ -80,22 +66,6 @@ class ReportingTable(Table):
                                sort_key_fn=lambda obj: obj.last_reported,
                                css_class="tabledate")
     
-    class Meta:
-        order_by = '-last_reported'
-
-def _facility_link(cell):
-    return reverse(
-        'stockonhand_facility',
-        args=[cell.row.code])
-class SOHReportingTable(MonthTable):
-    name = Column(sortable=False, link=_facility_link)
-    last_reported = DateColumn(name="Last Stock Report Received",
-                               value=lambda cell: cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) \
-                                    if cell.object.last_soh_before(datetime(cell.row.table.year, cell.row.table.month, cell.row.table.day)) else "never",
-                               format="M d, h:i A",
-                               sortable=False,
-                               css_class="tabledate")
-
     class Meta:
         order_by = '-last_reported'
 

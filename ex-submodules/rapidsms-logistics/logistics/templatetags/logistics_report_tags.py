@@ -10,11 +10,8 @@ from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
-from logistics.views import get_location_children
 from logistics.tables import ShortMessageTable
-from logistics.reports import ReportingBreakdown,\
-    ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
-    HSASupplyPointRow, FacilitySupplyPointRow, DynamicProductAvailabilitySummaryByFacilitySP
+from logistics.reports import ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP
 from logistics_project.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
@@ -33,73 +30,6 @@ def context_helper(context):
     
 def r_2_s_helper(template, dict):
     return render_to_string(template, context_helper(dict))
-    
-@register.simple_tag
-def aggregate_table(location, commodity_filter=None, commoditytype_filter=None, datespan=None):
-    context = { "location": location, 
-                "commodity_filter": commodity_filter,
-                "commoditytype_filter": commoditytype_filter }
-    context["rows"] = get_location_children(location, commodity_filter, commoditytype_filter, datespan)
-    return r_2_s_helper("logistics/partials/aggregate_table.html", context)
-
-@register.simple_tag
-def hsa_aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
-    rows = [HSASupplyPointRow(SupplyPoint.objects.get(location=child), commodity_filter, commoditytype_filter)\
-            for child in location.get_children().filter(supplypoint__contact__is_active=True)]
-    return r_2_s_helper("logistics/partials/aggregate_table.html", {"rows": rows})
-
-@register.simple_tag
-def facility_aggregate_table(location, commodity_filter=None, commoditytype_filter=None):
-    
-    rows = [FacilitySupplyPointRow(SupplyPoint.objects.get(location=child), commodity_filter, commoditytype_filter)\
-            for child in location.get_children()]
-    return r_2_s_helper("logistics/partials/aggregate_table.html", {"rows": rows})
-
-
-@register.simple_tag
-def reporting_rates(locations, type=None, days=30):
-    # with a list of locations - display reporting
-    # rates associated with those locations
-    if locations:
-        since = datetime.utcnow() - timedelta(days=days)
-        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
-        if type is not None:
-            base_points = base_points.filter(type__code=type)
-        if base_points.count() > 0:
-            late_facilities = base_points.filter(Q(last_reported__lt=since) | Q(last_reported=None)).order_by('-last_reported','name')
-            on_time_facilities = base_points.filter(last_reported__gte=since).order_by('-last_reported','name')
-            return r_2_s_helper("logistics/partials/reporting_rates.html", 
-                                    {"late_facilities": late_facilities,
-                                     "on_time_facilities": on_time_facilities,
-                                     "graph_width": 200,
-                                     "graph_height": 200,
-                                     "days": days,
-                                     "table_class": "minor_table" })
-                                     
-    return "" # no data, no report
-
-
-@register.inclusion_tag("logistics/partials/reporting_breakdown.html", takes_context=True)
-def reporting_breakdown(context, locations, type=None, datespan=None, include_late=False):
-    # with a list of locations - display reporting
-    # rates associated with those locations
-    request = context['request']
-    if locations:
-        base_points = SupplyPoint.objects.filter(location__in=locations, active=True)
-        if type is not None and type:
-            base_points = base_points.filter(type__code=type)
-        if base_points.count() > 0:
-            report = ReportingBreakdown(base_points, datespan, request=request, include_late=include_late,
-                                        days_for_late = settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-            context = {"report": report,
-                       "graph_width": 200,
-                       "graph_height": 200,
-                       "datespan": datespan,
-                       "table_class": "minor_table" }
-            return context_helper(context)
-                                     
-    return "" # no data, no report
-
 
 
 @register.simple_tag
@@ -242,10 +172,6 @@ def product_availability_summary_by_facility_sp(location, year, month):
                          {"summary": summary})
     return c
 
-
-def commodity_filter(commodities, can_select_all=True):
-    return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
-                                                                         "can_select_all": can_select_all})
 
 @register.simple_tag
 def commodity_code_to_name(code):

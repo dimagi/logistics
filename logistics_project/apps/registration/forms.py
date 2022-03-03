@@ -119,7 +119,7 @@ class ContactForm(forms.ModelForm):
 
         return phone_number
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def save(self):
         model = super(ContactForm, self).save(commit=True)
 

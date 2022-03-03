@@ -230,7 +230,7 @@ def is_facility(supply_point):
     return supply_point.type.code == config.SupplyPointCodes.FACILITY
         
 def get_default_supply_point(user):
-    prof = user.get_profile()
+    prof = get_user_profile(user)
     if prof and prof.supply_point:
         return prof.supply_point
     elif prof and prof.location:
@@ -260,7 +260,7 @@ def get_visible_districts(user):
     if get_view_level(user) == 'national':
         return list(get_districts(user.is_superuser).order_by('code'))
 
-    profile = user.get_profile()
+    profile = get_user_profile(user)
     loc = None
     locations = []
 
@@ -422,9 +422,15 @@ def get_supply_point_and_contacts(supply_point_code, base_level):
         raise config.BaseLevel.InvalidBaseLevelException(base_level)
 
 
+def get_user_profile(user):
+    try:
+        return LogisticsProfile.objects.get(user=user)
+    except LogisticsProfile.DoesNotExist:
+        return None
+
 def get_or_create_user_profile(user):
     try:
-        return user.get_profile()
+        return LogisticsProfile.objects.get(user=user)
     except ObjectDoesNotExist:
         return LogisticsProfile.objects.create(user=user)
 

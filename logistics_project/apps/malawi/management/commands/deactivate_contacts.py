@@ -57,6 +57,6 @@ class DeactivateContactCommand(BaseCommand):
         self.test = options.get('test')
         with open(self.log_file_name, 'a') as log_file:
             self.log_file = log_file
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.fix_contacts()
             self.log("%s active Contacts remain" % self.get_queryset().filter(is_active=True).count())

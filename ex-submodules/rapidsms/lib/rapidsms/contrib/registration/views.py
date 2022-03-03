@@ -15,7 +15,7 @@ from rapidsms.models import Backend
 from .tables import ContactTable
 from .forms import BulkRegistrationForm
 
-@transaction.commit_on_success
+@transaction.atomic
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
     connection = None

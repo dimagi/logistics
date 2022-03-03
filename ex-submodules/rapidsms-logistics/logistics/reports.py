@@ -11,7 +11,6 @@ from rapidsms.conf import settings
 from logistics_project.utils.dates import DateSpan
 from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest, HistoricalStockCache
-from .tables import SOHReportingTable
 from .const import Reports
 from .util import config
 
@@ -278,110 +277,6 @@ class ReportingBreakdown(object):
         else:
             return self.reported
         
-    _breakdown_chart = None
-    def breakdown_chart(self):
-        if self._breakdown_chart is None:
-            graph_data = [
-                {"display": "Comp. Reports",
-                 "value": len(self.full),
-                 "color": Colors.GREEN,
-                 "description": "(%s) %s in %s" % \
-                    (len(self.full), "Complete Reports", self.datespan)
-                },
-                {"display": "Inc. Reports",
-                 "value": len(self.partial),
-                 "color": Colors.PURPLE,
-                 "description": "(%s) %s in %s" % \
-                    (len(self.partial), "Incomplete Reports", self.datespan)
-                },
-#                {"display": "Unconfigured",
-#                 "value": len(self.unconfigured),
-#                 "color": "red",
-#                 "description": "Unconfigured for stock information"
-#                }
-            ]     
-            self._breakdown_chart = PieChartData("Reporting Details (%s)" % self.datespan, graph_data)
-        return self._breakdown_chart
-        
-    def breakdown_groups(self):
-        return [TableData("Incomplete Reports", SOHReportingTable(object_list=self.partial,
-                                                                  request=self._request,
-                                                                  prefix='inc-',
-            month=self.datespan.enddate.month,
-            year=self.datespan.enddate.year,
-            day=self.datespan.enddate.day)),
-                TableData("Complete Reports", SOHReportingTable(object_list=self.full,
-                                                                request=self._request,
-                                                                  prefix='comp-',
-                    month=self.datespan.enddate.month,
-                    year=self.datespan.enddate.year,
-                    day=self.datespan.enddate.day))
-                #TableData("HSAs not associated to supplied products", ReportingTable(self.unconfigured, request=self._request))
-                ]
-        
-    _on_time_chart = None
-    def on_time_chart(self):
-        if self._on_time_chart is None:
-            graph_data = [
-                {"display": "On Time" if self.include_late else "Reporting",
-                 "value": len(self.on_time),
-                 "color": Colors.GREEN, 
-                 "description": "(%s) On Time (%s)" % \
-                    (len(self.on_time), self.datespan)
-                },
-                {"display": "Non Reporting",
-                 "value": len(self.non_reporting),
-                 "color": Colors.RED,
-                 "description": "(%s) Non-Reporting (%s)" % \
-                    (len(self.non_reporting), self.datespan)
-                }
-            ]
-            if self.include_late:
-                graph_data += [
-                        {"display": "Late Reporting",
-                         "value": len(self.reported_late),
-                         "color": Colors.PURPLE,
-                         "description": "(%s) Late (%s)" % \
-                            (len(self.reported_late), self.datespan)
-                        }
-                ]
-            self._on_time_chart = PieChartData("Reporting Rates (%s)" % self.datespan, graph_data)
-        return self._on_time_chart
-        
-    def on_time_groups(self):
-        if self.include_late:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
-                                                               request=self._request, 
-                                                               prefix='nonreport-',
-            month=self.datespan.enddate.month,
-            year=self.datespan.enddate.year,
-                day=self.datespan.enddate.day)),
-             TableData("Late HSAs", SOHReportingTable(object_list=self.reported_late,
-                                                      request=self._request, 
-                                                      prefix='late-',
-                 month=self.datespan.enddate.month,
-                 year=self.datespan.enddate.year,
-                 day=self.datespan.enddate.day)),
-             TableData("On-Time HSAs", SOHReportingTable(object_list=self.on_time,
-                                                         request=self._request, 
-                                                         prefix='ontime-',
-                 month=self.datespan.enddate.month,
-                 year=self.datespan.enddate.year,
-                 day=self.datespan.enddate.day))]
-        else:
-            return [TableData("Non-Reporting HSAs", SOHReportingTable(object_list=self.non_reporting,
-                                                                      request=self._request, 
-                                                                      prefix='nonreport-',
-                month=self.datespan.enddate.month,
-                year=self.datespan.enddate.year,
-                day=self.datespan.enddate.day)),
-                    TableData("Reporting HSAs", SOHReportingTable(object_list=self.on_time,
-                                                                  request=self._request,
-                                                                  prefix='report-',
-                        month=self.datespan.enddate.month,
-                        year=self.datespan.enddate.year,
-                        day=self.datespan.enddate.day
-                    ))]
 
 class ProductAvailabilitySummary(object):
 

@@ -41,7 +41,6 @@ BASE_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     
-    "south",
     "django_nose",
 
     
@@ -53,7 +52,6 @@ BASE_APPS = [
     "alerts",
     "logistics_project.apps.registration",
     "logistics",
-    "logistics_project.apps.maps",
     "groupmessaging",
     "taggit",
 ]
@@ -98,7 +96,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "django.core.context_processors.request",
     "rapidsms.context_processors.logo",
     "logistics.context_processors.custom_settings",
-    "logistics.context_processors.google_analytics",
+    "logistics.context_processors.user_profile",
 ]
 
 
@@ -157,8 +155,6 @@ LOG_FILE    = "logistics.log"
 LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
-AUTH_PROFILE_MODULE = "logistics.LogisticsProfile"
-
 # celery
 CARROT_BACKEND = "django"
 CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
@@ -200,7 +196,6 @@ EMAIL_USE_TLS=True
 # import local settings if we find them
 #try to see if there's an environmental variable set for local_settings
 
-LOGISTICS_LANDING_PAGE_VIEW = None
 LOGISTICS_EXCEL_EXPORT_ENABLED = True
 LOGISTICS_USE_STATIC_EMERGENCY_LEVELS = False
 LOGISTICS_LOGOUT_TEMPLATE = "logistics/loggedout.html"
@@ -226,11 +221,6 @@ NO_LOGIN_REQUIRED_FOR = [
     'help',
     'malawi/is-kannel-up'
 ]
-
-
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics.migrations',
-}
 
 try:
     import sys

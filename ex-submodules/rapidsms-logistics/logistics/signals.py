@@ -12,14 +12,14 @@ def notify_suppliees_of_stockouts_reported(sender, supply_point, products, repor
     supply_point.notify_suppliees_of_stockouts_reported([p.code for p in products], 
                                                         exclude=None if reported_by is None else [reported_by])
 
-@transaction.commit_on_success
+@transaction.atomic
 def post_save_stock_transaction(sender, instance, created, **kwargs):
     from logistics.models import ProductStock
     ps = ProductStock.objects.get(supply_point=instance.supply_point, 
                                   product=instance.product)
     ps.update_auto_consumption()
 
-@transaction.commit_on_success
+@transaction.atomic
 def post_save_product_report(sender, instance, created, **kwargs):
     """
     Every time a product report is created,

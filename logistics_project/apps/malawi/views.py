@@ -31,17 +31,13 @@ from logistics.models import SupplyPoint, Product, LogisticsProfile,\
     StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
-from logistics.view_decorators import filter_context
-from logistics.reports import ReportingBreakdown
 from logistics.util import config
 from logistics.charts import amc_plot
 
 from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
-from logistics_project.apps.malawi.tables import MalawiContactTable, \
-    HSATable, StockRequestTable, \
-    HSAStockRequestTable, DistrictTable, ConsumptionDataTable
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, ConsumptionData, hsa_supply_points_below,\
+from logistics_project.apps.malawi.tables import HSATable, StockRequestTable
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, \
     deactivate_product, get_managed_products_for_contact, get_or_create_user_profile
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
@@ -297,38 +293,6 @@ def help(request):
     return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
 
 
-#@cache_page(60 * 15)
-@place_in_request()
-def dashboard(request):
-    
-    base_facilities = SupplyPoint.objects.filter(active=True, type__code="hsa")
-    if request.location:
-        valid_facilities = get_facilities().filter(parent_id=request.location.pk)
-        base_facilities = base_facilities.filter(location__parent_id__in=[f.pk for f in valid_facilities])
-
-    # reporting info
-    month = MonthPager(request)
-
-    if request.location:
-        report = ReportingBreakdown(base_facilities, month.datespan, include_late = True, MNE=False, days_for_late=settings.LOGISTICS_DAYS_UNTIL_LATE_PRODUCT_REPORT)
-    else:
-        if month.is_current_month:
-            report = ReportingBreakdown(base_facilities)
-        else:
-            report = ReportingBreakdown(base_facilities, month.datespan)
-
-    return render_to_response("malawi/dashboard.html",
-                              {"reporting_data": report,
-                               "hsas_table": MalawiContactTable(Contact.objects.filter(is_active=True,
-                                                                                       role__code="hsa"), request=request),
-                               "graph_width": 200,
-                               "graph_height": 200,
-                               "month_pager": month,
-                               "districts": get_districts().order_by("code"),
-                               "location": request.location},
-                               
-                              context_instance=RequestContext(request))
-
 @cache_page(60 * 15)
 @place_in_request()
 @vary_on_cookie
@@ -404,58 +368,7 @@ def reactivate_hsa(request, code, name):
     })
     return redirect('malawi_hsa', code=hsa.supply_point.code)
 
-@cache_page(60 * 15)
-@place_in_request()
-@vary_on_cookie
-def facilities(request):
-    facilities = get_facilities().order_by("parent_id", "code")
-    consumption_table = None
-    if request.location:
-        if request.location.type.slug == "district":
-            table = None # nothing to do, handled by aggregate
-            sps = hsa_supply_points_below(request.location)
-            products = Product.objects.all()
-            consumption_table = ConsumptionDataTable(object_list=[ConsumptionData(p, sps) for p in products], request=request)
 
-        else:
-            assert(request.location.type.slug == "facility")
-            return HttpResponseRedirect(reverse("malawi_facility", args=[request.location.code]))
-    else:
-        table = DistrictTable(get_districts(), request=request)
-
-
-    return render_to_response("malawi/facilities.html",
-        {
-            "location": request.location,
-            "facilities": facilities,
-            "table": table,
-            "districts": get_districts().order_by("code"),
-            "consumption_table": consumption_table
-        }, context_instance=RequestContext(request))
-
-@cache_page(60 * 15)
-@filter_context
-@datespan_in_request()
-def facility(request, code, context={}):
-    facility = get_object_or_404(SupplyPoint, code=code)
-    assert(facility.type.code == config.SupplyPointCodes.FACILITY)
-    mp = MonthPager(request)
-    context["location"] = facility.location
-    facility.location.supervisors = facility.contact_set.filter\
-        (is_active=True, role__code=config.Roles.HSA_SUPERVISOR)
-    facility.location.in_charges = facility.contact_set.filter\
-        (is_active=True, role__code=config.Roles.IN_CHARGE)
-    context["stockrequest_table"] = HSAStockRequestTable\
-        (StockRequest.objects.filter(supply_point__supplied_by=facility,
-                                     requested_on__gte=mp.datespan.computed_startdate,
-                                     requested_on__lte=mp.datespan.computed_enddate)\
-                             .exclude(status=StockRequestStatus.CANCELED), request)
-    context["trueval"] = True # We've been reduced to this. http://stackoverflow.com/questions/3259279/django-templates
-    context["month_pager"] = mp
-    
-    return render_to_response("malawi/single_facility.html", context, context_instance=RequestContext(request))
-
-    
 @permission_required("auth.admin_read")
 def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
@@ -710,21 +623,6 @@ def _sort_date(x,y):
     if x['registered'] < y['registered']: return -1
     if x['registered'] > y['registered']: return 1
     return 0
-
-class MonthPager(object):
-    """
-    Utility class to show a month pager, e.g. << August 2011 >>
-    """
-    def __init__(self, request):
-        self.month = int(request.GET.get('month', datetime.utcnow().month))
-        self.year = int(request.GET.get('year', datetime.utcnow().year))
-        self.begin_date = datetime(year=self.year, month=self.month, day=1)
-        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
-        self.prev_month = self.begin_date - timedelta(days=1)
-        self.next_month = self.end_date + timedelta(days=1)
-        self.show_next = self.end_date < datetime.utcnow().replace(day=1)
-        self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
-        self.datespan = DateSpan(self.begin_date, self.end_date)
 
 
 @permission_required("is_superuser")
