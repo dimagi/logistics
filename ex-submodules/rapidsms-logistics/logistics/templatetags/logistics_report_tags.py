@@ -173,10 +173,6 @@ def product_availability_summary_by_facility_sp(location, year, month):
     return c
 
 
-def commodity_filter(commodities, can_select_all=True):
-    return render_to_string("logistics/partials/commodity_filter.html", {"commodities": commodities, 
-                                                                         "can_select_all": can_select_all})
-
 @register.simple_tag
 def commodity_code_to_name(code):
     try:
