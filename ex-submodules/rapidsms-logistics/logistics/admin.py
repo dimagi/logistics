@@ -34,9 +34,6 @@ class ProductReportAdmin(admin.ModelAdmin):
 class ProductReportTypeAdmin(admin.ModelAdmin):
     model = ProductReportType
 
-class RequisitionReportAdmin(admin.ModelAdmin):
-    model = RequisitionReport
-    
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 

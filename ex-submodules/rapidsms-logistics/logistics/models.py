@@ -1288,13 +1288,6 @@ class StockTransaction(models.Model):
             return self.product.average_monthly_consumption
         return ps.monthly_consumption
 
-class RequisitionReport(models.Model):
-    supply_point = models.ForeignKey(SupplyPoint)
-    submitted = models.BooleanField()
-    report_date = models.DateTimeField(default=datetime.utcnow)
-    message = models.ForeignKey(message_class)
-
-    
 class NagRecord(models.Model):
     """
     A record of a Nag going out, so we don't send the same nag
