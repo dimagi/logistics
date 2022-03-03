@@ -160,9 +160,6 @@ def bootstrap(subdir='logistics_project'):
         with cd(subdir):
             with enter_virtualenv():
                 run('./manage.py syncdb --noinput')
-                run('./manage.py migrate --noinput')
-                # this doesn't seem to exist
-                #run('./bootstrap_db.py')
                 env.extras()
 
 def deploy():
