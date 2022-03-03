@@ -193,10 +193,10 @@ def send_nag_messages(warnings):
                 send_message(connection, w["message"] % {'hsa': contact.name, 'days': w['days']})
                 NagRecord(supply_point=hsa, warning=w["number"],nag_type=w['code']).save()
             except Contact.DoesNotExist:
-                logging.error("Contact does not exist for HSA: %s" % hsa.name)
+                logging.warning("Contact does not exist for HSA: %s" % hsa.name)
                 continue
             except Contact.MultipleObjectsReturned:
-                logging.error("More than one active contact found for HSA: %s" % hsa.name)
+                logging.warning("More than one active contact found for HSA: %s" % hsa.name)
                 continue
             if w["flag_supervisor"]:
                 for supervisor in Contact.objects.filter(is_active=True,
