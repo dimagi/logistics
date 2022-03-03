@@ -182,10 +182,6 @@ class DefaultMonthlyConsumption(models.Model):
     class Meta:
         unique_together = (("supply_point_type", "product"),)
 
-class ActiveSupplyPointManager(models.Manager):
-    def get_query_set(self):
-        return super(ActiveSupplyPointManager, self).get_query_set().filter(active=True)
-
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
     Somewhere that maintains and distributes products. 
@@ -206,7 +202,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
     
     objects = models.Manager()
-    active_objects = ActiveSupplyPointManager()
 
     class Meta:
         abstract = True
