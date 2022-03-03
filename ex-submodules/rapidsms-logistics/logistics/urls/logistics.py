@@ -5,12 +5,6 @@ urlpatterns = patterns('',
         name="no_ie_allowed"),
     # ok, so this isn't the most generic, but we don't yet know what the final dashboard will look like
     # so we'll use this as a placeholder until we do
-    url(r'^dashboard/(?P<location_code>[\w-]+)/?$',
-        'logistics.views.dashboard',
-        name="logistics_dashboard"),
-    url(r'^by_product/(?P<location_code>[\w-]+)/?$',
-        'logistics.views.facilities_by_product',
-        name="by_product"),
     url(r'^navigate$',
         'logistics.views.navigate',  
         name="navigate"),

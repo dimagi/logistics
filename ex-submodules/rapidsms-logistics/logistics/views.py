@@ -31,34 +31,16 @@ from logistics.models import ProductStock, \
     SupplyPoint, StockTransaction
 from logistics.util import config
 from logistics.view_decorators import filter_context, geography_context
-from logistics.reports import ReportingBreakdown
 from logistics.reports import get_reporting_and_nonreporting_facilities
 from .models import Product
 from .forms import FacilityForm, CommodityForm
 from rapidsms.contrib.messagelog.models import Message
 from rapidsms.models import Backend, Contact
-from .tables import FacilityTable, CommodityTable, MessageTable
+
 
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
     return render_to_response(template, context_instance=RequestContext(request))
-
-def landing_page(request):
-    if 'MSIE' in request.META['HTTP_USER_AGENT']:
-        return no_ie_allowed(request)
-    
-    if settings.LOGISTICS_LANDING_PAGE_VIEW:
-        return HttpResponseRedirect(reverse(settings.LOGISTICS_LANDING_PAGE_VIEW))
-    
-    prof = get_user_profile(request.user)
-
-    if prof and prof.supply_point:
-        return stockonhand_facility(request, prof.supply_point.code)
-    elif prof and prof.location:
-        return aggregate(request, get_user_profile(request.user).location.code)
-    return dashboard(request)
-
-
 
 class JSONDateEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -66,52 +48,6 @@ class JSONDateEncoder(json.JSONEncoder):
             return "Date(%d, %d, %d)" % (obj.year, obj.month, obj.day)
         else:
             return json.JSONEncoder.default(self, obj)
-
-@geography_context
-@datespan_in_request(default_days=settings.LOGISTICS_REPORTING_CYCLE_IN_DAYS)
-def stockonhand_facility(request, facility_code, context={}, template="logistics/stockonhand_facility.html"):
-    """
-     this view currently only shows the current stock on hand for a given facility
-    """
-    facility = get_object_or_404(SupplyPoint, code=facility_code)
-    last_reports = ProductReport.objects.filter(supply_point=facility).order_by('-report_date')
-    transactions = StockTransaction.objects.filter(supply_point=facility)
-    if transactions:
-        context['last_reported'] = last_reports[0].report_date
-        context['chart_data'] = stocklevel_plot(transactions)
-    context['facility'] = facility
-    context["location"] = facility.location
-    context["destination_url"] = "aggregate"
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
-
-@cache_page(60 * 15)
-@geography_context
-@filter_context
-def facilities_by_product(request, location_code, context={}, template="logistics/by_product.html"):
-    """
-    The district view is unusual. When we do not receive a filter by individual product,
-    we show the aggregate report. When we do receive a filter by individual product, we show
-    the 'by product' report. Let's see how this goes. 
-    """
-    if 'commodity' in request.REQUEST:
-        commodity_filter = request.REQUEST['commodity']
-        context['commodity_filter'] = commodity_filter
-        commodity = get_object_or_404(Product, sms_code=commodity_filter)
-        context['selected_commodity'] = commodity
-    else:
-        raise HttpResponse('Must specify "commodity"')
-    location = get_object_or_404(Location, code=location_code)
-    stockonhands = ProductStock.objects.filter(Q(supply_point__location__in=location.get_descendants(include_self=True)))
-    context['stockonhands'] = stockonhands.filter(product=commodity).order_by('supply_point__name')
-    context['location'] = location
-    context['hide_product_link'] = True
-    context['destination_url'] = "aggregate"
-    return render_to_response(
-        template, context, context_instance=RequestContext(request)
-    )
-
 
 @csrf_exempt
 @cache_page(60 * 15)
@@ -142,45 +78,6 @@ def navigate(request):
     elif mode == "direct-param":
         return HttpResponseRedirect(
             "%s?place=%s%s" % (destination, location_code, querystring))
-
-def _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan=None):
-    rows = []
-    for child in children:
-        row = {}
-        row['location'] = child
-        row['is_active'] = child.is_active
-        row['name'] = child.name
-        row['code'] = child.code
-        if isinstance(child, SupplyPoint):
-            row['url'] = reverse('stockonhand_facility', args=[child.code])
-        else:
-            row['url'] = reverse('logistics_dashboard', args=[child.code])
-        row['stockout_count'] = child.stockout_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter, 
-                                                     datespan=datespan)
-        row['emergency_plus_low'] = child.emergency_plus_low(product=commodity_filter, 
-                                                     producttype=commoditytype_filter, 
-                                                     datespan=datespan)
-        row['good_supply_count'] = child.good_supply_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter, 
-                                                     datespan=datespan)
-        row['overstocked_count'] = child.overstocked_count(product=commodity_filter, 
-                                                     producttype=commoditytype_filter, 
-                                                     datespan=datespan)
-        z = lambda x: x if x is not None else 0
-        row['total'] = z(row['stockout_count']) + z(row['emergency_plus_low']) + \
-          z(row['good_supply_count']) + z(row['overstocked_count'])
-        if commodity_filter is not None:
-            row['consumption'] = child.consumption(product=commodity_filter, 
-                                                   producttype=commoditytype_filter)
-        rows.append(row)
-    return rows
-
-def get_location_children(location, commodity_filter, commoditytype_filter, datespan=None):
-    children = []
-    children.extend(location.facilities())
-    children.extend(location.get_children())
-    return _get_rows_from_children(children, commodity_filter, commoditytype_filter, datespan)
 
 def get_facilities():
     return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
