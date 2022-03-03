@@ -423,10 +423,12 @@ def get_supply_point_and_contacts(supply_point_code, base_level):
 
 
 def get_user_profile(user):
-    try:
-        return LogisticsProfile.objects.get(user=user)
-    except LogisticsProfile.DoesNotExist:
-        return None
+    if user and not user.is_anonymous():
+        try:
+            return LogisticsProfile.objects.get(user=user)
+        except LogisticsProfile.DoesNotExist:
+            return None
+
 
 def get_or_create_user_profile(user):
     try:
