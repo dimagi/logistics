@@ -628,21 +628,6 @@ def _sort_date(x,y):
     if x['registered'] > y['registered']: return 1
     return 0
 
-class MonthPager(object):
-    """
-    Utility class to show a month pager, e.g. << August 2011 >>
-    """
-    def __init__(self, request):
-        self.month = int(request.GET.get('month', datetime.utcnow().month))
-        self.year = int(request.GET.get('year', datetime.utcnow().year))
-        self.begin_date = datetime(year=self.year, month=self.month, day=1)
-        self.end_date = (self.begin_date + timedelta(days=32)).replace(day=1) - timedelta(seconds=1) # last second of previous month
-        self.prev_month = self.begin_date - timedelta(days=1)
-        self.next_month = self.end_date + timedelta(days=1)
-        self.show_next = self.end_date < datetime.utcnow().replace(day=1)
-        self.is_current_month = (self.month == datetime.utcnow().month and self.year == datetime.utcnow().year)
-        self.datespan = DateSpan(self.begin_date, self.end_date)
-
 
 @permission_required("is_superuser")
 def register_user(request, template="malawi/register-user.html"):
