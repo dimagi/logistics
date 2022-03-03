@@ -79,12 +79,6 @@ def navigate(request):
         return HttpResponseRedirect(
             "%s?place=%s%s" % (destination, location_code, querystring))
 
-def get_facilities():
-    return Location.objects.filter(type__slug=config.LocationCodes.FACILITY)
-
-def get_districts():
-    return Location.objects.filter(type__slug=config.LocationCodes.DISTRICT)
-
 @datespan_in_request()
 def message_log(request, context={}, template="messagelog/index.html"):
     """
