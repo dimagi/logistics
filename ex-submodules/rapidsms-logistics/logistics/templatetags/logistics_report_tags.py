@@ -10,10 +10,8 @@ from django.db.models.aggregates import Count
 from collections import defaultdict
 from django.db.models.expressions import F
 from logistics.context_processors import custom_settings
-from logistics.views import get_location_children
 from logistics.tables import ShortMessageTable
-from logistics.reports import ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP,\
-    HSASupplyPointRow, FacilitySupplyPointRow, DynamicProductAvailabilitySummaryByFacilitySP
+from logistics.reports import ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP
 from logistics_project.utils.dates import DateSpan, get_day_of_month
 from logistics.config import messagelog
 import logging
