@@ -31,17 +31,13 @@ from logistics.models import SupplyPoint, Product, LogisticsProfile,\
     StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
-from logistics.view_decorators import filter_context
-from logistics.reports import ReportingBreakdown
 from logistics.util import config
 from logistics.charts import amc_plot
 
 from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
-from logistics_project.apps.malawi.tables import MalawiContactTable, \
-    HSATable, StockRequestTable, \
-    HSAStockRequestTable, DistrictTable, ConsumptionDataTable
-from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, ConsumptionData, hsa_supply_points_below,\
+from logistics_project.apps.malawi.tables import HSATable, StockRequestTable
+from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, \
     deactivate_product, get_managed_products_for_contact, get_or_create_user_profile
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
     REPORT_SLUGS, REPORTS_CURRENT, REPORTS_LOCATION
