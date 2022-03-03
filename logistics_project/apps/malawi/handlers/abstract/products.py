@@ -7,7 +7,7 @@ from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 
 class BaseProductHandler(KeywordHandler):
 
-    @transaction.commit_on_success
+    @transaction.atomic
     @validate_base_level([config.BaseLevel.HSA])
     def handle(self, text):
         words = text.split(" ")

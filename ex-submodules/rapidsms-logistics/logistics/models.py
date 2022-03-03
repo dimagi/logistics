@@ -81,7 +81,7 @@ class Product(models.Model):
     def by_code(cls, code):
         return cls.objects.get(sms_code=code)
     
-    @transaction.commit_on_success
+    @transaction.atomic
     def deactivate(self):
         self.is_active = False
         self.save()
@@ -93,7 +93,7 @@ class Product(models.Model):
         for contact in contacts:
             contact.commodities.remove(self)
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def activate(self):
         """ 
         NOTE: this is not the full inverse of the activate() function

@@ -84,5 +84,5 @@ class Command(BaseCommand):
         self.load_backends()
         with open('fix-message-tester-connections.txt', 'a') as log_file:
             self.log_file = log_file
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 self.fix_connections()

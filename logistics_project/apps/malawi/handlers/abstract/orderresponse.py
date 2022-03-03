@@ -12,7 +12,7 @@ class OrderResponseBaseHandler(RecordResponseHandler):
     def handle_custom(self, text):
         raise NotImplemented("This method must be overridden")
     
-    @transaction.commit_on_success
+    @transaction.atomic
     @logistics_contact_and_permission_required(config.Operations.FILL_ORDER)
     @validate_base_level_from_supervisor([config.BaseLevel.HSA, config.BaseLevel.FACILITY])
     def handle(self, text):

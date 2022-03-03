@@ -444,7 +444,7 @@ class FacilityLoader(object):
         a FacilityLoaderValidationError.
         """
         self.parse_data()
-        with transaction.commit_on_success():
+        with transaction.atomic():
             self.load_data()
 
         return len(self.data)

@@ -4,7 +4,7 @@ from rapidsms.models import Contact
 from static.malawi.config import SupplyPointCodes
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def deactivate_hsa_location(sender, instance, created, **kwargs):
     if instance.is_hsa and not instance.is_active:
         # also make sure to deactivate the location and supply
