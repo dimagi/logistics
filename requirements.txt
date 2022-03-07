@@ -10,13 +10,13 @@ anyjson==0.3.3
     # via
     #   celery
     #   kombu
-celery==2.5.5
+celery==2.4.2
     # via
     #   -r requirements.in
     #   django-celery
 certifi==2021.10.8
     # via sentry-sdk
-django-celery==2.5.5
+django-celery==2.4.2
     # via -r requirements.in
 django-kombu==0.9.4
     # via -r requirements.in
