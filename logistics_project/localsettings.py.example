@@ -11,4 +11,3 @@ DATABASES = {
 }
 
 DEBUG = True
-SOUTH_TESTS_MIGRATE = False
