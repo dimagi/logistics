@@ -3,7 +3,6 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
