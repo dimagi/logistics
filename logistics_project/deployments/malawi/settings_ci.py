@@ -20,6 +20,3 @@ CACHES['default']['BACKEND']= 'django.core.cache.backends.locmem.LocMemCache'
 
 # Generate xunit report
 NOSE_ARGS = ('--with-xunit', )
-
-# Don't run the migrations to build the test DB
-SOUTH_TESTS_MIGRATE = False

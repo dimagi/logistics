@@ -56,7 +56,7 @@ cd logistics_project
 ```
 
 The first command syncs the production schema (as of October 2018) and the second fakes all migrations.
-You should be able to develop in parallel with production after that and use south / `./manage.py migrate` 
+You should be able to develop in parallel with production after that and use `./manage.py migrate` 
 for future DB schema changes.
 
 ### Loading data
