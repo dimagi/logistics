@@ -117,17 +117,6 @@ INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
-    # twilio
-    "twilio": {
-        "ENGINE": "rtwilio.backend",
-        'host': 'localhost', 'port': '8081', # used for spawned backend WSGI server
-        'config': {
-            'account_sid': 'CHANGEME',
-            'auth_token': 'CHANGEME',
-            'number': '(###) ###-####',
-            'callback': 'http://cstock.dimagi.com/twilio/status-callback/', # optional callback URL
-        }
-    },
     # vumi
     "vumi": {
         "ENGINE": "logistics_project.backends.vumi",
