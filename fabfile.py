@@ -137,13 +137,6 @@ def sync_db():
     elif env.db_type == "postgres":
         sync_postgres_db()
 
-"""
-CAN'T TOUCH THIS
-"""
-def django_tests():
-    """run django tests"""
-    with cd('logistics'):
-        local('./manage.py test --noinput', capture=False)
 
 def update_requirements():
     """ update external dependencies """
@@ -151,14 +144,13 @@ def update_requirements():
         with enter_virtualenv():
             sudo('pip install -r %s' % _join(env.code_dir, "requirements.txt"))
 
-def bootstrap(subdir='logistics_project'):
+def bootstrap():
     """ run this after you've checked out the code """
     with cd(env.code_dir):
         update_requirements()
-        with cd(subdir):
-            with enter_virtualenv():
-                run('./manage.py syncdb --noinput')
-                env.extras()
+        with enter_virtualenv():
+            run('./manage.py syncdb --noinput')
+            env.extras()
 
 def deploy():
     """ deploy code to some remote environment """
@@ -190,7 +182,7 @@ def deploy():
         sudo('dropdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         sudo('createdb %(dbname)s' % {"dbname": env.db_name}, user="postgres")
         
-    bootstrap(subdir='logistics_project')
+    bootstrap()
     if env.stop_start:
         sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
