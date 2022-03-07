@@ -14,7 +14,7 @@ sys.path.append(os.path.join(filedir,'..','ex-submodules','rapidsms-groupmessagi
 sys.path.append(os.path.join(filedir,'..','ex-submodules','django-datawarehouse'))
 sys.path.insert(0, os.path.join(filedir,'..','ex-submodules','djtables','lib'))
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'logistics_project.settings'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
