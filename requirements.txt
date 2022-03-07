@@ -11,9 +11,7 @@ anyjson==0.3.3
     #   celery
     #   kombu
 celery==2.2.6
-    # via
-    #   -r requirements.in
-    #   django-celery
+    # via django-celery
 certifi==2021.10.8
     # via sentry-sdk
 django-celery==2.2.4
@@ -39,9 +37,7 @@ gdata==2.0.18
 johnny-cache==1.4
     # via -r requirements.in
 kombu==1.1.5
-    # via
-    #   -r requirements.in
-    #   celery
+    # via celery
 mysql-python==1.2.5
     # via -r requirements.in
 nose-exclude==0.5.0
