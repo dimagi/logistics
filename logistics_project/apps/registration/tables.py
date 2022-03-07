@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-import settings
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
-from rapidsms.models import Contact
 from logistics_project.apps.malawi.util import get_managed_products_for_contact
 
 

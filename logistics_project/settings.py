@@ -119,7 +119,7 @@ TEST_EXCLUDED_APPS = [
 ]
 
 # the project-level url patterns
-ROOT_URLCONF = "urls"
+ROOT_URLCONF = "logistics_project.urls"
 
 # since we might hit the database from any thread during testing, the
 # in-memory sqlite database isn't sufficient. it spawns a separate
@@ -224,12 +224,7 @@ NO_LOGIN_REQUIRED_FOR = [
 
 try:
     import sys
-    if os.environ.has_key('LOCAL_SETTINGS'):
-        # the LOCAL_SETTINGS environment variable is used by the build server
-        sys.path.insert(0, os.path.dirname(os.environ['LOCAL_SETTINGS']))
-        from settings_test import *
-    else: 
-        from localsettings import *
+    from .localsettings import *
 except ImportError:
     pass
 
