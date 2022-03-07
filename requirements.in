@@ -11,7 +11,6 @@ gdata
 johnny-cache
 nose
 nose-exclude
-psycopg2
 python-dateutil==1.5
 python-memcached
 pytz==2010b

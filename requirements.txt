@@ -47,8 +47,6 @@ nose==1.3.7
     #   -r requirements.in
     #   django-nose
     #   nose-exclude
-psycopg2==2.8.6
-    # via -r requirements.in
 python-dateutil==1.5
     # via -r requirements.in
 python-memcached==1.59
