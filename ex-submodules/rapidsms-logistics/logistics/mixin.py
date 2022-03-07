@@ -3,7 +3,7 @@ from rapidsms.conf import settings
 from django.core.cache import cache
 from django.db.models import Sum
 
-class StockCacheMixin(object):
+class StockCacheMixin():
     """
     This mixin provides a consistent set of stock parameters which can be calculated
     and cached using class-specific methods. It is useful for reusing similar code
