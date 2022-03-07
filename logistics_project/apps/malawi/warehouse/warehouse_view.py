@@ -127,7 +127,7 @@ class MalawiWarehouseView(ReportView):
             querystring += '%s=%s&' % (key, request.GET[key])
 
         base_context.update({
-            "default_chart_width": 530 if settings.STYLE=='both' else 730,
+            "default_chart_width": 730,
             "country": country,
             "districts": districts,
             "district_count": district_count,
