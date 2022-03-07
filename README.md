@@ -30,7 +30,7 @@ Once you've done that you can run the following to set up the code:
 ```
 git clone git://github.com/dimagi/logistics.git
 cd logistics
-pip install -r pip-requires.txt
+pip install -r requirements.txt
 git submodule update --init
 cd logistics_project
 cp localsettings.py.example localsettings.py
