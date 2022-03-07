@@ -32,8 +32,7 @@ To further customize the behaviour of httpbackend, simply extend rapidsms.backen
 and implement handle_request. For example::
 
     import datetime
-	import twilio
-    
+
     from django.http import HttpResponse
     from rapidsms.backends.http import RapidHttpBacked
 

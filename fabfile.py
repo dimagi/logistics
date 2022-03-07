@@ -149,13 +149,11 @@ def update_requirements():
     """ update external dependencies """
     with cd(env.code_dir):
         with enter_virtualenv():
-            sudo('pip install -r %s' % _join(env.code_dir, "pip-requires.txt"))
+            sudo('pip install -r %s' % _join(env.code_dir, "requirements.txt"))
 
 def bootstrap(subdir='logistics_project'):
     """ run this after you've checked out the code """
     with cd(env.code_dir):
-        run('git submodule init')
-        run('git submodule update')
         update_requirements()
         with cd(subdir):
             with enter_virtualenv():
