@@ -235,16 +235,6 @@ CONTACT_GROUP_GENERATORS = [
 DATABASE_ENGINE = "mysql"
 
 
-SOUTH_MIGRATION_MODULES = {
-    'rapidsms': 'logistics_project.deployments.malawi.migrations.rapidsms',
-    # NOTE: can't fix this without breaking tests and/or doing a major 
-    # migration dependency cleanup
-    #'logistics': 'ignore', 
-    #'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
-    'logistics': 'logistics_project.deployments.malawi.migrations.logistics',
-    # 'malawi': 'ignore'
-}
-
 # data warehouse config
 WAREHOUSE_RUNNER = 'logistics_project.apps.malawi.warehouse.runner.MalawiWarehouseRunner'
 ENABLE_FACILITY_WORKFLOWS = False
