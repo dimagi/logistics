@@ -1,8 +1,8 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
 from django.utils.html import escape
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 import uuid
 
 from logistics.mixin import StockCacheMixin
@@ -56,7 +56,7 @@ class Location(models.Model, StockCacheMixin):
     type = models.ForeignKey(LocationType, related_name="locations", blank=True, null=True)
     parent_type = models.ForeignKey(ContentType, null=True, blank=True)
     parent_id = models.PositiveIntegerField(null=True, blank=True)
-    parent = generic.GenericForeignKey("parent_type", "parent_id")
+    parent = GenericForeignKey("parent_type", "parent_id")
 
     code = models.CharField(max_length=100, blank=False, null=False)
     name = models.CharField(max_length=100)

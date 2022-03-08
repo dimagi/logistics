@@ -53,7 +53,6 @@ class Product(models.Model):
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
     type = models.ForeignKey('ProductType', db_index=True)
-    equivalents = models.ManyToManyField('self', null=True, blank=True)
     # this attribute is only used when LOGISTICS_STOCKED_BY = StockedBy.PRODUCT
     # it indicates that this product needs to be reported by facilities (as opposed to
     # products which we recognize but aren't required for reporting)
@@ -118,10 +117,6 @@ class SupplyPointType(models.Model):
     """
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
-    default_monthly_consumptions = models.ManyToManyField(Product, 
-                                                          through='DefaultMonthlyConsumption', 
-                                                          null=True, 
-                                                          blank=True)
 
     def __unicode__(self):
         return self.name
@@ -147,28 +142,14 @@ class SupplyPointType(models.Model):
                 return None
             elif from_cache is not None:
                 return from_cache
-        try:
-            dmc = DefaultMonthlyConsumption.objects.get(product=product, 
-                                                        supply_point_type=self).default_monthly_consumption
-        except DefaultMonthlyConsumption.DoesNotExist:
-            dmc = None
-        if dmc is None:
-            cache.set(cache_key, _NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        else:
-            cache.set(cache_key, dmc, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        return dmc 
+
+        cache.set(cache_key, _NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+        return None
     
     def monthly_consumption_by_product_code(self, code):
         product = Product.objects.get(code=code)
         return self.monthly_consumption_by_product(product)
     
-class DefaultMonthlyConsumption(models.Model):
-    supply_point_type = models.ForeignKey(SupplyPointType)
-    product = models.ForeignKey(Product)
-    default_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
-
-    class Meta:
-        unique_together = (("supply_point_type", "product"),)
 
 class SupplyPointBase(models.Model, StockCacheMixin):
     """
@@ -187,8 +168,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
-    groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
-    
+
     objects = models.Manager()
 
     class Meta:
@@ -273,25 +253,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def is_active(self):
         return self.active
     
-    _default_group = None
-    @property 
-    def default_group(self):
-        """
-        The "default" group. This is just the first one found. It mostly
-        assumes that there is only one group per supply point.
-        
-        This property is cached in the object to avoid excessive db
-        calls
-        """
-        if self._default_group is not None:
-            return self._default_group
-        
-        grps = self.groups.all()
-        if grps:
-            self._default_group = grps[0]
-        
-        return self._default_group
-        
     def stocked_consumptions_available(self):
         stocks = self.stocked_productstocks()
         available = 0
@@ -502,18 +463,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         report_type = ProductReportType.objects.get(code=Reports.REC)
         return self.report(product, report_type, quantity)
 
-    def reporters(self):
-        reporters = Contact.objects.filter(supply_point=self)
-        soh_resp = config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY
-        reporters = reporters.filter(role__responsibilities__code=soh_resp).distinct()
-        return reporters
-
-    def reportees(self):
-        reporters = Contact.objects.filter(supply_point=self)
-        supervise_resp = config.Responsibilities.REPORTEE_RESPONSIBILITY
-        reporters = reporters.filter(role__responsibilities__code=supervise_resp).distinct()
-        return reporters
-
     def is_any_supplier(self, supply_point):
         """
         Returns true of this is a supplier of the supply_point or its
@@ -642,15 +591,8 @@ class SupplyPoint(SupplyPointBase):
         return super(SupplyPoint, self).commodities_not_stocked()
 
 
-class SupplyPointGroup(models.Model):
-    code = models.CharField(max_length=30)
-
-    def __unicode__(self):
-        return self.code
-
-
 class LogisticsProfile(models.Model):
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
@@ -1302,23 +1244,10 @@ class NagRecord(models.Model):
     nag_type = models.CharField(max_length=30)
 
     
-class Responsibility(models.Model):
-    """ e.g. 'reports stock on hand', 'orders new stock' """
-    code = models.CharField(max_length=30, unique=True)
-    name = models.CharField(max_length=100, blank=True)
-
-    class Meta:
-        verbose_name = "Responsibility"
-        verbose_name_plural = "Responsibilities"
-
-    def __unicode__(self):
-        return _(self.name)
-
 class ContactRole(models.Model):
     """ e.g. pharmacist, family planning nurse """
     code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100, blank=True)
-    responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
 
     class Meta:
         verbose_name = "Role"
@@ -1603,20 +1532,7 @@ class ProductReportsHelper(object):
         for key, val in self.product_stock.items():
             if val == 0:
                 stockouts[key] = val
-        # remove equivalents
-        dupes = []
-        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-            for key in stockouts:
-                prod = Product.objects.get(sms_code=key)#.select_related('equivalent_to')
-                if prod.equivalents.count() > 0:
-                    for e in prod.equivalents.all():
-                        if e.sms_code in self.product_stock:
-                            ps = ProductStock.objects.get(product=e, supply_point=self.supply_point)
-                            if ps.is_above_low_supply(): 
-                                # if we wanted to support multiple equivalents, 
-                                # we could do a recurisve search here
-                                dupes.append(key)
-        return [key for key, val in stockouts.items() if val == 0 and key not in dupes]
+        return [key for key, val in stockouts.items() if val == 0]
 
     def stockouts(self):
         stockouts = self._stockouts()
@@ -1629,20 +1545,7 @@ class ProductReportsHelper(object):
                 .get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
             if productstock.is_below_low_supply():
                 low_supply[i] = productstock
-        # strip equivalents
-        dupes = []
-        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-            for ls in low_supply:
-                stock = low_supply[ls]
-                equivalents = stock.product.equivalents.all()
-                for e in equivalents:
-                    ps, created = ProductStock.objects.get_or_create(product=e, 
-                                                                     supply_point=stock.supply_point)
-                    if ps.is_above_low_supply():
-                        # if we wanted to support multiple equivalents, 
-                        # we could do a recurisve search here
-                        dupes.append(ls)
-        return [key for key, val in low_supply.items() if key not in dupes]
+        return [key for key, val in low_supply.items()]
 
     def low_supply(self):
         low_supply = self._low_supply()

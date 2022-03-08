@@ -114,7 +114,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        exclude = ('product_code', 'description', 'equivalents', 'is_active')
+        exclude = ('product_code', 'description', 'is_active')
 
 
 class UserForm(forms.ModelForm):

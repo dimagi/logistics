@@ -107,18 +107,6 @@ def init_reports(log_to_console=False):
             prod.name = name
             prod.save()
 
-def init_roles_and_responsibilities(log_to_console=False):
-    from logistics.models import ContactRole, Responsibility
-    for code, name in config.Roles.ALL_ROLES.items():
-        role = ContactRole.objects.get_or_create(code=code)[0]
-        if role.name != name:
-            role.name = name
-            role.save()
-    for code, name in config.Responsibilities.ALL.items():
-        resp = Responsibility.objects.get_or_create(code=code)[0]
-        if resp.name != name:
-            resp.name = name
-            resp.save()
 
 def init_supply_point_types():
     from logistics.models import SupplyPointType
@@ -168,7 +156,6 @@ def init_test_product_and_stock():
     ml, created = Product.objects.get_or_create(sms_code='ml', name='Microlut',
                                                 type=fp, units='cycle', 
                                                 average_monthly_consumption=5)
-    ml.equivalents.add(ov)
     sp = SupplyPoint.objects.all()[0]
     ps, created = ProductStock.objects.get_or_create(product=ov, supply_point=sp, 
                                        manual_monthly_consumption=None, 

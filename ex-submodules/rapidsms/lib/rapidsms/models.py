@@ -116,7 +116,7 @@ class Contact(ContactBase):
     commodities = models.ManyToManyField("logistics.Product",
                                          help_text="User manages these commodities.",
                                          related_name="reported_by",
-                                         blank=True, null=True)
+                                         blank=True)
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
     organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
@@ -140,14 +140,6 @@ class Contact(ContactBase):
     def last_message(self):
         if self.message_set.count() > 0:
             return self.message_set.order_by("-date")[0]
-
-    def has_responsibility(self, code):
-        if not self.role:
-            return False
-        responsibilities = self.role.responsibilities.values_list('code', flat=True)
-        if code in responsibilities:
-            return True
-        return False
 
     def commodities_reported(self):
         from logistics.models import Product

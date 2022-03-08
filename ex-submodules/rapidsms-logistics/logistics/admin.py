@@ -11,9 +11,6 @@ class LogisticsProfileAdmin(admin.ModelAdmin):
 class ContactRoleAdmin(admin.ModelAdmin):
     model = ContactRole
 
-class ResponsibilityAdmin(admin.ModelAdmin):
-    model = Responsibility
-
 class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description', 'product_code', 'type')
@@ -37,10 +34,6 @@ class ProductReportTypeAdmin(admin.ModelAdmin):
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
-class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
-    model = DefaultMonthlyConsumption
-    list_display = ('product', 'supply_point_type', 'default_monthly_consumption')
-    list_filter = ('product', 'supply_point_type')
 
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "type", 'active')
@@ -84,11 +77,9 @@ admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(StockTransaction, StockTransactionAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
-admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 admin.site.register(NagRecord, NagRecordAdmin)
-admin.site.register(DefaultMonthlyConsumption, DefaultMonthlyConsumptionAdmin)
 admin.site.register(HistoricalStockCache, HistoricalStockCacheAdmin)
 admin.site.register(SupplyPointWarehouseRecord, SupplyPointWarehouseRecordAdmin)
