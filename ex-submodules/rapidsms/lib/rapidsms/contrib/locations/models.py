@@ -220,7 +220,6 @@ class Location(models.Model, StockCacheMixin):
         """ This signature gets overriden by mptt when mptt is used
         It must return a queryset
         """
-        from rapidsms.contrib.locations.models import Location
         def _get_descendent_pks(node):
             pks = []
             for c in node.get_children():
@@ -237,18 +236,8 @@ class Location(models.Model, StockCacheMixin):
         # utility to facilitate calling function from django template
         return self.get_descendants(include_self=True)
 
-    def peers(self):
-        from rapidsms.contrib.locations.models import Location
-        # rl: is there a better way to do this?
-        if 'mptt' in settings.INSTALLED_APPS:
-            return Location.objects.filter(tree_parent=self.tree_parent, is_active=True).order_by('name')
-        return Location.objects.filter(parent_id=self.parent_id, is_active=True).order_by('name')
-
     def child_facilities(self):
         from logistics.models import SupplyPoint
-        # rl: is there a better way to do this?
-        if 'mptt' in settings.INSTALLED_APPS:
-            return SupplyPoint.objects.filter(Q(location=self)|Q(location__tree_parent=self), active=True).order_by('name')
         return SupplyPoint.objects.filter(Q(location=self)|Q(location__parent_id=self.pk), active=True).order_by('name')
 
     def facilities(self):
