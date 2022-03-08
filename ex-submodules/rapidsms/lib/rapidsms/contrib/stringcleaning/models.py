@@ -1,4 +1,1 @@
-from django.db import models
-
-class NoModel(models.Model):
-    pass
+# empty models.py file

@@ -2,12 +2,6 @@
 # MODULE CONFIG
 ########################
 from rapidsms.conf import settings
-# annoyingly, settings.x throws a valueerror when x is not set
-if hasattr(settings,'MESSAGELOG_APP'):
-    # rl: not sure why i have to specifically list submodules...
-    messagelog = __import__(settings.MESSAGELOG_APP, fromlist = ['models'])
-else:
-    import rapidsms.contrib.messagelog as messagelog
 
 ########################
 # CONSTANTS CONFIG

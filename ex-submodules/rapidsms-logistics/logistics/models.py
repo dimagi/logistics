@@ -27,11 +27,6 @@ from logistics.mixin import StockCacheMixin
 from logistics.consumption import daily_consumption
 from static.malawi.config import BaseLevel
 
-if hasattr(settings, "MESSAGELOG_APP"):
-    message_class = "%s.Message" % settings.MESSAGELOG_APP
-else:
-    message_class = "messagelog.Message"
-
 try:
     from settings import LOGISTICS_CONSUMPTION
     from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
@@ -1169,7 +1164,7 @@ class ProductReport(models.Model):
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.utcnow, db_index=True)
     # message should only be null if the stock report was provided over the web
-    message = models.ForeignKey(message_class, blank=True, null=True)
+    message = models.ForeignKey('messagelog.Message', blank=True, null=True)
 
     class Meta:
         verbose_name = "Product Report"

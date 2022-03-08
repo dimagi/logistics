@@ -15,7 +15,7 @@ class Point(models.Model):
     Spatialite to build right now...
     """
 
-    latitude  = models.DecimalField(max_digits=13, decimal_places=10)
+    latitude = models.DecimalField(max_digits=13, decimal_places=10)
     longitude = models.DecimalField(max_digits=13, decimal_places=10)
 
     def __unicode__(self):

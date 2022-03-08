@@ -59,9 +59,6 @@ class StockTransactionAdmin(admin.ModelAdmin):
     list_display = ('product', 'supply_point', 'date', 'quantity','beginning_balance', 'ending_balance')
     list_filter = ('product', 'supply_point')
 
-class LogisticsContactAdmin(admin.ModelAdmin):
-    model = Contact
-    list_display = ('name', 'supply_point', 'role', 'is_active')
 
 class NagRecordAdmin(admin.ModelAdmin):
     model = NagRecord
@@ -78,9 +75,6 @@ class SupplyPointWarehouseRecordAdmin(admin.ModelAdmin):
     list_display = ("supply_point", "create_date")
     list_filter = ("create_date",)
 
-
-admin.site.unregister(Contact)
-admin.site.register(Contact, LogisticsContactAdmin)
 
 admin.site.register(LogisticsProfile, LogisticsProfileAdmin)
 admin.site.register(Product, ProductAdmin)
