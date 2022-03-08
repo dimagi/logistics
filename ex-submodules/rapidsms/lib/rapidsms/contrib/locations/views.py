@@ -6,8 +6,6 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.decorators.http import require_GET, require_http_methods
-from rapidsms.utils import web_message
 from rapidsms.conf import settings
 from .forms import *
 from .models import *
