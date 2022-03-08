@@ -620,23 +620,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         message = "Dear %(name)s, %(supply_point)s has RESOLVED the following stockouts: %(products)s "
         self.notify_suppliees(message, stockouts_resolved, exclude)
 
-    def data_unavailable(self, threshold=settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE):
-        # hm, not sure what interval should be considered 'data unavailable'?
-        # for now, we'll make it a setting
-        if threshold is None:
-            return self.last_reported is None
-        deadline = datetime.utcnow() + relativedelta(days=-threshold)
-        if self.last_reported is None or self.last_reported < deadline:
-            return True
-        return False
-    
-    def set_type_from_string(self, type_string):
-        try:
-            type_, created = SupplyPointType.objects.get_or_create(code=type_string)
-        except HealthFacilityType.DoesNotExist:
-            type_, created = SupplyPointType.objects.get_or_create(code='UNKNOWN')
-        self.type = type_
-
 
 class SupplyPoint(SupplyPointBase):
     __metaclass__ = ExtensibleModelBase
