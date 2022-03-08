@@ -1,40 +1,10 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-from datetime import datetime
+from __future__ import absolute_import
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from .utils.modules import try_import, get_classes
+from django.utils.translation.trans_real import translation
+
 from .errors import NoConnectionError, MessageSendingError
 from .conf import settings
-
-
-class ExtensibleModelBase(models.base.ModelBase):
-    def __new__(cls, name, bases, attrs):
-        module_name = attrs["__module__"]
-        app_label = module_name.split('.')[-2]
-        extensions = _find_extensions(app_label, name)
-        bases = tuple(extensions) + bases
-
-        return super(ExtensibleModelBase, cls).__new__(
-            cls, name, bases, attrs)
-
-
-def _find_extensions(app_label, model_name):
-    ext = []
-
-    suffix = "extensions.%s.%s" % (
-        app_label, model_name.lower())
-
-    modules = filter(None, [
-        try_import("%s.%s" % (app_name, suffix))
-        for app_name in settings.INSTALLED_APPS ])
-
-    for module in modules:
-        for cls in get_classes(module, models.Model):
-            ext.append(cls)
-
-    return ext
 
 
 class Backend(models.Model):
@@ -82,7 +52,7 @@ class App(models.Model):
 
 
 class ContactBase(models.Model):
-    name  = models.CharField(max_length=100, blank=True)
+    name = models.CharField(max_length=100, blank=True)
 
     # the spec: http://www.w3.org/International/articles/language-tags/Overview
     # reference:http://www.iana.org/assignments/language-subtag-registry
@@ -137,18 +107,167 @@ class ContactBase(models.Model):
         return True
 
 
-
 class Contact(ContactBase):
-    __metaclass__ = ExtensibleModelBase
+    # if one person wants to submit stocks for multiple facilities, then
+    # they'll have to create multiple contacts for themselves
+    role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
+    supply_point = models.ForeignKey("logistics.SupplyPoint", null=True, blank=True)
+    needs_reminders = models.BooleanField(default=True)
+    commodities = models.ManyToManyField("logistics.Product",
+                                         help_text="User manages these commodities.",
+                                         related_name="reported_by",
+                                         blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
+    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Logistics Contact"
+
+    def __unicode__(self):
+        if self.name:
+            return self.name
+        return unicode(self.pk)
+
+    @property
+    def phone(self):
+        if self.default_connection:
+            return self.default_connection.identity
+        else:
+            return " "
+
+    @property
+    def last_message(self):
+        if self.message_set.count() > 0:
+            return self.message_set.order_by("-date")[0]
+
+    def has_responsibility(self, code):
+        if not self.role:
+            return False
+        responsibilities = self.role.responsibilities.values_list('code', flat=True)
+        if code in responsibilities:
+            return True
+        return False
+
+    def commodities_reported(self):
+        from logistics.models import Product
+        """ this user is responsible for reporting these commodities """
+        if settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_USER:
+            # do a join on all commodities associated with this user
+            return Product.objects.filter(is_active=True).filter(reported_by=self)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_FACILITY:
+            # look for products with active ProductStocks linked to user's facility
+            return Product.objects.filter(productstock__supply_point=self.supply_point,
+                                          productstock__is_active=True,
+                                          is_active=True)
+        elif settings.LOGISTICS_STOCKED_BY == settings.STOCKED_BY_PRODUCT:
+            # all active Products in the system
+            return Product.objects.filter(is_active=True)
+        raise ImproperlyConfigured("LOGISTICS_STOCKED_BY setting is not configured correctly")
+
+    @property
+    def is_hsa(self):
+        from logistics.models import ContactRole
+        from logistics.util import config
+        return self.role == ContactRole.objects.get(code=config.Roles.HSA)
+
+    @property
+    def associated_supply_point(self):
+        """
+        For HSA's return the parent facility. For everyone else return the
+        exact supply point.
+        """
+        from logistics.models import SupplyPoint
+
+        if not self.supply_point: return None
+
+        if self.is_hsa:
+            return SupplyPoint.objects.get(location=self.supply_point.location.parent)
+        return self.supply_point
+
+    @property
+    def associated_supply_point_name(self):
+        if self.associated_supply_point:
+            return self.associated_supply_point.name
+        else:
+            return ""
+
+    @property
+    def hsa_id(self):
+        if self.is_hsa:
+            if self.supply_point:
+                return self.supply_point.code
+            else:
+                return ""
+        else:
+            return ""
+
+    def translate(self, message):
+        """
+        In newer versions of Django, this is accomplished using the
+        django.utils.translation.override context manager.
+
+        We could write our own context manager, but this process mirrors
+        the one used in rapidsms.messages.outgoing.
+        """
+        language = self.language or settings.LANGUAGE_CODE
+        return translation(language).gettext(message)
+
+    @property
+    def default_backend(self):
+        # TODO: this is defined totally arbitrarily for a future
+        # sane implementation
+        if settings.DEFAULT_BACKEND:
+            return Backend.objects.get(name=settings.DEFAULT_BACKEND)
+        else:
+            return Backend.objects.all()[0]
+
+    @property
+    def default_connection(self):
+        """
+        Return the default connection for this person.
+        """
+        # TODO: this is defined totally arbitrarily for a future
+        # sane implementation
+        if self.connection_set.count() > 0:
+            return self.connection_set.all()[0]
+        return None
+
+    @default_connection.setter
+    def default_connection(self, identity):
+        backend = self.default_backend
+        default = self.default_connection
+        if default is not None:
+            if default.identity == identity and default.backend == backend:
+                # our job is done
+                return
+            # when you re-assign default connection,
+            # should you delete the unused connection?
+            # probably not because who knows what else will get deleted in the
+            # cascade
+            # default.delete()
+        try:
+            conn = Connection.objects.get(backend=backend, identity=identity)
+        except Connection.DoesNotExist:
+            # good, it doesn't exist already
+            conn = Connection(backend=backend,
+                              identity=identity)
+        conn.contact = self
+        conn.save()
 
 
-class ConnectionBase(models.Model):
+class Connection(models.Model):
+    """
+    This model pairs a Backend object with an identity unique to it (eg.
+    a phone number, email address, or IRC nick), so RapidSMS developers
+    need not worry about which backend a messge originated from.
+    """
+
     backend  = models.ForeignKey(Backend)
     identity = models.CharField(max_length=100)
     contact  = models.ForeignKey(Contact, null=True, blank=True)
 
     class Meta:
-        abstract = True
         unique_together = (('backend', 'identity'),)
 
     def __unicode__(self):
@@ -180,16 +299,6 @@ class ConnectionBase(models.Model):
             raise MessageSendingError()
 
         return True
-
-
-class Connection(ConnectionBase):
-    """
-    This model pairs a Backend object with an identity unique to it (eg.
-    a phone number, email address, or IRC nick), so RapidSMS developers
-    need not worry about which backend a messge originated from.
-    """
-
-    __metaclass__ = ExtensibleModelBase
 
 
 class DeliveryReport(models.Model):

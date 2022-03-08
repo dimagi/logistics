@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 import re
 import uuid
 import logging
@@ -12,13 +9,12 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.db.models.fields import PositiveIntegerField
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
-from rapidsms.models import Contact, ExtensibleModelBase
+from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
 from logistics_project.utils.dates import get_day_of_month
@@ -29,6 +25,7 @@ from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
 from logistics.consumption import daily_consumption
+from static.malawi.config import BaseLevel
 
 if hasattr(settings, "MESSAGELOG_APP"):
     message_class = "%s.Message" % settings.MESSAGELOG_APP
@@ -107,21 +104,17 @@ class Product(models.Model):
             stock.save()
 
 
-class ProductTypeBase(models.Model):
+class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
+    base_level = models.CharField(max_length=1, default=config.BaseLevel.HSA)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
-        abstract = True
         verbose_name = "Product Type"
-
-
-class ProductType(ProductTypeBase):
-    __metaclass__ = ExtensibleModelBase
 
 
 class SupplyPointType(models.Model):
@@ -617,25 +610,42 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         message = "Dear %(name)s, %(supply_point)s has RESOLVED the following stockouts: %(products)s "
         self.notify_suppliees(message, stockouts_resolved, exclude)
 
-    def data_unavailable(self, threshold=settings.LOGISTICS_DAYS_UNTIL_DATA_UNAVAILABLE):
-        # hm, not sure what interval should be considered 'data unavailable'?
-        # for now, we'll make it a setting
-        if threshold is None:
-            return self.last_reported is None
-        deadline = datetime.utcnow() + relativedelta(days=-threshold)
-        if self.last_reported is None or self.last_reported < deadline:
-            return True
-        return False
-    
-    def set_type_from_string(self, type_string):
-        try:
-            type_, created = SupplyPointType.objects.get_or_create(code=type_string)
-        except HealthFacilityType.DoesNotExist:
-            type_, created = SupplyPointType.objects.get_or_create(code='UNKNOWN')
-        self.type = type_
 
 class SupplyPoint(SupplyPointBase):
-    __metaclass__ = ExtensibleModelBase
+
+    def commodities_stocked(self):
+        """
+        This extension is used to override SupplyPoint.commodities_stocked(), since
+        for facility-level products, all products are always automatically considered
+        to be managed by the facility without the facility users needing to add them
+        manually as HSAs have to add their HSA-level products.
+
+        Since commodoties_stocked is referenced in core rapidsms-logistics code,
+        this is the easiest way to accomplish this with without changing the core code.
+        """
+        if self.type_id == config.SupplyPointCodes.HSA:
+            return super(SupplyPoint, self).commodities_stocked().filter(type__base_level=config.BaseLevel.HSA)
+        elif self.type_id == config.SupplyPointCodes.FACILITY:
+            return Product.objects.filter(is_active=True, type__base_level=config.BaseLevel.FACILITY)
+
+        return super(SupplyPoint, self).commodities_stocked()
+
+    def commodities_not_stocked(self):
+        if self.type_id == config.SupplyPointCodes.HSA:
+            return list(
+                set(Product.objects.filter(is_active=True, type__base_level=config.BaseLevel.HSA)) -
+                set(self.commodities_stocked())
+            )
+        elif self.type_id == config.SupplyPointCodes.FACILITY:
+            # Even though this always returns empty list right now, we'll still calculate it the right
+            # way in case some day commodities_stocked() is implemented a different way.
+            return list(
+                set(Product.objects.filter(is_active=True, type__base_level=config.BaseLevel.FACILITY)) -
+                set(self.commodities_stocked())
+            )
+
+        return super(SupplyPoint, self).commodities_not_stocked()
+
 
 class SupplyPointGroup(models.Model):
     code = models.CharField(max_length=30)
@@ -643,20 +653,23 @@ class SupplyPointGroup(models.Model):
     def __unicode__(self):
         return self.code
 
-class LogisticsProfileBase(models.Model):
+
+class LogisticsProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
-    
-    class Meta:
-        abstract = True
+    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+    # True if this user can view the HSA-level dashboard and reports
+    can_view_hsa_level_data = models.BooleanField(default=True)
+    # True if this user can view the facility-level dashboard and reports
+    can_view_facility_level_data = models.BooleanField(default=False)
+    # One of the base level constants representing the current dashboard the user sees upon login
+    current_dashboard_base_level = models.CharField(max_length=1, default=BaseLevel.HSA)
 
     def __unicode__(self):
         return u"%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
-class LogisticsProfile(LogisticsProfileBase):
-    __metaclass__ = ExtensibleModelBase
 
 class ProductStock(models.Model):
     """
