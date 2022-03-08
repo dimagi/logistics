@@ -286,13 +286,18 @@ class Contact(ContactBase):
         conn.save()
 
 
-class ConnectionBase(models.Model):
+class Connection(models.Model):
+    """
+    This model pairs a Backend object with an identity unique to it (eg.
+    a phone number, email address, or IRC nick), so RapidSMS developers
+    need not worry about which backend a messge originated from.
+    """
+
     backend  = models.ForeignKey(Backend)
     identity = models.CharField(max_length=100)
     contact  = models.ForeignKey(Contact, null=True, blank=True)
 
     class Meta:
-        abstract = True
         unique_together = (('backend', 'identity'),)
 
     def __unicode__(self):
@@ -324,16 +329,6 @@ class ConnectionBase(models.Model):
             raise MessageSendingError()
 
         return True
-
-
-class Connection(ConnectionBase):
-    """
-    This model pairs a Backend object with an identity unique to it (eg.
-    a phone number, email address, or IRC nick), so RapidSMS developers
-    need not worry about which backend a messge originated from.
-    """
-
-    __metaclass__ = ExtensibleModelBase
 
 
 class DeliveryReport(models.Model):
