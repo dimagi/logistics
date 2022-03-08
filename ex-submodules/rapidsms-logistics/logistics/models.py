@@ -654,7 +654,7 @@ class LogisticsProfile(models.Model):
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
-    # organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
     # True if this user can view the HSA-level dashboard and reports
     can_view_hsa_level_data = models.BooleanField(default=True)
     # True if this user can view the facility-level dashboard and reports
