@@ -6,13 +6,13 @@ from rapidsms.models import Contact
 from logistics_project.apps.malawi.models import Organization
 from logistics_project.apps.malawi.warehouse.models import *
 
-# class MalawiContactAdmin(admin.ModelAdmin):
-#     model = Contact
-#     list_display = ('name', 'supply_point', 'role', 'is_active', 'organization')
-#
-#
-# admin.site.unregister(Contact)
-# admin.site.register(Contact, MalawiContactAdmin)
+class MalawiContactAdmin(admin.ModelAdmin):
+    model = Contact
+    list_display = ('name', 'supply_point', 'role', 'is_active', 'organization')
+
+
+admin.site.unregister(Contact)
+admin.site.register(Contact, MalawiContactAdmin)
 admin.site.register(Organization)
 
 # warehouse admin

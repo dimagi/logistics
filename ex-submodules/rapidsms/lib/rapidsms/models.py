@@ -110,16 +110,16 @@ class ContactBase(models.Model):
 class Contact(ContactBase):
     # if one person wants to submit stocks for multiple facilities, then
     # they'll have to create multiple contacts for themselves
-    # role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
-    # supply_point = models.ForeignKey("logistics.SupplyPoint", null=True, blank=True)
+    role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
+    supply_point = models.ForeignKey("logistics.SupplyPoint", null=True, blank=True)
     needs_reminders = models.BooleanField(default=True)
-    # commodities = models.ManyToManyField("logistics.Product",
-    #                                      help_text="User manages these commodities.",
-    #                                      related_name="reported_by",
-    #                                      blank=True, null=True)
+    commodities = models.ManyToManyField("logistics.Product",
+                                         help_text="User manages these commodities.",
+                                         related_name="reported_by",
+                                         blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
-    # organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
 
     class Meta:
         verbose_name = "Logistics Contact"
