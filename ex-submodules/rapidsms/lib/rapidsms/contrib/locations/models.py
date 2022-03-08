@@ -5,8 +5,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 import uuid
 
-from django.conf import settings
-
 from logistics.mixin import StockCacheMixin
 
 
