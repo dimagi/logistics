@@ -61,7 +61,7 @@ redis==2.8.0
     #   django-redis
 requests==2.4.3
     # via -r requirements.in
-sentry-sdk==1.4.3
+sentry-sdk==0.17.7
     # via -r requirements.in
 six==1.16.0
     # via python-memcached
