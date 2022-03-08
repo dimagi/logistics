@@ -58,17 +58,17 @@ class Location(models.Model):
 
     type = models.ForeignKey(LocationType, related_name="locations", blank=True, null=True)
     parent_type = models.ForeignKey(ContentType, null=True, blank=True)
-    parent_id   = models.PositiveIntegerField(null=True, blank=True)
-    parent      = generic.GenericForeignKey("parent_type", "parent_id")
+    parent_id = models.PositiveIntegerField(null=True, blank=True)
+    parent = generic.GenericForeignKey("parent_type", "parent_id")
 
     # choices for the Location.direction method.
     # (values stolen from label-overlay.js)
     class Direction:
         CENTER = "center"
-        ABOVE  = "above"
-        RIGHT  = "right"
-        BELOW  = "below"
-        LEFT   = "left"
+        ABOVE = "above"
+        RIGHT = "right"
+        BELOW = "below"
+        LEFT = "left"
 
     def __unicode__(self):
         """
