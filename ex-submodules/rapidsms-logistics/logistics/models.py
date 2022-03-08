@@ -117,10 +117,6 @@ class SupplyPointType(models.Model):
     """
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
-    default_monthly_consumptions = models.ManyToManyField(Product, 
-                                                          through='DefaultMonthlyConsumption', 
-                                                          null=True, 
-                                                          blank=True)
 
     def __unicode__(self):
         return self.name
@@ -146,28 +142,14 @@ class SupplyPointType(models.Model):
                 return None
             elif from_cache is not None:
                 return from_cache
-        try:
-            dmc = DefaultMonthlyConsumption.objects.get(product=product, 
-                                                        supply_point_type=self).default_monthly_consumption
-        except DefaultMonthlyConsumption.DoesNotExist:
-            dmc = None
-        if dmc is None:
-            cache.set(cache_key, _NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        else:
-            cache.set(cache_key, dmc, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-        return dmc 
+
+        cache.set(cache_key, _NONE_VALUE, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
+        return None
     
     def monthly_consumption_by_product_code(self, code):
         product = Product.objects.get(code=code)
         return self.monthly_consumption_by_product(product)
     
-class DefaultMonthlyConsumption(models.Model):
-    supply_point_type = models.ForeignKey(SupplyPointType)
-    product = models.ForeignKey(Product)
-    default_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
-
-    class Meta:
-        unique_together = (("supply_point_type", "product"),)
 
 class SupplyPointBase(models.Model, StockCacheMixin):
     """

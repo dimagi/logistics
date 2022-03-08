@@ -34,10 +34,6 @@ class ProductReportTypeAdmin(admin.ModelAdmin):
 class SupplyPointTypeAdmin(admin.ModelAdmin):
     model = SupplyPointType
 
-class DefaultMonthlyConsumptionAdmin(admin.ModelAdmin):
-    model = DefaultMonthlyConsumption
-    list_display = ('product', 'supply_point_type', 'default_monthly_consumption')
-    list_filter = ('product', 'supply_point_type')
 
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "type", 'active')
@@ -85,6 +81,5 @@ admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)
 admin.site.register(NagRecord, NagRecordAdmin)
-admin.site.register(DefaultMonthlyConsumption, DefaultMonthlyConsumptionAdmin)
 admin.site.register(HistoricalStockCache, HistoricalStockCacheAdmin)
 admin.site.register(SupplyPointWarehouseRecord, SupplyPointWarehouseRecordAdmin)
