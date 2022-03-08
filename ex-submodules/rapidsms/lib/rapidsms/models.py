@@ -141,14 +141,6 @@ class Contact(ContactBase):
         if self.message_set.count() > 0:
             return self.message_set.order_by("-date")[0]
 
-    def has_responsibility(self, code):
-        if not self.role:
-            return False
-        responsibilities = self.role.responsibilities.values_list('code', flat=True)
-        if code in responsibilities:
-            return True
-        return False
-
     def commodities_reported(self):
         from logistics.models import Product
         """ this user is responsible for reporting these commodities """

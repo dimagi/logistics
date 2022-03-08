@@ -107,18 +107,6 @@ def init_reports(log_to_console=False):
             prod.name = name
             prod.save()
 
-def init_roles_and_responsibilities(log_to_console=False):
-    from logistics.models import ContactRole, Responsibility
-    for code, name in config.Roles.ALL_ROLES.items():
-        role = ContactRole.objects.get_or_create(code=code)[0]
-        if role.name != name:
-            role.name = name
-            role.save()
-    for code, name in config.Responsibilities.ALL.items():
-        resp = Responsibility.objects.get_or_create(code=code)[0]
-        if resp.name != name:
-            resp.name = name
-            resp.save()
 
 def init_supply_point_types():
     from logistics.models import SupplyPointType

@@ -11,9 +11,6 @@ class LogisticsProfileAdmin(admin.ModelAdmin):
 class ContactRoleAdmin(admin.ModelAdmin):
     model = ContactRole
 
-class ResponsibilityAdmin(admin.ModelAdmin):
-    model = Responsibility
-
 class ProductAdmin(admin.ModelAdmin):
     model = Product
     list_display = ('name', 'units', 'sms_code', 'description', 'product_code', 'type')
@@ -84,7 +81,6 @@ admin.site.register(ProductReport, ProductReportAdmin)
 admin.site.register(ProductReportType, ProductReportTypeAdmin)
 admin.site.register(StockTransaction, StockTransactionAdmin)
 admin.site.register(ContactRole, ContactRoleAdmin)
-admin.site.register(Responsibility, ResponsibilityAdmin)
 admin.site.register(SupplyPointType, SupplyPointTypeAdmin)
 admin.site.register(SupplyPoint, SupplyPointAdmin)
 admin.site.register(StockRequest, StockRequestAdmin)

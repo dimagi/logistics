@@ -164,10 +164,6 @@ class LocationCodes(object):
     HSA = "hsa"
     
 def has_permissions_to(contact, operation):
-    # one might want to use the responsibilities framework to manage
-    # this but currently it seems strange that we'd have such tight
-    # coupling between app logic and database logic, so it's here
-    from logistics.models import ContactRole
     if not contact.is_active:
         return False
     if operation == Operations.REPORT_STOCK:

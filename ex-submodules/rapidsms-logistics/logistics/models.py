@@ -502,18 +502,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         report_type = ProductReportType.objects.get(code=Reports.REC)
         return self.report(product, report_type, quantity)
 
-    def reporters(self):
-        reporters = Contact.objects.filter(supply_point=self)
-        soh_resp = config.Responsibilities.STOCK_ON_HAND_RESPONSIBILITY
-        reporters = reporters.filter(role__responsibilities__code=soh_resp).distinct()
-        return reporters
-
-    def reportees(self):
-        reporters = Contact.objects.filter(supply_point=self)
-        supervise_resp = config.Responsibilities.REPORTEE_RESPONSIBILITY
-        reporters = reporters.filter(role__responsibilities__code=supervise_resp).distinct()
-        return reporters
-
     def is_any_supplier(self, supply_point):
         """
         Returns true of this is a supplier of the supply_point or its
@@ -1302,23 +1290,10 @@ class NagRecord(models.Model):
     nag_type = models.CharField(max_length=30)
 
     
-class Responsibility(models.Model):
-    """ e.g. 'reports stock on hand', 'orders new stock' """
-    code = models.CharField(max_length=30, unique=True)
-    name = models.CharField(max_length=100, blank=True)
-
-    class Meta:
-        verbose_name = "Responsibility"
-        verbose_name_plural = "Responsibilities"
-
-    def __unicode__(self):
-        return _(self.name)
-
 class ContactRole(models.Model):
     """ e.g. pharmacist, family planning nurse """
     code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100, blank=True)
-    responsibilities = models.ManyToManyField(Responsibility, blank=True, null=True)
 
     class Meta:
         verbose_name = "Role"
