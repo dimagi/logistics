@@ -3,38 +3,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation.trans_real import translation
 
-
-from .utils.modules import try_import, get_classes
 from .errors import NoConnectionError, MessageSendingError
 from .conf import settings
-
-
-class ExtensibleModelBase(models.base.ModelBase):
-    def __new__(cls, name, bases, attrs):
-        module_name = attrs["__module__"]
-        app_label = module_name.split('.')[-2]
-        extensions = _find_extensions(app_label, name)
-        bases = tuple(extensions) + bases
-
-        return super(ExtensibleModelBase, cls).__new__(
-            cls, name, bases, attrs)
-
-
-def _find_extensions(app_label, model_name):
-    ext = []
-
-    suffix = "extensions.%s.%s" % (
-        app_label, model_name.lower())
-
-    modules = filter(None, [
-        try_import("%s.%s" % (app_name, suffix))
-        for app_name in settings.INSTALLED_APPS ])
-
-    for module in modules:
-        for cls in get_classes(module, models.Model):
-            ext.append(cls)
-
-    return ext
 
 
 class Backend(models.Model):
