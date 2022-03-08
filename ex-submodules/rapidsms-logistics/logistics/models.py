@@ -124,6 +124,8 @@ class ProductTypeBase(models.Model):
 class ProductType(ProductTypeBase):
     __metaclass__ = ExtensibleModelBase
 
+    base_level = models.CharField(max_length=1, default=config.BaseLevel.HSA)
+
 
 class SupplyPointType(models.Model):
     """
