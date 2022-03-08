@@ -33,9 +33,7 @@ BASE_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
     
-    "django_nose",
 
-    
     # the rapidsms contrib apps.
     "rapidsms.contrib.httptester",
     "rapidsms.contrib.locations",
