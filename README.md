@@ -80,7 +80,7 @@ Celery is required for scheduled SMS reminders as well as for background jobs th
 
 ```
 ./manage.py runrouter
-./manage.py celeryd
+celery -A logistics_project worker -l info
 ```
 
 # Testing
