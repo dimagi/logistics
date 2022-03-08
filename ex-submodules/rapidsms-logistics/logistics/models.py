@@ -108,23 +108,17 @@ class Product(models.Model):
             stock.save()
 
 
-class ProductTypeBase(models.Model):
+class ProductType(models.Model):
     """ e.g. malaria, hiv, family planning """
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
+    base_level = models.CharField(max_length=1, default=config.BaseLevel.HSA)
 
     def __unicode__(self):
         return self.name
 
     class Meta:
-        abstract = True
         verbose_name = "Product Type"
-
-
-class ProductType(ProductTypeBase):
-    __metaclass__ = ExtensibleModelBase
-
-    base_level = models.CharField(max_length=1, default=config.BaseLevel.HSA)
 
 
 class SupplyPointType(models.Model):
