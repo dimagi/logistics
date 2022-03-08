@@ -15,12 +15,12 @@ DIRECTION_CHOICES = (
 
 
 class Message(models.Model):
-    contact    = models.ForeignKey(Contact, null=True)
+    contact = models.ForeignKey(Contact, null=True)
     connection = models.ForeignKey(Connection, null=True)
-    direction  = models.CharField(max_length=1, choices=DIRECTION_CHOICES)
-    date       = models.DateTimeField()
-    text       = models.TextField()
-    tags       = TaggableManager()
+    direction = models.CharField(max_length=1, choices=DIRECTION_CHOICES)
+    date = models.DateTimeField()
+    text = models.TextField()
+    tags = TaggableManager()
 
     def save(self, *args, **kwargs):
         """
