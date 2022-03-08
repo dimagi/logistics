@@ -1578,20 +1578,7 @@ class ProductReportsHelper(object):
         for key, val in self.product_stock.items():
             if val == 0:
                 stockouts[key] = val
-        # remove equivalents
-        dupes = []
-        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-            for key in stockouts:
-                prod = Product.objects.get(sms_code=key)#.select_related('equivalent_to')
-                if prod.equivalents.count() > 0:
-                    for e in prod.equivalents.all():
-                        if e.sms_code in self.product_stock:
-                            ps = ProductStock.objects.get(product=e, supply_point=self.supply_point)
-                            if ps.is_above_low_supply(): 
-                                # if we wanted to support multiple equivalents, 
-                                # we could do a recurisve search here
-                                dupes.append(key)
-        return [key for key, val in stockouts.items() if val == 0 and key not in dupes]
+        return [key for key, val in stockouts.items() if val == 0]
 
     def stockouts(self):
         stockouts = self._stockouts()
@@ -1604,20 +1591,7 @@ class ProductReportsHelper(object):
                 .get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
             if productstock.is_below_low_supply():
                 low_supply[i] = productstock
-        # strip equivalents
-        dupes = []
-        if getattr(settings, "LOGISTICS_USE_COMMODITY_EQUIVALENTS", False):
-            for ls in low_supply:
-                stock = low_supply[ls]
-                equivalents = stock.product.equivalents.all()
-                for e in equivalents:
-                    ps, created = ProductStock.objects.get_or_create(product=e, 
-                                                                     supply_point=stock.supply_point)
-                    if ps.is_above_low_supply():
-                        # if we wanted to support multiple equivalents, 
-                        # we could do a recurisve search here
-                        dupes.append(ls)
-        return [key for key, val in low_supply.items() if key not in dupes]
+        return [key for key, val in low_supply.items()]
 
     def low_supply(self):
         low_supply = self._low_supply()
