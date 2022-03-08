@@ -149,7 +149,7 @@ def bootstrap():
     with cd(env.code_dir):
         update_requirements()
         with enter_virtualenv():
-            run('./manage.py syncdb --noinput')
+            run('./manage.py migrate --noinput')
             env.extras()
 
 def deploy():

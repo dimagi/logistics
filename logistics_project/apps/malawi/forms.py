@@ -17,6 +17,7 @@ class OrganizationForm(forms.ModelForm):
 
     class Meta:
         model = Organization
+        fields = ['name', 'managed_supply_points']
         
 
 class LogisticsProfileForm(forms.ModelForm):
