@@ -13,7 +13,7 @@ from logistics.context_processors import custom_settings
 from logistics.tables import ShortMessageTable
 from logistics.reports import ProductAvailabilitySummary, ProductAvailabilitySummaryByFacility, ProductAvailabilitySummaryByFacilitySP
 from logistics_project.utils.dates import DateSpan, get_day_of_month
-from logistics.config import messagelog
+import rapidsms.contrib.messagelog as messagelog
 import logging
 from rapidsms.models import Contact
 from logistics.models import transactions_before_or_during
