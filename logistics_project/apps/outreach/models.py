@@ -6,7 +6,7 @@ from datetime import datetime
 DEFAULT_MAX_MESSAGES_PER_MONTH = 5
 
 class OutreachQuota(models.Model):
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     amount = models.PositiveIntegerField(default=DEFAULT_MAX_MESSAGES_PER_MONTH)
 
     def __unicode__(self):

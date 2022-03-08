@@ -116,7 +116,7 @@ class Contact(ContactBase):
     commodities = models.ManyToManyField("logistics.Product",
                                          help_text="User manages these commodities.",
                                          related_name="reported_by",
-                                         blank=True, null=True)
+                                         blank=True)
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
     organization = models.ForeignKey('malawi.Organization', null=True, blank=True)

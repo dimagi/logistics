@@ -8,8 +8,7 @@ class Organization(models.Model):
     may belong to at most 1 organization.
     """
     name = models.CharField(max_length=128)
-    managed_supply_points = models.ManyToManyField("logistics.SupplyPoint", 
-                                                   null=True, blank=True)
+    managed_supply_points = models.ManyToManyField("logistics.SupplyPoint", blank=True)
 
     def __unicode__(self):
         return self.name
