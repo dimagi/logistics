@@ -156,7 +156,6 @@ def init_test_product_and_stock():
     ml, created = Product.objects.get_or_create(sms_code='ml', name='Microlut',
                                                 type=fp, units='cycle', 
                                                 average_monthly_consumption=5)
-    ml.equivalents.add(ov)
     sp = SupplyPoint.objects.all()[0]
     ps, created = ProductStock.objects.get_or_create(product=ov, supply_point=sp, 
                                        manual_monthly_consumption=None, 
