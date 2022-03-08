@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 import re
 import uuid
 import logging
@@ -12,13 +9,12 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.db.models.fields import PositiveIntegerField
 from django.utils.translation import ugettext as _
 
 from rapidsms.conf import settings
-from rapidsms.models import Contact, ExtensibleModelBase
+from rapidsms.models import Contact
 from rapidsms.contrib.locations.models import Location
 from rapidsms.contrib.messaging.utils import send_message
 from logistics_project.utils.dates import get_day_of_month
@@ -616,7 +612,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
 
 class SupplyPoint(SupplyPointBase):
-    __metaclass__ = ExtensibleModelBase
+
     def commodities_stocked(self):
         """
         This extension is used to override SupplyPoint.commodities_stocked(), since
@@ -671,7 +667,6 @@ class LogisticsProfileBase(models.Model):
 
 
 class LogisticsProfile(LogisticsProfileBase):
-    __metaclass__ = ExtensibleModelBase
     organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
 
     # True if this user can view the HSA-level dashboard and reports
