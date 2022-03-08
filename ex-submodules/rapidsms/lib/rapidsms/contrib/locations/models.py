@@ -8,7 +8,6 @@ import uuid
 from django.conf import settings
 
 from logistics.mixin import StockCacheMixin
-from rapidsms.models import ExtensibleModelBase
 
 
 class Point(models.Model):
@@ -52,8 +51,6 @@ class Location(models.Model, StockCacheMixin):
     spartan, so more specific apps can extend it with their own fields
     and relationships without clashing with built-in functionality.
     """
-
-    __metaclass__ = ExtensibleModelBase
 
     objects = LocationManager()
     point = models.ForeignKey(Point, null=True, blank=True)
@@ -246,7 +243,6 @@ class Location(models.Model, StockCacheMixin):
         if 'mptt' in settings.INSTALLED_APPS:
             return Location.objects.filter(tree_parent=self.tree_parent, is_active=True).order_by('name')
         return Location.objects.filter(parent_id=self.parent_id, is_active=True).order_by('name')
-
 
     def child_facilities(self):
         from logistics.models import SupplyPoint
