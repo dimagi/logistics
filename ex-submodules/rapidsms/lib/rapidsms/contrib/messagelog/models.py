@@ -1,9 +1,4 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-from django.db import models, connection
-from django.db.backends.util import typecast_timestamp
+from django.db import models
 from django.core.exceptions import ValidationError
 from rapidsms.models import Contact, Connection
 from taggit.managers import TaggableManager
