@@ -186,8 +186,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     # note also that the supplying facility is often not the same as the 
     # supervising facility
     supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
-    groups = models.ManyToManyField('SupplyPointGroup', blank=True, null=True)
-    
+
     objects = models.Manager()
 
     class Meta:
@@ -272,25 +271,6 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def is_active(self):
         return self.active
     
-    _default_group = None
-    @property 
-    def default_group(self):
-        """
-        The "default" group. This is just the first one found. It mostly
-        assumes that there is only one group per supply point.
-        
-        This property is cached in the object to avoid excessive db
-        calls
-        """
-        if self._default_group is not None:
-            return self._default_group
-        
-        grps = self.groups.all()
-        if grps:
-            self._default_group = grps[0]
-        
-        return self._default_group
-        
     def stocked_consumptions_available(self):
         stocks = self.stocked_productstocks()
         available = 0
@@ -627,13 +607,6 @@ class SupplyPoint(SupplyPointBase):
             )
 
         return super(SupplyPoint, self).commodities_not_stocked()
-
-
-class SupplyPointGroup(models.Model):
-    code = models.CharField(max_length=30)
-
-    def __unicode__(self):
-        return self.code
 
 
 class LogisticsProfile(models.Model):
