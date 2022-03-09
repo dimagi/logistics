@@ -5,7 +5,6 @@ from collections import OrderedDict
 PRIORITY_APPS = []
 
 APPS = [
-    "django.contrib.webdesign",
     "logistics_project.apps.malawi",
     "logistics_project.apps.outreach",
     "scheduler",
@@ -17,6 +16,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'logistics_project.apps.malawi.middleware.RequireLoginMiddleware',
 ]
