@@ -51,19 +51,19 @@ RAPIDSMS_TABS = [
     (("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles"),
      {"url": "/malawi/r/user-profiles/", "applicable_base_levels": ["h"]}),
 
-    (("logistics_project.apps.malawi.views.monitoring", "M & E"),
+    (("malawi_monitoring", "M & E"),
      {"permission": "auth.admin_read", "applicable_base_levels": ["h"]}),
 
-    (("rapidsms.contrib.messagelog.views.message_log", "Message Log"),
+    (("message_log", "Message Log"),
      {"permission": "auth.admin_read", "applicable_base_levels": ["h", "f"]}),
 
-    (("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    (("rapidsms_message_tester_default", "Message Tester"),
      {"permission": "is_superuser", "applicable_base_levels": ["h", "f"]}),
 
-    (("logistics_project.apps.malawi.views.organizations", "Management"),
+    (("malawi_management", "Management"),
      {"permission": "is_superuser", "url": "/malawi/management/", "applicable_base_levels": ["h", "f"]}),
 
-    (("logistics_project.apps.malawi.views.help", "Help"), {}),
+    (("malawi_help", "Help"), {}),
 ]
 
 
