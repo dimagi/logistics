@@ -1,14 +1,7 @@
-from random import choice, randint, sample, normalvariate
 from datetime import timedelta, datetime
-from djappsettings import settings
-from logistics.models import get_geography, ContactRole, SupplyPoint, Product, ProductStock, ProductReport, ProductReportType, SupplyPointType
+from logistics.models import ContactRole, SupplyPoint, Product, ProductStock, ProductReport, ProductReportType, SupplyPointType
 from random import choice, randint, sample, normalvariate
-from logistics.util import config
 from rapidsms.contrib.httptester.utils import send_test_message
-from static.malawi import config as malawi_config
-from logistics.util import config
-from logistics.config import hsa_supply_point_type
-from rapidsms.models import Backend, Connection, Contact
 
 
 MAX_HSAS_PER_FACILITY = 2
@@ -59,34 +52,6 @@ def create_hsa(parent, name=None, number=None, role=None):
                                              'role':role.code,
                                              'fac_id': parent.code})
     
- #    c.is_active = True
-#
-#    # Create the backend.
-#    if settings.DEFAULT_BACKEND:
-#        backend = Backend.objects.get(name=settings.DEFAULT_BACKEND)
-#    else:
-#        backend = Backend.objects.all()[0]
-#    conn = Connection(backend=backend, contact=c, identity=number if number else randint(100000,999999))
-#    conn.save()
-#
-#    # Create a SupplyPoint.
-#    sp = SupplyPoint()
-#    sp.name = c.name
-#    sp.type = hsa_supply_point_type()
-#    sp.supplied_by = parent
-#    sp.location = parent.location
-#    sp.code = hsa_code
-#    sp.save()
-#
-#    c.supply_point = sp
-#    c.save()
-
-    # Supply some products.
-
-    #        ProductStock(product=p,supply_point=sp,quantity=p.average_monthly_consumption).save()
-#        sp.activate_product(p)
-#    sp.save()
-
     try:
         return SupplyPoint.objects.get(name=name)
     except SupplyPoint.DoesNotExist:
@@ -128,15 +93,6 @@ def generate_report(hsa, date=datetime.utcnow()):
             r.save()
     else:
         pass
-#        # TRANSFER
-#        p = choice(ProductStock.objects.filter(supply_point=hsa))
-#        amc = (p.product.average_monthly_consumption if p.product.average_monthly_consumption else 100)
-#        q = max(1,normalvariate(amc/4, amc/8))
-#        r = ProductReport(product=p.product, report_type = ProductReportType.objects.get(code='give'),
-#                      quantity=q, message=None, supply_point=hsa, report_date=date)
-#        r.save()
-
-
 
 def generate_activity(hsa):
     dates = [datetime.utcnow() - timedelta(days=randint(3,DAYS_OF_DATA)) for d in xrange(1,randint(1, MAX_REPORTS_PER_HSA))]
