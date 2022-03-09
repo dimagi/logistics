@@ -1,5 +1,6 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+from collections import OrderedDict
 
 PRIORITY_APPS = []
 
@@ -65,9 +66,8 @@ RAPIDSMS_TABS = [
     (("logistics_project.apps.malawi.views.help", "Help"), {}),
 ]
 
-from django.utils.datastructures import SortedDict
 
-REPORT_LIST = SortedDict([
+REPORT_LIST = OrderedDict([
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),
@@ -78,7 +78,7 @@ REPORT_LIST = SortedDict([
     ("Emergency Orders", "emergency-orders"),
 ])
 
-EPI_REPORT_LIST = SortedDict([
+EPI_REPORT_LIST = OrderedDict([
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),

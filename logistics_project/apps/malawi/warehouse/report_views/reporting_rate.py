@@ -1,9 +1,6 @@
 from datetime import datetime
-from collections import defaultdict
-from django.contrib import messages
-from django.db.models import Min
+from collections import defaultdict, OrderedDict
 
-from django.utils.datastructures import SortedDict
 
 from logistics_project.utils.dates import months_between
 
@@ -30,7 +27,7 @@ class View(warehouse_view.DistrictOnlyView):
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
         
-        months = SortedDict()
+        months = OrderedDict()
         for year, month in months_between(request.datespan.startdate, 
                                           request.datespan.enddate):
             dt = datetime(year, month, 1)
@@ -50,7 +47,7 @@ class View(warehouse_view.DistrictOnlyView):
         }
 
         def _avg_report_rate_table_data(queryset, startdate, enddate):
-            datamap = SortedDict()
+            datamap = OrderedDict()
             for sp in queryset:
                 spdata = defaultdict(lambda: 0)
                 for year, month in months_between(startdate, 

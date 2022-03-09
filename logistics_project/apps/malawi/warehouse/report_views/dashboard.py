@@ -1,6 +1,5 @@
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from django.db.models import Count
-from django.utils.datastructures import SortedDict
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
 from logistics_project.apps.malawi.util import (pct, fmt_pct, get_default_supply_point, remove_test_district,
@@ -47,7 +46,7 @@ class View(warehouse_view.DashboardView):
         child_sp_type = "Location" if not child_sps \
             else supply_point_type_display(child_sps[0].type)
 
-        summary_data = SortedDict()
+        summary_data = OrderedDict()
         avail_sums = ProductAvailabilityDataSummary.objects.filter(
             supply_point__in=child_sps,
             date=window_date,

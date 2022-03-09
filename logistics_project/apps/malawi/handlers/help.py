@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
+
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.decorators import logistics_contact_required
 from logistics.models import Product
@@ -31,7 +30,7 @@ class Help(KeywordHandler):
             if is_hsa:
                 products = products.filter(type__base_level=config.BaseLevel.HSA)
 
-            grouped_codes = SortedDict()
+            grouped_codes = OrderedDict()
             for p in products:
                 if p.type.name not in grouped_codes:
                     grouped_codes[p.type.name] = []
