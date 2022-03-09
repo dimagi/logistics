@@ -6,7 +6,6 @@ from django.db.models.expressions import F
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.db.models import Q
-from django.utils.importlib import import_module
 from rapidsms.conf import settings
 from logistics_project.utils.dates import DateSpan
 from logistics.models import ProductReport, \
@@ -14,10 +13,6 @@ from logistics.models import ProductReport, \
 from .const import Reports
 from .util import config
 
-if hasattr(settings, 'LOGISTICS_CONFIG'):
-    config = import_module(settings.LOGISTICS_CONFIG)
-else:
-    import config
 
 class Colors(object):
     RED = "red"
