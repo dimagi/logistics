@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FailedExecutionRecord',
             fields=[
-                ('executionrecord_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scheduler.ExecutionRecord')),
+                ('executionrecord_ptr', models.OneToOneField(on_delete=models.CASCADE, parent_link=True, auto_created=True, primary_key=True, serialize=False, to='scheduler.ExecutionRecord')),
                 ('message', models.TextField()),
             ],
             options={
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='executionrecord',
             name='schedule',
-            field=models.ForeignKey(to='scheduler.EventSchedule'),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='scheduler.EventSchedule'),
             preserve_default=True,
         ),
     ]

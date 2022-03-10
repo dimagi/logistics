@@ -26,8 +26,8 @@ class Migration(migrations.Migration):
                 ('alert_type', models.CharField(max_length=256)),
                 ('is_open', models.BooleanField(default=True)),
                 ('escalation_level', models.CharField(max_length=100)),
-                ('originating_location', models.ForeignKey(blank=True, to='locations.Location', null=True)),
-                ('owner', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('originating_location', models.ForeignKey(on_delete=models.CASCADE, blank=True, to='locations.Location', null=True)),
+                ('owner', models.ForeignKey(on_delete=models.CASCADE, blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
             },
@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('date', models.DateTimeField(auto_now_add=True)),
                 ('text', models.TextField()),
-                ('notification', models.ForeignKey(related_name='comments', to='alerts.Notification')),
-                ('user', models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('notification', models.ForeignKey(on_delete=models.CASCADE, related_name='comments', to='alerts.Notification')),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, blank=True, to=settings.AUTH_USER_MODEL, null=True)),
             ],
             options={
             },
@@ -51,8 +51,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('esc_level', models.CharField(max_length=100)),
-                ('notif', models.ForeignKey(related_name='visible_to', to='alerts.Notification')),
-                ('user', models.ForeignKey(related_name='alerts_visible', to=settings.AUTH_USER_MODEL)),
+                ('notif', models.ForeignKey(on_delete=models.CASCADE, related_name='visible_to', to='alerts.Notification')),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, related_name='alerts_visible', to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },

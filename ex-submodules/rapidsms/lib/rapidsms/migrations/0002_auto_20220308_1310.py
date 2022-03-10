@@ -22,19 +22,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contact',
             name='organization',
-            field=models.ForeignKey(blank=True, to='malawi.Organization', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='malawi.Organization', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contact',
             name='role',
-            field=models.ForeignKey(blank=True, to='logistics.ContactRole', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='logistics.ContactRole', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contact',
             name='supply_point',
-            field=models.ForeignKey(blank=True, to='logistics.SupplyPoint', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='logistics.SupplyPoint', null=True),
             preserve_default=True,
         ),
     ]

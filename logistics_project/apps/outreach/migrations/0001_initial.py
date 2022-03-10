@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('date', models.DateTimeField(default=datetime.datetime.utcnow)),
-                ('sent_by', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('sent_by', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('amount', models.PositiveIntegerField(default=5)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True)),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL, unique=True)),
             ],
             options={
             },
