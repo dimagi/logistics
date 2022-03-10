@@ -109,18 +109,6 @@ class Location(models.Model, StockCacheMixin):
         type = ContentType.objects.get(model=model)
         return type.get_object_for_this_type(pk=pk)
 
-    @staticmethod
-    def subclasses():
-        """
-        Return a list of all known subclasses of Location.
-        """
-
-        return [
-            cls
-            for cls in models.loading.get_models()
-            if issubclass(cls, Location) and\
-                (cls is not Location)]
-
     @property
     def path(self):
         next = self

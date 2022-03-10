@@ -7,17 +7,6 @@ from .forms import LocationForm
 from .models import Location
 
 
-def get_model(name):
-    """
-    """
-
-    for type in Location.subclasses():
-        if type._meta.module_name == name:
-            return type
-
-    raise StandardError("There is no Location subclass named '%s'"  % name)
-
-
 def form_for_model(model):
     """
     Return the Form which should be used to add/edit ``model`` in the
