@@ -18,7 +18,7 @@ from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from logistics_project.utils.csv import UnicodeWriter
-from logistics.config import HSA
+from static.malawi.config import HSA
 
 
 class WarehouseProductAvailabilitySummary(ProductAvailabilitySummary):

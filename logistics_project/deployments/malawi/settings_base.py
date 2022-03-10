@@ -1,10 +1,10 @@
 # you should configure your database here before doing any real work.
 # see: http://docs.djangoproject.com/en/dev/ref/settings/#databases
+from collections import OrderedDict
 
 PRIORITY_APPS = []
 
 APPS = [
-    "django.contrib.webdesign",
     "logistics_project.apps.malawi",
     "logistics_project.apps.outreach",
     "scheduler",
@@ -16,6 +16,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'logistics_project.apps.malawi.middleware.RequireLoginMiddleware',
 ]
@@ -50,24 +51,23 @@ RAPIDSMS_TABS = [
     (("logistics_project.apps.malawi.warehouse.views.user_profiles", "User Profiles"),
      {"url": "/malawi/r/user-profiles/", "applicable_base_levels": ["h"]}),
 
-    (("logistics_project.apps.malawi.views.monitoring", "M & E"),
+    (("malawi_monitoring", "M & E"),
      {"permission": "auth.admin_read", "applicable_base_levels": ["h"]}),
 
-    (("rapidsms.contrib.messagelog.views.message_log", "Message Log"),
+    (("message_log", "Message Log"),
      {"permission": "auth.admin_read", "applicable_base_levels": ["h", "f"]}),
 
-    (("rapidsms.contrib.httptester.views.generate_identity", "Message Tester"),
+    (("rapidsms_message_tester_default", "Message Tester"),
      {"permission": "is_superuser", "applicable_base_levels": ["h", "f"]}),
 
-    (("logistics_project.apps.malawi.views.organizations", "Management"),
+    (("malawi_management", "Management"),
      {"permission": "is_superuser", "url": "/malawi/management/", "applicable_base_levels": ["h", "f"]}),
 
-    (("logistics_project.apps.malawi.views.help", "Help"), {}),
+    (("malawi_help", "Help"), {}),
 ]
 
-from django.utils.datastructures import SortedDict
 
-REPORT_LIST = SortedDict([
+REPORT_LIST = OrderedDict([
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),
@@ -78,7 +78,7 @@ REPORT_LIST = SortedDict([
     ("Emergency Orders", "emergency-orders"),
 ])
 
-EPI_REPORT_LIST = SortedDict([
+EPI_REPORT_LIST = OrderedDict([
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),

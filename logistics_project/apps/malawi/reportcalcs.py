@@ -6,8 +6,7 @@ from logistics.models import ProductStock, StockRequest, Product, SupplyPoint
 from logistics.reports import ReportingBreakdown, calc_percentage
 from logistics_project.apps.malawi.util import get_em_districts, hsa_supply_points_below,\
     get_ept_districts, facility_supply_points_below
-from django.utils.datastructures import SortedDict
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from logistics.charts import amc_plot
 from static.malawi.config import SupplyPointCodes, BaseLevel
 
@@ -34,8 +33,8 @@ def _district_breakdown(datespan, facility=False):
     """
     em = get_em_districts()
     ept = get_ept_districts()
-    em_reports = SortedDict()
-    ept_reports = SortedDict()
+    em_reports = OrderedDict()
+    ept_reports = OrderedDict()
     em_totals = defaultdict(lambda: 0)
     ept_totals = defaultdict(lambda: 0)
     em_totals.update({'no_stockouts_pct_p':{},
@@ -165,12 +164,13 @@ def _to_totals(bd):
             "stockouts_emergency": len(bd.stockouts_emergency),
             "total": len(bd.supply_points)}
 
+
 def em_late_reporting(instance):
     """
     HSAs who reported late (after 2nd of the month), by District 
     """
     districts = get_em_districts()
-    reports = SortedDict()
+    reports = OrderedDict()
     totals = defaultdict(lambda: 0)
     for d in districts:
         bd = ReportingBreakdown(hsa_supply_points_below(d), 
@@ -315,7 +315,7 @@ def hsas_with_stock(instance):
     em_users = {}
     ept_users = {}
     em_total_u = {}
-    ept_total_u ={}
+    ept_total_u = {}
 
     # There is just no good way to do this.  The performance here is going to suck and there's no way around it.
     for p in PRODUCT_CODES:

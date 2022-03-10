@@ -1,7 +1,8 @@
+from collections import OrderedDict
+
 from logistics_project.utils.dates import DateSpan
 from django.conf import settings
 from django.contrib import messages
-from django.utils.datastructures import SortedDict
 
 from logistics.models import Product, SupplyPoint
 from logistics.reports import ReportView
@@ -82,7 +83,7 @@ class MalawiWarehouseView(ReportView):
         date = current_report_period()
         
         # national stockout percentages by product
-        stockout_pcts = SortedDict()
+        stockout_pcts = OrderedDict()
         for p in products:
             try:
                 availability = ProductAvailabilityData.objects.get(
