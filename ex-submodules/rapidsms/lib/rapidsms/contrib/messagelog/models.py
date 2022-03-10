@@ -10,8 +10,8 @@ DIRECTION_CHOICES = (
 
 
 class Message(models.Model):
-    contact = models.ForeignKey(Contact, null=True)
-    connection = models.ForeignKey(Connection, null=True)
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE,  null=True)
+    connection = models.ForeignKey(Connection, on_delete=models.CASCADE,  null=True)
     direction = models.CharField(max_length=1, choices=DIRECTION_CHOICES)
     date = models.DateTimeField()
     text = models.TextField()

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='logisticsprofile',
             name='organization',
-            field=models.ForeignKey(blank=True, to='malawi.Organization', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='malawi.Organization', null=True),
             preserve_default=True,
         ),
     ]

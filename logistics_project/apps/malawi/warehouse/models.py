@@ -29,7 +29,7 @@ class ProductAvailabilityData(MalawiWarehouseModel):
     # Dashboard: current stock status
     # Resupply Qts: % with stockout
     # Stock status: all
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
     managed = models.PositiveIntegerField(default=0)
     
@@ -156,7 +156,7 @@ class OrderRequest(MalawiWarehouseModel):
     orders for a particular month.
     """
     # Emergency Orders: all
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
     emergency = models.PositiveIntegerField(default=0)
 
@@ -167,7 +167,7 @@ class OrderFulfillment(MalawiWarehouseModel):
     the amount received so we can determine order fill rates.
     """
     # Order Fill Rates: all 
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
     quantity_requested = models.PositiveIntegerField(default=0)
     quantity_received = models.PositiveIntegerField(default=0)
@@ -182,7 +182,7 @@ class CalculatedConsumption(MalawiWarehouseModel):
     """
     Class for storing calculated consumption data
     """
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     calculated_consumption = models.PositiveIntegerField(default=0)
     
     # needing data is always either the same as "with data"
@@ -261,7 +261,7 @@ class CurrentConsumption(BaseReportingModel):
     
     This is not a warehouse model because it only stores current data.
     """
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
     current_daily_consumption = models.FloatField(default=0) 
     stock_on_hand = models.BigIntegerField(default=0)
@@ -296,7 +296,7 @@ class CurrentConsumption(BaseReportingModel):
 
             
 class Alert(models.Model):
-    supply_point = models.ForeignKey('logistics.SupplyPoint')
+    supply_point = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE)
     num_hsas = models.PositiveIntegerField(default=0)
     have_stockouts = models.PositiveIntegerField(default=0)
     eo_total = models.PositiveIntegerField(default=0)
@@ -318,6 +318,6 @@ class HistoricalStock(MalawiWarehouseModel):
     A simple class to cache historical stock levels by month/year 
     per product/supply point
     """        
-    product = models.ForeignKey('logistics.Product')
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE)
     stock = models.BigIntegerField(default=0)
     total = models.PositiveIntegerField(default=0)

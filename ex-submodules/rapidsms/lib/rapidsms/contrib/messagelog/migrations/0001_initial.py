@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('direction', models.CharField(max_length=1, choices=[(b'I', b'Incoming'), (b'O', b'Outgoing')])),
                 ('date', models.DateTimeField()),
                 ('text', models.TextField()),
-                ('connection', models.ForeignKey(to='rapidsms.Connection', null=True)),
-                ('contact', models.ForeignKey(to='rapidsms.Contact', null=True)),
+                ('connection', models.ForeignKey(on_delete=models.CASCADE, to='rapidsms.Connection', null=True)),
+                ('contact', models.ForeignKey(on_delete=models.CASCADE, to='rapidsms.Contact', null=True)),
                 ('tags', taggit.managers.TaggableManager(to='taggit.Tag', through='taggit.TaggedItem', help_text='A comma-separated list of tags.', verbose_name='Tags')),
             ],
             options={

@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('code', models.CharField(max_length=100)),
                 ('name', models.CharField(max_length=100)),
                 ('is_active', models.BooleanField(default=True)),
-                ('parent_type', models.ForeignKey(blank=True, to='contenttypes.ContentType', null=True)),
+                ('parent_type', models.ForeignKey(on_delete=models.CASCADE, blank=True, to='contenttypes.ContentType', null=True)),
             ],
             options={
                 'ordering': ['name'],
@@ -51,13 +51,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='location',
             name='point',
-            field=models.ForeignKey(blank=True, to='locations.Point', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='locations.Point', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='location',
             name='type',
-            field=models.ForeignKey(related_name='locations', blank=True, to='locations.LocationType', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='locations', blank=True, to='locations.LocationType', null=True),
             preserve_default=True,
         ),
     ]

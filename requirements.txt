@@ -26,9 +26,9 @@ django-picklefield==0.2.0
     # via -r requirements.in
 django-redis==3.3
     # via -r requirements.in
-django-taggit==0.13.0
+django-taggit==0.17.6
     # via -r requirements.in
-django==1.8.19
+django==1.9.13
     # via -r requirements.in
 djappsettings==0.4.0
     # via -r requirements.in

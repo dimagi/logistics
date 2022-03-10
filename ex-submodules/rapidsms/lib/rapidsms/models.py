@@ -110,8 +110,8 @@ class ContactBase(models.Model):
 class Contact(ContactBase):
     # if one person wants to submit stocks for multiple facilities, then
     # they'll have to create multiple contacts for themselves
-    role = models.ForeignKey("logistics.ContactRole", null=True, blank=True)
-    supply_point = models.ForeignKey("logistics.SupplyPoint", null=True, blank=True)
+    role = models.ForeignKey("logistics.ContactRole", on_delete=models.CASCADE,  null=True, blank=True)
+    supply_point = models.ForeignKey("logistics.SupplyPoint", on_delete=models.CASCADE,  null=True, blank=True)
     needs_reminders = models.BooleanField(default=True)
     commodities = models.ManyToManyField("logistics.Product",
                                          help_text="User manages these commodities.",
@@ -119,7 +119,7 @@ class Contact(ContactBase):
                                          blank=True)
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
-    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+    organization = models.ForeignKey('malawi.Organization', on_delete=models.CASCADE,  null=True, blank=True)
 
     class Meta:
         verbose_name = "Logistics Contact"
@@ -255,9 +255,9 @@ class Connection(models.Model):
     need not worry about which backend a messge originated from.
     """
 
-    backend  = models.ForeignKey(Backend)
+    backend  = models.ForeignKey(Backend, on_delete=models.CASCADE)
     identity = models.CharField(max_length=100)
-    contact  = models.ForeignKey(Contact, null=True, blank=True)
+    contact  = models.ForeignKey(Contact, on_delete=models.CASCADE,  null=True, blank=True)
 
     class Meta:
         unique_together = (('backend', 'identity'),)

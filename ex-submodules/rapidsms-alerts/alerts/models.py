@@ -15,9 +15,9 @@ class Notification(models.Model):
     text = models.TextField()
     url = models.TextField(null=True, blank=True)
     alert_type = models.CharField(max_length=256) #fully-qualified python name of the corresponding AlertType class
-    originating_location = models.ForeignKey(Location, blank=True, null=True)
+    originating_location = models.ForeignKey(Location, on_delete=models.CASCADE,  blank=True, null=True)
 
-    owner = models.ForeignKey(User, null=True, blank=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,  null=True, blank=True)
     is_open = models.BooleanField(default=True)
     escalation_level = models.CharField(max_length=100)
 
@@ -135,8 +135,8 @@ class Notification(models.Model):
                 raise
 
 class NotificationComment(models.Model):
-    notification = models.ForeignKey(Notification, related_name='comments')
-    user = models.ForeignKey(User, null=True, blank=True) #no user is for system-generated entries
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE,  related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,  null=True, blank=True) #no user is for system-generated entries
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
 
@@ -170,8 +170,8 @@ def user_name(user, default=None):
 # definitely not a priority right now
 class NotificationVisibility(models.Model):
     """many-to-many mapping of which users can see which alerts"""
-    notif = models.ForeignKey(Notification, related_name='visible_to')
-    user = models.ForeignKey(User, related_name='alerts_visible')
+    notif = models.ForeignKey(Notification, on_delete=models.CASCADE,  related_name='visible_to')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='alerts_visible')
     esc_level = models.CharField(max_length=100)
 
 class ResolutionAcknowledgement:
