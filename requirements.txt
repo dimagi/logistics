@@ -30,7 +30,7 @@ django-taggit==0.13.0
     # via -r requirements.in
 django==1.8.19
     # via -r requirements.in
-djappsettings==0.1.0
+djappsettings==0.4.0
     # via -r requirements.in
 gdata==2.0.18
     # via -r requirements.in
