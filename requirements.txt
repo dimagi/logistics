@@ -55,10 +55,8 @@ pytz==2010b
     # via
     #   -r requirements.in
     #   celery
-redis==2.8.0
-    # via
-    #   -r requirements.in
-    #   django-redis
+redis==3.5.3
+    # via django-redis
 requests==2.4.3
     # via -r requirements.in
 sentry-sdk==0.17.7
