@@ -51,10 +51,10 @@ class Location(models.Model, StockCacheMixin):
     """
 
     objects = LocationManager()
-    point = models.ForeignKey(Point, null=True, blank=True)
+    point = models.ForeignKey(Point, on_delete=models.CASCADE,  null=True, blank=True)
 
-    type = models.ForeignKey(LocationType, related_name="locations", blank=True, null=True)
-    parent_type = models.ForeignKey(ContentType, null=True, blank=True)
+    type = models.ForeignKey(LocationType, on_delete=models.CASCADE,  related_name="locations", blank=True, null=True)
+    parent_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,  null=True, blank=True)
     parent_id = models.PositiveIntegerField(null=True, blank=True)
     parent = GenericForeignKey("parent_type", "parent_id")
 

@@ -5,8 +5,8 @@ class HistoricalStockCache(models.Model):
     """
     A simple class to cache historical stock levels by month/year per product/facility
     """        
-    supply_point = models.ForeignKey('logistics.SupplyPoint')
-    product = models.ForeignKey('logistics.Product', null=True)
+    supply_point = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE)
+    product = models.ForeignKey('logistics.Product', on_delete=models.CASCADE,  null=True)
     year = models.PositiveIntegerField()
     month = models.PositiveIntegerField()
     stock = models.IntegerField(null=True)
@@ -15,7 +15,7 @@ class BaseReportingModel(models.Model):
     """
     A model to encapsulate aggregate (data warehouse) data used by a report.
     """
-    supply_point = models.ForeignKey('logistics.SupplyPoint') # viewing supply point
+    supply_point = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE) # viewing supply point
     create_date = models.DateTimeField(editable=False)
     update_date = models.DateTimeField(editable=False)
     
@@ -46,5 +46,5 @@ class SupplyPointWarehouseRecord(models.Model):
     When something gets updated in the warehouse, create a record of having
     done that.
     """
-    supply_point = models.ForeignKey('logistics.SupplyPoint')
+    supply_point = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE)
     create_date = models.DateTimeField()

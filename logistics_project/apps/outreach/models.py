@@ -6,7 +6,7 @@ from datetime import datetime
 DEFAULT_MAX_MESSAGES_PER_MONTH = 5
 
 class OutreachQuota(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=DEFAULT_MAX_MESSAGES_PER_MONTH)
 
     def __unicode__(self):
@@ -27,7 +27,7 @@ class OutreachMessage(models.Model):
     A message that was sent via outreach (directly from the website)
     """
     date = models.DateTimeField(default=datetime.utcnow)
-    sent_by = models.ForeignKey(User)
+    sent_by = models.ForeignKey(User, on_delete=models.CASCADE)
     # sort of duplicate but will be useful for querying 
 
     def __repr__(self): return str(self)

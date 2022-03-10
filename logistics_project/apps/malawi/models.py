@@ -31,10 +31,10 @@ class RefrigeratorMalfunction(models.Model):
         pass
 
     # A reference to the facility with the malfunction
-    supply_point = models.ForeignKey('logistics.SupplyPoint', db_index=True, related_name='+')
+    supply_point = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE,  db_index=True, related_name='+')
 
     # Contact who reported the malfunction
-    reported_by = models.ForeignKey('rapidsms.Contact', related_name='+')
+    reported_by = models.ForeignKey('rapidsms.Contact', on_delete=models.CASCADE,  related_name='+')
 
     # Timestamp when the facility user reported the malfunction
     reported_on = models.DateTimeField(db_index=True)
@@ -47,7 +47,7 @@ class RefrigeratorMalfunction(models.Model):
 
     # Facility where the district user referred the facility user to send their products while the
     # refrigerator was broken
-    sent_to = models.ForeignKey('logistics.SupplyPoint', null=True, db_index=True, related_name='+')
+    sent_to = models.ForeignKey('logistics.SupplyPoint', on_delete=models.CASCADE,  null=True, db_index=True, related_name='+')
 
     # Timestamp when the refrigerator was reported fixed. This is null while broken, not null when fixed.
     resolved_on = models.DateTimeField(null=True)
