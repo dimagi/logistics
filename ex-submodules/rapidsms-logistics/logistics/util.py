@@ -1,16 +1,12 @@
-from django.utils.importlib import import_module
-from django.conf import settings
+from importlib import import_module
 from rapidsms.conf import settings
 from re import findall
 from string import maketrans
 from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.models import Connection, Backend
 
-if hasattr(settings,'LOGISTICS_CONFIG'):
-    config = import_module(settings.LOGISTICS_CONFIG)
-else:
-    import config
-    
+config = import_module(settings.LOGISTICS_CONFIG)
+
 if hasattr(settings, "CODE_CHARS_RANGE"):
     CODE_CHARS_RANGE = settings.CODE_CHARS_RANGE
 else:
