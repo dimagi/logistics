@@ -65,15 +65,6 @@ class Location(models.Model, StockCacheMixin):
     class Meta:
         ordering = ['name']
 
-    # choices for the Location.direction method.
-    # (values stolen from label-overlay.js)
-    class Direction:
-        CENTER = "center"
-        ABOVE = "above"
-        RIGHT = "right"
-        BELOW = "below"
-        LEFT = "left"
-
     def __unicode__(self):
         """
         """
@@ -81,89 +72,8 @@ class Location(models.Model, StockCacheMixin):
         return getattr(self, "name", "#%d" % self.pk if self.pk else "unsaved facility")
 
     @property
-    def uid(self):
-        """
-        Return a unique ID for this location, suitable for embedding in
-        URLs. The primary key is insufficient, because the name of the
-        model must also be included.
-
-        This method (and ``get_for_uid`` will go away, once the ``slug``
-        field is validated as unique across all Location subclasses.
-        """
-
-        return "%s:%d" % (self.content_type, self.pk)
-
-    @property
     def content_type(self):
         return ContentType.objects.get_for_model(self).model
-
-    @staticmethod
-    def get_for_uid(uid):
-        """
-        Return the object (an instance of a subclass of Location) named
-        by ``uid``. The UID should be in the form ``model:id``, as
-        returned by the Location.uid property.
-        """
-
-        model, pk = uid.split(":")
-        type = ContentType.objects.get(model=model)
-        return type.get_object_for_this_type(pk=pk)
-
-    @property
-    def path(self):
-        next = self
-        locations = []
-
-        while next is not None:
-            locations.insert(0, next)
-            next = next.parent
-
-        return locations
-
-    def as_html(self):
-        """
-        Return the HTML fragment to be embedded in the map. This method
-        should be overridden by subclasses wishing to fully customize
-        the the rendering of their instance in the map.
-
-        The output of this method is not escaped before being included
-        in the template, so be careful to escape it yourself.
-        """
-
-        return escape(self.label)
-
-    @property
-    def label(self):
-        """
-        Return the caption for this Location, to be embedded in the
-        map. This method should be overridden by subclasses wishing to
-        provide better contextual information.
-
-        The output of this method is included in the template as-is, so
-        is HTML-escaped by default. If you wish to customize the HTML,
-        override the ``as_html`` method, instead.
-        """
-
-        return unicode(self)
-
-    @property
-    def css_class(self):
-        """
-        Return the CSS class name of the label overlay. This method
-        should be overriden by subclasses wishing to customize the
-        appearance of the embedded HTML fragment.
-        """
-
-        return "bubble"
-
-    @property
-    def direction(self):
-        """
-        Return the direction which the embedded HTML fragment should be
-        offset from the anchor point. Return one of Location.Direction.
-        """
-
-        return self.Direction.ABOVE
 
     # logistics extensions
     def set_parent(self, parent):
