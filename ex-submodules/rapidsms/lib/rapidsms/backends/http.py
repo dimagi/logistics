@@ -17,10 +17,11 @@ available backends, like so:
 import urllib2
 import select
 from datetime import datetime
+from httplib import responses
 
 from django import http
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.core.handlers.wsgi import WSGIHandler, STATUS_CODE_TEXT
+from django.core.handlers.wsgi import WSGIHandler
 from django.core.servers.basehttp import WSGIServer, WSGIRequestHandler
 
 from rapidsms.log.mixin import LoggerMixin
@@ -41,10 +42,7 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
         except Exception, e:
             self.exception(e)
             response = http.HttpResponseServerError()
-        try:
-            status_text = STATUS_CODE_TEXT[response.status_code]
-        except KeyError:
-            status_text = 'UNKNOWN STATUS CODE'
+        status_text = responses.get(response.status_code, 'UNKNOWN STATUS CODE')
         status = '%s %s' % (response.status_code, status_text)
         response_headers = [(str(k), str(v)) for k, v in response.items()]
         start_response(str(status), response_headers)
