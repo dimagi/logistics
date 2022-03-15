@@ -34,6 +34,7 @@ class FailedExecutionRecord(ExecutionRecord):
     """
     message = models.TextField()
 
+
 class EventSchedule(models.Model):
     """ 
     Create a new EventSchedule and save it every time 
