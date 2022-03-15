@@ -28,6 +28,5 @@ class JSONField(models.TextField):
 
     def get_prep_value(self, value):
         """Convert our JSON object to a string before we save"""
-        value = json.dumps(value)
-        return super(JSONField, self).get_prep_value(value)
+        return json.dumps(value)
 
