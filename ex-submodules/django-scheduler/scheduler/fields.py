@@ -12,8 +12,6 @@ class JSONField(models.TextField):
     JSON objects seamlessly
     """
 
-    __metaclass__ = models.SubfieldBase
-
     def to_python(self, value):
         """Convert our string value to JSON after we load it from the DB"""
         if value is not None and isinstance(value, basestring):
@@ -25,6 +23,9 @@ class JSONField(models.TextField):
                 pass 
         
         return value
+
+    def from_db_value(self, value, expression, connection, context):
+        return self.to_python(value)
 
     def get_prep_value(self, value):
         """Convert our JSON object to a string before we save"""
