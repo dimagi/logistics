@@ -1,11 +1,9 @@
-# Create your views here.
 import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 from django.conf import settings
 from logistics.models import ContactRole
 from rapidsms.models import Contact, Backend
@@ -140,8 +138,6 @@ def group_message(request):
             if failures:
                 messages.error(request, "Failed to send message to %d people (%s)" % (len(failures), ", ".join(failures)))
 
-    return render_to_response("groupmessaging/group_message.html",
-        {
-            "contact_fns": fn_tree,
-        },
-        context_instance=RequestContext(request))
+    return render(request, "groupmessaging/group_message.html", {
+        "contact_fns": fn_tree,
+    })

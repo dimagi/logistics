@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from rapidsms.contrib.messagelog.views import message_log as rapidsms_messagelog
 from logistics_project.utils.decorators.datespan import datespan_in_request
 from logistics.models import ProductStock, \
@@ -13,7 +12,7 @@ from rapidsms.models import Contact
 
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
-    return render_to_response(template, context_instance=RequestContext(request))
+    return render(request, template)
 
 
 @datespan_in_request()
@@ -49,5 +48,4 @@ def global_stats(request):
         'products': Product.objects.count(),
         'web_users': User.objects.count()
     }
-    return render_to_response('logistics/global_stats.html', context,
-                              context_instance=RequestContext(request))
+    return render(request, 'logistics/global_stats.html', context)

@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
-from django.template.context import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.contrib import messages
 
 from logistics.decorators import place_in_request
@@ -122,5 +121,4 @@ def _home(request, base_level):
         assert report.can_view(request)
         return report.get_response(request)
     except Exception:
-        return render_to_response("%s/no-data.html" % settings.REPORT_FOLDER, 
-                                  {}, context_instance=RequestContext(request))
+        return render(request, "%s/no-data.html" % settings.REPORT_FOLDER)

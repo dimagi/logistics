@@ -1,6 +1,5 @@
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from models import Notification, NotificationComment, user_name
+from django.http import HttpResponse
+from models import Notification
 import utils
 import json
 from django.core.exceptions import SuspiciousOperation
