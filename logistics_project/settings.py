@@ -66,7 +66,7 @@ TEMPLATE_DEBUG = False
 LOGIN_REDIRECT_URL = "/"
 
 
-STATIC_ROOT = "/static_root"  # todo: should this not have a leading slash?
+STATIC_ROOT = "static_root"
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
