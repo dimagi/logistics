@@ -5,7 +5,7 @@ import json
 
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import render_to_response, get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -25,7 +25,7 @@ from rapidsms.models import Backend, Connection
 from rapidsms.contrib.messagelog.models import Message
 
 from logistics.models import SupplyPoint, Product, LogisticsProfile,\
-    StockTransaction, StockRequestStatus, StockRequest, ProductReport, ContactRole
+    StockTransaction, StockRequestStatus, ContactRole
 from logistics.decorators import place_in_request
 from logistics.charts import stocklevel_plot
 from logistics.util import config
