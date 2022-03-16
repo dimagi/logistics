@@ -1,15 +1,12 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from urllib2 import urlopen
 from collections import defaultdict
-import logging
 import json
 
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.template.context import RequestContext
 from django.views.decorators.cache import cache_page
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.vary import vary_on_cookie
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
@@ -19,7 +16,7 @@ from django.contrib.auth.models import Group as auth_group
 from django.db.models.aggregates import Count
 
 from logistics_project.utils.csv import UnicodeWriter
-from logistics_project.utils.dates import DateSpan, months_between, add_months
+from logistics_project.utils.dates import months_between, add_months
 from logistics_project.utils.decorators.datespan import datespan_in_request
 
 from rapidsms.models import Contact
@@ -74,8 +71,7 @@ def organizations(request):
         "orgs": orgs,
         "table": table,
     }
-    return render_to_response("%s/organizations.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/organizations.html" % settings.MANAGEMENT_FOLDER, context)
 
 def edit_organization(request, pk):
     org = get_object_or_404(Organization, pk=pk)
@@ -91,7 +87,7 @@ def edit_organization(request, pk):
     return render_to_response('malawi/edit_organization.html', {
         'form': form,
         'is_new': False
-    }, context_instance=RequestContext(request))
+    })
     
 def new_organization(request):
     if request.method == 'POST': 
@@ -106,7 +102,7 @@ def new_organization(request):
     return render_to_response('malawi/edit_organization.html', {
         'form': form,
         'is_new': True
-    }, context_instance=RequestContext(request))
+    })
 
 @cache_page(60 * 15)
 def contacts(request):
@@ -133,8 +129,8 @@ def contacts(request):
         "contacts": contacts,
         "table": table,
     }
-    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/contacts.html" % settings.MANAGEMENT_FOLDER, context)
+
 
 def permissions(request):
     users = auth_user.objects.all()
@@ -160,8 +156,7 @@ def permissions(request):
         "groups": groups,
         "table": table,
     }
-    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/permissions.html" % settings.MANAGEMENT_FOLDER, context)
 
 
 def edit_permission(request, pk):
@@ -179,8 +174,7 @@ def edit_permission(request, pk):
                 'form': form,
               }
 
-    return render_to_response("%s/edit_permission.html" % settings.MANAGEMENT_FOLDER,
-        context, context_instance=RequestContext(request))
+    return render_to_response("%s/edit_permission.html" % settings.MANAGEMENT_FOLDER, context)
 
 
 def create_account(request):
@@ -194,8 +188,7 @@ def create_account(request):
     else:
         form = UserForm()
     return render_to_response("%s/add_user_account.html" % settings.MANAGEMENT_FOLDER,
-                              {'form': form},
-                              context_instance=RequestContext(request))
+                              {'form': form})
 
 
 def places(request):
@@ -223,8 +216,8 @@ def places(request):
         "locs": locs,
         "table": table,
     }
-    return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/places.html" % settings.MANAGEMENT_FOLDER, context)
+
 
 
 def products(request):
@@ -253,8 +246,7 @@ def products(request):
         "prds": prds,
         "table": table,
     }
-    return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/products.html" % settings.MANAGEMENT_FOLDER, context)
 
 
 def add_product(request):
@@ -267,15 +259,13 @@ def add_product(request):
     else:
         form = ProductForm()
     return render_to_response("%s/add_product.html" % settings.MANAGEMENT_FOLDER,
-                              {'form': form},
-                              context_instance=RequestContext(request))
+                              {'form': form})
 
 
 def single_product(request, pk):
     p = get_object_or_404(Product, pk=pk)
     return render_to_response("%s/single_product.html" % settings.MANAGEMENT_FOLDER,
-                              {'product': p},
-                              context_instance=RequestContext(request))
+                              {'product': p})
 
 
 def deactivate_product_view(request, pk):
@@ -285,12 +275,11 @@ def deactivate_product_view(request, pk):
         messages.success(request, "%s was successfully deactivated" % p.name)
         return HttpResponseRedirect(reverse('malawi_products'))
     return render_to_response("%s/deactivate_product.html" % settings.MANAGEMENT_FOLDER,
-                              {'product': p},
-                              context_instance=RequestContext(request))
+                              {'product': p})
 
 
 def help(request):
-    return render_to_response("malawi/help.html", {}, context_instance=RequestContext(request))
+    return render_to_response("malawi/help.html")
 
 
 @cache_page(60 * 15)
@@ -309,7 +298,7 @@ def hsas(request):
             "location": request.location,
             "districts": districts,
             "facilities": facilities
-        }, context_instance=RequestContext(request)
+        }
     )
     
 def hsa(request, code):
@@ -332,7 +321,7 @@ def hsa(request, code):
             "id_str": "%s %s" % (hsa.supply_point.code[-2:], hsa.supply_point.code[:-2]),
             "chart_data": chart_data,
             "stockrequest_table": stockrequest_table
-        }, context_instance=RequestContext(request)
+        }
     )
 
 def deactivate_hsa(request, pk):
@@ -372,8 +361,9 @@ def reactivate_hsa(request, code, name):
 @permission_required("auth.admin_read")
 def monitoring(request):
     reports = (ReportDefinition(slug) for slug in REPORT_SLUGS) 
-    return render_to_response("malawi/monitoring_home.html", {"reports": reports},
-                              context_instance=RequestContext(request))
+    return render_to_response("malawi/monitoring_home.html", {"reports": reports})
+
+
 @cache_page(60 * 15)
 @permission_required("auth.admin_read")
 @datespan_default
@@ -397,8 +387,7 @@ def monitoring_report(request, report_slug):
     return render_to_response("malawi/monitoring_report.html",
                               {"report": instance,
                                "facilities": facilities,
-                               "location": location},
-                              context_instance=RequestContext(request))
+                               "location": location})
 
 
 @permission_required("auth.admin_read")
@@ -408,7 +397,7 @@ def status(request):
     with open(settings.CELERY_HEARTBEAT_FILE) as f:
         r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
         
-    return render_to_response("malawi/status.html", {'status': r}, context_instance=RequestContext(request))
+    return render_to_response("malawi/status.html", {'status': r})
 
 
 def is_kannel_up(request):
@@ -434,7 +423,7 @@ def airtel_numbers(request):
         }
         users.append(d)
     users.sort(cmp=_sort_date, reverse=True)
-    return render_to_response("malawi/airtel.html", {'users':users}, context_instance=RequestContext(request))
+    return render_to_response("malawi/airtel.html", {'users':users})
 
 
 def verify_ajax(request):
@@ -472,8 +461,7 @@ def manage_hsas(request):
     context = {
         "table": table,
     }
-    return render_to_response("%s/hsas.html" % settings.MANAGEMENT_FOLDER,
-                context, context_instance=RequestContext(request))
+    return render_to_response("%s/hsas.html" % settings.MANAGEMENT_FOLDER, context)
 
 
 def manage_hsa(request, pk):
@@ -485,7 +473,6 @@ def manage_hsa(request, pk):
             'hsa': hsa,
             'phone_numbers': '<br>'.join(phone_numbers) if phone_numbers else '-',
         },
-        context_instance=RequestContext(request)
     )
 
 
@@ -514,7 +501,7 @@ def deactivate_hsa(request, pk):
 def manage_facilities(request):
     form = UploadFacilityFileForm()
     return render_to_response("malawi/manage_facilities.html", 
-        {'form': form}, context_instance=RequestContext(request))
+        {'form': form})
 
 
 def download_facilities(request):
@@ -562,7 +549,6 @@ def outreach(request):
             'allowed': allowed,
             'contacts': contacts,
          },
-         context_instance=RequestContext(request)
     )
 
 @require_POST
@@ -632,7 +618,7 @@ def register_user(request, template="malawi/register-user.html"):
     context['backends'] = Backend.objects.all()
     context['dialing_code'] = settings.COUNTRY_DIALLING_CODE # [sic]
     if request.method != 'POST':
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
 
     id = request.POST.get("id", None)
     facility = request.POST.get("facility", None)
@@ -642,29 +628,29 @@ def register_user(request, template="malawi/register-user.html"):
 
     if not (id and facility and name and number and backend):
         messages.error(request, "All fields must be filled in.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
     hsa_id = None
     try:
         hsa_id = format_id(facility, id)
     except IdFormatException:
         messages.error(request, "HSA ID must be a number between 0 and 99.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
 
     try:
         parent = SupplyPoint.objects.get(code=facility)
     except SupplyPoint.DoesNotExist:
         messages.error(request, "No facility with that ID.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
 
     if Location.objects.filter(code=hsa_id).exists():
         messages.error(request, "HSA with that code already exists.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
 
     try:
         number = int(number)
     except ValueError:
         messages.error(request, "Phone number must contain only numbers.")
-        return render_to_response(template, context, context_instance=RequestContext(request))
+        return render_to_response(template, context)
 
     hsa_loc = Location.objects.create(name=name, type=config.hsa_location_type(),
                                           code=hsa_id, parent=parent.location)
@@ -686,7 +672,8 @@ def register_user(request, template="malawi/register-user.html"):
 
     messages.success(request, "HSA added!")
 
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    return render_to_response(template, context)
+
 
 @datespan_default
 def sms_tracking(request):
@@ -722,8 +709,7 @@ def sms_tracking(request):
         _update("outbound", row)
     
     return render_to_response("malawi/new/management/sms-tracking.html",
-                              {"organizations": orgs},
-                              context_instance=RequestContext(request))
+                              {"organizations": orgs})
 
 
 @datespan_default
@@ -750,8 +736,7 @@ def telco_tracking(request):
                         airtel_msgs.count()))
 
     return render_to_response("malawi/new/management/telco-tracking.html",
-                              {"results": results},
-                              context_instance=RequestContext(request))
+                              {"results": results})
 
 
 def set_current_dashboard(request):

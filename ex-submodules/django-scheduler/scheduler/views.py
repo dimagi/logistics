@@ -21,7 +21,7 @@ def index(request, template="scheduler/index.html"):
     context = {}
     schedules = EventSchedule.objects.all()
     context['schedules'] = paginated(request, schedules)
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    return render_to_response(template, context)
 
 
 @login_required
@@ -40,7 +40,7 @@ def edit(request, pk, template="scheduler/edit.html"):
         form = ScheduleForm(instance=schedule)
     context['form'] = form
     context['schedule'] = schedule
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    return render_to_response(template, context)
 
 @require_POST
 def test_schedule(request, schedule_pk):

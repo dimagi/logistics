@@ -144,4 +144,4 @@ def group_message(request):
         {
             "contact_fns": fn_tree,
         },
-        context_instance=RequestContext(request))
+    )

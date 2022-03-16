@@ -66,5 +66,5 @@ def message_tester(req, identity):
             "router_available": router_available,
             "message_log": message_log,
             "message_form": form
-        }, context_instance=RequestContext(req)
+        },
     )

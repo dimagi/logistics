@@ -13,7 +13,7 @@ from rapidsms.models import Contact
 
 
 def no_ie_allowed(request, template="logistics/no_ie_allowed.html"):
-    return render_to_response(template, context_instance=RequestContext(request))
+    return render_to_response(template)
 
 
 @datespan_in_request()
@@ -49,5 +49,4 @@ def global_stats(request):
         'products': Product.objects.count(),
         'web_users': User.objects.count()
     }
-    return render_to_response('logistics/global_stats.html', context,
-                              context_instance=RequestContext(request))
+    return render_to_response('logistics/global_stats.html', context)

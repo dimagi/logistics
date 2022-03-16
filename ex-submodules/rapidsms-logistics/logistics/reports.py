@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, render
 from django.template.context import RequestContext
 from django.db.models import Q
 from rapidsms.conf import settings
@@ -658,11 +658,8 @@ class ReportView(object):
         The HTTP Response object for this report
         """
         context = self.get_context(request)
-        return render_to_response(self.template_name, 
-                                  context,
-                                  context_instance=RequestContext(request))
+        return render(request, self.template_name, context)
 
-    
     def shared_context(self, request):
         """
         Add this to your subclasses shared_context method:

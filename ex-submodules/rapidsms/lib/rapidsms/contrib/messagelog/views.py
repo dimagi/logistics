@@ -85,5 +85,5 @@ def message_log(req, template="messagelog/index.html"):
             "selected_tags": selected_tags,
             "tag_filter_flag": tag_filter_flag,
             "tag_filter_style": tag_filter_style
-        }, context_instance=RequestContext(req)
+        },
     )
