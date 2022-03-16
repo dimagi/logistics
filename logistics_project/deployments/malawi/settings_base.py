@@ -117,14 +117,6 @@ INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
-    # vumi
-    "vumi": {
-        "ENGINE": "logistics_project.backends.vumi",
-        'url': "http://go.vumi.org/api/v1/go/http_api_nostream/{conversation_id}/messages.json",
-        'conversation_id': 'CHANGEME',
-        'account_key': 'CHANGEME',
-        'access_token': 'CHANGEME',
-    },
 }
 
 USSD_PUSH_BACKEND = None
