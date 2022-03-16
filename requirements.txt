@@ -67,8 +67,6 @@ supervisor==4.2.4
     # via -r requirements.in
 urllib3==1.26.8
     # via sentry-sdk
-virtualenv==1.4.5
-    # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

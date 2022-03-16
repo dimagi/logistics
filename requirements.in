@@ -15,7 +15,6 @@ python-dateutil==1.5
 python-memcached
 pytz==2010b
 supervisor
-virtualenv==1.4.5
 requests==2.4.3
 django-picklefield==0.2.0
 sentry-sdk==0.17.7  # pinned for celery issue https://github.com/getsentry/sentry-python/issues/844
