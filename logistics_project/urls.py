@@ -18,7 +18,6 @@ urlpatterns = [
 
     # RapidSMS contrib app URLs
     url(r'^ajax/', include('rapidsms.contrib.ajax.urls')),
-    url(r'^export/', include('rapidsms.contrib.export.urls')),
     url(r'^httptester/', include('rapidsms.contrib.httptester.urls')),
     url(r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
 
