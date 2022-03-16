@@ -85,7 +85,6 @@ div.clear-hack {
     /* align in the middle of the unicef blue stripe of header bg, and
      * display logo on the right. TODO: extract the unicef branding */
     #branding h1 {
-        background: url("../images/unicef-logo.png") no-repeat 100% 50%;
         height: 65px;
         color: #fff;
         margin: 0;
