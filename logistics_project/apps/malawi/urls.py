@@ -1,6 +1,7 @@
 from django.conf.urls import *
-from .warehouse import views as warehouse_views
 from . import views
+from .warehouse import views as warehouse_views
+from logistics import views as logistics_views
 
 reportpatterns = [
     url(r'^home/$', warehouse_views.default_landing, name='malawi_dashboard'),
@@ -123,7 +124,7 @@ urlpatterns = [
         views.export_amc_csv,
         name="export_amc_csv"),
     url(r'^global_stats/$',
-        "logistics.views.global_stats",
+        logistics_views.global_stats,
         name="global_stats"),
     url(r'^500/?$', views.raise_500, name='raise_500'),
 ] + reportpatterns
