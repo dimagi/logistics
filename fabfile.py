@@ -31,8 +31,6 @@ env.pathhack = False
 env.stop_start = False
 env.virtualenv_root = None
 
-def do_nothing(): pass
-env.extras = do_nothing
 
 def enter_virtualenv():
     """
@@ -150,7 +148,8 @@ def bootstrap():
         update_requirements()
         with enter_virtualenv():
             run('./manage.py migrate --noinput')
-            env.extras()
+            run('./manage.py collectstatic --noinput')
+
 
 def deploy():
     """ deploy code to some remote environment """
@@ -186,10 +185,3 @@ def deploy():
     if env.stop_start:
         sudo("/etc/init.d/apache2 reload")
         sudo("supervisorctl start all")
-        # sudo("service memcached restart")
-    
-
-def test_and_deploy():
-    django_tests()
-    deploy()
-
