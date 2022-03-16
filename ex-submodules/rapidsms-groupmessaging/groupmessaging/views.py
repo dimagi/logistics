@@ -108,7 +108,7 @@ def ajax_contact_count(request):
             ts.append("<tr><td>%s</td><td>%s</td></tr>" % (c.phone, c.name))
     data = {'num': count,
             'table': "\n".join(ts)}
-    return HttpResponse(json.dumps(data), mimetype="application/json")
+    return HttpResponse(json.dumps(data), content_type="application/json")
 
 @login_required
 def group_message(request):
