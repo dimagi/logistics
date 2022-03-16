@@ -49,7 +49,7 @@ Instantiating a Table in Your View
 Here's where it gets awesome. Since the table class already knows which model it's rendering, you don't need to fuss around extracting the GET parameters, fetching a queryset, sorting it, and paginating it. Just instantiate the table, and it and pass it along to the template::
 
   def users_list(request):
-      return render_to_response("template.html", {
+      return render(request, "template.html", {
           "users": UsersTable(request)
       })
 
@@ -63,7 +63,7 @@ Sorting and pagination come for free. the following requests are all handled in 
 Table options can also be set per-instance, by passing them to the constructor. This is useful if the same table is rendered by multiple views, or multiple tables are rendered by a single view. For example::
 
   def users_and_groups_lists(request):
-      return render_to_response("template.html", {
+      return render(request, "template.html", {
           "users": UsersTable(request, prefix="usr-"),
           "groups": GroupsTable(request, prefix="grp-")
       })
