@@ -3,8 +3,7 @@ from datetime import timedelta, datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db.models.expressions import F
-from django.shortcuts import render_to_response, render
-from django.template.context import RequestContext
+from django.shortcuts import render
 from django.db.models import Q
 from rapidsms.conf import settings
 from logistics_project.utils.dates import DateSpan
