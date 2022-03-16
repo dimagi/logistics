@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from rapidsms.models import Contact
 from .tables import MessageTable
 from .models import Message
-from taggit.models import Tag, TaggedItem
+from taggit.models import TaggedItem
 import re
 from django.db.models import Q
+
 
 def message_log(req, template="messagelog/index.html"):
     messages = Message.objects.all()
@@ -74,8 +70,7 @@ def message_log(req, template="messagelog/index.html"):
         else:
             messages = messages.filter(tags__name__in=selected_tags).distinct()
 
-    return render_to_response(
-        template, {
+    return render(req, template, {
             "messages_table": MessageTable(messages, request=req),
             "search": search,
             "contact": contact,

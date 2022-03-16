@@ -1,13 +1,7 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
-
 from random import randint
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_GET, require_POST
 from rapidsms.contrib.ajax.exceptions import RouterNotResponding
 from . import forms
 from . import utils
@@ -61,10 +55,8 @@ def message_tester(req, identity):
         router_available = False
         message_log = None
 
-    return render_to_response(
-        "httptester/index.html", {
-            "router_available": router_available,
-            "message_log": message_log,
-            "message_form": form
-        },
-    )
+    return render(req, "httptester/index.html", {
+        "router_available": router_available,
+        "message_log": message_log,
+        "message_form": form
+    })
