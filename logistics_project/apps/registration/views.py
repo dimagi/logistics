@@ -76,7 +76,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             "contact": contact,
             "hsa_role_id": ContactRole.objects.get(code=Roles.HSA).pk,
             "registration_view": reverse(registration_view)
-        }, context_instance=RequestContext(req)
+        },
     )
 
 def search(req):
