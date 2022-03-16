@@ -1,7 +1,6 @@
 Django==1.11.29
 mysqlclient
 celery==4.4.0
-django-kombu==0.9.4
 django-nose==0.1.3
 django-redis==4.5.0
 django-taggit==0.17.6
