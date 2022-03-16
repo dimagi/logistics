@@ -23,7 +23,9 @@ Message = messagelog.models.Message
 register = template.Library()
 
 def context_helper(context):
-    extras = {"MEDIA_URL": settings.MEDIA_URL}
+    extras = {
+        "STATIC_URL": settings.STATIC_URL,
+    }
     context.update(extras)
     context.update(custom_settings(None))
     return context

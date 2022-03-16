@@ -31,6 +31,7 @@ BASE_APPS = [
     "django.contrib.admin",
     "django.contrib.messages",
     "django.contrib.sessions",
+    'django.contrib.staticfiles',
     "django.contrib.contenttypes",
     
 
@@ -65,9 +66,9 @@ TEMPLATE_DEBUG = False
 LOGIN_REDIRECT_URL = "/"
 
 
-# for some reason this setting is blank in django's global_settings.py,
-# but it is needed for static assets to be linkable.
-MEDIA_URL = "/static/"
+STATIC_ROOT = "/static_root"  # todo: should this not have a leading slash?
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -162,8 +163,6 @@ KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
 DEFAULT_BACKEND = 'message_tester'
 INTL_DIALLING_CODE = "+"
 DOMESTIC_DIALLING_CODE = 0
-STATIC_ROOT = "/static_root"
-STATIC_URL = "/static/"
 
 # reports
 REPORT_URL = "/malawi/r"

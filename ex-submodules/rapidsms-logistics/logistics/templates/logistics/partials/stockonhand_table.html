@@ -16,7 +16,7 @@
     {% for stockonhand in stockonhands %}
         <tr {% if not stockonhand.is_active %}class='inactive'{% endif %}>
         <td>{{ stockonhand.product.name }}</td>
-        {% highlight_months stockonhand MEDIA_URL %}
+        {% highlight_months stockonhand STATIC_URL %}
         <td>{% if stockonhand.is_stocked_out %}
                 {% if stockonhand.date_last_stocked %}
                     {{ stockonhand|historical_date_last_stocked:datespan.enddate|timesince:datespan.enddate }}

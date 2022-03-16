@@ -3,8 +3,8 @@
 {% load paginator_tags %}
 {% block javascripts %}
 {{ block.super }}
-<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/jquery.simplyCountable.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/csrf_ajax.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}messaging/js/jquery.simplyCountable.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}messaging/js/csrf_ajax.js"></script>
 <script type="text/javascript">
     var REC = "recipients";
     
@@ -88,7 +88,7 @@
 {% endblock %}
 {% block stylesheets %}
 {{ block.super }}
-<link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}messaging/css/messaging.css" />
+<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}messaging/css/messaging.css" />
 {% endblock %}
 
 {% block content %}{% if filters %}
