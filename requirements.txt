@@ -32,8 +32,6 @@ django==1.11.29
     # via -r requirements.in
 djappsettings==0.4.0
     # via -r requirements.in
-johnny-cache==1.4
-    # via -r requirements.in
 kombu==3.0.37
     # via celery
 mysqlclient==1.4.6
