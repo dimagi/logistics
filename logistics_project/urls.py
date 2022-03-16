@@ -21,7 +21,6 @@ urlpatterns = [
     url(r'^export/', include('rapidsms.contrib.export.urls')),
     url(r'^httptester/', include('rapidsms.contrib.httptester.urls')),
     url(r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
-    url(r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
     url(r'^malawi/', include('logistics_project.apps.malawi.urls')),
 

@@ -6,7 +6,6 @@ from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils.functional import curry
 from django.conf import settings
 from logistics.models import ContactRole
 from rapidsms.models import Contact, Backend
