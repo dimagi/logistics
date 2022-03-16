@@ -34,14 +34,13 @@
             selectmap[this.name] = $(this).val();
         });
         $('#contacttable').html("<img src='{{ STATIC_URL }}groupmessaging/img/ajax-loader.gif'/> Loading...");
-        $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
+        $.post("{% url 'ajax_contact_count' %}", $("#messageform").serialize(), function(data){
             $(".contactcount").text(data['num']);
             $("#contacttable").html(data['table']);
         });
     });
     $('#contacttable').html("<img src='{{ STATIC_URL }}groupmessaging/img/ajax-loader.gif'/> Loading...");
-
-    $.post("{% url ajax_contact_count %}", $("#messageform").serialize(), function(data){
+    $.post("{% url 'ajax_contact_count' %}", $("#messageform").serialize(), function(data){
             $(".contactcount").text(data['num']);
             $("#contacttable").html(data['table']);
     });
