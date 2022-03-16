@@ -593,12 +593,12 @@ def send_outreach(req):
             'msg': '%s sent to %s' % (text, ', '.join(str(c) for c in sent_to)),
             'remaining': OutreachQuota.get_remaining(req.user),
         }
-    return HttpResponse(json.dumps(resp), mimetype='application/json')
+    return HttpResponse(json.dumps(resp), content_type='application/json')
 
     
 @datespan_in_request()
 def export_amc_csv(request):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=amc.csv'
     products = Product.objects.filter(type__base_level=config.BaseLevel.HSA).order_by('sms_code')
     writer = UnicodeWriter(response)

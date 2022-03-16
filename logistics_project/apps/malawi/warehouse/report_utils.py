@@ -423,7 +423,7 @@ def get_stock_status_table_data(supply_point, base_level=config.BaseLevel.HSA):
     ]
 
 def table_to_csv(table_data):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=(%s).csv' % table_data["id"]
     writer = UnicodeWriter(response)
     writer.writerow(table_data['header'])

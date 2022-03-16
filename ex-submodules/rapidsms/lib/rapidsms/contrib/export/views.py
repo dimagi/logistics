@@ -1,13 +1,8 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-import os
 import datetime
 from subprocess import Popen, PIPE
 from django.conf import settings
-from django import http
 from django.http import HttpResponse
+
 
 def database(req):
     """
@@ -38,6 +33,6 @@ def database(req):
 
     # download the file as plain text
     today = datetime.datetime.now().strftime("%d-%m-%Y")
-    resp = http.HttpResponse(sql, mimetype="text/plain")
+    resp = HttpResponse(sql, content_type="text/plain")
     resp["content-disposition"] = "attachment; filename=%s.sql" % (today)
     return resp
