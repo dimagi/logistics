@@ -47,7 +47,7 @@ python-dateutil==1.5
     # via -r requirements.in
 python-memcached==1.59
     # via -r requirements.in
-pytz==2010b
+pytz==2021.3
     # via
     #   celery
     #   django

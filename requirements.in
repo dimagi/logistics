@@ -11,7 +11,6 @@ nose
 nose-exclude
 python-dateutil==1.5
 python-memcached
-pytz==2010b
 supervisor
 requests==2.4.3  # cz: pretty sure we can remove this
 django-picklefield==0.2.0
