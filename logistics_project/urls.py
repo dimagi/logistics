@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.views import login as django_login
 from django.contrib.auth.views import logout as django_logout
 from django.contrib.auth.views import password_change as django_password_change
+from logistics_project.apps.malawi.warehouse.views import default_landing
 
 admin.autodiscover()
 
@@ -11,10 +12,7 @@ urlpatterns = [
     # Django URLs
     url(r'^admin/', include(admin.site.urls)),
     
-    # RapidSMS core URLs
-    #url(r'^$', 'rapidsms.views.dashboard', name='rapidsms-dashboard'),
-    url(r'^/?$', 'logistics_project.apps.malawi.warehouse.views.default_landing',
-        name="rapidsms-dashboard"),
+    url(r'^$', default_landing, name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
     url(r'^ajax/', include('rapidsms.contrib.ajax.urls')),

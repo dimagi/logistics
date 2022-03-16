@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
-from django.conf.urls import *
+from django.conf.urls import url
 from . import views
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r"^$", views.generate_identity, name='rapidsms_message_tester_default'),
-    url(r"^(?P<identity>[+]?\d+)/$", views.message_tester))
+    url(r"^(?P<identity>[+]?\d+)/$", views.message_tester),
+]
