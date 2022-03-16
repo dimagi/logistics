@@ -7,6 +7,8 @@
 *.db
 *.swp
 *~
+
+static_root/*
 logistics_project/localsettings.py
 logistics_project/logistics.log*
 logistics_project/apps/malawi/tests/testscripts/*
