@@ -1,18 +1,14 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
 import logging, logging.handlers
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.core.management import call_command
 from ...router import router
 from ...conf import settings
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Starts the %s router." % settings.PROJECT_NAME
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
 
         numeric_level = getattr(logging, settings.LOG_LEVEL.upper())
         format = logging.Formatter(settings.LOG_FORMAT)
