@@ -1,18 +1,11 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
 from django.conf import settings
-from django.template import RequestContext
 from django.contrib.auth.decorators import permission_required
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from rapidsms.contrib.messaging.utils import send_message
-from rapidsms.models import Connection
-from rapidsms.models import Backend
 from rapidsms.models import Contact
 from logistics.models import ContactRole
 from logistics_project.apps.registration.forms import ContactForm
@@ -23,7 +16,6 @@ from .tables import ContactTable
 @permission_required('rapidsms.add_contact')
 def registration(req, pk=None, template="registration/dashboard.html"):
     contact = None
-    bulk_form = None
     registration_view = 'registration'
 
     if pk is not None:
@@ -69,8 +61,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
                                                              Q(name__contains=search_term_proper)),
                                                              request=req)
 
-    return render_to_response(
-        template, {
+    return render(req, template, {
             "contacts_table": contacts_table,
             "contact_form": contact_form,
             "contact": contact,
@@ -78,6 +69,7 @@ def registration(req, pk=None, template="registration/dashboard.html"):
             "registration_view": reverse(registration_view)
         },
     )
+
 
 def search(req):
     return redirect('/registration/?search_term=%s' % (req.POST.get('search_term')))
