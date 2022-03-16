@@ -31,6 +31,7 @@ BASE_APPS = [
     "django.contrib.admin",
     "django.contrib.messages",
     "django.contrib.sessions",
+    'django.contrib.staticfiles',
     "django.contrib.contenttypes",
     
 
@@ -65,9 +66,9 @@ TEMPLATE_DEBUG = False
 LOGIN_REDIRECT_URL = "/"
 
 
-# for some reason this setting is blank in django's global_settings.py,
-# but it is needed for static assets to be linkable.
-MEDIA_URL = "/static/"
+STATIC_ROOT = "static_root"
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 
 # this is required for the django.contrib.sites tests to run, but also
@@ -75,20 +76,27 @@ MEDIA_URL = "/static/"
 # see: http://docs.djangoproject.com/en/dev/ref/contrib/sites/
 SITE_ID = 1
 
-
-# these weird dependencies should be handled by their respective apps,
-# but they're not, so here they are. most of them are for django admin.
-TEMPLATE_CONTEXT_PROCESSORS = [
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.request",
-    "rapidsms.context_processors.logo",
-    "logistics.context_processors.custom_settings",
-    "logistics.context_processors.user_profile",
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            # insert your TEMPLATE_DIRS here
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                "django.contrib.auth.context_processors.auth",
+                "django.core.context_processors.debug",
+                "django.core.context_processors.i18n",
+                "django.core.context_processors.media",
+                "django.core.context_processors.request",
+                "rapidsms.context_processors.logo",
+                "logistics.context_processors.custom_settings",
+                "logistics.context_processors.user_profile",
+            ],
+        },
+    },
 ]
-
 
 # -------------------------------------------------------------------- #
 #                           HERE BE DRAGONS!                           #
@@ -97,7 +105,7 @@ TEMPLATE_CONTEXT_PROCESSORS = [
 
 
 # these apps should not be started by rapidsms in your tests, however,
-# the models and bootstrap will still be available through django.
+# the mTEMPLATEodels and bootstrap will still be available through django.
 TEST_EXCLUDED_APPS = [
     "django.contrib.sessions",
     "django.contrib.contenttypes",
@@ -131,7 +139,7 @@ DATABASES = {
     }
 }
 
-TESTING_DATABASES= {
+TESTING_DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",#
         "NAME": "logistics.sqlite3",
@@ -155,8 +163,6 @@ KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
 DEFAULT_BACKEND = 'message_tester'
 INTL_DIALLING_CODE = "+"
 DOMESTIC_DIALLING_CODE = 0
-STATIC_ROOT = "/static_root"
-STATIC_URL = "/static/"
 
 # reports
 REPORT_URL = "/malawi/r"

@@ -3,8 +3,12 @@ from logistics.templatetags.math_tags import percent
 register = template.Library()
 
 @register.inclusion_tag("logistics/templatetags/highlight_months_available.html")
-def highlight_months(stockonhand, media_url):
-    return { "stockonhand": stockonhand, "MEDIA_URL":media_url }
+def highlight_months(stockonhand, static_url):
+    return {
+        "stockonhand": stockonhand,
+        "STATIC_URL": static_url,
+    }
+
 
 @register.simple_tag
 def percent_cell(a, b):

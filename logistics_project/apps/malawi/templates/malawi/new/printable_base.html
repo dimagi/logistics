@@ -7,29 +7,29 @@
     <title>{% block title %}cStock{% endblock %}</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 {% block stylesheets %}
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/layout.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/splits.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/modules.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/tables.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/forms.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}rapidsms/stylesheets/icons.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}malawi/css/malawi.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/logistics.css" />
-    <link type="text/css" rel="stylesheet" href="{{ MEDIA_URL }}logistics/stylesheets/reports.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/layout.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/splits.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/modules.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/tables.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/forms.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}rapidsms/stylesheets/icons.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}malawi/css/malawi.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}logistics/stylesheets/logistics.css" />
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}logistics/stylesheets/reports.css" />
 {% endblock %}
 {% block javascripts %}
-    <script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}rapidsms/javascripts/collapse.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/printable.js"></script>
-    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
-    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.js"></script>
-    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
-    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}rapidsms/javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}rapidsms/javascripts/collapse.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/printable.js"></script>
+    <!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/excanvas.js"></script><![endif]-->
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/jquery.flot.pie.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/jquery.flot.stack.js"></script>
 {% endblock %}
 {% block imports %}
     {% include "imports/jquery-ui.html" %}
-    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/daterange.js"></script>
-    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}logistics/javascripts/jquery.dataTables.min.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/daterange.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}logistics/javascripts/jquery.dataTables.min.js"></script>
 {% endblock %}
 </head>
 <body>

@@ -14,8 +14,8 @@
 {% endblock %}
 {% block javascripts %}
 {{ block.super }}
-<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/jquery.simplyCountable.js"></script>
-<script type="text/javascript" src="{{ MEDIA_URL }}messaging/js/csrf_ajax.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}messaging/js/jquery.simplyCountable.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}messaging/js/csrf_ajax.js"></script>
 <script type="text/javascript">
     var REC = "recipients";
     var update_ui = function() {

@@ -7,7 +7,7 @@ from django.contrib.auth.views import password_change as django_password_change
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Django URLs
     url(r'^admin/', include(admin.site.urls)),
     
@@ -17,15 +17,15 @@ urlpatterns = patterns('',
         name="rapidsms-dashboard"),
 
     # RapidSMS contrib app URLs
-    (r'^ajax/', include('rapidsms.contrib.ajax.urls')),
-    (r'^export/', include('rapidsms.contrib.export.urls')),
-    (r'^httptester/', include('rapidsms.contrib.httptester.urls')),
-    (r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
-    (r'^messaging/', include('rapidsms.contrib.messaging.urls')),
+    url(r'^ajax/', include('rapidsms.contrib.ajax.urls')),
+    url(r'^export/', include('rapidsms.contrib.export.urls')),
+    url(r'^httptester/', include('rapidsms.contrib.httptester.urls')),
+    url(r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
+    url(r'^messaging/', include('rapidsms.contrib.messaging.urls')),
 
-    (r'^malawi/', include('logistics_project.apps.malawi.urls')),
+    url(r'^malawi/', include('logistics_project.apps.malawi.urls')),
 
-    (r'^group/', include('groupmessaging.urls')),
+    url(r'^group/', include('groupmessaging.urls')),
 
     # login/logout. this is order dependent
     url(r'^accounts/login/$', django_login, 
@@ -40,15 +40,5 @@ urlpatterns = patterns('',
         name='rapidsms-password-change'),
     
     # other app URLS
-    (r'^registration/', include('logistics_project.apps.registration.urls')),
-)
-
-
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        # helper URLs file that automatically serves the 'static' folder in
-        # INSTALLED_APPS via the Django static media server (NOT for use in
-        # production)
-        (r'^', include('rapidsms.urls.static_media')),
-    )
+    url(r'^registration/', include('logistics_project.apps.registration.urls')),
+]
