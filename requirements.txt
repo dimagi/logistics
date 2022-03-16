@@ -32,10 +32,6 @@ django==1.11.29
     # via -r requirements.in
 djappsettings==0.4.0
     # via -r requirements.in
-gdata==2.0.18
-    # via -r requirements.in
-johnny-cache==1.4
-    # via -r requirements.in
 kombu==3.0.37
     # via celery
 mysqlclient==1.4.6
@@ -51,9 +47,8 @@ python-dateutil==1.5
     # via -r requirements.in
 python-memcached==1.59
     # via -r requirements.in
-pytz==2010b
+pytz==2021.3
     # via
-    #   -r requirements.in
     #   celery
     #   django
 redis==3.5.3
