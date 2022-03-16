@@ -49,7 +49,6 @@ python-memcached==1.59
     # via -r requirements.in
 pytz==2010b
     # via
-    #   -r requirements.in
     #   celery
     #   django
 redis==3.5.3
