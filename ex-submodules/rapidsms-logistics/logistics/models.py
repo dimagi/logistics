@@ -26,7 +26,7 @@ from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
 from logistics.consumption import daily_consumption
-from .static.malawi.config import BaseLevel
+from static.malawi.config import BaseLevel
 
 try:
     from .settings import LOGISTICS_CONSUMPTION
