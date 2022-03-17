@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv
 from django.db.models import Sum
 from logistics_project.utils.dates import months_between
@@ -44,7 +45,7 @@ class Command(LabelCommand):
                 ]
 
         if len(args) == 0:
-            print 'please specify a filename'
+            print('please specify a filename')
             return
 
         filename = args[0]

@@ -69,7 +69,7 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
 
             try:
                 max_level_function(stock_report)
-            except TooMuchStockError, e:
+            except TooMuchStockError as e:
                 # bit of a hack, also check if there was a recent message
                 # that matched this and if so force it through
                 override_threshold = datetime.utcnow() - timedelta(seconds=60*60*4)

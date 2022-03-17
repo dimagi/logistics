@@ -1,4 +1,3 @@
-# vim: ai ts=4 sts=4 et sw=4
 """
 To use the Kannel backend, one needs to append 'kannel' to the list of 
 available backends, like so:
@@ -52,7 +51,11 @@ get-url = http://127.0.0.1:8081/?id=%p&text=%a&charset=%C&coding=%c
 
 import copy
 import urllib
-import urllib2
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+
 from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -110,7 +113,7 @@ class KannelBackend(RapidHttpBackend):
         url = '?'.join([self.sendsms_url, urllib.urlencode(url_args)])
         try:
             self.debug('Opening URL: %s' % url)
-            response = urllib2.urlopen(url)
+            response = urlopen(url)
         except:
             self.exception('Failed to send message')
             return

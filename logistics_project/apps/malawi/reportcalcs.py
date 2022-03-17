@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from datetime import timedelta, datetime
 from django.conf import settings
 from django.template.loader import render_to_string

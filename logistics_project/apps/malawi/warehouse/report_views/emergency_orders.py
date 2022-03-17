@@ -75,7 +75,7 @@ class View(warehouse_view.DistrictOnlyView):
             for eo in prd_map.keys():
                 count += 1
                 product_codes.append([count, '%s' % (str(eo.code.lower()))])
-                if prd_map[eo].has_key(label):
+                if label in prd_map[eo]:
                     all_months = avg_of_key_values(prd_map[eo][label], datelist)
                             
                     data_map[label].append([count, all_months])
@@ -135,7 +135,7 @@ class View(warehouse_view.DistrictOnlyView):
             denoms = []
             for date in datelist:
                 count += 1
-                if prd_map[prd]['pct'].has_key(date):
+                if date in prd_map[prd]['pct']:
                     temp["data"].append([count, prd_map[prd]['pct'][date]])
                     nums.append(prd_map[prd]['emergency'][date])
                     denoms.append(prd_map[prd]['total'][date])

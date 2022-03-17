@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.core.management.base import LabelCommand, CommandError
 from rapidsms.models import Connection, Contact
 from logistics.models import ProductStock, ProductReport, StockTransaction,\
@@ -19,7 +20,7 @@ class Command(LabelCommand):
         hsas = SupplyPoint.objects.filter(type__code='hsa', active=True)
         count = hsas.count()
         for i, hsa in enumerate(hsas):
-            print 'processing %s (%s/%s)' % (hsa, i, count)
+            print('processing %s (%s/%s)' % (hsa, i, count))
             multiply_hsa(hsa, multiplier)
 
         dump_db_state()
@@ -27,7 +28,7 @@ class Command(LabelCommand):
 def dump_db_state():
     for cls in [SupplyPoint, Contact, Connection, ProductStock,
                 ProductReport, StockTransaction, StockRequest]:
-        print 'there are %s %ss' % (cls.objects.count(), cls.__name__)
+        print('there are %s %ss' % (cls.objects.count(), cls.__name__))
 
 def copy_model(model):
     the_copy = copy.copy(model)

@@ -298,7 +298,7 @@ class EventSchedule(models.Model):
         """
         try:
             ret = self.execute()
-        except Exception, e:
+        except Exception as e:
             logging.exception("Problem executing scheduled item %s" % self)
             self.record_failed_execution(asof, str(e))
             if failhard: raise

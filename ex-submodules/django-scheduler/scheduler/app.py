@@ -107,7 +107,7 @@ if USE_RAPIDSMS:
                         # call the callback function
                         # possibly passing in args and kwargs
                         schedule.run(self._router)
-                    except Exception, e:
+                    except Exception as e:
                         # Don't prevent exceptions from killing the thread
                         exc_type, exc_value, exc_traceback = sys.exc_info()
                         stacktrace = traceback.extract_tb(exc_traceback)

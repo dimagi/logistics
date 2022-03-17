@@ -1,7 +1,9 @@
+from __future__ import print_function
+from __future__ import absolute_import
 from django.conf import settings
 import itertools
-from models import Notification, NotificationComment, user_name
-from importutil import dynamic_import
+from .models import Notification, NotificationComment, user_name
+from .importutil import dynamic_import
 
 def get_alert_generators(type, *args, **kwargs):
     """
@@ -33,12 +35,12 @@ def trigger_notifications():
             existing = Notification.objects.get(uid=notif.uid)
             #alert already generated
             #todo: add hook for amending or auto-dismissing alerts here (might not be the right place for auto-dismiss)?
-            print 'alert already exists', notif.uid
+            print('alert already exists', notif.uid)
         except Notification.DoesNotExist:
             #new alert; save to db
             notif.initialize()
             notif.save()
-            print 'new alert', notif
+            print('new alert', notif)
             #'created' comment
             comment = NotificationComment(notification=notif, user=None, text='notification created')
             comment.save()
@@ -47,7 +49,7 @@ def auto_escalate():
     for notif in Notification.objects.filter(is_open=True):
         if notif.autoescalate_due():
             alert_action(notif, 'esc')
-            print 'autoescalated %s' % str(notif)
+            print('autoescalated %s' % str(notif))
 
 def alert_action(alert, action, user=None, comment=None):
     {

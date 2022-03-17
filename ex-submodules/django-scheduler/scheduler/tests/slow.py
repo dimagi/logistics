@@ -3,6 +3,7 @@
 tests that a schedule set to fire every minute 
 actually does, without speedup
 """
+from __future__ import print_function
 
 import time
 import logging
@@ -33,6 +34,6 @@ class TestSlow (TestScript):
 
 def callback_func(router, arg):
     global callback_counter
-    print "adding %s to global_var (%s)" % (arg, callback_counter)
+    print("adding %s to global_var (%s)" % (arg, callback_counter))
     logging.info("adding %s to global_var (%s)" % (arg, callback_counter))
     callback_counter = callback_counter + arg

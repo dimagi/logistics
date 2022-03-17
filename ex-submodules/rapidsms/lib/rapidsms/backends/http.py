@@ -39,7 +39,7 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
         self.debug('Request from %s' % request.get_host())
         try:
             response = self.backend.handle_request(request)
-        except Exception, e:
+        except Exception as e:
             self.exception(e)
             response = http.HttpResponseServerError()
         status_text = responses.get(response.status_code, 'UNKNOWN STATUS CODE')
@@ -108,7 +108,7 @@ class RapidHttpBackend(BackendBase):
         now = datetime.utcnow()
         try:
             msg = super(RapidHttpBackend, self).message(sender, sms, now)
-        except Exception, e:
+        except Exception as e:
             self.exception(e)
             raise        
         self.route(msg)
@@ -129,7 +129,7 @@ class RapidHttpBackend(BackendBase):
         try:
             self.debug('Sending: %s' % url)
             response = urllib2.urlopen(url)
-        except Exception, e:
+        except Exception as e:
             self.exception(e)
             return False
         self.info('SENT')

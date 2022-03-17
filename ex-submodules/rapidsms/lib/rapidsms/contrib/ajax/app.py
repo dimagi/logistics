@@ -195,7 +195,7 @@ class App(AppBase):
 
             # something raised during the request, so return a useless
             # http error to the requester
-            except Exception, err:
+            except Exception as err:
                 self.server.app.warning(traceback.format_exc())
                 return response(500, unicode(err), False)
 

@@ -20,7 +20,7 @@ def scheduler_heartbeat():
             # call the callback function
             # possibly passing in args and kwargs
             schedule.run(currtime)
-        except Exception, e:
+        except Exception as e:
             # Don't prevent exceptions from killing the rest
             logging.exception("Problem in the scheduler heartbeat for %s" % schedule)
             failures.append(e)

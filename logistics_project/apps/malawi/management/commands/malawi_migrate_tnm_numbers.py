@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime
 from optparse import make_option
 from django.core.management.base import LabelCommand
@@ -24,7 +25,7 @@ class Command(LabelCommand):
             if conn.identity.startswith('+'):
                 migrated += 1
                 new_identity = conn.identity.replace('+', '')
-                print 'migrating {0} --> {1}'.format(conn.identity, new_identity)
+                print('migrating {0} --> {1}'.format(conn.identity, new_identity))
                 try:
                     old_conn = Connection.objects.get(backend=tnm_backend, identity=new_identity)
                 except Connection.DoesNotExist:
@@ -34,14 +35,14 @@ class Command(LabelCommand):
                     # migrate old number to prevent integrity conflicts
                     msg_qs = Message.objects.filter(connection=old_conn)
                     last_msg_time = msg_qs.order_by('-date')[0].date if msg_qs.exists() else None
-                    print '> found old connection - most recent message is: {0}'.format(last_msg_time)
+                    print('> found old connection - most recent message is: {0}'.format(last_msg_time))
                     if last_msg_time is None or last_msg_time > datetime(2014, 10, 30):
-                        print '>> migrating existing connection'
+                        print('>> migrating existing connection')
                         if not dry_run:
                             old_conn.identity = old_conn.identity + '-deprecated'
                             old_conn.save()
                     else:
-                        print '>> not migrating because last message is too far in the past'
+                        print('>> not migrating because last message is too far in the past')
                         unmigrated_numbers.append(old_conn.identity)
 
                 if not dry_run:
@@ -50,7 +51,7 @@ class Command(LabelCommand):
             else:
                 skipped += 1
 
-        print 'migration finished. migrated {0} numbers and skipped {1}'.format(migrated, skipped)
+        print('migration finished. migrated {0} numbers and skipped {1}'.format(migrated, skipped))
         if unmigrated_numbers:
-            print 'the following numbers were not migrated due to conflicts:'
-            print '\n'.join(unmigrated_numbers)
+            print('the following numbers were not migrated due to conflicts:')
+            print('\n'.join(unmigrated_numbers))

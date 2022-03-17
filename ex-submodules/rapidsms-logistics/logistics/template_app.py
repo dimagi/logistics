@@ -133,11 +133,11 @@ class App(AppBase):
             stock_report.save()
             self._send_responses(message, stock_report)
             return True
-        except ValueError, e:
+        except ValueError as e:
             # a parsing error, with a user-friendly message
             message.respond(unicode(e))
             return
-        except Exception, e:
+        except Exception as e:
             # some other crazy error
             if settings.DEBUG:
                 # this error actually gets logged deep within rapidSMS

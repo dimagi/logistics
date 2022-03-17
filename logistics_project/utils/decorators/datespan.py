@@ -42,7 +42,7 @@ def datespan_in_request(from_param="from", to_param="to",
                 try:             
                     startdate = date_or_nothing(from_param)
                     enddate = date_or_nothing(to_param)
-                except ValueError, e:
+                except ValueError as e:
                     return HttpResponseBadRequest(unicode(e))
                 if startdate or enddate:
                     req.datespan = DateSpan(startdate, enddate, format_string)
@@ -52,7 +52,7 @@ def datespan_in_request(from_param="from", to_param="to",
                     
             return f(*args, **kwargs) 
         if hasattr(f, "func_name"):
-            wrapped_func.func_name = f.func_name
+            wrapped_func.__name__ = f.__name__
             # preserve doc strings
             wrapped_func.__doc__ = f.__doc__  
             
