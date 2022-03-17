@@ -26,7 +26,7 @@ def safe_date_add(startdate, days, force_to_date_flag=True):
         val = startdate + timedelta(days)
         if force_to_date_flag:  return force_to_date(val)
         else:                   return val 
-    except OverflowError, e:
+    except OverflowError as e:
         return None
 
 def months_between(start, end):
