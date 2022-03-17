@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 from django.db import transaction
@@ -121,7 +122,7 @@ def load_schedules():
 
 
 def load_products(file_path, log_to_console=True):
-    if log_to_console: print "loading static products from %s" % file_path
+    if log_to_console: print("loading static products from %s" % file_path)
     # give django some time to bootstrap itself
     if not os.path.exists(file_path):
         raise LoaderException("Invalid file path: %s." % file_path)
@@ -157,7 +158,7 @@ def load_products(file_path, log_to_console=True):
             
             count += 1
     
-        if log_to_console: print "Successfully processed %s products." % count
+        if log_to_console: print("Successfully processed %s products." % count)
     
     finally:
         csv_file.close()

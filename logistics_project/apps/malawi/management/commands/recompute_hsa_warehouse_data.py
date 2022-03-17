@@ -1,3 +1,4 @@
+from __future__ import print_function
 from optparse import make_option
 from django.core.management.base import LabelCommand
 from logistics_project.utils.parsing import string_to_datetime
@@ -40,12 +41,12 @@ class Command(LabelCommand):
         OrderRequest.objects.filter(supply_point=hsa).delete()
         OrderFulfillment.objects.filter(supply_point=hsa).delete()
 
-        print 'updating data for %s from %s - %s' % (
+        print('updating data for %s from %s - %s' % (
             hsa, start, end,
-        )
+        ))
         # update
         warehouse_runner.update_base_level_data(hsa, start, end)
         for parent in hsa.get_parents():
             if parent.type_id != SupplyPointCodes.ZONE:
-                print 'updating %s' % parent
+                print('updating %s' % parent)
                 warehouse_runner.update_aggregated_data(parent, start, end, since=None)

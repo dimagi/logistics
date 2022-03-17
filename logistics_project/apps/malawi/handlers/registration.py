@@ -34,7 +34,7 @@ class HSARegistrationHandler(RegistrationBaseHandler):
         role = ContactRole.objects.get(code=config.Roles.HSA)
         try:
             hsa_id = format_id(self.supply_point.code, self.extra)
-        except IdFormatException, e:
+        except IdFormatException as e:
             self.respond(str(e))
             return
 

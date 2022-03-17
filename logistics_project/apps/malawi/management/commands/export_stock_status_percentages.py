@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv
 from django.db.models import Sum
 from logistics_project.utils.dates import months_between
@@ -64,7 +65,7 @@ class Command(LabelCommand):
                     ] + [denom] + raw_vals + pcts
 
         if len(args) == 0:
-            print 'please specify a filename'
+            print('please specify a filename')
             return
 
         filename = args[0]
@@ -93,7 +94,7 @@ class Command(LabelCommand):
         ).order_by('type__code')
 
         for year, month in months_between(start_date, now):
-            print 'getting data for %s-%s' % (month, year)
+            print('getting data for %s-%s' % (month, year))
             window_date = datetime(year, month, 1)
             for site in sites:
                 for row in _get_rows(window_date, site):

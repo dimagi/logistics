@@ -1,8 +1,8 @@
+from __future__ import absolute_import
 from logistics.errors import UnknownCommodityCodeError
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
 from logistics_project.apps.malawi.models import RefrigeratorMalfunction
-from rapidsms.conf import settings
 from static.malawi.config import BaseLevel
 
 

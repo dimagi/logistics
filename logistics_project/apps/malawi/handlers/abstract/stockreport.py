@@ -66,7 +66,7 @@ class StockReportBaseHandler(RecordResponseHandler):
             )
             self.requests = StockRequest.create_from_report(stock_report, self.contact)
             self.send_responses(stock_report)
-        except TooMuchStockError, e:
+        except TooMuchStockError as e:
             self.respond(config.Messages.TOO_MUCH_STOCK % {
                 'keyword': self.msg.text.split()[0],
                 'req': e.amount,

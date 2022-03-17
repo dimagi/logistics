@@ -1,3 +1,4 @@
+from __future__ import print_function
 from optparse import make_option
 from django.core.management.base import LabelCommand
 from logistics_project.apps.malawi.util import get_facility_supply_points, get_district_supply_points
@@ -16,7 +17,7 @@ class Command(LabelCommand):
 
 def _anonymize(supply_point, prefix, save=True):
     name = '%s %s' % (prefix, supply_point.code)
-    print '%s --> %s' % (supply_point.name, name)
+    print('%s --> %s' % (supply_point.name, name))
     supply_point.name = name
     if save:
         supply_point.save()

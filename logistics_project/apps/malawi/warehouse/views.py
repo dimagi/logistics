@@ -82,7 +82,7 @@ def _get_report(request, slug, base_level):
                 messages.error(request, "Sorry, we can't find that table to export.")
         
         return report.get_response(request)
-    except Exception, e:
+    except Exception as e:
         if settings.DEBUG:
             raise
         logging.exception("problem loading a warehouse view: %s" % e)

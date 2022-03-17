@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import timedelta, datetime
 from logistics.models import ContactRole, SupplyPoint, Product, ProductStock, ProductReport, ProductReportType, SupplyPointType
 from random import choice, randint, sample, normalvariate
@@ -36,7 +37,7 @@ def create_hsa(parent, name=None, number=None, role=None):
                                              'fac_id': parent.code})
         products = sample(list(Product.objects.all()), randint(1, MAX_PRODUCTS_PER_HSA))
         text = "add " + ' '.join([p.sms_code for p in products])
-        print text
+        print(text)
         send_test_message(identity=identity, text=text)
         if randint(0,3):
             m = "soh "
@@ -44,7 +45,7 @@ def create_hsa(parent, name=None, number=None, role=None):
                 amc = (p.average_monthly_consumption if p.average_monthly_consumption else 100)
                 m += "%s %d " % (p.sms_code, amc)
             send_test_message(identity=identity, text=m)
-            print m
+            print(m)
 
     else:
         send_test_message(identity=identity, text="manage %(name)s %(role)s %(fac_id)s" %
@@ -71,14 +72,14 @@ def generate_report(hsa, date=datetime.utcnow()):
     choice = randint(1,9)
     if choice < 5:
         if not hsa or not hsa.name: return
-        print "Got soh for " + hsa.name
-        print ProductStock.objects.filter(supply_point=hsa)
+        print("Got soh for " + hsa.name)
+        print(ProductStock.objects.filter(supply_point=hsa))
         # SOH
         for p in ProductStock.objects.filter(supply_point=hsa):
             amc = (p.product.average_monthly_consumption if p.product.average_monthly_consumption else 100)
             q = p.quantity if p.quantity else amc
             q = max(0, q - normalvariate(q/3, q/6)) if randint(0,6) else 0
-            print "Generating SOH report for %s : %s : %d" % (hsa.name, p.product.sms_code, q)
+            print("Generating SOH report for %s : %s : %d" % (hsa.name, p.product.sms_code, q))
             r = ProductReport(product=p.product, report_type = ProductReportType.objects.get(code='soh'),
                           quantity=q, message=None, supply_point=hsa, report_date=date)
             r.save()
@@ -87,7 +88,7 @@ def generate_report(hsa, date=datetime.utcnow()):
         for p in ProductStock.objects.filter(supply_point=hsa):
             amc = (p.product.average_monthly_consumption if p.product.average_monthly_consumption else 100)
             q = normalvariate(amc, amc / 4)
-            print "Generating REC report for %s : %s : %d" % (hsa.name, p.product.sms_code, q)
+            print("Generating REC report for %s : %s : %d" % (hsa.name, p.product.sms_code, q))
             r = ProductReport(product=p.product, report_type = ProductReportType.objects.get(code='rec'),
                           quantity=q, message=None, supply_point=hsa, report_date=date)
             r.save()

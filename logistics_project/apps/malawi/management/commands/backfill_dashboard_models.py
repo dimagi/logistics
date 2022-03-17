@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand
@@ -13,5 +14,5 @@ class Command(BaseCommand):
         now = datetime.utcnow()
         before = now - timedelta(days=93)
         for supply_point in SupplyPoint.objects.filter(active=True):
-            print('backfilling ', supply_point)
+            print(('backfilling ', supply_point))
             update_historical_data_for_supply_point(supply_point, before, now)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -60,7 +61,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
     agg_limit_per_type = 0
 
     def cleanup(self, start, end):
-        print "Malawi warehouse cleanup!"  
+        print("Malawi warehouse cleanup!")  
         # TODO: fix this up - currently deletes all records having any data
         # within the period
         ReportRun.objects.filter(start__gte=start, end__lte=end).delete()
@@ -86,7 +87,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         the entire warehouse process since reporting on zone is not a
         requirement.
         """
-        print "Malawi warehouse generate!"
+        print("Malawi warehouse generate!")
 
         start = run_record.start
         end = run_record.end
@@ -104,17 +105,17 @@ class MalawiWarehouseRunner(WarehouseRunner):
             products = get_products(BaseLevel.HSA)
             for i, hsa in enumerate(hsas):
                 # process all the hsa-level warehouse tables
-                print "processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count)
+                print("processing hsa %s (%s) (%s of %s)" % (hsa.name, str(hsa.id), i, count))
                 self.update_base_level_data(hsa, start, end, products)
 
         if settings.ENABLE_FACILITY_WORKFLOWS:
-            print 'processing facility data'
+            print('processing facility data')
             products = get_products(BaseLevel.FACILITY)
             facilities = SupplyPoint.objects.filter(active=True, type__code=SupplyPointCodes.FACILITY).order_by('id')
             if self.facility_limit:
                 facilities = facilities[:self.facility_limit]
             for i, facility in enumerate(facilities):
-                print "processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count)
+                print("processing facility %s (%s) (%s of %s)" % (facility.name, str(facility.id), i, count))
                 self.update_base_level_data(facility, start, end, products, base_level=BaseLevel.FACILITY)
 
         if not self.skip_consumption:
@@ -137,20 +138,20 @@ class MalawiWarehouseRunner(WarehouseRunner):
         products = get_products(base_level)
         for agg_type_code, agg_type_name in aggregate_types_in_order(base_level):
             supply_points = SupplyPoint.objects.filter(active=True).filter(type__code=agg_type_code).order_by('id')
-            print 'aggregating data at level %s for base level %s' % (agg_type_name, base_level)
+            print('aggregating data at level %s for base level %s' % (agg_type_name, base_level))
 
             if self.agg_limit_per_type:
                 supply_points = supply_points[:self.agg_limit_per_type]
 
             supply_points_count = supply_points.count()
             for i, supply_point in enumerate(supply_points):
-                print "processing %s %s (%s) (%s/%s)" % (
+                print("processing %s %s (%s) (%s/%s)" % (
                     agg_type_name,
                     supply_point.name,
                     supply_point.id,
                     i,
                     supply_points_count
-                )
+                ))
 
                 self.update_aggregated_data(
                     supply_point,
@@ -409,7 +410,7 @@ def update_alerts(hsas):
         .exclude(type__code=SupplyPointCodes.ZONE)
         .order_by('id')
     )
-    print "updating alerts"
+    print("updating alerts")
 
     def _qs_to_int(queryset):
         return 1 if queryset.count() else 0
@@ -502,10 +503,10 @@ def update_consumption_times(since):
     # time_needing_data updated
     consumptions_to_update = CalculatedConsumption.objects.filter(update_date__gte=since)
     count = consumptions_to_update.count()
-    print 'updating %s consumption objects' % count
+    print('updating %s consumption objects' % count)
     for i, c in enumerate(consumptions_to_update.iterator()):
         if i % 500 == 0:
-            print '%s/%s consumptions updated' % (i, count)
+            print('%s/%s consumptions updated' % (i, count))
         # if they supply the product it is already set in update_consumption, above
         if not c.supply_point.supplies(c.product):
             c.time_needing_data = c.time_with_data
@@ -517,7 +518,7 @@ def update_historical_data():
     If we don't have a record of this supply point being updated, run
     through all historical data and just fill in with zeros.
     """
-    print 'updating historical data'
+    print('updating historical data')
     for sp in SupplyPoint.objects.filter(supplypointwarehouserecord__isnull=True).exclude(type__code=SupplyPointCodes.ZONE):
         update_historical_data_for_supply_point(sp)
 

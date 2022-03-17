@@ -323,7 +323,7 @@ def get_window_range(request):
     return (date1, date2)
 
 def increment_dict_item(dictionary, key, val):
-    if dictionary.has_key(key):
+    if key in dictionary:
         dictionary[key] += val
     else:
         dictionary[key] = val
@@ -332,7 +332,7 @@ def increment_dict_item(dictionary, key, val):
 def list_key_values(dictionary, key_list=None):
     if not key_list:
         key_list = dictionary.keys()
-    return [dictionary[key] for key in key_list if dictionary.has_key(key)]
+    return [dictionary[key] for key in key_list if key in dictionary]
 
 def sum_of_key_values(dictionary, key_list):
     return sum(list_key_values(dictionary, key_list)) 
@@ -341,7 +341,7 @@ def avg_of_key_values(dictionary, key_list):
     total = sum_of_key_values(dictionary, key_list)
     count = 0
     for key in key_list:
-        if dictionary.has_key(key):
+        if key in dictionary:
             count += 1
     return pct(total, count) / 100
 
@@ -351,7 +351,7 @@ def get_datelist(start, end):
 
 def remove_zeros_from_dict(dicti, key_val):
     dictionary = deepcopy(dicti)
-    if dictionary.has_key(key_val):
+    if key_val in dictionary:
         if dictionary[key_val] == 0 or not dictionary[key_val]:
             dictionary.pop(key_val)
             return dictionary, True

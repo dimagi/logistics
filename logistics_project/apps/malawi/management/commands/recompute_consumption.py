@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.core.management.base import LabelCommand
 from warehouse.models import ReportRun
 from datetime import datetime
@@ -58,7 +59,7 @@ class Command(LabelCommand):
             new_run.end_run = datetime.utcnow()
             new_run.complete = True
             new_run.save()
-            print "End time: %s" % datetime.now()
+            print("End time: %s" % datetime.now())
 
 def recompute(run_record, aggregate_only, hsa_code=None):
     if not aggregate_only:
@@ -66,9 +67,9 @@ def recompute(run_record, aggregate_only, hsa_code=None):
             SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
         count = hsas.count()
         for i, hsa in enumerate(hsas):
-            print "processing hsa %s (%s) (%s of %s)" % (
+            print("processing hsa %s (%s) (%s of %s)" % (
                 hsa.name, str(hsa.id), i+1, count
-            )
+            ))
             clear_calculated_consumption(hsa)
             for year, month in months_between(run_record.start, run_record.end):
                 window_date = datetime(year, month, 1)
@@ -88,9 +89,9 @@ def recompute(run_record, aggregate_only, hsa_code=None):
 
     all_products = Product.objects.all()
     for i, place in enumerate(non_hsas):
-        print "processing non-hsa %s (%s) (%s/%s)" % (
+        print("processing non-hsa %s (%s) (%s/%s)" % (
             place.name, str(place.id), i+1, count
-        )
+        ))
         relevant_hsas = hsa_supply_points_below(place.location)
         for year, month in months_between(run_record.start, run_record.end):
             window_date = datetime(year, month, 1)
