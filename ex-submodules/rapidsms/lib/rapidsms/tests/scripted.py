@@ -2,11 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from __future__ import absolute_import
 import time
 import logging
 from django.db import transaction
 from rapidsms.router import router as globalrouter
-from harness import EchoApp
+from .harness import EchoApp
 import unittest, re, threading
 from django.test import TransactionTestCase
 from django.conf import settings
@@ -89,10 +90,10 @@ class TestScript (TransactionTestCase, LoggerMixin):
     @classmethod
     def parseScript (cls, script):
         cmds  = []
-        for line in map(lambda(x): x.strip(), script.split("\n")):
+        for line in map(lambda x: x.strip(), script.split("\n")):
             if not line or line.startswith("#"): continue
             tokens = re.split(r'([<>])', line, 1)
-            num, dir, txt = map(lambda (x):x.strip(), tokens)
+            num, dir, txt = map(lambda x:x.strip(), tokens)
             # allow users to optionally put dates in the number
             # 19232922@200804150730
             if "@" in num:
@@ -165,7 +166,7 @@ class TestScript (TransactionTestCase, LoggerMixin):
             try:
                 self._checkAgainstMessage(num, txt, last_msg, msg)
                 return i
-            except AssertionError, e:
+            except AssertionError as e:
                 errors.append(e)
                 # only raise this up if we've exhausted all our candidates
                 if i == len(msgs) - 1: 
@@ -211,10 +212,10 @@ class MockTestScript (TestScript):
     """
     
     def testClosure (self):
-        self.assertEquals(type(self.testScript.func_defaults), tuple)
-        self.assertEquals(type(self.testScript.func_defaults[0]), list)
-        self.assertNotEquals(self.testScript.func_defaults,
-                             self.testScript2.func_defaults)
+        self.assertEquals(type(self.testScript.__defaults__), tuple)
+        self.assertEquals(type(self.testScript.__defaults__[0]), list)
+        self.assertNotEquals(self.testScript.__defaults__,
+                             self.testScript2.__defaults__)
 
     def testRunScript (self):
         self.runScript("""

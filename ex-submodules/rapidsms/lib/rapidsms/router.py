@@ -131,7 +131,7 @@ class Router(object, LoggerMixin):
                 self.debug("backend %s terminated normally" % backend)
                 return True
             
-            except Exception, e:
+            except Exception as e:
                 self.debug("caught exception in backend %s: %s" % (backend, e))
                 backend.exception()
 
@@ -380,7 +380,7 @@ class Router(object, LoggerMixin):
                         func = getattr(app, phase)
                         handled = func(msg)
 
-                    except Exception, err:
+                    except Exception as err:
                         app.exception()
 
                     # during the _filter_ phase, an app can return True
@@ -440,7 +440,7 @@ class Router(object, LoggerMixin):
                     func = getattr(app, phase)
                     continue_sending = func(msg)
 
-                except Exception, err:
+                except Exception as err:
                     app.exception()
 
                 # during any outgoing phase, an app can return True to

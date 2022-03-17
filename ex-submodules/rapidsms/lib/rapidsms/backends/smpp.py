@@ -2,6 +2,7 @@
 # vim: et ai sts=4 sw=4 ts=4
 
 
+from __future__ import print_function
 import time
 import socket
 
@@ -28,12 +29,12 @@ class Backend(BackendBase):
         self.user = args['username']
         self.pwd  = args['password']
         self.sender = args['sender']
-        self.system_type = args['system_type'] if args.has_key('system_type') else None
-        self.address_range = args['address_range'] if args.has_key('address_range') else None
+        self.system_type = args['system_type'] if 'system_type' in args else None
+        self.address_range = args['address_range'] if 'address_range' in args else None
 
         # compulsory SMPP parameters
-        self.source_addr_ton = args['source_addr_ton'] if args.has_key('source_addr_ton') else 0
-        self.dest_addr_ton   = args['dest_addr_ton'] if args.has_key('dest_addr_ton') else 0
+        self.source_addr_ton = args['source_addr_ton'] if 'source_addr_ton' in args else 0
+        self.dest_addr_ton   = args['dest_addr_ton'] if 'dest_addr_ton' in args else 0
 	
         self.smppClient = Client(self.host, self.port)
         self.smppClient.set_message_received_handler(self.recv_handler)
@@ -195,7 +196,7 @@ if smpplib is not None:
                 self._enquire_link_received()
             else:
                 if p:
-                    print "WARNING: Unhandled SMPP command '%s'" % p.command
+                    print("WARNING: Unhandled SMPP command '%s'" % p.command)
 
                 self.disconnect()
                 #self.isConnected = False # Found out this happens

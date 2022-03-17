@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+from __future__ import print_function
 import os
 
 from rapidsms.router import Router
@@ -19,9 +20,9 @@ class MockLogger (list):
     def write (self, *args):
         if self.to_console:
             if len(args) == 3:
-                print args[2]
+                print(args[2])
             else:    
-                print args[2] % args[3:]
+                print(args[2] % args[3:])
         self.append(args)
 
 # a subclass of Router with all the moving parts replaced
