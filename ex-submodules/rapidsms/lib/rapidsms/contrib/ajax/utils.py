@@ -85,10 +85,10 @@ def request(path, get=None, post=None, encoding=None):
         return (res.code, content_type, res.read())
 
     # the server returned an error
-    except urllib2.HTTPError, err:
+    except urllib2.HTTPError as err:
         raise exceptions.RouterError(
             err.code, err.info()["content-type"], err.read())
 
     # the router couldn't be reached
-    except urllib2.URLError, err:
+    except urllib2.URLError as err:
         raise exceptions.RouterNotResponding

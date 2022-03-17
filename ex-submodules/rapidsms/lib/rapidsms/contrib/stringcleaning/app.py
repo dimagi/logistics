@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 from rapidsms.apps.base import AppBase
 
@@ -100,7 +101,7 @@ class App (AppBase):
             try:
                 # replace each of the letters with its appropriate numeral
                 numeralized = numeralized.replace(g, gaffes[g])
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
         # return the string once all gaffes have been replaced
         return numeralized

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from django.core.management.base import BaseCommand
 from rapidsms.models import App
 from ...conf import settings
@@ -26,4 +27,4 @@ class Command(BaseCommand):
                 # log at the same level as syncdb's "created table..."
                 # messages, to stay silent when called with -v 0
                 if verbosity >= 1:
-                    print "Added persistant app %s" % app
+                    print("Added persistant app %s" % app)
