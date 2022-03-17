@@ -1,3 +1,4 @@
+from __future__ import print_function
 from logistics.models import SupplyPoint, StockTransaction, \
     Product, HistoricalStockCache
 from datetime import datetime, timedelta
@@ -12,13 +13,13 @@ class Command(LabelCommand):
     def handle(self, *args, **options):
         products = Product.objects.all()
         for sp in SupplyPoint.objects.all():
-            print "generating stock for %s" % sp
+            print("generating stock for %s" % sp)
             for p in products:
                 transactions = StockTransaction.objects.filter(supply_point=sp,
                                                              product=p)
                 if transactions.count():
                     date = transactions.order_by("date")[0].date
-                    print "product %s, starting on %s" % (p, date)
+                    print("product %s, starting on %s" % (p, date))
                     
                     end = _date_in_next_month(datetime.utcnow())
                     while date < end:

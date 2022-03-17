@@ -308,13 +308,13 @@ class DataTable(object):
       raise DataTableException("Description error: expected either string or "
                                "tuple, got %s." % type(description))
 
-    if isinstance(description, (str,)):
+    if isinstance(description, str):
       description = (description,)
 
     # According to the tuple's length, we fill the keys
     # We verify everything is of type string
     for elem in description[:3]:
-      if not isinstance(elem, (str,)):
+      if not isinstance(elem, str):
         raise DataTableException("Description error: expected tuple of "
                                  "strings, current element of type %s." %
                                  type(elem))
@@ -466,7 +466,7 @@ class DataTable(object):
     # dictionary).
     # NOTE: this way of differentiating might create ambiguity. See docs.
     if (len(table_description) != 1 or
-        (isinstance(table_description.keys()[0], (str,)) and
+        (isinstance(table_description.keys()[0], str) and
          isinstance(table_description.values()[0], tuple) and
          len(table_description.values()[0]) < 4)):
       # This is the most inner dictionary. Parsing types.
@@ -630,12 +630,12 @@ class DataTable(object):
       return self.__data
 
     proper_sort_keys = []
-    if isinstance(order_by, (str,)) or (
+    if isinstance(order_by, str) or (
         isinstance(order_by, tuple) and len(order_by) == 2 and
         order_by[1].lower() in ["asc", "desc"]):
       order_by = (order_by,)
     for key in order_by:
-      if isinstance(key, (str,)):
+      if isinstance(key, str):
         proper_sort_keys.append((key, 1))
       elif (isinstance(key, (list, tuple)) and len(key) == 2 and
             key[1].lower() in ("asc", "desc")):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import csv
 from logistics.models import StockTransaction
 from datetime import datetime
@@ -17,7 +18,7 @@ class Command(LabelCommand):
 
         def _is_stockout(trans):
             if trans.ending_balance < 0:
-                print 'negative balance!! %s, %s' % (trans.pk, trans)
+                print('negative balance!! %s, %s' % (trans.pk, trans))
             return trans.ending_balance == 0
         def _is_match(start_trans, end_trans):
             return (start_trans.supply_point == end_trans.supply_point and
@@ -66,7 +67,7 @@ class Command(LabelCommand):
                 outfile.writerow(row)
 
         if len(args) == 0:
-            print 'please specify a filename'
+            print('please specify a filename')
             return
         filename = args[0]
         f = file(filename, 'w')
@@ -101,4 +102,4 @@ class Command(LabelCommand):
 
             i += 1
             if i % 500 == 0:
-                print 'processed %s/%s transactions' % (i, count)
+                print('processed %s/%s transactions' % (i, count))

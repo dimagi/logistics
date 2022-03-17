@@ -128,7 +128,7 @@ def group_message(request):
                 try:
                     send_message(contact.default_connection, msg)
                     success_count += 1
-                except Exception, e:
+                except Exception as e:
                     failures.append(contact.name)
 
             if success_count:
