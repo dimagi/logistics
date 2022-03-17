@@ -7,7 +7,7 @@ django-taggit==0.17.6
 djappsettings==0.4.0
 nose
 nose-exclude
-python-dateutil==1.5
+python-dateutil==2.8.2
 python-memcached
 supervisor
 requests==2.4.3  # cz: pretty sure we can remove this
