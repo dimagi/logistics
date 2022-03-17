@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 import uuid
 import logging
@@ -25,13 +26,13 @@ from logistics.const import Reports
 from logistics.util import config, parse_report
 from logistics.mixin import StockCacheMixin
 from logistics.consumption import daily_consumption
-from static.malawi.config import BaseLevel
+from .static.malawi.config import BaseLevel
 
 try:
-    from settings import LOGISTICS_CONSUMPTION
-    from settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
-    from settings import LOGISTICS_REORDER_LEVEL_IN_MONTHS
-    from settings import LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS
+    from .settings import LOGISTICS_CONSUMPTION
+    from .settings import LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS
+    from .settings import LOGISTICS_REORDER_LEVEL_IN_MONTHS
+    from .settings import LOGISTICS_MAXIMUM_LEVEL_IN_MONTHS
 except ImportError:
     raise ImportError("Please define LOGISTICS_CONSUMPTION, "
                       "LOGISTICS_EMERGENCY_LEVEL_IN_MONTHS, " 
@@ -128,7 +129,7 @@ class SupplyPointType(models.Model):
     def policy(self):
         try:
             return config.SupplyPointPolicies.STOCK_POLICIES[self.code]
-        except AttributeError, KeyError:
+        except AttributeError as KeyError:
             raise ImproperlyConfigured("Stock level policies are not configured correctly for this deployment.")
     
     def monthly_consumption_by_product(self, product):
@@ -1356,7 +1357,7 @@ class ProductReportsHelper(object):
             code = self.clean_product_code(code)
             try:
                 self.add_product_stock(code, amt)
-            except ValueError, e:
+            except ValueError as e:
                 self.errors.append(e)
                                         
     def parse(self, string):
@@ -1375,17 +1376,17 @@ class ProductReportsHelper(object):
         while True:
             try:
                 while commodity is None or not commodity.isalpha():
-                    commodity = self.clean_product_code(an_iter.next())
-                count = an_iter.next()
+                    commodity = self.clean_product_code(next(an_iter))
+                count = next(an_iter)
                 while not count.isdigit():
-                    count = an_iter.next()
+                    count = next(an_iter)
                 self.add_product_stock(commodity, count)
                 valid = True
-                token_a = an_iter.next()
+                token_a = next(an_iter)
                 if not token_a.isalnum():
-                    token_b = an_iter.next()
+                    token_b = next(an_iter)
                     while not token_b.isalnum():
-                        token_b = an_iter.next()
+                        token_b = next(an_iter)
                     if token_b.isdigit():
                         # if digit, then the user is reporting receipts
                         self.add_product_receipt(commodity, token_b)
@@ -1398,7 +1399,7 @@ class ProductReportsHelper(object):
                 else:
                     commodity = token_a
                     valid = True
-            except ValueError, e:
+            except ValueError as e:
                 self.errors.append(e)
                 commodity = None
                 continue

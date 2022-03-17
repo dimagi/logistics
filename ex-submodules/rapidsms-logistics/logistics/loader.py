@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 from django.conf import settings
@@ -40,7 +41,7 @@ def load_products_into_facilities(demo=False):
                          monthly_consumption=facility_consumption).save()
             ps_loaded += 1
         if ps_loaded > 0:
-            print "Loaded %(count)s stocks into %(fac)s" % {'count':ps_loaded, 'fac':fac.name}
+            print("Loaded %(count)s stocks into %(fac)s" % {'count':ps_loaded, 'fac':fac.name})
 
 
 def load_products(log_to_console=False):
@@ -60,7 +61,7 @@ def load_products(log_to_console=False):
                                                        units=config.Products.ALL[key][2], 
                                                        average_monthly_consumption=10)
         if created and log_to_console:
-            print "Created product %(prod)s" % {'prod':p}
+            print("Created product %(prod)s" % {'prod':p})
 
 def generate_codes_for_locations(log_to_console=False):
     """ CVS doesn't require locations to have a code, but logistics
@@ -72,8 +73,8 @@ def generate_codes_for_locations(log_to_console=False):
         loc.code = _generate_location_code(loc.name)
         loc.save()
         if log_to_console:
-            print "  %(name)s's code is %(code)s" % {'name':loc.name,
-                                                     'code':loc.code}
+            print("  %(name)s's code is %(code)s" % {'name':loc.name,
+                                                     'code':loc.code})
 
 def _generate_location_code(name, lower=True, check_existing=True, kls=Location):
     if lower:

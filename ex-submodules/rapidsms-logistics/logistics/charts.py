@@ -1,8 +1,9 @@
+from __future__ import absolute_import
 from datetime import datetime
 from logistics_project.utils.dates import DateSpan, get_day_of_month
 from dateutil.relativedelta import relativedelta
 from django.core.cache import cache
-import gviz_api
+from . import gviz_api
 from logistics.models import ProductReportType, Product, ProductStock
 from logistics.const import Reports
 

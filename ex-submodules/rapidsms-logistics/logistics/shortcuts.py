@@ -1,3 +1,4 @@
+from __future__ import print_function
 from logistics.models import ProductReportsHelper, SupplyPoint
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None, 
@@ -31,7 +32,7 @@ def supply_point_from_location(loc, type, parent=None):
     try:
         sp.save()
     except:
-        print sp
+        print(sp)
         raise
     
     return sp
