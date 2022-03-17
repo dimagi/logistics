@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
+from __future__ import absolute_import
 from django import forms
-from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db import transaction
-from django.utils.translation import ugettext as _
 from rapidsms.models import Backend, Connection, Contact
 from logistics.models import SupplyPoint, ContactRole, Product
 from logistics_project.apps.malawi.util import get_backend_name_for_phone_number
