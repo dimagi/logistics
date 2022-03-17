@@ -16,8 +16,6 @@ BASE_APPS = [
     "djtables",
     "rapidsms",
     # for email reports
-    "djcelery", # pip install django-celery
-    "djkombu", # pip install django-kombu
 
     # common dependencies (which don't clutter up the ui).
     "rapidsms.contrib.handlers",
@@ -113,7 +111,6 @@ TEST_EXCLUDED_APPS = [
     "rapidsms",
     "rapidsms.contrib.ajax",
     "rapidsms.contrib.httptester",
-    "djcelery"
 ]
 
 # the project-level url patterns
@@ -154,8 +151,11 @@ LOG_FORMAT  = "[%(name)s]: %(message)s"
 LOG_BACKUPS = 256 # number of logs to keep
 
 # celery
-CARROT_BACKEND = "django"
 CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
+# Celery setup (using redis)
+REDIS_URL = 'redis://localhost:6379:0'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 
 # kannel
 KANNEL_URL = 'http://localhost:13000/status?password=CHANGEME'
