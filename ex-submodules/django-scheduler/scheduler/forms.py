@@ -26,7 +26,7 @@ class ScheduleForm(forms.ModelForm):
                     # which we get from the admin ui
                     value = value.strip(',').split(',')
                     value = set([int(i) for i in value])
-                except Exception, e:
+                except Exception as e:
                     raise forms.ValidationError("Poorly formatted. " + \
                         "Please enter values as a comma-separated list, " + 
                         "e.g. '1, 2, 3'")
@@ -56,7 +56,7 @@ class ScheduleForm(forms.ModelForm):
         check_bounds_func = getattr(EventSchedule, 'check_%s_bounds' % name)
         try:
             check_bounds_func(value)
-        except Exception, e:
+        except Exception as e:
             raise forms.ValidationError(unicode(e))
         return value
 

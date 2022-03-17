@@ -1,3 +1,4 @@
+from __future__ import print_function
 from datetime import datetime
 from logistics_project.utils.modules import to_function
 from django.conf import settings
@@ -36,9 +37,9 @@ class DemoWarehouseRunner(WarehouseRunner):
                "this actually do something.") 
     
     def generate(self, run_record):
-        print ("Demo warehouse generate! Would create all data from %s-%s. "
+        print(("Demo warehouse generate! Would create all data from %s-%s. "
                "Override WAREOUSE_RUNNER in your settings.py file to have "
-               "this actually do something.") % (run_record.start, run_record.end)
+               "this actually do something.") % (run_record.start, run_record.end))
     
 
 def get_warehouse_runner():
@@ -52,7 +53,7 @@ def get_warehouse_runner():
     
 def update_warehouse(start_date=None, end_date=None, cleanup=False):
     
-    print "Start time: %s" % datetime.now()
+    print("Start time: %s" % datetime.now())
     
     last_run = ReportRun.last_success()
     # use the passed in date, or the last run end, or the beginning of time,
@@ -64,7 +65,7 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
         end_date = datetime.utcnow() 
     
     runner = get_warehouse_runner()
-    print "executing warehouse from %s, %s to %s" % (runner, start_date.date(), end_date.date())
+    print("executing warehouse from %s, %s to %s" % (runner, start_date.date(), end_date.date()))
     if cleanup:
         runner.cleanup(start_date, end_date)
     
@@ -77,7 +78,7 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
                                        start_run=datetime.utcnow())
     try: 
         runner.generate(new_run)
-    except Exception, e:
+    except Exception as e:
         # just in case something funky happened in the DB
         if isinstance(e, DatabaseError):
             try:
@@ -91,5 +92,5 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
         new_run.end_run = datetime.utcnow()
         new_run.complete = True
         new_run.save()
-        print "End time: %s" % datetime.now()
+        print("End time: %s" % datetime.now())
 
