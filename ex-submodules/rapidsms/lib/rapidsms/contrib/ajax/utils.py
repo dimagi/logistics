@@ -1,5 +1,7 @@
-import urllib
-import urllib2
+from future import standard_library
+standard_library.install_aliases()
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 from json import JSONDecoder
 
 from rapidsms.conf import settings
@@ -12,9 +14,8 @@ def call_router(app, action, **kwargs):
     """
 
     post = kwargs if len(kwargs) else None
-    (status, content_type, body) = request(
-        "%s/%s" % (app, action),
-        post=post)
+    (status, content_type, body) = request("%s/%s" % (app, action), post=post)
+
 
     # if the response was encoded json, decode it before returning
     if content_type == "application/json":
@@ -40,7 +41,7 @@ def request(path, get=None, post=None, encoding=None):
     # build the url to the http server running in the app. encoding
     # doesn't apply here, since the query string only supports ASCII:
     # http://www.w3.org/TR/REC-html40/interact/forms.html#idx-POST-1
-    query = "?%s" % urllib.urlencode(get) if (get is not None) else ""
+    query = "?%s" % urllib.parse.urlencode(get) if (get is not None) else ""
     url = "http://%s:%d/%s%s" % (
         settings.AJAX_PROXY_HOST,
         settings.AJAX_PROXY_PORT,
@@ -60,8 +61,7 @@ def request(path, get=None, post=None, encoding=None):
         # whatever charset we're using as bytes
         data = None
         if post is not None:
-            encoded_post = dict([k, v.encode(encoding)] for k, v in post.items())
-            data = urllib.urlencode(encoded_post)
+            data = urllib.parse.urlencode(post).encode(encoding)
     
     # build the content-type header, including the character set
     # that we just encoded the POST data into
@@ -73,18 +73,18 @@ def request(path, get=None, post=None, encoding=None):
     try:
 
         # do the subrequest; this might raise
-        req = urllib2.Request(url, data, headers)
-        res = urllib2.urlopen(req)
+        req = urllib.request.Request(url, data, headers)
+        res = urllib.request.urlopen(req)
 
         # it worked!
         content_type = res.info()["content-type"]
         return (res.code, content_type, res.read())
 
     # the server returned an error
-    except urllib2.HTTPError as err:
+    except urllib.error.HTTPError as err:
         raise exceptions.RouterError(
             err.code, err.info()["content-type"], err.read())
 
     # the router couldn't be reached
-    except urllib2.URLError as err:
+    except urllib.error.URLError as err:
         raise exceptions.RouterNotResponding
