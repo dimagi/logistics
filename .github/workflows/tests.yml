@@ -1,10 +1,10 @@
-name: commcare-hq tests
+name: cstock tests
 on:
   pull_request:
     branches:
     - malawi-dev
-  schedule:
-    - cron: '0 0 * * *'
+#  schedule:
+#    - cron: '0 0 * * *'
 jobs:
   tests:
     runs-on: ubuntu-18.04
