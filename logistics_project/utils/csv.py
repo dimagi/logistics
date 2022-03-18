@@ -6,17 +6,17 @@ from __future__ import absolute_import
 
 import csv
 import codecs
-import cStringIO
+from io import BytesIO
 
 
-class UnicodeWriter:
+class UnicodeWriter(object):
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
     """
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = BytesIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
