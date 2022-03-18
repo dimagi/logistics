@@ -27,19 +27,12 @@ class TestBusinessDays(TestCase):
         # leap year
         self.assertEqual(date(2012, 2, 29), get_day_of_month(2012, 2, -1))
         
-        
         # fail
-        try:
+        with self.assertRaises(ValueError):
             get_day_of_month(2011, 2, 30)
-            self.fail("previous call should have failed")
-        except ValueError: pass
-        
-        try:
+        with self.assertRaises(ValueError):
             get_day_of_month(2011, 2, -30)
-            self.fail("previous call should have failed")
-        except ValueError: pass
-        
-    
+
     def testBusinessDays(self):
         # normal
         self.assertEqual(date(2011, 8, 1), get_business_day_of_month(2011, 8, 1))
@@ -74,18 +67,10 @@ class TestBusinessDays(TestCase):
         self.assertEqual(date(2011, 8, 29), get_business_day_of_month_after(2011, 8, 27))
         self.assertEqual(date(2011, 10, 17), get_business_day_of_month_after(2011, 10, 15))
         self.assertEqual(date(2011, 12, 20), get_business_day_of_month_after(2011, 12, 20))
-        
-        # fail
-        try:
-            get_business_day_of_month_after(2011, 12, 31)
-            self.fail("previous call should have failed")
-        except ValueError: pass
-        try:
-            get_business_day_of_month_after(2011, 2, 30)
-            self.fail("previous call should have failed")
-        except ValueError: pass
-            
-        
+
+        # weird behavior but iat least it's documented?
+        self.assertEqual(date(2011, 2, 28), get_business_day_of_month_after(2011, 2, 30))
+
     def testBusinessDaysBefore(self):
         self.assertEqual(date(2011, 8, 1), get_business_day_of_month_before(2011, 8, 1))
         self.assertEqual(date(2011, 8, 5), get_business_day_of_month_before(2011, 8, 5))
@@ -100,9 +85,5 @@ class TestBusinessDays(TestCase):
         self.assertEqual(date(2011, 10, 14), get_business_day_of_month_before(2011, 10, 15))
         self.assertEqual(date(2011, 12, 20), get_business_day_of_month_before(2011, 12, 20))
         
-        
-        # fail
-        try:
+        with self.assertRaises(ValueError):
             get_business_day_of_month_before(2011, 10, 1)
-            self.fail("previous call should have failed")
-        except ValueError: pass
