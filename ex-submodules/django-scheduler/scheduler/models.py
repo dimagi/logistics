@@ -296,13 +296,16 @@ class EventSchedule(models.Model):
         """
         Runs the schedule, update the model appropriately, return the results. 
         """
+        ret = None
         try:
             ret = self.execute()
         except Exception as e:
             logging.exception("Problem executing scheduled item %s" % self)
             self.record_failed_execution(asof, str(e))
-            if failhard: raise
-        self.record_execution(asof)
+            if failhard:
+                raise
+        else:
+            self.record_execution(asof)
         return ret
 
     

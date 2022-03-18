@@ -125,13 +125,12 @@ import os
 import tempfile
 import sys
 
-# for postgresql:
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "logistics",
-        "USER": "postgres",
-        "PASSWORD": "",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "cstock",
+        "USER": "root",
+        "PASSWORD": "***",
         "HOST": "localhost",
     }
 }
@@ -217,6 +216,9 @@ NO_LOGIN_REQUIRED_FOR = [
     'help',
     'malawi/is-kannel-up'
 ]
+
+if os.environ.get('GITHUB_TESTS', False):
+    from .testsettings import *
 
 try:
     import sys

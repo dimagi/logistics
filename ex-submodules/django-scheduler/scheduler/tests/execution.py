@@ -62,7 +62,7 @@ class TestExecution(TestCase):
         fail_schedule.save()
         self.assertEqual(0, ExecutionRecord.objects.count())
         asof = datetime.utcnow()
-        self.assertEqual(None, fail_schedule.run(asof))
+        self.assertEqual(None, fail_schedule.run(asof, failhard=False))
         fail_schedule = EventSchedule.objects.get(pk=fail_schedule.pk)
         self.assertEqual(asof, fail_schedule.last_ran)
         self.assertEqual(1, ExecutionRecord.objects.count())

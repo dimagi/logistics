@@ -23,14 +23,12 @@ MIDDLEWARE_CLASSES = [
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379:0',
         'OPTIONS': {
-            'MAX_ENTRIES': 10000
-        }
-    }
+        },
+    },
 }
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
 
 # See logistics_project.apps.malawi.templatetags.malawi_tags.get_malawi_tabs
