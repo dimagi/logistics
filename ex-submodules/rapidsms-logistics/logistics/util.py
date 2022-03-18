@@ -1,7 +1,6 @@
 from importlib import import_module
 from rapidsms.conf import settings
 from re import findall
-from string import maketrans
 from rapidsms.messages.outgoing import OutgoingMessage
 from rapidsms.models import Connection, Backend
 
@@ -12,11 +11,7 @@ if hasattr(settings, "CODE_CHARS_RANGE"):
 else:
     CODE_CHARS_RANGE = (2,4) # from 2 to 4 characters per product code
 
-if hasattr(settings, "NUMERIC_LETTERS"):
-    NUMERIC_LETTERS = settings.NUMERIC_LETTERS
-else:
-    NUMERIC_LETTERS = ("lLO", "110")
-
+NUMERIC_LETTERS = ("lLO", "110")
 
 def ussd_push_backend():
     if not hasattr(ussd_push_backend, '_backend'):
@@ -77,8 +72,15 @@ def parse_report(val):
     
     def _cleanup(s):
         return unicode(s).encode('utf-8')
-    
-    return [(x[0], int(x[1].translate(maketrans(NUMERIC_LETTERS[0], NUMERIC_LETTERS[1])))) \
+
+    try:
+        from string import maketrans
+        # todo: python2 fix
+        numeric_trans = maketrans(NUMERIC_LETTERS[0], NUMERIC_LETTERS[1])
+    except ImportError:
+        numeric_trans = ''.maketrans(NUMERIC_LETTERS[0], NUMERIC_LETTERS[1])
+
+    return [(x[0], int(x[1].translate(numeric_trans))) \
             for x in findall("\s*(?P<code>[A-Za-z]{%(minchars)d,%(maxchars)d})\s*(?P<quantity>[\-?0-9%(numeric_letters)s]+)\s*" % \
                                     {"minchars": CODE_CHARS_RANGE[0],
                                      "maxchars": CODE_CHARS_RANGE[1],
