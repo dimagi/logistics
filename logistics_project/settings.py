@@ -125,13 +125,12 @@ import os
 import tempfile
 import sys
 
-# for postgresql:
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "logistics",
-        "USER": "postgres",
-        "PASSWORD": "",
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "cstock",
+        "USER": "root",
+        "PASSWORD": "***",
         "HOST": "localhost",
     }
 }
