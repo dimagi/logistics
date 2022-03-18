@@ -6,6 +6,7 @@ from rapidsms.contrib.messagelog.models import Message
 import csv
 import os
 
+
 class OutputtingTestScript(TestScript):
     """
     Test class that saves all the test messages to a csv file 
@@ -24,7 +25,7 @@ class OutputtingTestScript(TestScript):
         if not os.path.exists(self.output_directory):
             os.mkdir(self.output_directory)
         
-        with open(self.output_filename, "wb") as f:
+        with open(self.output_filename, "w") as f:
             writer = csv.writer(f, delimiter=',')
             writer.writerow(["Phone Number", "Direction", "Message"])
             def csv_line(writer, msg):
