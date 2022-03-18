@@ -1,5 +1,11 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import zip
+from builtins import str
+from builtins import range
+from builtins import object
 from datetime import datetime
-from urllib2 import urlopen
+from urllib.request import urlopen
 from collections import defaultdict
 import json
 
@@ -394,7 +400,7 @@ def monitoring_report(request, report_slug):
 @permission_required("auth.admin_read")
 def status(request):
     f = urlopen(settings.KANNEL_URL)
-    r = f.read()
+    r = f.read().decode('utf-8')
     with open(settings.CELERY_HEARTBEAT_FILE) as f:
         r = "%s\n\nLast Celery Heartbeat:%s" % (r, f.read())
         
@@ -686,8 +692,8 @@ def sms_tracking(request):
         def get(self, pk):
             return self.contacts[pk] if pk in self.contacts else Contact.objects.get(pk=pk)
     
-    orgs = dict(zip(Organization.objects.all(), 
-                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())]))
+    orgs = dict(list(zip(Organization.objects.all(), 
+                    [defaultdict(lambda x: 0) for i in range(Organization.objects.count())])))
     # if I was smarter I'd figure out a way to do this query with django aggregates,
     # but for now we'll just do it all in memory
     all_messages = Message.objects.filter(date__gte=request.datespan.computed_startdate,

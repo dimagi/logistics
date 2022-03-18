@@ -121,4 +121,6 @@ def _home(request, base_level):
         assert report.can_view(request)
         return report.get_response(request)
     except Exception:
+        if settings.DEBUG:
+            raise
         return render(request, "%s/no-data.html" % settings.REPORT_FOLDER)

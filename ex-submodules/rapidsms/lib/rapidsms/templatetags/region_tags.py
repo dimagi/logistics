@@ -38,9 +38,11 @@ class RegionNode(template.Node):
             "%s/regions/%s.html" % (short_module_name, region_name)
             for short_module_name in short_module_names ]
 
-        strings = filter(None, [
-            self._render_to_string(template_name, context)
-            for template_name in template_names ])
+        strings = [
+            rendered for rendered in [
+                self._render_to_string(template_name, context)
+                for template_name in template_names
+            ] if rendered]
 
         if len(strings) == 0:
             return ""

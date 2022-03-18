@@ -66,7 +66,7 @@ class View(warehouse_view.DashboardView):
             "header": [child_sp_type, "%% %s with at least one stockout" % base_level_description],
             "data": [],
         }
-        for d, vals in summary_data.iteritems():
+        for d, vals in summary_data.items():
             table["data"].append([d.name, "%.1f%%" % vals["stockout_pct"]])
 
         return table
