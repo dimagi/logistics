@@ -12,11 +12,7 @@ if hasattr(settings, "CODE_CHARS_RANGE"):
 else:
     CODE_CHARS_RANGE = (2,4) # from 2 to 4 characters per product code
 
-if hasattr(settings, "NUMERIC_LETTERS"):
-    NUMERIC_LETTERS = settings.NUMERIC_LETTERS
-else:
-    NUMERIC_LETTERS = ("lLO", "110")
-
+NUMERIC_LETTERS = ("lLO", "110")
 
 def ussd_push_backend():
     if not hasattr(ussd_push_backend, '_backend'):
