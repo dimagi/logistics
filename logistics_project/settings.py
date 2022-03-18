@@ -217,13 +217,13 @@ NO_LOGIN_REQUIRED_FOR = [
     'malawi/is-kannel-up'
 ]
 
+if os.environ.get('GITHUB_TESTS', False):
+    from .testsettings import *
+
 try:
     import sys
     from .localsettings import *
 except ImportError:
     pass
-
-if os.environ.get('GITHUB_TESTS', False):
-    from .testsettings import *
 
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS
