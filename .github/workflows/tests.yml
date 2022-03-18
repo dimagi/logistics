@@ -40,5 +40,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Run Tests
+        env:
+          DB_USER: ${{ matrix.db_user }}
+          DB_PASSWORD: ${{ matrix.db_password }}
+          DJANGO_SETTINGS_MODULE: logistics_project.testsettings
         run: |
           python manage.py test logistics_project.apps.malawi.tests.boot
