@@ -223,4 +223,7 @@ try:
 except ImportError:
     pass
 
+if os.environ.get('GITHUB_TESTS', False):
+    from .testsettings import *
+
 INSTALLED_APPS = PRIORITY_APPS + BASE_APPS + APPS

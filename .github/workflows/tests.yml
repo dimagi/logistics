@@ -43,6 +43,6 @@ jobs:
         env:
           DB_USER: ${{ matrix.db_user }}
           DB_PASSWORD: ${{ matrix.db_password }}
-          DJANGO_SETTINGS_MODULE: logistics_project.testsettings
+          GITHUB_TESTS: yes
         run: |
           python manage.py test logistics_project.apps.malawi.tests.boot
