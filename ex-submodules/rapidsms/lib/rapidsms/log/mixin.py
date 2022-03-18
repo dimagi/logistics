@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
+from past.builtins import basestring
+from builtins import object
 import logging
 
 
-class LoggerMixin():
+class LoggerMixin(object):
     """
     This mixin provides a quick way to log from classes within the
     RapidSMS framework. It's mostly pasted from logging.LoggingAdaptor

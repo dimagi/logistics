@@ -6,7 +6,7 @@ from ..utils.modules import try_import, get_class
 from ..log.mixin import LoggerMixin
 
 
-class AppBase(object, LoggerMixin):
+class AppBase(LoggerMixin):
     """
     """
 

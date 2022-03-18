@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import str
 from datetime import datetime
 from django.utils.translation.trans_real import translation
 from .base import MessageBase
@@ -70,7 +71,7 @@ class OutgoingMessage(MessageBase):
         # We try to decode the message in the regular way (with 'ascii' encoding)
         # When this does not work, we try to decode it using utf-8
         try:
-            return unicode(t)
+            return str(t)
         except UnicodeDecodeError:
             return t.decode('utf-8')
 

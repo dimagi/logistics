@@ -5,7 +5,7 @@
 from rapidsms.log.mixin import LoggerMixin
 
 
-class BaseHandler(object, LoggerMixin):
+class BaseHandler(LoggerMixin):
     def _logger_name(self):
         app_label = self.__module__.split(".")[-3]
         return "app/%s/%s" % (app_label, self.__class__.__name__)

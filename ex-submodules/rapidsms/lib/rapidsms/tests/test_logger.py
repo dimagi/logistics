@@ -6,7 +6,7 @@ from nose.tools import assert_equals, assert_raises
 from ..log.mixin import LoggerMixin
 
 
-class LoggableStub(object, LoggerMixin):
+class LoggableStub(LoggerMixin):
     pass
 
 
@@ -37,7 +37,7 @@ def test_logger_mixin():
 
 
 def test_logger_raises_on_invalid_name_type():
-    class BrokenLoggableStub(object, LoggerMixin):
+    class BrokenLoggableStub(LoggerMixin):
         def _logger_name(self):
             return 123
 

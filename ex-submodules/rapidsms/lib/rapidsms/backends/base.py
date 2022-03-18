@@ -2,14 +2,16 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from future import standard_library
+standard_library.install_aliases()
 import time
-import Queue
+import queue
 from ..utils.modules import try_import, get_class
 from ..messages.incoming import IncomingMessage
 from ..log.mixin import LoggerMixin
 
 
-class BackendBase(object, LoggerMixin):
+class BackendBase(LoggerMixin):
     """
     """
 
@@ -21,7 +23,7 @@ class BackendBase(object, LoggerMixin):
 
 
     def __init__ (self, router, name, **kwargs):
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._running = False
         self.router = router
         self.name = name
@@ -111,7 +113,7 @@ class BackendBase(object, LoggerMixin):
         try:
             return self._queue.get(False)
 
-        except Queue.Empty:
+        except queue.Empty:
             return None
 
     def receive(self, identity, text):

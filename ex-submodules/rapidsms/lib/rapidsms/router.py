@@ -2,11 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
 import sys
 import threading
 import traceback
 import time
-import Queue
+import queue
 
 from django.dispatch import Signal
 
@@ -16,7 +19,7 @@ from .apps.base import AppBase
 from .conf import settings
 
 
-class Router(object, LoggerMixin):
+class Router(LoggerMixin):
     """
     """
 
@@ -41,7 +44,7 @@ class Router(object, LoggerMixin):
         self.accepting = False
         """TODO: Docs"""
 
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         """Pending incoming messages, populated by Router.incoming_message."""
 
 
@@ -99,7 +102,7 @@ class Router(object, LoggerMixin):
 
         return dict([
             (key.lower(), val)
-            for key, val in config.iteritems()
+            for key, val in config.items()
         ])
 
 
@@ -158,7 +161,7 @@ class Router(object, LoggerMixin):
         self._start_backend in a new daemon thread for each.
         """
 
-        for backend in self.backends.values():
+        for backend in list(self.backends.values()):
             worker = threading.Thread(
                 name=backend._logger_name(),
                 target=self._start_backend,
@@ -179,7 +182,7 @@ class Router(object, LoggerMixin):
         stop in a timely manner.
         """
 
-        for backend in self.backends.values():
+        for backend in list(self.backends.values()):
             alive = backend.__thread.is_alive
             if not alive(): continue
             backend.stop()
@@ -257,7 +260,7 @@ class Router(object, LoggerMixin):
 
                 # if there were no messages waiting, wait a very short
                 # (in human terms) time before looping to check again.
-                except Queue.Empty:
+                except queue.Empty:
                     time.sleep(0.1)
 
         # stopped via ctrl+c
@@ -334,7 +337,7 @@ class Router(object, LoggerMixin):
         # exception. there's no sense exploding (especially since we
         # have a bunch of pending messages), so just refuse to accept
         # it. hopefully, the backend can in turn refuse it
-        except Queue.Full:
+        except queue.Full:
             return False
 
 
