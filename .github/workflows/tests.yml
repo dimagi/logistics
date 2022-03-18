@@ -41,6 +41,7 @@ jobs:
           pip install -r requirements.txt
       - name: Run Tests
         env:
+          DB_NAME: ${{ matrix.db }}
           DB_USER: ${{ matrix.db_user }}
           DB_PASSWORD: ${{ matrix.db_password }}
           GITHUB_TESTS: yes
