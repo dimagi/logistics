@@ -1515,7 +1515,7 @@ class ProductReportsHelper(object):
         return set([p for p in self.product_received])
 
     def all(self):
-        return ", ".join('%s %s' % (key, val) for key, val in self.product_stock.items())
+        return u", ".join(u'%s %s' % (key, val) for key, val in self.product_stock.items())
 
     def all_sorted(self):
         return ", ".join('%s %s' % (key, val) for key, val in sorted(self.product_stock.items()))
