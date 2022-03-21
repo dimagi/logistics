@@ -50,7 +50,6 @@ class TestStockOnHandMalawi(MalawiTestBase):
                "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
 
-
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -242,7 +241,6 @@ class TestStockOnHandMalawi(MalawiTestBase):
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
-
 
     def testEmergencyStockOnHand(self):
         self._setup_users()
