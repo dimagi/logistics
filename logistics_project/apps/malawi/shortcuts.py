@@ -45,7 +45,6 @@ def _respond_empty(msg, contact, stock_report, supervisors, supply_point_name):
 
 def send_soh_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
-        # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
         base_level_is_hsa = (base_level == config.BaseLevel.HSA)
