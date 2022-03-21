@@ -16,7 +16,7 @@ class MalawiTestReceipts(MalawiTestBase):
         create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
         c = """
            +16175551000 > rec zi 100 la 200
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(2, ProductReport.objects.count())
@@ -26,7 +26,7 @@ class MalawiTestReceipts(MalawiTestBase):
         self.assertEqual(200, la.quantity)
         c = """
            +16175551000 > rec zi 100 la 100
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(4, ProductReport.objects.count())
@@ -39,7 +39,7 @@ class MalawiTestReceipts(MalawiTestBase):
         create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
         c = """
            +16175551000 > rec zi 100 la 200
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         c = """
