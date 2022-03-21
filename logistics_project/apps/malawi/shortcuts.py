@@ -40,7 +40,7 @@ def _respond_empty(msg, contact, stock_report, supervisors, supply_point_name):
             super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
                           supply_point=supply_point_name)
     msg.respond(config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO,
-                products=" ".join(stock_report.reported_products()).strip(),
+                products=format_product_string(stock_report.reported_products()),
                 contact=supply_point_name)
 
 def send_soh_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
