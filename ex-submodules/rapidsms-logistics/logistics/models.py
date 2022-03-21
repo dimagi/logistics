@@ -1,4 +1,8 @@
 from __future__ import absolute_import
+from builtins import str
+from builtins import next
+from past.builtins import basestring
+from builtins import object
 import re
 import uuid
 import logging
@@ -248,7 +252,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     @property
     def label(self):
-        return unicode(self)
+        return str(self)
     
     @property
     def is_active(self):
@@ -1440,7 +1444,7 @@ class ProductReportsHelper(object):
             self._record_product_report(self.get_product(stock_code), new_quantity, self.report_type)
 
             # in the case of transfers out this logic is broken
-            # for now that's ok, since malawi doesn't do anything with this 
+            # for now that's ok, since malawi doesn't do anything with this
             if original_quantity == 0 and new_quantity > 0:
                 stockouts_resolved.append(stock_code)
             if original_quantity > 0 and new_quantity == 0:
