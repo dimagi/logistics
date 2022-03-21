@@ -1598,10 +1598,9 @@ class ProductReportsHelper(object):
             - set([q for q in self.reported_products()]))
 
 
-def format_product_string(products):
+def format_product_string(products, delimiter=u' '):
     products = sorted(list(products))
-    return " ".join(products)
-
+    return delimiter.join(products)
 
 
 def get_geography():
