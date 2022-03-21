@@ -1,4 +1,4 @@
-from logistics.models import StockRequest, StockRequestStatus
+from logistics.models import StockRequest, StockRequestStatus, format_product_string
 from logistics.util import config, ussd_msg_response
 from logistics_project.apps.malawi.util import get_supervisors, swallow_errors
 from rapidsms.messages.outgoing import OutgoingMessage
@@ -64,7 +64,7 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                 StockRequest.objects.filter(supply_point=stock_report.supply_point,
                                             status=StockRequestStatus.REQUESTED)
             ]
-            orders = ", ".join(raw_orders)
+            orders = format_product_string(raw_orders, delimiter=", ")
 
             if stock_report.stockouts():
                 stocked_out = stock_report.stockouts()
