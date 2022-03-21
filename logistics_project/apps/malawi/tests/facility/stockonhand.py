@@ -434,7 +434,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
             "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa sb"},
             "district_notice": config.Messages.EMERGENCY_STOCKOUT % {
                     "supply_point": "Ntaja",
-                    "stockouts": "sa %s, bc %s" % (sa_resupply_level, bc_resupply_level),
+                    "stockouts": "bc %s, sa %s" % (bc_resupply_level, sa_resupply_level),
                     "normal_products": "sb %s" % (sb_resupply_level - 500),
                     "supply_point_code": "2616",
                 }
