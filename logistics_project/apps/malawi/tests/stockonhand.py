@@ -299,7 +299,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            +16175551000 > eo zi 0 la 0
            +16175551000 < %(confirm)s
-           +16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
+           +16175551001 < wendy is stocked out of and needs: la 360, zi 200. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
@@ -326,7 +326,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            +16175551000 > eo zi 0 la 0 co 10
            +16175551000 < %(confirm)s
-           +16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
+           +16175551001 < wendy is stocked out of and needs: la 360, zi 200, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
         """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co la zi"}}
 
         self.runScript(a)
@@ -341,7 +341,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         """ % {"confirm": config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM % \
                     {"contact": "wendy", "products": "la zi"},
                "supervisor": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % \
-                    {"hsa": "wendy", "products": "co 430, zi 200, la 360",
+                    {"hsa": "wendy", "products": "co 430, la 360, zi 200",
                      "stockedout_products": "la zi",
                      "hsa_id": "261601"}}
         self.runScript(a)
