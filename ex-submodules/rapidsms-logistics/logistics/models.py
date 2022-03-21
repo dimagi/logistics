@@ -1268,6 +1268,7 @@ class Validator(object):
     def validate(self, supply_point, product_stock={}, product_received={}, consumption={}):
         raise NotImplementedError()
 
+
 class ProductReportsHelper(object):
     """
     The following is a helper class which takes in aggregate
@@ -1595,6 +1596,13 @@ class ProductReportsHelper(object):
         return list(set([p.sms_code for p in products_to_report]) \
             - set([r.product.sms_code for r in stocks_already_reported]) \
             - set([q for q in self.reported_products()]))
+
+
+def format_product_string(products):
+    products = sorted(list(products))
+    return " ".join(products)
+
+
 
 def get_geography():
     """
