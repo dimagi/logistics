@@ -133,7 +133,7 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
         if stockouts:
             normal_products = [req for req in requests if req.balance > 0]
         else:
-            normal_products = [req for req in requests if req.is_emergency]
+            normal_products = [req for req in requests if not req.is_emergency]
         for supervisor in supervisors:
             with swallow_errors():
                 if stockouts:
