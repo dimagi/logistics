@@ -124,13 +124,11 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
         stockouts = [req for req in requests if req.balance == 0]
         emergency_products = [req for req in requests if req.is_emergency]
         emergency_product_string = format_product_string(
-            req.sms_format() for req in emergency_products
+            [req.sms_format() for req in emergency_products], delimiter=', '
         ) if emergency_products else "none"
-
-        if not stockouts:
-            stockout_string = 'none'
-        else:
-            stockout_string = format_product_string([req.sms_format() for req in stockouts], delimiter=', ')
+        stockout_string = format_product_string(
+            [req.sms_format() for req in stockouts], delimiter=', '
+        ) if stockouts else "none"
 
         if stockouts:
             normal_products = [req for req in requests if req.balance > 0]
