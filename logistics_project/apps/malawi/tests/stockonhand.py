@@ -67,7 +67,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         c = """
            +16175551000 > rec zi 190 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(2, StockRequest.objects.count())
@@ -87,7 +87,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         c = """
            +16175551000 > rec zi 180 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
 
@@ -177,7 +177,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         c = """
            +16175551000 > rec zi 190 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(200, ProductStock.objects.get(pk=zi.pk).quantity)
@@ -193,7 +193,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             +16175551000 < %(response)s
             +16175551001 < %(super)s
         """ % {
-            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "zi la"},
+            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "la zi"},
             "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"supply_point": "wendy"}
         }
         self.runScript(a)
@@ -250,7 +250,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551000 > eo zi 10 la 300
            +16175551000 < %(confirm)s
            +16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -292,7 +292,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551000 > eo zi 400 la 200
            +16175551000 < %(confirm)s
            +16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
 
@@ -302,7 +302,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551000 > eo zi 0 la 0
            +16175551000 < %(confirm)s
            +16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
 
@@ -329,7 +329,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551000 > eo zi 0 la 0 co 10
            +16175551000 < %(confirm)s
            +16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co la zi"}}
 
         self.runScript(a)
 
@@ -341,19 +341,19 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551001 < %(supervisor)s
            +16175551004 < %(supervisor)s
         """ % {"confirm": config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM % \
-                    {"contact": "wendy", "products": "zi la"},
+                    {"contact": "wendy", "products": "la zi"},
                "supervisor": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % \
                     {"hsa": "wendy", "products": "co 430, zi 200, la 360",
-                     "stockedout_products": "zi la",
+                     "stockedout_products": "la zi",
                      "hsa_id": "261601"}}
         self.runScript(a)
 
     def testMaxSupplyLevel(self):
         self._setup_users()
         keyword_response_pairs = (
-            ('soh', 'Thank you, you reported stock for zi la. The health center has been notified and you will receive a message when products are ready.'),
-            ('eo', 'We have received your emergency order for zi la and the health center has been notified. You will be notified when your products are available to pick up.'),
-            ('rec', 'Thank you, you reported receipts for zi la.'),
+            ('soh', 'Thank you, you reported stock for la zi. The health center has been notified and you will receive a message when products are ready.'),
+            ('eo', 'We have received your emergency order for la zi and the health center has been notified. You will be notified when your products are available to pick up.'),
+            ('rec', 'Thank you, you reported receipts for la zi.'),
         )
 
         for keyword, response in keyword_response_pairs:
