@@ -116,20 +116,26 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
 
 def send_emergency_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
-        # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
         base_level_is_hsa = (base_level == config.BaseLevel.HSA)
         supply_point_name = contact.name if base_level_is_hsa else contact.supply_point.name
         supervisors = get_supervisors(contact.supply_point.supplied_by)
         stockouts = [req for req in requests if req.balance == 0]
-        emergency_products = [req for req in requests if req.is_emergency == True]
-        emergency_product_string = ", ".join(req.sms_format() for req in emergency_products) if emergency_products else "none"
-        stockout_string = ", ".join(req.sms_format() for req in stockouts) if stockouts else "none"
+        emergency_products = [req for req in requests if req.is_emergency]
+        emergency_product_string = format_product_string(
+            req.sms_format() for req in emergency_products
+        ) if emergency_products else "none"
+
+        if not stockouts:
+            stockout_string = 'none'
+        else:
+            stockout_string = format_product_string([req.sms_format() for req in stockouts], delimiter=', ')
+
         if stockouts:
             normal_products = [req for req in requests if req.balance > 0]
         else:
-            normal_products = [req for req in requests if req.is_emergency == False]
+            normal_products = [req for req in requests if req.is_emergency]
         for supervisor in supervisors:
             with swallow_errors():
                 if stockouts:
@@ -160,7 +166,7 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
             ussd_msg_response(
                 msg,
                 config.Messages.HSA_LEVEL_EMERGENCY_SOH if base_level_is_hsa else config.Messages.FACILITY_LEVEL_EMERGENCY_SOH,
-                products=" ".join(stock_report.reported_products()).strip()
+                products=format_product_string(stock_report.reported_products()),
             )
         else:
             # TODO: this message should probably be cleaned up
