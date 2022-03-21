@@ -1,6 +1,6 @@
 from logistics.util import config
-from logistics.models import SupplyPoint, ContactRole,\
-    StockRequest, ProductReportsHelper
+from logistics.models import SupplyPoint, ContactRole, \
+    StockRequest, ProductReportsHelper, format_product_string
 from rapidsms.models import Contact
 from logistics.const import Reports
 
@@ -76,7 +76,7 @@ def report_stock(test_class, hsa, product_string, managers=None, products_back="
     """
     stock_report = ProductReportsHelper(SupplyPoint(), Reports.SOH)
     stock_report.newparse(product_string)
-    product_list = " ".join(stock_report.reported_products()).strip()
+    product_list = format_product_string(stock_report.reported_products())
     manager_msgs = []
     if managers:
         

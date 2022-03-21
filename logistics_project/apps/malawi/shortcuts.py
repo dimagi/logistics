@@ -110,7 +110,7 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                 ussd_msg_response(
                     msg,
                     response_message,
-                    products=" ".join(stock_report.reported_products()).strip()
+                    products=format_product_string(stock_report.reported_products()),
                 )
 
 
