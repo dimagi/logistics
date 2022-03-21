@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import str
 import re
 from django.core.exceptions import ObjectDoesNotExist
 from .base import BaseHandler
@@ -74,14 +75,14 @@ class KeywordHandler(BaseHandler):
             # catching the exception within the ``handle`` method.
             except ObjectDoesNotExist as err:
                 return inst.respond_error(
-                    unicode(err))
+                    str(err))
 
             # another special case: if something was miscast to an int
             # (it was probably a string from the ``text``), return a
             # more friendly (and internationalizable) error.
             except ValueError as err:
                 p = r"^invalid literal for int\(\) with base (\d+?): '(.+?)'$"
-                m = re.match(p, unicode(err))
+                m = re.match(p, str(err))
 
                 # allow other valueerrors to propagate.
                 if m is None:
