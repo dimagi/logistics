@@ -59,10 +59,12 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                             supply_point=contact.supply_point.supplied_by.name)
                 return
 
-            orders = ", ".join(req.sms_format() for req in \
-                               StockRequest.objects.filter\
-                                    (supply_point=stock_report.supply_point,
-                                     status=StockRequestStatus.REQUESTED))
+            raw_orders = [
+                req.sms_format() for req in
+                StockRequest.objects.filter(supply_point=stock_report.supply_point,
+                                            status=StockRequestStatus.REQUESTED)
+            ]
+            orders = ", ".join(raw_orders)
 
             if stock_report.stockouts():
                 stocked_out = stock_report.stockouts()
