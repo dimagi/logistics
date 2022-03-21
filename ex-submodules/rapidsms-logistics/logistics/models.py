@@ -1428,6 +1428,10 @@ class ProductReportsHelper(object):
                                                              product__sms_code=stock_code).quantity
             except ProductStock.DoesNotExist:
                 original_quantity = 0
+
+            if original_quantity is None:
+                original_quantity = 0
+
             new_quantity = self.product_stock[stock_code]
 
             if original_quantity == 0 and new_quantity == 0 and settings.LOGISTICS_IGNORE_EMPTY_STOCKS:
