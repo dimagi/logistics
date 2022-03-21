@@ -153,7 +153,7 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
                         supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION,
                                            supply_point=supply_point_name,
                                            emergency_products=emergency_product_string,
-                                           normal_products=", ".join(req.sms_format() for req in normal_products),
+                                           normal_products=format_product_string([req.sms_format() for req in normal_products]),
                                            supply_point_code=contact.supply_point.code)
                     else:
                         supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL,
