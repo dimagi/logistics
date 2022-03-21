@@ -152,7 +152,7 @@ LOG_BACKUPS = 256 # number of logs to keep
 # celery
 CELERY_HEARTBEAT_FILE = '/tmp/logistics-heartbeat'
 # Celery setup (using redis)
-REDIS_URL = 'redis://localhost:6379:0'
+REDIS_URL = 'redis://localhost:6379/0'
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 
