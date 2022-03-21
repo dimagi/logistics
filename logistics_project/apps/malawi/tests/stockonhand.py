@@ -29,7 +29,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBasicSupplyFlow(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
@@ -96,7 +96,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBackOrdersCanceledByReceipt(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         c = """
            +16175551000 > rec zi 190
@@ -118,7 +118,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBackOrdersCanceledBySoH(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
 
         report_stock(self, hsa, "zi 20", [ic,sh], "zi 180")
@@ -135,7 +135,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         # with the removal of back orders this test is sort of redundant with testBackOrdersCanceledBySoH
         # though is a bit more expansive
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "lb 172, zi 195")
         self.assertEqual(4, StockRequest.objects.count())
@@ -156,7 +156,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testSOHBeforeReceipt(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
@@ -172,7 +172,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
 
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         c = """
@@ -216,7 +216,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
 
-        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic], "la 345, zi 190")
 
         a = """
            +16175551001 > os 261601
@@ -382,17 +382,14 @@ class TestStockOnHandMalawi(MalawiTestBase):
             # one new report for each product
             self.assertEqual(report_count + 2, ProductReport.objects.count())
 
-
-
-
     def testSoHKeepDupes(self):
         ProductReport.objects.all().delete()
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, ProductReport.objects.count())
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(4, ProductReport.objects.count())
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(6, ProductReport.objects.count())
 
     def _setup_users(self):
