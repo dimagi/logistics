@@ -59,7 +59,7 @@ class Product(models.Model):
     # products which we recognize but aren't required for reporting)
     is_active = models.BooleanField(default=True, db_index=True)
     
-    class Meta:
+    class Meta(object):
         ordering = ['name']
         
     def __unicode__(self):
@@ -108,7 +108,7 @@ class ProductType(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Meta:
+    class Meta(object):
         verbose_name = "Product Type"
 
 
@@ -172,7 +172,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
 
     objects = models.Manager()
 
-    class Meta:
+    class Meta(object):
         abstract = True
         ordering = ['name']
 
@@ -627,7 +627,7 @@ class ProductStock(models.Model):
     auto_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
     use_auto_consumption = models.BooleanField(default=settings.LOGISTICS_USE_AUTO_CONSUMPTION)
 
-    class Meta:
+    class Meta(object):
         unique_together = (('supply_point', 'product'),)
 
     def __unicode__(self):
@@ -861,7 +861,7 @@ class StockTransfer(models.Model):
         for pending in cls.pending_transfers().filter(receiver=receiver):
             pending.cancel(now)
         
-        for product_code, amount in stock_report.product_stock.items():
+        for product_code, amount in list(stock_report.product_stock.items()):
             transfers.append(StockTransfer.objects.create(giver=stock_report.supply_point,
                                                           receiver=receiver,
                                                           product=stock_report.get_product(product_code),
@@ -886,7 +886,7 @@ class StockTransfer(models.Model):
         
         transfers = []
         now = datetime.utcnow()
-        for product_code, amount in stock_report.product_stock.items():
+        for product_code, amount in list(stock_report.product_stock.items()):
             transfers.append(StockTransfer.objects.create(giver=sp,
                                                           giver_unknown=sp_unknown,
                                                           receiver=stock_report.supply_point,
@@ -1012,7 +1012,7 @@ class StockRequest(models.Model):
         """
         requests = []
         now = datetime.utcnow()
-        for product_code, stock in stock_report.product_stock.items():
+        for product_code, stock in list(stock_report.product_stock.items()):
             product = stock_report.get_product(product_code)
             
             current_stock = ProductStock.objects.get(supply_point=stock_report.supply_point, 
@@ -1059,7 +1059,7 @@ class StockRequest(models.Model):
         requests = []
         pending_reqs = StockRequest.pending_requests().filter(
             supply_point=stock_report.supply_point,
-            product__sms_code__in=stock_report.product_stock.keys()
+            product__sms_code__in=list(stock_report.product_stock.keys())
         ).order_by('-received_on')
         now = datetime.utcnow()
         ps = set(stock_report.product_stock.keys())
@@ -1092,7 +1092,7 @@ class ProductReportType(models.Model):
     def __unicode__(self):
         return self.name
 
-    class Meta:
+    class Meta(object):
         verbose_name = "Product Report Type"
 
 class ProductReport(models.Model):
@@ -1109,7 +1109,7 @@ class ProductReport(models.Model):
     # message should only be null if the stock report was provided over the web
     message = models.ForeignKey('messagelog.Message', blank=True, null=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = "Product Report"
         
     def __unicode__(self):
@@ -1185,7 +1185,7 @@ class StockTransaction(models.Model):
     date = models.DateTimeField(default=datetime.utcnow)
     product_report = models.ForeignKey(ProductReport, null=True)
     
-    class Meta:
+    class Meta(object):
         verbose_name = "Stock Transaction"
 
     def __unicode__(self):
@@ -1250,7 +1250,7 @@ class ContactRole(models.Model):
     code = models.CharField(max_length=30, unique=True)
     name = models.CharField(max_length=100, blank=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = "Role"
 
     def __unicode__(self):
@@ -1515,25 +1515,25 @@ class ProductReportsHelper(object):
         return set([p for p in self.product_received])
 
     def all(self):
-        return u", ".join(u'%s %s' % (key, val) for key, val in self.product_stock.items())
+        return u", ".join(u'%s %s' % (key, val) for key, val in list(self.product_stock.items()))
 
     def all_sorted(self):
         return ", ".join('%s %s' % (key, val) for key, val in sorted(self.product_stock.items()))
 
     def received(self):
-        return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items())
+        return ", ".join('%s %s' % (key, val) for key, val in list(self.product_received.items()))
 
     def nonzero_received(self):
-        return ", ".join('%s %s' % (key, val) for key, val in self.product_received.items() if int(val) > 0)
+        return ", ".join('%s %s' % (key, val) for key, val in list(self.product_received.items()) if int(val) > 0)
         
     def _stockouts(self):
         # slightly different syntax than above, since there's no point in 
         # reporting stock levels for stocks which we know are at level '0'
         stockouts = {}
-        for key, val in self.product_stock.items():
+        for key, val in list(self.product_stock.items()):
             if val == 0:
                 stockouts[key] = val
-        return [key for key, val in stockouts.items() if val == 0]
+        return [key for key, val in list(stockouts.items()) if val == 0]
 
     def stockouts(self):
         stockouts = self._stockouts()
@@ -1546,7 +1546,7 @@ class ProductReportsHelper(object):
                 .get(product__sms_code__icontains=i)#.select_related('product','product__equivalent_to')
             if productstock.is_below_low_supply():
                 low_supply[i] = productstock
-        return [key for key, val in low_supply.items()]
+        return [key for key, val in list(low_supply.items())]
 
     def low_supply(self):
         low_supply = self._low_supply()
