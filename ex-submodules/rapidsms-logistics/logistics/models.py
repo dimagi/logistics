@@ -1545,8 +1545,7 @@ class ProductReportsHelper(object):
         return [key for key, val in list(stockouts.items()) if val == 0]
 
     def stockouts(self):
-        stockouts = self._stockouts()
-        return " ".join(stockouts)
+        return format_product_string(self._stockouts())
         
     def _low_supply(self):
         low_supply = {}
