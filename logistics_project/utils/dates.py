@@ -36,23 +36,25 @@ def months_between(start, end):
     the year and month of the start date, and the last one being
     the year and month of the end date.
     """
-    assert(start <= end)
+    assert date(start.year, start.month, 1) <= date(end.year, end.month, 1), \
+        'start date {} was later than end date {}!'.format(start, end)
     months = []
+    date_type = type(start)
     while start <= end:
         months.append((start.year, start.month))
         (yearnext, monthnext) = add_months(start.year, start.month, 1)
-        start = datetime(yearnext, monthnext, 1)
-    return months        
+        start = date_type(yearnext, monthnext, 1)
+    return months
 
 def add_months(year, months, offset):
     """
     Add a number of months to the passed in year and month, returning
     a tuple of (year, month)
     """
-    months = months - 1 # 0 index months coming in
+    months = months - 1  # 0 index months coming in
     nextmonths = months + offset
-    months_offset = nextmonths % 12 + 1 # 1 index it going out
-    years_offset = nextmonths / 12
+    months_offset = nextmonths % 12 + 1  # 1 index it going out
+    years_offset = nextmonths // 12
     return (year + years_offset, months_offset)
 
 def first_of_next_month(ref_date):

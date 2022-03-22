@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
-from datetime import datetime
+from builtins import str
 from django.db import models
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR
 from scheduler.fields import JSONField
@@ -94,15 +91,12 @@ class EventSchedule(models.Model):
         pass
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
-    
-    def __unicode__(self):
         def _list_to_string(list, conversion_dict=None):
             if len(list)>0:
                 if conversion_dict is not None:
-                    return ", ".join( [unicode(conversion_dict[m]) for m in list] )
+                    return ", ".join( [str(conversion_dict[m]) for m in list] )
                 else:
-                    return ", ".join( [unicode(m) for m in list] )
+                    return ", ".join( [str(m) for m in list] )
             else: 
                 return 'All'
         months = _list_to_string(self.months, MONTHS)
