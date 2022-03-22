@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 from builtins import str
 from django.db import models
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR
@@ -92,9 +89,6 @@ class EventSchedule(models.Model):
         minute
         """
         pass
-
-    def __unicode__(self):
-        return str(self)
 
     def __str__(self):
         def _list_to_string(list, conversion_dict=None):
