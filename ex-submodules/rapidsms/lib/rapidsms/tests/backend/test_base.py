@@ -17,7 +17,6 @@ class BackendBaseTest(TestCase):
         self.assertEqual(unicode(backend), "mock")
         self.assertEqual(backend.name, "mock")
     
-    
     def test_backend_has_model(self):
         backend = BackendStub(None, "mock")
         from ...models import Backend as B
@@ -62,7 +61,6 @@ class BackendBaseTest(TestCase):
     
         conf_backend = ConfigurableBackend(None, "mock", a=1, b=2)
         self.assertEqual(conf_backend.conf, {"a": 1, "b": 2 })
-    
     
     def test_backend_routes_messages(self):
     
