@@ -1,5 +1,3 @@
-from django import forms
-from rapidsms.conf import settings
 from rapidsms.models import Contact, Connection, Backend
 from rapidsms.tests.scripted import TestScript
 
