@@ -1,5 +1,5 @@
-from django import forms
-from rapidsms.conf import settings
+from django.conf import settings
+
 from rapidsms.models import Contact, Connection, Backend
 from rapidsms.tests.scripted import TestScript
 
@@ -7,15 +7,15 @@ class TestContact(TestScript):
     def setUp(self):
         Connection.objects.all().delete()
         Contact.objects.all().delete()
-        Backend.objects.create(name="smsgh")
+        Backend.objects.create(name=settings.DEFAULT_BACKEND)
         
     def tearDown(self):
         Connection.objects.all().delete()
         Contact.objects.all().delete()
-        Backend.objects.get(name="smsgh").delete()
+        Backend.objects.get(name=settings.DEFAULT_BACKEND).delete()
       
     def test_set_default_connection_nodefaultbefore_newconnection(self):
-        #create new connection
+        # create new connection
         contact = Contact.objects.create()
         contact.default_connection = '123'
         contact.save()
@@ -24,7 +24,7 @@ class TestContact(TestScript):
         self.assertEquals(conn.identity, '123')
     
     def test_set_default_connection_nodefaultbefore_existingconnection(self):
-        #assign connection to this user
+        # assign connection to this user
         contact = Contact.objects.create()
         contact.default_connection = '123'
         contact2 = Contact.objects.create()
@@ -34,14 +34,6 @@ class TestContact(TestScript):
         self.assertEquals(conn.identity, '123')
         self.assertEquals(contact.default_connection, None)
     
-    def test_set_default_connection_defaultbefore_newconnection(self):
-        contact = Contact.objects.create()
-        contact.default_connection = '456'
-        contact.default_connection = '123'
-        conn = Connection.objects.get()
-        self.assertEquals(conn.contact, contact)
-        self.assertEquals(conn.identity, '123')
-        
     def test_set_default_connection_defaultbefore_existingconnection(self):
         contact = Contact.objects.create()
         contact.default_connection = '456'

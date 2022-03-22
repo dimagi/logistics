@@ -39,7 +39,7 @@ class AppBase(LoggerMixin):
 
         return self.__module__.split(".")[-2]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def __repr__(self):

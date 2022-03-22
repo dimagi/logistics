@@ -161,7 +161,7 @@ class Contact(ContactBase):
     def is_hsa(self):
         from logistics.models import ContactRole
         from logistics.util import config
-        return self.role == ContactRole.objects.get(code=config.Roles.HSA)
+        return self.role.code == config.Roles.HSA if self.role else False
 
     @property
     def associated_supply_point(self):
