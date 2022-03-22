@@ -182,7 +182,7 @@ class TestHSARegister(MalawiTestBase):
         hsa = create_hsa(self, "+555555", "somehsa", products="la zi")
         ic = create_manager(self, "+666666", "somemanager")
         super = create_manager(self, "+777777", "somesuper", config.Roles.HSA_SUPERVISOR)
-        report_stock(self, hsa, "zi 10 la 15", [ic, super], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic, super], "la 345, zi 190")
         b = """
               +666666 > leave
               +666666 < %(left)s
@@ -190,13 +190,13 @@ class TestHSARegister(MalawiTestBase):
         self.runScript(b)
         failed = False
         try:
-            report_stock(self, hsa, "zi 10 la 15", [ic, super], "zi 190, la 345")
+            report_stock(self, hsa, "zi 10 la 15", [ic, super], "la 345, zi 190")
         except Exception:
             # this is expected
             failed = True
         if not failed:
             self.fail("Reporting stock should not have notified the supervisor")
-        report_stock(self, hsa, "zi 10 la 15", [super], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [super], "la 345, zi 190")
 
     def _run_manager_mismatch_test(self, role_code, supply_point_code):
         role = ContactRole.objects.get(code=role_code)
