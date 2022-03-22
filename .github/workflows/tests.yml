@@ -57,8 +57,8 @@ jobs:
           GITHUB_TESTS: yes
         run: >
           python manage.py test
-            logistics.tests
-            logistics_project.apps.malawi.tests
-            logistics_project.apps.registration.tests
-            rapidsms.tests
-            scheduler.tests
+          logistics.tests
+          logistics_project.apps.malawi.tests
+          logistics_project.apps.registration.tests
+          rapidsms.tests
+          scheduler.tests
