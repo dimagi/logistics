@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 """
 To use the http backend, one needs to append 'http' to the list of 
 available backends, like so:
@@ -13,7 +10,7 @@ available backends, like so:
         }
 
 """
-
+from __future__ import absolute_import
 from future import standard_library
 standard_library.install_aliases()
 from builtins import str
