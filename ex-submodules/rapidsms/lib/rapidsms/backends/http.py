@@ -14,10 +14,13 @@ available backends, like so:
 
 """
 
-import urllib2
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+import urllib.request, urllib.error, urllib.parse
 import select
 from datetime import datetime
-from httplib import responses
+from http.client import responses
 
 from django import http
 from django.http import HttpResponse, HttpResponseBadRequest
@@ -44,7 +47,7 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
             response = http.HttpResponseServerError()
         status_text = responses.get(response.status_code, 'UNKNOWN STATUS CODE')
         status = '%s %s' % (response.status_code, status_text)
-        response_headers = [(str(k), str(v)) for k, v in response.items()]
+        response_headers = [(str(k), str(v)) for k, v in list(response.items())]
         start_response(str(status), response_headers)
         return response
 
@@ -101,7 +104,7 @@ class RapidHttpBackend(BackendBase):
             error_msg = 'ERROR: Missing %(msg)s or %(phone_number)s. parameters received are: %(params)s' % \
                          { 'msg' : self.incoming_message_param, 
                            'phone_number': self.incoming_phone_number_param,
-                           'params': unicode(request.GET)
+                           'params': str(request.GET)
                          }
             self.warning(error_msg)
             return HttpResponseBadRequest(error_msg)
@@ -117,18 +120,18 @@ class RapidHttpBackend(BackendBase):
     def send(self, message):
         self.info('Sending message: %s' % message)
         text = message.text
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             text = text.encode('utf-8')
         # we do this since http_params_outgoing is a user-defined settings
         # and we don't want things like "%(doesn'texist)s" to throw an error
         http_params_outgoing = self.http_params_outgoing.replace('%(message)s',
-                                                                      urllib2.quote(text))
+                                                                      urllib.parse.quote(text))
         http_params_outgoing = http_params_outgoing.replace('%(phone_number)s',
-                                                                      urllib2.quote(message.connection.identity))
+                                                                      urllib.parse.quote(message.connection.identity))
         url = "%s?%s" % (self.gateway_url, http_params_outgoing)
         try:
             self.debug('Sending: %s' % url)
-            response = urllib2.urlopen(url)
+            response = urllib.request.urlopen(url)
         except Exception as e:
             self.exception(e)
             return False
