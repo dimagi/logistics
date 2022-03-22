@@ -1,5 +1,5 @@
-from logistics.models import ProductReportsHelper, StockRequest,\
-    ContactRole, StockTransfer
+from logistics.models import ProductReportsHelper, StockRequest, \
+    ContactRole, StockTransfer, format_product_string
 from django.utils.translation import ugettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.const import Reports
@@ -126,7 +126,7 @@ class ReportRegistrationHandler(KeywordHandler):
             self.respond(config.Messages.REPORT_RECEIPT_RESPONSE, 
                          reporter=self.msg.logistics_contact.name,
                          hsa=self.hsa.name,
-                         products=" ".join(stock_report.reported_products()).strip())
+                         products=format_product_string(stock_report.reported_products()))
 
     def _process_give(self):
         words = self.report_data.split(" ")
