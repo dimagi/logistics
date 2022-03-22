@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from django.test import TestCase
 from ..apps.base import AppBase
 
@@ -31,7 +33,7 @@ class AppBaseTest(TestCase):
         app = AppStub(router)
 
         self.assertEqual(repr(app), "<app: tests>")
-        self.assertEqual(unicode(app), "tests")
+        self.assertEqual(str(app), "tests")
         self.assertEqual(app.name, "tests")
 
     def test_app_finds_valid_app_classes(self):
