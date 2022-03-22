@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from django.test import TestCase
 import time
 import threading
@@ -14,7 +16,7 @@ class BackendBaseTest(TestCase):
         backend = BackendStub(None, "mock")
     
         self.assertEqual(repr(backend), "<backend: mock>")
-        self.assertEqual(unicode(backend), "mock")
+        self.assertEqual(str(backend), "mock")
         self.assertEqual(backend.name, "mock")
     
     def test_backend_has_model(self):
