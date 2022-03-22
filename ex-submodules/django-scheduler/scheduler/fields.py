@@ -2,6 +2,7 @@
 A field which can store a json object in the database. 
 """
 
+from past.builtins import basestring
 from django.db import models
 import json
 
