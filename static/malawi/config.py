@@ -91,8 +91,7 @@ class BaseLevel(object):
         """
         def __init__(self, product_codes, *args, **kwargs):
             super(BaseLevel.InvalidProductsException, self).__init__(*args, **kwargs)
-            self.product_codes = product_codes
-            self.product_codes.sort()
+            self.product_codes = sorted(product_codes)
 
         @property
         def product_codes_str(self):

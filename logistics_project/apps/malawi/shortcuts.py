@@ -1,4 +1,4 @@
-from logistics.models import StockRequest, StockRequestStatus
+from logistics.models import StockRequest, StockRequestStatus, format_product_string
 from logistics.util import config, ussd_msg_response
 from logistics_project.apps.malawi.util import get_supervisors, swallow_errors
 from rapidsms.messages.outgoing import OutgoingMessage
@@ -40,12 +40,11 @@ def _respond_empty(msg, contact, stock_report, supervisors, supply_point_name):
             super.message(config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO,
                           supply_point=supply_point_name)
     msg.respond(config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO,
-                products=" ".join(stock_report.reported_products()).strip(),
+                products=format_product_string(stock_report.reported_products()),
                 contact=supply_point_name)
 
 def send_soh_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
-        # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
         base_level_is_hsa = (base_level == config.BaseLevel.HSA)
@@ -60,10 +59,12 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                             supply_point=contact.supply_point.supplied_by.name)
                 return
 
-            orders = ", ".join(req.sms_format() for req in \
-                               StockRequest.objects.filter\
-                                    (supply_point=stock_report.supply_point,
-                                     status=StockRequestStatus.REQUESTED))
+            raw_orders = [
+                req.sms_format() for req in
+                StockRequest.objects.filter(supply_point=stock_report.supply_point,
+                                            status=StockRequestStatus.REQUESTED)
+            ]
+            orders = format_product_string(raw_orders, delimiter=", ")
 
             if stock_report.stockouts():
                 stocked_out = stock_report.stockouts()
@@ -109,26 +110,30 @@ def send_soh_responses(msg, contact, stock_report, requests, base_level=config.B
                 ussd_msg_response(
                     msg,
                     response_message,
-                    products=" ".join(stock_report.reported_products()).strip()
+                    products=format_product_string(stock_report.reported_products()),
                 )
 
 
 def send_emergency_responses(msg, contact, stock_report, requests, base_level=config.BaseLevel.HSA):
     if stock_report.errors:
-        # TODO: respond better.
         msg.respond(config.Messages.GENERIC_ERROR)
     else:
         base_level_is_hsa = (base_level == config.BaseLevel.HSA)
         supply_point_name = contact.name if base_level_is_hsa else contact.supply_point.name
         supervisors = get_supervisors(contact.supply_point.supplied_by)
         stockouts = [req for req in requests if req.balance == 0]
-        emergency_products = [req for req in requests if req.is_emergency == True]
-        emergency_product_string = ", ".join(req.sms_format() for req in emergency_products) if emergency_products else "none"
-        stockout_string = ", ".join(req.sms_format() for req in stockouts) if stockouts else "none"
+        emergency_products = [req for req in requests if req.is_emergency]
+        emergency_product_string = format_product_string(
+            [req.sms_format() for req in emergency_products], delimiter=', '
+        ) if emergency_products else "none"
+        stockout_string = format_product_string(
+            [req.sms_format() for req in stockouts], delimiter=', '
+        ) if stockouts else "none"
+
         if stockouts:
             normal_products = [req for req in requests if req.balance > 0]
         else:
-            normal_products = [req for req in requests if req.is_emergency == False]
+            normal_products = [req for req in requests if not req.is_emergency]
         for supervisor in supervisors:
             with swallow_errors():
                 if stockouts:
@@ -148,7 +153,7 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
                         supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION,
                                            supply_point=supply_point_name,
                                            emergency_products=emergency_product_string,
-                                           normal_products=", ".join(req.sms_format() for req in normal_products),
+                                           normal_products=format_product_string([req.sms_format() for req in normal_products]),
                                            supply_point_code=contact.supply_point.code)
                     else:
                         supervisor.message(config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION_NO_ADDITIONAL,
@@ -159,7 +164,7 @@ def send_emergency_responses(msg, contact, stock_report, requests, base_level=co
             ussd_msg_response(
                 msg,
                 config.Messages.HSA_LEVEL_EMERGENCY_SOH if base_level_is_hsa else config.Messages.FACILITY_LEVEL_EMERGENCY_SOH,
-                products=" ".join(stock_report.reported_products()).strip()
+                products=format_product_string(stock_report.reported_products()),
             )
         else:
             # TODO: this message should probably be cleaned up

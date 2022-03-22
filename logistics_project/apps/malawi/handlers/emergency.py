@@ -1,5 +1,3 @@
-from rapidsms.models import Contact
-from logistics.models import ContactRole
 from logistics.const import Reports
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
@@ -19,5 +17,10 @@ class EmergencyReportHandler(StockReportBaseHandler):
         return Reports.EMERGENCY_SOH
       
     def send_responses(self, stock_report):
-        send_emergency_responses(self.msg, self.msg.logistics_contact, stock_report, self.requests,
-            base_level=self.base_level)
+        send_emergency_responses(
+            self.msg,
+            self.msg.logistics_contact,
+            stock_report,
+            self.requests,
+            base_level=self.base_level
+        )

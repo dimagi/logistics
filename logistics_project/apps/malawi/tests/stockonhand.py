@@ -29,7 +29,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBasicSupplyFlow(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
             self.assertEqual(req.supply_point, SupplyPoint.objects.get(code="261601"))
@@ -50,7 +50,6 @@ class TestStockOnHandMalawi(MalawiTestBase):
                "hsa_notice": config.Messages.HSA_LEVEL_APPROVAL_NOTICE % \
                     {"hsa": "wendy"}}
 
-
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.count())
         for req in StockRequest.objects.all():
@@ -67,7 +66,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         c = """
            +16175551000 > rec zi 190 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(2, StockRequest.objects.count())
@@ -87,7 +86,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
         c = """
            +16175551000 > rec zi 180 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
 
@@ -96,7 +95,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBackOrdersCanceledByReceipt(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         c = """
            +16175551000 > rec zi 190
@@ -118,7 +117,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testBackOrdersCanceledBySoH(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
 
         report_stock(self, hsa, "zi 20", [ic,sh], "zi 180")
@@ -135,7 +134,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
         # with the removal of back orders this test is sort of redundant with testBackOrdersCanceledBySoH
         # though is a bit more expansive
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.count())
         report_stock(self, hsa, "zi 5 lb 20", [ic,sh], "lb 172, zi 195")
         self.assertEqual(4, StockRequest.objects.count())
@@ -156,7 +155,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
 
     def testSOHBeforeReceipt(self):
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         zi = ProductStock.objects.get(product__sms_code="zi", supply_point=SupplyPoint.objects.get(code="261601"))
         la = ProductStock.objects.get(product__sms_code="la", supply_point=SupplyPoint.objects.get(code="261601"))
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
@@ -172,12 +171,12 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.runScript(b)
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.APPROVED).count())
 
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, StockRequest.objects.filter(status=StockRequestStatus.REQUESTED).count())
 
         c = """
            +16175551000 > rec zi 190 la 345
-           +16175551000 < Thank you, you reported receipts for zi la.
+           +16175551000 < Thank you, you reported receipts for la zi.
         """
         self.runScript(c)
         self.assertEqual(200, ProductStock.objects.get(pk=zi.pk).quantity)
@@ -193,7 +192,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
             +16175551000 < %(response)s
             +16175551001 < %(super)s
         """ % {
-            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "zi la"},
+            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "wendy", "products": "la zi"},
             "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"supply_point": "wendy"}
         }
         self.runScript(a)
@@ -216,7 +215,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
     def testStockoutSupplyFlow(self):
         hsa, ic = self._setup_users()[0:2]
 
-        report_stock(self, hsa, "zi 10 la 15", [ic], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic], "la 345, zi 190")
 
         a = """
            +16175551001 > os 261601
@@ -243,14 +242,13 @@ class TestStockOnHandMalawi(MalawiTestBase):
         self.assertEqual(zi.quantity, 10)
         self.assertEqual(la.quantity, 15)
 
-
     def testEmergencyStockOnHand(self):
         self._setup_users()
         a = """
            +16175551000 > eo zi 10 la 300
            +16175551000 < %(confirm)s
            +16175551004 <  wendy needs emergency products zi 190, also la 60. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
         self.assertEqual(2, StockRequest.objects.count())
@@ -292,7 +290,7 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551000 > eo zi 400 la 200
            +16175551000 < %(confirm)s
            +16175551004 < wendy needs emergency products none, also la 160. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
 
@@ -301,8 +299,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            +16175551000 > eo zi 0 la 0
            +16175551000 < %(confirm)s
-           +16175551001 < wendy is stocked out of and needs: zi 200, la 360. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "zi la"}}
+           +16175551001 < wendy is stocked out of and needs: la 360, zi 200. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "la zi"}}
 
         self.runScript(a)
 
@@ -328,8 +326,8 @@ class TestStockOnHandMalawi(MalawiTestBase):
         a = """
            +16175551000 > eo zi 0 la 0 co 10
            +16175551000 < %(confirm)s
-           +16175551001 < wendy is stocked out of and needs: zi 200, la 360, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
-        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co zi la"}}
+           +16175551001 < wendy is stocked out of and needs: la 360, zi 200, and additionally: co 430. Respond 'ready 261601' or 'os 261601'
+        """ % {"confirm": config.Messages.HSA_LEVEL_EMERGENCY_SOH % {"products": "co la zi"}}
 
         self.runScript(a)
 
@@ -341,19 +339,19 @@ class TestStockOnHandMalawi(MalawiTestBase):
            +16175551001 < %(supervisor)s
            +16175551004 < %(supervisor)s
         """ % {"confirm": config.Messages.SOH_HSA_LEVEL_ORDER_STOCKOUT_CONFIRM % \
-                    {"contact": "wendy", "products": "zi la"},
+                    {"contact": "wendy", "products": "la zi"},
                "supervisor": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % \
-                    {"hsa": "wendy", "products": "co 430, zi 200, la 360",
-                     "stockedout_products": "zi la",
+                    {"hsa": "wendy", "products": "co 430, la 360, zi 200",
+                     "stockedout_products": "la zi",
                      "hsa_id": "261601"}}
         self.runScript(a)
 
     def testMaxSupplyLevel(self):
         self._setup_users()
         keyword_response_pairs = (
-            ('soh', 'Thank you, you reported stock for zi la. The health center has been notified and you will receive a message when products are ready.'),
-            ('eo', 'We have received your emergency order for zi la and the health center has been notified. You will be notified when your products are available to pick up.'),
-            ('rec', 'Thank you, you reported receipts for zi la.'),
+            ('soh', 'Thank you, you reported stock for la zi. The health center has been notified and you will receive a message when products are ready.'),
+            ('eo', 'We have received your emergency order for la zi and the health center has been notified. You will be notified when your products are available to pick up.'),
+            ('rec', 'Thank you, you reported receipts for la zi.'),
         )
 
         for keyword, response in keyword_response_pairs:
@@ -382,17 +380,14 @@ class TestStockOnHandMalawi(MalawiTestBase):
             # one new report for each product
             self.assertEqual(report_count + 2, ProductReport.objects.count())
 
-
-
-
     def testSoHKeepDupes(self):
         ProductReport.objects.all().delete()
         hsa, ic, sh = self._setup_users()[0:3]
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(2, ProductReport.objects.count())
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(4, ProductReport.objects.count())
-        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "zi 190, la 345")
+        report_stock(self, hsa, "zi 10 la 15", [ic,sh], "la 345, zi 190")
         self.assertEqual(6, ProductReport.objects.count())
 
     def _setup_users(self):

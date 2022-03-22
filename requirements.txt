@@ -22,12 +22,14 @@ django-nose==0.1.3
     # via -r requirements.in
 django-picklefield==0.2.0
     # via -r requirements.in
-django-redis==4.5.0
+django-redis==4.10.0
     # via -r requirements.in
 django-taggit==0.17.6
     # via -r requirements.in
 django==1.11.29
-    # via -r requirements.in
+    # via
+    #   -r requirements.in
+    #   django-redis
 djappsettings==0.4.0
     # via -r requirements.in
 future==0.18.2

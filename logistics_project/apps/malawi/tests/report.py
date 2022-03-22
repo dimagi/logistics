@@ -113,7 +113,7 @@ class TestReport(MalawiTestBase):
             self.assertTrue(req.is_pending())
         b = """
            +16175551234 > report 261601 rec zi 160 la 160
-           +16175551234 < Thank you charles. You reported the following receipts for joe: zi la
+           +16175551234 < Thank you charles. You reported the following receipts for joe: la zi
         """ 
         self.runScript(b)
         self.assertEqual(200, ProductStock.objects.get(supply_point=hsa_sp, product__sms_code="zi").quantity)
@@ -129,7 +129,7 @@ class TestReport(MalawiTestBase):
         create_hsa(self, "+16175551000", "joe")
         a = """
            +16175551234 > report 261601 rec zi 100 la 400 
-           +16175551234 < Thank you charles. You reported the following receipts for joe: zi la
+           +16175551234 < Thank you charles. You reported the following receipts for joe: la zi
         """ 
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code="261601")
@@ -145,9 +145,9 @@ class TestReport(MalawiTestBase):
            +16175551000 < %(response)s
            +16175551234 < %(super)s
         """ % {"response": config.Messages.SOH_HSA_LEVEL_ORDER_CONFIRM % \
-               {"contact": "joe", "products": "zi la"},
+               {"contact": "joe", "products": "la zi"},
                "super": config.Messages.SUPERVISOR_HSA_LEVEL_SOH_NOTIFICATION % \
-               {"hsa": "phoneless", "products": "zi 160, la 160",
+               {"hsa": "phoneless", "products": "la 160, zi 160",
                 "hsa_id": "261602"}}
         self.runScript(a)
         hsa_sp = SupplyPoint.objects.get(code="261602")
@@ -169,7 +169,7 @@ class TestReport(MalawiTestBase):
            +16175551000 < %(response)s
            +16175551234 < %(super)s
         """ % {"response": config.Messages.HSA_LEVEL_EMERGENCY_SOH % \
-               {"products": "zi la"},
+               {"products": "la zi"},
                "super": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % \
                {"supply_point": "phoneless", "emergency_products": "zi 160",
                 "normal_products": "la 160",

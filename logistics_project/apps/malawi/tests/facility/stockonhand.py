@@ -105,7 +105,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         """ % {
             "bc_resupply_amount": bc_resupply_amount,
             "sa_resupply_amount": sa_resupply_amount,
-            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
+            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "bc sa"}
         }
         self.runScript(c)
 
@@ -128,7 +128,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551000 > rec bc 200 sa 400
            +16175551000 < %(confirm)s
         """ % {
-            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
+            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "bc sa"}
         }
         self.runScript(c)
 
@@ -253,7 +253,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         """ % {
             "bc_resupply_amount": bc_resupply_amount,
             "sa_resupply_amount": sa_resupply_amount,
-            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}
+            "confirm": config.Messages.RECEIPT_CONFIRM % {"products": "bc sa"}
         }
         self.runScript(c)
 
@@ -273,7 +273,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         """ % {
             "bc_resupply_level": bc_resupply_level,
             "sa_resupply_level": sa_resupply_level,
-            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "Ntaja", "products": "sa bc"},
+            "response": config.Messages.SOH_ORDER_CONFIRM_NOTHING_TO_DO % {"contact": "Ntaja", "products": "bc sa"},
             "super": config.Messages.SUPERVISOR_SOH_NOTIFICATION_NOTHING_TO_DO % {"supply_point": "Ntaja"}
         }
         self.runScript(a)
@@ -322,7 +322,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551000 < %(confirm)s
            +16175551004 < %(district_notice)s
         """ % {
-            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
+            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa"},
             "district_notice": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % {
                     "supply_point": "Ntaja",
                     "emergency_products": "bc %s" % bc_resupply_amount,
@@ -376,7 +376,7 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551004 < %(district_notice)s
         """ % {
             "bc_resupply_level": bc_resupply_level,
-            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
+            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa"},
             "district_notice": config.Messages.SUPERVISOR_EMERGENCY_SOH_NOTIFICATION % {
                     "supply_point": "Ntaja",
                     "emergency_products": "none",
@@ -395,10 +395,10 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551000 < %(confirm)s
            +16175551004 < %(district_notice)s
         """ % {
-            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"},
+            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa"},
             "district_notice": config.Messages.EMERGENCY_STOCKOUT_NO_ADDITIONAL % {
                     "supply_point": "Ntaja",
-                    "stockouts": "sa %s, bc %s" % (sa_resupply_level, bc_resupply_level),
+                    "stockouts": "bc %s, sa %s" % (bc_resupply_level, sa_resupply_level),
                     "supply_point_code": "2616",
                 }
         }
@@ -431,10 +431,10 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551000 < %(confirm)s
            +16175551004 < %(district_notice)s
         """ % {
-            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sb sa bc"},
+            "confirm": config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa sb"},
             "district_notice": config.Messages.EMERGENCY_STOCKOUT % {
                     "supply_point": "Ntaja",
-                    "stockouts": "sa %s, bc %s" % (sa_resupply_level, bc_resupply_level),
+                    "stockouts": "bc %s, sa %s" % (bc_resupply_level, sa_resupply_level),
                     "normal_products": "sb %s" % (sb_resupply_level - 500),
                     "supply_point_code": "2616",
                 }
@@ -451,11 +451,11 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
            +16175551000 < %(confirm)s
            +16175551004 < %(district_notice)s
         """ % {
-            "confirm": config.Messages.SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM % {"products": "sb bc"},
+            "confirm": config.Messages.SOH_FACILITY_LEVEL_ORDER_STOCKOUT_CONFIRM % {"products": "bc sb"},
             "district_notice": config.Messages.SUPERVISOR_FACILITY_LEVEL_SOH_NOTIFICATION_WITH_STOCKOUTS % {
                 "supply_point": "Ntaja",
-                "products": "sb %s, sa %s, bc %s" % (sb_resupply_level, (sa_resupply_level - 500), bc_resupply_level),
-                "stockedout_products": "sb bc",
+                "products": "bc %s, sa %s, sb %s" % (bc_resupply_level, (sa_resupply_level - 500), sb_resupply_level),
+                "stockedout_products": "bc sb",
                 "supply_point_code": "2616",
             }
         }
@@ -471,9 +471,9 @@ class TestFacilityLevelStockOnHandMalawi(MalawiFacilityLevelTestBase):
         report_facility_level_stock(self, ic, "bc 100 sa 500", [de], {"bc": bc_resupply_amount, "sa": sa_resupply_amount})
 
         keyword_response_pairs = (
-            ('soh', config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM % {"products": "sa bc"}),
-            ('eo', config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "sa bc"}),
-            ('rec', config.Messages.RECEIPT_CONFIRM % {"products": "sa bc"}),
+            ('soh', config.Messages.SOH_FACILITY_LEVEL_ORDER_CONFIRM % {"products": "bc sa"}),
+            ('eo', config.Messages.FACILITY_LEVEL_EMERGENCY_SOH % {"products": "bc sa"}),
+            ('rec', config.Messages.RECEIPT_CONFIRM % {"products": "bc sa"}),
         )
 
         for keyword, response in keyword_response_pairs:

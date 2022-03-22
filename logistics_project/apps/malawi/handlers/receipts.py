@@ -1,13 +1,11 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 from logistics.exceptions import TooMuchStockError
-from logistics.validators import check_max_levels, get_max_level_function
+from logistics.validators import get_max_level_function
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
-from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, ProductReport
+from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, ProductReport, format_product_string
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.const import Reports
 from logistics.util import config, ussd_msg_response
@@ -92,10 +90,12 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         # fill in transfers, if there were any
         if supplier is not None:
             StockTransfer.create_from_receipt_report(stock_report, supplier)
-            self.respond(_(config.Messages.RECEIPT_FROM_CONFIRM), products=" ".join(stock_report.reported_products()).strip(),
+            self.respond(_(config.Messages.RECEIPT_FROM_CONFIRM),
+                         products=format_product_string(stock_report.reported_products()),
                          supplier=supplier)
         else:
-            self.respond(_(config.Messages.RECEIPT_CONFIRM), products=" ".join(stock_report.reported_products()).strip())
+            self.respond(_(config.Messages.RECEIPT_CONFIRM),
+                         products=format_product_string(stock_report.reported_products()))
 
     def respond(self, template=None, **kwargs):
         self.add_default_tags()
