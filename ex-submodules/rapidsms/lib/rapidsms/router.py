@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
-
+from django.db import close_old_connections
 from future import standard_library
 standard_library.install_aliases()
 from builtins import range
@@ -362,7 +361,8 @@ class Router(LoggerMixin):
         Cleanup:
           An opportunity to clean up anything started during earlier phases.
         """
-
+        # workaround for "mysql has gone away" errors: https://stackoverflow.com/a/65927061/8207
+        close_old_connections()
         self.info("Incoming (%s): %s" %\
             (msg.connection, msg.text))
 
@@ -425,6 +425,8 @@ class Router(LoggerMixin):
     def outgoing(self, msg):
         """
         """
+        # workaround for "mysql has gone away" errors: https://stackoverflow.com/a/65927061/8207
+        close_old_connections()
 
         self.info("Outgoing (%s): %s" %\
             (msg.connection, msg.text))
