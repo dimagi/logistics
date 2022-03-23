@@ -409,11 +409,7 @@ class Router(LoggerMixin):
     def outgoing(self, msg):
         """
         """
-        # workaround for "mysql has gone away" errors: https://stackoverflow.com/a/65927061/8207
-        close_old_connections()
-
-        self.info("Outgoing (%s): %s" % \
-                  (msg.connection, msg.text))
+        self.info("Outgoing (%s): %s" % (msg.connection, msg.text))
 
         for phase in self.outgoing_phases:
             self.debug("Out %s phase" % phase)
