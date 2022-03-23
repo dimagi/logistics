@@ -1,13 +1,9 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
-
+from django.db import close_old_connections
 from future import standard_library
+
 standard_library.install_aliases()
 from builtins import range
-import sys
 import threading
-import traceback
 import time
 import queue
 
@@ -26,11 +22,10 @@ class Router(LoggerMixin):
     incoming_phases = ("filter", "parse", "handle", "default", "cleanup")
     outgoing_phases = ("outgoing",)
 
-    pre_start  = Signal(providing_args=["router"])
+    pre_start = Signal(providing_args=["router"])
     post_start = Signal(providing_args=["router"])
-    pre_stop   = Signal(providing_args=["router"])
-    post_stop  = Signal(providing_args=["router"])
-
+    pre_stop = Signal(providing_args=["router"])
+    post_stop = Signal(providing_args=["router"])
 
     def __init__(self):
 
@@ -46,7 +41,6 @@ class Router(LoggerMixin):
 
         self._queue = queue.Queue()
         """Pending incoming messages, populated by Router.incoming_message."""
-
 
     def add_app(self, module_name):
         """
@@ -66,16 +60,15 @@ class Router(LoggerMixin):
         return app
 
     def get_app(self, module_name):
-        """Get a handle to one of our apps by module name.""" 
+        """Get a handle to one of our apps by module name."""
         cls = AppBase.find(module_name)
         if cls is None: return None
-        
+
         for app in self.apps:
             if type(app) == cls:
                 return app
-            
-        raise KeyError("The %s app was not found in the router!" % module_name)
 
+        raise KeyError("The %s app was not found in the router!" % module_name)
 
     def add_backend(self, name, module_name, config=None):
         """
@@ -92,7 +85,6 @@ class Router(LoggerMixin):
         self.backends[name] = backend
         return backend
 
-
     @staticmethod
     def _clean_backend_config(config):
         """
@@ -105,7 +97,6 @@ class Router(LoggerMixin):
             for key, val in config.items()
         ])
 
-
     @staticmethod
     def _wait(func, timeout):
         """
@@ -114,12 +105,13 @@ class Router(LoggerMixin):
         or False if time runs out.
         """
 
-        for n in range(0, timeout*10):
-            if func(): return True
-            else: time.sleep(0.1)
+        for n in range(0, timeout * 10):
+            if func():
+                return True
+            else:
+                time.sleep(0.1)
 
         return False
-
 
     def _start_backend(self, backend):
         """
@@ -133,7 +125,7 @@ class Router(LoggerMixin):
                 started = backend.start()
                 self.debug("backend %s terminated normally" % backend)
                 return True
-            
+
             except Exception as e:
                 self.debug("caught exception in backend %s: %s" % (backend, e))
                 backend.exception()
@@ -149,11 +141,11 @@ class Router(LoggerMixin):
                 # True until we've finished starting up
                 def should_exit():
                     return not (self._starting_backends or self.accepting)
+
                 self.debug('waiting 15 seconds before retrying')
                 if self._wait(should_exit, 15):
                     self.debug('returning from _start_backend')
                     return None
-
 
     def _start_all_backends(self):
         """
@@ -174,7 +166,6 @@ class Router(LoggerMixin):
             # whether it's still alive when _stop_all_backends is called
             backend.__thread = worker
 
-
     def _stop_all_backends(self):
         """
         Notify all backends registered via Router.add_backend that they
@@ -190,7 +181,6 @@ class Router(LoggerMixin):
             if not self._wait(lambda: not alive(), 5):
                 backend.error("Worker thread did not terminate")
 
-
     def _start_all_apps(self):
         """
         Start all apps registered via Router.add_app.
@@ -202,7 +192,6 @@ class Router(LoggerMixin):
 
             except:
                 app.exception()
-
 
     def _stop_all_apps(self):
         """
@@ -216,7 +205,6 @@ class Router(LoggerMixin):
             except:
                 app.exception()
 
-
     def start(self):
         """
         Start polling the backends registered via Router.add_backend for
@@ -225,8 +213,8 @@ class Router(LoggerMixin):
         """
 
         # dump some debug info for now
-        #self.info("BACKENDS: %r" % (self.backends))
-        #self.info("APPS: %r" % (self.apps))
+        # self.info("BACKENDS: %r" % (self.backends))
+        # self.info("APPS: %r" % (self.apps))
 
         self.info("Starting %s..." % settings.PROJECT_NAME)
         self.pre_start.send(self)
@@ -283,7 +271,6 @@ class Router(LoggerMixin):
         self._stop_all_apps()
         self.info("Stopped")
 
-
     def stop(self, graceful=False):
         """
         Stop the router, which unblocks the Router.start method as soon
@@ -302,7 +289,6 @@ class Router(LoggerMixin):
 
         self.running = False
 
-
     def join(self):
         """
         Block until the incoming message queue is empty. This method
@@ -312,7 +298,6 @@ class Router(LoggerMixin):
 
         self._queue.join()
         return True
-
 
     def incoming_message(self, msg):
         """
@@ -340,7 +325,6 @@ class Router(LoggerMixin):
         except queue.Full:
             return False
 
-
     def incoming(self, msg):
         """
         Incoming phases:
@@ -362,9 +346,10 @@ class Router(LoggerMixin):
         Cleanup:
           An opportunity to clean up anything started during earlier phases.
         """
-
-        self.info("Incoming (%s): %s" %\
-            (msg.connection, msg.text))
+        # workaround for "mysql has gone away" errors: https://stackoverflow.com/a/65927061/8207
+        close_old_connections()
+        self.info("Incoming (%s): %s" % \
+                  (msg.connection, msg.text))
 
         try:
             for phase in self.incoming_phases:
@@ -391,7 +376,7 @@ class Router(LoggerMixin):
                     if phase == "filter":
                         if handled is True:
                             self.warning("Message filtered")
-                            raise(StopIteration)
+                            raise (StopIteration)
 
                     # during the _handle_ phase, apps can return True
                     # to "short-circuit" this phase, preventing any
@@ -403,14 +388,14 @@ class Router(LoggerMixin):
                             # default phase firing unnecessarily
                             msg.handled = True
                             break
-                    
+
                     elif phase == "default":
                         # allow default phase of apps to short circuit
                         # for prioritized contextual responses.   
                         if handled is True:
                             self.debug("Short-circuited default")
                             break
-                        
+
         except StopIteration:
             pass
 
@@ -421,13 +406,10 @@ class Router(LoggerMixin):
         # synchronous backends might be, so mark it as processed.
         msg.processed = True
 
-
     def outgoing(self, msg):
         """
         """
-
-        self.info("Outgoing (%s): %s" %\
-            (msg.connection, msg.text))
+        self.info("Outgoing (%s): %s" % (msg.connection, msg.text))
 
         for phase in self.outgoing_phases:
             self.debug("Out %s phase" % phase)
