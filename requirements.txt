@@ -24,12 +24,13 @@ django-picklefield==0.2.0
     # via -r requirements.in
 django-redis==4.10.0
     # via -r requirements.in
-django-taggit==0.17.6
+django-taggit==0.24.0
     # via -r requirements.in
 django==1.11.29
     # via
     #   -r requirements.in
     #   django-redis
+    #   django-taggit
 djappsettings==0.4.0
     # via -r requirements.in
 future==0.18.2

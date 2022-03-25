@@ -1,13 +1,16 @@
-import unittest
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from taggit.models import Tag
+
 
 class TestTags(TestScript):
 
     def testMessageTagging(self):
 
-        self.assertInteraction("""                                                                                              8005551212 > register as someuser                                                                                     8005551212 < Thank you for registering, as someuser!                                                                """)
+        self.assertInteraction("""
+            +8005551212 > register as someuser
+            +8005551212 < Sorry, I didn't understand. To register, send register [first name] [last name] [id] [facility]. Example: 'register john smith 1 1001'
+        """)
         
         self.assertEqual(0, len(Message.objects.all()[0].tags.all()))
         
