@@ -9,7 +9,7 @@ class OutreachQuota(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(default=DEFAULT_MAX_MESSAGES_PER_MONTH)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{user}: {amt}'.format(user=self.user, amt=self.amount)
 
     @classmethod
@@ -32,7 +32,7 @@ class OutreachMessage(models.Model):
 
     def __repr__(self): return str(self)
 
-    def __unicode__(self):
+    def __str__(self):
         return 'message on {date} sent by {user}'.format(
             date=self.date,
             user=self.user,
