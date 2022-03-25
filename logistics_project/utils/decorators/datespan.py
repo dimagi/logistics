@@ -23,7 +23,7 @@ def datespan_in_request(from_param="from", to_param="to",
     def get_dates(f):
         def wrapped_func(*args, **kwargs):
             # attempt to find the request object from all the argument
-            # values, checking first the args and then the kwargs 
+            # values, checking first the args and then the kwargs
             req = None
             for arg in args:
                 if _is_http_request(arg):
@@ -51,16 +51,17 @@ def datespan_in_request(from_param="from", to_param="to",
                     req.datespan.is_default = True
                     
             return f(*args, **kwargs) 
-        if hasattr(f, "func_name"):
+        if hasattr(f, "__name__"):
             wrapped_func.__name__ = f.__name__
             # preserve doc strings
             wrapped_func.__doc__ = f.__doc__  
             
             return wrapped_func
         else:
-            # this means it wasn't actually a view.  
-            return f 
+            # this means it wasn't actually a view.
+            return f
     return get_dates
+
 
 def _is_http_request(obj):
     return obj and isinstance(obj, HttpRequest)
