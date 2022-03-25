@@ -52,7 +52,7 @@ class Message(models.Model):
         """Returns the Contact or Connection linked to this object."""
         return self.contact or self.connection
 
-    def __unicode__(self):
+    def __str__(self):
 
         # crop the text (to avoid exploding the admin)
         if len(self.text) < 60: str = self.text
