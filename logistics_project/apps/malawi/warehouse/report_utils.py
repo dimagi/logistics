@@ -1,3 +1,4 @@
+import csv
 import json
 from copy import deepcopy
 from datetime import datetime
@@ -17,7 +18,6 @@ from logistics_project.apps.malawi.util import get_country_sp, pct, fmt_pct
 from static.malawi.config import TimeTrackerTypes, SupplyPointCodes
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
-from logistics_project.utils.csv import UnicodeWriter
 from static.malawi.config import HSA
 
 
@@ -425,7 +425,7 @@ def get_stock_status_table_data(supply_point, base_level=config.BaseLevel.HSA):
 def table_to_csv(table_data):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=(%s).csv' % table_data["id"]
-    writer = UnicodeWriter(response)
+    writer = csv.writer(response)
     writer.writerow(table_data['header'])
     for row in table_data['data']:
         # HACK: selectable tables have a different structure
