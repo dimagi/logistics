@@ -552,6 +552,9 @@ def update_historical_data_for_supply_point(sp, start=None, end=None):
         for cls in warehouse_classes_with_base_level:
             _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
 
+        for tt_type in TIME_TRACKER_TYPES:
+            TimeTracker.objects.get_or_create(supply_point=sp, date=window_date, type=tt_type[0])
+
     if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
         for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
             window_date = datetime(year, month, 1)
