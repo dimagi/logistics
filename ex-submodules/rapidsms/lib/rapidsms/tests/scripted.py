@@ -3,6 +3,7 @@
 
 
 from __future__ import absolute_import
+from builtins import str
 import time
 import logging
 from django.db import transaction
@@ -90,10 +91,10 @@ class TestScript (TransactionTestCase, LoggerMixin):
     @classmethod
     def parseScript (cls, script):
         cmds  = []
-        for line in map(lambda x: x.strip(), script.split("\n")):
+        for line in [x.strip() for x in script.split("\n")]:
             if not line or line.startswith("#"): continue
             tokens = re.split(r'([<>])', line, 1)
-            num, dir, txt = map(lambda x:x.strip(), tokens)
+            num, dir, txt = [x.strip() for x in tokens]
             # allow users to optionally put dates in the number
             # 19232922@200804150730
             if "@" in num:
