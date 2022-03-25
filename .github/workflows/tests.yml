@@ -60,5 +60,5 @@ jobs:
           logistics.tests
           logistics_project.apps.malawi.tests
           logistics_project.apps.registration.tests
-          rapidsms.tests
+          rapidsms
           scheduler.tests
