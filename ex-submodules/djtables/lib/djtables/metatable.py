@@ -16,7 +16,7 @@ class MetaTable(type):
         # in the actual table class.
         columns = dict([
             (attname, attrs.pop(attname))
-            for attname, value in attrs.items()
+            for attname, value in list(attrs.items())
             if isinstance(value, column_class)
         ])
 
@@ -26,7 +26,7 @@ class MetaTable(type):
 
         # bind each column, to make it aware of its own name. this
         # avoids having to include the name in the Column constructor.
-        for name, column in columns.items():
+        for name, column in list(columns.items()):
             column.bind_to(obj, name)
 
         # store the columns (just the objects; they are already bound to

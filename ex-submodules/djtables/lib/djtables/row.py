@@ -2,6 +2,8 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
+from builtins import object
 class Row(object):
     def __init__(self, table, obj):
         self.table = table
@@ -19,8 +21,8 @@ class Row(object):
 
         return callable(val) and val() or val
 
-    def __unicode__(self):
-        return unicode(self.obj)
+    def __str__(self):
+        return str(self.obj)
 
     def __iter__(self):
         for column in self.table.columns:

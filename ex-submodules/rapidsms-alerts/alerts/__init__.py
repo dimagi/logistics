@@ -1,4 +1,5 @@
 
+from builtins import object
 class Alert(object):
     """
     An alert, for display on the dashboard.

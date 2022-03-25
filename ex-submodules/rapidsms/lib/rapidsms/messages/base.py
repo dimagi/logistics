@@ -7,7 +7,7 @@ class MessageBase(object):
         self._connection = connection
         self.text = text
 
-    def __unicode__(self):
+    def __str__(self):
         return self.text
 
     @property

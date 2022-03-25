@@ -17,7 +17,7 @@ class Backend(models.Model):
 
     name = models.CharField(max_length=20, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def __repr__(self):
@@ -43,7 +43,7 @@ class App(models.Model):
     module = models.CharField(max_length=100, unique=True)
     active = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.module
 
     def __repr__(self):
@@ -64,7 +64,7 @@ class ContactBase(models.Model):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name or "Anonymous"
 
     def __repr__(self):
@@ -124,7 +124,7 @@ class Contact(ContactBase):
     class Meta:
         verbose_name = "Logistics Contact"
 
-    def __unicode__(self):
+    def __str__(self):
         if self.name:
             return self.name
         return unicode(self.pk)
@@ -262,7 +262,7 @@ class Connection(models.Model):
     class Meta:
         unique_together = (('backend', 'identity'),)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s via %s" %\
             (self.identity, self.backend)
 

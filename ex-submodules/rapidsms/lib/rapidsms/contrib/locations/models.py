@@ -1,3 +1,4 @@
+from builtins import object
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -18,7 +19,7 @@ class Point(models.Model):
     latitude = models.DecimalField(max_digits=13, decimal_places=10)
     longitude = models.DecimalField(max_digits=13, decimal_places=10)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s, %s" % (self.latitude, self.longitude)
 
     def __repr__(self):
@@ -35,7 +36,7 @@ class LocationType(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, primary_key=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class LocationManager(models.Manager):
@@ -62,10 +63,10 @@ class Location(models.Model, StockCacheMixin):
     name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
 
-    class Meta:
+    class Meta(object):
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         """
         """
         

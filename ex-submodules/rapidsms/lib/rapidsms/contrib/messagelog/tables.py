@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import object
 from django.conf import settings
 from djtables import Table, Column
 from djtables.column import DateColumn
@@ -18,7 +19,7 @@ class MessageTable(Table):
     text = Column(css_class="message", sortable=False)
     tags = Column(sortable = False, value = lambda cell: cell.object.get_tags_for_display())
 
-    class Meta:
+    class Meta(object):
         #model = Message
         #exclude = ['id']
         order_by = '-date'

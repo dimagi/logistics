@@ -8,7 +8,7 @@ class MessageSendingError(Exception):
     Where possible, a more specific exception should be raised, along
     with a descriptive message.
     """
-    def __unicode__(self):
+    def __str__(self):
         return "message sending error"
 
 
@@ -18,7 +18,7 @@ class NoRouterError(MessageSendingError):
     outgoing message. This usually means that it is being sent from the
     webui process(es), which is not currently possible in RapidSMS.
     """
-    def __unicode__(self):
+    def __str__(self):
         return "no router error"
 
 
@@ -27,5 +27,5 @@ class NoConnectionError(MessageSendingError):
     This execption is raised when a Contact cannot be messaged because
     they do not have any Connections.
     """
-    def __unicode__(self):
+    def __str__(self):
         return "no connection error"

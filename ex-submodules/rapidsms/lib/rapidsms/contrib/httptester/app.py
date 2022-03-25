@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import map
 import time
 from rapidsms.conf import settings
 from rapidsms.apps.base import AppBase
@@ -66,4 +67,4 @@ class App(AppBase):
                 "direction": _direction(msg),
                 "text": msg.text }
 
-        return map(_json, self.backend.bucket)
+        return list(map(_json, self.backend.bucket))

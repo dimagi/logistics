@@ -30,5 +30,5 @@ class RouterError(AjaxError):
         self.content_type = content_type
         self.response = response
 
-    def __unicode__(self):
+    def __str__(self):
         return self.response

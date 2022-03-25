@@ -11,8 +11,8 @@ from logistics.util import config
 from logistics_project.apps.malawi.util import (get_facilities, get_districts,
     get_country_sp, pct, get_default_supply_point, get_visible_districts,
     get_visible_facilities, get_all_visible_locations, get_view_level, get_visible_hsas,
-    get_facility_supply_points, filter_district_queryset_for_epi, filter_district_list_for_epi,
-    filter_facility_supply_point_queryset_for_epi, filter_facility_location_queryset_for_epi)
+    filter_district_queryset_for_epi, filter_district_list_for_epi,
+    filter_facility_location_queryset_for_epi)
 from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityData, ReportingRate
 from logistics_project.apps.malawi.warehouse.report_utils import current_report_period
 

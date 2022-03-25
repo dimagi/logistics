@@ -2,13 +2,16 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import cgi
-import urlparse
+import urllib.parse
 import traceback
 from json import JSONEncoder
 from threading import Thread
-from SocketServer import ThreadingMixIn
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from socketserver import ThreadingMixIn
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from django.db.models.query import QuerySet
 from rapidsms.apps.base import AppBase
@@ -114,7 +117,7 @@ class App(AppBase):
             #
             # any other path format will return an http 404 error, for
             # the time being. GET parameters are optional.
-            url = urlparse.urlparse(self.path)
+            url = urllib.parse.urlparse(self.path)
             path_parts = url.path.split("/")
 
             # abort if the url didn't look right
@@ -169,13 +172,13 @@ class App(AppBase):
                     # convert the fieldstorage object into a dict, to
                     # keep it simple for the handler methods. TODO: make
                     # this a util, if it's useful elsewhere.
-                    for key in storage.keys():
+                    for key in list(storage.keys()):
 
                         # convert each of the values with this key into
                         # unicode, respecting the content-type that the
                         # request _claims_ to be currently encoded with
                         val = [
-                            unicode(v, charset)
+                            str(v, charset)
                             for v in storage.getlist(key)]
 
                         # where possible, store the values as singular,
@@ -197,7 +200,7 @@ class App(AppBase):
             # http error to the requester
             except Exception as err:
                 self.server.app.warning(traceback.format_exc())
-                return response(500, unicode(err), False)
+                return response(500, str(err), False)
 
         # this does nothing, except prevent the incoming http requests
         # from being echoed to the screen (which screws up the log)

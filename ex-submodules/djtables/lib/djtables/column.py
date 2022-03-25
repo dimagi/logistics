@@ -2,6 +2,9 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 import datetime
 from django.template import defaultfilters
 
@@ -40,7 +43,7 @@ class Column(object):
         """Allow columns to be sorted by order of creation."""
         return self.creation_counter < other.creation_counter
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def bind_to(self, table, name):
@@ -100,7 +103,7 @@ class Column(object):
         child classes to do something more useful.
         """
 
-        return unicode(self.value(cell))
+        return str(self.value(cell))
 
     @property
     def has_link(self):
@@ -222,8 +225,8 @@ class WrappedColumn(object):
         else:
             return None
 
-    def __unicode__(self):
-        return unicode(self.column)
+    def __str__(self):
+        return str(self.column)
 
     def __getattr__(self, name):
         return getattr(self.column, name)

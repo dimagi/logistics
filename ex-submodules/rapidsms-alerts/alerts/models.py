@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from django.db import models
 from django.contrib.auth.models import User
 from rapidsms.contrib.locations.models import Location
@@ -114,8 +116,8 @@ class Notification(models.Model):
 
         return v.esc_level
 
-    def __unicode__(self):
-        return unicode(self.__dict__)
+    def __str__(self):
+        return str(self.__dict__)
 
     @property
     def _type(self):
@@ -152,8 +154,8 @@ class NotificationComment(models.Model):
     def is_system(self):
         return self.user is None
 
-    def __unicode__(self):
-        return unicode(self.__dict__)
+    def __str__(self):
+        return str(self.__dict__)
 
 def user_name(user, default=None):
     if user is None:
@@ -174,7 +176,7 @@ class NotificationVisibility(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='alerts_visible')
     esc_level = models.CharField(max_length=100)
 
-class ResolutionAcknowledgement:
+class ResolutionAcknowledgement(object):
     pass
 
 # not a model! a subclass of this will be dynamically attached to the Notification

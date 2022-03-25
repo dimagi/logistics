@@ -1,3 +1,4 @@
+from builtins import range
 from alerts import Alert
 from alerts.models import Notification, NotificationComment, NotificationType
 from django.contrib.auth.models import User
@@ -75,7 +76,7 @@ def notifiable_disease_test():
     else:
         raise Exception('unsupported reporting interval [%s]' % REPORTING_INTERVAL)
 
-    for metric, info in METRICS.iteritems():
+    for metric, info in METRICS.items():
         #todo: is the end date inclusive or exclusive?
         data = total_attribute_value(info['slug'], period_start, period_end, Location.objects.get(name='Uganda'))
         for total in data:

@@ -10,7 +10,7 @@ class Organization(models.Model):
     name = models.CharField(max_length=128)
     managed_supply_points = models.ManyToManyField("logistics.SupplyPoint", blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

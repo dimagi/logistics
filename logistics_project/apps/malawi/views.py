@@ -1,3 +1,5 @@
+import csv
+
 from future import standard_library
 standard_library.install_aliases()
 from builtins import zip
@@ -21,7 +23,6 @@ from django.contrib.auth.models import User as auth_user
 from django.contrib.auth.models import Group as auth_group
 from django.db.models.aggregates import Count
 
-from logistics_project.utils.csv import UnicodeWriter
 from logistics_project.utils.dates import months_between, add_months
 from logistics_project.utils.decorators.datespan import datespan_in_request
 
@@ -594,7 +595,7 @@ def export_amc_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=amc.csv'
     products = Product.objects.filter(type__base_level=config.BaseLevel.HSA).order_by('sms_code')
-    writer = UnicodeWriter(response)
+    writer = csv.writer(response)
     _, data_rows = amc_plot(
         SupplyPoint.objects.filter(active=True, type__code=config.SupplyPointCodes.HSA),
         request.datespan,
