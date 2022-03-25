@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import object
 from django.core.paginator import Paginator
 from .row import Row
 from .cell import Cell
@@ -26,13 +27,13 @@ class Options(object):
         # will raise if ANY are invalid, like django. this seems kind of
         # heavy-handed (especially since i've wanted to add my own Meta
         # options to models before), but i'm following for consistency.
-        for key in options.keys():
+        for key in list(options.keys()):
             if not key.startswith("_"):
                 value = options.pop(key)
                 setattr(self, key, value)
 
         # store any defaults which were not overridden.
-        for key, value in self._defaults.items():
+        for key, value in list(self._defaults.items()):
             if not hasattr(self, key):
                 setattr(self, key, value)
 

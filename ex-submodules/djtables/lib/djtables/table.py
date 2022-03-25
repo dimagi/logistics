@@ -2,14 +2,15 @@
 # vim: et ts=4 sw=4
 
 
+from past.builtins import basestring
+from builtins import object
 from django.template.loader import render_to_string
 from .metatable import MetaTable
 from .urls import extract, build
+from future.utils import with_metaclass
 
 
-class Table(object):
-    __metaclass__ = MetaTable
-
+class Table(with_metaclass(MetaTable, object)):
     def __init__(self, object_list=None, request=None, **kwargs):
         self._object_list = object_list
         self._request = request
@@ -98,9 +99,7 @@ class Table(object):
     def rows(self):
         """Return the list of object on the active page."""
 
-        return map(
-            lambda o: self._meta.row_class(self, o),
-            self.paginator.page(self._meta.page).object_list )
+        return [self._meta.row_class(self, o) for o in self.paginator.page(self._meta.page).object_list]
 
     def cell(self, column, row):
         return self._meta.cell_class(

@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import object
 from django import template
 register = template.Library()
 
@@ -79,7 +80,7 @@ class Page(object):
                 self.paginator,
                 self.number-1)
 
-    def next(self):
+    def __next__(self):
         if not self.is_last:
             return Page(
                 self.paginator,

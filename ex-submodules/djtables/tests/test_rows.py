@@ -30,7 +30,7 @@ def test_accepts_objects():
             self.name = name
             self.weapon = weapon
 
-        def __unicode__(self):
+        def __str__(self):
             return self.name
 
     obj = MockObject("Michelangelo", "Nunchaku")

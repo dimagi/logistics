@@ -2,6 +2,8 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
+from builtins import object
 class Cell(object):
 
     """
@@ -14,9 +16,9 @@ class Cell(object):
         self.column = column
         self.row = row
 
-    def __unicode__(self):
+    def __str__(self):
         """Return the rendered (via self.column) value of this cell."""
-        return unicode(self.column.render(self))
+        return str(self.column.render(self))
 
     @property
     def object(self):
