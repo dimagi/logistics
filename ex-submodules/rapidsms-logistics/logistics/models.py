@@ -66,7 +66,7 @@ class Product(models.Model):
     class Meta(object):
         ordering = ['name']
         
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -109,7 +109,7 @@ class ProductType(models.Model):
     code = models.CharField(max_length=10, unique=True)
     base_level = models.CharField(max_length=1, default=config.BaseLevel.HSA)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta(object):
@@ -123,7 +123,7 @@ class SupplyPointType(models.Model):
     name = models.CharField(max_length=100)
     code = models.SlugField(unique=True, primary_key=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     def _cache_key(self, product_code):
@@ -180,7 +180,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
         abstract = True
         ordering = ['name']
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def display_location(self):
@@ -609,7 +609,7 @@ class LogisticsProfile(models.Model):
     # One of the base level constants representing the current dashboard the user sees upon login
     current_dashboard_base_level = models.CharField(max_length=1, default=BaseLevel.HSA)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s (%s, %s)" % (self.user.username, self.location, self.supply_point)
 
 
@@ -634,7 +634,7 @@ class ProductStock(models.Model):
     class Meta(object):
         unique_together = (('supply_point', 'product'),)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s-%s (%s)" % (self.supply_point.name, self.product.name, self.quantity)
 
     def _manual_consumption(self):
@@ -1093,7 +1093,7 @@ class ProductReportType(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta(object):
@@ -1116,7 +1116,7 @@ class ProductReport(models.Model):
     class Meta(object):
         verbose_name = "Product Report"
         
-    def __unicode__(self):
+    def __str__(self):
         return u"%s | %s | %s" % (self.supply_point.name, self.product.name, self.report_type.name)
 
     # the following are for the benfit of excel export
@@ -1192,7 +1192,7 @@ class StockTransaction(models.Model):
     class Meta(object):
         verbose_name = "Stock Transaction"
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s - %s (%s->%s on %s)" % \
             (self.supply_point.name, self.product.name, self.beginning_balance, 
              self.ending_balance, self.date.date())
@@ -1257,7 +1257,7 @@ class ContactRole(models.Model):
     class Meta(object):
         verbose_name = "Role"
 
-    def __unicode__(self):
+    def __str__(self):
         return _(self.name)
 
 class Validator(object):
