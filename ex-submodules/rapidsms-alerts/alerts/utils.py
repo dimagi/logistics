@@ -1,5 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import str
 from django.conf import settings
 import itertools
 from .models import Notification, NotificationComment, user_name

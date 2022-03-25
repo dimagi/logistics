@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 from django.http import HttpResponse
-from models import Notification
-import utils
+from .models import Notification
+from . import utils
 import json
 from django.core.exceptions import SuspiciousOperation
 
