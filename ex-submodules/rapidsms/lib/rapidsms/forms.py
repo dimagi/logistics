@@ -2,15 +2,16 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import object
 from django import forms
 from .models import *
 
 
 class ContactForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Contact
 #        exclude = ("connections",)
 class ConnectionForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Connection
         exclude = ("contact",)

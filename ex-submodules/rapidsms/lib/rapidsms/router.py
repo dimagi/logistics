@@ -94,7 +94,7 @@ class Router(LoggerMixin):
 
         return dict([
             (key.lower(), val)
-            for key, val in config.items()
+            for key, val in list(config.items())
         ])
 
     @staticmethod

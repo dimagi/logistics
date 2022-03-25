@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from builtins import object
 class MessageBase(object):
     def __init__(self, connection, text=None):
         self._connection = connection
