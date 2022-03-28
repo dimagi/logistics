@@ -87,12 +87,6 @@ urlpatterns = [
         views.send_outreach,
         name='malawi_manage_outreach_send'),
 
-    url(r'^hsas/$',
-        views.hsas,
-        name="malawi_hsas"),
-    url(r'^hsa/(?P<code>\d+)/$',
-        views.hsa,
-        name="malawi_hsa"),
     url(r'^deactivate/(?P<pk>\d+)/$',
          views.deactivate_hsa,
         name="deactivate_hsa"),
