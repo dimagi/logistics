@@ -34,7 +34,6 @@ from rapidsms.contrib.messagelog.models import Message
 from logistics.models import SupplyPoint, Product, LogisticsProfile,\
     StockTransaction, StockRequestStatus, ContactRole
 from logistics.decorators import place_in_request
-from logistics.charts import stocklevel_plot
 from logistics.util import config
 from logistics.charts import amc_plot
 
