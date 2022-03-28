@@ -43,36 +43,3 @@ class MalawiProductTable(Table):
     
     class Meta:
         order_by = 'name'
-
-class EmergencyColumn(Column):
-    def __init__(self):
-        super(EmergencyColumn, self).__init__(name="Is Emergency?",
-                                              sortable=False,
-                                              value=lambda cell: yesno(cell.object.is_emergency))
-        
-def status_display(status):
-    if status == StockRequestStatus.APPROVED:
-        return "order ready"
-    else: 
-        return status.replace("_", " ")
-
-class StatusColumn(Column):
-    def __init__(self):
-        super(StatusColumn, self).__init__(name="Status",
-                                           sortable=False,
-                                           value=lambda cell: status_display(cell.object.status))
-        
-class StockRequestTable(Table):
-    product = Column()
-    is_emergency = EmergencyColumn()
-    balance = Column()
-    amount_requested = Column()
-    amount_received = Column()
-    requested_on = DateColumn()
-    responded_on = DateColumn()
-    received_on = DateColumn()
-    status = StatusColumn()
-    
-    class Meta:
-        order_by = '-requested_on'
-
