@@ -41,7 +41,7 @@ class Command(BaseCommand):
             router.add_app(name)
 
         # add each backend
-        for name, conf in settings.INSTALLED_BACKENDS.items():
+        for name, conf in list(settings.INSTALLED_BACKENDS.items()):
             router.add_backend(name, conf.pop("ENGINE"), conf)
 
         # wait for incoming messages

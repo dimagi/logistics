@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from builtins import str
+from builtins import object
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils.translation.trans_real import translation
@@ -61,7 +63,7 @@ class ContactBase(models.Model):
         "a W3C language tag. If this field is left blank, RapidSMS will "
         "default to: " + settings.LANGUAGE_CODE)
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     def __str__(self):
@@ -121,13 +123,13 @@ class Contact(ContactBase):
     is_approved = models.BooleanField(default=False)
     organization = models.ForeignKey('malawi.Organization', on_delete=models.CASCADE,  null=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = "Logistics Contact"
 
     def __str__(self):
         if self.name:
             return self.name
-        return unicode(self.pk)
+        return str(self.pk)
 
     @property
     def phone(self):
@@ -259,7 +261,7 @@ class Connection(models.Model):
     identity = models.CharField(max_length=100)
     contact  = models.ForeignKey(Contact, on_delete=models.CASCADE,  null=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = (('backend', 'identity'),)
 
     def __str__(self):
