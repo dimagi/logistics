@@ -3,6 +3,7 @@ Constants go here
 '''
 
 
+from builtins import object
 class Reports(object):
     """
     Types of reports

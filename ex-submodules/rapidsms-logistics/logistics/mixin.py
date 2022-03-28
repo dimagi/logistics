@@ -1,3 +1,4 @@
+from builtins import object
 from datetime import timedelta
 from rapidsms.conf import settings
 from django.core.cache import cache

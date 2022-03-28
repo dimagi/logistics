@@ -1,3 +1,4 @@
+from builtins import object
 from django.db import models
 from datetime import datetime
 
@@ -25,7 +26,7 @@ class BaseReportingModel(models.Model):
         self.update_date = datetime.utcnow()
         super(BaseReportingModel, self).save(*args, **kwargs)
         
-    class Meta:
+    class Meta(object):
         abstract = True
 
 
@@ -38,7 +39,7 @@ class ReportingModel(BaseReportingModel):
     date = models.DateTimeField()                   # viewing time period
     
     
-    class Meta:
+    class Meta(object):
         abstract = True
 
 class SupplyPointWarehouseRecord(models.Model):
