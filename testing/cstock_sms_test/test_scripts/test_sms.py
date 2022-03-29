@@ -1,8 +1,11 @@
-import httplib
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
+import http.client
 import mechanize
 from random import randint
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import random
 
 BACKEND_URL = 'localhost:9988'
@@ -18,11 +21,11 @@ class Transaction(object):
         br = mechanize.Browser()
         br.set_handle_robots(False)
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        conn = httplib.HTTPConnection(BACKEND_URL)
+        conn = http.client.HTTPConnection(BACKEND_URL)
 
         def _send(text):
             timer = text.split(" ")[0]
-            params = urllib.urlencode({
+            params = urllib.parse.urlencode({
                 'id': mynumber,
                 'text': text,
             })
