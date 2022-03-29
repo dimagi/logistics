@@ -1,7 +1,6 @@
 from __future__ import division
 import csv
 import json
-from copy import deepcopy
 from datetime import datetime
 from collections import defaultdict
 from random import random
