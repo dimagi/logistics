@@ -1,4 +1,6 @@
 from __future__ import division
+
+import sentry_sdk
 from past.utils import old_div
 from builtins import object
 import json
@@ -691,8 +693,9 @@ class ReportView(object):
             self._context.update(self.shared_context(request))
             try:
                 self._context.update(self.custom_context(request))
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 if settings.DEBUG:
                     raise
+                sentry_sdk.capture_exception(e)
                 self._context['custom_context_failure'] = True
         return self._context
