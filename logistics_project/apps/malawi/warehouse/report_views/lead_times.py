@@ -3,8 +3,6 @@ import json
 from collections import defaultdict
 from datetime import datetime
 
-from django.db.models import Sum
-
 from logistics_project.utils.dates import months_between
 
 from logistics.util import config
@@ -26,20 +24,26 @@ class View(warehouse_view.DistrictOnlyView):
         sp = SupplyPoint.objects.get(location=request.location) \
             if request.location else get_default_supply_point(request.user)
         
-        data = defaultdict(lambda: defaultdict(lambda: 0)) # turtles!
-        dates = [datetime(year, month, 1) for year, month in \
-                 months_between(request.datespan.startdate, 
-                                request.datespan.enddate)]
-        
+        data = defaultdict(lambda: defaultdict(lambda: 0))
+        dates = [
+            datetime(year, month, 1) for year, month in
+            months_between(request.datespan.startdate, request.datespan.enddate)
+        ]
+
         for dt in dates:
             for code, name in TIME_TRACKER_TYPES:
                 data[code][dt] = TimeTracker.objects.get\
                     (supply_point=sp, date=dt, type=code).avg_time_in_days or 0
             
-        ret_data = [{'data': [[i + 1, data[code][dt]] for i, dt in enumerate(dates)],
-                     'label': name, 'lines': {"show": False}, "bars": {"show": True, "fill": 1 },
-                     'stack': 0} \
-                     for code, name in TIME_TRACKER_TYPES]
+        ret_data = [
+            {
+                'data': [[i + 1, data[code][dt]] for i, dt in enumerate(dates)],
+                'label': name,
+                'lines': {"show": False},
+                "bars": {"show": True, "fill": 1},
+                'stack': 0
+            } for code, name in TIME_TRACKER_TYPES
+        ]
 
         report_chart = {
             "legenddiv": "leadtime-legend-div",
@@ -48,7 +52,7 @@ class View(warehouse_view.DistrictOnlyView):
             "height": "200px",
             "xaxistitle": "month",
             "yaxistitle": "# days",
-            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+            "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
             "data": json.dumps(ret_data)
         }
         
