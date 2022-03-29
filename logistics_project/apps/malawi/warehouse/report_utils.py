@@ -351,18 +351,6 @@ def get_datelist(start, end):
     return [datetime(year, month, 1)\
             for year, month in months_between(start, end)]
 
-def remove_zeros_from_dict(dicti, key_val):
-    dictionary = deepcopy(dicti)
-    if key_val in dictionary:
-        if dictionary[key_val] == 0 or not dictionary[key_val]:
-            dictionary.pop(key_val)
-            return dictionary, True
-    for key in list(dictionary.keys()):
-        if isinstance(dictionary[key], dict):
-            if _remove_zeros_from_dict(dictionary[key], key_val)[1]:
-                dictionary.pop(key)
-    return dictionary, False
-
 def month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \
             for i, (year, month) in enumerate(months_between(start_date, end_date))]
