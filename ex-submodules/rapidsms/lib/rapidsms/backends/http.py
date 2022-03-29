@@ -11,6 +11,8 @@ available backends, like so:
 
 """
 from __future__ import absolute_import
+
+import sentry_sdk
 from future import standard_library
 standard_library.install_aliases()
 # from builtins import str
@@ -35,18 +37,22 @@ class RapidWSGIHandler(WSGIHandler, LoggerMixin):
         return "%s/%s" % (self.backend._logger_name(), 'handler')
 
     def __call__(self, environ, start_response):
-        request = self.request_class(environ)
-        self.debug('Request from %s' % request.get_host())
         try:
-            response = self.backend.handle_request(request)
+            request = self.request_class(environ)
+            self.debug('Request from %s' % request.get_host())
+            try:
+                response = self.backend.handle_request(request)
+            except Exception as e:
+                self.exception(e)
+                response = http.HttpResponseServerError()
+            status_text = responses.get(response.status_code, 'UNKNOWN STATUS CODE')
+            status = '%s %s' % (response.status_code, status_text)
+            response_headers = [(str(k), str(v)) for k, v in list(response.items())]
+            start_response(str(status), response_headers)
+            return response
         except Exception as e:
-            self.exception(e)
-            response = http.HttpResponseServerError()
-        status_text = responses.get(response.status_code, 'UNKNOWN STATUS CODE')
-        status = '%s %s' % (response.status_code, status_text)
-        response_headers = [(str(k), str(v)) for k, v in list(response.items())]
-        start_response(str(status), response_headers)
-        return response
+            sentry_sdk.capture_exception(e)
+            raise
 
 
 class RapidHttpServer(WSGIServer):
