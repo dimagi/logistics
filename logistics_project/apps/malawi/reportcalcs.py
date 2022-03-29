@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import division
 from datetime import timedelta, datetime
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -21,12 +22,14 @@ def _common_report(instance, context):
     except TemplateDoesNotExist:
         return render_to_string("malawi/partials/monitoring_reports/not_found.html", context)
 
+
 def _update_dict(totals, to_add):
-    for k, v in to_add.items():
+    for k, v in list(to_add.items()):
         if k in totals:
             totals[k] += v
         else:
             totals[k] = v
+
 
 def _district_breakdown(datespan, facility=False):
     """
@@ -117,10 +120,10 @@ def _district_breakdown(datespan, facility=False):
         _update_dict(ept_totals['totals_p'], bd.totals_p)
 
     for p in ept_totals['stockouts_duration_p']:
-        ept_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(ept_totals['stockouts_duration_p'][p])/len(ept_totals['stockouts_duration_p'][p]))
+        ept_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(ept_totals['stockouts_duration_p'][p]) / len(ept_totals['stockouts_duration_p'][p]))
         
     for p in em_totals['stockouts_duration_p']:
-        em_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(em_totals['stockouts_duration_p'][p])/len(em_totals['stockouts_duration_p'][p]))
+        em_totals['stockouts_avg_duration_p'][p] = timedelta(seconds=sum(em_totals['stockouts_duration_p'][p]) / len(em_totals['stockouts_duration_p'][p]))
 
     for p in ept_totals['no_stockouts_p']:
         ept_totals['no_stockouts_pct_p'][p] = calc_percentage(ept_totals['no_stockouts_p'][p], ept_totals['totals_p'][p])
@@ -137,11 +140,11 @@ def _district_breakdown(datespan, facility=False):
         if em_totals['discrepancies_p'][p]: em_totals['discrepancies_avg_p'][p] = float(em_totals['discrepancies_tot_p'][p]) / em_totals['discrepancies_p'][p]
 
     if len(em_totals['req_times']):
-        em_totals['req_times'] = timedelta(seconds=sum(em_totals['req_times'])/len(em_totals['req_times']))
+        em_totals['req_times'] = timedelta(seconds=sum(em_totals['req_times']) / len(em_totals['req_times']))
     else:
         em_totals['req_times'] = None
     if len(ept_totals['req_times']):
-        ept_totals['req_times'] = timedelta(seconds=sum(ept_totals['req_times'])/len(ept_totals['req_times']))
+        ept_totals['req_times'] = timedelta(seconds=sum(ept_totals['req_times']) / len(ept_totals['req_times']))
     else:
         ept_totals['req_times'] = None
 
