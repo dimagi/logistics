@@ -1,4 +1,4 @@
-{% extends warehouse_base_template %}
+{% extends warehouse_base_template|default:"malawi/new/base.html" %}
 {% block stylesheets %}{{ block.super }}
 <style>
     a.print {
