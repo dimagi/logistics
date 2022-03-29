@@ -153,7 +153,7 @@ class MalawiWarehouseView(ReportView):
         if request.base_level_is_facility:
             base_context['report_list'] = [
                 {'name': name, 'slug': slug}
-                for name, slug in settings.EPI_REPORT_LIST.items()
+                for name, slug in list(settings.EPI_REPORT_LIST.items())
             ]
 
         return base_context

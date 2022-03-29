@@ -37,7 +37,7 @@ class Help(KeywordHandler):
                 grouped_codes[p.type.name].append(p.sms_code.lower())
 
             messages = []
-            for type_name, codes in grouped_codes.items():
+            for type_name, codes in list(grouped_codes.items()):
                 messages.append("%s codes: %s" % (type_name, " ".join(codes)))
 
             self.respond("; ".join(messages))
