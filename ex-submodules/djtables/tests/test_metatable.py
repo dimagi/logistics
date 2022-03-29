@@ -2,13 +2,15 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import object
 from djtables.metatable import MetaTable
+from future.utils import with_metaclass
 
 
 class MockOptions(object):
     def __init__(self, cls):
         if cls is not None:
-            for name, value in cls.__dict__.items():
+            for name, value in list(cls.__dict__.items()):
                 setattr(self, name, value)
 
 
@@ -17,8 +19,7 @@ class MockColumn(object):
         self.bound_to = args
 
 
-class TestTable(object):
-    __metaclass__ = MetaTable
+class TestTable(with_metaclass(MetaTable, object)):
     options_class = MockOptions
     column_class  = MockColumn
 
@@ -27,13 +28,12 @@ class TestTable(object):
     gamma = False
     delta = 999
 
-    class Meta:
+    class Meta(object):
         one = 1111
         two = 2222
 
 
-class TestTableNoMeta(object):
-    __metaclass__ = MetaTable
+class TestTableNoMeta(with_metaclass(MetaTable, object)):
     options_class = MockOptions
     column_class  = MockColumn
 

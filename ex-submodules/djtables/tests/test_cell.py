@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
 from fudge import Fake
 from djtables.cell import Cell
 
@@ -32,7 +33,7 @@ def test_renders_via_column():
         .with_args(cell)
         .returns("BBB"))
 
-    assert unicode(cell) == u"BBB"
+    assert str(cell) == u"BBB"
 
 
 def test_can_link():

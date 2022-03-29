@@ -2,6 +2,8 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
+from builtins import object
 from nose.tools import raises
 from djtables.table import Table
 from djtables.column import Column
@@ -38,7 +40,7 @@ def test_accepts_objects():
 
     assert row.name == obj.name
     assert row.weapon == obj.weapon
-    assert unicode(row) == unicode(obj)
+    assert str(row) == str(obj)
 
 
 def test_calls_callables():
@@ -67,7 +69,7 @@ def test_is_iterable():
 
     for cell in row:
         assert cell.row == row
-        assert cell.value in data.values()
+        assert cell.value in list(data.values())
 
 
 def test_has_length():

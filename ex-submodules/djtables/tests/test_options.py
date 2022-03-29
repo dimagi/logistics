@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import object
 from nose.tools import raises
 from djtables.options import Options
 
@@ -25,7 +26,7 @@ def test_accepts_kwargs():
 
 
 def test_accepts_object():
-    class Meta:
+    class Meta(object):
         number = 333
 
     o = TestOptions(Meta)
