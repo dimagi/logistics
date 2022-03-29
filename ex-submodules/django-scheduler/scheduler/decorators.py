@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import datetime
 from logistics_project.utils.dates import get_business_day_of_month,\
     get_business_day_of_month_after, get_business_day_of_month_before,\

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import transaction
 from logistics.util import config
 from logistics.decorators import logistics_contact_and_permission_required

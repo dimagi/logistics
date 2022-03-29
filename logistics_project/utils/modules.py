@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 
 
 def to_function(function_path, failhard=False):

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.core.management.base import LabelCommand
 from optparse import make_option
 from logistics_project.utils.parsing import string_to_datetime

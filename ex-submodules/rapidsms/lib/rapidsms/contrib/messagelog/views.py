@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.shortcuts import render
 from rapidsms.models import Contact
 from .tables import MessageTable

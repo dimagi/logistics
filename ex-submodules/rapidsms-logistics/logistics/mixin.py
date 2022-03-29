@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import object
 from datetime import timedelta
 from rapidsms.conf import settings

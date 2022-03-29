@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import unicode_literals
 import csv
 import json
 from datetime import datetime

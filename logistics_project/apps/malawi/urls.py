@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf.urls import *
 from . import views
 from .warehouse import views as warehouse_views

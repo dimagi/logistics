@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from __future__ import unicode_literals
 from builtins import str
 from fudge import Fake
 from nose.tools import assert_raises

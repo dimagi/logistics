@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 import csv
 from logistics.models import StockTransaction
 from datetime import datetime

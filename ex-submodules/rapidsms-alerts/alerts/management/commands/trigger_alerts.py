@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.core.management.base import BaseCommand, CommandError
 from alerts.utils import trigger_notifications
 

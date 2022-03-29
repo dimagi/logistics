@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from logistics.models import Product, SupplyPoint, ProductStock
 
 from logistics_project.apps.malawi.tests.util import create_hsa

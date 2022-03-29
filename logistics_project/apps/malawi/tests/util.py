@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import str
 from logistics.util import config
 from logistics.models import SupplyPoint, ContactRole, \

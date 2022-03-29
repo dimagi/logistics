@@ -4,6 +4,7 @@ tests that a schedule set to fire every minute
 actually does, without speedup
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import time
 import logging

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.backends.bucket import BucketBackend
 from datetime import datetime
 

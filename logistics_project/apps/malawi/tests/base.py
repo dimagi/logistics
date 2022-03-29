@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics_project.apps.malawi.loader import load_static_data_for_tests

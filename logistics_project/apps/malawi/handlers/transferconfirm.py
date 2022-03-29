@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import datetime
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.models import ProductReportsHelper , StockTransfer

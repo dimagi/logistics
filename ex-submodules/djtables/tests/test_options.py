@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from __future__ import unicode_literals
 from builtins import object
 from nose.tools import raises
 from djtables.options import Options

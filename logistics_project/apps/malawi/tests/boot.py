@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics.models import SupplyPoint

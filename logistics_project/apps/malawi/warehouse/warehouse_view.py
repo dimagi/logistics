@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import OrderedDict
 
 from logistics_project.utils.dates import DateSpan

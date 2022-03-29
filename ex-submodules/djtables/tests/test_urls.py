@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from __future__ import unicode_literals
 from django.http import QueryDict
 from djtables.urls import extract, build
 

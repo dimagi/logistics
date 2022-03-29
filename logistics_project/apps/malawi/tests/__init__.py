@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics_project.apps.malawi.tests.approval import *
 from logistics_project.apps.malawi.tests.boot import *
 from logistics_project.apps.malawi.tests.createuser import *

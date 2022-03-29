@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.core.management.base import BaseCommand
 from logistics.models import Product, ProductType
 from static.malawi.config import BaseLevel

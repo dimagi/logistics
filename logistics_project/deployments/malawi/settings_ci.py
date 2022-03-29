@@ -7,6 +7,7 @@ The localsettings.py for CI will only contain:
 
 from logistics_project.deployments.malawi.settings_ci import *
 """
+from __future__ import unicode_literals
 
 from logistics_project.deployments.malawi.settings_base import *
 

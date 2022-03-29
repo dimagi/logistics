@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import str
 from django.db.models import Q
 from logistics.models import StockRequest, Product, SupplyPoint

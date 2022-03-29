@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.test import TestCase
 from datetime import datetime
 from scheduler.decorators import businessday, businessday_before,\

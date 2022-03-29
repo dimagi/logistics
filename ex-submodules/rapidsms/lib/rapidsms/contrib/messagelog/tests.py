@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from taggit.models import Tag

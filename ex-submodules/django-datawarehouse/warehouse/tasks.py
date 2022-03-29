@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from celery.decorators import task
 from warehouse.runner import update_warehouse
 

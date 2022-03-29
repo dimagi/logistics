@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics_project.utils.modules import to_function
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock

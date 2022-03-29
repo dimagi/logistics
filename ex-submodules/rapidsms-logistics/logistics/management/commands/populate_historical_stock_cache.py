@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from logistics.models import SupplyPoint, StockTransaction, \
     Product, HistoricalStockCache
 from datetime import datetime, timedelta

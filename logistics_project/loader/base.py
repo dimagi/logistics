@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.util import config
 from logistics.models import ProductReportType, ContactRole
 from logistics.const import Reports

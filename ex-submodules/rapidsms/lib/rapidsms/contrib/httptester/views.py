@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from random import randint
 from django.shortcuts import render
 from django.core.urlresolvers import reverse

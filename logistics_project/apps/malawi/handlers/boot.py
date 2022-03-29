@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+from __future__ import unicode_literals
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler

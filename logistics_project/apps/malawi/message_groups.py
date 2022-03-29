@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # This file defines functions used to generate message groups.
 from django.db.models.query_utils import Q
 from logistics_project.apps.malawi.util import hsa_supply_points_below

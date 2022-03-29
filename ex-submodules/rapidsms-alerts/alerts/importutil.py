@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.utils.modules import try_import
 
 def dynamic_import(import_name):

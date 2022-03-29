@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from __future__ import unicode_literals
 from builtins import object
 from djtables.metatable import MetaTable
 from future.utils import with_metaclass

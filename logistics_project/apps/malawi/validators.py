@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from logistics.errors import UnknownCommodityCodeError
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock

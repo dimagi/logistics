@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import defaultdict, OrderedDict
 from django.db.models import Count
 from logistics.models import SupplyPoint

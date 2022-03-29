@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics_project.apps.malawi.management.commands.deactivate_contacts import DeactivateContactCommand
 from rapidsms.models import Contact
 

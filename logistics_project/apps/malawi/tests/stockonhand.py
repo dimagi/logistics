@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from logistics.models import StockRequest, SupplyPoint, StockRequestStatus, ProductStock, ProductReport, Product
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.util import create_hsa, create_manager,\

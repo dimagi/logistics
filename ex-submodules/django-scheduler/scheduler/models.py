@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import str
 from django.db import models
 from django.utils.dates import MONTHS, WEEKDAYS_ABBR

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.util import get_default_supply_point,\

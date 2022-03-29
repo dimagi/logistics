@@ -23,6 +23,7 @@ http://www.djangosnippets.org/snippets/1348/ - non-persistent, standalone proces
 http://code.google.com/p/django-cron/ - run_every x seconds
 various solutions using linux cron + os.setupenviron
 """
+from __future__ import unicode_literals
 
 import sys, traceback
 import time
