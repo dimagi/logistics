@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import str
 from fudge import Fake
 from nose.tools import assert_raises
 from djtables.column import Column, WrappedColumn
@@ -62,7 +63,7 @@ def test_value_can_be_wrapped():
 
 
 def test_renders_name_to_unicode():
-    assert unicode(Column('zeta')) == u"zeta"
+    assert str(Column('zeta')) == u"zeta"
 
 
 def test_wrapped_column_wraps_column_attrs():
@@ -78,7 +79,7 @@ def test_wrapped_column_wraps_column_attrs():
     # this isn't a very good test. because __magic__ methods can't be
     # mocked by fudge, we'll just check unicode(WrappedColumn) returns
     # the predictable output of unicode(Fake).
-    assert unicode(wrapped_column) == "fake:column"
+    assert str(wrapped_column) == "fake:column"
 
 
 def test_wrapped_column_is_sorted_via_table():

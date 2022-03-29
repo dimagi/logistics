@@ -1,3 +1,4 @@
+from builtins import str
 from datetime import datetime
 from django.http import HttpRequest, HttpResponseBadRequest
 from ..dates import DateSpan
@@ -30,7 +31,7 @@ def datespan_in_request(from_param="from", to_param="to",
                     req = arg
                     break
             if not req:
-                for arg in kwargs.values():
+                for arg in list(kwargs.values()):
                     if _is_http_request(arg):
                         req = arg
                         break
@@ -43,7 +44,7 @@ def datespan_in_request(from_param="from", to_param="to",
                     startdate = date_or_nothing(from_param)
                     enddate = date_or_nothing(to_param)
                 except ValueError as e:
-                    return HttpResponseBadRequest(unicode(e))
+                    return HttpResponseBadRequest(str(e))
                 if startdate or enddate:
                     req.datespan = DateSpan(startdate, enddate, format_string)
                 else:        

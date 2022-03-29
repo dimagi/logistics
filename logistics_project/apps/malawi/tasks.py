@@ -1,3 +1,4 @@
+from builtins import str
 from celery.schedules import crontab
 from celery.decorators import periodic_task
 from logistics_project.apps.malawi.nag import nag_hsas_em, nag_hsas_ept, nag_hsas_rec

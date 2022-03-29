@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 ###
 
+from builtins import object
 from django.conf import settings
 from django.contrib.auth.views import login
 from django.http import HttpResponseRedirect

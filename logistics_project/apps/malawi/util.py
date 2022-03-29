@@ -1,7 +1,8 @@
+from __future__ import division
 from contextlib import contextmanager
 
 from rapidsms.models import Contact
-from logistics.models import SupplyPoint, ProductStock, LogisticsProfile
+from logistics.models import SupplyPoint, LogisticsProfile
 from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
@@ -321,6 +322,7 @@ def get_visible_hsas(user):
     locations = Location.objects.filter(parent_id__in=vf_ids, is_active=True)
     return locations
 
+
 def get_all_visible_locations(user):
     """
     Given a user, what locations can they see
@@ -332,6 +334,7 @@ def get_all_visible_locations(user):
         locations.append(sp)
     return locations
 
+
 def deactivate_product(product):
     product.is_active = False
     product.save()
@@ -339,36 +342,6 @@ def deactivate_product(product):
     for c in managers:
         assert product in c.commodities.all()
         c.commodities.remove(product)
-
-class ConsumptionData(object):
-    def __init__(self, product, sps):
-        self.product = product
-        self.sps = sps
-        self.ps = ProductStock.objects.filter(supply_point__in=self.sps, product=self.product)
-
-    def _consumption(self):
-        if not self.ps: return [0]
-        return [p.monthly_consumption for p in self.ps]
-
-    @property
-    def total_consumption(self):
-        return sum(self._consumption())
-
-    @property
-    def average_consumption(self):
-        q = self._consumption()
-        if not q: return None
-        return sum(q)/len(q)
-
-    @property
-    def total_stock(self):
-        if not self.ps: return None
-        return sum(filter(lambda x: x is not None, [p.quantity for p in self.ps]))
-
-    @property
-    def average_months_of_stock(self):
-        mos = filter(lambda x: x is not None, [p.months_remaining for p in self.ps])
-        return sum(mos)/len(mos) if len(mos) else None
 
 
 def get_managed_product_ids(supply_point, base_level):
@@ -448,7 +421,7 @@ def filter_district_list_for_epi(district_list):
     """
     Works on a list of SupplyPoint districts or Location districts.
     """
-    return filter(lambda d: d.code in settings.EPI_DISTRICT_CODES, district_list)
+    return [d for d in district_list if d.code in settings.EPI_DISTRICT_CODES]
 
 
 def filter_facility_supply_point_queryset_for_epi(facility_qs):

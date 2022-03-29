@@ -1,3 +1,4 @@
+from builtins import str
 from logistics.util import config
 from logistics.models import SupplyPoint, ContactRole, \
     StockRequest, ProductReportsHelper, format_product_string
@@ -111,7 +112,7 @@ def report_facility_level_stock(test_class, reporter, product_string, managers, 
     manager_msgs = []
     if managers:
         resupplies = []
-        for product_code in stock_report.product_stock.keys():
+        for product_code in list(stock_report.product_stock.keys()):
             if product_code in resupply_amounts:
                 resupplies.append(product_code + " " + str(resupply_amounts[product_code]))
         test_class.assertEqual(len(resupply_amounts), len(resupplies))

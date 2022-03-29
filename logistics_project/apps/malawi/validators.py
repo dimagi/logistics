@@ -52,7 +52,7 @@ def check_max_levels_malawi(stock_report):
             product_code.lower() not in hard_coded_max_thresholds or  # not found, consider over
             stock > hard_coded_max_thresholds[product_code.lower()]  # actually over
         )
-    for product_code, stock in stock_report.product_stock.items():
+    for product_code, stock in list(stock_report.product_stock.items()):
         if _over_static_threshold(product_code, stock):
             product = stock_report.get_product(product_code)
             try:

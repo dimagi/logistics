@@ -1,6 +1,6 @@
+from __future__ import division
 import csv
 import json
-from copy import deepcopy
 from datetime import datetime
 from collections import defaultdict
 from random import random
@@ -268,9 +268,10 @@ def get_consumption_chart(supply_point, product, start, end):
     
     cons_series = [[i + 1, cc.average_adjusted_consumption] for i, cc in enumerate(ccs) if cc.total]
 
-    mos_series = [[i + 1, hs.stock / ccs[i].adjusted_consumption \
-                   if ccs[i].adjusted_consumption else 0] \
-                  for i, hs in enumerate(hss) if hs.total]
+    mos_series = [
+        [i + 1, hs.stock / ccs[i].adjusted_consumption if ccs[i].adjusted_consumption else 0]
+        for i, hs in enumerate(hss) if hs.total
+    ]
     ret_data = []
     ret_data.append({'data': cons_series,
                      'label': "Monthly Consumption", 
@@ -331,7 +332,7 @@ def increment_dict_item(dictionary, key, val):
 
 def list_key_values(dictionary, key_list=None):
     if not key_list:
-        key_list = dictionary.keys()
+        key_list = list(dictionary.keys())
     return [dictionary[key] for key in key_list if key in dictionary]
 
 def sum_of_key_values(dictionary, key_list):
@@ -348,18 +349,6 @@ def avg_of_key_values(dictionary, key_list):
 def get_datelist(start, end):
     return [datetime(year, month, 1)\
             for year, month in months_between(start, end)]
-
-def remove_zeros_from_dict(dicti, key_val):
-    dictionary = deepcopy(dicti)
-    if key_val in dictionary:
-        if dictionary[key_val] == 0 or not dictionary[key_val]:
-            dictionary.pop(key_val)
-            return dictionary, True
-    for key in dictionary.keys():
-        if isinstance(dictionary[key], dict):
-            if _remove_zeros_from_dict(dictionary[key], key_val)[1]:
-                dictionary.pop(key)
-    return dictionary, False
 
 def month_labels(start_date, end_date):
     return [[i + 1, '<span>%s</span>' % datetime(year, month, 1).strftime("%b")] \

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import str
 from django.core.management.base import LabelCommand
 from warehouse.models import ReportRun
 from datetime import datetime

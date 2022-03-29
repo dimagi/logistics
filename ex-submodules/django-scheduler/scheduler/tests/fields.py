@@ -18,7 +18,7 @@ class TestFields(TestCase):
             self.assertEqual(sback.callback_args[i], val)
         
         self.assertEqual(len(kwargs), len(sback.callback_kwargs))
-        for k, val in kwargs.items():
+        for k, val in list(kwargs.items()):
             self.assertEqual(sback.callback_kwargs[k], val)
         
     def testDefaults(self):

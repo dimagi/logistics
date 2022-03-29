@@ -2,6 +2,8 @@
 # vim: et ts=4 sw=4
 
 
+from builtins import range
+from builtins import object
 from django.http import HttpRequest, QueryDict
 from djtables.table import Table
 from djtables.column import Column

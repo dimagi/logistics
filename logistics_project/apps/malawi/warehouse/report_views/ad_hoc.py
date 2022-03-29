@@ -1,3 +1,4 @@
+from builtins import object
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint, ProductReport, Product
 from logistics_project.apps.malawi.util import get_default_supply_point,\

@@ -1,3 +1,5 @@
+from __future__ import division
+from builtins import object
 from django.db import models
 from logistics.warehouse_models import ReportingModel, BaseReportingModel
 from logistics_project.apps.malawi.util import (fmt_pct, pct, hsas_below,
@@ -9,7 +11,7 @@ from logistics_project.utils.dates import first_of_next_month, delta_secs
 
 class MalawiWarehouseModel(ReportingModel):
     
-    class Meta:
+    class Meta(object):
         abstract = True
         app_label = "malawi"
 
@@ -247,8 +249,7 @@ class CalculatedConsumption(MalawiWarehouseModel):
         # adjusted for stockouts and data
         scale_factor = float(self.time_with_data) / float(self.time_needing_data) \
             if self.time_needing_data != 0 else 0
-        return self._so_adjusted_consumption / scale_factor \
-                if scale_factor != 0 else self._so_adjusted_consumption 
+        return self._so_adjusted_consumption / scale_factor if scale_factor != 0 else self._so_adjusted_consumption
          
     @property
     def average_adjusted_consumption(self):
@@ -291,7 +292,7 @@ class CurrentConsumption(BaseReportingModel):
             assert mos > 2
             return "Overstocked"
     
-    class Meta:
+    class Meta(object):
         app_label = "malawi"
 
             
@@ -309,7 +310,7 @@ class Alert(models.Model):
     products_requested = models.PositiveIntegerField(default=0)
     products_approved = models.PositiveIntegerField(default=0)
 
-    class Meta:
+    class Meta(object):
         app_label = "malawi"
 
 

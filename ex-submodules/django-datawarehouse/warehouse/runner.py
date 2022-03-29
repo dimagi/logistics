@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import object
 from datetime import datetime
 from logistics_project.utils.modules import to_function
 from django.conf import settings

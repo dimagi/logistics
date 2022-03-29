@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import object
 from django import forms
 from django.db import transaction
 from rapidsms.models import Backend, Connection, Contact
@@ -35,7 +36,7 @@ class ContactForm(forms.ModelForm):
         help_text='User manages these commodities. Hold down "Control", or "Command" on a Mac, to select more than one.'
     )
 
-    class Meta:
+    class Meta(object):
         model = Contact
         exclude = ('user', 'language')
 

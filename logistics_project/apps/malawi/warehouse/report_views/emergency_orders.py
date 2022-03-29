@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import range
 import itertools
 from collections import defaultdict
 
@@ -34,7 +36,7 @@ class View(warehouse_view.DistrictOnlyView):
         prd_map = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))) 
         # {product.type: {label: {date: val}}}
         type_map = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 0))) 
-        for date in oreqs.keys():
+        for date in list(oreqs.keys()):
             for oreq in oreqs[date]:
                 prd_map[oreq.product]['emergency'][date] += oreq.emergency
                 prd_map[oreq.product]['total'][date] += oreq.total
@@ -72,7 +74,7 @@ class View(warehouse_view.DistrictOnlyView):
             data_map = {}
             data_map[label] = []
             
-            for eo in prd_map.keys():
+            for eo in list(prd_map.keys()):
                 count += 1
                 product_codes.append([count, '%s' % (str(eo.code.lower()))])
                 if label in prd_map[eo]:
@@ -109,7 +111,7 @@ class View(warehouse_view.DistrictOnlyView):
             count += 1
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
 
-        for eo in prd_map.keys():
+        for eo in list(prd_map.keys()):
             eo_pct_table["data"].append([item for item in itertools.chain\
                                      ([eo.sms_code],
                                       [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])

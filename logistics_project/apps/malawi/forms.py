@@ -1,3 +1,4 @@
+from builtins import object
 from django import forms
 from django.contrib.auth.models import Group, User
 
@@ -15,7 +16,7 @@ class OrganizationForm(forms.ModelForm):
         required=False
     )
 
-    class Meta:
+    class Meta(object):
         model = Organization
         fields = ['name', 'managed_supply_points']
         
@@ -100,7 +101,7 @@ class LogisticsProfileForm(forms.ModelForm):
 
         return obj
 
-    class Meta:
+    class Meta(object):
         model = LogisticsProfile
         exclude = ('user', 'location', 'designation', 'can_view_hsa_level_data',
             'can_view_facility_level_data', 'current_dashboard_base_level')
@@ -112,7 +113,7 @@ class UploadFacilityFileForm(forms.Form):
 
 class ProductForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = Product
         exclude = ('product_code', 'description', 'is_active')
 
@@ -121,7 +122,7 @@ class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     repeat_password = forms.CharField(widget=forms.PasswordInput())
 
-    class Meta:
+    class Meta(object):
         model = User
         exclude = ('is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
                    'groups', 'user_permissions')

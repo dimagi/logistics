@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 from django.core.management.base import LabelCommand, CommandError
 from rapidsms.models import Connection, Contact
 from logistics.models import ProductStock, ProductReport, StockTransaction,\

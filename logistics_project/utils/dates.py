@@ -1,3 +1,6 @@
+from builtins import range
+from past.builtins import basestring
+from builtins import object
 from datetime import date, datetime, timedelta, time
 from calendar import month_name
 import pytz

@@ -1,3 +1,4 @@
+from builtins import str
 from django.db.models import Q
 from logistics.models import StockRequest, Product, SupplyPoint
 from logistics_project.apps.malawi.warehouse import warehouse_view
