@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import timedelta
 from logistics import loader as logi_loader
 from logistics.const import Reports

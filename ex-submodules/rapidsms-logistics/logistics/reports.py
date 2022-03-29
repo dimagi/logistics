@@ -1,5 +1,5 @@
 from __future__ import division
-
+from __future__ import unicode_literals
 import sentry_sdk
 from past.utils import old_div
 from builtins import object

@@ -2,6 +2,7 @@
 # vim: et ts=4 sw=4
 
 
+from __future__ import unicode_literals
 from past.builtins import basestring
 from builtins import object
 from django.template.loader import render_to_string

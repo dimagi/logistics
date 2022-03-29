@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 #
 # Copyright (c) 2006-2007, Jared Kuolt
 # All rights reserved.

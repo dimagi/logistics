@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import transaction
 from logistics.models import Product
 from logistics.util import config

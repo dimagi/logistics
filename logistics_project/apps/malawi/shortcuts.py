@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.models import StockRequest, StockRequestStatus, format_product_string
 from logistics.util import config, ussd_msg_response
 from logistics_project.apps.malawi.util import get_supervisors, swallow_errors

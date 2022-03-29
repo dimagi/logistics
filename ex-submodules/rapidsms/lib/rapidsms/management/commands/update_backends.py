@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from django.core.management.base import BaseCommand
 from rapidsms.models import Backend
 from ...conf import settings

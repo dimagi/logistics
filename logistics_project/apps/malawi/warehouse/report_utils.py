@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import unicode_literals
 import csv
 import json
 from datetime import datetime
@@ -208,7 +209,7 @@ def get_reporting_rates_chart(location, start, end, base_level=config.BaseLevel.
                      'yaxis': 2})
     
     report_chart.update({
-        'xlabels': [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        'xlabels': [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
         'data': json.dumps(ret_data),
         'xaxistitle': 'month',
     })
@@ -255,7 +256,7 @@ def get_consumption_chart(supply_point, product, start, end):
         "max_value": None,
         "width": "100%",
         "height": "300px",
-        "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
         "xaxistitle": "month",
         "yaxistitle": "Monthly consumption",
         "y2axistitle": "Months of stock"

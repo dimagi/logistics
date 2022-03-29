@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.models import SupplyPoint
 from logistics.util import config
 

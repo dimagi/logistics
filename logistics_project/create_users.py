@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import unicode_literals
 from django.contrib.auth.models import User
 
 districts = ['Nkhatabay', 'Nkhotakota', 'Machinga', 'Mulanje', 'Kasungu', 'Nsanje']

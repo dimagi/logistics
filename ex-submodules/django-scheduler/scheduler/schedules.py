@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from scheduler.models import EventSchedule
 
 def get_relevant_schedules(asof):

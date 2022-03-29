@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from __future__ import unicode_literals
 from builtins import str
 from datetime import datetime
 from django.utils.translation.trans_real import translation

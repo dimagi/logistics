@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import timedelta
 from rapidsms.conf import settings
 from django.core.cache import cache

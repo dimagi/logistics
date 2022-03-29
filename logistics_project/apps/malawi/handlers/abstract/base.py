@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 
 

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.products import BaseProductHandler

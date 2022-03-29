@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import close_old_connections
 from future import standard_library
 

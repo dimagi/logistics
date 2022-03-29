@@ -47,6 +47,7 @@ accepted-smsc = FAKE
 max-messages = 0
 get-url = http://127.0.0.1:8081/?id=%p&text=%a&charset=%C&coding=%c
 """
+from __future__ import unicode_literals
 
 
 from future import standard_library

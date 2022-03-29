@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import range
 from past.builtins import basestring
 from builtins import object

@@ -1,6 +1,7 @@
 """
 A field which can store a json object in the database. 
 """
+from __future__ import unicode_literals
 
 from past.builtins import basestring
 from django.db import models

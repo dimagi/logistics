@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import ContactRole, SupplyPoint

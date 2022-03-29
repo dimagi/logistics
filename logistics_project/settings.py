@@ -6,6 +6,7 @@
 # -------------------------------------------------------------------- #
 
 
+from __future__ import unicode_literals
 SECRET_KEY = 'please change me in production'
 
 # to help you get started quickly, many django/rapidsms apps are enabled

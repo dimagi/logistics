@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand

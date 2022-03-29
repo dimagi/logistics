@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import str
 from celery.schedules import crontab
 from celery.decorators import periodic_task

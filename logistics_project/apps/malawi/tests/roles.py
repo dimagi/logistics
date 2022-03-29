@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.util import config
 from logistics_project.apps.malawi.tests.util import create_hsa, create_manager
 from logistics_project.apps.malawi.tests.base import MalawiTestBase

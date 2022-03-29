@@ -6,6 +6,7 @@
  Those that require different settings for different facility types should set the
  GLOBAL_STOCK_LEVEL_POLICY to False, and then define the LEVELS in static.deployment.config.py
 """
+from __future__ import unicode_literals
 LOGISTICS_USE_GLOBAL_STOCK_LEVEL_POLICY = True
 # These settings define how many months constitute emergency, low supply,
 # and oversupply stock for the logistics app

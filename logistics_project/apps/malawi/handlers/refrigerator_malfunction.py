@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import pytz
 from datetime import datetime
 from logistics.decorators import logistics_contact_and_permission_required

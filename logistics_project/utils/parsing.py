@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import datetime, date, time
 from dateutil.parser import parse
 

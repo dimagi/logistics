@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.test import TestCase
 from rapidsms.conf import settings
 from .utils import get_handlers

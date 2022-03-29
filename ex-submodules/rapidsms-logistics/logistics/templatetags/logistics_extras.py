@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django import template
 from logistics.templatetags.math_tags import percent
 register = template.Library()

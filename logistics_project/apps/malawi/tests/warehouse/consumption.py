@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from datetime import datetime, timedelta
 from logistics.models import Product, StockTransaction
 from logistics.models import SupplyPoint as Facility

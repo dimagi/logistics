@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 
+from __future__ import unicode_literals
 from rapidsms.conf import settings
 from rapidsms.utils.modules import find_python_files, get_class, try_import
 from .handlers.base import BaseHandler

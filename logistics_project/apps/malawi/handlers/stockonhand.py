@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.const import Reports
 from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler

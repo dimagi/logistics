@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from rapidsms.conf import settings
 from logistics.util import config
 from rapidsms.contrib.locations.models import Location

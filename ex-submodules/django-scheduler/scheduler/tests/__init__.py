@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # these tests seem to sleep forever, so i'm disabling them for now.
 
 from .execution import *

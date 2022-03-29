@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from collections import defaultdict
 
 from logistics.models import Product, SupplyPoint, ProductType
@@ -56,7 +57,7 @@ class View(warehouse_view.DistrictOnlyView):
             "yaxistitle": "OFR %",
             "height": "350px",
             "width": "100%", 
-            "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+            "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
             "data": json.dumps(raw_graphdata),
         }
         

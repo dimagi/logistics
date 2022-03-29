@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 import csv
 from django.db.models import Sum
 from logistics_project.utils.dates import months_between

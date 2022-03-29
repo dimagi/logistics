@@ -1,4 +1,5 @@
 """Managers register for the system here"""
+from __future__ import unicode_literals
 from django.utils.translation import ugettext as _
 from rapidsms.models import Contact
 from logistics.models import ContactRole, SupplyPoint

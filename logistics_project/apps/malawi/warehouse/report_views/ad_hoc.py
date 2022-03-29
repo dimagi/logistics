@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from builtins import object
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics.models import SupplyPoint, ProductReport, Product

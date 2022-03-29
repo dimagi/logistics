@@ -3,6 +3,7 @@ This unit test checks for the most common functionality:
 sending scheduled sms to a registered reporter
 
 """
+from __future__ import unicode_literals
 import time
 import logging
 from datetime import datetime, timedelta, MINYEAR

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from logistics.models import ProductStock, \
     StockRequest, SupplyPoint, StockRequestStatus, StockTransfer, Product
 from logistics.util import config

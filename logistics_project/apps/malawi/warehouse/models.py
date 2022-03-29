@@ -1,4 +1,5 @@
 from __future__ import division
+from __future__ import unicode_literals
 from builtins import object
 from django.db import models
 from logistics.warehouse_models import ReportingModel, BaseReportingModel

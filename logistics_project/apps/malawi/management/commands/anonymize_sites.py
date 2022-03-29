@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from optparse import make_option
 from django.core.management.base import LabelCommand
 from logistics_project.apps.malawi.util import get_facility_supply_points, get_district_supply_points

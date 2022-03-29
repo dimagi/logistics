@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
 from logistics_project.apps.malawi.tests.util import create_manager
 from static.malawi import config

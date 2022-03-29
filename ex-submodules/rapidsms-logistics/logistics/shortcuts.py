@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from logistics.models import ProductReportsHelper, SupplyPoint
 
 def create_stock_report(report_type, supply_point, text, logger_msg=None, 

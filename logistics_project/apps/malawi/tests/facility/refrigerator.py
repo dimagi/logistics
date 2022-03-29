@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from __future__ import unicode_literals
 from datetime import datetime
 from logistics.util import config
 from logistics.models import SupplyPoint

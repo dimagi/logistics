@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf import settings
 from rapidsms.tests.scripted import TestScript
 from logistics_project.apps.malawi.loader import load_static_data_for_tests
@@ -26,7 +27,7 @@ class OutputtingTestScript(TestScript):
             os.mkdir(self.output_directory)
         
         with open(self.output_filename, "w") as f:
-            writer = csv.writer(f, delimiter=',')
+            writer = csv.writer(f)
             writer.writerow(["Phone Number", "Direction", "Message"])
             def csv_line(writer, msg):
                 def direction(msg):

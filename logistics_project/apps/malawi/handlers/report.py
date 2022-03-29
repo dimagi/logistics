@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from logistics.models import ProductReportsHelper, StockRequest, \
     ContactRole, StockTransfer, format_product_string
 from django.utils.translation import ugettext as _

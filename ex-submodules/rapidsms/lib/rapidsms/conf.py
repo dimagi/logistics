@@ -11,6 +11,7 @@ overriden by the project author in the top-level ``settings.py``.
 
 .. _djappsettings: http://github.com/adammck/djappsettings
 """
+from __future__ import unicode_literals
 
 try: from djappsettings import settings
 except: from django.conf import settings

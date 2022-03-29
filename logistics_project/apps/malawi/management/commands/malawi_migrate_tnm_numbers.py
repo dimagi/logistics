@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from datetime import datetime
 from optparse import make_option
 from django.core.management.base import LabelCommand
