@@ -1,4 +1,8 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from builtins import object
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -381,8 +385,7 @@ def update_consumption_values(transactions):
                     # between transactions - or if that interval spans the border of a month
                     # then the interval corresponding to the portion in this month.
                     secs_in_window = delta_secs(end_date-start_date)
-                    proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) \
-                        if secs_in_window else 0
+                    proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) if secs_in_window else 0
                     assert proportion_in_window <= 1
                     c = CalculatedConsumption.objects.get_or_create\
                         (supply_point=start.supply_point, date=window_date, 
