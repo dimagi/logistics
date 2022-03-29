@@ -209,7 +209,7 @@ def get_reporting_rates_chart(location, start, end, base_level=config.BaseLevel.
                      'yaxis': 2})
     
     report_chart.update({
-        'xlabels': [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        'xlabels': [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
         'data': json.dumps(ret_data),
         'xaxistitle': 'month',
     })
