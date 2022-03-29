@@ -1,3 +1,4 @@
+from __future__ import division
 from datetime import datetime
 
 from django.db.models import Sum
@@ -44,12 +45,11 @@ def consumption_row(sp, p, datespan):
     period_secs = delta_secs(end - datespan.startdate)
     assert period_secs >= avg_so_time
     adjusted_secs = period_secs - avg_so_time
-    so_adjusted_cons = (tot_cons * (period_secs / adjusted_secs)) if adjusted_secs else 0 
+    so_adjusted_cons = (tot_cons * (period_secs / adjusted_secs)) if adjusted_secs else 0
     
     scale_factor = float(tot_time_with_data) / float(tot_time_needing_data) \
          if tot_time_needing_data != 0 else 0
-    data_adjusted_cons = so_adjusted_cons / scale_factor \
-        if scale_factor != 0 else so_adjusted_cons 
+    data_adjusted_cons = so_adjusted_cons / scale_factor if scale_factor != 0 else so_adjusted_cons
     amc = data_adjusted_cons / len(months_between(datespan.startdate,
                                                   datespan.enddate))
     _f = lambda x: fmt_or_none(x, percent=False)
