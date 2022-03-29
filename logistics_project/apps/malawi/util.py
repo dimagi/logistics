@@ -2,7 +2,7 @@ from __future__ import division
 from contextlib import contextmanager
 
 from rapidsms.models import Contact
-from logistics.models import SupplyPoint, ProductStock, LogisticsProfile
+from logistics.models import SupplyPoint, LogisticsProfile
 from logistics.util import config
 from logistics_project.apps.malawi.exceptions import MultipleHSAException, IdFormatException
 from rapidsms.contrib.locations.models import Location
