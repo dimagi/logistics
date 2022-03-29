@@ -322,6 +322,7 @@ def get_visible_hsas(user):
     locations = Location.objects.filter(parent_id__in=vf_ids, is_active=True)
     return locations
 
+
 def get_all_visible_locations(user):
     """
     Given a user, what locations can they see
@@ -333,6 +334,7 @@ def get_all_visible_locations(user):
         locations.append(sp)
     return locations
 
+
 def deactivate_product(product):
     product.is_active = False
     product.save()
@@ -341,7 +343,7 @@ def deactivate_product(product):
         assert product in c.commodities.all()
         c.commodities.remove(product)
 
-,
+
 def get_managed_product_ids(supply_point, base_level):
     # Note that we .order_by('id') here because default ordering for Product objects
     # is by name, so if we didn't include this, django also tries to select name in the
