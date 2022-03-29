@@ -27,7 +27,7 @@ class OutputtingTestScript(TestScript):
             os.mkdir(self.output_directory)
         
         with open(self.output_filename, "w") as f:
-            writer = csv.writer(f, delimiter=',')
+            writer = csv.writer(f)
             writer.writerow(["Phone Number", "Direction", "Message"])
             def csv_line(writer, msg):
                 def direction(msg):
