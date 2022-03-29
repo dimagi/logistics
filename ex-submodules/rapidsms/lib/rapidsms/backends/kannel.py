@@ -49,12 +49,12 @@ get-url = http://127.0.0.1:8081/?id=%p&text=%a&charset=%C&coding=%c
 """
 
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import copy
-import urllib
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
+import urllib.request, urllib.parse, urllib.error
+from urllib.request import urlopen
 
 from datetime import datetime
 
@@ -85,14 +85,14 @@ class KannelBackend(RapidHttpBackend):
         if sms is None or sender is None:
             error_msg = 'ERROR: Missing "text" or "id" params. '\
                         'parameters received are: %(params)s' % \
-                         {'params': unicode(request.GET)}
+                         {'params': str(request.GET)}
             self.error(error_msg)
             return HttpResponseBadRequest(error_msg)
         now = datetime.utcnow()
         # UTF-8 (and possible other charsets) will already be decoded, while
         # UTF-16BE will not, so decode them manually here if we don't already
         # have a unicode string
-        if charset and not isinstance(sms, unicode):
+        if charset and not isinstance(sms, str):
             sms = sms.decode(charset)
         try:
             msg = super(RapidHttpBackend, self).message(sender, sms, now)
@@ -110,7 +110,7 @@ class KannelBackend(RapidHttpBackend):
                                                self.encode_errors)
         url_args['coding'] = self.coding
         url_args['charset'] = self.charset
-        url = '?'.join([self.sendsms_url, urllib.urlencode(url_args)])
+        url = '?'.join([self.sendsms_url, urllib.parse.urlencode(url_args)])
         try:
             self.debug('Opening URL: %s' % url)
             response = urlopen(url)
