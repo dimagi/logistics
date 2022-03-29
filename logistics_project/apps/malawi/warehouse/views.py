@@ -72,7 +72,7 @@ def _get_report(request, slug, base_level):
             table_id = request.GET.get('table')
             context = report.get_context(request)
             def _find_table(context, table_id):
-                for k, v in context.items():
+                for k, v in list(context.items()):
                     if isinstance(v, dict) and v.get('id') == table_id:
                         return v
             table = _find_table(context, table_id)

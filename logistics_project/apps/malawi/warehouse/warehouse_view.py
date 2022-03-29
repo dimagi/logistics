@@ -124,7 +124,7 @@ class MalawiWarehouseView(ReportView):
         facility_count = get_facilities().filter(parent_id__in=all_districts.values_list('id', flat=True)).count()
 
         querystring = '?'
-        for key in request.GET.keys():
+        for key in list(request.GET.keys()):
             querystring += '%s=%s&' % (key, request.GET[key])
 
         base_context.update({
@@ -153,7 +153,7 @@ class MalawiWarehouseView(ReportView):
         if request.base_level_is_facility:
             base_context['report_list'] = [
                 {'name': name, 'slug': slug}
-                for name, slug in settings.EPI_REPORT_LIST.iteritems()
+                for name, slug in settings.EPI_REPORT_LIST.items()
             ]
 
         return base_context

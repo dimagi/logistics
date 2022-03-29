@@ -1,3 +1,4 @@
+from builtins import object
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from djtables import Table, Column
@@ -28,6 +29,6 @@ class ContactTable(Table):
                           sortable=False)
     phone = Column(value=lambda cell: cell.object.phone, sortable=False)
 
-    class Meta:
+    class Meta(object):
         order_by = 'supply_point'
         per_page = 30

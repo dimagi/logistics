@@ -1,3 +1,4 @@
+from builtins import str
 from django.db import models
 from rapidsms.contrib.messagelog.models import Message
 from django.contrib.auth.models import User

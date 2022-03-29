@@ -35,7 +35,7 @@ class View(warehouse_view.DistrictOnlyView):
 
         month_data = [
             [dt.strftime("%B")] + [getattr(rr, "pct_%s" % k) for k in shared_slugs]
-            for dt, rr in months.items()
+            for dt, rr in list(months.items())
         ]
 
         month_table = {
@@ -67,7 +67,7 @@ class View(warehouse_view.DistrictOnlyView):
             return [
                 [sp.name] +
                 [fmt_pct(data[k], data['reported'] if k == 'complete' else data['total']) for k in shared_slugs]
-                for sp, data in datamap.items()
+                for sp, data in list(datamap.items())
             ]
 
         location_table = None
