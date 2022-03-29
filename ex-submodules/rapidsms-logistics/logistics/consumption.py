@@ -1,3 +1,5 @@
+from __future__ import division
+from builtins import object
 from datetime import datetime, timedelta
 from rapidsms.conf import settings
 from logistics.const import Reports
@@ -77,8 +79,7 @@ def daily_consumption(supply_point, product, datespan=None,
                     period_consumption = t.ending_balance + period_receipts - end_transaction.ending_balance
                     
                     scaling_factor = 1 if consumption_settings.cutoff_date < t.date \
-                        else max(0, delta_secs(end_transaction.date - consumption_settings.cutoff_date) \
-                                    / delta_secs(period_time))
+                        else max(0, delta_secs(end_transaction.date - consumption_settings.cutoff_date) / delta_secs(period_time))
                     
                     total_time += timedelta(seconds=scaling_factor * delta_secs(period_time))
                     total_consumption += scaling_factor * period_consumption
@@ -99,4 +100,3 @@ def daily_consumption(supply_point, product, datespan=None,
     if days < consumption_settings.min_days:
         return None
     return round(abs((float(total_consumption) / delta_secs(total_time)) * 60*60*24),2)
-

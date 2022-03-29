@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import str
 import os
 import sys
 from django.conf import settings
@@ -48,10 +49,10 @@ def load_products(log_to_console=False):
     """ Creates both products and product types """
     from logistics.models import Product, ProductType
     from logistics.util import config
-    for key in config.ProductTypes.ALL.keys():
+    for key in list(config.ProductTypes.ALL.keys()):
         t, created = ProductType.objects.get_or_create(code=key, 
                                                        name=config.ProductTypes.ALL[key])
-    for key in config.Products.ALL.keys():
+    for key in list(config.Products.ALL.keys()):
         try: 
             p = Product.objects.get(sms_code=key)
         except Product.DoesNotExist:
@@ -102,7 +103,7 @@ def init_reports(log_to_console=False):
     from logistics.const import Reports
     # These are annoyingly necessary to live in the DB, currently. 
     # Really this should be app logic, I think.
-    for code, name in Reports.ALL_REPORTS.items():
+    for code, name in list(Reports.ALL_REPORTS.items()):
         prod = ProductReportType.objects.get_or_create(code=code)[0]
         if prod.name != name:
             prod.name = name
@@ -112,7 +113,7 @@ def init_reports(log_to_console=False):
 def init_supply_point_types():
     from logistics.models import SupplyPointType
     from logistics.util import config
-    for code, name in config.SupplyPointCodes.ALL.items():
+    for code, name in list(config.SupplyPointCodes.ALL.items()):
         spt = SupplyPointType.objects.get_or_create(code=code)[0]
         if spt.name != name:
             spt.name = name

@@ -97,7 +97,7 @@ def place_in_request(param="place"):
             if request.location and not request.from_url and request.method=="GET":
                 params = {param: request.location.code}
                 params.update(dict((k,request.GET[k]) for k in request.GET))
-                next = "%s?%s" % (request.path, "&".join("%s=%s" % (k,v) for k, v in params.items()))
+                next = "%s?%s" % (request.path, "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
                 return HttpResponseRedirect(next)
             return f(request, *args, **kwargs)
         return put_place_on_request

@@ -34,13 +34,11 @@ from rapidsms.contrib.messagelog.models import Message
 from logistics.models import SupplyPoint, Product, LogisticsProfile,\
     StockTransaction, StockRequestStatus, ContactRole
 from logistics.decorators import place_in_request
-from logistics.charts import stocklevel_plot
 from logistics.util import config
 from logistics.charts import amc_plot
 
 from logistics_project.apps.malawi.warehouse.report_utils import datespan_default
 from logistics_project.apps.malawi.exceptions import IdFormatException
-from logistics_project.apps.malawi.tables import HSATable, StockRequestTable
 from logistics_project.apps.malawi.util import get_districts, get_facilities, hsas_below, format_id, \
     deactivate_product, get_managed_products_for_contact, get_or_create_user_profile
 from logistics_project.apps.malawi.reports import ReportInstance, ReportDefinition,\
@@ -289,48 +287,6 @@ def deactivate_product_view(request, pk):
 def help(request):
     return render(request, "malawi/help.html")
 
-
-@cache_page(60 * 15)
-@place_in_request()
-@vary_on_cookie
-def hsas(request):
-    hsas = hsas_below(request.location)
-    districts = get_districts().order_by("id")
-    facilities = get_facilities().order_by("parent_id")
-    
-    hsa_table = HSATable(hsas, request=request)
-    return render(request, "malawi/hsas.html",
-        {
-            "hsas": hsas,
-            "hsa_table": hsa_table,
-            "location": request.location,
-            "districts": districts,
-            "facilities": facilities
-        }
-    )
-    
-def hsa(request, code):
-    if Contact.objects.filter(supply_point__code=code, is_active=True).count():
-        hsa = get_object_or_404(Contact, supply_point__code=code, is_active=True)
-    elif Contact.objects.filter(supply_point__code=code).count():
-        hsa = Contact.objects.filter(supply_point__code=code)[0]
-    else:
-        raise Http404("Contact not found!")
-    assert(hsa.supply_point.type.code == config.SupplyPointCodes.HSA)
-    
-    transactions = StockTransaction.objects.filter(supply_point=hsa.supply_point)
-    chart_data = stocklevel_plot(transactions) 
-    
-    stockrequest_table = StockRequestTable(hsa.supply_point.stockrequest_set\
-                                           .exclude(status=StockRequestStatus.CANCELED), request)
-    return render(request, "malawi/single_hsa.html",
-        {
-            "hsa": hsa,
-            "id_str": "%s %s" % (hsa.supply_point.code[-2:], hsa.supply_point.code[:-2]),
-            "chart_data": chart_data,
-            "stockrequest_table": stockrequest_table
-        }
-    )
 
 def deactivate_hsa(request, pk):
     hsa = get_object_or_404(Contact, pk=pk)

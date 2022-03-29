@@ -1,3 +1,6 @@
+from __future__ import division
+from past.utils import old_div
+from builtins import object
 import json
 from datetime import timedelta, datetime
 from django.core.exceptions import ObjectDoesNotExist
@@ -122,16 +125,15 @@ class ReportingBreakdown(object):
             self.discrepancies_avg_p = {}
             self.filled_orders_p = {}
             for product in orders_list.distinct():
-                self.discrepancies_p[product] = len(filter(lambda r: (r.amount_received >= (1.2 * r.amount_requested) or
-                                                                      r.amount_received <= (.8 * r.amount_requested)), 
-                                                                      [x for x in discrepancies if x.product.pk == product]))
+                self.discrepancies_p[product] = len([r for r in [x for x in discrepancies if x.product.pk == product] if (r.amount_received >= (1.2 * r.amount_requested) or
+                                                                      r.amount_received <= (.8 * r.amount_requested))])
 
                 z = [r.amount_requested - r.amount_received for r in \
                      discrepancies.filter(product__pk=product)]
                 self.discrepancies_tot_p[product] = sum(z)
                 if self.discrepancies_p[product]: 
                     self.discrepancies_avg_p[product] = \
-                        self.discrepancies_tot_p[product] / self.discrepancies_p[product]
+                        old_div(self.discrepancies_tot_p[product], self.discrepancies_p[product])
                 
                 self.filled_orders_p[product] = len([x for x in orders_list if x == product])
                 self.discrepancies_pct_p[product] = calc_percentage\
@@ -149,7 +151,7 @@ class ReportingBreakdown(object):
             self.req_times = []
             if filled_requests:
                 secs = [_seconds(f.received_on - f.requested_on) for f in filled_requests]
-                self.avg_req_time = timedelta(seconds=(sum(secs) / len(secs)))
+                self.avg_req_time = timedelta(seconds=(old_div(sum(secs), len(secs))))
                 self.req_times = secs
 
         # fully reporting / non reporting
@@ -238,7 +240,7 @@ class ReportingBreakdown(object):
                     no_stockouts_pct_p[key] = calc_percentage(no_stockouts_p[key], totals_p[key])
 
             for key in stockouts_duration_p:
-                stockouts_avg_duration_p[key] = timedelta(seconds=sum(stockouts_duration_p[key]) / len(stockouts_duration_p[key]))
+                stockouts_avg_duration_p[key] = timedelta(seconds=old_div(sum(stockouts_duration_p[key]), len(stockouts_duration_p[key])))
 
             self.stockouts = stockouts
             self.emergency = emergency_requesters
@@ -514,7 +516,7 @@ class DynamicProductAvailabilitySummaryByFacilitySP(ProductAvailabilitySummaryBy
     def __init__(self, facilities, width=900, height=360, month=None, year=None):
         super(DynamicProductAvailabilitySummaryByFacilitySP, self).__init__(facilities, width, height, month, year)
 
-class SupplyPointRow():
+class SupplyPointRow(object):
         
     def __init__(self, supply_point, commodity_filter, commoditytype_filter):
         self.supply_point = supply_point
@@ -666,7 +668,7 @@ class ReportView(object):
         base_context = super(<YourWarehouseViewSubclass>, self).shared_context(request)
         """
         to_stub = lambda x: {"name": x, "slug": settings.REPORT_LIST[x]}
-        stub_reports = [to_stub(r) for r in settings.REPORT_LIST.keys()]
+        stub_reports = [to_stub(r) for r in list(settings.REPORT_LIST.keys())]
 
         return { 
             "report_list": stub_reports,

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+from builtins import object
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -38,7 +39,7 @@ class CommodityTable(Table):
     sms_code = Column(value=_code)
     type = Column(value=_type)
 
-    class Meta:
+    class Meta(object):
         order_by = 'name'
 
 class ShortMessageTable(Table):
@@ -65,7 +66,7 @@ class ReportingTable(Table):
                                sort_key_fn=lambda obj: obj.last_reported,
                                css_class="tabledate")
     
-    class Meta:
+    class Meta(object):
         order_by = '-last_reported'
 
 def _parent_or_nothing(location):
@@ -102,5 +103,5 @@ class MessageTable(Table):
     district = Column(value=_district, sortable=False)
     region = Column(value=_region, sortable=False)
 
-    class Meta:
+    class Meta(object):
         order_by = '-date'
