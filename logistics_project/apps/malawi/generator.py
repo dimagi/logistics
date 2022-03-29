@@ -1,4 +1,7 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
 from datetime import timedelta, datetime
 from logistics.models import ContactRole, SupplyPoint, Product, ProductStock, ProductReport, ProductReportType, SupplyPointType
 from random import choice, randint, sample, normalvariate
@@ -19,7 +22,7 @@ def create_hsa(parent, name=None, number=None, role=None):
     hsa_code = ""
     i = 0
     # Find an unused code.
-    for i in xrange(1,99):
+    for i in range(1,99):
         try:
             hsa_code = "%(facility)s%(id)02d" % {'facility': parent.code, 'id': i}
             SupplyPoint.objects.get(code=hsa_code)
@@ -64,7 +67,7 @@ def generate_hsas():
     sps = [sp for sp in sps if not sp.children()]
     for sp in sps:
         created += [create_hsa(sp, role=ContactRole.objects.get(code='ic'))] # in charge hsa]
-        for i in xrange(0, randint(0, MAX_HSAS_PER_FACILITY)):
+        for i in range(0, randint(0, MAX_HSAS_PER_FACILITY)):
             created += [create_hsa(sp)]
     return created
 
@@ -78,7 +81,7 @@ def generate_report(hsa, date=datetime.utcnow()):
         for p in ProductStock.objects.filter(supply_point=hsa):
             amc = (p.product.average_monthly_consumption if p.product.average_monthly_consumption else 100)
             q = p.quantity if p.quantity else amc
-            q = max(0, q - normalvariate(q/3, q/6)) if randint(0,6) else 0
+            q = max(0, q - normalvariate(q / 3, q / 6)) if randint(0,6) else 0
             print("Generating SOH report for %s : %s : %d" % (hsa.name, p.product.sms_code, q))
             r = ProductReport(product=p.product, report_type = ProductReportType.objects.get(code='soh'),
                           quantity=q, message=None, supply_point=hsa, report_date=date)
@@ -96,7 +99,7 @@ def generate_report(hsa, date=datetime.utcnow()):
         pass
 
 def generate_activity(hsa):
-    dates = [datetime.utcnow() - timedelta(days=randint(3,DAYS_OF_DATA)) for d in xrange(1,randint(1, MAX_REPORTS_PER_HSA))]
+    dates = [datetime.utcnow() - timedelta(days=randint(3,DAYS_OF_DATA)) for d in range(1,randint(1, MAX_REPORTS_PER_HSA))]
     for d in dates:
         generate_report(hsa, d)
 
