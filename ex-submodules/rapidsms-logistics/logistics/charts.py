@@ -5,9 +5,8 @@ from datetime import datetime
 from logistics_project.utils.dates import DateSpan, get_day_of_month
 from dateutil.relativedelta import relativedelta
 from django.core.cache import cache
-from . import gviz_api
-from logistics.models import ProductReportType, Product, ProductStock
-from logistics.const import Reports
+import gviz_api
+from logistics.models import Product, ProductStock
 
 
 def amc_plot(sps, datespan, products=None):
