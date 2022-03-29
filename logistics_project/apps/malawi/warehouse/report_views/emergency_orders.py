@@ -157,6 +157,7 @@ class View(warehouse_view.DistrictOnlyView):
             hsa_emergencies_data.append(['%s - pct' % prd.name] + [pct(nums[i], denoms[i]) for i in range(len(nums))])
             line_chart["data"].append(temp)
 
+        line_chart['data'] = json.dumps(line_chart['data'])
         hsa_emergencies['data'] = hsa_emergencies_data
         # HSA emergency orders table
         hsa_eo_table = None
