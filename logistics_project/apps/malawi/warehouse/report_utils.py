@@ -256,7 +256,7 @@ def get_consumption_chart(supply_point, product, start, end):
         "max_value": None,
         "width": "100%",
         "height": "300px",
-        "xlabels": [[i + 1, '%s' % dt.strftime("%b")] for i, dt in enumerate(dates)],
+        "xlabels": [[i + 1, dt.strftime("%b")] for i, dt in enumerate(dates)],
         "xaxistitle": "month",
         "yaxistitle": "Monthly consumption",
         "y2axistitle": "Months of stock"
