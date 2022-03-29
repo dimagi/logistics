@@ -1,4 +1,7 @@
 from __future__ import unicode_literals
+
+import json
+
 from builtins import str
 from builtins import range
 import itertools
@@ -77,7 +80,7 @@ class View(warehouse_view.DistrictOnlyView):
             
             for eo in list(prd_map.keys()):
                 count += 1
-                product_codes.append([count, '%s' % (str(eo.code.lower()))])
+                product_codes.append([count, eo.code.lower()])
                 if label in prd_map[eo]:
                     all_months = avg_of_key_values(prd_map[eo][label], datelist)
                             
@@ -85,7 +88,8 @@ class View(warehouse_view.DistrictOnlyView):
             
             summary['data'].append({"label": label, "data": data_map[label]})
 
-        summary['xlabels'] = product_codes
+        summary['xlabels'] = json.dumps(product_codes)
+        summary['data'] = json.dumps(summary['data'])
 
         eo_pct_table = {
             "id": "eo-pct-table",
@@ -113,9 +117,11 @@ class View(warehouse_view.DistrictOnlyView):
             line_chart["xlabels"].append([count, date.strftime("%b-%Y")])
 
         for eo in list(prd_map.keys()):
-            eo_pct_table["data"].append([item for item in itertools.chain\
-                                     ([eo.sms_code],
-                                      [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]])])
+            eo_pct_table["data"].append(
+                [item for item in itertools.chain(
+                    [eo.sms_code],
+                    [fmt_or_none(val) for val in [prd_map[eo]['pct'][d] for d in datelist]]
+                )])
             
         hsa_emergencies = {
             "id": "hsa-emergencies",
@@ -130,7 +136,7 @@ class View(warehouse_view.DistrictOnlyView):
             count = 0
             temp = {
                 'data': [],
-                'label': str(prd.sms_code),
+                'label': prd.sms_code,
                 'lines': {"show": 1},
                 'bars': {"show": 0}
             }
