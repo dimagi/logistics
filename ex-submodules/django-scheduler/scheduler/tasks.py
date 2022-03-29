@@ -1,5 +1,6 @@
 """ This is where we actually schedule when and how often reports get run """
 
+from builtins import str
 from datetime import datetime
 from celery.schedules import crontab
 from celery.decorators import periodic_task
