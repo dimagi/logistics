@@ -1,13 +1,10 @@
 Django==1.11.29
 mysqlclient
 celery==4.4.0
-django-nose==0.1.3
 django-redis==4.10.0
 django-taggit==0.24.0
 djappsettings==0.4.0
 gviz_api
-nose
-nose-exclude
 python-dateutil==2.8.2
 python-memcached
 supervisor

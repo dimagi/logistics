@@ -61,7 +61,6 @@ Dependencies
 
 * `Python <http://python.org>`_
 * `Django <http://djangoproject.com>`_
-* `django-nose <http://pypi.python.org/pypi/django-nose>`_
 * `djappsettings <http://pypi.python.org/pypi/djappsettings>`_
 * `djtables <http://pypi.python.org/pypi/djtables>`_
 

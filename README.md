@@ -85,20 +85,8 @@ celery -A logistics_project worker -l info
 
 # Testing
 
-This project uses nose for testing. You can run individual tests using the following type of syntax:
+You can run individual tests using the following type of syntax:
 
 ```
-./manage.py test logistics_project.apps.malawi.tests.transfer:TestTransfer
-```
-
-Note that running the entire test suite hangs on apparent database locking issues. You must run subsets of tests at a time.
-
-
-# Troubleshooting
-
-If the admin site does not work due to a template error, try running the following:
-
-```
-pip uninstall Django
-pip install Django==1.3 --no-cache-dir --no-binary Django
+./manage.py test logistics_project.apps.malawi.tests.transfer.TestTransfer
 ```
