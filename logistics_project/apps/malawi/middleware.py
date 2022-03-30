@@ -30,8 +30,8 @@ from __future__ import unicode_literals
 
 from builtins import object
 from django.conf import settings
-from django.contrib.auth.views import login
 from django.http import HttpResponseRedirect
+
 
 class RequireLoginMiddleware(object):
     """
@@ -41,19 +41,21 @@ class RequireLoginMiddleware(object):
     If an anonymous user requests a page, he/she is redirected to the login
     page set by REQUIRE_LOGIN_PATH or /accounts/login/ by default.
     """
-    def __init__(self):
+    def __init__(self, get_response):
+        self.get_response = get_response
         self.require_login_path = getattr(settings, 'REQUIRE_LOGIN_PATH', '/accounts/login/')
     
-    def process_request(self, request):
+    def __call__(self, request):
         if (request.path != self.require_login_path and
                 settings.MEDIA_URL not in request.path and
                 settings.STATIC_URL not in request.path and
                 request.user.is_anonymous()):
             for url in settings.NO_LOGIN_REQUIRED_FOR:
                 if url in request.path:
-                    return
+                    return self.get_response(request)
             if request.method == 'POST':
                 return HttpResponseRedirect(self.require_login_path)
             else:
                 return HttpResponseRedirect('%s?next=%s' % (self.require_login_path, request.path))
 
+        return self.get_response(request)
