@@ -18,9 +18,6 @@ def percent_cell(a, b):
     val = percent(a, b)
     return mark_safe('<td title="%(a)s of %(b)s">%(val)s</td><td>%(b)s</td>' % {"a": a, "b": b, "val": val})
 
-@register.filter('klass')
-def klass(ob):
-    return ob.__class__.__name__
 
 @register.filter
 def historical_date_last_stocked(productstock, date):
