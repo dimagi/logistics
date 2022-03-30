@@ -334,7 +334,8 @@ def monitoring(request):
 @datespan_default
 def monitoring_report(request, report_slug):
     report_def = ReportDefinition(report_slug)
-    if report_slug in REPORTS_CURRENT: request.datespan = "current"
+    if report_slug in REPORTS_CURRENT:
+        request.datespan = "current"
     if report_slug in REPORTS_LOCATION:
         request.select_location=True
         code = request.GET.get("place", None)
@@ -349,10 +350,11 @@ def monitoring_report(request, report_slug):
         instance = ReportInstance(report_def, request.datespan)
         facilities = None
         location = None
-    return render(request, "malawi/monitoring_report.html",
-                              {"report": instance,
-                               "facilities": facilities,
-                               "location": location})
+    return render(request, "malawi/monitoring_report.html", {
+        "report": instance,
+        "facilities": facilities,
+        "location": location
+    })
 
 
 @permission_required("auth.admin_read")
