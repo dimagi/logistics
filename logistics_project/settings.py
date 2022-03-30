@@ -209,7 +209,8 @@ MAP_DEFAULT_LONGITUDE = 39.35
 DEBUG = False
 
 NO_LOGIN_REQUIRED_FOR = [
-    'malawi/is-kannel-up'
+    'malawi/is-kannel-up',
+    'accounts/logout',
 ]
 
 if os.environ.get('GITHUB_TESTS', False):
