@@ -1,9 +1,10 @@
 from __future__ import unicode_literals
 from django.conf import settings
-from django.core.urlresolvers import reverse
+
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.contrib import messages
+from django.urls import reverse
 
 from logistics.decorators import place_in_request
 

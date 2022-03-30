@@ -5,7 +5,7 @@ from builtins import object
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from djtables import Table, Column
 from djtables.column import DateColumn
 

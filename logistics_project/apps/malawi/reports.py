@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from builtins import object
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
 

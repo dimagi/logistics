@@ -8,7 +8,7 @@ from builtins import object
 import re
 from django import template
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import Variable
 
 register = template.Library()
