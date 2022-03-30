@@ -397,7 +397,7 @@ def get_supply_point_and_contacts(supply_point_code, base_level):
 
 
 def get_user_profile(user):
-    if user and not user.is_anonymous():
+    if user and not user.is_anonymous:
         try:
             return LogisticsProfile.objects.get(user=user)
         except LogisticsProfile.DoesNotExist:

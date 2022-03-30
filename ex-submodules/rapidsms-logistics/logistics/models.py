@@ -58,7 +58,7 @@ class Product(models.Model):
     product_code = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     average_monthly_consumption = PositiveIntegerField(null=True, blank=True)
     emergency_order_level = PositiveIntegerField(null=True, blank=True)
-    type = models.ForeignKey('ProductType', db_index=True)
+    type = models.ForeignKey('ProductType', db_index=True, on_delete=models.CASCADE)
     # this attribute is only used when LOGISTICS_STOCKED_BY = StockedBy.PRODUCT
     # it indicates that this product needs to be reported by facilities (as opposed to
     # products which we recognize but aren't required for reporting)
@@ -164,16 +164,16 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     """
     name = models.CharField(max_length=100, db_index=True)
     active = models.BooleanField(default=True)
-    type = models.ForeignKey(SupplyPointType, db_index=True)
+    type = models.ForeignKey(SupplyPointType, db_index=True, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     code = models.CharField(max_length=100, unique=True, db_index=True)
     last_reported = models.DateTimeField(default=None, blank=True, null=True)
-    location = models.ForeignKey(Location, db_index=True)
+    location = models.ForeignKey(Location, db_index=True, on_delete=models.CASCADE)
     # we can't rely on the locations hierarchy to indicate the supplying facility
     # since some countries have district medical stores and some don't
     # note also that the supplying facility is often not the same as the 
     # supervising facility
-    supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True)
+    supplied_by = models.ForeignKey('SupplyPoint', blank=True, null=True, db_index=True, on_delete=models.CASCADE)
 
     objects = models.Manager()
 
@@ -598,11 +598,11 @@ class SupplyPoint(SupplyPointBase):
 
 
 class LogisticsProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     designation = models.CharField(max_length=255, blank=True, null=True)
-    location = models.ForeignKey(Location, blank=True, null=True)
-    supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True)
-    organization = models.ForeignKey('malawi.Organization', null=True, blank=True)
+    location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.CASCADE)
+    supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey('malawi.Organization', null=True, blank=True, on_delete=models.CASCADE)
     # True if this user can view the HSA-level dashboard and reports
     can_view_hsa_level_data = models.BooleanField(default=True)
     # True if this user can view the facility-level dashboard and reports
@@ -623,9 +623,9 @@ class ProductStock(models.Model):
     # in practice, this means: do we bug people to report on this commodity
     # e.g. not all facilities can dispense HIV/AIDS meds, so no need to report those stock levels
     is_active = models.BooleanField(default=True, db_index=True)
-    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True, on_delete=models.CASCADE)
     quantity = models.IntegerField(blank=True, null=True)
-    product = models.ForeignKey(Product, db_index=True)
+    product = models.ForeignKey(Product, db_index=True, on_delete=models.CASCADE)
     days_stocked_out = models.IntegerField(default=0)
     last_modified = models.DateTimeField(default=datetime.utcnow)
     manual_monthly_consumption = models.PositiveIntegerField(default=None, blank=True, null=True)
@@ -816,10 +816,10 @@ class StockTransfer(models.Model):
     
     This model keeps track of them.
     """
-    giver = models.ForeignKey(SupplyPoint, related_name="giver", null=True, blank=True)
+    giver = models.ForeignKey(SupplyPoint, related_name="giver", null=True, blank=True, on_delete=models.CASCADE)
     giver_unknown = models.CharField(max_length=200, blank=True)
-    receiver = models.ForeignKey(SupplyPoint, related_name="receiver")
-    product = models.ForeignKey(Product)
+    receiver = models.ForeignKey(SupplyPoint, related_name="receiver", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount = models.PositiveIntegerField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=StockTransferStatus.STATUS_CHOICES)
     initiated_on = models.DateTimeField(null=True, blank=True)
@@ -922,8 +922,8 @@ class StockRequest(models.Model):
     immediately. This object keeps track of those requests. It's sort
     of like a special type of ProductReport with a status flag.
     """
-    product = models.ForeignKey(Product, db_index=True)
-    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
+    product = models.ForeignKey(Product, db_index=True, on_delete=models.CASCADE)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=StockRequestStatus.STATUS_CHOICES, db_index=True)
     # this second field is added for auditing purposes
     # the status can change, but once set - this one will not
@@ -935,9 +935,9 @@ class StockRequest(models.Model):
     responded_on = models.DateTimeField(null=True)
     received_on = models.DateTimeField(null=True)
     
-    requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by")
-    responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by")
-    received_by = models.ForeignKey(Contact, null=True, related_name="received_by")
+    requested_by = models.ForeignKey(Contact, null=True, related_name="requested_by", on_delete=models.CASCADE)
+    responded_by = models.ForeignKey(Contact, null=True, related_name="responded_by", on_delete=models.CASCADE)
+    received_by = models.ForeignKey(Contact, null=True, related_name="received_by", on_delete=models.CASCADE)
     
     balance = models.IntegerField(null=True, default=None)
     amount_requested = models.PositiveIntegerField(null=True)
@@ -947,7 +947,7 @@ class StockRequest(models.Model):
     amount_approved = models.PositiveIntegerField(null=True) 
     amount_received = models.PositiveIntegerField(null=True)
     
-    canceled_for = models.ForeignKey("StockRequest", null=True)
+    canceled_for = models.ForeignKey("StockRequest", null=True, on_delete=models.CASCADE)
     
     def is_pending(self):
         return self.status in StockRequestStatus.CHOICES_PENDING
@@ -1106,13 +1106,13 @@ class ProductReport(models.Model):
      in a unique report in the database. You can consider these as
      observations or data points.
     """
-    product = models.ForeignKey(Product, db_index=True)
-    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
-    report_type = models.ForeignKey(ProductReportType, db_index=True)
+    product = models.ForeignKey(Product, db_index=True, on_delete=models.CASCADE)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True, on_delete=models.CASCADE)
+    report_type = models.ForeignKey(ProductReportType, db_index=True, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     report_date = models.DateTimeField(default=datetime.utcnow, db_index=True)
     # message should only be null if the stock report was provided over the web
-    message = models.ForeignKey('messagelog.Message', blank=True, null=True)
+    message = models.ForeignKey('messagelog.Message', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = "Product Report"
@@ -1178,8 +1178,8 @@ class StockTransaction(models.Model):
      model is that some ProductReports may be duplicates, invalid, or false reports
      from the field, so how we decide to map reports to transactions may vary 
     """
-    product = models.ForeignKey(Product, db_index=True)
-    supply_point = models.ForeignKey(SupplyPoint, db_index=True)
+    product = models.ForeignKey(Product, db_index=True, on_delete=models.CASCADE)
+    supply_point = models.ForeignKey(SupplyPoint, db_index=True, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     # we need some sort of 'balance' field, so that we can get a snapshot
     # of balances over time. we add both beginning and ending balance since
@@ -1188,7 +1188,7 @@ class StockTransaction(models.Model):
     beginning_balance = models.IntegerField()
     ending_balance = models.IntegerField()
     date = models.DateTimeField(default=datetime.utcnow)
-    product_report = models.ForeignKey(ProductReport, null=True)
+    product_report = models.ForeignKey(ProductReport, null=True, on_delete=models.CASCADE)
     
     class Meta(object):
         verbose_name = "Stock Transaction"
@@ -1244,7 +1244,7 @@ class NagRecord(models.Model):
     A record of a Nag going out, so we don't send the same nag
     multiple times.
     """
-    supply_point = models.ForeignKey(SupplyPoint)
+    supply_point = models.ForeignKey(SupplyPoint, on_delete=models.CASCADE)
     report_date = models.DateTimeField(default=datetime.utcnow)
     warning = models.IntegerField(default=1)
     nag_type = models.CharField(max_length=30)

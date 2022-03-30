@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
 from alerts import Alert
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from logistics.decorators import place_in_request, return_if_place_not_set
 from logistics.reports import get_reporting_and_nonreporting_facilities
 

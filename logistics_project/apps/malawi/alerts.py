@@ -6,7 +6,7 @@ from alerts import Alert
 from logistics.models import StockRequest, SupplyPoint,\
     SupplyPointType, ProductStock, StockRequestStatus
 from django.db.models.aggregates import Max
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from logistics.util import config
 from logistics.decorators import place_in_request
 from logistics_project.apps.malawi.nag import get_non_reporting_hsas

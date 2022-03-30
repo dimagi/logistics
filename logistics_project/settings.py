@@ -206,16 +206,11 @@ MAGIC_TOKEN = "changeme"
 MAP_DEFAULT_LATITUDE  = -10.49
 MAP_DEFAULT_LONGITUDE = 39.35
 
-DEBUG=False
+DEBUG = False
 
-# TODO: come back and clean this up
 NO_LOGIN_REQUIRED_FOR = [
-    'password/reset',
-    'register',
-    'logout',
-    'activate',
-    'help',
-    'malawi/is-kannel-up'
+    'malawi/is-kannel-up',
+    'accounts/logout',
 ]
 
 if os.environ.get('GITHUB_TESTS', False):

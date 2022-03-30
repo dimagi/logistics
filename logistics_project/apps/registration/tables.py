@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from builtins import object
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from djtables import Table, Column
 from logistics_project.apps.malawi.util import get_managed_products_for_contact
 

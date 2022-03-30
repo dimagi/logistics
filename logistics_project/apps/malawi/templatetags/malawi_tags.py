@@ -2,12 +2,12 @@ from __future__ import unicode_literals
 from django import template
 from django.conf import settings
 from logistics.util import config
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from logistics_project.apps.malawi.util import hsas_below, get_or_create_user_profile
 from logistics.reports import ProductAvailabilitySummary
 from logistics.templatetags.logistics_report_tags import r_2_s_helper
 from rapidsms.templatetags.tabs_tags import Tab, TabsNode
-from static.malawi.config import BaseLevel
+
 
 register = template.Library()
 
@@ -35,7 +35,7 @@ class MalawiTab(Tab):
         if not self._applicable_base_levels:
             return True
 
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
 
         profile = get_or_create_user_profile(user)

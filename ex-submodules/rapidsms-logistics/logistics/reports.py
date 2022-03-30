@@ -6,7 +6,7 @@ from builtins import object
 import json
 from datetime import timedelta, datetime
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models.expressions import F
 from django.shortcuts import render
 from django.db.models import Q

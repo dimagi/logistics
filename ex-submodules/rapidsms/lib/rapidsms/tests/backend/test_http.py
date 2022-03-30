@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 from rapidsms.tests.harness import MockRouter
 from rapidsms.backends.http import RapidHttpBackend
@@ -12,7 +12,7 @@ class NewBackend(RapidHttpBackend):
         super(NewBackend, self).configure(*args, **kwargs)
 
 
-class HttpBackendTest(TestCase):
+class HttpBackendTest(TransactionTestCase):
 
     def test_handle_good_request(self):
         """ handle_request must return a HttpResponse """

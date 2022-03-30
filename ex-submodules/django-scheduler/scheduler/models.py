@@ -23,7 +23,7 @@ class ExecutionRecord(models.Model):
     purposes
     """
     
-    schedule = models.ForeignKey("EventSchedule")
+    schedule = models.ForeignKey("EventSchedule", on_delete=models.CASCADE)
     runtime = models.DateTimeField()
 
 class FailedExecutionRecord(ExecutionRecord):
