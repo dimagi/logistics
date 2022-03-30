@@ -598,7 +598,7 @@ class SupplyPoint(SupplyPointBase):
 
 
 class LogisticsProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     designation = models.CharField(max_length=255, blank=True, null=True)
     location = models.ForeignKey(Location, blank=True, null=True, on_delete=models.CASCADE)
     supply_point = models.ForeignKey(SupplyPoint, blank=True, null=True, on_delete=models.CASCADE)
