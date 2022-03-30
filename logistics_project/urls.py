@@ -2,8 +2,7 @@ from __future__ import unicode_literals
 from django.conf.urls import *
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.views import login as django_login
-from django.contrib.auth.views import logout as django_logout
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.views import password_change as django_password_change
 from logistics_project.apps.malawi.warehouse.views import default_landing
 
@@ -25,11 +24,9 @@ urlpatterns = [
     url(r'^group/', include('groupmessaging.urls')),
 
     # login/logout. this is order dependent
-    url(r'^accounts/login/$', django_login, 
-        kwargs={"template_name": "malawi/login.html"},
+    url(r'^accounts/login/$', LoginView.as_view(template_name="malawi/login.html"),
         name='rapidsms-login'),
-    url(r'^accounts/logout/$', django_logout, 
-        kwargs={"template_name": settings.LOGISTICS_LOGOUT_TEMPLATE},
+    url(r'^accounts/logout/$', LogoutView.as_view(template_name=settings.LOGISTICS_LOGOUT_TEMPLATE),
         name='rapidsms-logout'),
     url(r'^accounts/password/change/$', django_password_change, 
         kwargs={"template_name": settings.LOGISTICS_PASSWORD_CHANGE_TEMPLATE,
