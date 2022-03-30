@@ -49,7 +49,7 @@ class RequireLoginMiddleware(object):
         if (request.path != self.require_login_path and
                 settings.MEDIA_URL not in request.path and
                 settings.STATIC_URL not in request.path and
-                request.user.is_anonymous()):
+                request.user.is_anonymous):
             for url in settings.NO_LOGIN_REQUIRED_FOR:
                 if url in request.path:
                     return self.get_response(request)

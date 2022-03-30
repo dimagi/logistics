@@ -35,7 +35,7 @@ class MalawiTab(Tab):
         if not self._applicable_base_levels:
             return True
 
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
 
         profile = get_or_create_user_profile(user)
