@@ -14,7 +14,7 @@ def magic_token_required():
     def wrapper(f):
         def require_magic_token(request, *args, **kwargs):
             user = request.user
-            if user.is_authenticated() and user.is_active or \
+            if user.is_authenticated and user.is_active or \
                "magic_token" in request.REQUEST and request.REQUEST["magic_token"] == settings.MAGIC_TOKEN:
                 return f(request, *args, **kwargs)
             return HttpResponseForbidden("You have to be logged in or have the magic token to do that!")
