@@ -187,7 +187,8 @@ def em_late_reporting(instance):
         _update_dict(totals, reports[d])
     
     return _common_report(instance, {"reports": reports, "totals": totals}) 
-    
+
+
 def hsas_reporting(instance):
     """
     HSAs who reported at least once, by District and group
