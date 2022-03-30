@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 from django import template
+from django.utils.safestring import mark_safe
+
 from logistics.templatetags.math_tags import percent
 register = template.Library()
 
@@ -14,11 +16,8 @@ def highlight_months(stockonhand, static_url):
 @register.simple_tag
 def percent_cell(a, b):
     val = percent(a, b)
-    return '<td title="%(a)s of %(b)s">%(val)s</td><td>%(b)s</td>' % {"a": a, "b": b, "val": val}
+    return mark_safe('<td title="%(a)s of %(b)s">%(val)s</td><td>%(b)s</td>' % {"a": a, "b": b, "val": val})
 
-@register.filter('klass')
-def klass(ob):
-    return ob.__class__.__name__
 
 @register.filter
 def historical_date_last_stocked(productstock, date):
