@@ -13,6 +13,7 @@ available backends, like so:
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+from django.db import close_old_connections
 from future import standard_library
 standard_library.install_aliases()
 # from builtins import str
@@ -102,6 +103,7 @@ class RapidHttpBackend(BackendBase):
 
     def handle_request(self, request):
         self.debug('Received request: %s' % request.GET)
+        close_old_connections()
         sms = request.GET.get(self.incoming_message_param, '')
         sender = request.GET.get(self.incoming_phone_number_param, '')
         if not sms or not sender:
