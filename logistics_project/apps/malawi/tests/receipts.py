@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from logistics.models import ProductStock, SupplyPoint, ProductReport, Product
 from logistics_project.apps.malawi.tests.util import create_hsa
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
-from rapidsms.contrib.messagelog.models import Message
 from static.malawi import config
 
 
@@ -73,4 +72,13 @@ class MalawiTestReceipts(MalawiTestBase):
             +16175551000 < %(error)s
         """ % {
             "error": config.Messages.INVALID_PRODUCTS % {"product_codes": "uvw,xyz"},
+        })
+
+    def testOverStockLevel(self):
+        create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
+        self.runScript("""
+            +16175551000 > rec zi 3000 la 200
+            +16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.TOO_MUCH_STOCK % {"keyword": "rec"},
         })
