@@ -59,9 +59,11 @@ def check_max_levels_malawi(stock_report):
             try:
                 current_stock = ProductStock.objects.get(supply_point=stock_report.supply_point,
                                                          product=product)
-                max = current_stock.maximum_level * MAX_REPORT_LEVEL_FACTOR
-                if stock > max:
-                    raise TooMuchStockError(product=product, amount=stock, max=max)
+                if current_stock.maximum_level:
+                    max_allowed = current_stock.maximum_level * MAX_REPORT_LEVEL_FACTOR
+                    if stock > max_allowed:
+                        raise TooMuchStockError(product=product, amount=stock, max=max_allowed)
+
             except ProductStock.DoesNotExist:
                 pass
 
