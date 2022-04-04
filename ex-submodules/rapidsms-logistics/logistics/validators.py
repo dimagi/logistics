@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
-from logistics_project.utils.modules import to_function
+
+from logistics_project.apps.malawi.validators import check_max_levels_malawi
 from logistics.exceptions import TooMuchStockError
 from logistics.models import ProductStock
 from rapidsms.conf import settings
@@ -22,9 +23,4 @@ def check_max_levels(stock_report):
             pass
 
 def get_max_level_function():
-    if settings.LOGISTICS_MAX_REPORT_LEVEL_FUNCTION:
-        return to_function(settings.LOGISTICS_MAX_REPORT_LEVEL_FUNCTION)
-    elif settings.LOGISTICS_MAX_REPORT_LEVEL_FACTOR:
-        return check_max_levels
-    else:
-        return None
+    return check_max_levels_malawi
