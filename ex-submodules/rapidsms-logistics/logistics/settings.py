@@ -40,12 +40,6 @@ LOGISTICS_SPOT_CACHE_TIMEOUT = 60 * 60 # spot cache timeout, in seconds, default
 LOGISTICS_IGNORE_EMPTY_STOCKS = False # if there is no stock, ignore 0 soh values
 LOGISTICS_USE_BACKORDERS = True  # enable back orders or set to false to cancel pending orders on receipt
 
-# set to a non-zero integer to enable max stock thresholds for sms reporting
-# the number is the factor of the maximum level that represents the max allowed
-# report amount
-LOGISTICS_MAX_REPORT_LEVEL_FACTOR = None
-# alternatively, completely override the max level function
-
 # set to a value (in seconds) to ignore duplicate receipts within that time range
 LOGISTICS_IGNORE_DUPE_RECEIPTS_WITHIN = None
 
