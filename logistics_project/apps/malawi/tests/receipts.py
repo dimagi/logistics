@@ -77,7 +77,29 @@ class MalawiTestReceipts(MalawiTestBase):
     def testOverStockLevel(self):
         create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
         self.runScript("""
-            +16175551000 > rec zi 3000 la 200
+            +16175551000 > rec zi 3000
+            +16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.TOO_MUCH_STOCK % {"keyword": "rec"},
+        })
+
+    def testOverStockLevelWithPreviousReport(self):
+        create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
+        self.runScript("""
+            +16175551000 > rec zi 1000
+            +16175551000 < Thank you, you reported receipts for zi.
+            +16175551000 > rec zi 3000
+            +16175551000 < %(error)s
+        """ % {
+            "error": config.Messages.TOO_MUCH_STOCK % {"keyword": "rec"},
+        })
+
+    def testOverStockLevelWithPreviousReportAndNoAmc(self):
+        create_hsa(self, "+16175551000", "wendy", products="co la lb zi")
+        self.runScript("""
+            +16175551000 > rec namc 1000
+            +16175551000 < Thank you, you reported receipts for namc.
+            +16175551000 > rec namc 3000
             +16175551000 < %(error)s
         """ % {
             "error": config.Messages.TOO_MUCH_STOCK % {"keyword": "rec"},
