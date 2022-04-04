@@ -3,14 +3,13 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 from logistics.exceptions import TooMuchStockError
-from logistics.validators import get_max_level_function
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler
 from logistics.models import ProductReportsHelper, StockRequest, StockTransfer, ProductReport, format_product_string
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.const import Reports
 from logistics.util import config, ussd_msg_response
-from logistics_project.apps.malawi.validators import get_base_level_validator
+from logistics_project.apps.malawi.validators import get_base_level_validator, check_max_levels_malawi
 from logistics_project.decorators import validate_base_level
 from rapidsms.conf import settings
 from rapidsms.contrib.messagelog.models import Message
@@ -63,24 +62,21 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
             return
 
         # check max stock levels
-        max_level_function = get_max_level_function()
-        if max_level_function:
-
-            try:
-                max_level_function(stock_report)
-            except TooMuchStockError as e:
-                # bit of a hack, also check if there was a recent message
-                # that matched this and if so force it through
-                override_threshold = datetime.utcnow() - timedelta(seconds=60*60*4)
-                override = dupes.filter(date__gte=override_threshold)
-                if override.count() == 0:
-                    self.respond(config.Messages.TOO_MUCH_STOCK % {
-                        'keyword': self.msg.text.split()[0],
-                        'req': e.amount,
-                        'prod': e.product,
-                        'max': e.max,
-                    })
-                    return True
+        try:
+            check_max_levels_malawi(stock_report)
+        except TooMuchStockError as e:
+            # bit of a hack, also check if there was a recent message
+            # that matched this and if so force it through
+            override_threshold = datetime.utcnow() - timedelta(seconds=60*60*4)
+            override = dupes.filter(date__gte=override_threshold)
+            if override.count() == 0:
+                self.respond(config.Messages.TOO_MUCH_STOCK % {
+                    'keyword': self.msg.text.split()[0],
+                    'req': e.amount,
+                    'prod': e.product,
+                    'max': e.max,
+                })
+                return True
 
         stock_report.save()
 
