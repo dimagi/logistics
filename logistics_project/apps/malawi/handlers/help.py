@@ -21,7 +21,6 @@ class Help(KeywordHandler):
             self.msg.logistics_contact.supply_point.type_id == config.SupplyPointCodes.HSA
         )
         topic = text.strip().lower()
-
         if topic == 'stock':
             self.respond(config.Messages.SOH_HELP_MESSAGE)
         elif 'code' in topic:
@@ -48,11 +47,10 @@ class Help(KeywordHandler):
                     p = Product.objects.get(sms_code=topic, is_active=True, type__base_level=config.BaseLevel.HSA)
                 else:
                     p = Product.objects.get(sms_code=topic, is_active=True)
+                msg = "%s is the code for %s product %s" % (topic, p.type.name, p.name)
+                if p.units:
+                    msg = msg + " (%s)" % p.units
+
+                self.respond(msg)
             except Product.DoesNotExist:
                 self.respond(config.Messages.HELP_TEXT)
-
-            msg = "%s is the code for %s product %s" % (topic, p.type.name, p.name)
-            if p.units:
-                msg = msg + " (%s)" % p.units
-
-            self.respond(msg)
