@@ -33,6 +33,8 @@ djappsettings==0.4.0
     # via -r requirements.in
 future==0.18.2
     # via -r requirements.in
+gunicorn==19.10.0
+    # via -r requirements.in
 gviz-api==1.10.0
     # via -r requirements.in
 importlib-metadata==2.1.3
