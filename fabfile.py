@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
-
 from __future__ import with_statement
 from __future__ import unicode_literals
 import os
@@ -48,6 +45,7 @@ def enter_virtualenv():
     else:
         # this is just a noop
         return prefix("pwd")
+
 
 def _join(*args):
     if env.pathhack:
@@ -142,6 +140,7 @@ def update_requirements():
     with cd(env.code_dir):
         with enter_virtualenv():
             sudo('pip install -r %s' % _join(env.code_dir, "requirements.txt"))
+        sudo('/home/dimagi/.virtualenvs/cstock/bin/pip install -r %s' % _join(env.code_dir, "requirements.txt"))
 
 def bootstrap():
     """ run this after you've checked out the code """
