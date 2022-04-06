@@ -168,16 +168,9 @@ class App(AppBase):
                     charset = self._charset(content_type)
 
                     # convert the fieldstorage object into a dict, to
-                    # keep it simple for the handler methods. TODO: make
-                    # this a util, if it's useful elsewhere.
+                    # keep it simple for the handler methods.
                     for key in list(storage.keys()):
-
-                        # convert each of the values with this key into
-                        # unicode, respecting the content-type that the
-                        # request _claims_ to be currently encoded with
-                        val = [
-                            str(v, charset)
-                            for v in storage.getlist(key)]
+                        val = [v for v in storage.getlist(key)]
 
                         # where possible, store the values as singular,
                         # to avoid CGI's usual post["id"][0] verbosity
