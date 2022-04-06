@@ -12,7 +12,7 @@ admin.autodiscover()
 
 urlpatterns = [
     # Django URLs
-    path(r'^admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     
     url(r'^$', default_landing, name="rapidsms-dashboard"),
 
