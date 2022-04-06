@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
 from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
@@ -148,7 +144,7 @@ class App(AppBase):
             # and return the response (as a string, for now)
             try:
                 method = getattr(app, meth_name)
-                args   = [cgi.parse_qs(url.query)]
+                args   = [urllib.parse.parse_qs(url.query)]
 
                 # for post requests, we'll also need to parse the form
                 # data and hand it along to the method
