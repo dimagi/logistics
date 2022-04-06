@@ -1022,7 +1022,7 @@ class StockRequest(models.Model):
             
             current_stock = ProductStock.objects.get(supply_point=stock_report.supply_point, 
                                                      product=product)
-            if current_stock.maximum_level > stock:
+            if current_stock.maximum_level and current_stock.maximum_level > stock:
                 # confusingly, we don't flag emergencies unless it is an 
                 # emergency level AND an emergency order. this logic
                 # is probably not ideal
