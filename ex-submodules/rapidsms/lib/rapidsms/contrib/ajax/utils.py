@@ -10,17 +10,11 @@ from . import exceptions
 
 
 def call_router(app, action, **kwargs):
-    """
-    TODO: docs
-    """
-
     post = kwargs if len(kwargs) else None
     (status, content_type, body) = request("%s/%s" % (app, action), post=post)
-
-
     # if the response was encoded json, decode it before returning
     if content_type == "application/json":
-        return JSONDecoder().decode(body)
+        return JSONDecoder().decode(body.decode('utf-8'))
 
     # return plain text as-is
     elif content_type == "text/plain":

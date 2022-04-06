@@ -1,11 +1,6 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
-
 from __future__ import unicode_literals
 from future import standard_library
 standard_library.install_aliases()
-from builtins import str
 import cgi
 import urllib.parse
 import traceback
@@ -100,11 +95,12 @@ class App(AppBase):
 
                 if json:
                     json = App.MyJsonEncoder().encode(output)
-                    self.wfile.write(json)
+                    self.wfile.write(bytes(json, encoding='utf-8'))
 
                 # otherwise, write the raw response. it doesn't make
                 # much sense to have error messages encoded as JSON.
-                else: self.wfile.write(output)
+                else:
+                    self.wfile.write(bytes(output, encoding='utf-8'))
 
                 # HTTP2xx represents success
                 return (code>=200 and code <=299)
@@ -148,7 +144,7 @@ class App(AppBase):
             # and return the response (as a string, for now)
             try:
                 method = getattr(app, meth_name)
-                args   = [cgi.parse_qs(url.query)]
+                args   = [urllib.parse.parse_qs(url.query)]
 
                 # for post requests, we'll also need to parse the form
                 # data and hand it along to the method
@@ -171,16 +167,9 @@ class App(AppBase):
                     charset = self._charset(content_type)
 
                     # convert the fieldstorage object into a dict, to
-                    # keep it simple for the handler methods. TODO: make
-                    # this a util, if it's useful elsewhere.
+                    # keep it simple for the handler methods.
                     for key in list(storage.keys()):
-
-                        # convert each of the values with this key into
-                        # unicode, respecting the content-type that the
-                        # request _claims_ to be currently encoded with
-                        val = [
-                            str(v, charset)
-                            for v in storage.getlist(key)]
+                        val = [v for v in storage.getlist(key)]
 
                         # where possible, store the values as singular,
                         # to avoid CGI's usual post["id"][0] verbosity
