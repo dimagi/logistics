@@ -4,13 +4,15 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.views import password_change as django_password_change
+from django.urls import path
+
 from logistics_project.apps.malawi.warehouse.views import default_landing
 
 admin.autodiscover()
 
 urlpatterns = [
     # Django URLs
-    url(r'^admin/', include(admin.site.urls)),
+    path(r'^admin/', admin.site.urls),
     
     url(r'^$', default_landing, name="rapidsms-dashboard"),
 
