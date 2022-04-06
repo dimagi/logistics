@@ -96,11 +96,12 @@ class App(AppBase):
 
                 if json:
                     json = App.MyJsonEncoder().encode(output)
-                    self.wfile.write(json)
+                    self.wfile.write(bytes(json, encoding='utf-8'))
 
                 # otherwise, write the raw response. it doesn't make
                 # much sense to have error messages encoded as JSON.
-                else: self.wfile.write(output)
+                else:
+                    self.wfile.write(bytes(output, encoding='utf-8'))
 
                 # HTTP2xx represents success
                 return (code>=200 and code <=299)
