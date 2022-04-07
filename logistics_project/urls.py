@@ -2,8 +2,7 @@ from __future__ import unicode_literals
 from django.conf.urls import *
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.auth.views import password_change as django_password_change
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.urls import path
 
 from logistics_project.apps.malawi.warehouse.views import default_landing
@@ -30,10 +29,10 @@ urlpatterns = [
         name='rapidsms-login'),
     url(r'^accounts/logout/$', LogoutView.as_view(template_name=settings.LOGISTICS_LOGOUT_TEMPLATE),
         name='rapidsms-logout'),
-    url(r'^accounts/password/change/$', django_password_change, 
-        kwargs={"template_name": settings.LOGISTICS_PASSWORD_CHANGE_TEMPLATE,
-                "post_change_redirect": settings.LOGIN_REDIRECT_URL },
-        name='rapidsms-password-change'),
+    url(r'^accounts/password/change/$',
+        PasswordChangeView.as_view(template_name='logistics/password_reset_form.html',
+                                   success_url='/'),
+        name='password-change'),
     
     # other app URLS
     url(r'^registration/', include('logistics_project.apps.registration.urls')),
