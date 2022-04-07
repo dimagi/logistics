@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
-from django.conf.urls import url
+from django.urls import path, re_path
 from . import views
 
 
 urlpatterns = [
-    url(r"^$", views.generate_identity, name='rapidsms_message_tester_default'),
-    url(r"^(?P<identity>[+]?\d+)/$", views.message_tester),
+    path('', views.generate_identity, name='rapidsms_message_tester_default'),
+    re_path(r"^(?P<identity>[+]?\d+)/$", views.message_tester),
 ]
