@@ -3,8 +3,6 @@ from __future__ import unicode_literals
 
 from fabric.api import *
 
-env.remote = "origin"
-env.branch = "master"
 
 VIRTUALENV_HOME = '/home/dimagi/.virtualenvs/cstock/bin'
 PIP = f'{VIRTUALENV_HOME}/pip'
@@ -21,15 +19,6 @@ def malawi():
     env.branch = "malawi-dev"
 
 
-def update_requirements():
-    sudo(f'{PIP} install -r {env.code_dir}/requirements.txt')
-
-
-def django_stuff():
-    run(f'{PYTHON} manage.py migrate --noinput')
-    run(f'{PYTHON} manage.py collectstatic --noinput')
-
-
 def update_code():
     run('git remote prune origin')
     run('git fetch')
@@ -39,8 +28,19 @@ def update_code():
     run("find . -name '*.pyc' -delete")
 
 
+def update_requirements():
+    sudo(f'{PIP} install -r {env.code_dir}/requirements.txt')
+
+
+def django_stuff():
+    run(f'{PYTHON} manage.py migrate --noinput')
+    run(f'{PYTHON} manage.py collectstatic --noinput')
+
+
 def deploy():
-    """ deploy code to some remote environment """
+    """
+    Deploy latest changes
+    """
     sudo("supervisorctl stop all")
     with cd(env.code_dir):
         update_code()
