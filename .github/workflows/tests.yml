@@ -2,9 +2,7 @@ name: cstock tests
 on:
   pull_request:
     branches:
-    - malawi-dev
-#  schedule:
-#    - cron: '0 0 * * *'
+    - main
 jobs:
   tests:
     runs-on: ubuntu-18.04

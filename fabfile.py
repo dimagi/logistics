@@ -13,7 +13,7 @@ def malawi():
     env.deploy_dir = '/home/dimagi/src'
     env.hosts = ['dimagi@10.84.168.89']
     env.code_dir = f'{env.deploy_dir}/logistics'
-    env.branch = "malawi-dev"
+    env.branch = "main"
 
 
 def update_code():
