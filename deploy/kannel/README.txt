@@ -10,8 +10,7 @@ edit: /etc/default/kannel and comment/uncomment START_xxxBOX.
 
 Initialize Malawi config files:
 
-$ sudo cp modems.conf /etc/kannel/
-$ sudo cp [desired config file] /etc/kannel/kannel.conf
+$ sudo cp kannel.conf /etc/kannel/kannel.conf
  
 Edit the /etc/kannel/kannel.conf files and fix relevant credentials.
 
