@@ -112,7 +112,7 @@ urlpatterns = [
     url(r'^monitoring/$',
         views.monitoring,
         name="malawi_monitoring"),
-    url("^monitoring/(?P<report_slug>[\w_]+)/$",
+    url(r"^monitoring/(?P<report_slug>[\w_]+)/$",
         views.monitoring_report,
         name="malawi_monitoring_report"),
     url(r'^export_amc/$',

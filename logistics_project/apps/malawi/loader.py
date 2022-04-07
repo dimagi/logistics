@@ -286,7 +286,7 @@ class FacilityLoader(object):
 
     def validate_district_code(self, line_num, value):
         value = value.zfill(2)
-        if not re.match("^\d\d$", value):
+        if not re.match(r"^\d\d$", value):
             raise FacilityLoaderValidationError("Error with row %s. Expected district code to consist of "
                 "at most 2 digits." % line_num)
 
@@ -294,7 +294,7 @@ class FacilityLoader(object):
 
     def validate_facility_code(self, line_num, value):
         value = value.zfill(4)
-        if not re.match("^\d\d\d\d$", value):
+        if not re.match(r"^\d\d\d\d$", value):
             raise FacilityLoaderValidationError("Error with row %s. Expected facility code to consist of "
                 "at most 4 digits." % line_num)
 
