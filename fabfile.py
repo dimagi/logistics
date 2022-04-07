@@ -1,6 +1,3 @@
-from __future__ import with_statement
-from __future__ import unicode_literals
-
 from fabric.api import *
 
 
@@ -22,10 +19,9 @@ def malawi():
 def update_code():
     run('git remote prune origin')
     run('git fetch')
-    run('git checkout %(branch)s' % {"branch": env.branch})
-    run('git pull %(repo)s %(branch)s' % {"repo": env.remote, "branch": env.branch})
-    # cleanup pyc files
-    run("find . -name '*.pyc' -delete")
+    run(f'git checkout {env.branch}')
+    run(f'git pull origin {env.branch}')
+    run("find . -name '*.pyc' -delete")  # cleanup pyc files
 
 
 def update_requirements():
