@@ -24,7 +24,7 @@ django-redis==4.10.0
     # via -r requirements.in
 django-taggit==0.24.0
     # via -r requirements.in
-django==1.11.29
+django==2.0.13
     # via
     #   -r requirements.in
     #   django-redis
