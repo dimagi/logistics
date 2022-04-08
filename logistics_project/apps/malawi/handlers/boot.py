@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.models import Contact

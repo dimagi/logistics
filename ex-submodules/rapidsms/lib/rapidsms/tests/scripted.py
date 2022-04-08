@@ -150,11 +150,11 @@ class TestScript (TransactionTestCase, LoggerMixin):
         return messages
     
     def _checkAgainstMessage(self, num, txt, last_msg, msg):
-        self.assertEquals(msg.peer, num, "Expected to respond to "
+        self.assertEqual(msg.peer, num, "Expected to respond to "
                           "%s, but message was sent to %s.\n"
                           "Message: '%s'" % (num, msg.peer,
                                              last_msg))
-        self.assertEquals(msg.text, txt, "\nMessage: %s\nReceived "
+        self.assertEqual(msg.text, txt, "\nMessage: %s\nReceived "
                           "text: %s\nExpected text: %s\n" %
                           (last_msg, msg.text,txt))
         
@@ -201,7 +201,8 @@ class TestScript (TransactionTestCase, LoggerMixin):
     def runScript (self, script):
         self.runParsedScript(self.parseScript(script))
 
-class MockTestScript (TestScript):
+
+class MockTestScript(TestScript):
     apps = (EchoApp,)
 
     testScript = """
@@ -214,8 +215,8 @@ class MockTestScript (TestScript):
     """
     
     def testClosure (self):
-        self.assertEquals(type(self.testScript.__defaults__), tuple)
-        self.assertEquals(type(self.testScript.__defaults__[0]), list)
+        self.assertEqual(type(self.testScript.__defaults__), tuple)
+        self.assertEqual(type(self.testScript.__defaults__[0]), list)
         self.assertNotEquals(self.testScript.__defaults__,
                              self.testScript2.__defaults__)
 

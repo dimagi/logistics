@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from logistics.models import SupplyPoint
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from logistics.util import config

@@ -21,8 +21,8 @@ class TestContact(TestScript):
         contact.default_connection = '123'
         contact.save()
         conn = Connection.objects.get()
-        self.assertEquals(conn.contact, contact)
-        self.assertEquals(conn.identity, '123')
+        self.assertEqual(conn.contact, contact)
+        self.assertEqual(conn.identity, '123')
     
     def test_set_default_connection_nodefaultbefore_existingconnection(self):
         # assign connection to this user
@@ -31,9 +31,9 @@ class TestContact(TestScript):
         contact2 = Contact.objects.create()
         contact2.default_connection = '123'
         conn = Connection.objects.get()
-        self.assertEquals(conn.contact, contact2)
-        self.assertEquals(conn.identity, '123')
-        self.assertEquals(contact.default_connection, None)
+        self.assertEqual(conn.contact, contact2)
+        self.assertEqual(conn.identity, '123')
+        self.assertEqual(contact.default_connection, None)
     
     def test_set_default_connection_defaultbefore_existingconnection(self):
         contact = Contact.objects.create()
@@ -42,6 +42,6 @@ class TestContact(TestScript):
         contact2.default_connection = '123'
         contact.default_connection = '123'
         conn = Connection.objects.get(identity='123')
-        self.assertEquals(conn.contact, contact)
-        self.assertEquals(conn.identity, '123')
-        self.assertEquals(contact2.default_connection, None)
+        self.assertEqual(conn.contact, contact)
+        self.assertEqual(conn.identity, '123')
+        self.assertEqual(contact2.default_connection, None)

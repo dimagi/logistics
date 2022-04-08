@@ -6,22 +6,24 @@
 #
 amqp==2.6.1
     # via kombu
+asgiref==3.5.0
+    # via django
 billiard==3.6.4.0
     # via celery
 celery==4.4.0
     # via -r requirements.in
 certifi==2021.10.8
     # via sentry-sdk
-django==2.2.27
+django==3.0.14
     # via
     #   -r requirements.in
     #   django-redis
     #   django-taggit
 django-picklefield==0.2.0
     # via -r requirements.in
-django-redis==4.10.0
+django-redis==5.2.0
     # via -r requirements.in
-django-taggit==0.24.0
+django-taggit==1.5.1
     # via -r requirements.in
 djappsettings==0.4.0
     # via -r requirements.in

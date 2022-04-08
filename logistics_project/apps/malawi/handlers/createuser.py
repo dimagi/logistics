@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 from builtins import str
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics_project.apps.malawi.handlers.abstract.base import RecordResponseHandler
 from rapidsms.models import Contact

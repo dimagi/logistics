@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from logistics.models import ProductReportsHelper, StockRequest, \
     ContactRole, StockTransfer, format_product_string
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from logistics.const import Reports
 from logistics.decorators import logistics_contact_and_permission_required
