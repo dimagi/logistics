@@ -1,4 +1,4 @@
-Django==3.1.14
+Django==3.2.12
 mysqlclient
 celery==4.4.0
 django-redis==5.2.0

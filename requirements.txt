@@ -14,7 +14,7 @@ celery==4.4.0
     # via -r requirements.in
 certifi==2021.10.8
     # via sentry-sdk
-django==3.1.14
+django==3.2.12
     # via
     #   -r requirements.in
     #   django-redis
