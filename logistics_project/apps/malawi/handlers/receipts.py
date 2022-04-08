@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from logistics.exceptions import TooMuchStockError
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
 from rapidsms.contrib.handlers.handlers.tagging import TaggingHandler

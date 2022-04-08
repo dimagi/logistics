@@ -17,7 +17,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.db.models.fields import PositiveIntegerField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from rapidsms.conf import settings
 from rapidsms.models import Contact

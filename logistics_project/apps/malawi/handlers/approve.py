@@ -1,6 +1,6 @@
 """Managers register for the system here"""
 from __future__ import unicode_literals
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from logistics.decorators import logistics_contact_and_permission_required
 from logistics_project.apps.malawi.util import get_hsa
 from rapidsms.models import Contact

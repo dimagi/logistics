@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 from builtins import str
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.conf import settings
 from rapidsms.models import Contact
 from logistics.models import ContactRole, SupplyPoint
