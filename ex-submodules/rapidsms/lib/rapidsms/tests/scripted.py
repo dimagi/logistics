@@ -201,7 +201,8 @@ class TestScript (TransactionTestCase, LoggerMixin):
     def runScript (self, script):
         self.runParsedScript(self.parseScript(script))
 
-class MockTestScript (TestScript):
+
+class MockTestScript(TestScript):
     apps = (EchoApp,)
 
     testScript = """
