@@ -30,7 +30,7 @@ class TestSlow (TestScript):
                                  minutes=ALL, callback_args=([3]))
         schedule.save()
         time.sleep(180.0)
-        self.assertEquals(callback_counter,9)
+        self.assertEqual(callback_counter,9)
         self.router.stop()
 
 def callback_func(router, arg):

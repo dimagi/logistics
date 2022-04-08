@@ -25,7 +25,7 @@ class TestSpeedup (TestScript):
                                  minutes=ALL, callback_args=([3]), count=1)
         schedule.save()
         time.sleep(3.0)
-        self.assertEquals(callback_counter,3)
+        self.assertEqual(callback_counter,3)
         self.router.stop()
     
     def test_recurring(self):
@@ -37,7 +37,7 @@ class TestSpeedup (TestScript):
                                  minutes=ALL, callback_args=([3]))
         schedule.save()
         time.sleep(2.9)
-        self.assertEquals(callback_counter,9)
+        self.assertEqual(callback_counter,9)
         self.router.stop()
     
     def test_timestart_timestop(self):
@@ -52,7 +52,7 @@ class TestSpeedup (TestScript):
                                  start_time = start_time, end_time = end_time)
         schedule.save()
         time.sleep(7.0)
-        self.assertEquals(callback_counter,6)
+        self.assertEqual(callback_counter,6)
         self.router.stop()
          
 def callback_func(router, arg):
