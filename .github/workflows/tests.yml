@@ -56,7 +56,7 @@ jobs:
           DB_PASSWORD: hunter2
           GITHUB_TESTS: yes
         run: >
-          python manage.py test
+          python -Wa manage.py test
           logistics.tests
           logistics_project.apps.malawi.tests
           logistics_project.apps.registration.tests
