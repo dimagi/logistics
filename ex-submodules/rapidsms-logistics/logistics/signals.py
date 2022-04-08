@@ -2,8 +2,8 @@ from __future__ import unicode_literals
 from django.db import transaction
 from django.dispatch import Signal
 
-stockout_reported = Signal(providing_args=["supply_point", "products", "reported_by"])
-stockout_resolved = Signal(providing_args=["supply_point", "products", "resolved_by"])
+stockout_reported = Signal()
+stockout_resolved = Signal()
 
 def notify_suppliees_of_stockouts_resolved(sender, supply_point, products, resolved_by, **kwargs):
     supply_point.notify_suppliees_of_stockouts_resolved([p.code for p in products], 

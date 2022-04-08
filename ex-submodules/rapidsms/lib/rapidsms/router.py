@@ -23,10 +23,10 @@ class Router(LoggerMixin):
     incoming_phases = ("filter", "parse", "handle", "default", "cleanup")
     outgoing_phases = ("outgoing",)
 
-    pre_start = Signal(providing_args=["router"])
-    post_start = Signal(providing_args=["router"])
-    pre_stop = Signal(providing_args=["router"])
-    post_stop = Signal(providing_args=["router"])
+    pre_start = Signal()
+    post_start = Signal()
+    pre_stop = Signal()
+    post_stop = Signal()
 
     def __init__(self):
 
