@@ -63,7 +63,7 @@ def parse_report(val):
     numeric_trans = str('').maketrans(NUMERIC_LETTERS[0], NUMERIC_LETTERS[1])
 
     return [(x[0], int(x[1].translate(numeric_trans))) \
-            for x in findall("\s*(?P<code>[A-Za-z]{%(minchars)d,%(maxchars)d})\s*(?P<quantity>[\-?0-9%(numeric_letters)s]+)\s*" % \
+            for x in findall(r"\s*(?P<code>[A-Za-z]{%(minchars)d,%(maxchars)d})\s*(?P<quantity>[\-?0-9%(numeric_letters)s]+)\s*" % \
                                     {"minchars": CODE_CHARS_RANGE[0],
                                      "maxchars": CODE_CHARS_RANGE[1],
                                      "numeric_letters": NUMERIC_LETTERS[0]}, _cleanup(val))]
