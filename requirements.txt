@@ -21,7 +21,7 @@ django==3.0.14
     #   django-taggit
 django-picklefield==0.2.0
     # via -r requirements.in
-django-redis==4.10.0
+django-redis==5.2.0
     # via -r requirements.in
 django-taggit==1.5.1
     # via -r requirements.in
