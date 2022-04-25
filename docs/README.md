@@ -6,7 +6,8 @@ cStock Documentation
 First install sphinx if you haven't:
 
 ```
-pip install sphinx
+cd docs/
+pip install -r requirements.txt
 ```
 
 Then, to build the docs locally run:
