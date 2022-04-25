@@ -3,7 +3,6 @@
     "pk": 1,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "hsa",
       "name": "hsa"
     }
@@ -12,7 +11,6 @@
     "pk": 2,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "sh",
       "name": "hsa supervisor"
     }
@@ -21,7 +19,6 @@
     "pk": 3,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "im",
       "name": "imci coordinator"
     }
@@ -30,7 +27,6 @@
     "pk": 4,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "ic",
       "name": "in charge"
     }
@@ -39,7 +35,6 @@
     "pk": 5,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "ds",
       "name": "district supervisor"
     }
@@ -48,7 +43,6 @@
     "pk": 6,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "dp",
       "name": "district pharmacist"
     }
@@ -57,7 +51,6 @@
     "pk": 7,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "he",
       "name": "hf epi focal person"
     }
@@ -66,7 +59,6 @@
     "pk": 8,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "de",
       "name": "district epi coordinator"
     }
@@ -75,7 +67,6 @@
     "pk": 9,
     "model": "logistics.contactrole",
     "fields": {
-      "responsibilities": [],
       "code": "re",
       "name": "regional epi coordinator"
     }
