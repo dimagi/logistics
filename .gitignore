@@ -8,6 +8,7 @@
 *.swp
 *~
 
+docs/_build/*
 static_root/*
 logistics_project/localsettings.py
 logistics_project/logistics.log*
