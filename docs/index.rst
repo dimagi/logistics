@@ -10,11 +10,10 @@ Welcome to cStock's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   dev-setup
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
