@@ -10216,19 +10216,5 @@
       "type": "hf",
       "supplied_by": 4473
     }
-  },
-  {
-    "pk": 509,
-    "model": "logistics.logisticsprofile",
-    "fields": {
-      "can_view_hsa_level_data": true,
-      "can_view_facility_level_data": false,
-      "designation": null,
-      "supply_point": null,
-      "user": 508,
-      "organization": null,
-      "current_dashboard_base_level": "h",
-      "location": null
-    }
   }
 ]
