@@ -79,7 +79,7 @@
       "code": "re",
       "name": "regional epi coordinator"
     }
-  }
+  },
   {
     "pk": 21,
     "model": "logistics.product",
