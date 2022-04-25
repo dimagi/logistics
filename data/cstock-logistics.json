@@ -706,7 +706,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 2,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -721,7 +720,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 3,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -736,7 +734,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 4,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -751,7 +748,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 5,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -766,7 +762,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 6,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -781,7 +776,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 7,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -796,7 +790,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 8,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -811,7 +804,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 9,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -826,7 +818,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 10,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -841,7 +832,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 11,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -856,7 +846,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 12,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -871,7 +860,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 13,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -886,7 +874,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 14,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -901,7 +888,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 15,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -916,7 +902,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 16,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -931,7 +916,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 17,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -946,7 +930,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 18,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -961,7 +944,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 19,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -976,7 +958,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2012-05-25 17:56:34",
       "location": 20,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -991,7 +972,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 21,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -1006,7 +986,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 22,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -1021,7 +1000,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 23,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1
@@ -1036,7 +1014,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 24,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -1051,7 +1028,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 25,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1066,7 +1042,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 26,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1081,7 +1056,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 27,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1096,7 +1070,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 28,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1111,7 +1084,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 29,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1126,7 +1098,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 30,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1141,7 +1112,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 31,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1156,7 +1126,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 32,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1171,7 +1140,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 33,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1186,7 +1154,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 34,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1201,7 +1168,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 35,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1216,7 +1182,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 36,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1231,7 +1196,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 37,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1246,7 +1210,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 38,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1261,7 +1224,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 39,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1276,7 +1238,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 40,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1291,7 +1252,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 41,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1306,7 +1266,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 42,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -1321,7 +1280,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 43,
-      "groups": [],
       "active": false,
       "type": "hf",
       "supplied_by": 23
@@ -1336,7 +1294,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 44,
-      "groups": [],
       "active": false,
       "type": "hf",
       "supplied_by": 23
@@ -1351,7 +1308,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 45,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -1366,7 +1322,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 46,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1381,7 +1336,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 47,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1396,7 +1350,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 48,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1411,7 +1364,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 49,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1426,7 +1378,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 50,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1441,7 +1392,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 51,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1456,7 +1406,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 52,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1471,7 +1420,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 53,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1486,7 +1434,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 54,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1501,7 +1448,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 55,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1516,7 +1462,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 56,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1531,7 +1476,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 57,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1546,7 +1490,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 58,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1561,7 +1504,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 59,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1576,7 +1518,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 60,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1591,7 +1532,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 61,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1606,7 +1546,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 62,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1621,7 +1560,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 63,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1636,7 +1574,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 64,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1651,7 +1588,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 65,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -1666,7 +1602,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 66,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9410
@@ -1681,7 +1616,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:07",
       "location": 67,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1696,7 +1630,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 68,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1711,7 +1644,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 69,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1726,7 +1658,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:06",
       "location": 70,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1741,7 +1672,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 71,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1756,7 +1686,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 72,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1771,7 +1700,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 73,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1786,7 +1714,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:11",
       "location": 74,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1801,7 +1728,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:11",
       "location": 75,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1816,7 +1742,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:09",
       "location": 76,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1831,7 +1756,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 77,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1846,7 +1770,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:11",
       "location": 78,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1861,7 +1784,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 79,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1876,7 +1798,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 80,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1891,7 +1812,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:11",
       "location": 81,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1906,7 +1826,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 82,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1921,7 +1840,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:11",
       "location": 83,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1936,7 +1854,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:06",
       "location": 84,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1951,7 +1868,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": "2011-07-11 12:07:07",
       "location": 85,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 65
@@ -1966,7 +1882,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 86,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -1981,7 +1896,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 87,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -1996,7 +1910,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 88,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2011,7 +1924,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 89,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2026,7 +1938,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 90,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2041,7 +1952,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 91,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2056,7 +1966,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 92,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2071,7 +1980,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 93,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2086,7 +1994,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 94,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2101,7 +2008,6 @@
       "created_at": "2011-06-11 12:49:59",
       "last_reported": null,
       "location": 95,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2116,7 +2022,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 96,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2131,7 +2036,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 97,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2146,7 +2050,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": "2011-09-23 16:02:06",
       "location": 98,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2161,7 +2064,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 99,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2176,7 +2078,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 100,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 85
@@ -2191,7 +2092,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 101,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9410
@@ -2206,7 +2106,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 102,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2221,7 +2120,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 103,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2236,7 +2134,6 @@
       "created_at": "2011-06-11 12:50:00",
       "last_reported": null,
       "location": 104,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2251,7 +2148,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 105,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2266,7 +2162,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 106,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2281,7 +2176,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 107,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2296,7 +2190,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 108,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2311,7 +2204,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 109,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2326,7 +2218,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 110,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2341,7 +2232,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 111,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2356,7 +2246,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 112,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2371,7 +2260,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 113,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2386,7 +2274,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 114,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2401,7 +2288,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 115,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2416,7 +2302,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 116,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2431,7 +2316,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 117,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2446,7 +2330,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 118,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2461,7 +2344,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": "2011-07-11 12:07:11",
       "location": 119,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2476,7 +2358,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": "2011-07-11 12:07:11",
       "location": 120,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2491,7 +2372,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 121,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2506,7 +2386,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 122,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2521,7 +2400,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 123,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2536,7 +2414,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 124,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2551,7 +2428,6 @@
       "created_at": "2011-06-11 12:50:04",
       "last_reported": null,
       "location": 125,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -2566,7 +2442,6 @@
       "created_at": "2012-04-25 20:10:13",
       "last_reported": null,
       "location": 1806,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -2581,7 +2456,6 @@
       "created_at": "2012-04-25 20:10:13",
       "last_reported": null,
       "location": 1807,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -2596,7 +2470,6 @@
       "created_at": "2012-07-09 19:13:08",
       "last_reported": null,
       "location": 1871,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -2611,7 +2484,6 @@
       "created_at": "2012-07-09 19:13:08",
       "last_reported": "2018-10-03 16:40:17",
       "location": 1872,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -2626,7 +2498,6 @@
       "created_at": "2012-07-09 19:13:08",
       "last_reported": "2018-07-12 06:28:14",
       "location": 1873,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -2641,7 +2512,6 @@
       "created_at": "2012-07-09 19:13:08",
       "last_reported": "2018-07-09 12:30:48",
       "location": 1874,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -2656,7 +2526,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1875,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9411
@@ -2671,7 +2540,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1876,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2686,7 +2554,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1877,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2701,7 +2568,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1878,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2716,7 +2582,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1879,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2731,7 +2596,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1880,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2746,7 +2610,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1881,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2761,7 +2624,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1882,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2776,7 +2638,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1883,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2791,7 +2652,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1884,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2806,7 +2666,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1885,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2821,7 +2680,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1886,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2836,7 +2694,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1887,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2851,7 +2708,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1888,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2866,7 +2722,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1889,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2881,7 +2736,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1890,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2896,7 +2750,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1891,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2911,7 +2764,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1892,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2926,7 +2778,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1893,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2941,7 +2792,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1894,
-      "groups": [],
       "active": false,
       "type": "hf",
       "supplied_by": 1874
@@ -2956,7 +2806,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1895,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2971,7 +2820,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1896,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -2986,7 +2834,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1897,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3001,7 +2848,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1898,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3016,7 +2862,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1899,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3031,7 +2876,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1900,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3046,7 +2890,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1901,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3061,7 +2904,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1902,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3076,7 +2918,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1903,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3091,7 +2932,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1904,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3106,7 +2946,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1905,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3121,7 +2960,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1906,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3136,7 +2974,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1907,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3151,7 +2988,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1908,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -3166,7 +3002,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1909,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9411
@@ -3181,7 +3016,6 @@
       "created_at": "2012-07-09 20:10:06",
       "last_reported": null,
       "location": 1910,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3196,7 +3030,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1911,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3211,7 +3044,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1912,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3226,7 +3058,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1913,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3241,7 +3072,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1914,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3256,7 +3086,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1915,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3271,7 +3100,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1916,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3286,7 +3114,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1917,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3301,7 +3128,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1918,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3316,7 +3142,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1919,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3331,7 +3156,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1920,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3346,7 +3170,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1921,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3361,7 +3184,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1922,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3376,7 +3198,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1923,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3391,7 +3212,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1924,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3406,7 +3226,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1925,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3421,7 +3240,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1926,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3436,7 +3254,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1927,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3451,7 +3268,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1928,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3466,7 +3282,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1929,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3481,7 +3296,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1930,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3496,7 +3310,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1931,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3511,7 +3324,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1932,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3526,7 +3338,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1933,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3541,7 +3352,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1934,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3556,7 +3366,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1935,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3571,7 +3380,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1936,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3586,7 +3394,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1937,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3601,7 +3408,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1938,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3616,7 +3422,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1939,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3631,7 +3436,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1940,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3646,7 +3450,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1941,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3661,7 +3464,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1942,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3676,7 +3478,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1943,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3691,7 +3492,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1944,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3706,7 +3506,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1945,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3721,7 +3520,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1946,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3736,7 +3534,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1947,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3751,7 +3548,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1948,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3766,7 +3562,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1949,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3781,7 +3576,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1950,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3796,7 +3590,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1951,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3811,7 +3604,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1952,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3826,7 +3618,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1953,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3841,7 +3632,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1954,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3856,7 +3646,6 @@
       "created_at": "2012-07-09 20:10:07",
       "last_reported": null,
       "location": 1955,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3871,7 +3660,6 @@
       "created_at": "2012-10-23 15:55:56",
       "last_reported": null,
       "location": 1,
-      "groups": [],
       "active": true,
       "type": "c",
       "supplied_by": null
@@ -3886,7 +3674,6 @@
       "created_at": "2012-11-07 14:46:38",
       "last_reported": null,
       "location": 2405,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3901,7 +3688,6 @@
       "created_at": "2012-11-07 14:46:38",
       "last_reported": null,
       "location": 2406,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3916,7 +3702,6 @@
       "created_at": "2012-11-07 14:46:38",
       "last_reported": null,
       "location": 2407,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1908
@@ -3931,7 +3716,6 @@
       "created_at": "2012-12-06 16:47:22",
       "last_reported": null,
       "location": 2437,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -3946,7 +3730,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2438,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -3961,7 +3744,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2439,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -3976,7 +3758,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2440,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -3991,7 +3772,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2441,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4006,7 +3786,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2442,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4021,7 +3800,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2443,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4036,7 +3814,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2444,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4051,7 +3828,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2445,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4066,7 +3842,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2446,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4081,7 +3856,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2447,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4096,7 +3870,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2448,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4111,7 +3884,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2449,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4126,7 +3898,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2450,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4141,7 +3912,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2451,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4156,7 +3926,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2452,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4171,7 +3940,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2453,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4186,7 +3954,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2454,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2438
@@ -4201,7 +3968,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2455,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9411
@@ -4216,7 +3982,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2456,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4231,7 +3996,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": "2016-02-05 07:50:10",
       "location": 2457,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4246,7 +4010,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2458,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4261,7 +4024,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2459,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4276,7 +4038,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2460,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4291,7 +4052,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2461,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4306,7 +4066,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2462,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4321,7 +4080,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2463,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4336,7 +4094,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2464,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4351,7 +4108,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2465,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4366,7 +4122,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2466,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4381,7 +4136,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2467,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4396,7 +4150,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2468,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4411,7 +4164,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2469,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4426,7 +4178,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2470,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4441,7 +4192,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2471,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4456,7 +4206,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2472,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4471,7 +4220,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2473,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4486,7 +4234,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2474,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4501,7 +4248,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2475,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4516,7 +4262,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2476,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4531,7 +4276,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2477,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4546,7 +4290,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2478,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4561,7 +4304,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2479,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4576,7 +4318,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2480,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4591,7 +4332,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2481,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4606,7 +4346,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2482,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4621,7 +4360,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2483,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4636,7 +4374,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2484,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4651,7 +4388,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2485,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4666,7 +4402,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2486,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4681,7 +4416,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2487,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4696,7 +4430,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2488,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4711,7 +4444,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2489,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4726,7 +4458,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2490,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4741,7 +4472,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2491,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4756,7 +4486,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2492,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4771,7 +4500,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2493,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2455
@@ -4786,7 +4514,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2494,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -4801,7 +4528,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2495,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4816,7 +4542,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2496,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4831,7 +4556,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2497,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4846,7 +4570,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2498,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4861,7 +4584,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2499,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4876,7 +4598,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2500,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4891,7 +4612,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2501,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4906,7 +4626,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2502,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4921,7 +4640,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2503,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4936,7 +4654,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2504,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4951,7 +4668,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2505,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4966,7 +4682,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2506,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4981,7 +4696,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2507,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -4996,7 +4710,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2508,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -5011,7 +4724,6 @@
       "created_at": "2012-12-06 16:47:24",
       "last_reported": null,
       "location": 2509,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2494
@@ -5026,7 +4738,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2519,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -5041,7 +4752,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2520,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5056,7 +4766,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2521,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5071,7 +4780,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2522,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5086,7 +4794,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2523,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5101,7 +4808,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2524,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5116,7 +4822,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2525,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5131,7 +4836,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2526,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5146,7 +4850,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2527,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5161,7 +4864,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2528,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5176,7 +4878,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2529,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5191,7 +4892,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2530,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5206,7 +4906,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2531,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5221,7 +4920,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2532,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5236,7 +4934,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2533,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5251,7 +4948,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2534,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5266,7 +4962,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2535,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5281,7 +4976,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2536,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5296,7 +4990,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2537,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2519
@@ -5311,7 +5004,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2538,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -5326,7 +5018,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2539,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5341,7 +5032,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2540,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5356,7 +5046,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2541,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5371,7 +5060,6 @@
       "created_at": "2012-12-11 11:02:55",
       "last_reported": null,
       "location": 2542,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5386,7 +5074,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2543,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5401,7 +5088,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2544,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5416,7 +5102,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2545,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5431,7 +5116,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2546,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5446,7 +5130,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2547,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5461,7 +5144,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2548,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5476,7 +5158,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2549,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5491,7 +5172,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2550,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5506,7 +5186,6 @@
       "created_at": "2012-12-11 11:02:56",
       "last_reported": null,
       "location": 2551,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2538
@@ -5521,7 +5200,6 @@
       "created_at": "2013-01-16 17:57:09",
       "last_reported": null,
       "location": 2692,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -5536,7 +5214,6 @@
       "created_at": "2013-01-16 17:57:09",
       "last_reported": null,
       "location": 2693,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5551,7 +5228,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2694,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5566,7 +5242,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2695,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5581,7 +5256,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2696,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5596,7 +5270,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2697,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5611,7 +5284,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2698,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5626,7 +5298,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2699,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5641,7 +5312,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2700,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5656,7 +5326,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2701,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5671,7 +5340,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2702,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5686,7 +5354,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2703,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5701,7 +5368,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2704,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5716,7 +5382,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2705,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5731,7 +5396,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2706,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5746,7 +5410,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2707,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5761,7 +5424,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2708,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5776,7 +5438,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2709,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5791,7 +5452,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2710,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5806,7 +5466,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2711,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5821,7 +5480,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2712,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5836,7 +5494,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2713,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5851,7 +5508,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2714,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -5866,7 +5522,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2715,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -5881,7 +5536,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2716,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5896,7 +5550,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2717,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5911,7 +5564,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2718,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5926,7 +5578,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2719,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5941,7 +5592,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2720,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5956,7 +5606,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2721,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5971,7 +5620,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2722,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -5986,7 +5634,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2723,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6001,7 +5648,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2724,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6016,7 +5662,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2725,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6031,7 +5676,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2726,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6046,7 +5690,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2727,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6061,7 +5704,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2728,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6076,7 +5718,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2729,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6091,7 +5732,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": "2014-07-17 05:37:21",
       "location": 2730,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6106,7 +5746,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2731,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6121,7 +5760,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2732,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6136,7 +5774,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2733,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6151,7 +5788,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2734,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6166,7 +5802,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2735,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6181,7 +5816,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2736,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6196,7 +5830,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2737,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6211,7 +5844,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2738,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6226,7 +5858,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2739,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6241,7 +5872,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2740,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6256,7 +5886,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2741,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6271,7 +5900,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2742,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6286,7 +5914,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2743,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6301,7 +5928,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2744,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6316,7 +5942,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2745,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6331,7 +5956,6 @@
       "created_at": "2013-01-16 17:57:10",
       "last_reported": null,
       "location": 2746,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2715
@@ -6346,7 +5970,6 @@
       "created_at": "2013-05-29 16:04:56",
       "last_reported": null,
       "location": 4052,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9410
@@ -6361,7 +5984,6 @@
       "created_at": "2013-05-29 16:04:56",
       "last_reported": "2018-09-01 13:53:55",
       "location": 4053,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6376,7 +5998,6 @@
       "created_at": "2013-05-29 16:04:56",
       "last_reported": "2018-10-02 14:10:04",
       "location": 4054,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6391,7 +6012,6 @@
       "created_at": "2013-05-29 16:04:56",
       "last_reported": "2018-09-03 06:24:15",
       "location": 4055,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6406,7 +6026,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-08-02 16:34:49",
       "location": 4056,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6421,7 +6040,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-10-01 06:50:06",
       "location": 4057,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6436,7 +6054,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-10-17 08:11:15",
       "location": 4058,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6451,7 +6068,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-05-02 09:31:57",
       "location": 4059,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6466,7 +6082,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-10-02 16:31:11",
       "location": 4060,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6481,7 +6096,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-10-01 05:39:53",
       "location": 4061,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6496,7 +6110,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-06-04 11:36:24",
       "location": 4062,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6511,7 +6124,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-06-03 04:48:04",
       "location": 4063,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6526,7 +6138,6 @@
       "created_at": "2013-05-29 16:04:57",
       "last_reported": "2018-06-01 14:35:26",
       "location": 4064,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -6541,7 +6152,6 @@
       "created_at": "2013-06-11 15:54:35",
       "last_reported": null,
       "location": 4078,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -6556,7 +6166,6 @@
       "created_at": "2013-06-11 15:54:35",
       "last_reported": null,
       "location": 4079,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4078
@@ -6571,7 +6180,6 @@
       "created_at": "2013-06-11 15:54:36",
       "last_reported": null,
       "location": 4080,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4078
@@ -6586,7 +6194,6 @@
       "created_at": "2013-08-01 14:59:01",
       "last_reported": null,
       "location": 4448,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -6601,7 +6208,6 @@
       "created_at": "2013-08-01 14:59:01",
       "last_reported": "2018-08-01 09:44:00",
       "location": 4449,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6616,7 +6222,6 @@
       "created_at": "2013-08-01 14:59:01",
       "last_reported": "2018-10-03 09:25:59",
       "location": 4450,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6631,7 +6236,6 @@
       "created_at": "2013-08-01 14:59:01",
       "last_reported": "2018-10-14 09:10:11",
       "location": 4451,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6646,7 +6250,6 @@
       "created_at": "2013-08-01 14:59:01",
       "last_reported": "2018-10-02 06:18:23",
       "location": 4452,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6661,7 +6264,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-02 04:47:30",
       "location": 4453,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6676,7 +6278,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-02 07:36:21",
       "location": 4454,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6691,7 +6292,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-01 17:02:50",
       "location": 4455,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6706,7 +6306,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-01 10:50:48",
       "location": 4456,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6721,7 +6320,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-05 12:30:15",
       "location": 4457,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6736,7 +6334,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-02 15:02:21",
       "location": 4458,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6751,7 +6348,6 @@
       "created_at": "2013-08-01 14:59:02",
       "last_reported": "2018-10-04 11:32:08",
       "location": 4459,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6766,7 +6362,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-06 10:27:09",
       "location": 4460,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6781,7 +6376,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-01 08:40:45",
       "location": 4461,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6796,7 +6390,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-05 10:46:14",
       "location": 4462,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6811,7 +6404,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-13 13:57:39",
       "location": 4463,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6826,7 +6418,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-03 13:23:59",
       "location": 4464,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6841,7 +6432,6 @@
       "created_at": "2013-08-01 14:59:03",
       "last_reported": "2018-10-08 13:28:10",
       "location": 4465,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6856,7 +6446,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-15 17:04:05",
       "location": 4466,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6871,7 +6460,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-09 12:05:11",
       "location": 4467,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6886,7 +6474,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-10 13:45:21",
       "location": 4468,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6901,7 +6488,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-02 10:04:29",
       "location": 4469,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6916,7 +6502,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-16 04:01:36",
       "location": 4470,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6931,7 +6516,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-16 06:35:45",
       "location": 4471,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6946,7 +6530,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-10 11:24:36",
       "location": 4472,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -6961,7 +6544,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": null,
       "location": 4473,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -6976,7 +6558,6 @@
       "created_at": "2013-08-01 14:59:04",
       "last_reported": "2018-10-01 10:58:53",
       "location": 4474,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -6991,7 +6572,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 07:40:28",
       "location": 4475,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7006,7 +6586,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 19:11:05",
       "location": 4476,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7021,7 +6600,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 16:54:52",
       "location": 4477,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7036,7 +6614,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-03 09:37:47",
       "location": 4478,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7051,7 +6628,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-02 04:45:31",
       "location": 4479,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7066,7 +6642,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 11:54:33",
       "location": 4480,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7081,7 +6656,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-02 17:52:06",
       "location": 4481,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7096,7 +6670,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 11:19:39",
       "location": 4482,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7111,7 +6684,6 @@
       "created_at": "2013-08-01 14:59:05",
       "last_reported": "2018-10-01 06:11:16",
       "location": 4483,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7126,7 +6698,6 @@
       "created_at": "2013-08-01 14:59:06",
       "last_reported": "2018-10-01 12:23:28",
       "location": 4484,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7141,7 +6712,6 @@
       "created_at": "2013-08-01 14:59:06",
       "last_reported": "2018-09-30 05:23:44",
       "location": 4485,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7156,7 +6726,6 @@
       "created_at": "2013-08-01 14:59:06",
       "last_reported": "2018-10-01 18:31:41",
       "location": 4486,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
@@ -7171,7 +6740,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4535,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9411
@@ -7186,7 +6754,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4536,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7201,7 +6768,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4537,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7216,7 +6782,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4538,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7231,7 +6796,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4539,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7246,7 +6810,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4540,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7261,7 +6824,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4541,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7276,7 +6838,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4542,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7291,7 +6852,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4543,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7306,7 +6866,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4544,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7321,7 +6880,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4545,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7336,7 +6894,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4546,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7351,7 +6908,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4547,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7366,7 +6922,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4548,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7381,7 +6936,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4549,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7396,7 +6950,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4550,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7411,7 +6964,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4551,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7426,7 +6978,6 @@
       "created_at": "2013-09-16 10:23:08",
       "last_reported": null,
       "location": 4552,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4535
@@ -7441,7 +6992,6 @@
       "created_at": "2013-11-26 08:17:41",
       "last_reported": null,
       "location": 5564,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -7456,7 +7006,6 @@
       "created_at": "2013-11-26 08:17:41",
       "last_reported": "2018-10-04 20:21:06",
       "location": 5565,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5564
@@ -7471,7 +7020,6 @@
       "created_at": "2013-11-26 08:17:41",
       "last_reported": "2018-10-11 06:14:06",
       "location": 5566,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5564
@@ -7486,7 +7034,6 @@
       "created_at": "2013-11-26 08:17:41",
       "last_reported": "2018-10-02 09:26:09",
       "location": 5567,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5564
@@ -7501,7 +7048,6 @@
       "created_at": "2013-11-26 08:17:41",
       "last_reported": "2018-10-02 16:54:52",
       "location": 5568,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5564
@@ -7516,7 +7062,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5718,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9410
@@ -7531,7 +7076,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-04 06:59:18",
       "location": 5719,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7546,7 +7090,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 07:33:47",
       "location": 5720,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7561,7 +7104,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 10:40:23",
       "location": 5721,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7576,7 +7118,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 05:20:36",
       "location": 5722,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7591,7 +7132,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-03 07:08:04",
       "location": 5723,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7606,7 +7146,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 04:30:32",
       "location": 5724,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7621,7 +7160,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 08:22:40",
       "location": 5725,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7636,7 +7174,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-08-01 07:34:58",
       "location": 5726,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7651,7 +7188,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 10:48:01",
       "location": 5727,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7666,7 +7202,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-09-30 22:45:28",
       "location": 5728,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7681,7 +7216,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 14:39:51",
       "location": 5729,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7696,7 +7230,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 09:53:50",
       "location": 5730,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7711,7 +7244,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-02 08:09:09",
       "location": 5731,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7726,7 +7258,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 10:49:01",
       "location": 5732,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7741,7 +7272,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 09:46:34",
       "location": 5733,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7756,7 +7286,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 13:02:41",
       "location": 5734,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7771,7 +7300,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 11:41:57",
       "location": 5735,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7786,7 +7314,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-02 07:54:09",
       "location": 5736,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7801,7 +7328,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 11:56:09",
       "location": 5737,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7816,7 +7342,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 13:38:25",
       "location": 5738,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7831,7 +7356,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-01 10:26:10",
       "location": 5739,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7846,7 +7370,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": "2018-10-03 08:47:02",
       "location": 5740,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5718
@@ -7861,7 +7384,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5741,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -7876,7 +7398,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5742,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7891,7 +7412,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5743,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7906,7 +7426,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5744,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7921,7 +7440,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5745,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7936,7 +7454,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5746,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7951,7 +7468,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5747,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7966,7 +7482,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5748,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7981,7 +7496,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5749,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -7996,7 +7510,6 @@
       "created_at": "2013-12-06 09:17:37",
       "last_reported": null,
       "location": 5750,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5741
@@ -8011,7 +7524,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6500,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9410
@@ -8026,7 +7538,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6501,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8041,7 +7552,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6502,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8056,7 +7566,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6503,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8071,7 +7580,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6506,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8086,7 +7594,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6507,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8101,7 +7608,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6508,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8116,7 +7622,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6509,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8131,7 +7636,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6510,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8146,7 +7650,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6511,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8161,7 +7664,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6512,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8176,7 +7678,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6513,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8191,7 +7692,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6514,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8206,7 +7706,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6515,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8221,7 +7720,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6516,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8236,7 +7734,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6517,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8251,7 +7748,6 @@
       "created_at": "2014-04-16 14:43:01",
       "last_reported": null,
       "location": 6518,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8266,7 +7762,6 @@
       "created_at": "2014-04-16 14:43:02",
       "last_reported": null,
       "location": 6519,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -8281,7 +7776,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6520,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9409
@@ -8296,7 +7790,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6521,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8311,7 +7804,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6522,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8326,7 +7818,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6523,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8341,7 +7832,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6524,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8356,7 +7846,6 @@
       "created_at": "2014-04-17 15:17:15",
       "last_reported": null,
       "location": 6525,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8371,7 +7860,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6526,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8386,7 +7874,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6527,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8401,7 +7888,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6528,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8416,7 +7902,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6529,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8431,7 +7916,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6530,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8446,7 +7930,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6531,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8461,7 +7944,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6532,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8476,7 +7958,6 @@
       "created_at": "2014-04-17 15:17:16",
       "last_reported": null,
       "location": 6533,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8491,7 +7972,6 @@
       "created_at": "2014-04-17 15:17:17",
       "last_reported": null,
       "location": 6534,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8506,7 +7986,6 @@
       "created_at": "2014-04-17 15:17:17",
       "last_reported": null,
       "location": 6535,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8521,7 +8000,6 @@
       "created_at": "2014-04-17 15:17:17",
       "last_reported": null,
       "location": 6536,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8536,7 +8014,6 @@
       "created_at": "2014-04-17 15:17:17",
       "last_reported": null,
       "location": 6537,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8551,7 +8028,6 @@
       "created_at": "2014-04-17 15:17:17",
       "last_reported": null,
       "location": 6538,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6520
@@ -8566,7 +8042,6 @@
       "created_at": "2014-06-11 16:02:07",
       "last_reported": null,
       "location": 6672,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -8581,7 +8056,6 @@
       "created_at": "2014-06-11 16:02:07",
       "last_reported": null,
       "location": 6673,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8596,7 +8070,6 @@
       "created_at": "2014-06-11 16:02:07",
       "last_reported": null,
       "location": 6674,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8611,7 +8084,6 @@
       "created_at": "2014-06-11 16:02:08",
       "last_reported": null,
       "location": 6675,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8626,7 +8098,6 @@
       "created_at": "2014-06-11 16:02:08",
       "last_reported": null,
       "location": 6676,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8641,7 +8112,6 @@
       "created_at": "2014-06-11 16:02:09",
       "last_reported": null,
       "location": 6677,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8656,7 +8126,6 @@
       "created_at": "2014-06-11 16:02:09",
       "last_reported": null,
       "location": 6678,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8671,7 +8140,6 @@
       "created_at": "2014-06-11 16:02:10",
       "last_reported": null,
       "location": 6679,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8686,7 +8154,6 @@
       "created_at": "2014-06-11 16:02:11",
       "last_reported": null,
       "location": 6680,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8701,7 +8168,6 @@
       "created_at": "2014-06-11 16:02:11",
       "last_reported": null,
       "location": 6681,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8716,7 +8182,6 @@
       "created_at": "2014-06-11 16:02:12",
       "last_reported": null,
       "location": 6682,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8731,7 +8196,6 @@
       "created_at": "2014-06-11 16:02:12",
       "last_reported": null,
       "location": 6683,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8746,7 +8210,6 @@
       "created_at": "2014-06-11 16:02:13",
       "last_reported": null,
       "location": 6684,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8761,7 +8224,6 @@
       "created_at": "2014-06-11 16:02:14",
       "last_reported": null,
       "location": 6685,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8776,7 +8238,6 @@
       "created_at": "2014-06-11 16:02:14",
       "last_reported": null,
       "location": 6686,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8791,7 +8252,6 @@
       "created_at": "2014-06-11 16:02:15",
       "last_reported": null,
       "location": 6687,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8806,7 +8266,6 @@
       "created_at": "2014-06-11 16:02:15",
       "last_reported": null,
       "location": 6688,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8821,7 +8280,6 @@
       "created_at": "2014-06-11 16:02:16",
       "last_reported": null,
       "location": 6689,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8836,7 +8294,6 @@
       "created_at": "2014-06-11 16:02:17",
       "last_reported": null,
       "location": 6690,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8851,7 +8308,6 @@
       "created_at": "2014-06-11 16:02:18",
       "last_reported": null,
       "location": 6691,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8866,7 +8322,6 @@
       "created_at": "2014-06-11 16:02:18",
       "last_reported": null,
       "location": 6692,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8881,7 +8336,6 @@
       "created_at": "2014-06-11 16:02:19",
       "last_reported": null,
       "location": 6693,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8896,7 +8350,6 @@
       "created_at": "2014-06-11 16:02:19",
       "last_reported": null,
       "location": 6694,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6672
@@ -8911,7 +8364,6 @@
       "created_at": "2014-06-11 16:02:20",
       "last_reported": "2018-10-02 16:11:30",
       "location": 6695,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -8926,7 +8378,6 @@
       "created_at": "2014-06-11 16:02:20",
       "last_reported": "2018-10-05 07:12:52",
       "location": 6696,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -8941,7 +8392,6 @@
       "created_at": "2014-06-11 16:02:20",
       "last_reported": "2018-10-10 18:48:35",
       "location": 6697,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4448
@@ -8956,7 +8406,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6968,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -8971,7 +8420,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6969,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -8986,7 +8434,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6970,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9001,7 +8448,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6971,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9016,7 +8462,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6972,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9031,7 +8476,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6973,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9046,7 +8490,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6974,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9061,7 +8504,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6975,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9076,7 +8518,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6976,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9091,7 +8532,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6977,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9106,7 +8546,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6978,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9121,7 +8560,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6979,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9136,7 +8574,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6980,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9151,7 +8588,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6981,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9166,7 +8602,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6982,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9181,7 +8616,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6983,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9196,7 +8630,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6984,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9211,7 +8644,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6985,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9226,7 +8658,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6986,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9241,7 +8672,6 @@
       "created_at": "2014-07-10 09:23:56",
       "last_reported": null,
       "location": 6987,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9256,7 +8686,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6988,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9271,7 +8700,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6989,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9286,7 +8714,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": "2014-08-11 12:33:26",
       "location": 6990,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9301,7 +8728,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6991,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9316,7 +8742,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6992,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9331,7 +8756,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6993,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9346,7 +8770,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6994,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9361,7 +8784,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6995,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9376,7 +8798,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6996,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9391,7 +8812,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6997,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9406,7 +8826,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6998,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9421,7 +8840,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 6999,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9436,7 +8854,6 @@
       "created_at": "2014-07-10 09:23:57",
       "last_reported": null,
       "location": 7000,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -9451,7 +8868,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7348,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9412
@@ -9466,7 +8882,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7349,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9481,7 +8896,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7350,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9496,7 +8910,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7351,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9511,7 +8924,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7352,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9526,7 +8938,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7353,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9541,7 +8952,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7354,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9556,7 +8966,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7355,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9571,7 +8980,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7356,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9586,7 +8994,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7357,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9601,7 +9008,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7358,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9616,7 +9022,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7359,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9631,7 +9036,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7360,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9646,7 +9050,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7361,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9661,7 +9064,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7362,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9676,7 +9078,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7363,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9691,7 +9092,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7364,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9706,7 +9106,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7365,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9721,7 +9120,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7366,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9736,7 +9134,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7367,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9751,7 +9148,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7368,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9766,7 +9162,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7369,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9781,7 +9176,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7370,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9796,7 +9190,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7371,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9811,7 +9204,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7372,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9826,7 +9218,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7373,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9841,7 +9232,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7374,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9856,7 +9246,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7375,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9871,7 +9260,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7376,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9886,7 +9274,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7377,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9901,7 +9288,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7378,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9916,7 +9302,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7379,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9931,7 +9316,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7380,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9946,7 +9330,6 @@
       "created_at": "2014-08-07 10:55:58",
       "last_reported": null,
       "location": 7381,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9961,7 +9344,6 @@
       "created_at": "2014-08-07 10:55:59",
       "last_reported": null,
       "location": 7382,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9976,7 +9358,6 @@
       "created_at": "2014-08-07 10:55:59",
       "last_reported": null,
       "location": 7383,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -9991,7 +9372,6 @@
       "created_at": "2014-08-07 10:55:59",
       "last_reported": null,
       "location": 7384,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -10006,7 +9386,6 @@
       "created_at": "2014-08-07 10:55:59",
       "last_reported": null,
       "location": 7385,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6968
@@ -10021,7 +9400,6 @@
       "created_at": "2014-08-13 11:38:37",
       "last_reported": null,
       "location": 7393,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -10036,7 +9414,6 @@
       "created_at": "2014-08-22 13:07:56",
       "last_reported": null,
       "location": 7545,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -10051,7 +9428,6 @@
       "created_at": "2014-08-22 13:07:56",
       "last_reported": null,
       "location": 7546,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -10066,7 +9442,6 @@
       "created_at": "2014-08-22 13:07:56",
       "last_reported": null,
       "location": 7547,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7348
@@ -10081,7 +9456,6 @@
       "created_at": "2014-10-07 16:27:58",
       "last_reported": null,
       "location": 7613,
-      "groups": [],
       "active": true,
       "type": "d",
       "supplied_by": 9413
@@ -10096,7 +9470,6 @@
       "created_at": "2014-10-07 16:27:58",
       "last_reported": "2018-08-02 14:26:33",
       "location": 7614,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10111,7 +9484,6 @@
       "created_at": "2014-10-07 16:27:58",
       "last_reported": "2018-10-01 15:22:25",
       "location": 7615,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10126,7 +9498,6 @@
       "created_at": "2014-10-07 16:27:59",
       "last_reported": "2018-10-02 12:01:22",
       "location": 7616,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10141,7 +9512,6 @@
       "created_at": "2014-10-07 16:27:59",
       "last_reported": "2018-09-01 09:28:10",
       "location": 7617,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10156,7 +9526,6 @@
       "created_at": "2014-10-07 16:28:00",
       "last_reported": "2018-09-03 15:47:55",
       "location": 7618,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10171,7 +9540,6 @@
       "created_at": "2014-10-07 16:28:00",
       "last_reported": "2018-10-14 01:07:09",
       "location": 7619,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10186,7 +9554,6 @@
       "created_at": "2014-10-07 16:28:01",
       "last_reported": "2018-10-01 12:07:07",
       "location": 7620,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10201,7 +9568,6 @@
       "created_at": "2014-10-07 16:28:01",
       "last_reported": "2018-10-01 05:43:51",
       "location": 7621,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10216,7 +9582,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-03 20:38:30",
       "location": 7622,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10231,7 +9596,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-08-01 03:23:46",
       "location": 7623,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10246,7 +9610,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-02 13:58:03",
       "location": 7624,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10261,7 +9624,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-07-11 13:54:39",
       "location": 7625,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10276,7 +9638,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-16 13:26:28",
       "location": 7626,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10291,7 +9652,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-01 23:52:40",
       "location": 7627,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10306,7 +9666,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-07-16 12:23:00",
       "location": 7628,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10321,7 +9680,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-02 14:11:16",
       "location": 7629,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10336,7 +9694,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": null,
       "location": 7630,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10351,7 +9708,6 @@
       "created_at": "2014-10-07 16:28:02",
       "last_reported": "2018-10-03 04:46:30",
       "location": 7631,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10366,7 +9722,6 @@
       "created_at": "2014-12-23 13:21:06",
       "last_reported": null,
       "location": 7883,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -10381,7 +9736,6 @@
       "created_at": "2014-12-23 13:21:06",
       "last_reported": null,
       "location": 7884,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 2692
@@ -10396,7 +9750,6 @@
       "created_at": "2015-08-04 11:16:12",
       "last_reported": null,
       "location": 8433,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1874
@@ -10411,7 +9764,6 @@
       "created_at": "2015-10-28 14:03:52",
       "last_reported": null,
       "location": 8688,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 23
@@ -10426,7 +9778,6 @@
       "created_at": "2016-11-14 23:33:19",
       "last_reported": "2016-12-13 08:45:38",
       "location": 9231,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -10441,7 +9792,6 @@
       "created_at": "2016-11-14 23:33:30",
       "last_reported": "2016-12-13 08:35:41",
       "location": 9232,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -10456,7 +9806,6 @@
       "created_at": "2016-11-14 23:33:43",
       "last_reported": "2017-09-10 17:03:53",
       "location": 9233,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 1870
@@ -10471,7 +9820,6 @@
       "created_at": "2017-02-06 23:36:49",
       "last_reported": null,
       "location": 9409,
-      "groups": [],
       "active": true,
       "type": "z",
       "supplied_by": 2381
@@ -10486,7 +9834,6 @@
       "created_at": "2017-02-06 23:36:49",
       "last_reported": null,
       "location": 9410,
-      "groups": [],
       "active": true,
       "type": "z",
       "supplied_by": 2381
@@ -10501,7 +9848,6 @@
       "created_at": "2017-02-06 23:36:49",
       "last_reported": null,
       "location": 9411,
-      "groups": [],
       "active": true,
       "type": "z",
       "supplied_by": 2381
@@ -10516,7 +9862,6 @@
       "created_at": "2017-02-06 23:36:49",
       "last_reported": null,
       "location": 9412,
-      "groups": [],
       "active": true,
       "type": "z",
       "supplied_by": 2381
@@ -10531,7 +9876,6 @@
       "created_at": "2017-02-06 23:36:49",
       "last_reported": null,
       "location": 9413,
-      "groups": [],
       "active": true,
       "type": "z",
       "supplied_by": 2381
@@ -10546,7 +9890,6 @@
       "created_at": "2018-06-12 10:30:15",
       "last_reported": null,
       "location": 10202,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -10561,7 +9904,6 @@
       "created_at": "2018-06-12 10:30:15",
       "last_reported": null,
       "location": 10203,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -10576,7 +9918,6 @@
       "created_at": "2018-06-12 10:30:15",
       "last_reported": null,
       "location": 10204,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -10591,7 +9932,6 @@
       "created_at": "2018-06-12 10:30:16",
       "last_reported": null,
       "location": 10205,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -10606,7 +9946,6 @@
       "created_at": "2018-06-12 10:30:16",
       "last_reported": null,
       "location": 10206,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 100
@@ -10621,7 +9960,6 @@
       "created_at": "2018-06-12 11:22:26",
       "last_reported": null,
       "location": 10207,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -10636,7 +9974,6 @@
       "created_at": "2018-06-12 11:22:26",
       "last_reported": null,
       "location": 10208,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -10651,7 +9988,6 @@
       "created_at": "2018-06-12 11:22:26",
       "last_reported": null,
       "location": 10209,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 44
@@ -10666,7 +10002,6 @@
       "created_at": "2018-06-12 11:37:31",
       "last_reported": null,
       "location": 10210,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 6500
@@ -10681,7 +10016,6 @@
       "created_at": "2018-07-02 15:04:04",
       "last_reported": null,
       "location": 10233,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4052
@@ -10696,7 +10030,6 @@
       "created_at": "2018-07-19 10:43:59",
       "last_reported": "2018-09-06 17:36:46",
       "location": 10248,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10711,7 +10044,6 @@
       "created_at": "2018-07-19 10:43:59",
       "last_reported": "2018-10-03 09:02:54",
       "location": 10249,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10726,7 +10058,6 @@
       "created_at": "2018-07-19 10:43:59",
       "last_reported": "2018-10-01 18:28:24",
       "location": 10250,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10741,7 +10072,6 @@
       "created_at": "2018-07-19 10:44:00",
       "last_reported": "2018-10-01 14:47:38",
       "location": 10251,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10756,7 +10086,6 @@
       "created_at": "2018-07-19 10:44:00",
       "last_reported": "2018-10-01 14:37:43",
       "location": 10252,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10771,7 +10100,6 @@
       "created_at": "2018-07-19 10:44:00",
       "last_reported": "2018-10-08 07:45:25",
       "location": 10253,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10786,7 +10114,6 @@
       "created_at": "2018-07-19 10:44:01",
       "last_reported": "2018-10-16 07:48:02",
       "location": 10254,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10801,7 +10128,6 @@
       "created_at": "2018-07-19 10:44:01",
       "last_reported": "2018-10-01 08:07:05",
       "location": 10255,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10816,7 +10142,6 @@
       "created_at": "2018-07-19 10:44:01",
       "last_reported": "2018-10-02 18:15:30",
       "location": 10256,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10831,7 +10156,6 @@
       "created_at": "2018-07-19 10:44:02",
       "last_reported": "2018-09-01 00:50:32",
       "location": 10257,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10846,7 +10170,6 @@
       "created_at": "2018-07-19 10:44:02",
       "last_reported": "2018-08-06 20:30:29",
       "location": 10258,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10861,7 +10184,6 @@
       "created_at": "2018-07-19 10:44:02",
       "last_reported": "2018-10-02 03:14:39",
       "location": 10259,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 7613
@@ -10876,7 +10198,6 @@
       "created_at": "2018-07-30 10:45:43",
       "last_reported": null,
       "location": 10261,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 5564
@@ -10891,7 +10212,6 @@
       "created_at": "2018-08-02 15:14:34",
       "last_reported": "2018-10-02 18:29:40",
       "location": 10262,
-      "groups": [],
       "active": true,
       "type": "hf",
       "supplied_by": 4473
