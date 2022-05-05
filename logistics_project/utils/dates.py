@@ -195,6 +195,9 @@ class DateSpan(object):
                 return "You can't have an end date of %s after start date of %s" % (self.enddate, self.startdate)
         return ""
     
+    def __repr__(self):
+        return str(self)
+
     def __str__(self):
         if not self.is_valid():
             return "Invalid date span %s - %s" % (self.startdate_param, self.enddate_param)

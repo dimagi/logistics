@@ -1,6 +1,6 @@
 Django==3.2.12
 mysqlclient
-celery==4.4.0
+celery==4.4.7
 django-redis==5.2.0
 django-taggit==1.5.1
 djappsettings==0.4.0
