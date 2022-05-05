@@ -42,7 +42,6 @@ class TestTags(TestScript):
         self.assertEqual(2, len(Tag.objects.all()))
 
 
-
 class TestContactLastMessage(MalawiTestBase):
 
     def test_last_message(self):
