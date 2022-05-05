@@ -14,6 +14,7 @@ from rapidsms.conf import settings
 from logistics_project.utils.dates import DateSpan
 from logistics.models import ProductReport, \
     Product, ProductStock, SupplyPoint, StockRequest, HistoricalStockCache
+from warehouse.tasks import update_historical_data_for_supply_point_task
 from .const import Reports
 from .util import config
 
@@ -694,6 +695,15 @@ class ReportView(object):
             try:
                 self._context.update(self.custom_context(request))
             except ObjectDoesNotExist as e:
+                sp = getattr(request, 'supply_point', None)
+                datespan = getattr(request, 'datespan', None)
+                if sp:
+                    # kickoff a rebuild in the background which hopefully fixes this
+                    update_historical_data_for_supply_point_task.delay(
+                        sp.id,
+                        datespan.startdate if datespan else None,
+                        datespan.enddate if datespan else None,
+                    )
                 if settings.DEBUG:
                     raise
                 sentry_sdk.capture_exception(e)
