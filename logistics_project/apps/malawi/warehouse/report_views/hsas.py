@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 from django.contrib import messages
 
 from rapidsms.contrib.messagelog.models import Message
@@ -19,7 +20,6 @@ class View(warehouse_view.DistrictOnlyView):
     show_report_nav = False
     
     def custom_context(self, request):
-
         if request.GET.get('hsa_code'):
             hsa = SupplyPoint.objects.filter(code=request.GET.get('hsa_code'), type__code=SupplyPointCodes.HSA)
             if hsa.count():
@@ -42,30 +42,24 @@ class View(warehouse_view.DistrictOnlyView):
             if request.location else get_default_supply_point(request.user)
 
         hsas = hsa_supply_points_below(sp.location)
-
+        hsa_count = hsas.count()
         for hsa in hsas:
             try:
-                pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa,
-                    base_level=request.base_level).order_by('-date')[0]
+                pads = ProductAvailabilityDataSummary.objects.filter(
+                    supply_point=hsa,
+                    base_level=request.base_level
+                ).order_by('-date')[0]
             except IndexError:
                 pads = None
-            
-            pads_vals = [_yes_or_no(v) for v in (pads.any_without_stock, 
+
+            pads_vals = [_yes_or_no(v) for v in (pads.any_without_stock,
                                                  pads.any_emergency_stock,
                                                  pads.any_good_stock, 
                                                  pads.any_over_stock)] \
                         if pads else ["no data"] * 4
             
-            contact = Contact.objects.get(supply_point=hsa, is_active=True)
-            try:
-                last_message_date = _date_fmt(
-                    Message.objects.filter(
-                        direction='I', contact=contact
-                    ).order_by('-date').values_list('date', flat=True)[0]
-                )
-            except IndexError:
-                last_message_date = ''
-
+            contact = Contact.objects.select_related('last_message').get(supply_point=hsa, is_active=True)
+            last_message_date = _date_fmt(contact.last_message.date) if contact.last_message else ''
             products_managed = ' '.join([p.sms_code for p in hsa.commodities_stocked()])
             table["data"].append({"url": get_hsa_url(hsa, sp.code),
                                   "data": [hsa.supplied_by.name, hsa.name,
@@ -74,8 +68,7 @@ class View(warehouse_view.DistrictOnlyView):
                                            pads_vals +
                                            [last_message_date]})
 
-        table["height"] = min(480, (hsas.count()+1)*30)
-
+        table["height"] = min(480, (hsa_count+1)*30)
         return {
                 "table": table,
         }
