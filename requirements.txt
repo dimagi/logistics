@@ -10,7 +10,7 @@ asgiref==3.5.0
     # via django
 billiard==3.6.4.0
     # via celery
-celery==4.4.0
+celery==4.4.7
     # via -r requirements.in
 certifi==2021.10.8
     # via sentry-sdk
