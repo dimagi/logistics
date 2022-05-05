@@ -123,6 +123,9 @@ class Contact(ContactBase):
     is_active = models.BooleanField(default=True)
     is_approved = models.BooleanField(default=False)
     organization = models.ForeignKey('malawi.Organization', on_delete=models.CASCADE,  null=True, blank=True)
+    last_message = models.ForeignKey('messagelog.Message', null=True, blank=True,
+                                     help_text="The contact's last inbound message", on_delete=models.SET_NULL,
+                                     related_name='_last_message')
 
     class Meta(object):
         verbose_name = "Logistics Contact"
@@ -139,8 +142,7 @@ class Contact(ContactBase):
         else:
             return " "
 
-    @property
-    def last_message(self):
+    def get_last_message(self):
         if self.message_set.count() > 0:
             return self.message_set.order_by("-date")[0]
 
