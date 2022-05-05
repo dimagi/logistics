@@ -45,8 +45,10 @@ class View(warehouse_view.DistrictOnlyView):
 
         for hsa in hsas:
             try:
-                pads = ProductAvailabilityDataSummary.objects.filter(supply_point=hsa,
-                    base_level=request.base_level).order_by('-date')[0]
+                pads = ProductAvailabilityDataSummary.objects.filter(
+                    supply_point=hsa,
+                    base_level=request.base_level
+                ).order_by('-date')[0]
             except IndexError:
                 pads = None
             
@@ -56,11 +58,10 @@ class View(warehouse_view.DistrictOnlyView):
                                                  pads.any_over_stock)] \
                         if pads else ["no data"] * 4
             
-            contact = Contact.objects.get(supply_point=hsa, is_active=True)
             try:
                 last_message_date = _date_fmt(
                     Message.objects.filter(
-                        direction='I', contact=contact
+                        direction='I', contact__supply_point=hsa, contact__is_active=True,
                     ).order_by('-date').values_list('date', flat=True)[0]
                 )
             except IndexError:
