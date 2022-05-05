@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+
+from logistics_project.apps.malawi.tests import create_hsa, MalawiTestBase
 from rapidsms.tests.scripted import TestScript
 from rapidsms.contrib.messagelog.models import Message
 from taggit.models import Tag
@@ -39,3 +41,21 @@ class TestTags(TestScript):
         self.assertEqual(2, len(Message.objects.filter(tags__name__in=['test'])))
         self.assertEqual(2, len(Tag.objects.all()))
 
+
+
+class TestContactLastMessage(MalawiTestBase):
+
+    def test_last_message(self):
+        contact = create_hsa(self, '+5558585', 'Logger Head')
+        # ideally this wouldn't be None, but it is because the message is logged before the contact is created
+        self.assertEqual(None, contact.last_message)
+        self.runScript("""
+            +5558585 > help
+        """)
+        contact.refresh_from_db()
+        self.assertEqual('help', contact.last_message.text)
+        self.runScript("""
+            +5558585 > help again
+        """)
+        contact.refresh_from_db()
+        self.assertEqual('help again', contact.last_message.text)
