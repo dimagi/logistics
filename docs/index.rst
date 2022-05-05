@@ -11,9 +11,3 @@ Welcome to cStock's documentation!
    :caption: Contents:
 
    dev-setup
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
