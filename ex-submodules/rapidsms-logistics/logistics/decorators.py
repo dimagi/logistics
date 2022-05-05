@@ -1,4 +1,6 @@
 from __future__ import unicode_literals
+
+from logistics.models import SupplyPoint
 from rapidsms.conf import settings
 from logistics.util import config
 from rapidsms.contrib.locations.models import Location
@@ -92,10 +94,14 @@ def place_in_request(param="place"):
                     
             if code:
                 request.location = Location.objects.get(code=code)
+                try:
+                    request.supply_point = SupplyPoint.objects.get(location=request.location)
+                except SupplyPoint.DoesNotExist:
+                    request.supply_point = None
             else:
                 request.location = None
-            request.select_location = True # used in the templates
-            if request.location and not request.from_url and request.method=="GET":
+            request.select_location = True  # used in the templates
+            if request.location and not request.from_url and request.method == "GET":
                 params = {param: request.location.code}
                 params.update(dict((k,request.GET[k]) for k in request.GET))
                 next = "%s?%s" % (request.path, "&".join("%s=%s" % (k,v) for k, v in list(params.items())))
