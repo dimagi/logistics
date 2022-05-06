@@ -182,9 +182,9 @@ LOGISTICS_CONSUMPTION = {
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 
-LOGO_LEFT_URL="/static/malawi/images/moh_logo.png"
-LOGO_RIGHT_URL="/static/malawi/images/jsi_logo.png"
-SITE_TITLE="cStock"
+LOGO_LEFT_URL = "/static/malawi/images/moh_logo.png"
+LOGO_RIGHT_URL = "/static/malawi/images/jsi_logo.png"
+SITE_TITLE = "cStock"
 BASE_TEMPLATE = "malawi/base.html"
 BASE_TEMPLATE_SPLIT_2 = "logistics/base-split-2.html"
 
