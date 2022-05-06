@@ -3,7 +3,7 @@ User Management
 
 ## Administering a user
 
-To perform administration actions on someone's account, go to the [admin site](http://cstock.jsi.com/admin/),
+To perform administration actions on someone's account, go to the [admin site](/administration/admin-site),
 then click "Users" in the sidebar.
 
 1. Use the search box on the page to find the user you would like to modify.
