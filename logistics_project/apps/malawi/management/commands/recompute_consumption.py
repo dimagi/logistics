@@ -1,7 +1,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
-from django.core.management.base import LabelCommand
+from django.core.management.base import BaseCommand
 from warehouse.models import ReportRun
 from datetime import datetime
 from logistics.models import SupplyPoint, Product
@@ -11,22 +11,28 @@ from logistics_project.utils.dates import months_between
 from logistics_project.apps.malawi.warehouse.runner import ReportPeriod,\
     update_consumption, aggregate, update_consumption_times
 from logistics_project.apps.malawi.util import hsa_supply_points_below
-from optparse import make_option
 from static.malawi.config import BaseLevel, SupplyPointCodes
 
 
-class Command(LabelCommand):
+class Command(BaseCommand):
     
     help = "recompute the CalculatedConsumption models for all data in the system."
-    option_list = LabelCommand.option_list + (
-        make_option('--aggregate', action='store_true', dest='aggregate_only', default=False,
-                    help='Cleanup the tables before starting the warehouse'),
-        make_option('--hsa',
-                    action='store',
-                    dest='hsa',
-                    default=None,
-                    help="Only run this for a single HSA"),
-    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--aggregate',
+            action='store_true',
+            dest='aggregate_only',
+            default=False,
+            help='Cleanup the tables before starting the warehouse',
+        )
+        parser.add_argument(
+            '--hsa',
+            action='store',
+            dest='hsa',
+            default=None,
+            help="Only run this for a single HSA"
+        )
 
     def handle(self, *args, **options):
         aggregate_only = options['aggregate_only']
@@ -62,6 +68,7 @@ class Command(LabelCommand):
             new_run.complete = True
             new_run.save()
             print("End time: %s" % datetime.now())
+
 
 def recompute(run_record, aggregate_only, hsa_code=None):
     if not aggregate_only:
