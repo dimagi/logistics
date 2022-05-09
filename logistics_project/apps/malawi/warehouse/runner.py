@@ -560,14 +560,15 @@ def update_historical_data_for_supply_point(sp, start=None, end=None):
             TimeTracker.objects.get_or_create(supply_point=sp, date=window_date, type=tt_type[0])
 
     if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
-        for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
-            window_date = datetime(year, month, 1)
+        if sp.created_at > BaseLevel.FACILITY_WAREHOUSE_START_DATE:
+            for year, month in months_between(BaseLevel.FACILITY_WAREHOUSE_START_DATE, sp.created_at):
+                window_date = datetime(year, month, 1)
 
-            for cls in warehouse_classes_with_product:
-                _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
+                for cls in warehouse_classes_with_product:
+                    _init_with_product(cls, sp, window_date, BaseLevel.FACILITY)
 
-            for cls in warehouse_classes_with_base_level:
-                _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
+                for cls in warehouse_classes_with_base_level:
+                    _init_with_base_level(cls, sp, window_date, BaseLevel.FACILITY)
 
     SupplyPointWarehouseRecord.objects.create(supply_point=sp, create_date=datetime.utcnow())
 
