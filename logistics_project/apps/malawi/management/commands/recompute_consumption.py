@@ -2,6 +2,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
 from django.core.management.base import BaseCommand
+
+from logistics_project.utils.parsing import string_to_datetime
 from warehouse.models import ReportRun
 from datetime import datetime
 from logistics.models import SupplyPoint, Product
@@ -31,7 +33,14 @@ class Command(BaseCommand):
             action='store',
             dest='hsa',
             default=None,
-            help="Only run this for a single HSA"
+            help="Only run this for a single HSA",
+        )
+        parser.add_argument(
+            '--start',
+            action='store',
+            dest='start',
+            default=None,
+            help="Explicit start date",
         )
 
     def handle(self, *args, **options):
@@ -52,10 +61,13 @@ class Command(BaseCommand):
             first_run = ReportRun.objects.filter(complete=True,
                                                  has_error=False).order_by("start")[0]
 
-            start_date = first_run.start
-            first_activity = Message.objects.order_by('date')[0].date
-            if start_date < first_activity:
-                start_date = first_activity
+            if options['start']:
+                start_date = string_to_datetime(options['start'])
+            else:
+                start_date = first_run.start
+                first_activity = Message.objects.order_by('date')[0].date
+                if start_date < first_activity:
+                    start_date = first_activity
 
             end_date = last_run.end
             new_run = ReportRun.objects.create(start=start_date, end=end_date,
