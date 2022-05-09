@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
 
+import sentry_sdk
 from django.utils.translation import gettext as _
 from logistics.exceptions import TooMuchStockError
 from rapidsms.contrib.handlers.handlers.keyword import KeywordHandler
@@ -67,6 +68,7 @@ class ReceiptHandler(KeywordHandler, TaggingHandler):
         except TooMuchStockError as e:
             # bit of a hack, also check if there was a recent message
             # that matched this and if so force it through
+            sentry_sdk.capture_exception(e)
             override_threshold = datetime.utcnow() - timedelta(seconds=60*60*4)
             override = dupes.filter(date__gte=override_threshold)
             if override.count() == 0:

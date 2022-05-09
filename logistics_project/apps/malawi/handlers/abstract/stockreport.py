@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
+
+import sentry_sdk
 from django.db import transaction
 from logistics.exceptions import TooMuchStockError
 from logistics.util import config
@@ -68,6 +70,7 @@ class StockReportBaseHandler(RecordResponseHandler):
             self.requests = StockRequest.create_from_report(stock_report, self.contact)
             self.send_responses(stock_report)
         except TooMuchStockError as e:
+            sentry_sdk.capture_exception(e)
             self.respond(config.Messages.TOO_MUCH_STOCK % {
                 'keyword': self.msg.text.split()[0],
                 'req': e.amount,
