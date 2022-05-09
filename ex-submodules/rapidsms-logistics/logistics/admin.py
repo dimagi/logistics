@@ -39,7 +39,7 @@ class SupplyPointTypeAdmin(admin.ModelAdmin):
 class SupplyPointAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "type", 'active')
     list_filter = ('type', 'active')
-    search_fields = ('code',)
+    search_fields = ('name', 'code',)
     model = SupplyPoint
 
 class StockRequestAdmin(admin.ModelAdmin):
