@@ -33,14 +33,21 @@ class Command(BaseCommand):
             action='store',
             dest='hsa',
             default=None,
-            help="Only run this for a single HSA",
+            help="Run this for a single HSA",
         )
         parser.add_argument(
             '--facility',
             action='store',
             dest='facility',
             default=None,
-            help="Only run this for a single facility",
+            help="Run this for a single facility",
+        )
+        parser.add_argument(
+            '--district',
+            action='store',
+            dest='district',
+            default=None,
+            help="Run this for a single district",
         )
         parser.add_argument(
             '--start',
@@ -52,8 +59,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         aggregate_only = options['aggregate_only']
-        if options['hsa'] and options['facility']:
-            raise Exception("Please only specify one of hsa or facility arguments!")
+        if (options['hsa'] and (options['facility'] or options['district'])) or (options['facility'] and options['district']):
+            raise Exception("Please only specify one of hsa, facility, and district arguments!")
 
         start_time = datetime.now()
         running = ReportRun.objects.filter(complete=False)
@@ -83,7 +90,8 @@ class Command(BaseCommand):
             new_run = ReportRun.objects.create(start=start_date, end=end_date,
                                                start_run=datetime.utcnow())
         try:
-            recompute(new_run, aggregate_only, hsa_code=options['hsa'], facility_code=options['facility'])
+            recompute(new_run, aggregate_only, hsa_code=options['hsa'], facility_code=options['facility'],
+                      district_code=options['district'])
         finally:
             # complete run
             new_run.end_run = datetime.utcnow()
@@ -93,13 +101,15 @@ class Command(BaseCommand):
             print(f'Duration {datetime.now() - start_time}')
 
 
-def recompute(run_record, aggregate_only, hsa_code=None, facility_code=None):
+def recompute(run_record, aggregate_only, hsa_code=None, facility_code=None, district_code=None):
     if not aggregate_only:
         hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
         if hsa_code:
             hsas = hsas.filter(code=hsa_code)
         if facility_code:
             hsas = hsas.filter(supplied_by__code=facility_code)
+        if district_code:
+            hsas = hsas.filter(supplied_by__supplied_by__code=district_code)
 
         count = hsas.count()
         for i, hsa in enumerate(hsas):
@@ -119,6 +129,8 @@ def recompute(run_record, aggregate_only, hsa_code=None, facility_code=None):
         non_hsas, count = get_affected_parents(hsa_code)
     elif facility_code:
         non_hsas, count = _get_parent_lineage(SupplyPoint.objects.get(code=facility_code))
+    elif district_code:
+        non_hsas, count = _get_parent_lineage(SupplyPoint.objects.get(code=district_code))
     else:
         non_hsas = SupplyPoint.objects.filter(active=True).exclude(
             type__code__in=[SupplyPointCodes.HSA, SupplyPointCodes.ZONE],
