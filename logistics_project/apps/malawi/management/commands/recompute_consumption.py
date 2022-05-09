@@ -84,8 +84,11 @@ class Command(BaseCommand):
 
 def recompute(run_record, aggregate_only, hsa_code=None):
     if not aggregate_only:
-        hsas = SupplyPoint.objects.filter(code=hsa_code) if hsa_code else \
-            SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+
+        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        if hsa_code:
+            hsas = hsas.filter(code=hsa_code)
+
         count = hsas.count()
         for i, hsa in enumerate(hsas):
             print("processing hsa %s (%s) (%s of %s)" % (
@@ -124,12 +127,14 @@ def recompute(run_record, aggregate_only, hsa_code=None):
                            'time_needing_data'],
                    additonal_query_params={"product": p})
 
+
 def clear_calculated_consumption(supply_point):
     for cc in CalculatedConsumption.objects.filter(supply_point=supply_point):
         for f in ['calculated_consumption', 'time_with_data',
                   'time_needing_data', 'time_stocked_out']:
             setattr(cc, f, 0)
         cc.save()
+
 
 def get_affected_parents(hsa_code):
     hsa = SupplyPoint.objects.get(code=hsa_code, type__code='hsa')
