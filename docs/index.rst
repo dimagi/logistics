@@ -11,5 +11,5 @@ Welcome to cStock's documentation!
    :caption: Contents:
 
    administration
-   dev-setup
    systems-administration
+   dev-setup

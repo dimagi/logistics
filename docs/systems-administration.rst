@@ -1,5 +1,5 @@
-cStock Administration
-=====================
+cStock System Administration
+============================
 
 This section outlines common tasks performed by a cStock *system* administrator.
 
