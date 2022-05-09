@@ -4,6 +4,7 @@ celery==4.4.7
 django-redis==5.2.0
 django-taggit==1.5.1
 djappsettings==0.4.0
+dimagi-memoized
 gviz_api
 python-dateutil==2.8.2
 python-memcached
