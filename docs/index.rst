@@ -10,5 +10,6 @@ Welcome to cStock's documentation!
    :maxdepth: 3
    :caption: Contents:
 
-   dev-setup
    administration
+   dev-setup
+   systems-administration
