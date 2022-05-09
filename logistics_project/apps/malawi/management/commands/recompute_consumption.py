@@ -2,6 +2,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import str
 from django.core.management.base import BaseCommand
+
+from logistics_project.utils.parsing import string_to_datetime
 from warehouse.models import ReportRun
 from datetime import datetime
 from logistics.models import SupplyPoint, Product
@@ -31,12 +33,36 @@ class Command(BaseCommand):
             action='store',
             dest='hsa',
             default=None,
-            help="Only run this for a single HSA"
+            help="Run this for a single HSA",
+        )
+        parser.add_argument(
+            '--facility',
+            action='store',
+            dest='facility',
+            default=None,
+            help="Run this for a single facility",
+        )
+        parser.add_argument(
+            '--district',
+            action='store',
+            dest='district',
+            default=None,
+            help="Run this for a single district",
+        )
+        parser.add_argument(
+            '--start',
+            action='store',
+            dest='start',
+            default=None,
+            help="Explicit start date",
         )
 
     def handle(self, *args, **options):
         aggregate_only = options['aggregate_only']
+        if (options['hsa'] and (options['facility'] or options['district'])) or (options['facility'] and options['district']):
+            raise Exception("Please only specify one of hsa, facility, and district arguments!")
 
+        start_time = datetime.now()
         running = ReportRun.objects.filter(complete=False)
         if running.count() > 0:
             raise Exception("Warehouse already running, will do nothing...")
@@ -52,28 +78,39 @@ class Command(BaseCommand):
             first_run = ReportRun.objects.filter(complete=True,
                                                  has_error=False).order_by("start")[0]
 
-            start_date = first_run.start
-            first_activity = Message.objects.order_by('date')[0].date
-            if start_date < first_activity:
-                start_date = first_activity
+            if options['start']:
+                start_date = string_to_datetime(options['start'])
+            else:
+                start_date = first_run.start
+                first_activity = Message.objects.order_by('date')[0].date
+                if start_date < first_activity:
+                    start_date = first_activity
 
             end_date = last_run.end
             new_run = ReportRun.objects.create(start=start_date, end=end_date,
                                                start_run=datetime.utcnow())
         try:
-            recompute(new_run, aggregate_only, hsa_code=options['hsa'])
+            recompute(new_run, aggregate_only, hsa_code=options['hsa'], facility_code=options['facility'],
+                      district_code=options['district'])
         finally:
             # complete run
             new_run.end_run = datetime.utcnow()
             new_run.complete = True
             new_run.save()
             print("End time: %s" % datetime.now())
+            print(f'Duration {datetime.now() - start_time}')
 
 
-def recompute(run_record, aggregate_only, hsa_code=None):
+def recompute(run_record, aggregate_only, hsa_code=None, facility_code=None, district_code=None):
     if not aggregate_only:
-        hsas = SupplyPoint.objects.filter(code=hsa_code) if hsa_code else \
-            SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        hsas = SupplyPoint.objects.filter(active=True, type__code='hsa').order_by('id')
+        if hsa_code:
+            hsas = hsas.filter(code=hsa_code)
+        if facility_code:
+            hsas = hsas.filter(supplied_by__code=facility_code)
+        if district_code:
+            hsas = hsas.filter(supplied_by__supplied_by__code=district_code)
+
         count = hsas.count()
         for i, hsa in enumerate(hsas):
             print("processing hsa %s (%s) (%s of %s)" % (
@@ -88,13 +125,17 @@ def recompute(run_record, aggregate_only, hsa_code=None):
     update_consumption_times(run_record.start_run)
 
     # aggregates
-    if not hsa_code:
+    if hsa_code:
+        non_hsas, count = get_affected_parents(hsa_code)
+    elif facility_code:
+        non_hsas, count = _get_parent_lineage(SupplyPoint.objects.get(code=facility_code))
+    elif district_code:
+        non_hsas, count = _get_parent_lineage(SupplyPoint.objects.get(code=district_code))
+    else:
         non_hsas = SupplyPoint.objects.filter(active=True).exclude(
             type__code__in=[SupplyPointCodes.HSA, SupplyPointCodes.ZONE],
         ).order_by('id')
         count = non_hsas.count()
-    else:
-        non_hsas, count = get_affected_parents(hsa_code)
 
     all_products = Product.objects.all()
     for i, place in enumerate(non_hsas):
@@ -112,6 +153,7 @@ def recompute(run_record, aggregate_only, hsa_code=None):
                            'time_needing_data'],
                    additonal_query_params={"product": p})
 
+
 def clear_calculated_consumption(supply_point):
     for cc in CalculatedConsumption.objects.filter(supply_point=supply_point):
         for f in ['calculated_consumption', 'time_with_data',
@@ -119,12 +161,16 @@ def clear_calculated_consumption(supply_point):
             setattr(cc, f, 0)
         cc.save()
 
+
 def get_affected_parents(hsa_code):
     hsa = SupplyPoint.objects.get(code=hsa_code, type__code='hsa')
-    parent = hsa.supplied_by
-    parents = []
-    while parent:
-        if parent.type_id != SupplyPointCodes.ZONE:
-            parents.append(parent)
-        parent = parent.supplied_by
-    return parents, len(parents)
+    facility = hsa.supplied_by
+    return _get_parent_lineage(facility)
+
+def _get_parent_lineage(supply_point):
+    lineage = [supply_point]
+    while supply_point.supplied_by:
+        supply_point = supply_point.supplied_by
+        if supply_point.type_id != SupplyPointCodes.ZONE:
+            lineage.append(supply_point)
+    return lineage, len(lineage)

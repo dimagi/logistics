@@ -4,6 +4,7 @@ from logistics.util import config
 from logistics_project.apps.malawi.handlers.abstract.stockreport import StockReportBaseHandler
 from logistics_project.apps.malawi.shortcuts import send_emergency_responses
 
+
 class EmergencyReportHandler(StockReportBaseHandler):
     """
     A lot like a SOH report, except only used in emergency situations.
