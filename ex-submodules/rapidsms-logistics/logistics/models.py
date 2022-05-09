@@ -295,10 +295,10 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def commodities_not_stocked(self):
         return list(set(Product.objects.filter(is_active=True)) - set(self.commodities_stocked()))
 
+    # todo: quickcache this?
     def supplies(self, product):
         return product in self.commodities_stocked()
-    
-    
+
     def product_stocks(self):
         return self.all_product_stocks()
     
