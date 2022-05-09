@@ -1,7 +1,8 @@
-<!DOCTYPE html>
 {% load region_tags %}
 {% load malawi_tags %}
 {% load i18n %}
+{% load static %}
+<!DOCTYPE html>
 <html>
 <head>
 	<title>{% block title %}cStock{% endblock %}</title>
@@ -61,11 +62,7 @@
 						</span>
 					</a>
                     <span style="float: right;">
-                        <img src="{{ logo_left_url }}" style="height: 60px;" />
-                        <img src="{{ logo_right_url }}" style="height: 60px;" />
-                        {% if logistics_user_profile.current_dashboard_base_level == 'f' %}
-                        <img src="/static/malawi/images/save_logo.png" style="height: 60px;" />
-                        {% endif %}
+                        <img src="{% static '/malawi/images/moh_logo.png' %}" style="height: 60px;" />
                     </span>
 				</h1>
 			</div>
