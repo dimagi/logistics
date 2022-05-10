@@ -128,7 +128,9 @@ class ReportingRate(MalawiWarehouseModel):
     
     @property
     def pct_complete(self): return fmt_pct(self.complete, self.reported)
-        
+
+    def __str__(self):
+        return f'{self.supply_point}: total: {self.total}, reported: {self.reported}, on_time: {self.on_time}, complete: {self.complete}'
 
 
 TIME_TRACKER_TYPES = ((TimeTrackerTypes.ORD_READY, 'order - ready'),
