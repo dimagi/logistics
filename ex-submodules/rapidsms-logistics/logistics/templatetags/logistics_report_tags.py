@@ -104,14 +104,6 @@ def recent_messages(contact, limit=5):
     messages = Message.objects.filter(contact=contact, date__in=mdates).order_by("-date")
     return ShortMessageTable(messages).as_html()
 
-@register.simple_tag
-def recent_messages_sp(sp, limit=5):
-    mdates = Message.objects.filter(contact__in=sp.contact_set.all).order_by("-date").distinct().values_list("date", flat=True)
-    if limit:
-        mdates = list(mdates)[:limit]
-    messages = Message.objects.filter(contact__in=sp.contact_set.all, date__in=mdates).order_by("-date")
-    return ShortMessageTable(messages).as_html()
-
 
 @register.simple_tag
 def product_availability_summary(location, width=900, height=300):
@@ -125,25 +117,6 @@ def product_availability_summary(location, width=900, height=300):
     return r_2_s_helper("logistics/partials/product_availability_summary.html", 
                          {"summary": summary})
 
-@register.simple_tag
-def product_availability_summary_by_facility(location, width=900, height=300):
-    if not location:
-        pass
-    summary = ProductAvailabilitySummaryByFacility(location.all_child_facilities(),
-                                                   width, height)
-    c =  r_2_s_helper("logistics/partials/product_availability_summary.html",
-                         {"summary": summary})
-    return c
-
-@register.simple_tag
-def product_availability_summary_by_facility_sp(location, year, month):
-    if not location:
-        pass
-    summary = ProductAvailabilitySummaryByFacilitySP(location.all_child_facilities(), year=year, month=month)
-    c =  r_2_s_helper("logistics/partials/product_availability_summary.html",
-                         {"summary": summary})
-    return c
-
 
 @register.simple_tag
 def commodity_code_to_name(code):
@@ -152,13 +125,16 @@ def commodity_code_to_name(code):
     except Product.DoesNotExist:
         return "Unknown Commodity"
 
+
 @register.simple_tag
 def stock(supply_point, product, default_value=0):
     return supply_point.stock(product, default_value)
 
+
 @register.simple_tag
 def historical_stock(supply_point, product, year, month, default_value=0):
     return supply_point.historical_stock(product, year, month, default_value)
+
 
 def _months_or_default(val, default_value):
     try:
@@ -170,28 +146,3 @@ def _months_or_default(val, default_value):
 def months_of_stock(supply_point, product, default_value=None):
     val = supply_point.months_of_stock(product, default_value)
     return _months_or_default(val, default_value)
-
-@register.simple_tag
-def historical_months_of_stock(supply_point, product, year, month, default_value=None):
-    def _cache_key():
-            return ("log-historical_months_of_stock-%(supply_point)s-%(product)s-%(year)s-%(month)s-%(default)s" % \
-                    {"supply_point": supply_point.code, "product": product.sms_code, 
-                     "year": year, "month": month, "default": default_value}).replace(" ", "-")
-    key = _cache_key()
-    if settings.LOGISTICS_USE_SPOT_CACHING: 
-        from_cache = cache.get(key)
-        if from_cache:
-            return from_cache
-            
-        
-    srs = transactions_before_or_during(year, month).\
-                filter(supply_point=supply_point, product=product).order_by("-date")
-    if srs.exists():
-        val = ProductStock.objects.get(supply_point=supply_point, product=product)\
-                    .calculate_months_remaining(srs[0].ending_balance)
-        ret = _months_or_default(val, default_value)
-    else: 
-        ret = default_value
-    if settings.LOGISTICS_USE_SPOT_CACHING: 
-            cache.set(key, ret, settings.LOGISTICS_SPOT_CACHE_TIMEOUT)
-    return ret
