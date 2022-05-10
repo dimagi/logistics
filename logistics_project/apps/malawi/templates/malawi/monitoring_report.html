@@ -29,9 +29,9 @@
 </div>
 </span>
 <div class="module">
-<h2>{{ report.definition.description }} {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>
-<div class="toppadded">
-{{ report.get_report_body|safe }}
-</div>
+  <h2>{{ report.definition.description }} {% if request.datespan %}({{ request.datespan }}){% endif %}</h2>
+  <div class="toppadded scrollable">
+    {{ report.get_report_body|safe }}
+  </div>
 </div>
 {% endblock %}

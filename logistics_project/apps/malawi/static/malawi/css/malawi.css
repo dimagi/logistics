@@ -27,11 +27,16 @@
 .module h2 {
     clear: both;	
 }
-.scrollable {     
-    background-color: #f9f9f9;
-    border: 1px solid #aaa;
+.scrollable {
+  overflow: scroll;
 }
-	
+
+@media only print {
+   .scrollable {
+     overflow: visible;
+   }
+}
+
 #alertpane {
     height:200px;
     overflow:auto;	
