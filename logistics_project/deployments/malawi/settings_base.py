@@ -28,6 +28,9 @@ CACHES = {
         'OPTIONS': {
         },
     },
+    'locmem': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
 }
 
 
