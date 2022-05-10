@@ -21,6 +21,7 @@ class ReportingRateAdmin(admin.ModelAdmin):
     model = ReportingRate
     list_display = ('supply_point', 'date', 'base_level', 'total', 'reported', 'on_time', 'complete')
     list_filter = ('supply_point__type', 'date', 'base_level', 'supply_point')
+    search_fields = ['supply_point__name']
 
 
 class ProductAvailabilityDataAdmin(admin.ModelAdmin):

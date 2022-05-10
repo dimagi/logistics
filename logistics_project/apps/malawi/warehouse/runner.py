@@ -654,6 +654,10 @@ def _update_reporting_rate(supply_point, report_period, products_managed, base_l
         found = set(this_months_reports.values_list("product", flat=True).distinct())
         period_rr.complete = 0 if found and (products_managed - found) else \
             (1 if found else 0)
+        # sanity check a weird bug where something was complete but not reported:
+        # https://sentry.io/organizations/dimagi/issues/3257281095/
+        if period_rr.complete:
+            period_rr.reported = 1
 
     period_rr.save()
 

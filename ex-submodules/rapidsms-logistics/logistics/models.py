@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import str
 from builtins import next
+
+from memoized import memoized
 from past.builtins import basestring
 from builtins import object
 import re
@@ -295,7 +297,7 @@ class SupplyPointBase(models.Model, StockCacheMixin):
     def commodities_not_stocked(self):
         return list(set(Product.objects.filter(is_active=True)) - set(self.commodities_stocked()))
 
-    # todo: quickcache this?
+    @memoized
     def supplies(self, product):
         return product in self.commodities_stocked()
 

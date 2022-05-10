@@ -28,7 +28,7 @@ def consumption_row(sp, p, datespan):
                  datespan.enddate.month == now.month \
               else first_of_next_month(datespan.enddate)
     
-    vals = relevant.aggregate(Sum('calculated_consumption'), 
+    vals = relevant.aggregate(Sum('calculated_consumption'),
                               Sum('time_stocked_out'),
                               Sum('time_with_data'),
                               Sum('time_needing_data'))
@@ -39,8 +39,9 @@ def consumption_row(sp, p, datespan):
 
     avg_so_time = 0
     if relevant.count() > 0:
-        if relevant[0].total:
-            num_supply_points = relevant[0].total
+        # this is imperfect, since the number of supply points can vary over time
+        num_supply_points = max([cons.total for cons in relevant])
+        if num_supply_points:
             avg_so_time = tot_so_time / num_supply_points
 
     period_secs = delta_secs(end - datespan.startdate)

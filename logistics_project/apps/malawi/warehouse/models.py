@@ -2,6 +2,8 @@ from __future__ import division
 from __future__ import unicode_literals
 from builtins import object
 from django.db import models
+from memoized import memoized
+
 from logistics.warehouse_models import ReportingModel, BaseReportingModel
 from logistics_project.apps.malawi.util import (fmt_pct, pct, hsas_below,
     facility_supply_points_below, filter_facility_supply_point_queryset_for_epi)
@@ -128,7 +130,9 @@ class ReportingRate(MalawiWarehouseModel):
     
     @property
     def pct_complete(self): return fmt_pct(self.complete, self.reported)
-        
+
+    def __str__(self):
+        return f'{self.supply_point}: total: {self.total}, reported: {self.reported}, on_time: {self.on_time}, complete: {self.complete}'
 
 
 TIME_TRACKER_TYPES = ((TimeTrackerTypes.ORD_READY, 'order - ready'),
@@ -204,28 +208,26 @@ class CalculatedConsumption(MalawiWarehouseModel):
             self.time_with_data, self.time_needing_data, self.time_stocked_out
         )
 
-    _total = None
     @property
+    @memoized
     def total(self):
-        if self._total is None:
-            try:
-                self._total = ProductAvailabilityData.objects.get(
-                    supply_point=self.supply_point,
-                    date=self.date,
-                    product=self.product
-                ).total
-            except ProductAvailabilityData.DoesNotExist:
-                if self.product.type.base_level == BaseLevel.HSA:
-                    self._total = hsas_below(self.supply_point.location).count()
-                elif self.product.type.base_level == BaseLevel.FACILITY:
-                    facilities = facility_supply_points_below(self.supply_point.location)
-                    if self.supply_point.type_id == SupplyPointCodes.COUNTRY:
-                        facilities = filter_facility_supply_point_queryset_for_epi(facilities)
-                    self._total = facilities.count()
-                else:
-                    raise BaseLevel.InvalidBaseLevelException(self.product.type.base_level)
-        return self._total
-    
+        try:
+            return ProductAvailabilityData.objects.get(
+                supply_point=self.supply_point,
+                date=self.date,
+                product=self.product
+            ).total
+        except ProductAvailabilityData.DoesNotExist:
+            if self.product.type.base_level == BaseLevel.HSA:
+                return hsas_below(self.supply_point.location).count()
+            elif self.product.type.base_level == BaseLevel.FACILITY:
+                facilities = facility_supply_points_below(self.supply_point.location)
+                if self.supply_point.type_id == SupplyPointCodes.COUNTRY:
+                    facilities = filter_facility_supply_point_queryset_for_epi(facilities)
+                return facilities.count()
+            else:
+                raise BaseLevel.InvalidBaseLevelException(self.product.type.base_level)
+
     @property
     def avg_so_time(self):
         assert self.total
@@ -241,9 +243,12 @@ class CalculatedConsumption(MalawiWarehouseModel):
         
     @property
     def _so_adjusted_consumption(self):
-        # adjusted for stockouts
-        adjusted_secs = self.period_secs - self.avg_so_time
-        return self.calculated_consumption * (self.period_secs / adjusted_secs)
+        if self.calculated_consumption == 0:
+            return 0
+        else:
+            # adjusted for stockouts
+            adjusted_secs = self.period_secs - self.avg_so_time
+            return self.calculated_consumption * (self.period_secs / adjusted_secs)
 
     @property
     def adjusted_consumption(self):
