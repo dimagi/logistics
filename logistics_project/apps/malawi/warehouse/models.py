@@ -243,9 +243,12 @@ class CalculatedConsumption(MalawiWarehouseModel):
         
     @property
     def _so_adjusted_consumption(self):
-        # adjusted for stockouts
-        adjusted_secs = self.period_secs - self.avg_so_time
-        return self.calculated_consumption * (self.period_secs / adjusted_secs)
+        if self.calculated_consumption == 0:
+            return 0
+        else:
+            # adjusted for stockouts
+            adjusted_secs = self.period_secs - self.avg_so_time
+            return self.calculated_consumption * (self.period_secs / adjusted_secs)
 
     @property
     def adjusted_consumption(self):
