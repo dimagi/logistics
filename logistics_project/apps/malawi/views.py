@@ -499,6 +499,7 @@ def upload_facilities(request):
         messages.error(request, "Please select a file")    
     return HttpResponseRedirect(reverse("malawi_manage_facilities"))
 
+
 @user_passes_test(is_district_user)
 def outreach(request):
     contacts = []
