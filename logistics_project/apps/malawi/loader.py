@@ -311,7 +311,10 @@ class FacilityLoader(object):
 
     def parse_data(self):
         line_num = 1
-        for line in self.file_obj:
+        for line in self.file_obj.readlines():
+            if isinstance(line, bytes):
+                line = line.decode('utf-8')  # python3 fix
+
             # Ignore headers
             if line_num == 1 and "district code" in line.lower():
                 line_num += 1

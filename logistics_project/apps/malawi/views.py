@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import csv
 
+import sentry_sdk
 from future import standard_library
 standard_library.install_aliases()
 from builtins import zip
@@ -483,12 +484,13 @@ def upload_facilities(request):
     form = UploadFacilityFileForm(request.POST, request.FILES)
     if form.is_valid():
         f = request.FILES['file']
-        try: 
+        try:
             count = FacilityLoader(f).run()
             messages.info(request, "Successfully processed %s rows." % count)
         except FacilityLoaderValidationError as f:
             messages.error(request, f.validation_msg)
         except Exception as e:
+            sentry_sdk.capture_exception(e)
             messages.error(request, "Something went wrong with that upload. " 
                            "Please double check the file format or "
                            "try downloading a new copy. Your error message "
@@ -496,6 +498,7 @@ def upload_facilities(request):
     else:
         messages.error(request, "Please select a file")    
     return HttpResponseRedirect(reverse("malawi_manage_facilities"))
+
 
 @user_passes_test(is_district_user)
 def outreach(request):
