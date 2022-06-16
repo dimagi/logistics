@@ -77,8 +77,11 @@ def request(path, get=None, post=None, encoding=None):
 
     # the server returned an error
     except urllib.error.HTTPError as err:
+        message = err.read()
+        if isinstance(message, bytes):
+            message = bytes.decode('utf-8')
         raise exceptions.RouterError(
-            err.code, err.info()["content-type"], err.read())
+            err.code, err.info()["content-type"], message)
 
     # the router couldn't be reached
     except urllib.error.URLError as err:
