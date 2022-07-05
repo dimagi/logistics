@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
-from logistics_project.apps.malawi.tests.register import TestHSARegister
 from rapidsms.models import Contact
 from logistics_project.apps.malawi.tests.base import MalawiTestBase
-__author__ = 'ternus'
 from logistics.models import SupplyPoint
 
 from logistics.util import config
+
 
 class TestCreateUser(MalawiTestBase):
 
