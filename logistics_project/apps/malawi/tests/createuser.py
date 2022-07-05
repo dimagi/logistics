@@ -8,6 +8,16 @@ from logistics.util import config
 
 class TestCreateUser(MalawiTestBase):
 
+    def testHelp(self):
+        a = """
+              +8005551212 > manage manager ic 2616
+              +8005551212 < Congratulations manager, you have been registered for the cStock System. Your facility is Ntaja and your role is: in charge
+              +8005551212 > hsa stella
+              +8005551212 < %(help)s
+            """ % {"help": config.Messages.HSA_HELP}
+
+        self.runScript(a)
+
     def testRegister(self):
         a = """
               +8005551212 > hsa stella 1 2616

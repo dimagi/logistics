@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
-
 from __future__ import unicode_literals
 from builtins import str
 from django.utils.translation import gettext as _
@@ -28,6 +25,7 @@ class CreateUserHandler(RecordResponseHandler):
         words = text.split()
         if len(words) < 3:
             self.help()
+            return
         else:
             self.contact_name = " ".join(words[:-2])
             self.extra =   words[-2]
