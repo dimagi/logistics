@@ -130,20 +130,18 @@ class RapidHttpBackend(BackendBase):
             text = text.encode('utf-8')
         # we do this since http_params_outgoing is a user-defined settings
         # and we don't want things like "%(doesn'texist)s" to throw an error
-        http_params_outgoing = self.http_params_outgoing.replace('%(message)s',
-                                                                      urllib.parse.quote(text))
+        http_params_outgoing = self.http_params_outgoing.replace('%(message)s', urllib.parse.quote(text))
         http_params_outgoing = http_params_outgoing.replace('%(phone_number)s',
-                                                                      urllib.parse.quote(message.connection.identity))
+                                                            urllib.parse.quote(message.connection.identity))
         url = "%s?%s" % (self.gateway_url, http_params_outgoing)
         try:
             self.debug('Sending: %s' % url)
-            response = urllib.request.urlopen(url)
+            with urllib.request.urlopen(url) as response:
+                self.info('SENT')
+                info = 'RESPONSE %s' % response.info()
+                info = info.replace('\n', ' ').replace('\r', ',')
+                self.debug(info)
+                return True
         except Exception as e:
             self.exception(e)
             return False
-        self.info('SENT')
-        info = 'RESPONSE %s' % response.info()
-        info = info.replace('\n',' ').replace('\r',',')
-        
-        self.debug(info)
-        return True

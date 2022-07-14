@@ -115,10 +115,10 @@ class KannelBackend(RapidHttpBackend):
         url = '?'.join([self.sendsms_url, urllib.parse.urlencode(url_args)])
         try:
             self.debug('Opening URL: %s' % url)
-            response = urlopen(url)
-        except:
+            with urlopen(url) as response:
+                self.info('SENT')
+                self.debug('response body: %s' % response.read())
+                return True
+        except Exception:
             self.exception('Failed to send message')
             return
-        self.info('SENT')
-        self.debug('response body: %s' % response.read())
-        return True
