@@ -52,8 +52,11 @@ class View(warehouse_view.DistrictOnlyView):
             count = hsas.count()
             reported = 0
             for hsa in hsas:
-                rr = ReportingRate.objects.get(supply_point=hsa, 
-                                               date=report_date)
+                try:
+                    rr = ReportingRate.objects.get(supply_point=hsa,
+                                                   date=report_date)
+                except ReportingRate.DoesNotExist:
+                    continue
                 counted = 0
                 if rr.reported: 
                     reported += 1
