@@ -29,6 +29,9 @@
 {% if request.user|is_district_user %}
         <li><a href="{% url 'malawi_manage_outreach' %}">SMS</a></li>
 {% endif %}
+{% if request.user.is_superuser %}
+        <li><a href="{% url 'group_message' %}">Group Messaging</a></li>
+{% endif %}
 
     </ul>
 </div>
