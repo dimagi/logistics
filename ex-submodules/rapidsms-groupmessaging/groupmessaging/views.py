@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import json
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query_utils import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -110,6 +110,7 @@ def ajax_contact_count(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
 def group_message(request):
     fn_tree = get_fn_tree()
     success_count = 0
