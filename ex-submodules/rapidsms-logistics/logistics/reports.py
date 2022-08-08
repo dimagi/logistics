@@ -580,8 +580,7 @@ class SupplyPointRow(object):
         if self.commodity_filter is not None:
             return self.supply_point.consumption(product=self.commodity_filter,
                                                  producttype=self.commoditytype_filter)
-        
-    
+
 
 class HSASupplyPointRow(SupplyPointRow):
     
@@ -595,7 +594,6 @@ class HSASupplyPointRow(SupplyPointRow):
         return [self.supply_point]
     
 
-
 class FacilitySupplyPointRow(SupplyPointRow):
     
     @property
@@ -606,6 +604,7 @@ class FacilitySupplyPointRow(SupplyPointRow):
     def facility_list(self):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
+
 
 def calc_percentage(a, b):
     if not (a and b):
