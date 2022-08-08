@@ -51,12 +51,14 @@ def _get_cases_for_consumption_amount(condition, consumption):
         cases = consumption / 12
     elif condition == CONDITION_PNEUMONIA_YOUNG:
         # 3/17th of the pills (30% of cases) go @ 10 per case
-        consumption_display = (consumption * 3 / 17)
-        cases = consumption_display / 10
+        used_consumption = (consumption * 3 / 17)
+        cases = used_consumption / 10
+        consumption_display = f'{int(used_consumption)} (of {consumption})'
     elif condition == CONDITION_PNEUMONIA_OLD:
         # 14/17th of the pills (70% of cases) go @ 20 per case
-        consumption_display = (consumption * 14 / 17)
-        cases = consumption_display / 20
+        used_consumption = (consumption * 14 / 17)
+        cases = used_consumption / 20
+        consumption_display = f'{int(used_consumption)} (of {consumption})'
     elif condition == CONDITION_SEVERE_MALARIA:
         # Dosage per case: 1 suppository
         cases = consumption / 1
