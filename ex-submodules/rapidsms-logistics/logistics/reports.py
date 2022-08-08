@@ -606,6 +606,10 @@ class FacilitySupplyPointRow(SupplyPointRow):
         return self.supply_point.location.all_child_facilities()
 
 
+def format_percentage(a, b):
+    return f'{calc_percentage(a, b)}%'
+
+
 def calc_percentage(a, b):
     if not (a and b):
         return 0 # Don't return ugly NaN

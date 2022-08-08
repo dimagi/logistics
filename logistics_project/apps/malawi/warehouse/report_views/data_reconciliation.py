@@ -1,4 +1,5 @@
 from logistics.models import Product
+from logistics.reports import calc_percentage, format_percentage
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 
@@ -107,6 +108,11 @@ def _get_total_pneumonia_row(main_table_rows):
     return ['Total Fast breathing - Pneumonia Cases', total, '-', '-']
 
 
+def _get_data_row_by_condition(rows, condition):
+    for row in rows:
+        if row[0] == condition:
+            return row
+
 class View(warehouse_view.MalawiWarehouseView):
     def custom_context(self, request):
         # get consumption data
@@ -129,6 +135,18 @@ class View(warehouse_view.MalawiWarehouseView):
             "header": main_table_headers,
             "data": main_table_rows + extra_rows,
         }
+
+        uncomplicated_malaria_young_cases = _get_data_row_by_condition(
+            main_table_rows, CONDITION_UNCOMPLICATED_MALARIA_YOUNG
+        )[1]
+        uncomplicated_malaria_old_cases = _get_data_row_by_condition(
+            main_table_rows, CONDITION_UNCOMPLICATED_MALARIA_OLD
+        )[1]
+        severe_malaria_cases = _get_data_row_by_condition(
+            main_table_rows, CONDITION_SEVERE_MALARIA
+        )[1]
+        total_uncomplicated = uncomplicated_malaria_young_cases + uncomplicated_malaria_old_cases
+        total_malaria = total_uncomplicated + severe_malaria_cases
         return {
             "show_single_date": True,
             "main_table": main_table,
@@ -137,8 +155,8 @@ class View(warehouse_view.MalawiWarehouseView):
                 "is_downloadable": False,
                 "header": ['Age Group', 'Percent of Cases'],
                 "data": [
-                    [CONDITION_UNCOMPLICATED_MALARIA_YOUNG, '50%'],
-                    [CONDITION_UNCOMPLICATED_MALARIA_OLD, '50%'],
+                    [CONDITION_UNCOMPLICATED_MALARIA_YOUNG, format_percentage(uncomplicated_malaria_young_cases, total_uncomplicated)],
+                    [CONDITION_UNCOMPLICATED_MALARIA_OLD, format_percentage(uncomplicated_malaria_old_cases, total_uncomplicated)],
                 ]
             },
             'all_malaria_breakdown_table': {
@@ -146,9 +164,9 @@ class View(warehouse_view.MalawiWarehouseView):
                 "is_downloadable": False,
                 "header": ['Age Group', 'Percent of Cases'],
                 "data": [
-                    [CONDITION_UNCOMPLICATED_MALARIA_YOUNG, '40%'],
-                    [CONDITION_UNCOMPLICATED_MALARIA_OLD, '30%'],
-                    [CONDITION_SEVERE_MALARIA, '30%'],
+                    [CONDITION_UNCOMPLICATED_MALARIA_YOUNG, format_percentage(uncomplicated_malaria_young_cases, total_malaria)],
+                    [CONDITION_UNCOMPLICATED_MALARIA_OLD, format_percentage(uncomplicated_malaria_old_cases, total_malaria)],
+                    [CONDITION_SEVERE_MALARIA, format_percentage(severe_malaria_cases, total_malaria)],
                 ]
             }
         }
