@@ -1,0 +1,10 @@
+{% extends "malawi/new/base.html" %}
+{% block report_content %}
+<form method="get" class="selector">
+    <fieldset>
+    {% include "malawi/partials/location_selector.html" with exclude_facilities=request.base_level_is_facility %}
+    {% include "malawi/new/partials/month-selector.html" %}
+    </fieldset>
+    <input type="submit" value="Go!" />
+</form>
+{% endblock %}

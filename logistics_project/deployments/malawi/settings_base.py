@@ -72,6 +72,7 @@ REPORT_LIST = OrderedDict([
     ("Reporting Rate", "reporting-rate"),
     ("Stock Status", "stock-status"),
     ("Consumption Profiles", "consumption-profiles"),
+    ("Data Reconciliation", "data-reconciliation"),
     ("Alert Summary", "alert-summary"),
     ("Re-supply Qts Required", "re-supply-qts-required"),
     ("Lead Times", "lead-times"),
