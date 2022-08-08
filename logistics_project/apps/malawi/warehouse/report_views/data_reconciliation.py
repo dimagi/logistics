@@ -1,6 +1,6 @@
 from logistics.models import Product
 from logistics_project.apps.malawi.warehouse import warehouse_view
-
+from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 
 CONDITION_DIARRHEA = "Diarrhea"
 CONDITION_UNCOMPLICATED_MALARIA_YOUNG = "Uncomplicated Malaria (5 - 35 months)"
@@ -37,14 +37,68 @@ def _get_product_for_condition(condition):
     return Product.objects.get(sms_code__iexact=condition_code_map[condition])
 
 
+def _get_cases_for_consumption_amount(condition, consumption):
+    if condition == CONDITION_DIARRHEA:
+        # 3 sachets of ORS treatment per case
+        return consumption / 3
+    elif condition == CONDITION_UNCOMPLICATED_MALARIA_YOUNG:
+        # 6 tablets treatment per case
+        return consumption / 6
+    elif condition == CONDITION_UNCOMPLICATED_MALARIA_OLD:
+        # 12 tablets treatment per case
+        return consumption / 12
+    elif condition == CONDITION_PNEUMONIA_YOUNG:
+        # 3/17th of the pills (30% of cases) go @ 10 per case
+        return (consumption * 3 / 17) / 10
+    elif condition == CONDITION_PNEUMONIA_OLD:
+        # 14/17th of the pills (70% of cases) go @ 20 per case
+        return (consumption * 14 / 17) / 20
+    elif condition == CONDITION_SEVERE_MALARIA:
+        # Dosage per case: 1 suppository
+        return consumption / 1
+    elif condition == CONDITION_MALNUTRITION:
+        # 2 per day @ 1 month
+        return consumption / 60
+    elif condition == CONDITION_MRDT:
+        # 1 test kit treatment per case
+        return consumption / 1
+
+
 def _build_condition_row(condition, supply_point, month):
     product = _get_product_for_condition(condition)
+    consumption = CalculatedConsumption.objects.get(
+        supply_point=supply_point,
+        product=product,
+        date=month,
+    )
+    cases = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
-        100,
+        cases,
         product.name,
-        200,
+        consumption.calculated_consumption,
     ]
+
+
+def _get_total_malaria_row(main_table_rows):
+    total = 0
+    for row in main_table_rows:
+        if row[0] in (
+                CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
+                CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
+                CONDITION_SEVERE_MALARIA):
+            total += row[1]
+    return ['Total Malaria Cases', total, '-', '-']
+
+
+def _get_total_pneumonia_row(main_table_rows):
+    total = 0
+    for row in main_table_rows:
+        if row[0] in (
+                CONDITION_PNEUMONIA_YOUNG,
+                CONDITION_PNEUMONIA_OLD):
+            total += row[1]
+    return ['Total Fast breathing - Pneumonia Cases', total, '-', '-']
 
 
 class View(warehouse_view.MalawiWarehouseView):
@@ -60,18 +114,8 @@ class View(warehouse_view.MalawiWarehouseView):
         ]
         main_table_rows = self._get_main_table_rows(reporting_sp, month)
         extra_rows = [
-            [
-                'Total Malaria Cases',
-                300,
-                '-',
-                '-',
-            ],
-            [
-                'Total Fast breathing - Pneumonia Cases',
-                200,
-                '-',
-                '-',
-            ]
+            _get_total_malaria_row(main_table_rows),
+            _get_total_pneumonia_row(main_table_rows),
         ]
         main_table = {
             "is_datatable": False,
