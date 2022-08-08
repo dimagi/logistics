@@ -7,4 +7,21 @@
     </fieldset>
     <input type="submit" value="Go!" />
 </form>
+<div class="module">
+	<h2>Conditions</h2>
+	{% with main_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
+<div class="module">
+	<h2>Breakdowns</h2>
+  <h3>Uncomplicated Malaria</h3>
+	{% with uncomplicated_malaria_breakdown_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+  <h3>All Malaria</h3>
+  {% with all_malaria_breakdown_table as table %}
+	{% include "malawi/new/partials/generic-table.html" %}
+	{% endwith %}
+</div>
 {% endblock %}
