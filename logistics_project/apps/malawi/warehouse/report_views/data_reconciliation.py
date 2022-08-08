@@ -38,31 +38,35 @@ def _get_product_for_condition(condition):
 
 
 def _get_cases_for_consumption_amount(condition, consumption):
+    consumption_display = consumption
+    cases = None
     if condition == CONDITION_DIARRHEA:
         # 3 sachets of ORS treatment per case
-        return consumption / 3
+        cases = consumption / 3
     elif condition == CONDITION_UNCOMPLICATED_MALARIA_YOUNG:
         # 6 tablets treatment per case
-        return consumption / 6
+        cases = consumption / 6
     elif condition == CONDITION_UNCOMPLICATED_MALARIA_OLD:
         # 12 tablets treatment per case
-        return consumption / 12
+        cases = consumption / 12
     elif condition == CONDITION_PNEUMONIA_YOUNG:
         # 3/17th of the pills (30% of cases) go @ 10 per case
-        return (consumption * 3 / 17) / 10
+        consumption_display = (consumption * 3 / 17)
+        cases = consumption_display / 10
     elif condition == CONDITION_PNEUMONIA_OLD:
         # 14/17th of the pills (70% of cases) go @ 20 per case
-        return (consumption * 14 / 17) / 20
+        consumption_display = (consumption * 14 / 17)
+        cases = consumption_display / 20
     elif condition == CONDITION_SEVERE_MALARIA:
         # Dosage per case: 1 suppository
-        return consumption / 1
+        cases = consumption / 1
     elif condition == CONDITION_MALNUTRITION:
         # 2 per day @ 1 month
-        return consumption / 60
+        cases = consumption / 60
     elif condition == CONDITION_MRDT:
         # 1 test kit treatment per case
-        return consumption / 1
-
+        cases = consumption / 1
+    return cases, consumption_display
 
 def _build_condition_row(condition, supply_point, month):
     product = _get_product_for_condition(condition)
@@ -71,12 +75,12 @@ def _build_condition_row(condition, supply_point, month):
         product=product,
         date=month,
     )
-    cases = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
+    cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
         cases,
         product.name,
-        consumption.calculated_consumption,
+        consumption_display,
     ]
 
 
