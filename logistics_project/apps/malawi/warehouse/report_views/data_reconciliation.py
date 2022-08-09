@@ -81,9 +81,9 @@ def _build_condition_row(condition, supply_point, month):
     cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
-        cases,
         product.name,
         consumption_display,
+        cases,
     ]
 
 
@@ -94,7 +94,7 @@ def _get_total_malaria_row(main_table_rows):
                 CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
                 CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
                 CONDITION_SEVERE_MALARIA):
-            total += row[1]
+            total += row[3]
     return ['Total Malaria Cases', total, '-', '-']
 
 
@@ -104,7 +104,7 @@ def _get_total_pneumonia_row(main_table_rows):
         if row[0] in (
                 CONDITION_PNEUMONIA_YOUNG,
                 CONDITION_PNEUMONIA_OLD):
-            total += row[1]
+            total += row[3]
     return ['Total Fast breathing - Pneumonia Cases', total, '-', '-']
 
 
@@ -120,9 +120,9 @@ class View(warehouse_view.MalawiWarehouseView):
         month = request.datespan.enddate
         main_table_headers = [
             'Condition',
-            '# Cases',
             'Product',
-            'Medicines/Commodities Dispensed'
+            'Medicines/Commodities Dispensed',
+            '# Cases',
         ]
         main_table_rows = self._get_main_table_rows(reporting_sp, month)
         extra_rows = [
@@ -138,13 +138,13 @@ class View(warehouse_view.MalawiWarehouseView):
 
         uncomplicated_malaria_young_cases = _get_data_row_by_condition(
             main_table_rows, CONDITION_UNCOMPLICATED_MALARIA_YOUNG
-        )[1]
+        )[3]
         uncomplicated_malaria_old_cases = _get_data_row_by_condition(
             main_table_rows, CONDITION_UNCOMPLICATED_MALARIA_OLD
-        )[1]
+        )[3]
         severe_malaria_cases = _get_data_row_by_condition(
             main_table_rows, CONDITION_SEVERE_MALARIA
-        )[1]
+        )[3]
         total_uncomplicated = uncomplicated_malaria_young_cases + uncomplicated_malaria_old_cases
         total_malaria = total_uncomplicated + severe_malaria_cases
         return {
