@@ -335,9 +335,11 @@ def update_current_consumption(supply_point, base_level):
     Update the actual consumption data
     """
     for p in get_products(base_level):
-        
-        consumption = CurrentConsumption.objects.get_or_create\
-            (supply_point=supply_point, product=p)[0]
+        consumption = get_or_create_singular_model(
+            CurrentConsumption,
+            supply_point=supply_point,
+            product=p
+        )
         consumption.total = 1
         try:
             ps = ProductStock.objects.get(supply_point=supply_point,
@@ -348,8 +350,21 @@ def update_current_consumption(supply_point, base_level):
             consumption.current_daily_consumption = 0
             consumption.stock_on_hand = 0
         consumption.save()
-    
-    
+
+
+def get_or_create_singular_model(reporting_model_class, **query_kwargs):
+    try:
+        return reporting_model_class.objects.get_or_create(
+            **query_kwargs
+        )[0]
+    except reporting_model_class.MultipleObjectsReturned:
+        # if multiple objects returned, use the most recently updated and delete the rest
+        all_objects = reporting_model_class.objects.filter(**query_kwargs).order_by('-update_date')
+        for legacy_model in all_objects[1:]:
+            legacy_model.delete()
+        return all_objects[0]
+
+
 def update_consumption_values(transactions):
     """
     Update the consumption calculations
@@ -388,22 +403,12 @@ def update_consumption_values(transactions):
                     secs_in_window = delta_secs(end_date-start_date)
                     proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) if secs_in_window else 0
                     assert proportion_in_window <= 1
-                    try:
-                        c = CalculatedConsumption.objects.get_or_create(
-                            supply_point=start.supply_point,
-                            date=window_date,
-                            product=start.product
-                        )[0]
-                    except CalculatedConsumption.MultipleObjectsReturned:
-                        # if multiple objects returned, use the most recently updated and delete the rest
-                        all_consumptions = CalculatedConsumption.objects.filter(
-                            supply_point=start.supply_point,
-                            date=window_date,
-                            product=start.product,
-                        ).order_by('-update_date')
-                        c = all_consumptions[0]
-                        for legacy_consumption in all_consumptions[1:]:
-                            legacy_consumption.delete()
+                    c = get_or_create_singular_model(
+                        CalculatedConsumption,
+                        supply_point=start.supply_point,
+                        date=window_date,
+                        product=start.product
+                    )
                     if delta < 0:
                         # update the consumption by adding the proportion in the window
                         c.calculated_consumption += float(abs(delta)) * proportion_in_window
