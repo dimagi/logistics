@@ -69,7 +69,7 @@ def _get_cases_for_consumption_amount(condition, consumption):
     elif condition == CONDITION_MRDT:
         # 1 test kit treatment per case
         cases = consumption / 1
-    return cases, consumption_display
+    return round(cases), consumption_display
 
 def _build_condition_row(condition, supply_point, month):
     product = _get_product_for_condition(condition)
@@ -92,7 +92,7 @@ def _get_total_malaria_row(main_table_rows):
     for row in main_table_rows:
         if row[0] in (
                 CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
-                CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
+                CONDITION_UNCOMPLICATED_MALARIA_OLD,
                 CONDITION_SEVERE_MALARIA):
             total += row[3]
     return ['Total Malaria Cases', '-', '-', total]
@@ -121,7 +121,7 @@ class View(warehouse_view.MalawiWarehouseView):
         main_table_headers = [
             'Condition',
             'Product',
-            'Medicines/Commodities Dispensed',
+            'Products Dispensed',
             '# Cases',
         ]
         main_table_rows = self._get_main_table_rows(reporting_sp, month)
