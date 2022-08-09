@@ -48,8 +48,8 @@ class OrderRequestAdmin(admin.ModelAdmin):
 
 class CalculatedConsumptionAdmin(admin.ModelAdmin):
     model = CalculatedConsumption
-    list_display = ('supply_point', 'date', 'product', 'calculated_consumption', 
-                    'time_stocked_out', 'time_with_data', 'time_needing_data')
+    # list_display = ('supply_point', 'date', 'product', 'calculated_consumption',
+    #                 'time_stocked_out', 'time_with_data', 'time_needing_data')
     list_filter = ('supply_point__type', 'date', 'product')
 
 class CurrentConsumptionAdmin(admin.ModelAdmin):

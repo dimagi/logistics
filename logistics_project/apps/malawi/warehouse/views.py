@@ -11,9 +11,9 @@ from logistics.decorators import place_in_request
 from logistics_project.apps.malawi.warehouse.report_utils import datespan_default,\
     table_to_csv
 
-from logistics_project.apps.malawi.warehouse.report_views import dashboard, emergency_orders,\
-    order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, stock_status,\
-    lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc
+from logistics_project.apps.malawi.warehouse.report_views import (dashboard, emergency_orders,
+    order_fill_rates, resupply_qts_required, alert_summary, consumption_profiles, data_reconciliation, stock_status,
+    lead_times, reporting_rate, user_profiles, hsas, health_facilities, ad_hoc)
 from logistics_project.apps.malawi.util import get_or_create_user_profile
 from logistics.util import config
 from logistics_project.utils.parsing import string_to_boolean
@@ -27,6 +27,7 @@ reports_slug_map = {
     're-supply-qts-required': resupply_qts_required,
     'alert-summary': alert_summary,
     'consumption-profiles': consumption_profiles,
+    'data-reconciliation': data_reconciliation,
     'stock-status': stock_status,
     'lead-times': lead_times,
     'reporting-rate': reporting_rate,

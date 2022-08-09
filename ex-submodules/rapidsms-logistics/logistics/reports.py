@@ -580,8 +580,7 @@ class SupplyPointRow(object):
         if self.commodity_filter is not None:
             return self.supply_point.consumption(product=self.commodity_filter,
                                                  producttype=self.commoditytype_filter)
-        
-    
+
 
 class HSASupplyPointRow(SupplyPointRow):
     
@@ -595,7 +594,6 @@ class HSASupplyPointRow(SupplyPointRow):
         return [self.supply_point]
     
 
-
 class FacilitySupplyPointRow(SupplyPointRow):
     
     @property
@@ -607,10 +605,16 @@ class FacilitySupplyPointRow(SupplyPointRow):
         # aggregate over all children
         return self.supply_point.location.all_child_facilities()
 
-def calc_percentage(a, b):
+
+def format_percentage(a, b):
+    return f'{calc_percentage(a, b)}%'
+
+
+def calc_percentage(a, b, precision=None):
     if not (a and b):
-        return 0 # Don't return ugly NaN
-    return int((float(a) / float(b)) * 100.0)
+        return 0  # Don't return ugly NaN
+
+    return round((float(a) / float(b)) * 100.0, precision)
 
 def get_reporting_and_nonreporting_facilities(deadline, location):
     """
