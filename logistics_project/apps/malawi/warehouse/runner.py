@@ -388,9 +388,22 @@ def update_consumption_values(transactions):
                     secs_in_window = delta_secs(end_date-start_date)
                     proportion_in_window = secs_in_window / (delta_secs(total_timedelta)) if secs_in_window else 0
                     assert proportion_in_window <= 1
-                    c = CalculatedConsumption.objects.get_or_create\
-                        (supply_point=start.supply_point, date=window_date, 
-                         product=start.product)[0]
+                    try:
+                        c = CalculatedConsumption.objects.get_or_create(
+                            supply_point=start.supply_point,
+                            date=window_date,
+                            product=start.product
+                        )[0]
+                    except CalculatedConsumption.MultipleObjectsReturned:
+                        # if multiple objects returned, use the most recently updated and delete the rest
+                        all_consumptions = CalculatedConsumption.objects.filter(
+                            supply_point=start.supply_point,
+                            date=window_date,
+                            product=start.product,
+                        ).order_by('-update_date')
+                        c = all_consumptions[0]
+                        for legacy_consumption in all_consumptions[1:]:
+                            legacy_consumption.delete()
                     if delta < 0:
                         # update the consumption by adding the proportion in the window
                         c.calculated_consumption += float(abs(delta)) * proportion_in_window
