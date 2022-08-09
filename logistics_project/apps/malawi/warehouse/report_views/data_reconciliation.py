@@ -177,5 +177,3 @@ class View(warehouse_view.MalawiWarehouseView):
             _build_condition_row(condition, supply_point, month)
             for condition in CONDITIONS
         ]
-
-
