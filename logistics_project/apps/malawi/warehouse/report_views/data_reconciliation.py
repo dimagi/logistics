@@ -6,21 +6,21 @@ from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
 CONDITION_DIARRHEA = "Diarrhea"
 CONDITION_UNCOMPLICATED_MALARIA_YOUNG = "Uncomplicated Malaria (5 - 35 months)"
 CONDITION_UNCOMPLICATED_MALARIA_OLD = "Uncomplicated Malaria (36 - 59 months)"
+CONDITION_SEVERE_MALARIA = "Severe malaria (All age groups)"
+CONDITION_MRDT = "MRDT"
 CONDITION_PNEUMONIA_YOUNG = "Fast breathing - Pneumonia (2 - 11 months)"
 CONDITION_PNEUMONIA_OLD = "Fast breathing - Pneumonia (12 - 59 months)"
-CONDITION_SEVERE_MALARIA = "Severe malaria (All age groups)"
 CONDITION_MALNUTRITION = "Malnutrition"
-CONDITION_MRDT = "MRDT"
 
 CONDITIONS = [
     CONDITION_DIARRHEA,
     CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
     CONDITION_UNCOMPLICATED_MALARIA_OLD,
+    CONDITION_SEVERE_MALARIA,
+    CONDITION_MRDT,
     CONDITION_PNEUMONIA_YOUNG,
     CONDITION_PNEUMONIA_OLD,
-    CONDITION_SEVERE_MALARIA,
     CONDITION_MALNUTRITION,
-    CONDITION_MRDT,
 ]
 
 
@@ -54,12 +54,12 @@ def _get_cases_for_consumption_amount(condition, consumption):
         # 3/17th of the pills (30% of cases) go @ 10 per case
         used_consumption = (consumption * 3 / 17)
         cases = used_consumption / 10
-        consumption_display = f'{int(used_consumption)} (of {consumption})'
+        consumption_display = f'{int(used_consumption)} (of {consumption})*'
     elif condition == CONDITION_PNEUMONIA_OLD:
         # 14/17th of the pills (70% of cases) go @ 20 per case
         used_consumption = (consumption * 14 / 17)
         cases = used_consumption / 20
-        consumption_display = f'{int(used_consumption)} (of {consumption})'
+        consumption_display = f'{int(used_consumption)} (of {consumption})*'
     elif condition == CONDITION_SEVERE_MALARIA:
         # Dosage per case: 1 suppository
         cases = consumption / 1
@@ -125,15 +125,16 @@ class View(warehouse_view.MalawiWarehouseView):
             '# Cases',
         ]
         main_table_rows = self._get_main_table_rows(reporting_sp, month)
-        extra_rows = [
-            _get_total_malaria_row(main_table_rows),
-            _get_total_pneumonia_row(main_table_rows),
-        ]
+        malaria_total_row = _get_total_malaria_row(main_table_rows)
+        pneumonia_total_row = _get_total_pneumonia_row(main_table_rows)
+        main_table_rows.insert(4, malaria_total_row)
+        main_table_rows.insert(8, pneumonia_total_row)
+
         main_table = {
             "is_datatable": False,
             "is_downloadable": False,
             "header": main_table_headers,
-            "data": main_table_rows + extra_rows,
+            "data": main_table_rows,
         }
 
         uncomplicated_malaria_young_cases = _get_data_row_by_condition(
