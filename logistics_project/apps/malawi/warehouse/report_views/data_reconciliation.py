@@ -95,7 +95,7 @@ def _get_total_malaria_row(main_table_rows):
                 CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
                 CONDITION_SEVERE_MALARIA):
             total += row[3]
-    return ['Total Malaria Cases', total, '-', '-']
+    return ['Total Malaria Cases', '-', '-', total]
 
 
 def _get_total_pneumonia_row(main_table_rows):
@@ -105,7 +105,7 @@ def _get_total_pneumonia_row(main_table_rows):
                 CONDITION_PNEUMONIA_YOUNG,
                 CONDITION_PNEUMONIA_OLD):
             total += row[3]
-    return ['Total Fast breathing - Pneumonia Cases', total, '-', '-']
+    return ['Total Fast breathing - Pneumonia Cases', '-', '-', total]
 
 
 def _get_data_row_by_condition(rows, condition):
