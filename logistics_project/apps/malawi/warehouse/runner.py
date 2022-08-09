@@ -482,7 +482,14 @@ def _init_with_base_level(cls, supply_point, date, base_level):
 
 def _init_with_product(cls, supply_point, date, base_level):
     for p in get_products(base_level):
-        cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
+        try:
+            cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
+        except cls.MultipleObjectsReturned:
+            # cleanup errantly created values
+            qs = cls.objects.filter(supply_point=supply_point, date=date, product=p).order_by('-update_date')
+            for legacy in qs[1:]:
+                legacy.delete()
+
 
 
 def update_consumption(report_period, base_level, products_managed=None):
