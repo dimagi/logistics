@@ -610,10 +610,11 @@ def format_percentage(a, b):
     return f'{calc_percentage(a, b)}%'
 
 
-def calc_percentage(a, b):
+def calc_percentage(a, b, precision=None):
     if not (a and b):
-        return 0 # Don't return ugly NaN
-    return int((float(a) / float(b)) * 100.0)
+        return 0  # Don't return ugly NaN
+
+    return round((float(a) / float(b)) * 100.0, precision)
 
 def get_reporting_and_nonreporting_facilities(deadline, location):
     """
