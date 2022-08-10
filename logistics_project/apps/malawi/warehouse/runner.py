@@ -697,9 +697,12 @@ def _update_product_availability(supply_point, report_period, all_products, prod
     # need current information, the models can be cleaned
     # up a bit
     for p in all_products:
-        product_data, created = ProductAvailabilityData.objects.get_or_create\
-            (product=p, supply_point=supply_point,
-             date=report_period.window_date)
+        product_data, created = get_or_create_singular_model(
+            ProductAvailabilityData,
+            product=p,
+            supply_point=supply_point,
+            date=report_period.window_date
+        )
 
         if created:
             # initally assume we have no data on anything
@@ -749,10 +752,12 @@ def _update_product_availability(supply_point, report_period, all_products, prod
         product_data.save()
 
     # update the summary data
-    product_summary = ProductAvailabilityDataSummary.objects.get_or_create\
-        (supply_point=supply_point,
-         date=report_period.window_date,
-         base_level=base_level)[0]
+    product_summary = get_or_create_singular_model(
+        ProductAvailabilityDataSummary,
+        supply_point=supply_point,
+        date=report_period.window_date,
+        base_level=base_level
+    )[0]
     product_summary.total = 1
 
     if products_managed:
@@ -787,9 +792,12 @@ def _update_lead_times(hsa, report_period):
         responded_on__lt=report_period.period_end,
         supply_point=hsa
     ).exclude(requested_on=None)
-    or_tt = TimeTracker.objects.get_or_create\
-        (supply_point=hsa, date=report_period.window_date,
-         type=TimeTrackerTypes.ORD_READY)[0]
+    or_tt = get_or_create_singular_model(
+        TimeTracker,
+        supply_point=hsa,
+        date=report_period.window_date,
+        type=TimeTrackerTypes.ORD_READY
+    )[0]
     for r in requests_in_range:
         lt = delta_secs(r.responded_on - r.requested_on)
         or_tt.time_in_seconds += lt
@@ -802,9 +810,12 @@ def _update_lead_times(hsa, report_period):
         received_on__lt=report_period.period_end,
         supply_point=hsa
     ).exclude(responded_on=None)
-    rr_tt = TimeTracker.objects.get_or_create\
-        (supply_point=hsa, date=report_period.window_date,
-         type=TimeTrackerTypes.READY_REC)[0]
+    rr_tt = get_or_create_singular_model(
+        TimeTracker,
+        supply_point=hsa,
+        date=report_period.window_date,
+        type=TimeTrackerTypes.READY_REC
+    )[0]
     for r in requests_in_range:
         lt = delta_secs(r.received_on - r.responded_on)
         rr_tt.time_in_seconds += lt
@@ -819,8 +830,12 @@ def _update_order_requests(hsa, report_period, all_products):
         supply_point=hsa
     )
     for p in all_products:
-        ord_req = OrderRequest.objects.get_or_create\
-            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        ord_req = get_or_create_singular_model(
+            OrderRequest,
+            supply_point=hsa,
+            date=report_period.window_date,
+            product=p,
+        )[0]
         ord_req.total += requests_in_range.filter(product=p).count()
         ord_req.emergency += requests_in_range.filter(product=p, is_emergency=True).count()
         ord_req.save()
@@ -833,8 +848,12 @@ def _update_order_fulfillment(hsa, report_period, all_products):
         supply_point=hsa,
     ).exclude(Q(amount_requested=None) | Q(amount_received=None))
     for p in all_products:
-        order_fulfill = OrderFulfillment.objects.get_or_create\
-            (supply_point=hsa, date=report_period.window_date, product=p)[0]
+        order_fulfill = get_or_create_singular_model(
+            OrderFulfillment,
+            supply_point=hsa,
+            date=report_period.window_date,
+            product=p,
+        )[0]
         for r in requests_in_range.filter(product=p):
             order_fulfill.total += 1
             order_fulfill.quantity_requested += r.amount_requested
@@ -847,9 +866,12 @@ def _update_historical_stock(supply_point, report_period, all_products):
     # set the historical stock values to the last report before
     # the end of the period (even if it's not in the period)
     for p in all_products:
-        hs = HistoricalStock.objects.get_or_create\
-            (supply_point=supply_point, date=report_period.window_date, product=p)[0]
-
+        hs = get_or_create_singular_model(
+            HistoricalStock,
+            supply_point=supply_point,
+            date=report_period.window_date,
+            product=p,
+        )[0]
         transactions = StockTransaction.objects.filter(
             supply_point=supply_point,
             product=p,
