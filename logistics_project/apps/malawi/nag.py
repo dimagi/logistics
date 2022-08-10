@@ -188,13 +188,13 @@ def send_nag_messages(warnings):
                 if datetime.utcnow() - last_nag_date < timedelta(hours=MIN_NAG_INTERVAL):
                     continue 
             try:
-                
                 contact = Contact.objects.get(supply_point=hsa, is_active=True)
                 connection = get_ussd_connection(contact.default_connection)
                 send_message(connection, w["message"] % {'hsa': contact.name, 'days': w['days']})
                 NagRecord(supply_point=hsa, warning=w["number"],nag_type=w['code']).save()
             except Contact.DoesNotExist:
-                logging.warning("Contact does not exist for HSA: %s" % hsa.name)
+                # these warnings are no longer useful and clogging up the logs
+                # logging.warning("Contact does not exist for HSA: %s" % hsa.name)
                 continue
             except Contact.MultipleObjectsReturned:
                 logging.warning("More than one active contact found for HSA: %s" % hsa.name)
