@@ -482,19 +482,12 @@ def update_alerts(hsas):
 
 
 def _init_with_base_level(cls, supply_point, date, base_level):
-    cls.objects.get_or_create(supply_point=supply_point, date=date, base_level=base_level)
+    get_or_create_singular_model(cls, supply_point=supply_point, date=date, base_level=base_level)
 
 
 def _init_with_product(cls, supply_point, date, base_level):
     for p in get_products(base_level):
-        try:
-            cls.objects.get_or_create(supply_point=supply_point, date=date, product=p)
-        except cls.MultipleObjectsReturned:
-            # cleanup errantly created values
-            qs = cls.objects.filter(supply_point=supply_point, date=date, product=p).order_by('-update_date')
-            for legacy in qs[1:]:
-                legacy.delete()
-
+        get_or_create_singular_model(cls, supply_point=supply_point, date=date, product=p)
 
 
 def update_consumption(report_period, base_level, products_managed=None):
@@ -502,10 +495,11 @@ def update_consumption(report_period, base_level, products_managed=None):
         products_managed = get_managed_product_ids(report_period.supply_point, base_level)
 
     for p in get_products(base_level):
-        c = CalculatedConsumption.objects.get_or_create(
+        c = get_or_create_singular_model(
+            CalculatedConsumption,
             supply_point=report_period.supply_point,
             date=report_period.window_date,
-            product=p
+            product=p,
         )[0]
 
         start_time = max(report_period.supply_point.created_at,
@@ -582,7 +576,7 @@ def update_historical_data_for_supply_point(sp, start=None, end=None):
             _init_with_base_level(cls, sp, window_date, BaseLevel.HSA)
 
         for tt_type in TIME_TRACKER_TYPES:
-            TimeTracker.objects.get_or_create(supply_point=sp, date=window_date, type=tt_type[0])
+            get_or_create_singular_model(TimeTracker, supply_point=sp, date=window_date, type=tt_type[0])
 
     if settings.ENABLE_FACILITY_WORKFLOWS and sp.type_id != SupplyPointCodes.HSA:
         if sp.created_at > BaseLevel.FACILITY_WAREHOUSE_START_DATE:
