@@ -653,11 +653,12 @@ def _update_reporting_rate(supply_point, report_period, products_managed, base_l
         report_date__gte=report_period.period_start,
         report_date__lte=report_period.period_end,
     )
-    period_rr = ReportingRate.objects.get_or_create(
+    period_rr = get_or_create_singular_model(
+        ReportingRate,
         supply_point=supply_point,
         date=report_period.window_date,
         base_level=base_level,
-    )[0]
+    )
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
     if reports_in_range:
