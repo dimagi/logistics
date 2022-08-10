@@ -339,7 +339,7 @@ def update_current_consumption(supply_point, base_level):
             CurrentConsumption,
             supply_point=supply_point,
             product=p
-        )
+        )[0]
         consumption.total = 1
         try:
             ps = ProductStock.objects.get(supply_point=supply_point,
@@ -356,13 +356,13 @@ def get_or_create_singular_model(reporting_model_class, **query_kwargs):
     try:
         return reporting_model_class.objects.get_or_create(
             **query_kwargs
-        )[0]
+        )
     except reporting_model_class.MultipleObjectsReturned:
         # if multiple objects returned, use the most recently updated and delete the rest
         all_objects = reporting_model_class.objects.filter(**query_kwargs).order_by('-update_date')
         for legacy_model in all_objects[1:]:
             legacy_model.delete()
-        return all_objects[0]
+        return all_objects[0], False
 
 
 def update_consumption_values(transactions):
@@ -408,7 +408,7 @@ def update_consumption_values(transactions):
                         supply_point=start.supply_point,
                         date=window_date,
                         product=start.product
-                    )
+                    )[0]
                     if delta < 0:
                         # update the consumption by adding the proportion in the window
                         c.calculated_consumption += float(abs(delta)) * proportion_in_window
@@ -658,7 +658,7 @@ def _update_reporting_rate(supply_point, report_period, products_managed, base_l
         supply_point=supply_point,
         date=report_period.window_date,
         base_level=base_level,
-    )
+    )[0]
     period_rr.total = 1
     period_rr.reported = 1 if reports_in_range else period_rr.reported
     if reports_in_range:
