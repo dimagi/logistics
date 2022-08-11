@@ -304,8 +304,11 @@ def _aggregate_raw(modelclass, supply_point, base_supply_points, fields,
     if supply_point == get_country_sp():
         base_supply_points = base_supply_points.exclude(code='99')
 
-    period_instance = modelclass.objects.get_or_create\
-        (supply_point=supply_point, **additonal_query_params)[0]
+    period_instance = get_or_create_singular_model(
+        modelclass,
+        supply_point=supply_point,
+        **additonal_query_params
+    )[0]
     children_qs = modelclass.objects.filter\
         (supply_point__in=base_supply_points, **additonal_query_params)
 
