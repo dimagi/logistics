@@ -54,12 +54,12 @@ def _get_cases_for_consumption_amount(condition, consumption):
         # 3/17th of the pills (30% of cases) go @ 10 per case
         used_consumption = (consumption * 3 / 17)
         cases = used_consumption / 10
-        consumption_display = f'{int(used_consumption)}'
+        consumption_display = round(used_consumption)
     elif condition == CONDITION_PNEUMONIA_OLD:
         # 14/17th of the pills (70% of cases) go @ 20 per case
         used_consumption = (consumption * 14 / 17)
         cases = used_consumption / 20
-        consumption_display = f'{int(used_consumption)}'
+        consumption_display = round(used_consumption)
     elif condition == CONDITION_SEVERE_MALARIA:
         # Dosage per case: 1 suppository
         cases = consumption / 1
@@ -88,24 +88,25 @@ def _build_condition_row(condition, supply_point, month):
 
 
 def _get_total_malaria_row(main_table_rows):
-    total = 0
-    for row in main_table_rows:
-        if row[0] in (
-                CONDITION_UNCOMPLICATED_MALARIA_YOUNG,
-                CONDITION_UNCOMPLICATED_MALARIA_OLD,
-                CONDITION_SEVERE_MALARIA):
-            total += row[3]
-    return ['Total Malaria Cases', '-', '-', total]
-
+    return _get_total_row(
+        main_table_rows, 'Total Malaria Cases',
+        (CONDITION_UNCOMPLICATED_MALARIA_YOUNG, CONDITION_UNCOMPLICATED_MALARIA_OLD, CONDITION_SEVERE_MALARIA),
+    )
 
 def _get_total_pneumonia_row(main_table_rows):
-    total = 0
+    return _get_total_row(main_table_rows, 'Total Fast breathing - Pneumonia Cases',
+                          (CONDITION_PNEUMONIA_YOUNG, CONDITION_PNEUMONIA_OLD))
+
+def _get_total_row(main_table_rows, title, matching_conditions):
+    total_cases = total_dispensed = 0
     for row in main_table_rows:
-        if row[0] in (
-                CONDITION_PNEUMONIA_YOUNG,
-                CONDITION_PNEUMONIA_OLD):
-            total += row[3]
-    return ['Total Fast breathing - Pneumonia Cases', '-', '-', total]
+        if row[0] in matching_conditions:
+            total_dispensed += row[2]
+            total_cases += row[3]
+
+    def _strong(value):
+        return f'<strong>{value}</strong>'
+    return [_strong(v) for v in [title, '-', total_dispensed, total_cases]]
 
 
 def _get_data_row_by_condition(rows, condition):
