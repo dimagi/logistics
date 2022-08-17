@@ -7,7 +7,7 @@ CONDITION_DIARRHEA = "Diarrhea"
 CONDITION_UNCOMPLICATED_MALARIA_YOUNG = "Uncomplicated Malaria (5 - 35 months)"
 CONDITION_UNCOMPLICATED_MALARIA_OLD = "Uncomplicated Malaria (36 - 59 months)"
 CONDITION_SEVERE_MALARIA = "Severe malaria (All age groups)"
-CONDITION_MRDT = "MRDT"
+CONDITION_MRDT = "Malaria RDT"
 CONDITION_PNEUMONIA_YOUNG = "Fast breathing - Pneumonia (2 - 11 months)"
 CONDITION_PNEUMONIA_OLD = "Fast breathing - Pneumonia (12 - 59 months)"
 CONDITION_MALNUTRITION = "Malnutrition"
@@ -72,6 +72,12 @@ def _get_cases_for_consumption_amount(condition, consumption):
     return round(cases), consumption_display
 
 def _build_condition_row(condition, supply_point, month):
+    def _get_product_display_name(product):
+        if product.code == 'MT':
+            return "MRDTs"
+        else:
+            return product.name
+
     product = _get_product_for_condition(condition)
     consumption = CalculatedConsumption.objects.get(
         supply_point=supply_point,
@@ -81,7 +87,7 @@ def _build_condition_row(condition, supply_point, month):
     cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
-        product.name,
+        _get_product_display_name(product),
         consumption_display,
         cases,
     ]
