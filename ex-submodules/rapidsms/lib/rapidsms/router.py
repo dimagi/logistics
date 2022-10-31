@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-from django.db import close_old_connections
+from django.db import close_old_connections, connection
 from future import standard_library
 
 standard_library.install_aliases()
@@ -444,3 +444,10 @@ class Router(LoggerMixin):
 # Backend, which have their own .router property), but when it is, it
 # should be done via this process global
 router = Router()
+
+
+def check_connections():
+    with connection.cursor() as cursor:
+        cursor.execute("show status where `variable_name` = 'Threads_connected'",);
+        row = cursor.fetchone()
+        return row
