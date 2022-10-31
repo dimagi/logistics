@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.db import close_old_connections
+from django.db import connection
 from future import standard_library
 standard_library.install_aliases()
 import cgi
@@ -184,7 +184,7 @@ class App(AppBase):
                     (app.__class__.__name__, meth_name, args))
                 output = method(*args)
                 self.server.app.debug("Response: %s" % output)
-                close_old_connections()
+                connection.close()
                 return response(200, output)
 
             # something raised during the request, so return a useless
