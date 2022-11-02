@@ -13,6 +13,7 @@ def check_max_levels_malawi(stock_report):
     allowable threshold of stock is being reported it throws a validation error
     """
     hard_coded_max_thresholds = {
+        "am": 1000,
         "cl": 100,
         "cf": 1000,
         "cm": 1000,
@@ -24,10 +25,12 @@ def check_max_levels_malawi(stock_report):
         "la": 2000,
         "lb": 2000,
         "lc": 300,
+        "mt": 1000,
         "or": 500,
         "pa": 2000,
         "pb": 1000,
         "po": 100,
+        "ra": 100,
         "ss": 100,
         "te": 100,
         "un": 100,
@@ -46,7 +49,8 @@ def check_max_levels_malawi(stock_report):
         "sd": 10000,
         "sf": 1000,
     }
-    MAX_REPORT_LEVEL_FACTOR = 3
+    MAX_REPORT_LEVEL_FACTOR = 6
+
     def _over_static_threshold(product_code, stock):
         return (
             not product_code or   # unknown, consider over
