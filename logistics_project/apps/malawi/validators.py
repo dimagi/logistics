@@ -13,6 +13,7 @@ def check_max_levels_malawi(stock_report):
     allowable threshold of stock is being reported it throws a validation error
     """
     hard_coded_max_thresholds = {
+        "ab": 200,
         "am": 1000,
         "cl": 100,
         "cf": 1000,
