@@ -26,6 +26,7 @@ def check_max_levels_malawi(stock_report):
         "la": 2000,
         "lb": 2000,
         "lc": 300,
+        "mb": 300,
         "mt": 1000,
         "or": 500,
         "pa": 2000,
