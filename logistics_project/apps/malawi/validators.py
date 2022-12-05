@@ -43,6 +43,7 @@ def check_max_levels_malawi(stock_report):
         "pe": 21000,
         "pn": 21000,
         "ro": 15000,
+        "ru": 500,
         "me": 18000,
         "tv": 24000,
         "sa": 10000,
