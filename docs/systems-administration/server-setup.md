@@ -116,3 +116,56 @@ pip install -r requirements.txt
 
 Copy your localsettings across from the previous production project and edit anything relevant
 (e.g. database credentials)
+
+**If you are able to run `./manage.py runserver` with no issues, things are likely working as expected.**
+
+# Install and configure nginx
+
+By following [this guide](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04).
+
+Then create a new site in `/etc/nginx/sites-available/` based off the following.
+You will have to adjust hosts, ports, and file paths to match your setup.
+
+```
+upstream cstock {
+  # fail_timeout=0 means we always retry an upstream even if it failed
+  # to return a good HTTP response (in case the Unicorn master nukes a
+  # single worker for timing out).
+  server localhost:9095 fail_timeout=0;
+}
+
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name cstock.jsi.com;
+
+  # don't forward traffic from unexpected hosts.
+  # this prevents a flood of django.security.DisallowedHost errors from bots/spammers, etc.
+  if ($host !~* ^(cstock.jsi.com|localhost|127.0.0.1)$ ) {
+    return 444;
+  }
+
+
+  # Serve static files from nginx
+  location /static/ {
+    alias  /home/cstock/www/code_root/static_root/;
+  }
+
+
+  location / {
+
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 300s;
+    proxy_redirect off;
+
+    if (!-f $request_filename) {
+       proxy_pass http://cstock;
+       break;
+    }
+  }
+
+}
+```
