@@ -245,3 +245,14 @@ stderr_logfile=/home/cstock/www/cstock/log/gunicorn.error.log
 autostart=true
 autorestart=true
 ```
+
+
+# Set up and configure Kannel (SMS gateway)
+
+```
+sudo apt install kannel
+```
+
+Update your `/etc/kannel/kannel.conf` file based on the example [provided here](https://github.com/dimagi/logistics/blob/main/deploy/kannel/kannel.conf)
+
+You will have to provide appropriate passwords.
