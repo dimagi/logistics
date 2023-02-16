@@ -96,6 +96,33 @@ source /home/cstock/.local/bin/virtualenvwrapper.sh
 If you run into errors, check your environment variables and update your `.profile` as described
 [here](https://askubuntu.com/a/995130) and [here](https://virtualenvwrapper.readthedocs.io/en/latest/).
 
+# Install Redis
+
+Following [this guide](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-20-04).
+
+```
+sudo apt install redis-server
+```
+
+Then change `/etc/redis/redis.conf` to have
+
+```
+supervised systemd
+```
+
+As described in the article.
+
+None of the other steps are required.
+
+# Create project directories
+
+As the *cstock* user, set up your project directories:
+
+```
+mkdir -p ~/www/cstock/
+mkdir -p ~/www/cstock/log/
+```
+
 # Set up cstock
 
 Set up cstock code according to the [Dev Setup Instructions](../dev-setup.md).
@@ -103,7 +130,6 @@ Set up cstock code according to the [Dev Setup Instructions](../dev-setup.md).
 As the *cstock* user, set up your code directory and Python environment:
 
 ```
-mkdir -p ~/www/cstock/
 cd ~/www/cstock/
 git clone https://github.com/dimagi/logistics.git code_root
 cd code_root
@@ -168,4 +194,54 @@ server {
   }
 
 }
+```
+
+## Install and configure supervisord
+
+Follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps)
+to set up supervisord.
+
+```
+sudo apt install supervisor
+```
+
+Then create a supervisord configuration file that looks something like this.
+Save it to `/etc/supervisor/conf.d/cstock.conf`.
+Like nginx, you'll have to tweak paths and such.
+
+
+```
+[program:rapidsms-router]
+process_name=rapidsms-router
+command=/home/cstock/.virtualenvs/cstock/bin/python /home/cstock/www/cstock/code_root/manage.py runrouter 
+directory=/home/cstock/www/cstock/code_root/
+user=cstock
+autostart=true
+autorestart=true
+stdout_logfile=/home/cstock/www/cstock/log/rapidsms.log
+redirect_stderr=true
+stderr_logfile=/home/cstock/www/cstock/log/rapidsms.error.log
+
+[program:celery]
+;command=/usr/bin/python /usr/local/bin/celery -A logistics_project worker -l info -B
+command=/home/cstock/.virtualenvs/cstock/bin/celery -A logistics_project worker -l info -B
+directory=/home/cstock/www/cstock/code_root/
+user=cstock
+numprocs=1
+stdout_logfile=/home/cstock/www/cstock/log/celery.log
+stderr_logfile=/home/cstock/www/cstock/log/celery.error.log
+autostart=true
+autorestart=true
+startsecs=10
+stopwaitsecs = 600
+priority=998
+
+[program:gunicorn]
+command=/home/cstock/.virtualenvs/cstock/bin/gunicorn -w 4 logistics_project.wsgi --bind 127.0.0.1:9095 --log-file /home/cstock/www/cstock/log/gunicorn.command.log --log-level debug --timeout 300
+directory=/home/cstock/www/cstock/code_root/
+user=cstock
+stdout_logfile=/home/cstock/www/cstock/log/gunicorn.log
+stderr_logfile=/home/cstock/www/cstock/log/gunicorn.error.log
+autostart=true
+autorestart=true
 ```
