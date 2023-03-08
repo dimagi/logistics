@@ -434,7 +434,7 @@ def manage_hsas(request):
 
 def manage_hsa(request, pk):
     hsa = get_object_or_404(SupplyPoint, pk=pk)
-    phone_numbers = [c.default_connection.identity for c in hsa.contact_set.all()]
+    phone_numbers = [c.default_connection.identity for c in hsa.contact_set.all() if c.default_connection]
     return render(request,
         "%s/hsa.html" % settings.MANAGEMENT_FOLDER,
         {
