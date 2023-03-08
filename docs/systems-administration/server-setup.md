@@ -256,3 +256,16 @@ sudo apt install kannel
 Update your `/etc/kannel/kannel.conf` file based on the example [provided here](https://github.com/dimagi/logistics/blob/main/deploy/kannel/kannel.conf)
 
 You will have to provide appropriate passwords.
+
+Additionally, you will need to disable the wapbox and enable smsbox by editing `/etc/default/kannel` as follows:
+
+```
+#START_WAPBOX=1
+START_SMSBOX=1
+```
+
+Finally restart kannel:
+
+```
+sudo service kannel restart
+```
