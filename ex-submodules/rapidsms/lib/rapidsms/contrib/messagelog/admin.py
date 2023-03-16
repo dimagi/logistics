@@ -8,8 +8,7 @@ from .models import Message
 
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ("text", "direction", "who", "date")
-    list_filter = ("direction", "date")
-
+    list_display = ("text", "direction", "who", "date", "connection")
+    list_filter = ("direction", "date", "connection__backend")
 
 admin.site.register(Message, MessageAdmin)
