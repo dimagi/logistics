@@ -196,7 +196,24 @@ server {
 }
 ```
 
-## Install and configure supervisord
+## Set up SSL
+
+Install certbot
+
+```bash
+sudo apt install certbot
+sudo apt install python3-certbot-nginx
+```
+
+Configure nginx:
+
+```bash
+sudo certbot --nginx -d cstock.dimagi.com
+```
+
+Follow the steps, and you're done.
+
+# Install and configure supervisord
 
 Follow [these instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps)
 to set up supervisord.
