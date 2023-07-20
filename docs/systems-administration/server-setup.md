@@ -13,6 +13,14 @@ adduser cstock
 
 This user will be the one to run cstock and other related processes.
 
+## Make the cstock user a sudoer
+
+This will allow them to run necessary commands as root.
+
+```
+sudo usermod -aG sudo cstock
+```
+
 # Install and configure MySQL
 
 Follow [this guide](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04) to install MySQL.
@@ -30,15 +38,20 @@ Replace the password with the one you want to set.
 $ sudo mysql
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '***';
 mysql> \q
-$ mysql -u root -p
-mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;
-mysql> \q
 ```
 
 ## Secure installation
 
 ```
 sudo mysql_secure_installation
+```
+
+## Restore user-based access
+
+```
+$ mysql -u root -p
+mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH auth_socket;
+mysql> \q
 ```
 
 ## Create cstock database user
@@ -62,29 +75,40 @@ mysql> \q
 
 # Restore cstock database
 
-Get a database backup and copy it to the server using `rsync`:
+If you haven't already, take a backup of the database from whatever server it is running on:
 
 ```
-rsync -P -e ssh cstock_2023-02-08_06h25m.Wednesday.sql.gz root@cstock.codero:
+sudo mysqldump -v cstock > cstock_database.sql
+gzip cstock_database.sql
+```
+
+When you have it, copy the backup to the server using `rsync`.
+If the servers cannot access each other you might have to do this in two steps, first
+copying the file to your own machine, as follows:
+
+```
+rsync -P -e ssh user@oldserver:cstock_database.sql.gz ./
+rsync -P -e ssh ./cstock_database.sql.gz user@newserver: 
 ```
 
 When it completes, unzip and restore it:
 
 ```
-gunzip cstock_2023-02-08_06h25m.Wednesday.sql.gz
-mysql < cstock_2023-02-08_06h25m.Wednesday.sql
+gunzip cstock_database.sql.gz
+sudo mysql cstock < cstock_database.sql
 ```
 
-Note: the above restore had to be run as root due to permissions issues.
-
+Note: the above restore usually has to be run as root due to permissions issues.
 
 # Install Python 3.9, pip, virtualenv, virtualenvwrapper, mysql dependencies
 
+**For these steps, be sure you are logged in as the *cstock* user.**
+
 ```
 sudo add-apt-repository ppa:deadsnakes/ppa
-sudo apt install python3.9 python3.9-dev libmysqlclient-dev
+sudo apt install python3.9 python3.9-dev libmysqlclient-dev python3.9-distutils
 sudo apt install python3-pip
-python -m pip install --user virtualenv virtualenvwrapper
+python3 -m pip install --user virtualenv virtualenvwrapper
 ```
 
 # Set up virtualenvewrapper
@@ -111,6 +135,12 @@ supervised systemd
 ```
 
 As described in the article.
+
+Finally, restart with:
+
+```
+sudo systemctl restart redis.service
+```
 
 None of the other steps are required.
 
@@ -149,7 +179,13 @@ Copy your localsettings across from the previous production project and edit any
 
 By following [this guide](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-20-04).
 
-Then create a new site in `/etc/nginx/sites-available/` based off the following.
+```bash
+sudo apt install nginx
+```
+
+Follow the software firewall steps if you don't have any other firewall in place.
+
+Then create a new site named `cstock` in `/etc/nginx/sites-available/` based off the following.
 You will have to adjust hosts, ports, and file paths to match your setup.
 
 ```
@@ -164,11 +200,11 @@ server {
   listen 80;
   listen [::]:80;
 
-  server_name cstock.jsi.com;
+  server_name cstock.health.gov.mw
 
   # don't forward traffic from unexpected hosts.
   # this prevents a flood of django.security.DisallowedHost errors from bots/spammers, etc.
-  if ($host !~* ^(cstock.jsi.com|localhost|127.0.0.1)$ ) {
+  if ($host !~* ^(cstock.health.gov.mw|localhost|127.0.0.1)$ ) {
     return 444;
   }
 
@@ -195,6 +231,30 @@ server {
 
 }
 ```
+
+Then enable the file with:
+
+```
+ln -s /etc/nginx/sites-available/cstock /etc/nginx/sites-enabled/
+```
+
+And restart nginx:
+
+```
+sudo service nginx reload
+```
+
+## Set up static files
+
+In the cstock code home directory run:
+
+```
+python manage.py collectstatic
+```
+
+If static files are returning a 403 error, [check the permissions on the path](https://stackoverflow.com/a/6796648/8207).
+
+If static files are returning a 404 error, check the paths in the nginx configuration above.
 
 ## Set up SSL
 
@@ -263,6 +323,11 @@ autostart=true
 autorestart=true
 ```
 
+Once the file is set up correctly, you can add it to supervisor and start all the processes by running:
+
+```
+sudo supervisorctl reload
+```
 
 # Set up and configure Kannel (SMS gateway)
 
