@@ -18,7 +18,7 @@ class ContactAdmin(admin.ModelAdmin):
 
 class ConnectionAdmin(admin.ModelAdmin):
     model = Connection
-    list_display = ["contact", "backend", "identity"]
+    list_display = ["identity", "contact", "backend",]
     list_filter = ["backend", "contact"]
     search_fields = ["identity"]
 
