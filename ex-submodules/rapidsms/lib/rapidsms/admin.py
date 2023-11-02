@@ -18,11 +18,12 @@ class ContactAdmin(admin.ModelAdmin):
 
 class ConnectionAdmin(admin.ModelAdmin):
     model = Connection
-    list_display = ["backend", "identity", "contact"]
-    list_filter = ["backend", "identity", "contact"]
+    list_display = ["contact", "backend", "identity"]
+    list_filter = ["backend", "contact"]
+    search_fields = ["identity"]
 
 
 admin.site.register(App)
 admin.site.register(Backend)
-admin.site.register(Connection)
+admin.site.register(Connection, ConnectionAdmin)
 admin.site.register(Contact, ContactAdmin)
