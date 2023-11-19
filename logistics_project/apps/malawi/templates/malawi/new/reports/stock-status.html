@@ -61,4 +61,22 @@
         {% endwith %}
     </div>
 {% endif %}
+
+{% if product_map %}
+<div class="module">
+    <form method="get" class="selector">
+        <label for="map_product" id="map_product">Product: </label> 
+        <select name="map_product" id="map_product">
+            {% for p in products %}
+                <option value="{{ p.sms_code }}" {% if p.pk == selected_map_product.pk %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
+        <input type="submit" value="Go!" />
+    </form>
+    <h2>Current stock status by product (GIS)</h2>
+    {{ product_map|safe }}
+</div>
+{% endif %}
+
 {% endblock %}
