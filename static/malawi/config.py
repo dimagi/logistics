@@ -344,6 +344,11 @@ class Messages(object):
     APPROVAL_SUPERVISOR = "Successfully approved registration for %(hsa)s."
     APPROVAL_HSA = "Congratulations, your registration has been approved. Welcome to the cStock system, %(hsa)s."
 
+    # map supply point
+    MAP_HELP = "To map supply point, type map {latitude} {longitude}"
+    MAP_SUCCESS = "Done. %(sp_name)s has been mapped on the cStock system."
+    INVALID_COORDINATES = "Sorry, GIS coordinates are not valid. Please verify that the values are correct."
+
     # Other  Messages (usually for error conditions)
     NO_PRODUCTS_MANAGED = "Please add the products you manage before reporting. Text 'add <code> <code>...' for all products you manage, then send your report again."
     ALREADY_REGISTERED = "You are already registered. To change your information you must first text LEAVE"
@@ -357,7 +362,8 @@ class Messages(object):
     GENERIC_ERROR = "Sorry, something was wrong with that message. If you keep having trouble, contact your supervisor for help."
     NO_IN_CHARGE = "There is no supervisor registered for %(supply_point)s. Please contact your supervisor to resolve this."
     TOO_MUCH_STOCK = 'Your %(keyword)s amount is too much and the message has been rejected. please resend your %(keyword)s message.'
-    
+    NOT_REGISTERED = "We do not have a record of your registration. Nothing was done."
+
     # messages originally in logistics.models.py
     SUPERVISOR_TITLE = 'your supervisor'
     GET_HELP_MESSAGE = "Please contact your %(supervisor)s for assistance." % {'supervisor' : SUPERVISOR_TITLE}
