@@ -12,27 +12,27 @@ logger = logging.getLogger("django")
 
 
 class MapSupplyPointHandler(KeywordHandler):
-    """
-    Set the location of a supply point using "map"
-    """
+    """Set the location of a supply point using "map"."""
 
     keyword = "map"
 
     def help(self):
-        self.respond(config.Messages.MAP_HELP)
+        # only display help if contact is registered
+        if hasattr(self.msg,'logistics_contact'):
+            if self.msg.logistics_contact.supply_point.type == config.hsa_supply_point_type():
+                self.respond(_(config.Messages.MAPPING_HELP))
+            else:
+                self.respond(_(config.Messages.UNSUPPORTED_OPERATION))
+        else:
+            self.respond(_(config.Messages.NOT_REGISTERED))
 
     def handle(self, text):
-        if not hasattr(self.msg,'logistics_contact') or \
-           not self.msg.logistics_contact.is_active:
+        # only allow registered contact at hsa level
+        is_hsa = self.msg.logistics_contact.supply_point.type == config.hsa_supply_point_type()
+        
+        if not hasattr(self.msg,'logistics_contact') or is_hsa == False:
             self.respond(_(config.Messages.NOT_REGISTERED))
         else:
-            # self.msg.logistics_contact.is_active = False
-            # self.msg.logistics_contact.commodities.clear()
-            # self.msg.logistics_contact.save()
-            # if self.msg.logistics_contact.supply_point and \
-            #    self.msg.logistics_contact.supply_point.type == config.hsa_supply_point_type():
-            #     self.msg.logistics_contact.supply_point.deprecate()
-
             words = text.split()
             if len(words) < 2:
                 self.help()
@@ -42,24 +42,18 @@ class MapSupplyPointHandler(KeywordHandler):
 
                 if(self._validate_latitude(latitude) and self._validate_longitude(longitude)):
                     # create location record and link to supply point
-                    
+
                     logger.info("Mapping location")
                     point = Point(latitude=float(latitude), longitude=float(longitude))
                     point.save()
                     self.msg.connection.contact.supply_point.location.point = point
                     self.msg.connection.contact.supply_point.location.save()
-                    
-                    self.respond(_(config.Messages.MAP_SUCCESS), sp_name=self.msg.connection.contact.supply_point)
+
+                    self.respond(_(config.Messages.MAPPING_SUCCESS), sp_name=self.msg.connection.contact.supply_point)
                 else:
                     logger.info(config.Messages.INVALID_COORDINATES)
                     self.respond(_(config.Messages.INVALID_COORDINATES))
 
-            # try:
-            #     self.supply_point = SupplyPoint.objects.get(active=True, code__iexact=code)
-            # except SupplyPoint.DoesNotExist:
-            #     self.respond(_(config.Messages.UNKNOWN_LOCATION), code=code)
-            # self.respond(_(config.Messages.MAP_SUCCESS),
-            #              sp_name=self.supply_point.name)
 
     def _validate_latitude(self,latitude):
         if self._is_float(latitude):
