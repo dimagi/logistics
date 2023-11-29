@@ -345,8 +345,8 @@ class Messages(object):
     APPROVAL_HSA = "Congratulations, your registration has been approved. Welcome to the cStock system, %(hsa)s."
 
     # map supply point
-    MAP_HELP = "To map supply point, type map {latitude} {longitude}"
-    MAP_SUCCESS = "Done. %(sp_name)s has been mapped on the cStock system."
+    MAPPING_HELP = "To map supply point, type map {latitude} {longitude}"
+    MAPPING_SUCCESS = "Done. %(sp_name)s has been mapped on the cStock system."
     INVALID_COORDINATES = "Sorry, GIS coordinates are not valid. Please verify that the values are correct."
 
     # Other  Messages (usually for error conditions)
