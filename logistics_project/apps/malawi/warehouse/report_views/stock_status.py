@@ -21,7 +21,6 @@ from logistics_project.apps.malawi.warehouse.models import ProductAvailabilityDa
 from django.db.models.aggregates import Sum
 from django.shortcuts import get_object_or_404
 
-
 class View(warehouse_view.DistrictOnlyView):
 
     def _get_product_status_table(self, supply_points, product, date):
@@ -226,30 +225,42 @@ class View(warehouse_view.DistrictOnlyView):
             product = Product.by_code(selected_product.sms_code)
             product_suppliers = [sup for sup in suppliers if sup.supplies(product)]
 
-            # 3. Obtain location point details for each parent supply point
+            # 3. Obtain location point details for each supply point if available
             for supplier in product_suppliers:
-                # retrieve location coordinates if set otherwise default to health facility coordinates
-                if supplier.location.point is None:
-                    location_point = supplier.supplied_by.location.point
-                else:
+                # retrieve location coordinates if set otherwise do not display
+                if supplier.location.point:
                     location_point = supplier.location.point
+                else:
+                    continue
 
-                # 4. indicate stock status of hotspots using green, red and yellow following the thresholds of stock
+                # 4. indicate stock levels using color codes
                 current_stock = ProductStock.objects.get(supply_point=supplier, product=product)
-                # current_stock = supplier.stock(product)
+                current_quantity = current_stock.quantity
+                product_amc = product.average_monthly_consumption
+                product_eo_level = product.emergency_order_level
 
-                if current_stock.quantity is not None or product.average_monthly_consumption is not None:
-                    if current_stock.quantity >= product.average_monthly_consumption:
-                        stock_status_color = 'green'
-                    elif current_stock.quantity <= product.emergency_order_level:
-                        stock_status_color = 'red'
+                # only mark location if quantity, and either amc or eo level are set
+                if current_quantity:
+                    # if both amc and eo level set then any status can be set
+                    if product_amc and product_eo_level:
+                        if current_quantity >= product_amc:
+                            stock_status_color = 'green'
+                        elif current_quantity <= product_eo_level:
+                            stock_status_color = 'red'
+                        else:
+                            stock_status_color = 'blue'
+                    elif product_amc and product_eo_level is None:
+                        # if only product amc then either above amc or below
+                        if current_quantity >= product_amc:
+                            stock_status_color = 'green'
+                        else:
+                            stock_status_color = 'red'
                     else:
-                        stock_status_color = 'blue'
-    
+                        continue
+
                     # Define marker using supplier name, quantity, and stock status
-    
-                    label = f'{supplier.name} ({current_stock.quantity})'
-    
+                    label = f'{supplier.name} ({current_quantity})'
+
                     if location_point:
                         folium.Marker(
                             location=[location_point.latitude,
@@ -259,6 +270,8 @@ class View(warehouse_view.DistrictOnlyView):
                             icon=folium.Icon(color=stock_status_color)
                         ).add_to(product_map)
         except Product.DoesNotExist:
+            pass
+        except ProductStock.DoesNotExist:
             pass
 
         return product_map._repr_html_()
