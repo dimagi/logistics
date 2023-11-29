@@ -238,25 +238,26 @@ class View(warehouse_view.DistrictOnlyView):
                 current_stock = ProductStock.objects.get(supply_point=supplier, product=product)
                 # current_stock = supplier.stock(product)
 
-                if current_stock.quantity >= product.average_monthly_consumption:
-                    stock_status_color = 'green'
-                elif current_stock.quantity <= product.emergency_order_level:
-                    stock_status_color = 'red'
-                else:
-                    stock_status_color = 'blue'
-
-                # Define marker using supplier name, quantity, and stock status
-
-                label = f'{supplier.name} ({current_stock.quantity})'
-
-                if location_point:
-                    folium.Marker(
-                        location=[location_point.latitude,
-                                  location_point.longitude],
-                        tooltip=label,
-                        popup=label,
-                        icon=folium.Icon(color=stock_status_color)
-                    ).add_to(product_map)
+                if current_stock.quantity is not None or product.average_monthly_consumption is not None:
+                    if current_stock.quantity >= product.average_monthly_consumption:
+                        stock_status_color = 'green'
+                    elif current_stock.quantity <= product.emergency_order_level:
+                        stock_status_color = 'red'
+                    else:
+                        stock_status_color = 'blue'
+    
+                    # Define marker using supplier name, quantity, and stock status
+    
+                    label = f'{supplier.name} ({current_stock.quantity})'
+    
+                    if location_point:
+                        folium.Marker(
+                            location=[location_point.latitude,
+                                      location_point.longitude],
+                            tooltip=label,
+                            popup=label,
+                            icon=folium.Icon(color=stock_status_color)
+                        ).add_to(product_map)
         except Product.DoesNotExist:
             pass
 

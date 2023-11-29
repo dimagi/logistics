@@ -107,15 +107,26 @@ INSTALLED_BACKENDS = {
         "port": 8002,
         "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
         "sendsms_params": {"smsc": "airtel-smpp",
-                           "from": "56543", # not set automatically by SMSC
+                           "from": "399", # not set automatically by SMSC
                            "username": "rapidsms",
-                           "password": "CHANGEME"}, # set password in localsettings.py
+                           "password": "kannel"}, # set password in localsettings.py
         "coding": 0,
         "charset": "ascii",
         "encode_errors": "ignore", # strip out unknown (unicode) characters
     },
-    # tnm smpp (?)
-    # tester
+    "tnm-smpp-send": {
+        "ENGINE": "rapidsms.backends.kannel",
+        "host": "127.0.0.1",
+        "port": 8003,
+        "sendsms_url": "http://127.0.0.1:13013/cgi-bin/sendsms",
+        "sendsms_params": {"smsc": "tnm-smpp-send",
+                           "from": "399", # not set automatically by SMSC
+                           "username": "rapidsms",
+                           "password": "kannel"}, # set password in localsettings.py
+        "coding": 0,
+        "charset": "ascii",
+        "encode_errors": "ignore", # strip out unknown (unicode) characters
+    },
     "message_tester": {
         "ENGINE": "rapidsms.backends.bucket",
     },
