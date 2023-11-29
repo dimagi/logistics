@@ -1482,7 +1482,7 @@ class ProductReportsHelper(object):
         if the product can't be found.
         """
         try:
-            return Product.objects.get(sms_code__icontains=product_code)
+            return Product.objects.get(sms_code__iexact=product_code)
         except (Product.DoesNotExist, Product.MultipleObjectsReturned):
             raise UnknownCommodityCodeError(product_code)
     
