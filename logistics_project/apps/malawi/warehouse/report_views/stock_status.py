@@ -244,17 +244,17 @@ class View(warehouse_view.DistrictOnlyView):
                     # if both amc and eo level set then any status can be set
                     if product_amc and product_eo_level:
                         if current_quantity >= product_amc:
-                            stock_status_color = 'green'
+                            stock_status_color = 'purple'
                         elif current_quantity <= product_eo_level:
-                            stock_status_color = 'red'
+                            stock_status_color = 'orange'
                         else:
-                            stock_status_color = 'blue'
+                            stock_status_color = 'green'
                     elif product_amc and product_eo_level is None:
                         # if only product amc then either above amc or below
                         if current_quantity >= product_amc:
-                            stock_status_color = 'green'
+                            stock_status_color = 'purple'
                         else:
-                            stock_status_color = 'red'
+                            stock_status_color = 'orange'
                     else:
                         continue
 
