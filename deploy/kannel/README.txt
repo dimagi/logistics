@@ -19,3 +19,12 @@ Restart kannel:
 $ sudo /etc/init.d/kannel restart
 
 Send sms!
+
+
+You can check status by running:
+
+```
+wget "localhost:13000/status?password=CHANGEME"
+```
+
+Changing password as necessary.
