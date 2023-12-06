@@ -1,7 +1,7 @@
 from fabric.api import *
 
 
-VIRTUALENV_HOME = '/home/dimagi/.virtualenvs/cstock/bin'
+VIRTUALENV_HOME = '/home/cstock/.virtualenvs/cstock/bin/'
 PIP = f'{VIRTUALENV_HOME}/pip'
 PYTHON = f'{VIRTUALENV_HOME}/python'
 
@@ -10,9 +10,8 @@ def malawi():
     """
     Malawi configuration
     """
-    env.deploy_dir = '/home/dimagi/src'
-    env.hosts = ['dimagi@10.84.168.89']
-    env.code_dir = f'{env.deploy_dir}/logistics'
+    env.hosts = ['cstock@10.10.100.77']
+    env.code_dir = '/home/cstock/www/cstock/code_root'
     env.branch = "main"
 
 

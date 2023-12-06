@@ -3,7 +3,9 @@ Common System Administration Tasks
 
 ## Deploying Code
 
-To deploy code you must first connect to the VPN. Then run:
+Deploying code requires installing fabric3 (`pip install -r requrements/deploy/dev-requirements.txt`).
+
+Then, to deploy you must first connect to the VPN. Then run:
 
 ```
 fab malawi deploy
