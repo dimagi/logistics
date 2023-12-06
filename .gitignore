@@ -1,4 +1,5 @@
 .project
+.spyproject
 .pydevproject
 .idea
 .settings
@@ -14,3 +15,5 @@ logistics_project/localsettings.py
 logistics_project/logistics.log*
 logistics_project/apps/malawi/tests/testscripts/*
 logistics_project/apps/tanzania/tests/testscripts/*
+.spyproject/*
+.spyproject/config

@@ -15,3 +15,5 @@ django-picklefield==0.2.0
 sentry-sdk==0.17.7  # pinned for celery issue https://github.com/getsentry/sentry-python/issues/844
 future
 gunicorn
+folium
+geopy

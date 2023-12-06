@@ -178,3 +178,33 @@ form#login {
     width: 300px; 
     border: none;
 }
+
+dl dt.inline {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+dl dd.inline {
+    display: inline-block;
+    margin: 0px 10px;
+    padding: 2px;
+    vertical-align: middle;
+}
+
+dl dt.over-stock {
+    background: #800080;
+}
+
+dl dt.adequate-stock {
+    background: #008000;
+}
+
+dl dt.under-stock {
+    background: #FFA500;
+}
+
+div.legend-box {
+    margin: 5px
+}

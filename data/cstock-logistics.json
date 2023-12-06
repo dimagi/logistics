@@ -10216,5 +10216,46 @@
       "type": "hf",
       "supplied_by": 4473
     }
-  }
+  },
+  {
+	  "pk": 1,
+    "model": "logistics.productreporttype",
+    "fields": {
+      "id" : 1,
+      "name" : "stock on hand",
+      "code" : "soh"
+    }
+	},
+	{
+    "pk": 2,
+    "model": "logistics.productreporttype",
+    "fields": {
+      "name" : "stock received",
+      "code" : "rec"
+    }
+	},
+	{
+    "pk": 3,
+    "model": "logistics.productreporttype",
+    "fields": {
+      "name" : "stock given",
+      "code" : "give"
+    }
+	},
+	{
+    "pk": 4,
+    "model": "logistics.productreporttype",
+    "fields": {
+      "name" : "emergency stock on hand",
+      "code" : "eo"
+    }
+	},
+	{
+    "pk": 5,
+    "model": "logistics.productreporttype",
+    "fields": {
+      "name" : "loss or adjustment",
+      "code" : "la"
+    }
+	}
 ]

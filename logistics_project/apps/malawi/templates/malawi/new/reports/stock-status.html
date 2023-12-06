@@ -61,4 +61,32 @@
         {% endwith %}
     </div>
 {% endif %}
+
+{% if product_map %}
+<div class="module">
+    <form method="get" class="selector">
+        <label for="map_product" id="map_product">Product: </label> 
+        <select name="map_product" id="map_product">
+            {% for p in products %}
+                <option value="{{ p.sms_code }}" {% if p.pk == selected_map_product.pk %}selected{% endif %}>{{ p.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="hidden" id="_loc" name="place" value="{{ location.code }}" />
+        <input type="submit" value="Go!" />
+    </form>
+    <h2>Current stock status of HSAs</h2>
+    <div class="legend-box">
+        <dl>
+            <dt class="inline under-stock"></dt>
+            <dd class="inline">Under stock</dt>
+            <dt class="inline adequate-stock"></dt>
+            <dd class="inline">Adequate stock</dd>
+            <dt class="inline over-stock"></dt>
+            <dd class="inline">Overstocked</dd>
+        </dl>
+    </div>
+    {{ product_map|safe }}
+</div>
+{% endif %}
+
 {% endblock %}
