@@ -5,7 +5,7 @@ Setting up a development environment
 
 Before getting started you will need to install:
 
-- [Python 3.8](https://www.python.org/downloads/)
+- [Python 3.9](https://www.python.org/downloads/)
 - [Virtualenv](https://virtualenv.pypa.io/en/stable/) and [Virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/)
 - [git](https://git-scm.com/downloads)
 - [MySQL 5.7](https://dev.mysql.com/downloads/mysql/5.7.html)
