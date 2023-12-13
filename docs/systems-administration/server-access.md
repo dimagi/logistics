@@ -40,7 +40,7 @@ For different operating systems, refer to the VPN documentation provided by the 
 Once on the VPN, you can access cstock by running:
 
 ```bash
-ssh user@10.10.100.77
+ssh cstock@10.10.100.77
 ```
 
-Replace `user` with your username, or use the `cstock` user for shared access.
+If you have an individual user account, replace `cstock` with your username.
