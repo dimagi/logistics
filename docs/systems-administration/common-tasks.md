@@ -68,3 +68,56 @@ To restart the SMS gateway you can run:
 ```
 sudo service kannel restart
 ```
+
+## Getting an application shell
+
+Sometimes it can be useful to get an application shell, to run the cStock Python code manually,
+for example, to inspect data models or make once-off changes.
+
+To get an application shell you can enter the virtual environment like this (as the `cstock` user):
+
+```
+workon cstock
+```
+
+This should enter the virtual environment and load you in the right directory.
+From there you can run:
+
+```
+python manage.py shell
+```
+
+To get a Python shell. You can then run code to work with the Django application.
+For example, to see how many registered web users there are, you can run:
+
+```
+>>> from django.contrib.auth.models import User
+>>> User.objects.count()
+551
+```
+
+## Getting a database shell
+
+The easiest way to get a database shell is to first enter the virtual environment as per above:
+
+```
+workon cstock
+```
+
+Then run:
+
+```
+python manage.py dbshell
+```
+
+Then to run the equivalent command in MySQL you could run:
+
+```
+mysql> SELECT count(*) FROM auth_user;
++----------+
+| count(*) |
++----------+
+|      551 |
++----------+
+1 row in set (0.00 sec)
+```
