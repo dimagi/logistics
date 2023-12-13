@@ -6,7 +6,7 @@ There is a web component as well as an SMS component.
 
 ## Hosting
 
-cStock is hosted by the Ministry of Health.
+cStock is hosted by the Ministry of Health in a local data center.
 
 ## Code
 
@@ -19,6 +19,13 @@ but it would be necessary to add new features or fix bugs.
 ## Key Services
 
 cStock consists of the following key services:
+
+![cStock Architecture](/images/cstock-architecture.png)
+
+In the above, green boxes run custom cStock code, blue boxes are 3rd-party applications running
+on the cStock server, and grey boxes are external services.
+
+Here is a high-level description of each cStock service:
 
 | Service                 | Description                                                                                                                     | Technology        |
 |-------------------------|---------------------------------------------------------------------------------------------------------------------------------|-------------------|
