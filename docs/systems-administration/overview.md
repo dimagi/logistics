@@ -29,4 +29,3 @@ cStock consists of the following key services:
 | Web Server              | The web server sits in front of the web application, providing outside internet access. It also hosts static files like images.  | Nginx             |
 | SMS Gateway             | The SMS Gateway connects to third-party SMS providers (TNM and Airtel) and routes the messages to the SMS application process.   | Kannel            |
 
-
