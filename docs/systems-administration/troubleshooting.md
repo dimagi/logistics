@@ -30,9 +30,7 @@ This error indicates that a background job that builds the cStock reports every 
 the previous one has not completed.
 
 1. If it is the first time you have seen the error in a while, check if it is the first of the month. If it is, you can likely ignore it. The warehouse job takes longer than usual on the first and this is expected.
-2. If it is not the first, or you see the error multiple times in a row you should check the warehouse runner status (see the deploy section above).
-3. By looking in the logs, if the job is still running you can ignore it.
-4. If the job has died, you should manually go to the admin page and set the status of the most recent job to "complete". Unintuitively you should also set "has_error" to False, despite the fact that the job likely errored. This is due to a legacy issue with how that field is used.
+2. If it is not the first, or you see the error multiple times in a row you should check and update the report jobs (see the reporting section below).
 
 ## SMS issues
 
@@ -90,3 +88,46 @@ The most common reason that SMS fails is due to VPN issues between cStock and TN
 These need to be resolved by the cStock hosting team and TNM networking team.
 
 If you need to make changes to the SMS gateway configrations, you can edit the Kannel configuration file.
+
+## Report Issues
+
+cStock reports are updated by a background task that runs every 12 hours.
+If reports are failing to update, the problem is usually related to this task.
+
+### Viewing report task status
+
+The easiest way to see the status of the report task is in the Django admin area.
+
+After logging into cStock, visit this page: [https://cstock.health.gov.mw/admin/warehouse/reportrun/](https://cstock.health.gov.mw/admin/warehouse/reportrun/)
+to see the recent report update jobs.
+
+When things are working well, you will see a green check under the "complete" column of every report update,
+and a red "x" under the "has error" column.
+If you see any recent reports with errors, there is likely a problem with the job.
+
+### Checking the logs for a job
+
+To see the output from a job you can check the celery logs by running:
+
+```
+tail -f -n 200 /home/cstock/www/cstock/log/celery.error.log
+```
+
+If the job is still running you'll see something like this:
+
+```
+[2023-09-25 09:20:55,702: WARNING/PoolWorker-2] processing health facility Ng'onga (6538) (493/641)
+[2023-09-25 09:21:48,137: WARNING/PoolWorker-2] processing health facility Chang'ambika (6673) (494/641)
+[2023-09-25 09:22:34,373: WARNING/PoolWorker-2] processing health facility Chapananga (6674) (495/641)
+[2023-09-25 09:23:20,702: WARNING/PoolWorker-2] processing health facility Chkwawa DHO (6675) (496/641)
+[2023-09-25 09:24:06,826: WARNING/PoolWorker-2] processing health facility Chipwaila (6676) (497/641)
+[2023-09-25 09:24:53,339: WARNING/PoolWorker-2] processing health facility Dolo (6677) (498/641)
+```
+
+If the numbers at the end are still counting up then the job has not finished.
+You should continue to let it run, and the reports should eventually be updated.
+
+If the numbers are no longer counting up, or you don't see anything like that in the logs,
+you should manually go to the admin page and set the status of the most recent job to "complete".
+Unintuitively, you should also set "has_error" to `False`, despite the fact that the job likely errored.
+This is due to a legacy issue with how that field is used.
