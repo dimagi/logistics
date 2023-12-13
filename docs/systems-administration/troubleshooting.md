@@ -88,3 +88,5 @@ If it says `re-connecting` or anything else, it is not working.
 
 The most common reason that SMS fails is due to VPN issues between cStock and TNM.
 These need to be resolved by the cStock hosting team and TNM networking team.
+
+If you need to make changes to the SMS gateway configrations, you can edit the Kannel configuration file.
