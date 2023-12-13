@@ -20,12 +20,99 @@ but it would be necessary to add new features or fix bugs.
 
 cStock consists of the following key services:
 
-| Service                 | Description                                                                                                                      | Technology        |
-|-------------------------|----------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| Web Application Process | The web application is the business logic that powers the cStock web application.                                                | Django            |
-| SMS Application Process | A process that runs alongside the web application to manage SMS workflows                                                        | Django + RapidSMS |
-| Background Task Process | A process that runs alongside the web application to manage background tasks and scheduled SMS messages                          | Django + Celery   |
-| Database                | The database houses all persistent data.                                                                                         | MySQL             |
-| Web Server              | The web server sits in front of the web application, providing outside internet access. It also hosts static files like images.  | Nginx             |
-| SMS Gateway             | The SMS Gateway connects to third-party SMS providers (TNM and Airtel) and routes the messages to the SMS application process.   | Kannel            |
+| Service                 | Description                                                                                                                     | Technology        |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| Web Application Process | The web application is the business logic that powers the cStock web application.                                               | Django            |
+| SMS Application Process | A process that runs alongside the web application to manage SMS workflows                                                       | Django + RapidSMS |
+| Background Task Process | A process that runs alongside the web application to manage background tasks and scheduled SMS messages                         | Django + Celery   |
+| Database                | The database houses all persistent data.                                                                                        | MySQL             |
+| Cache / Message Broker  | The cache is used to improve the performance of the site and pass messages between other processes.                             | Redis             |
+| Web Server              | The web server sits in front of the web application, providing outside internet access. It also hosts static files like images. | Nginx             |
+| SMS Gateway             | The SMS Gateway connects to third-party SMS providers (TNM and Airtel) and routes the messages to the SMS application process.  | Kannel            |
 
+In general, all of these need to be running and functioning properly for cStock to work.
+
+### Web Application Process
+
+The web application is the business logic that powers the cStock web application.
+Here is the key information for it:
+
+| Item                   | Value                                                                         | 
+|------------------------|-------------------------------------------------------------------------------|
+| Process                | Django (Gunicorn)                                                             | 
+| Log files              | `www/cstock/log/gunicorn.command.log` and `www/cstock/log/gunicorn.error.log` |
+| View status            | `sudo supervisorctl status` (gunicorn process)                                |
+| Stop / Start / Restart | `sudo supervisorctl stop gunicorn` (or `start`, or `restart`)                 |
+
+### SMS Application Process
+
+The SMS web application runs alongside the web application to manage SMS workflows.
+Here is the key information for it:
+
+| Item                   | Value                                                         | 
+|------------------------|---------------------------------------------------------------|
+| Process                | Django (RapidSMS)                                             | 
+| Log files              | `www/cstock/log/rapidsms.log`                                 |
+| View status            | `sudo supervisorctl status` (rapidsms-router process)         |
+| Stop / Start / Restart | `sudo supervisorctl stop rapidsms-router` (or `start`, or `restart`)         |
+
+### Background Task Process
+
+The background task process runs alongside the web application to manage background tasks and scheduled SMS messages.
+Here is the key information for it:
+
+| Item                   | Value                                                       | 
+|------------------------|-------------------------------------------------------------|
+| Process                | Django (Celery)                                             | 
+| Log files              | `www/cstock/log/celery.error.log`                           |
+| View status            | `sudo supervisorctl status` (celery process)                |
+| Stop / Start / Restart | `sudo supervisorctl stop celery` (or `start`, or `restart`) |
+
+### Database
+
+The database houses all persistent data for the application.
+Here is the key information for it:
+
+| Item                   | Value                                                | 
+|------------------------|------------------------------------------------------|
+| Process                | MySQL                                                | 
+| View status            | `sudo service mysql status`                          |
+| Stop / Start / Restart | `sudo service mysql stop` (or `start`, or `restart`) |
+
+### Cache / Message Broker
+
+The cache is used to improve the performance of the site and pass messages between other processes.
+Here is the key information for it:
+
+| Item                   | Value                                                | 
+|------------------------|------------------------------------------------------|
+| Process                | Redis                                                | 
+| View status            | `sudo service redis status`                          |
+| Stop / Start / Restart | `sudo service redis stop` (or `start`, or `restart`) |
+
+### Web Server
+
+The web server sits in front of the web application, providing outside internet access. It also hosts static files like images.
+Here is the key information for it:
+
+| Item                   | Value                                                | 
+|------------------------|------------------------------------------------------|
+| Process                | Nginx                                                | 
+| Log files              | `/var/log/nginx/`                                    | 
+| Configuration file     | `/etc/nginx/sites-available/cstock`                  | 
+| View status            | `sudo service nginx status`                          |
+| Stop / Start / Restart | `sudo service nginx stop` (or `start`, or `restart`) |
+
+
+### SMS Gateway
+
+The SMS Gateway connects to third-party SMS providers (TNM and Airtel) and routes the messages to the SMS application process.
+Here is the key information for it:
+
+| Item                   | Value                                                 | 
+|------------------------|-------------------------------------------------------|
+| Process                | Kannel                                                | 
+| Log files              | `/var/log/kannel/`                                    | 
+| Configuration file     | `/etc/kannel/kannel.conf`                             | 
+| View status            | `sudo service kannel status`                          |
+| Stop / Start / Restart | `sudo service kannel stop` (or `start`, or `restart`) |
