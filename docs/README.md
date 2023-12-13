@@ -25,6 +25,20 @@ cd _builds/html
 python -m http.server
 ```
 
+You can also automatically build the docs with `sphinx-autobuild`:
+
+Install it:
+
+```
+pip install sphinx-autobuild
+```
+
+Then run:
+
+```
+sphinx-autobuild . _build/html/ --port 8001
+```
+
 ## Hosting the docs
 
 Docs are hosted on readthedocs and managed by Dimagi.
