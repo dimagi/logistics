@@ -16,6 +16,8 @@ It is a Python / Django application, based on RapidSMS.
 In general system administrators should not need to modify cStock code,
 but it would be necessary to add new features or fix bugs.
 
+To get up and running with the cStock code, see [the development setup documentation](/dev-setup/).
+
 ## Key Services
 
 cStock consists of the following key services:
@@ -44,36 +46,39 @@ In general, all of these need to be running and functioning properly for cStock 
 The web application is the business logic that powers the cStock web application.
 Here is the key information for it:
 
-| Item                   | Value                                                                                                   | 
-|------------------------|---------------------------------------------------------------------------------------------------------|
-| Process                | Django (Gunicorn)                                                                                       | 
-| Log files              | `/home/cstock/www/cstock/log/gunicorn.command.log` and `/home/cstock/www/cstock/log/gunicorn.error.log` |
-| View status            | `sudo supervisorctl status` (gunicorn process)                                                          |
-| Stop / Start / Restart | `sudo supervisorctl stop gunicorn` (or `start`, or `restart`)                                           |
+| Item                    | Value                                                                                                   | 
+|-------------------------|---------------------------------------------------------------------------------------------------------|
+| Process                 | Django (Gunicorn)                                                                                       | 
+| Log files               | `/home/cstock/www/cstock/log/gunicorn.command.log` and `/home/cstock/www/cstock/log/gunicorn.error.log` |
+| Configuration file      | `/home/cstock/www/cstock/code_root/logistics_project/localsettings.py`                                  |
+| View status             | `sudo supervisorctl status` (gunicorn process)                                                          |
+| Stop / Start / Restart  | `sudo supervisorctl stop gunicorn` (or `start`, or `restart`)                                           |
 
 ### SMS Application Process
 
 The SMS web application runs alongside the web application to manage SMS workflows.
 Here is the key information for it:
 
-| Item                   | Value                                                                | 
-|------------------------|----------------------------------------------------------------------|
-| Process                | Django (RapidSMS)                                                    | 
-| Log files              | `/home/cstock/www/cstock/log/rapidsms.log`                           |
-| View status            | `sudo supervisorctl status` (rapidsms-router process)                |
-| Stop / Start / Restart | `sudo supervisorctl stop rapidsms-router` (or `start`, or `restart`) |
+| Item                   | Value                                                                    | 
+|------------------------|--------------------------------------------------------------------------|
+| Process                | Django (RapidSMS)                                                        | 
+| Log files              | `/home/cstock/www/cstock/log/rapidsms.log`                               |
+| Configuration file      | `/home/cstock/www/cstock/code_root/logistics_project/localsettings.py`  |
+| View status            | `sudo supervisorctl status` (rapidsms-router process)                    |
+| Stop / Start / Restart | `sudo supervisorctl stop rapidsms-router` (or `start`, or `restart`)     |
 
 ### Background Task Process
 
 The background task process runs alongside the web application to manage background tasks and scheduled SMS messages.
 Here is the key information for it:
 
-| Item                   | Value                                                       | 
-|------------------------|-------------------------------------------------------------|
-| Process                | Django (Celery)                                             | 
-| Log files              | `/home/cstock/www/cstock/log/celery.error.log`              |
-| View status            | `sudo supervisorctl status` (celery process)                |
-| Stop / Start / Restart | `sudo supervisorctl stop celery` (or `start`, or `restart`) |
+| Item                   | Value                                                                   | 
+|------------------------|-------------------------------------------------------------------------|
+| Process                | Django (Celery)                                                         | 
+| Log files              | `/home/cstock/www/cstock/log/celery.error.log`                          |
+| Configuration file      | `/home/cstock/www/cstock/code_root/logistics_project/localsettings.py` |
+| View status            | `sudo supervisorctl status` (celery process)                            |
+| Stop / Start / Restart | `sudo supervisorctl stop celery` (or `start`, or `restart`)             |
 
 ### Database
 
