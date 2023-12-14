@@ -45,29 +45,23 @@ You can restart individual processes with:
 sudo supervisorctl restart <process-name>
 ```
 
-## Restarting the web server
+## Restarting processes
 
-To restart the web server you can run:
+Sometimes other processes (te web server, database, etc.) need to be restarted.
+To manage those you can find the information in the [overview page](./overview).
 
-```
-sudo service nginx restart
-```
+## Making configuration changes
 
-## Restarting the database
+If you need to make any configuration changes, for example, updating passwords or IP addresses,
+those happen in the relevant configuration files for whichever service you need to update.
 
-To restart the database you can run:
+To find the service's configuration file, look it up on the [overview page](./overview).
 
-```
-sudo service mysql restart
-```
+For example, to update the credentials for the TNM or Airtel SMS gateway, you would modify
+the SMS gateway (Kannel) configuration file at `/etc/kannel/kannel.conf`.
 
-## Restart the SMS gateway
-
-To restart the SMS gateway you can run:
-
-```
-sudo service kannel restart
-```
+Typically, whenever you make changes to a service, you also need to restart the service,
+as per the instructions above.
 
 ## Getting an application shell
 
