@@ -37,10 +37,12 @@ For different operating systems, refer to the VPN documentation provided by the 
 
 ## Logging in to cstock
 
-Once on the VPN, you can access cstock by running:
+Once on the VPN, you can access cstock using the SSH command by running:
 
 ```bash
 ssh cstock@10.10.100.77
 ```
 
 If you have an individual user account, replace `cstock` with your username.
+
+For more information on using SSH, see [this page](https://www.ucl.ac.uk/isd/what-ssh-and-how-do-i-use-it).
