@@ -45,9 +45,9 @@ You can restart individual processes with:
 sudo supervisorctl restart <process-name>
 ```
 
-## Restarting processes
+## Restarting other processes
 
-Sometimes other processes (te web server, database, etc.) need to be restarted.
+Sometimes other processes (the web server, database, etc.) need to be restarted.
 To manage those you can find the information in the [overview page](./overview).
 
 ## Making configuration changes
