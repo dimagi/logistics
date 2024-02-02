@@ -17,12 +17,12 @@ def check_max_levels_malawi(stock_report):
         "am": 1000,
         "cl": 300,
         "cf": 1000,
-        "cm": 1000,
+        "cm": 5000,
         "co": 2000,
         "cw": 1000,
         "de": 300,
         "dm": 300,
-        "gl": 500,
+        "gl": 1000,
         "la": 2000,
         "lb": 2000,
         "lc": 300,
@@ -30,7 +30,7 @@ def check_max_levels_malawi(stock_report):
         "mt": 1000,
         "or": 500,
         "pa": 2000,
-        "pb": 1000,
+        "pb": 2000,
         "po": 500,
         "ra": 100,
         "ss": 100,
@@ -51,6 +51,7 @@ def check_max_levels_malawi(stock_report):
         "sc": 10000,
         "sd": 10000,
         "sf": 1000,
+        "syna": 500,
     }
     MAX_REPORT_LEVEL_FACTOR = 6
 
