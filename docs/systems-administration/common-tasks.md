@@ -7,7 +7,7 @@ All of these tasks require [server access](./server-access.md).
 
 ## Deploying Updated Code
 
-Deploying code requires installing fabric3:
+Deploying code requires installing fabric:
 
 ```
 pip install -r requrements/deploy/dev-requirements.txt
@@ -22,8 +22,10 @@ git clone https://github.com/dimagi/logistics.git
 Then, to deploy you must first connect to the VPN. Then run the following command in the repository root:
 
 ```
-fab malawi deploy
+fab -H cstock@10.10.100.77 deploy --prompt-for-sudo-password
 ```
+
+You'll need to enter the password for the cstock user on the server.
 
 This command should be run on *your own machine*.
 For the remaining sections, you must run the commands *on the server*.

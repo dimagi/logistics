@@ -1,44 +1,65 @@
-from fabric.api import *
+import datetime
+import posixpath
+
+from fabric import task
+
+"""
+To use this file, first `pip install fabric` then run:
+
+fab -H cstock@10.10.100.77 deploy --prompt-for-sudo-password
+"""
+
+CODE_ROOT = "/home/cstock/www/cstock/code_root/"
+VIRTUALENV_ROOT = '/home/cstock/.virtualenvs/cstock/'
+BRANCH = "main"
 
 
-VIRTUALENV_HOME = '/home/cstock/.virtualenvs/cstock/bin/'
-PIP = f'{VIRTUALENV_HOME}/pip'
-PYTHON = f'{VIRTUALENV_HOME}/python'
-
-
-def malawi():
+@task
+def deploy(c):
     """
-    Malawi configuration
+    Deploy code to remote host by checking out the latest via git.
     """
-    env.hosts = ['cstock@10.10.100.77']
-    env.code_dir = '/home/cstock/www/cstock/code_root'
-    env.branch = "main"
+    start = datetime.datetime.now()
+    update_code(c)
+    update_virtualenv(c)
+    django_stuff(c)
+    services_restart(c)
+    print(f"deploy completed in {datetime.datetime.now() - start}")
 
 
-def update_code():
-    run('git remote prune origin')
-    run('git fetch')
-    run(f'git checkout {env.branch}')
-    run(f'git pull origin {env.branch}')
-    run("find . -name '*.pyc' -delete")  # cleanup pyc files
+def update_code(c):
+    print("updating code...")
+    with c.cd(CODE_ROOT):
+        c.run("git fetch")
+        c.run(f"git checkout {BRANCH}")
+        c.run(f"git reset --hard origin/{BRANCH}")
+        c.run("find . -name '*.pyc' -delete")
 
 
-def update_requirements():
-    sudo(f'{PIP} install -r {env.code_dir}/requirements.txt')
-
-
-def django_stuff():
-    run(f'{PYTHON} manage.py migrate --noinput')
-    run(f'{PYTHON} manage.py collectstatic --noinput')
-
-
-def deploy():
+def update_virtualenv(c):
     """
-    Deploy latest changes
+    Update external dependencies on remote host assumes you've done a code update.
     """
-    sudo("supervisorctl stop all")
-    with cd(env.code_dir):
-        update_code()
-        update_requirements()
-        django_stuff()
-    sudo("supervisorctl start all")
+    print("updating requirements...")
+    files = (
+        posixpath.join(CODE_ROOT, "requirements.txt"),
+    )
+    with c.prefix("source {}/bin/activate".format(VIRTUALENV_ROOT)):
+        for req_file in files:
+            c.run("pip install -r {}".format(req_file))
+
+
+def django_stuff(c):
+    """
+    staticfiles, migrate, etc.
+    """
+    print("Running migrations and building staticfiles...")
+    with c.cd(CODE_ROOT):
+        c.run("{}/bin/python manage.py migrate".format(VIRTUALENV_ROOT))
+        c.run("{}/bin/python manage.py collectstatic --noinput".format(VIRTUALENV_ROOT))
+
+
+def services_restart(c):
+    print("Restarting services...")
+    c.sudo("sudo supervisorctl stop all")
+    c.sudo("sudo supervisorctl start all")
