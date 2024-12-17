@@ -92,7 +92,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
         the entire warehouse process since reporting on zone is not a
         requirement.
         """
-        print("Malawi warehouse generate!")
+        print("Cstock warehouse generate starting at %s." % str(datetime.now()))
 
         start = run_record.start
         end = run_record.end
@@ -138,6 +138,7 @@ class MalawiWarehouseRunner(WarehouseRunner):
             update_alerts(hsas)
 
         update_historical_data()
+        print("Cstock warehouse completed at %s" % str(datetime.now()))
 
     def aggregate_data(self, start, end, run_record, base_level):
         products = get_products(base_level)
