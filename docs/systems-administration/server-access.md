@@ -13,15 +13,25 @@ Before you will be able to login to the cStock server you will need two accounts
 
 If you don't have these, ask a system administrator to provide you access.
 
-
 ## VPN set up
 
 To access the VPN you will need to set up your VPN account and two-factor application.
-You may need to install an older version of Sophos Authenticator to get the two-factor codes to work.
 
-Once you've gotten set up, download the provided OpenVPN config file and save it locally.
+### Setting up two-factor authentication
+
+You will be given a username and password from the system administrator.
+To set up your authenticator app, first download an old version of Sophos authenticator.
+Version 3.4 ([available for Android here](https://sophos-gmbh-authenticator.en.aptoide.com/app))
+has been tested and confirmed to work.
+
+Next, navigate to [https://41.87.6.124:445](https://41.87.6.124:445) to access the Sophos user portal
+and supply the username and password you were given.
+Once logged in, you will be presented with a QR code to scan to gain access to the portal for your account.
+To scan the code, open the authenticator and scan the QR code. At the top left, click proceed to login to the portal.
 
 ## Logging in to the VPN
+
+Once you've gotten set up, download the provided OpenVPN config file and save it locally.
 
 On Ubuntu, login to the VPN by running:
 
