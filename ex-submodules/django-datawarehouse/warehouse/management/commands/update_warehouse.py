@@ -5,7 +5,7 @@ from logistics_project.utils.parsing import string_to_datetime
 from warehouse import runner
 
 class Command(BaseCommand):
-    
+
     help = "Run the data warehouse"
     args = "<start_date> <end_date>"
     label = ""
@@ -18,8 +18,9 @@ class Command(BaseCommand):
             help='Cleanup the tables before starting the warehouse',
             default=False,
         )
+
     def handle(self, *args, **options):
         start_date = None if len(args) < 1 else string_to_datetime(args[0])
-        end_date = None if len(args) < 2 else string_to_datetime(args[1]) 
+        end_date = None if len(args) < 2 else string_to_datetime(args[1])
         cleanup = options["cleanup"]
-        return runner.update_warehouse(start_date, end_date, cleanup) 
+        return runner.update_warehouse(start_date, end_date, cleanup)
