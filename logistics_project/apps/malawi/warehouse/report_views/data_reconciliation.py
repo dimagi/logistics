@@ -1,7 +1,10 @@
+from datetime import datetime
+import sentry_sdk
 from logistics.models import Product
 from logistics.reports import calc_percentage, format_percentage
 from logistics_project.apps.malawi.warehouse import warehouse_view
 from logistics_project.apps.malawi.warehouse.models import CalculatedConsumption
+from logistics_project.utils.dates import months_between
 
 CONDITION_DIARRHEA = "Diarrhea"
 CONDITION_UNCOMPLICATED_MALARIA_YOUNG = "Uncomplicated Malaria (5 - 35 months)"
@@ -77,14 +80,18 @@ def _build_condition_row(condition, supply_point, month):
             return "MRDTs"
         else:
             return product.name
-
     product = _get_product_for_condition(condition)
-    consumption = CalculatedConsumption.objects.get(
-        supply_point=supply_point,
-        product=product,
-        date=month,
-    )
-    cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
+    try:
+        consumption = CalculatedConsumption.objects.get(
+            supply_point=supply_point,
+            product=product,
+            date=month,
+        )
+    except CalculatedConsumption.DoesNotExist as e:
+        sentry_sdk.capture_exception(e)
+        cases, consumption_display = 0, 0
+    else:
+        cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
         _get_product_display_name(product),
@@ -124,14 +131,13 @@ class View(warehouse_view.MalawiWarehouseView):
     def custom_context(self, request):
         # get consumption data
         reporting_sp = self.get_reporting_supply_point(request)
-        month = request.datespan.enddate
         main_table_headers = [
             'Condition',
             'Product',
             'Products Dispensed',
             '# Cases',
         ]
-        main_table_rows = self._get_main_table_rows(reporting_sp, month)
+        main_table_rows = self._get_main_table_rows(reporting_sp, request.datespan)
         malaria_total_row = _get_total_malaria_row(main_table_rows)
         pneumonia_total_row = _get_total_pneumonia_row(main_table_rows)
         main_table_rows.insert(3, malaria_total_row)
@@ -156,7 +162,6 @@ class View(warehouse_view.MalawiWarehouseView):
         total_uncomplicated = uncomplicated_malaria_young_cases + uncomplicated_malaria_old_cases
         total_malaria = total_uncomplicated + severe_malaria_cases
         return {
-            "show_single_date": True,
             "main_table": main_table,
             'uncomplicated_malaria_breakdown_table': {
                 "is_datatable": False,
@@ -179,8 +184,20 @@ class View(warehouse_view.MalawiWarehouseView):
             }
         }
 
-    def _get_main_table_rows(self, supply_point, month):
-        return [
-            _build_condition_row(condition, supply_point, month)
-            for condition in CONDITIONS
-        ]
+    def _get_main_table_rows(self, supply_point, datespan):
+        rows = []
+        for condition in CONDITIONS:
+            row = None
+            for year, month in months_between(datespan.startdate, datespan.enddate):
+                month_datetime = datetime(year, month, 1)
+                current_row = _build_condition_row(condition, supply_point, month_datetime)
+                print(current_row)
+                if row is None:
+                    row = current_row
+                else:
+                    row[2] += current_row[2]
+                    row[3] += current_row[3]
+
+            rows.append(row)
+
+        return rows
