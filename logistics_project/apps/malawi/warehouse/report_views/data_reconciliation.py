@@ -1,3 +1,4 @@
+import sentry_sdk
 from logistics.models import Product
 from logistics.reports import calc_percentage, format_percentage
 from logistics_project.apps.malawi.warehouse import warehouse_view
@@ -77,14 +78,18 @@ def _build_condition_row(condition, supply_point, month):
             return "MRDTs"
         else:
             return product.name
-
     product = _get_product_for_condition(condition)
-    consumption = CalculatedConsumption.objects.get(
-        supply_point=supply_point,
-        product=product,
-        date=month,
-    )
-    cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
+    try:
+        consumption = CalculatedConsumption.objects.get(
+            supply_point=supply_point,
+            product=product,
+            date=month,
+        )
+    except CalculatedConsumption.DoesNotExist as e:
+        sentry_sdk.capture_exception(e)
+        cases, consumption_display = 0, 0
+    else:
+        cases, consumption_display = _get_cases_for_consumption_amount(condition, consumption.calculated_consumption)
     return [
         condition,
         _get_product_display_name(product),
