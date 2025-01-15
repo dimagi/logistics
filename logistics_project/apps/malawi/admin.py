@@ -26,8 +26,8 @@ class ReportingRateAdmin(admin.ModelAdmin):
 
 class ProductAvailabilityDataAdmin(admin.ModelAdmin):
     model = ProductAvailabilityData
-    list_display = ('supply_point', 'product', 'date', 'total', 'managed', 
-                    'with_stock', 'under_stock', 'over_stock', 'without_stock', 
+    list_display = ('supply_point', 'product', 'date', 'total', 'managed',
+                    'with_stock', 'under_stock', 'over_stock', 'without_stock',
                     'without_data')
     list_filter = ('supply_point__type', 'product', 'date', 'supply_point')
 
@@ -51,10 +51,11 @@ class CalculatedConsumptionAdmin(admin.ModelAdmin):
     # list_display = ('supply_point', 'date', 'product', 'calculated_consumption',
     #                 'time_stocked_out', 'time_with_data', 'time_needing_data')
     list_filter = ('supply_point__type', 'date', 'product')
+    search_fields = ['supply_point__name']
 
 class CurrentConsumptionAdmin(admin.ModelAdmin):
     model = CurrentConsumption
-    list_display = ('supply_point', 'product', 'total', 
+    list_display = ('supply_point', 'product', 'total',
                     'current_daily_consumption', 'stock_on_hand')
     list_filter = ('supply_point__type', 'product')
 
