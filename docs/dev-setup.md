@@ -19,7 +19,7 @@ git clone https://github.com/dimagi/logistics.git
 ## Setup the Python virtual environment
 
 ```
-mkvirtualenv cstock -p $(which python3.8)
+mkvirtualenv cstock -p $(which python3.9)
 ```
 
 Then in the code root directory, run:
@@ -71,10 +71,10 @@ Run the following command and fill in the prompts:
 
 ## Run the server
 
-Start the server with: 
+Start the server with:
 
 ```
-./manage.py createsuperuser
+./manage.py runserver
 ```
 
 You should be able to login to the dashboard with the user you just created.
@@ -89,6 +89,23 @@ Celery is required for scheduled SMS reminders as well as for background jobs th
 ./manage.py runrouter
 celery -A logistics_project worker -l info
 ```
+
+## (Optional) Populate report tables
+
+Some reports will not work until the data warehouse is populated.
+You can do this by running the following command:
+
+```
+./manage.py update_warehouse
+```
+
+If you get an error running this command, you may also need to add a message object to the system,
+which can be done from the "message tester" tab.
+Note: you must be running the SMS router for this to work.
+
+You can make this run faster by temporarily changing the `HSA_WAREHOUSE_START_DATE` and `FACILITY_WAREHOUSE_START_DATE`
+in `logistics_project/apps/malawi/warehouse/config.py` to a recent date.
+Do not commit these changes to source control!
 
 ## Testing
 
