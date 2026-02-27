@@ -7,10 +7,20 @@ from warehouse import runner
 class Command(BaseCommand):
 
     help = "Run the data warehouse"
-    args = "<start_date> <end_date>"
-    label = ""
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            '--start-date',
+            dest='start_date',
+            help='Start date for the warehouse run',
+            default=None,
+        )
+        parser.add_argument(
+            '--end-date',
+            dest='end_date',
+            help='End date for the warehouse run',
+            default=None,
+        )
         parser.add_argument(
             '--cleanup',
             action='store_true',
@@ -20,7 +30,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        start_date = None if len(args) < 1 else string_to_datetime(args[0])
-        end_date = None if len(args) < 2 else string_to_datetime(args[1])
+        start_date = string_to_datetime(options["start_date"]) if options["start_date"] else None
+        end_date = string_to_datetime(options["end_date"]) if options["end_date"] else None
         cleanup = options["cleanup"]
         return runner.update_warehouse(start_date, end_date, cleanup)
