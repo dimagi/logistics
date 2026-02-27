@@ -1,12 +1,14 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 from builtins import object
-from datetime import datetime
+from datetime import datetime, timedelta
 from logistics_project.utils.modules import to_function
 from django.conf import settings
 from warehouse.models import ReportRun
 from django.db import transaction
 from django.db.utils import DatabaseError
+
+STALE_RUN_TIMEOUT_HOURS = 72
 
 
 class WarehouseRunner(object):
@@ -71,6 +73,14 @@ def update_warehouse(start_date=None, end_date=None, cleanup=False):
     if cleanup:
         runner.cleanup(start_date, end_date)
     
+    # Mark any runs that have been "in progress" for too long as failed,
+    # since they were likely killed mid-execution and will block all future runs.
+    stale_threshold = datetime.utcnow() - timedelta(hours=STALE_RUN_TIMEOUT_HOURS)
+    stale_runs = ReportRun.objects.filter(complete=False, start_run__lt=stale_threshold)
+    if stale_runs.exists():
+        print("Marking %s stale run(s) as failed" % stale_runs.count())
+        stale_runs.update(complete=True, has_error=True, end_run=datetime.utcnow())
+
     running = ReportRun.objects.filter(complete=False)
     if running.count() > 0:
         raise Exception("Warehouse already running, will do nothing...")
